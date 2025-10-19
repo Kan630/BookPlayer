@@ -1,52 +1,19 @@
 package com.driot.bookplayer.activities;
 
-import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
-import android.content.Context;
-import android.content.Intent;
-import android.content.res.Resources;
-import android.content.res.TypedArray;
-import android.graphics.Color;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.text.Html;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
-import android.widget.Spinner;
-import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.LocaleHelper;
-import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.SettingSwitchRow;
+import com.driot.bookplayer.views.SettingsSectionView;
 
 
-import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
-import static com.driot.bookplayer.global.Option.DEFAULT_TIME_BEFORE_SLEEP;
-import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
-import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
-import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
-import static com.driot.bookplayer.helpers.StorageHelper.isExternalSDCardAvailable;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.StyleRes;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -57,63 +24,9 @@ import java.util.List;
  */
 public class SettingsActivity extends LoggingActivity {
 
-    public static final int MINIMUM_FORWARD_SECONDS = 1;
-    public static final int MAXIMUM_FORWARD_SECONDS = 300;
-
-    public static final int MINIMUM_TIME_BEFORE_SLEEP = 1;
-    public static final int MAXIMUM_TIME_BEFORE_SLEEP = 60*24;
-
-    EditText et_timeBeforeSleep;
-    EditText et_ForwardSeconds;
-    CheckBox chk_MailMethod;
-    CheckBox chk_beep_chapter, chk_beep_bookend, chk_beep_autostop;
-    CheckBox chk_delete_source_file;
-    CheckBox chk_visualizer_on;
-    TextView tx_Visualizer_on;
-    ImageButton btn_Color_01, btn_Color_02, btn_Color_03, btn_Color_04, btn_Color_05, btn_Color_06;
-    ImageButton btn_Color_07, btn_Color_08, btn_Color_09, btn_Color_10, btn_Color_11, btn_Color_12;
-    ImageButton btn_Color_13, btn_Color_14, btn_Color_15, btn_Color_16, btn_Color_17, btn_Color_18;
-    Object[][] themesAndColors;
-    CheckBox chk_rewind_after_pause;
-    CheckBox chk_start_next_track_at_zero;
-    CheckBox chk_stop_audio_if_user_closes_app;
-    CheckBox chk_auto_play_on_main_player;
-    CheckBox chk_copy_file;
-    CheckBox chk_click_visualizer_playpause;
-    CheckBox chk_tech_log_file;
-    CheckBox chk_open_with;
-    CheckBox chk_open_with_all;
-    CheckBox chk_split_m4b;
-    CheckBox chk_use_sd_card;
-    CheckBox chk_create_cover;
-    Spinner appLanguageSpinner;
-    View advancedOptionsLayout;
-    Button btnShowAdvanced;
     ScrollView scrollView;
-    private Button btnNightMode;
-
-    private static class FontChoice {
-        final String key;   // ex: "sans-serif"
-        final String label; // ex: "Sans-serif"
-        FontChoice(String key, String label) { this.key = key; this.label = label; }
-    }
-    private List<FontChoice> fontChoices;
-
-
-    private PermissionRequest mPermissionRequest;
-
-    private boolean areAdvancedOptionsVisible = false;
-
-    LinearLayout ll_visualizer_on, ll_visualizer_playpause, ll_copy_file, ll_delete_source_file;
-    LinearLayout ll_beep_chapter, ll_beep_bookend, ll_beep_autostop;
-    LinearLayout ll_rewind_after_pause, ll_start_next_track_at_zero, ll_stop_audio_if_user_closes_app, ll_auto_play_on_main_player;
-    LinearLayout ll_tech_log_file, ll_mail_method_default;
-    LinearLayout ll_open_with, ll_open_with_all, ll_split_m4b, ll_use_sd_card;
-    LinearLayout ll_container_sd_card, ll_create_cover;
-
-
-    private boolean isLibrivoxExpanded = false;
-
+    private SectionHost currentlyExpanded = null;
+    private boolean headerTapLocked = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,43 +35,6 @@ public class SettingsActivity extends LoggingActivity {
         InsetHelper.apply(this);
 
         scrollView = findViewById(R.id.scrollView);
-        /*
-        InsetHelper.applyEdgeToEdge(
-                this,
-                scrollView,   // top container (adds status bar height to top padding)
-                scrollView,   // bottom container (adds max(nav, IME) to bottom padding)
-                scrollView    // content sides (adds left/right nav/gesture insets)
-        );
-         */
-
-        advancedOptionsLayout = findViewById(R.id.layout_advanced_options);
-        et_timeBeforeSleep = findViewById(R.id.etTimeBeforeSleep);
-        et_ForwardSeconds = findViewById(R.id.etForwardSeconds);
-        chk_create_cover = findViewById(R.id.chk_create_cover);
-        ll_create_cover = findViewById(R.id.ll_create_cover);
-        chk_visualizer_on = findViewById(R.id.chk_visualizer_on);
-        ll_visualizer_on = findViewById(R.id.ll_visualizer_on);
-        tx_Visualizer_on = findViewById(R.id.tx_Visualizer_on);
-        chk_click_visualizer_playpause = findViewById(R.id.chk_click_visualizer_playpause);
-        ll_visualizer_playpause = findViewById(R.id.ll_visualizer_playpause);
-        btn_Color_01 = findViewById(R.id.btn_color_01);
-        btn_Color_02 = findViewById(R.id.btn_color_02);
-        btn_Color_03 = findViewById(R.id.btn_color_03);
-        btn_Color_04 = findViewById(R.id.btn_color_04);
-        btn_Color_05 = findViewById(R.id.btn_color_05);
-        btn_Color_06 = findViewById(R.id.btn_color_06);
-        btn_Color_07 = findViewById(R.id.btn_color_07);
-        btn_Color_08 = findViewById(R.id.btn_color_08);
-        btn_Color_09 = findViewById(R.id.btn_color_09);
-        btn_Color_10 = findViewById(R.id.btn_color_10);
-        btn_Color_11 = findViewById(R.id.btn_color_11);
-        btn_Color_12 = findViewById(R.id.btn_color_12);
-        btn_Color_13 = findViewById(R.id.btn_color_13);
-        btn_Color_14 = findViewById(R.id.btn_color_14);
-        btn_Color_15 = findViewById(R.id.btn_color_15);
-        btn_Color_16 = findViewById(R.id.btn_color_16);
-        btn_Color_17 = findViewById(R.id.btn_color_17);
-        btn_Color_18 = findViewById(R.id.btn_color_18);
 
 /*  //TODO new universal toggle to replace checkboxes
         SettingSwitchRow rowOpenPlay = findViewById(R.id.row_sd_card);
@@ -168,401 +44,82 @@ public class SettingsActivity extends LoggingActivity {
         });
  */
 
-
+        SettingsSectionView sectionPlay = findViewById(R.id.section_play_behaviour);
         registerSection(
-                R.id.header_librivox,
-                R.id.container_librivox,
+                sectionPlay,
+                "expand_play_behaviour",
+                () -> new com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment(),
+                savedInstanceState
+        );
+
+        SettingsSectionView sectionDesign = findViewById(R.id.section_design);
+        registerSection(
+                sectionDesign,
+                "expand_design",
+                () -> new com.driot.bookplayer.settings.ui.DesignSettingsFragment(),
+                savedInstanceState
+        );
+
+        SettingsSectionView sectionImport = findViewById(R.id.section_import);
+        registerSection(
+                sectionImport,
+                "expand_import",
+                () -> new com.driot.bookplayer.settings.ui.ImportSettingsFragment(),
+                savedInstanceState
+        );
+
+        SettingsSectionView sectionLibrivox = findViewById(R.id.section_librivox);
+        registerSection(
+                sectionLibrivox,
                 "expand_librivox",
                 () -> new com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment(),
                 savedInstanceState
         );
 
+        SettingsSectionView sectionPodcast = findViewById(R.id.section_podcast);
         registerSection(
-                R.id.header_podcast,
-                R.id.container_podcast,
+                sectionPodcast,
                 "expand_podcast",
                 () -> new com.driot.bookplayer.settings.ui.PodcastSettingsFragment(),
                 savedInstanceState
         );
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
-        et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
-
-        ll_container_sd_card = findViewById(R.id.ll_container_sd_card);
-        if (isExternalSDCardAvailable(this)) {
-            ll_container_sd_card.setVisibility(View.VISIBLE);
-            chk_use_sd_card = findViewById(R.id.chk_use_sd_card);
-            ll_use_sd_card = findViewById(R.id.ll_use_sd_card);
-            chk_use_sd_card.setChecked(Option.getUseSdCard());
-            ll_use_sd_card.setOnClickListener(v -> chk_use_sd_card.toggle());
-            chk_use_sd_card.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseSdCard(isChecked));
-        } else {
-            ll_container_sd_card.setVisibility(View.GONE);
-        }
-
-        ll_create_cover.setOnClickListener(v -> chk_create_cover.toggle());
-        chk_create_cover.setChecked(Option.getCreateCover());
-        chk_create_cover.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCreateCover(isChecked));
-
-// Auto download spinner
-        String[] autoOptions = new String[] {
-                getString(R.string.download_any),
-                getString(R.string.download_not_roaming),
-                getString(R.string.download_bis_unmetered),
-        };
-        ArrayAdapter<String> autoAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, autoOptions);
-        autoAdapter.setDropDownViewResource(R.layout.spinner_item);
-        Spinner spinnerAuto = findViewById(R.id.spinner_download_auto);
-        spinnerAuto.setAdapter(autoAdapter);
-        spinnerAuto.setSelection(Option.getNetworkPolicyAutoDownload().ordinal());
-        spinnerAuto.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                Option.setNetworkPolicyAutoDownload(NetworkHelper.NetworkPolicyAuto.values()[pos]);
-                myLog("Option auto download : " + Option.getNetworkPolicyAutoDownload().toString());
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
-// Manual download spinner
-        String[] manualOptions = new String[] {
-                getString(R.string.download_any),
-                getString(R.string.download_not_roaming),
-                getString(R.string.download_bis_unmetered),
-        };
-        ArrayAdapter<String> manualAdapter = new ArrayAdapter<>(this, R.layout.spinner_item, manualOptions);
-        manualAdapter.setDropDownViewResource(R.layout.spinner_item);
-        Spinner spinnerUser = findViewById(R.id.spinner_download_user);
-        spinnerUser.setAdapter(manualAdapter);
-        spinnerUser.setSelection(Option.getNetworkPolicyManualDownload().ordinal());
-        spinnerUser.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                Option.setNetworkPolicyManualDownload(NetworkHelper.NetworkPolicyManual.values()[pos]);
-                myLog("Option manual download : " + Option.getNetworkPolicyManualDownload().toString());
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-        chk_visualizer_on.setChecked(Option.getVisualizerOn());
-        ll_visualizer_on.setOnClickListener(v -> chk_visualizer_on.toggle());
-        chk_visualizer_on.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Option.setVisualizerOn(isChecked);
-            if (isChecked && !isRecordAudioPermissionGranted(this)) {
-                myLog("checkBox ticked and permission not granted => requesting");
-                requestRecordAudioPermission();
-            }
-        });
-        chk_click_visualizer_playpause.setChecked(Option.getClickVisualizerPlayPause());
-        ll_visualizer_playpause.setOnClickListener(v -> chk_click_visualizer_playpause.toggle());
-        chk_click_visualizer_playpause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
-
-        setVisualizerPermissionText();
-
-//THEMES
-
-        btnNightMode = findViewById(R.id.btn_night_mode);
-        btnNightMode.setText(Option.getNightMode());
-        btnNightMode.setOnClickListener(v -> showNightModeChooser());
-
-        themesAndColors = new Object[][] {
-                {btn_Color_01, "gray", R.style.Theme_BookPlayer_Gray},
-                {btn_Color_02, "purple", R.style.Theme_BookPlayer_Purple},
-                {btn_Color_03, "brown", R.style.Theme_BookPlayer_Brown},
-                {btn_Color_04, "blue", R.style.Theme_BookPlayer_Blue},
-                {btn_Color_05, "cyan", R.style.Theme_BookPlayer_Cyan},
-                {btn_Color_06, "turquoise", R.style.Theme_BookPlayer_Turquoise},
-                {btn_Color_07, "orange", R.style.Theme_BookPlayer_Orange},
-                {btn_Color_08, "yellow", R.style.Theme_BookPlayer_Yellow},
-                {btn_Color_09, "yellowDark", R.style.Theme_BookPlayer_YellowDark},
-                {btn_Color_10, "red", R.style.Theme_BookPlayer_Red},
-                {btn_Color_11, "redDark", R.style.Theme_BookPlayer_RedDark},
-                {btn_Color_12, "indigo", R.style.Theme_BookPlayer_Indigo},
-                {btn_Color_13, "pinkLight", R.style.Theme_BookPlayer_PinkLight},
-                {btn_Color_14, "pink", R.style.Theme_BookPlayer_Pink},
-                {btn_Color_15, "pinkDark", R.style.Theme_BookPlayer_PinkDark},
-                {btn_Color_16, "greenLight", R.style.Theme_BookPlayer_GreenLight},
-                {btn_Color_17, "green", R.style.Theme_BookPlayer_Green},
-                {btn_Color_18, "greenDark", R.style.Theme_BookPlayer_GreenDark},
-        };
-        for (Object[] entry : themesAndColors) {
-            ImageButton button = (ImageButton) entry[0];
-            String themeKey = (String) entry[1];
-            int themeResId = (int) entry[2];
-
-            int mainColor = getPrimaryColorFromTheme(this, themeResId);
-            button.setBackgroundColor(mainColor);
-            button.setOnClickListener(v -> changeBaseTheme(themeKey));
-        }
-
-
-// 1) liste de polices (toutes existent depuis API 26+)
-        fontChoices = new ArrayList<>();
-        fontChoices.add(new FontChoice("sans-serif", "Sans-serif"));
-        fontChoices.add(new FontChoice("serif", "Serif"));
-        fontChoices.add(new FontChoice("monospace", "Monospace"));
-        fontChoices.add(new FontChoice("casual", "Casual"));
-        fontChoices.add(new FontChoice("cursive", "Cursive"));
-        fontChoices.add(new FontChoice("serif-monospace", "Serif Monospace"));
-        fontChoices.add(new FontChoice("sans-serif-condensed", "Sans-serif Condensed"));
-        fontChoices.add(new FontChoice("sans-serif-medium", "Sans-serif Medium"));
-        fontChoices.add(new FontChoice("sans-serif-smallcaps", "Sans-serif Smallcaps"));
-
-        Spinner spFontFamily = findViewById(R.id.sp_font_family);
-        ArrayAdapter<String> fontAdapter = new ArrayAdapter<>(
-                this, R.layout.spinner_item,
-                toLabels(fontChoices));
-        fontAdapter.setDropDownViewResource(R.layout.spinner_item);
-        spFontFamily.setAdapter(fontAdapter);
-
-        String savedFamily = Option.getFontFamilyKey();
-        int savedIndex = indexOfKey(fontChoices, savedFamily);
-        if (savedIndex < 0) savedIndex = 0;
-        spFontFamily.setSelection(savedIndex, false);
-
-        spFontFamily.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                String key = fontChoices.get(pos).key; // e.g. "serif-monospace"
-                Option.setFontFamilyKey(key);
-
-                // Appliquer globalement: recréer l’Activity (ou proposer "Relancer l'app")
-                triggerFolderListReloadOnClose();
-                recreate(); // les autres Activities prendront le thème au prochain lancement
-            }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
-        });
-
-
-
-        chk_beep_chapter = findViewById(R.id.chk_beep_chapter);
-        chk_beep_bookend = findViewById(R.id.chk_beep_bookend);
-        chk_beep_autostop = findViewById(R.id.chk_beep_autostop);
-        chk_delete_source_file = findViewById(R.id.chk_delete_source_file);
-        chk_rewind_after_pause = findViewById(R.id.chk_rewind_after_pause);
-        chk_copy_file = findViewById(R.id.chk_copy_file);
-        chk_tech_log_file = findViewById(R.id.chk_tech_log_file);
-        chk_open_with = findViewById(R.id.chk_open_with);
-        chk_open_with_all = findViewById(R.id.chk_open_with_all);
-        chk_split_m4b = findViewById(R.id.chk_split_m4b);
-        ll_split_m4b = findViewById(R.id.ll_split_m4b);
-        ll_copy_file = findViewById(R.id.ll_copy_file);
-        ll_delete_source_file = findViewById(R.id.ll_delete_source_file);
-        ll_open_with = findViewById(R.id.ll_open_with);
-        ll_open_with_all = findViewById(R.id.ll_open_with_all);
-        ll_beep_chapter = findViewById(R.id.ll_beep_chapter);
-        ll_beep_bookend = findViewById(R.id.ll_beep_bookend);
-        ll_beep_autostop = findViewById(R.id.ll_beep_autostop);
-        ll_rewind_after_pause = findViewById(R.id.ll_rewind_after_pause);
-        ll_tech_log_file = findViewById(R.id.ll_tech_log_file);
-
-        chk_MailMethod = findViewById(R.id.chk_mail_method_default);
-        ll_mail_method_default = findViewById(R.id.ll_mail_method_default);
-        chk_MailMethod.setChecked(Option.getMailMethod());
-        ll_mail_method_default.setOnClickListener(v -> chk_MailMethod.toggle());
-        chk_MailMethod.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setMailMethod(isChecked));
-
-        chk_beep_chapter.setChecked(Option.getBeepChapter());
-        ll_beep_chapter.setOnClickListener(v -> chk_beep_chapter.toggle());
-        chk_beep_chapter.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepChapter(isChecked));
-
-        chk_beep_bookend.setChecked(Option.getBeepBookEnd());
-        ll_beep_bookend.setOnClickListener(v -> chk_beep_bookend.toggle());
-        chk_beep_bookend.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepBookEnd(isChecked));
-
-        chk_beep_autostop.setChecked(Option.getBeepAutoStop());
-        ll_beep_autostop.setOnClickListener(v -> chk_beep_autostop.toggle());
-        chk_beep_autostop.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setBeepAutoStop(isChecked));
-
-        chk_split_m4b.setChecked(Option.getSplitM4b());
-        ll_split_m4b.setOnClickListener(v -> chk_split_m4b.toggle());
-        chk_split_m4b.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setSplitM4b(isChecked));
-
-        chk_delete_source_file.setChecked(Option.getDeleteSourceFile());
-        ll_delete_source_file.setOnClickListener(v -> chk_delete_source_file.toggle());
-        chk_delete_source_file.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (isChecked) {
-                new AlertDialog.Builder(this)
-                        .setTitle(getString(R.string.option_alert_delete_source_file_title))
-                        .setMessage(getString(R.string.option_alert_delete_source_file_message))
-                        .setCancelable(false)
-                        .setPositiveButton("ok", (dialog, which) -> Option.setDeleteSourceFile(true))
-                        .setNegativeButton("cancel", (dialogInterface, i) -> chk_delete_source_file.setChecked(Option.getDeleteSourceFile()))
-                        .show();
-            } else {
-                Option.setDeleteSourceFile(false);
-            }
-        });
-
-/// PLAY BEHAVIOUR
-
-        chk_rewind_after_pause.setChecked(Option.getRewindAfterPause());
-        ll_rewind_after_pause.setOnClickListener(v -> chk_rewind_after_pause.toggle());
-        chk_rewind_after_pause.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRewindAfterPause(isChecked));
-
-        chk_start_next_track_at_zero = findViewById(R.id.chk_start_next_track_at_zero);
-        ll_start_next_track_at_zero = findViewById(R.id.ll_start_next_track_at_zero);
-        chk_start_next_track_at_zero.setChecked(Option.getStartAtZeroNextTrack());
-        ll_start_next_track_at_zero.setOnClickListener(v -> chk_start_next_track_at_zero.toggle());
-        chk_start_next_track_at_zero.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setStartAtZeroNextTrack(isChecked));
-
-        chk_stop_audio_if_user_closes_app = findViewById(R.id.chk_stop_audio_if_user_closes_app);
-        ll_stop_audio_if_user_closes_app = findViewById(R.id.ll_stop_audio_if_user_closes_app);
-        chk_stop_audio_if_user_closes_app.setChecked(Option.getStopAudioIfUserClosesApp());
-        ll_stop_audio_if_user_closes_app.setOnClickListener(v -> chk_stop_audio_if_user_closes_app.toggle());
-        chk_stop_audio_if_user_closes_app.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setStopAudioIfUserClosesApp(isChecked));
-
-        chk_auto_play_on_main_player = findViewById(R.id.chk_auto_play_on_main_player);
-        ll_auto_play_on_main_player = findViewById(R.id.ll_auto_play_on_main_player);
-        chk_auto_play_on_main_player.setChecked(Option.getAutoPlayOnMainPlayer());
-        ll_auto_play_on_main_player.setOnClickListener(v -> chk_auto_play_on_main_player.toggle());
-        chk_auto_play_on_main_player.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutoPlayOnMainPlayer(isChecked));
-
-        CheckBox chk_open_play_activity = findViewById(R.id.chk_open_play_activity);
-        LinearLayout ll_open_play_activity = findViewById(R.id.ll_open_play_activity);
-        chk_open_play_activity.setChecked(Option.getOpenPlayActivity());
-        ll_open_play_activity.setOnClickListener(v -> chk_open_play_activity.toggle());
-        chk_open_play_activity.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setOpenPlayActivity(isChecked));
-
-
-/// CAR
-        CheckBox chk_automotive_on = findViewById(R.id.chk_automotive_on);
-        LinearLayout ll_automotive_on = findViewById(R.id.ll_automotive_on);
-        chk_automotive_on.setChecked(Option.getAutomotiveOn());
-        ll_automotive_on.setOnClickListener(v -> chk_automotive_on.toggle());
-        chk_automotive_on.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveOn(isChecked));
-
-        //parent
-        CheckBox chk_automotive_let_car_autoplay = findViewById(R.id.chk_automotive_let_car_autoplay);
-        LinearLayout ll_automotive_let_car_autoplay = findViewById(R.id.ll_automotive_let_car_autoplay);
-        //child
-        CheckBox chk_automotive_auto_resume_on_car_connect = findViewById(R.id.chk_automotive_auto_resume_on_car_connect);
-        LinearLayout ll_automotive_auto_resume_on_car_connect = findViewById(R.id.ll_automotive_auto_resume_on_car_connect);
-
-        //parent
-        chk_automotive_let_car_autoplay.setChecked(Option.getAutomotiveLetCarAutoplay());
-        ll_automotive_let_car_autoplay.setOnClickListener(v -> chk_automotive_let_car_autoplay.toggle());
-        setChildButtonAutomotive(chk_automotive_auto_resume_on_car_connect, ll_automotive_auto_resume_on_car_connect, chk_automotive_let_car_autoplay.isChecked(), !chk_automotive_let_car_autoplay.isChecked());
-        chk_automotive_let_car_autoplay.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            setChildButtonAutomotive(chk_automotive_auto_resume_on_car_connect, ll_automotive_auto_resume_on_car_connect, isChecked, !isChecked);
-            Option.setAutomotiveLetCarAutoplay(isChecked);
-        });
-        //child
-        chk_automotive_auto_resume_on_car_connect.setChecked(Option.getAutomotiveAutoResumeOnCarConnect());
-        ll_automotive_auto_resume_on_car_connect.setOnClickListener(v -> chk_automotive_auto_resume_on_car_connect.toggle());
-        chk_automotive_auto_resume_on_car_connect.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setAutomotiveAutoResumeOnCarConnect(isChecked));
-
-        chk_copy_file.setChecked(Option.getCopyFile());
-        ll_copy_file.setOnClickListener(v -> chk_copy_file.toggle());
-        chk_copy_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setCopyFile(isChecked));
-
-        chk_tech_log_file.setChecked(Option.getTechLog());
-        ll_tech_log_file.setOnClickListener(v -> chk_tech_log_file.toggle());
-        chk_tech_log_file.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTechLog(isChecked));
-
-        chk_open_with.setChecked(Option.getOpenWith());
-        ll_open_with.setOnClickListener(v -> chk_open_with.toggle());
-        chk_open_with.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Option.setOpenWith(isChecked);
-            setOpenWithProxyEnabled(this, isChecked);  // dynamically enable/disable the component
-        });
-
-        chk_open_with_all.setChecked(Option.getOpenWith_all());
-        ll_open_with_all.setOnClickListener(v -> chk_open_with_all.toggle());
-        chk_open_with_all.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            Option.setOpenWith_all(isChecked);
-            setOpenWithProxyEnabled_all(this, isChecked);  // dynamically enable/disable the component
-        });
-
-/// APP  LANGUAGE
-        appLanguageSpinner = findViewById(R.id.spinner_app_language);
-
-        LanguageHelper.setupLanguageSpinner(
-                this,
-                appLanguageSpinner,
-                Option.getAppLanguage(), // "system" | "en" | ...
-                LanguageHelper.getAppLanguages(),
-                lang -> {
-                    String value = lang.twoLetterCode; // "system" or IETF language tag
-                    myLogD("App language chosen: " + value);
-                    Option.setAppLanguage(value);
-                    LocaleHelper.applyAppLocale(value);
-                    //recreate(); // activity-level refresh
-                },false
+        SettingsSectionView sectionTts = findViewById(R.id.section_tts);
+        registerSection(
+                sectionTts,
+                "expand_tts",
+                () -> new com.driot.bookplayer.settings.ui.TtsSettingsFragment(),
+                savedInstanceState
         );
 
-        try {
-            if (getIntent().getBooleanExtra("CopyFileSetRed", false)) {
-                TextView tv = findViewById(R.id.txtCopyFileHead);
-                tv.setTextColor(Color.RED);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "not sure but you should maybe open the viewstub here....");
-        }
+        SettingsSectionView sectionAutomotive = findViewById(R.id.section_automotive);
+        registerSection(
+                sectionAutomotive,
+                "expand_automotive",
+                () -> new com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment(),
+                savedInstanceState
+        );
 
-        btnShowAdvanced = findViewById(R.id.btn_show_advanced);
-        btnShowAdvanced.setOnClickListener(v -> {
-            myLogI("--- USER CLICKS SHOW ADVANCED OPTIONS ---");
-            toggleAdvancedOptions();
-        });
-        Button btnTtsSettings = findViewById(R.id.btnTtsSettings);
-        btnTtsSettings.setOnClickListener(v -> {
-            myLogI("--- USER CLICKS TTS OPTIONS ---");
-            Intent intent = new Intent(this, TtsSettingsActivity.class);
-            startActivity(intent);
-        });
+        SettingsSectionView sectionNetwork = findViewById(R.id.section_network);
+        registerSection(
+                sectionNetwork,
+                "expand_network",
+                () -> new com.driot.bookplayer.settings.ui.NetworkSettingsFragment(),
+                savedInstanceState
+        );
 
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
-    }
+        SettingsSectionView sectionUtilities = findViewById(R.id.section_utilities);
+        registerSection(
+                sectionUtilities,
+                "expand_utilities",
+                () -> new com.driot.bookplayer.settings.ui.UtilitiesSettingsFragment(),
+                savedInstanceState
+        );
 
-    private void setVisualizerPermissionText() {
-        String txt;
-        txt = getString(R.string.option_visualizer_text_01) + "<br><i>" + getString(R.string.option_visualizer_text_02);
-        if (isRecordAudioPermissionGranted(this)) {
-            txt = txt + ": <font color='green'>" + getString(R.string.option_visualizer_permissions_granted) + "</font></i>";
-        } else {
-            txt = txt + ": <font color='red'>" + getString(R.string.option_visualizer_permissions_denied_01) + "</font><br>" + getString(R.string.option_visualizer_permissions_denied_02) + "</i>";
-        }
-        tx_Visualizer_on.setText(Html.fromHtml(txt, Html.FROM_HTML_MODE_LEGACY));;
-    }
-
-    private void saveTimeBeforeSleep() {
-        String str = et_timeBeforeSleep.getText().toString().trim();
-        if (str.isEmpty()) str = String.valueOf(DEFAULT_TIME_BEFORE_SLEEP);
-        int i = Integer.parseInt(str);
-        if (i < MINIMUM_TIME_BEFORE_SLEEP | i > MAXIMUM_TIME_BEFORE_SLEEP) {
-            i = DEFAULT_TIME_BEFORE_SLEEP;
-            myLongToast(getString(R.string.option_timeBeforeSleep_outOfBound));
-        }
-        Option.setTimeBeforeSleep(i);
-    }
-
-    private void saveForwardSeconds() {
-        String str = et_ForwardSeconds.getText().toString().trim();
-        if (str.isEmpty()) str = String.valueOf(DEFAULT_FORWARD_SECONDS);
-        int i = Integer.parseInt(str);
-        if (i < MINIMUM_FORWARD_SECONDS | i > MAXIMUM_FORWARD_SECONDS) {
-            i = DEFAULT_FORWARD_SECONDS;
-            myLongToast("out of bounds - must be between 1 and 300");
-        }
-        Option.set_ForwardSeconds(i);
     }
 
     @Override
     protected void onDestroy() {
-        saveForwardSeconds();
-        saveTimeBeforeSleep();
         super.onDestroy();
     }
 
@@ -585,95 +142,6 @@ public class SettingsActivity extends LoggingActivity {
     // Xiaomi Redmi
     //36085d331d5c
 
-
-    private void requestRecordAudioPermission() {
-        mPermissionRequest = PermissionRequest
-                .with(this)
-                .permissions(Manifest.permission.RECORD_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
-                .rationale(R.string.permission_record_audio_rationale)
-                //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
-                .denied(R.string.permission_record_audio_denied)
-                .snackbar((ViewGroup) findViewById(android.R.id.content))
-                .callback(new PermissionRequest.Callback() {
-                    @Override
-                    public void onPermissionsGranted() {
-                        myLog("RecordAudio Permission Granted");
-                    }
-
-                    @Override
-                    public void onPermissionsDenied() {
-                        myLog("RecordAudio Permission Granted");
-                        showPermissionDeniedDialog(); //ask user again... //not working yet...
-                    }
-                })
-                .submit();
-    }
-    private void showPermissionDeniedDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Permission Required")
-                .setMessage(getString(R.string.permission_record_audio_rationale) + "\n\n" + getString(R.string.permission_record_audio_rationale_after_denied))
-                .setPositiveButton("App Info", (dialog, which) -> {
-                    openAppSettingsOnPhone();
-                })
-                .setNegativeButton("Cancel", null)
-                .show();
-    }
-    private void openAppSettingsOnPhone() {
-        myLog("openAppSettingsOnPhone()");
-        try {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
-        } catch (Exception e) {
-            myLogEE(e,"openAppSettingsOnPhone()");
-        }
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        myLog("onRequestPermissionsResult()" + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
-        // Redirect hook call to permission helper method.
-        if (mPermissionRequest != null) {
-            mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            mPermissionRequest = null; // request no longer needed
-        } else {
-            myLogE("onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
-        }
-        setVisualizerPermissionText();
-    }
-
-
-
-    // ***********************************
-    //           THEMES - COLORS
-    // ***********************************
-    public int getPrimaryColorFromTheme(Context context, @StyleRes int themeResId) {
-        // Create a new theme based on the specified theme resource ID
-        Resources.Theme theme = context.getResources().newTheme();
-        theme.applyStyle(themeResId, true);
-
-        // Obtain the colorPrimary attribute
-        TypedArray typedArray = theme.obtainStyledAttributes(new int[]{androidx.appcompat.R.attr.colorPrimary});
-        int primaryColor = typedArray.getColor(0, ContextCompat.getColor(context, android.R.color.black)); // Option to black if not found
-        typedArray.recycle(); // Always recycle the TypedArray
-
-        return primaryColor;
-    }
-    private void changeBaseTheme(String new_base_theme) {
-        myLog("new Base theme is [" + new_base_theme + "]" );
-        Option.setThemeColor(new_base_theme);
-        triggerFolderListReloadOnClose();
-        recreate();
-    }
-
-    private void triggerFolderListReloadOnClose() {
-        this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply(); //trick to reload MainActivity
-    }
-
     @Override
     public void finish() { //needed because of recreate()
         if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { //trick to reload MainActivity
@@ -686,7 +154,6 @@ public class SettingsActivity extends LoggingActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putBoolean("advanced_visible", areAdvancedOptionsVisible);
         outState.putInt("scroll_position", scrollView.getScrollY());
         for (SectionHost s : sectionHosts) {
             outState.putBoolean(s.stateKey, s.expanded);
@@ -697,86 +164,12 @@ public class SettingsActivity extends LoggingActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
         final int scrollPosition = savedInstanceState.getInt("scroll_position");
-        areAdvancedOptionsVisible = savedInstanceState.getBoolean("advanced_visible", false);
-        if (areAdvancedOptionsVisible) {
-            advancedOptionsLayout.setVisibility(View.VISIBLE);
-            btnShowAdvanced.setText(getString(R.string.option_hide_advanced_options));
-        } else {
-            advancedOptionsLayout.setVisibility(View.GONE);
-            btnShowAdvanced.setText(getString(R.string.option_show_advanced_options));
-        }
         scrollView.post(() -> scrollView.scrollTo(0, scrollPosition));
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        setVisualizerPermissionText();
-    }
-
-    private void toggleAdvancedOptions() {
-        if (advancedOptionsLayout.getVisibility() == View.GONE) {
-            myLogD("toggleAdvancedOptions -> visible");
-            advancedOptionsLayout.setVisibility(View.VISIBLE);
-            btnShowAdvanced.setText(getString(R.string.option_hide_advanced_options));
-
-            // Scroll to it
-            btnShowAdvanced.post(() -> {
-                int y = btnShowAdvanced.getTop();
-                scrollView.smoothScrollTo(0, y);
-            });
-
-            areAdvancedOptionsVisible = true;
-        } else {
-            myLogD("toggleAdvancedOptions -> gone");
-            advancedOptionsLayout.setVisibility(View.GONE);
-            btnShowAdvanced.setText(getString(R.string.option_show_advanced_options));
-            areAdvancedOptionsVisible = false;
-        }
-    }
-
-    private void showNightModeChooser() {
-        final String current = Option.getNightMode();
-        final CharSequence[] items = new CharSequence[] {
-                getString(R.string.option_night_mode_follow_system),
-                getString(R.string.option_night_mode_light),
-                getString(R.string.option_night_mode_dark)
-        };
-        int checked = (current.equals("LIGHT")) ? 1 : (current.equals("DARK") ? 2 : 0);
-
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.option_night_mode_dialog_title)
-                .setSingleChoiceItems(items, checked, (dlg, which) -> {
-                    String chosen = (which == 1) ? "LIGHT"
-                            : (which == 2) ? "DARK"
-                            : "SYSTEM";
-
-                    if (!chosen.equals(current)) {
-                        Option.setNightMode(chosen);
-                        Option.applyNightMode();                 // apply globally
-                        btnNightMode.setText(chosen);  // update label
-
-                        // Recreate like you do for color changes so MainActivity refreshes if needed
-                        getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE)
-                                .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
-
-                        recreate(); // will pick up values-night etc.
-                    }
-                    dlg.dismiss();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
-    }
-
-    private List<String> toLabels(List<FontChoice> list) {
-        List<String> labels = new ArrayList<>();
-        for (FontChoice f : list) labels.add(f.label);
-        return labels;
-    }
-
-    private int indexOfKey(List<FontChoice> list, String key) {
-        for (int i = 0; i < list.size(); i++) if (list.get(i).key.equalsIgnoreCase(key)) return i;
-        return -1;
     }
 
 
@@ -794,15 +187,15 @@ public class SettingsActivity extends LoggingActivity {
     private interface FragmentFactory { Fragment create(); }
 
     private static final class SectionHost {
-        final int headerId;
-        final int containerId;
+        final com.driot.bookplayer.views.SettingsSectionView sectionView;
         final String stateKey;
         final FragmentFactory factory;
         boolean expanded;
 
-        SectionHost(int headerId, int containerId, String stateKey, FragmentFactory factory) {
-            this.headerId = headerId;
-            this.containerId = containerId;
+        SectionHost(com.driot.bookplayer.views.SettingsSectionView sectionView,
+                    String stateKey,
+                    FragmentFactory factory) {
+            this.sectionView = sectionView;
             this.stateKey = stateKey;
             this.factory = factory;
         }
@@ -810,54 +203,108 @@ public class SettingsActivity extends LoggingActivity {
 
     private final List<SectionHost> sectionHosts = new ArrayList<>();
 
-    /** Call this in onCreate for each section you want inline. */
-    private void registerSection(int headerId, int containerId, String stateKey, FragmentFactory factory, Bundle savedInstanceState) {
-        SectionHost host = new SectionHost(headerId, containerId, stateKey, factory);
+    private void registerSection(SettingsSectionView sectionView,
+                                 String stateKey,
+                                 FragmentFactory factory,
+                                 Bundle savedInstanceState) {
+
+        SectionHost host = new SectionHost(sectionView, stateKey, factory);
+
+        onHeaderClicked(host);
+
         if (savedInstanceState != null) {
             host.expanded = savedInstanceState.getBoolean(stateKey, false);
         }
+
         sectionHosts.add(host);
 
-        View header = findViewById(headerId);
-        header.setOnClickListener(v -> toggleSection(host));
+        sectionView.getHeaderView().setOnClickListener(v -> {
+            if (host.expanded) {
+                collapseSection(host, /*removeFragment*/ false);
+            } else {
+                expandSection(host, /*scrollToHeader*/ true);
+            }
+        });
 
-        applySectionState(host, /*scrollOnOpen*/ false);
-    }
-
-    private void toggleSection(SectionHost host) {
-        host.expanded = !host.expanded;
-        applySectionState(host, /*scrollOnOpen*/ host.expanded);
-    }
-
-    private void applySectionState(SectionHost host, boolean scrollOnOpen) {
-        View container = findViewById(host.containerId);
-        if (container == null) return;
-
+        // Initial state application (no scroll on first render)
         if (host.expanded) {
-            container.setVisibility(View.VISIBLE);
-
-            if (getSupportFragmentManager().findFragmentById(host.containerId) == null) {
-                Fragment frag = host.factory.create();
-                Bundle args = (frag.getArguments() != null) ? frag.getArguments() : new Bundle();
-                args.putBoolean("ARG_SHOW_LOCAL_TITLE", false); // inline → no local header
-                frag.setArguments(args);
-
-                getSupportFragmentManager()
-                        .beginTransaction()
-                        .replace(host.containerId, frag)
-                        .commit();
-            }
-
-            if (scrollOnOpen) {
-                ScrollView sv = findViewById(R.id.scrollView);
-                if (sv != null) sv.post(() -> sv.smoothScrollTo(0, findViewById(host.headerId).getTop()));
-            }
+            expandSection(host, /*scrollToHeader*/ false);
         } else {
-            container.setVisibility(View.GONE);
-            // Optional: free resources
-            // Fragment f = getSupportFragmentManager().findFragmentById(host.containerId);
-            // if (f != null) getSupportFragmentManager().beginTransaction().remove(f).commit();
+            collapseSection(host, /*removeFragment*/ false);
         }
+    }
+    private void expandSection(SectionHost host, boolean scrollToHeader) {
+        if (currentlyExpanded != null && currentlyExpanded != host) {
+            collapseSection(currentlyExpanded, /*removeFragment*/ false);
+        }
+
+        host.expanded = true;
+        host.sectionView.showContainer(true);
+
+        final int containerId = host.sectionView.getContainerId();
+        if (getSupportFragmentManager().findFragmentById(containerId) == null) {
+            Fragment frag = host.factory.create();
+            Bundle args = (frag.getArguments() != null) ? frag.getArguments() : new Bundle();
+            args.putBoolean("ARG_SHOW_LOCAL_TITLE", false);
+            frag.setArguments(args);
+
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(containerId, frag)
+                    .runOnCommit(() -> {
+                        if (scrollToHeader) scrollHeaderIntoView(host); // <- now safe (no execPending)
+                    })
+                    .commit();
+        } else {
+            // Fragment already present; just scroll after the container is made visible
+            if (scrollToHeader) scrollHeaderIntoView(host);
+        }
+
+        currentlyExpanded = host;
+    }
+
+    private void collapseSection(SectionHost host, boolean removeFragment) {
+        host.expanded = false;
+        host.sectionView.showContainer(false);
+
+        if (removeFragment) {
+            int containerId = host.sectionView.getContainerId();
+            Fragment f = getSupportFragmentManager().findFragmentById(containerId);
+            if (f != null) {
+                getSupportFragmentManager().beginTransaction().remove(f).commit();
+            }
+        }
+        if (currentlyExpanded == host) currentlyExpanded = null;
+    }
+
+    private void scrollHeaderIntoView(final SectionHost host) {
+        if (scrollView == null) return;
+
+        // Avoid focus-stealing auto-scrolls from inputs/spinners
+        View current = getCurrentFocus();
+        if (current != null) current.clearFocus();
+
+        // Wait until the section lays out (safe whether we just added a fragment or not)
+        host.sectionView.post(() -> {
+            final View header = host.sectionView.getHeaderView();
+
+            int[] headerLoc = new int[2];
+            int[] svLoc = new int[2];
+            header.getLocationOnScreen(headerLoc);
+            scrollView.getLocationOnScreen(svLoc);
+
+            int targetY = scrollView.getScrollY() + (headerLoc[1] - svLoc[1]);
+            if (targetY > 16) targetY -= 16;
+
+            scrollView.smoothScrollTo(0, targetY);
+        });
+    }
+
+    private void onHeaderClicked(SectionHost host) {
+        if (headerTapLocked) return;
+        headerTapLocked = true;
+        if (host.expanded) collapseSection(host, false); else expandSection(host, true);
+        host.sectionView.postDelayed(() -> headerTapLocked = false, 150);
     }
 
 }

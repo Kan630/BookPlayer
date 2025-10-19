@@ -45,6 +45,8 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
+import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
@@ -196,7 +198,10 @@ public class PlayActivity extends LoggingActivity {
         });
 
         ImageButton ib_settings = findViewById(R.id.ib_settings);
-        ib_settings.setOnClickListener((v) -> startActivity(new Intent(this, TtsSettingsActivity.class)));
+        ib_settings.setOnClickListener((v) -> {
+            myLogI("--- User clicks SETTINGS ---");
+            SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
+        });
 
         ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
         container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {

@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        style="@style/LinearLayoutOptionsVertical"
+        android:padding="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Title row (hidden when embedded inline) -->
+        <LinearLayout
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_text_appearance_title" />
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
+
+        <!-- Font family -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp"
+            >
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/option_text_appearance_title" />
+
+            <LinearLayout
+                android:id="@+id/ll_font_family"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:layout_width="80dp"
+                    android:text="@string/option_font_family" />
+
+                <Spinner
+                    android:id="@+id/sp_font_family"
+                    android:spinnerMode="dropdown"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    style="@style/Spinner" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Color grid -->
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginHorizontal="10sp">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_pick_theme_color_title" />
+
+            <!-- 6 rows of 3 buttons (18 total), same ids you already use -->
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="20sp"
+                android:gravity="center">
+                <ImageButton android:id="@+id/btn_color_01" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_02" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_03" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_04" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_05" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_06" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_07" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_08" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_09" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_10" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_11" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_12" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_13" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_14" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_15" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_marginTop="10sp">
+                <ImageButton android:id="@+id/btn_color_16" style="@style/OptionsColorButtons" />
+                <ImageButton android:id="@+id/btn_color_17" style="@style/OptionsColorButtons"
+                    android:layout_marginStart="10dp" android:layout_marginEnd="10dp" />
+                <ImageButton android:id="@+id/btn_color_18" style="@style/OptionsColorButtons" />
+            </LinearLayout>
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+            <!-- Night mode row -->
+            <LinearLayout
+                android:id="@+id/ll_night_mode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="12dp"
+                android:gravity="center_vertical"
+                android:clickable="true"
+                android:focusable="true">
+
+                <TextView
+                    android:id="@+id/tv_night_mode_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="@string/option_night_mode_title"
+                    android:textSize="16sp" />
+
+                <Button
+                    android:id="@+id/btn_night_mode"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/option_night_mode_follow_system" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+    </LinearLayout>
+</ScrollView>

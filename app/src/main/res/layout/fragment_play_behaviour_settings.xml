@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_container"
+        style="@style/LinearLayoutOptionsVertical"
+        android:padding="8dp">
+
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            >
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_playing_behaviour_title" />
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
+
+        <!-- Time before sleep -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp"
+            >
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/option_timeBeforeSleep" />
+
+            <LinearLayout
+                android:id="@+id/ll_autosleep_horizon"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center"
+                android:layout_width="match_parent">
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:layout_marginStart="50sp"
+                    android:text="@string/option_timeBeforeSleep_text"
+                    android:textSize="24sp" />
+
+                <EditText
+                    android:id="@+id/etTimeBeforeSleep"
+                    style="@style/EditText"
+                    android:layout_height="wrap_content"
+                    android:layout_width="70sp"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    android:textSize="24sp" />
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/option_timeBeforeSleep_min"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <TextView android:text="Min = 1" style="@style/OptionMiniText" />
+            <TextView android:text="Max = 1440 (24h)" style="@style/OptionMiniText" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Backward/Forward seconds -->
+        <LinearLayout
+            android:id="@+id/ll_BackwardForward_vert"
+            style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_backward_forward_title" />
+
+            <LinearLayout
+                android:id="@+id/ll_BackwardForward_horizon"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center"
+                android:layout_width="match_parent">
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:layout_marginStart="50sp"
+                    android:text="@string/option_backward_forward_text"
+                    android:textSize="24sp" />
+
+                <EditText
+                    android:id="@+id/etForwardSeconds"
+                    style="@style/EditText"
+                    android:layout_height="wrap_content"
+                    android:layout_width="70sp"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    android:textSize="24sp" />
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="sec."
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <TextView android:text="Min = 1" style="@style/OptionMiniText" />
+            <TextView android:text="Max = 300 (5min)" style="@style/OptionMiniText" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Visualizer -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_visualizer_title" />
+
+            <LinearLayout
+                android:id="@+id/ll_visualizer_on"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_visualizer_on"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/tx_Visualizer_on"
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_visualizer_text_01" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_visualizer_playpause"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_click_visualizer_playpause"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/tx_click_visualizer_playpause"
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_click_visualizer_playpause_text_01" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Beeps -->
+        <LinearLayout
+            android:id="@+id/ll_beep"
+            style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_beep_title" />
+
+            <LinearLayout
+                android:id="@+id/ll_beep_chapter"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_beep_chapter"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_beep_between_chapters" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_beep_autostop"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_beep_autostop"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_beep_for_autostop" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_beep_bookend"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_beep_bookend"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_beep_at_the_end" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Play behaviour toggles -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_playing_behaviour_title" />
+
+            <LinearLayout
+                android:id="@+id/ll_rewind_after_pause"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_rewind_after_pause"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_rewind_after_pause_text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_start_next_track_at_zero"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_start_next_track_at_zero"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_start_next_track_at_zero_title_text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_stop_audio_if_user_closes_app"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_stop_audio_if_user_closes_app"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_stop_audio_if_user_closes_app_text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_auto_play_on_main_player"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_auto_play_on_main_player"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_auto_play_on_main_player_text" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_open_play_activity"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_open_play_activity"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_open_play_activity" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+    </LinearLayout>
+</ScrollView>

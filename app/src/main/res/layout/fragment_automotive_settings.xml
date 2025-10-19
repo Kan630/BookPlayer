@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_container"
+        style="@style/LinearLayoutOptionsVertical"
+        android:padding="8dp">
+
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_automotive_title" />
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
+
+        <!-- Automotive block (top margin 0) -->
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/option_automotive_title"
+                android:visibility="gone"
+                />
+
+            <LinearLayout
+                android:id="@+id/ll_automotive_on"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_automotive_on"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_automotive_on" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_automotive_let_car_autoplay"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_automotive_let_car_autoplay"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_automotive_let_car_autoplay" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_automotive_auto_resume_on_car_connect"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_automotive_auto_resume_on_car_connect"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_automotive_auto_resume_on_car_connect" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    </LinearLayout>
+</ScrollView>

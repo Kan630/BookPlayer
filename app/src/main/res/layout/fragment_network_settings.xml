@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_container"
+        style="@style/LinearLayoutOptionsVertical"
+        android:padding="8dp">
+
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout
+            android:id="@+id/ll_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/network_preferences_title" />
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
+
+        <!-- Network preferences (first block marginTop=0) -->
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/network_preferences_title"
+                android:visibility="gone"
+                />
+
+            <TextView
+                style="@style/GetResourceTextTopOfButton"
+                android:textColor="@color/orange_700"
+                android:text="@string/beta_test" />
+
+            <!-- Manual download policy -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:layout_width="135dp"
+                    android:text="@string/option_download_user_title" />
+                <Spinner
+                    android:id="@+id/spinner_download_user"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    style="@style/Spinner" />
+            </LinearLayout>
+
+            <!-- Auto download policy -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center_vertical"
+                android:weightSum="1">
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:layout_width="135dp"
+                    android:text="@string/option_download_auto_title" />
+                <Spinner
+                    android:id="@+id/spinner_download_auto"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:spinnerMode="dropdown"
+                    style="@style/Spinner" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_network_preference_subtext" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+    </LinearLayout>
+</ScrollView>

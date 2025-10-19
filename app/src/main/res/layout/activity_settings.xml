@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipToPadding="false"
+    android:fillViewport="true"
     style="@style/MainContainer">
 
     <LinearLayout
@@ -13,9 +14,10 @@
         android:layout_height="wrap_content"
         android:paddingHorizontal="12dp"
         android:orientation="vertical"
-        android:paddingBottom="16dp">
-
-<!--
+        android:paddingBottom="16dp"
+        android:paddingTop="8dp"
+        >
+<!--   // FOR LATER
         <com.driot.bookplayer.views.SettingSwitchRow
             android:id="@+id/row_sd_card"
             android:layout_width="match_parent"
@@ -24,831 +26,72 @@
             app:subtitle="@string/option_sdcard_text_caution"
             />
 -->
-
-        <!-- =========================================
-     Librivox section header + inline container
-     ========================================= -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/header_librivox"
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_play_behaviour"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            style="@style/MainContainer">
-
-            <LinearLayout
-                android:padding="16dp"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_overlay_card_2"
-                >
-
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/librivox"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <ImageButton
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_librivox_24"
-                    android:scaleType="centerInside"
-                    android:background="@android:color/transparent"
-                    app:tint="?attr/colorOnSurface"
-                    android:layout_marginStart="20dp" />
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <FrameLayout
-            android:id="@+id/container_librivox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
-        <!-- =========================================
-Librivox section header + inline container
-========================================= -->
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/header_podcast"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?attr/selectableItemBackground"
-            style="@style/MainContainer">
-
-            <LinearLayout
-                android:padding="16dp"
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@drawable/bg_overlay_card_2"
-                >
-
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/Podcasts"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"/>
-
-                <ImageButton
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_podcast_24"
-                    android:scaleType="centerInside"
-                    android:background="@android:color/transparent"
-                    app:tint="?attr/colorOnSurface"
-                    android:layout_marginStart="20dp" />
-
-            </LinearLayout>
-        </com.google.android.material.card.MaterialCardView>
-
-        <FrameLayout
-            android:id="@+id/container_podcast"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:visibility="gone" />
-
-        <LinearLayout
-            android:id="@+id/ll_container_sd_card"
-            style="@style/LinearLayoutOptionsVertical"
-            >
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_sdcard_title" />
-            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_use_sd_card">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_use_sd_card"
-                    style="@style/OptionCheckBox"/>
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_sdcard_text" />
-            </LinearLayout>
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:textSize="14sp"
-                android:text="@string/option_sdcard_text_caution" />
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_timeBeforeSleep" />
-            <LinearLayout
-                android:id="@+id/ll_autosleep_horizon"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
-                <TextView
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50sp"
-                    android:text="@string/option_timeBeforeSleep_text"
-                    android:textSize="24sp" />
-                <EditText style="@style/EditText"
-                    android:id="@+id/etTimeBeforeSleep"
-                    android:layout_width="70sp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
-                <TextView
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/option_timeBeforeSleep_min"
-                    android:textSize="24sp" />
-            </LinearLayout>
-            <TextView
-                android:text="Min = 1"
-                style="@style/OptionMiniText" />
-            <TextView
-                android:text="Max = 1440 (24h)"
-                style="@style/OptionMiniText" />
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout
-            android:id="@+id/ll_BackwardForward_vert"
-            style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_backward_forward_title" />
-            <LinearLayout
-                android:id="@+id/ll_BackwardForward_horizon"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
-                <TextView
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="50sp"
-                    android:text="@string/option_backward_forward_text"
-                    android:textSize="24sp" />
-                <EditText style="@style/EditText"
-                    android:id="@+id/etForwardSeconds"
-                    android:layout_width="70sp"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
-                    android:textAlignment="textEnd"
-                    android:textSize="24sp" />
-                <TextView
-                    style="@style/simpleText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="sec."
-                    android:textSize="24sp" />
-            </LinearLayout>
-            <TextView
-                android:text="Min = 1"
-                style="@style/OptionMiniText" />
-            <TextView
-                android:text="Max = 300 (5min)"
-                style="@style/OptionMiniText" />
-        </LinearLayout>
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTextDefaultFor"
-                android:text="@string/default_for" />
-            <TextView
-                android:id="@+id/txtCopyFileHead"
-                style="@style/OptionTitle"
-                android:text="@string/option_copy_file_title"
-                android:layout_marginTop="0dp"/>
-            <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-                android:layout_height="wrap_content"
-                android:id="@+id/ll_copy_file">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_copy_file"
-                    style="@style/OptionCheckBox"/>
-                <TextView style="@style/OptionCheckBoxText"
-                    android:text="@string/option_copy_file_text"/>
-            </LinearLayout>
-            <TextView
-                style="@style/OptionSubTitle"
-                android:text="@string/option_copy_file_special_zip" />
-            <TextView
-                style="@style/OptionSubTitle"
-                android:text="@string/option_copy_file_subtitle" />
-
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
-
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/network_preferences_title" />
-
-            <TextView
-                android:text="@string/beta_test"
-                style="@style/GetResourceTextTopOfButton"
-                android:textColor="@color/orange_700"
-                />
-
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <TextView style="@style/OptionCheckBoxText"
-                    android:text="@string/option_download_user_title"
-                    android:layout_width="135dp"
-                    />
-                <Spinner
-                    android:id="@+id/spinner_download_user"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:spinnerMode="dropdown"
-                    style="@style/Spinner" />
-            </LinearLayout>
-
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center_vertical"
-                android:weightSum="1">
-
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_download_auto_title"
-                    android:layout_width="135dp"
-                    />
-
-                <Spinner
-                    android:id="@+id/spinner_download_auto"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:spinnerMode="dropdown"
-                    style="@style/Spinner" />
-            </LinearLayout>
-            <TextView
-                style="@style/OptionSubTitle"
-                android:text="@string/option_network_preference_subtext" />
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_visualizer_title" />
-            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_visualizer_on">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_visualizer_on"
-                    style="@style/OptionCheckBox"/>
-                <TextView
-                    android:id="@+id/tx_Visualizer_on"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_visualizer_text_01" />
-            </LinearLayout>
-            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_visualizer_playpause">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_click_visualizer_playpause"
-                    style="@style/OptionCheckBox"/>
-                <TextView
-                    android:id="@+id/tx_click_visualizer_playpause"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_click_visualizer_playpause_text_01" />
-            </LinearLayout>
-        </LinearLayout>
-
-
-
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_create_cover" />
-            <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_create_cover">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_create_cover"
-                    style="@style/OptionCheckBox"/>
-                <TextView
-                    android:id="@+id/tx_create_cover"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_create_cover_text" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <!-- Séparateur -->
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Section : Taille & Police -->
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_text_appearance_title" />
-
-            <!-- Ligne Police (dropdown simple via Spinner) -->
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:id="@+id/ll_font_family">
-
-                <TextView style="@style/OptionCheckBoxText"
-                    android:text="@string/option_font_family"
-                    android:layout_width="80dp"
-                    />
-
-                <Spinner
-                    android:id="@+id/sp_font_family"
-                    android:spinnerMode="dropdown"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    style="@style/Spinner" />
-            </LinearLayout>
-
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginHorizontal="10sp">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_pick_theme_color_title" />
-
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="20sp"
-                android:gravity="center"
-                >
-                <ImageButton
-                    android:id="@+id/btn_color_01"
-                    style="@style/OptionsColorButtons"/>
-                <ImageButton
-                    android:id="@+id/btn_color_02"
-                    style="@style/OptionsColorButtons"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    />
-                <ImageButton
-                    android:id="@+id/btn_color_03"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="10sp"
-                >
-                <ImageButton
-                    android:id="@+id/btn_color_04"
-                    style="@style/OptionsColorButtons"/>
-                <ImageButton
-                    android:id="@+id/btn_color_05"
-                    style="@style/OptionsColorButtons"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    />
-                <ImageButton
-                    android:id="@+id/btn_color_06"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="10sp"
-                >
-                <ImageButton
-                    android:id="@+id/btn_color_07"
-                    style="@style/OptionsColorButtons"/>
-                <ImageButton
-                    android:id="@+id/btn_color_08"
-                    style="@style/OptionsColorButtons"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    />
-                <ImageButton
-                    android:id="@+id/btn_color_09"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="10sp"
-                >
-                <ImageButton
-                    android:id="@+id/btn_color_10"
-                    style="@style/OptionsColorButtons"/>
-                <ImageButton
-                    android:id="@+id/btn_color_11"
-                    style="@style/OptionsColorButtons"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    />
-                <ImageButton
-                    android:id="@+id/btn_color_12"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="10sp"
-                >
-                <ImageButton
-                    android:id="@+id/btn_color_13"
-                    style="@style/OptionsColorButtons"/>
-                <ImageButton
-                    android:id="@+id/btn_color_14"
-                    style="@style/OptionsColorButtons"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    />
-                <ImageButton
-                    android:id="@+id/btn_color_15"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
-            <LinearLayout
-                android:layout_height="wrap_content"
-                android:layout_width="fill_parent"
-                android:layout_marginTop="10sp"
-                >
-                <ImageButton
-                    android:id="@+id/btn_color_16"
-                    style="@style/OptionsColorButtons"/>
-                <ImageButton
-                    android:id="@+id/btn_color_17"
-                    style="@style/OptionsColorButtons"
-                    android:layout_marginStart="10dp"
-                    android:layout_marginEnd="10dp"
-                    />
-                <ImageButton
-                    android:id="@+id/btn_color_18"
-                    style="@style/OptionsColorButtons"/>
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout
-                android:id="@+id/ll_night_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:gravity="center_vertical"
-                android:clickable="true"
-                android:focusable="true">
-
-                <TextView
-                    android:id="@+id/tv_night_mode_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/option_night_mode_title"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/btn_night_mode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/option_night_mode_follow_system" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <!-- Button to show/hide advanced options -->
-        <Button
-            android:id="@+id/btnLibrivoxSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/librivox_settings"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            />
-        <Button
-            android:id="@+id/btnPodcastSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/podcast_settings"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            />
-        <Button
-            android:id="@+id/btnTtsSettings"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/tts_settings"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
-            />
-        <Button
-            android:id="@+id/btn_show_advanced"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/option_show_advanced_options"
-            android:layout_gravity="center"
-            android:layout_marginTop="20dp"
-            android:layout_marginBottom="20dp"
+            app:sectionTitle="@string/option_playing_behaviour_title"
+            app:sectionIcon="@drawable/ic_media_play_24"
             />
 
-
-        <!-- Advanced Options -->
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-        <LinearLayout
-            android:id="@+id/layout_advanced_options"
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_design"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
+            app:sectionTitle="@string/Design"
+            app:sectionIcon="@drawable/ic_palette_24px"
+            />
 
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_import"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Import"
+            app:sectionIcon="@drawable/ic_add_book_24" />
 
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTextDefaultFor"
-                    android:text="@string/default_for" />
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_split_m4b"
-                    android:layout_marginTop="0dp"/>
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_split_m4b">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_split_m4b"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        android:id="@+id/tx_split_m4b"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_split_m4b_text" />
-                </LinearLayout>
-            </LinearLayout>
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_librivox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/librivox"
+            app:sectionIcon="@drawable/ic_librivox_24" />
 
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_podcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Podcasts"
+            app:sectionIcon="@drawable/ic_podcast_24" />
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_tts"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Text_To_Speech"
+            app:sectionIcon="@drawable/ic_tts_24" />
 
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTextDefaultFor"
-                    android:text="@string/default_for" />
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_delete_source_file_title"
-                    android:layout_marginTop="0dp"/>
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/option_delete_source_file_subtitle" />
-                <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-                    android:id="@+id/ll_delete_source_file">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_delete_source_file"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        android:id="@+id/txt_delete_source_file"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_delete_source_file_text" />
-                </LinearLayout>
-            </LinearLayout>
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_automotive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/option_automotive_title"
+            app:sectionIcon="@drawable/ic_car_24" />
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_network"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/network_preferences_title"
+            app:sectionIcon="@drawable/ic_cloud_24" />
 
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_open_with_title" />
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/option_open_with_subtitle" />
-                <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-                    android:id="@+id/ll_open_with">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_open_with"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        android:id="@+id/txt_open_with"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_open_with_text" />
-                </LinearLayout>
-                <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-                    android:id="@+id/ll_open_with_all">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_open_with_all"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        android:id="@+id/txt_open_with_all"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_open_with_text_all" />
-                </LinearLayout>
-            </LinearLayout>
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_utilities"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Utilities"
+            app:sectionIcon="@drawable/ic_service_toolbox_24" />
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout
-                android:id="@+id/ll_beep"
-                style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_beep_title" />
-                <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_beep_chapter">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_beep_chapter"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_beep_between_chapters" />
-                </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/ll_beep_autostop"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_beep_autostop"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_beep_for_autostop" />
-                </LinearLayout>
-                <LinearLayout
-                    android:id="@+id/ll_beep_bookend"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_beep_bookend"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_beep_at_the_end" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_playing_behaviour_title" />
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_rewind_after_pause">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_rewind_after_pause"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_rewind_after_pause_text" />
-                </LinearLayout>
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_start_next_track_at_zero">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_start_next_track_at_zero"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_start_next_track_at_zero_title_text" />
-                </LinearLayout>
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_stop_audio_if_user_closes_app">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_stop_audio_if_user_closes_app"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_stop_audio_if_user_closes_app_text" />
-                </LinearLayout>
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_auto_play_on_main_player">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_auto_play_on_main_player"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_auto_play_on_main_player_text" />
-                </LinearLayout>
-                <LinearLayout style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:id="@+id/ll_open_play_activity">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_open_play_activity"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_open_play_activity" />
-                </LinearLayout>
-
-            </LinearLayout>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_automotive_title" />
-                <LinearLayout android:id="@+id/ll_automotive_on"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_automotive_on"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_automotive_on" />
-                </LinearLayout>
-
-                <LinearLayout android:id="@+id/ll_automotive_let_car_autoplay"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_automotive_let_car_autoplay"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_automotive_let_car_autoplay" />
-                </LinearLayout>
-
-                <LinearLayout android:id="@+id/ll_automotive_auto_resume_on_car_connect"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_automotive_auto_resume_on_car_connect"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_automotive_auto_resume_on_car_connect" />
-                </LinearLayout>
-
-            </LinearLayout>
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-            <LinearLayout style="@style/LinearLayoutOptionsVertical">
-
-                <TextView
-                    android:id="@+id/txtLog"
-                    style="@style/OptionTitle"
-                    android:text="@string/option_log" />
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/option_tech_log_subtitle" />
-                <LinearLayout style="@style/LayoutWrapContentMargin20horizontal"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/ll_tech_log_file">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_tech_log_file"
-                        style="@style/OptionCheckBox"/>
-                    <TextView style="@style/OptionCheckBoxText"
-                        android:text="@string/option_tech_log_text"/>
-                </LinearLayout>
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout
-                android:id="@+id/ll_MailMethod_vert"
-                style="@style/LinearLayoutOptionsVertical">
-                <TextView
-                    style="@style/OptionTitle"
-                    android:text="@string/option_mail_method" />
-                <LinearLayout
-                    android:id="@+id/ll_mail_method_default"
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                    <com.google.android.material.checkbox.MaterialCheckBox
-                        android:id="@+id/chk_mail_method_default"
-                        style="@style/OptionCheckBox"/>
-                    <TextView
-                        android:id="@+id/txt_mail_method_default"
-                        style="@style/OptionCheckBoxText"
-                        android:text="@string/option_mail_method_default" />
-                </LinearLayout>
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <TextView style="@style/OptionSubTitle"
-                    android:text="@string/app_language"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginTop="0dp"
-                    />
-                <Spinner
-                    android:id="@+id/spinner_app_language"
-                    style="@style/Spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"/>
-            </LinearLayout>
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         </LinearLayout>
-    </LinearLayout>
 
 </ScrollView>
