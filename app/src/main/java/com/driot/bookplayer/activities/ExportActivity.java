@@ -110,6 +110,9 @@ public class ExportActivity extends LoggingActivity {
         // Cancel button can always close
         btnCancel.setOnClickListener(v -> finish());
 
+
+        //TODO
+/*
         b_destinationFolder.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -119,6 +122,8 @@ public class ExportActivity extends LoggingActivity {
 
             // on result : exportFolder = result
         });
+
+ */
 
 
         // Load folder path in a background thread
@@ -162,12 +167,13 @@ public class ExportActivity extends LoggingActivity {
         btnExport.setEnabled(true);
 
         btnExport.setOnClickListener(v -> {
+
+            //TODO continue dev
+            String detFileFullPath = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"BookplayerExport_" + folder.getName() + ".zip").getPath();
+
             Intent serviceIntent = new Intent(this, ExportService.class);
             serviceIntent.putExtra(EXTRA_FOLDER_PATH, folderPath);
-            serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, folderPath);
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                    "BookplayerExport_" + folder.getName() + ".zip");
-
+            serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, detFileFullPath);
             startService(serviceIntent);
             btnExport.setEnabled(false);
             progressText.setText(getString(R.string.Export_display_text_preparing_export));

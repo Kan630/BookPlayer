@@ -34,6 +34,7 @@ import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.views.SettingSwitchRow;
 
 
 import static com.driot.bookplayer.global.Option.DEFAULT_FORWARD_SECONDS;
@@ -153,6 +154,14 @@ public class SettingsActivity extends LoggingActivity {
         btn_Color_16 = findViewById(R.id.btn_color_16);
         btn_Color_17 = findViewById(R.id.btn_color_17);
         btn_Color_18 = findViewById(R.id.btn_color_18);
+
+/*  //TODO new universal toggle to replace checkboxes
+        SettingSwitchRow rowOpenPlay = findViewById(R.id.row_sd_card);
+        rowOpenPlay.setChecked(Option.getOpenPlayActivity());
+        rowOpenPlay.setOnCheckedChangeListener((button, checked) -> {
+            Option.setOpenPlayActivity(checked);
+        });
+ */
 
         et_timeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
         et_ForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
