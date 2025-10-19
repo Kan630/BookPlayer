@@ -20,6 +20,7 @@ import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.objects.BookToAdd;
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
+import com.driot.bookplayer.utils.SdCardChecker;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -58,6 +59,8 @@ public class MyApp extends Application {
         }
 
         Option.applyNightMode();
+
+        SdCardChecker.isExternalSDCardAvailable(getApplicationContext()); //set cache
 
         InAppMsgManager.schedule(getApplicationContext());
 
