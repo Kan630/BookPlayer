@@ -39,6 +39,8 @@
                     android:id="@+id/coverContainer"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:layout_below="@+id/textViewSubTitle"
+                    android:layout_above="@+id/horizontalBarTopOfSleep"
                     >
                     <ImageView
                         android:id="@+id/folderImage"
@@ -56,6 +58,11 @@
                         android:layout_height="match_parent"
                         />
                 </com.driot.bookplayer.views.ClickInterceptFrameLayout>
+
+                <!-- TTS UI (hidden for audio files) -->
+                <include layout="@layout/tts_reader_layout"/>
+
+
 
                 <!-- TTS : remplace visuellement le visualizer quand visible -->
                 <LinearLayout

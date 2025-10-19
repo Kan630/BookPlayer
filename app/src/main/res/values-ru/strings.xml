@@ -955,7 +955,23 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="voice_name">имя голоса</string>
         <string name="Clipboard_is_empty">Буфер обмена пуст</string>
 
-
+        <string name="chars">символы</string>
+        <string name="reorder">изменить порядок</string>
+        <string name="new_">новый</string>
+        <string name="icon">значок</string>
+        <string name="Engine">движок</string>
+        <string name="delay">задержка</string>
+        <string name="Design">дизайн</string>
+        <string name="Import">импортировать</string>
+        <string name="Utilities">утилиты</string>
+        <string name="option_tts_highlight_delay_outOfBounds">Задержка подсветки</string>
+        <string name="option_tts_chunk_size_text">Размер блока :</string>
+        <string name="tts_chunk_size">Размер блока</string>
+        <string name="changeTracksOrder">изменить порядок треков</string>
+        <string name="Please_first_stop_the_player">Пожалуйста, сначала остановите плеер</string>
+        <string name="Failed_to_create_the_destionation_file">Не удалось создать файл назначения.</string>
+        <string name="Cannot_write_to_the_chosen_folder">Невозможно записать в выбранную папку.</string>
+        <string name="Export_done_Excl">"Экспорт завершён!"</string>
 
 
 

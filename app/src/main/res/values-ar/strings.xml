@@ -948,5 +948,22 @@
     <string name="voice_name">اسم الصوت</string>
     <string name="Clipboard_is_empty">الحافظة فارغة</string>
 
+    <string name="chars">أحرف</string>
+    <string name="reorder">إعادة الترتيب</string>
+    <string name="new_">جديد</string>
+    <string name="icon">رمز</string>
+    <string name="Engine">المحرك</string>
+    <string name="delay">تأخير</string>
+    <string name="Design">تصميم</string>
+    <string name="Import">استيراد</string>
+    <string name="Utilities">أدوات</string>
+    <string name="option_tts_highlight_delay_outOfBounds">تأخير التمييز</string>
+    <string name="option_tts_chunk_size_text">حجم المقطع:</string>
+    <string name="tts_chunk_size">حجم المقطع</string>
+    <string name="changeTracksOrder">تغيير ترتيب المقاطع</string>
+    <string name="Please_first_stop_the_player">يرجى أولاً إيقاف المشغل</string>
+    <string name="Failed_to_create_the_destionation_file">فشل في إنشاء ملف الوجهة.</string>
+    <string name="Cannot_write_to_the_chosen_folder">لا يمكن الكتابة إلى المجلد المختار.</string>
+    <string name="Export_done_Excl">"تم التصدير !"</string>
 
 </resources>

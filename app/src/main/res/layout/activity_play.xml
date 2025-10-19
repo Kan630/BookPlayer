@@ -262,10 +262,7 @@
         </com.driot.bookplayer.views.ClickInterceptFrameLayout>
 
     <!-- TTS UI (hidden for audio files) -->
-    <include
-        layout="@layout/tts_reader_layout"
-        android:layout_below="@+id/textViewSubTitle"
-        android:layout_above="@+id/horizontalBarTopOfSleep" />
+    <include layout="@layout/tts_reader_layout"/>
 
 
 

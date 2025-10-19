@@ -949,4 +949,22 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="voice_name">nom de la voix</string>
     <string name="Clipboard_is_empty">Le presse-papiers est vide</string>
 
+    <string name="chars">caractères</string> <!-- means : word character -->
+    <string name="reorder">réorganiser</string>
+    <string name="new_">nouveau</string>
+    <string name="icon">icône</string>
+    <string name="Engine">Moteur</string>
+    <string name="delay">délai</string>
+    <string name="Design">Conception</string>
+    <string name="Import">Importer</string>
+    <string name="Utilities">Utilitaires</string>
+    <string name="option_tts_highlight_delay_outOfBounds">Délai de surbrillance</string>
+    <string name="option_tts_chunk_size_text">Taille des segments :</string>
+    <string name="tts_chunk_size">Taille des segments</string>
+    <string name="changeTracksOrder">changer l\'ordre des pistes</string>
+    <string name="Please_first_stop_the_player">Veuillez d\'abord arrêter le lecteur</string>
+    <string name="Failed_to_create_the_destionation_file">Échec de création du fichier de destination.</string>
+    <string name="Cannot_write_to_the_chosen_folder">Impossible d\'écrire dans le dossier choisi.</string>
+    <string name="Export_done_Excl">"Export terminé !"</string>
+
 </resources>

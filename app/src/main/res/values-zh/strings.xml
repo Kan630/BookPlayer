@@ -950,5 +950,22 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="voice_name">语音名称</string>
     <string name="Clipboard_is_empty">剪贴板为空</string>
 
+    <string name="chars">字符</string> <!-- means : word character -->
+    <string name="reorder">重新排序</string>
+    <string name="new_">新的</string>
+    <string name="icon">图标</string>
+    <string name="Engine">引擎</string>
+    <string name="delay">延迟</string>
+    <string name="Design">设计</string>
+    <string name="Import">导入</string>
+    <string name="Utilities">实用程序</string>
+    <string name="option_tts_highlight_delay_outOfBounds">高亮延迟</string>
+    <string name="option_tts_chunk_size_text">块大小：</string>
+    <string name="tts_chunk_size">块大小</string>
+    <string name="changeTracksOrder">更改曲目顺序</string>
+    <string name="Please_first_stop_the_player">请先停止播放器</string>
+    <string name="Failed_to_create_the_destionation_file">无法创建目标文件。</string>
+    <string name="Cannot_write_to_the_chosen_folder">无法写入所选文件夹。</string>
+    <string name="Export_done_Excl">"导出完成！"</string>
 
 </resources>

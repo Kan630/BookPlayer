@@ -965,7 +965,23 @@
     <string name="source_flag">bandeira de origem</string>
     <string name="voice_name">nome da voz</string>
     <string name="Clipboard_is_empty">A área de transferência está vazia</string>
-
+    <string name="chars">caracteres</string>
+    <string name="reorder">reordenar</string>
+    <string name="new_">novo</string>
+    <string name="icon">ícone</string>
+    <string name="Engine">motor</string>
+    <string name="delay">atraso</string>
+    <string name="Design">design</string>
+    <string name="Import">importar</string>
+    <string name="Utilities">utilitários</string>
+    <string name="option_tts_highlight_delay_outOfBounds">Atraso de destaque</string>
+    <string name="option_tts_chunk_size_text">Tamanho do bloco :</string>
+    <string name="tts_chunk_size">Tamanho do bloco</string>
+    <string name="changeTracksOrder">mudar a ordem das faixas</string>
+    <string name="Please_first_stop_the_player">Por favor, pare primeiro o reprodutor</string>
+    <string name="Failed_to_create_the_destionation_file">Falha ao criar o arquivo de destino.</string>
+    <string name="Cannot_write_to_the_chosen_folder">Não é possível gravar na pasta escolhida.</string>
+    <string name="Export_done_Excl">"Exportação concluída!"</string>
 
 
 </resources>

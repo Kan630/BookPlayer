@@ -941,4 +941,23 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
     <string name="source_flag">bandera de origen</string>
     <string name="voice_name">nombre de voz</string>
     <string name="Clipboard_is_empty">El portapapeles está vacío</string>
+
+    <string name="chars">caracteres</string>
+    <string name="reorder">reordenar</string>
+    <string name="new_">nuevo</string>
+    <string name="icon">icono</string>
+    <string name="Engine">motor</string>
+    <string name="delay">retraso</string>
+    <string name="Design">diseño</string>
+    <string name="Import">importar</string>
+    <string name="Utilities">utilidades</string>
+    <string name="option_tts_highlight_delay_outOfBounds">Retraso de resaltado</string>
+    <string name="option_tts_chunk_size_text">Tamaño del fragmento :</string>
+    <string name="tts_chunk_size">Tamaño del fragmento</string>
+    <string name="changeTracksOrder">cambiar el orden de las pistas</string>
+    <string name="Please_first_stop_the_player">Por favor, detén primero el reproductor</string>
+    <string name="Failed_to_create_the_destionation_file">Error al crear el archivo de destino.</string>
+    <string name="Cannot_write_to_the_chosen_folder">No se puede escribir en la carpeta seleccionada.</string>
+    <string name="Export_done_Excl">"¡Exportación completa!"</string>
+
 </resources>
