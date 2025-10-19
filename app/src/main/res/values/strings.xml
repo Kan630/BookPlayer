@@ -20,6 +20,13 @@
     <string name="title_FolderContent">Files List</string>
 
 
+
+    <string name="Warning">Warning</string>
+    <string name="beta_test">beta test</string>
+    <string name="warning_beta_test">Beta Feature – May be unstable</string>">
+    <string name="three_dots" translatable="false">…</string>
+
+
     <!-- ********************************** -->
     <!-- GENERAL -->
 
@@ -50,9 +57,6 @@
     <string name="Finished">Finished</string>
     <string name="add_book">add book</string>
 
-    <string name="Warning">Warning</string>
-    <string name="beta_test">beta test</string>
-    <string name="three_dots" translatable="false">…</string>
 
     <string name="Not_enough_memory">Not enough memory</string>
     <string name="unexpected_error">Unexpected error</string>
@@ -423,6 +427,12 @@
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
     <string name="option_tts_highlight_delay_text">Engine delay :</string>
 
+    <string name="option_text_preview_label">Preview</string>
+    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
+    <string name="option_automotive_title">Automotive</string>
+    <string name="option_automotive_on">Display in Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Auto-resume playback when connected to the car.</string>
+    <string name="option_automotive_keep_phone_playback_on_car_connect">Keep phone playing when connected to the car.</string>
 
 
 
@@ -840,7 +850,6 @@
 
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
     <string name="bOpenFolder_desc">Pick a folder : all audios (even in subfolders, if any) will be imported in the same book.</string>
-    <string name="warning_beta_test">Beta Feature – May be unstable</string>">
 
     <string name="type_here_">Type here…</string>">
 
@@ -898,10 +907,6 @@
     <string name="could_not_identify_track_to_modify">could not identify track to modify</string>
     <string name="could_not_identify_folder_to_modify">could not identify folder to modify</string>
 
-    <string name="option_automotive_title">Automotive</string>
-    <string name="option_automotive_on">Display in Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Auto-resume playback when connected to the car.</string>
-    <string name="option_automotive_keep_phone_playback_on_car_connect">Keep phone playing when connected to the car.</string>
     <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
     <string name="automotive_empty_book">Empty book</string>
     <string name="automotive_resume_play">Resume play</string>

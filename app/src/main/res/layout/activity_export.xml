@@ -46,6 +46,28 @@
         android:layout_marginTop="20dp"
         />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            style="@style/simpleText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="in"
+            android:textSize="20sp"
+            />
+        <Button
+            android:id="@+id/b_destinationFolder"
+            style="@style/GetResourceButton"
+            android:text="Download folder"/>
+
+
+
+    </LinearLayout>
+
+
     <TextView
         android:id="@+id/tvCurrentTrack"
         style="@style/ExportProgressText"

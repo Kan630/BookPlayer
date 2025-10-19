@@ -291,10 +291,10 @@ public class ModifyFolderActivity extends LoggingActivity {
         int introCut = 0;
         try {
             introCut = Integer.parseInt(etIntroCut.getText().toString());
+            Pref.saveIntroCutToPref(this, folder.getId(), introCut);
         } catch (Exception e) {
             myLogE("Bad introCut value");
         }
-        Pref.saveIntroCutToPref(this, folder.getId(), introCut);
         super.onDestroy();
     }
 

@@ -28,13 +28,14 @@ public class ExportService extends LoggingService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         String folderPath = intent.getStringExtra(ExportActivity.EXTRA_FOLDER_PATH);
+        String destFileFullPath = intent.getStringExtra(ExportActivity.EXTRA_DEST_FILE_FULL_PATH);
         if (folderPath != null) {
-            new Thread(() -> zipFolder(folderPath)).start();
+            new Thread(() -> zipFolder(folderPath, destFileFullPath)).start();
         }
         return START_NOT_STICKY;
     }
 
-    private void zipFolder(String folderPath) {
+    private void zipFolder(String folderPath, String destFileFullPath) {
         File folder = new File(folderPath);
         if (!folder.exists() || !folder.isDirectory()) return;
 
@@ -47,8 +48,7 @@ public class ExportService extends LoggingService {
             }
         }
 
-        File output = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                "BookplayerExport_" + folder.getName() + ".zip");
+        File output = new File(destFileFullPath);
 
         try (ZipOutputStream zos = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(output)))) {
             long zippedSoFar = 0;
@@ -105,23 +105,6 @@ public class ExportService extends LoggingService {
             LocalBroadcastManager.getInstance(this).sendBroadcast(failIntent);
         }
 
-/*
-// Notification => To intrusive, Toast Okay, but right now Sharing opens...so useless
-        String notifTxt = getString(R.string.Export_notification_text) + " (" + output.getName() + ")";
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-                NotificationManagerCompat.from(this).areNotificationsEnabled()) {
-
-            NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "export_channel")
-                    .setSmallIcon(R.drawable.ic_download_24dp)
-                    .setContentTitle(getString(R.string.Export_notification_title))
-                    .setContentText(notifTxt)
-                    .setPriority(NotificationCompat.PRIORITY_HIGH);
-
-            NotificationManagerCompat.from(this).notify(1001, builder.build());
-        } else {
-            myToast(notifTxt);
-        }
- */
     }
 
     private void sendProgress(String currentTrack, long zippedSoFar, int fileIndex) {

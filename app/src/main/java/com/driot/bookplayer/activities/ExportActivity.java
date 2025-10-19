@@ -6,6 +6,7 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.*;
@@ -28,17 +29,20 @@ import java.io.File;
 
 public class ExportActivity extends LoggingActivity {
 
-    //private static final int REQUEST_CODE_POST_NOTIFICATIONS = 2025;
-
     public static final String EXTRA_FOLDER_ID = "EXTRA_FOLDER_ID";
     public static final String EXTRA_FOLDER_PATH = "EXTRA_FOLDER_PATH";
+    public static final String EXTRA_DEST_FILE_FULL_PATH = "EXTRA_FILE_NAME";
+
+    public static final int REQUEST_CODE_destinationFolder = 35737;
 
     private int folderId;
     File folder;
     private String folderPath;
     private ProgressBar progressBar;
     private TextView progressText, tvCurrentTrack, tvExportAudioBookName;
-    private Button btnExport, btnCancel;
+    private Button btnExport, btnCancel, b_destinationFolder;
+
+    private String exportFolder;
 
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
@@ -94,6 +98,7 @@ public class ExportActivity extends LoggingActivity {
         tvCurrentTrack = findViewById(R.id.tvCurrentTrack);
         btnExport = findViewById(R.id.btnStartExport);
         btnCancel = findViewById(R.id.btnCancelExport);
+        b_destinationFolder = findViewById(R.id.b_destinationFolder);
 
         // Initially disable the export button and show loading message
         btnExport.setEnabled(false);
@@ -105,6 +110,17 @@ public class ExportActivity extends LoggingActivity {
         // Cancel button can always close
         btnCancel.setOnClickListener(v -> finish());
 
+        b_destinationFolder.setOnClickListener(v -> {
+            Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TITLE, );
+            startActivityForResult(intent, REQUEST_CODE_destinationFolder);
+
+            // on result : exportFolder = result
+        });
+
+
         // Load folder path in a background thread
         new Thread(() -> {
             folderPath = AppDatabase.getDatabase(this).zikFileDao().getFolderPath(folderId);
@@ -112,9 +128,6 @@ public class ExportActivity extends LoggingActivity {
             folder = new File(folderPath);
             onFolderPathLoaded();
         }).start();
-
-        //prepareNotificationStuff();
-
     }
 
     private void onFolderPathLoaded() {
@@ -140,17 +153,21 @@ public class ExportActivity extends LoggingActivity {
                 }
             }
 
-            allowExport();
+            goExport();
 
         });
     }
 
-    private void allowExport() {
+    private void goExport() {
         btnExport.setEnabled(true);
 
         btnExport.setOnClickListener(v -> {
             Intent serviceIntent = new Intent(this, ExportService.class);
             serviceIntent.putExtra(EXTRA_FOLDER_PATH, folderPath);
+            serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, folderPath);
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+                    "BookplayerExport_" + folder.getName() + ".zip");
+
             startService(serviceIntent);
             btnExport.setEnabled(false);
             progressText.setText(getString(R.string.Export_display_text_preparing_export));
@@ -179,32 +196,10 @@ public class ExportActivity extends LoggingActivity {
 
         if (requestCode == 123) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                allowExport();
+                goExport();
             } else {
                 myToastE("Permission denied, cannot export to Downloads.");
             }
         }
     }
-
-/* Notification not really needed...
-    private void prepareNotificationStuff() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel("export_channel",
-                    "Export Notifications", NotificationManager.IMPORTANCE_LOW);
-            NotificationManager manager = getSystemService(NotificationManager.class);
-            if (manager != null) manager.createNotificationChannel(channel);
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                requestPermissions(
-                        new String[]{android.Manifest.permission.POST_NOTIFICATIONS},
-                        REQUEST_CODE_POST_NOTIFICATIONS);
-            }
-        }
-    }
- */
-
-
-
 }
