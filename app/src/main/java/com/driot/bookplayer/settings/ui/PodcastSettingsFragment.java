@@ -87,7 +87,7 @@ public class PodcastSettingsFragment extends LoggingFragment {
                 Option.setPodcastAutoDelete(isChecked));
 
         // ====== EDIT TEXTS ======
-        et_podcast_index_org_api_nb_results = root.findViewById(R.id.et_podcast_index_org_api_nb_results);
+        et_podcast_index_org_api_nb_results = root.findViewById(R.id.et_librivox_api_nb_results);
         et_podcast_index_org_api_nb_results.setText(String.valueOf(Option.getPodcastIndexOrgApiNbResults()));
 
         et_podcast_auto_download_last_n_episode = root.findViewById(R.id.et_auto_download_last_n_episode);

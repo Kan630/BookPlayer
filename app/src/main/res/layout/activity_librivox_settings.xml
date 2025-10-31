@@ -43,7 +43,7 @@
                     <EditText
                         style="@style/OptionPodcastEditText"
                         android:layout_width="70dp"
-                        android:id="@+id/et_podcast_index_org_api_nb_results"
+                        android:id="@+id/et_librivox_api_nb_results"
                         />
                     <TextView
                         style="@style/OptionPodcastTextAfterEditText"

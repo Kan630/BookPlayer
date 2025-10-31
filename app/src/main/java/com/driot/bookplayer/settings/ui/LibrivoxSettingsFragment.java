@@ -36,7 +36,7 @@ public class LibrivoxSettingsFragment extends LoggingFragment {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
 
-        etLibrivoxNbResults = root.findViewById(R.id.et_podcast_index_org_api_nb_results);
+        etLibrivoxNbResults = root.findViewById(R.id.et_librivox_api_nb_results);
         etLibrivoxNbResults.setText(String.valueOf(Option.getLibrivoxApiNbResults()));
 
         return root;

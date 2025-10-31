@@ -261,26 +261,32 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                         boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
                         myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
 
-                        if (lastUiState==null
-                                || !lastUiState.playing
-                                || !sameTrack
-                            //|| isTTS //TODO remove : TTS not perfect yet, so we force reload...
-                        ) {
-                            ContextCompat.startForegroundService(
-                                    context.getApplicationContext(),
-                                    new Intent(context.getApplicationContext(), AudioService.class)
-                                            .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
-                                            .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
-                                            .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
-                                            .putExtra(Intents.EXTRA_FOREGROUND, true)
-                            );
-                        }
-                        if (Option.getOpenPlayActivity()
-                                || isTTS
-                                || sameTrack
-                        ) {
-                            runOnUi(() -> context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)));
-                        }
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            // open play screen ?
+                            if (Option.getOpenPlayActivity()
+                                    || isTTS
+                                    || sameTrack
+                            ) {
+                                context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                            }
+
+                            // start foreground audio service ?
+                            if (lastUiState==null
+                                    || !lastUiState.playing
+                                    || !sameTrack
+                                //|| isTTS //TODO remove : TTS not perfect yet, so we force reload...
+                            ) {
+                                ContextCompat.startForegroundService(
+                                        context.getApplicationContext(),
+                                        new Intent(context.getApplicationContext(), AudioService.class)
+                                                .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
+                                                .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
+                                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
+                                                .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                );
+                            }
+                        });
+
                     }
                 }
             } catch (Exception e) {

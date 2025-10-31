@@ -45,6 +45,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -713,50 +714,10 @@ public class PlayActivity extends LoggingActivity {
 
 
     private void finishAndShowFatalError(String errMessage) {
-        try {
-            String pathText = null;
-            PlayList pl = PlayList.getInstance();
-            if (pl != null && pl.getZikFile() != null) {
-                String zikFilePath = pl.getZikFile().getPath();
-                pathText = getString(R.string.source_file_path) + " = \n[" + Uri.decode(zikFilePath) + "]";
-                boolean exists = FileHelper.exists(zikFilePath);
-
-                if (errMessage == null || errMessage.isEmpty()) {
-                    if (!exists) {
-                        if (StorageHelper.isInInternalMemory(zikFilePath)) {
-                            errMessage = getString(R.string.source_not_found);
-                        } else {
-                            errMessage = getString(R.string.source_not_found_deleted);
-                        }
-                    } else {
-                        if (!isReadAudioPermissionGranted(this)) {
-                            errMessage = getString(R.string.permission_not_set);
-                            MsgBox.alertWithNeutral(
-                                    this,
-                                    getString(R.string.error_reading_track),
-                                    errMessage,
-                                    pathText,
-                                    getString(R.string.settings),
-                                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                            .setData(android.net.Uri.fromParts("package", getPackageName(), null))
-                            );
-                            finish();
-                            return;
-                        } else {
-                            errMessage = getString(R.string.source_not_found);
-                        }
-                    }
-                }
-            } else {
-                errMessage = getString(R.string.error_playlist_null);
-            }
-
-            MsgBox.alert(this, getString(R.string.error_reading_track), errMessage, pathText);
-        } catch (Throwable t) {
-            myToastEE(t, getString(R.string.error_reading_track));
-        }
+        ErrorUi.showPlayAudioErrorMessage(this, errMessage);
         finish();
     }
+
     /** Map TTS warm-up reason -> user-friendly message id. */
     private int mapWarmupReasonToMsg(int reason) {
         switch (reason) {

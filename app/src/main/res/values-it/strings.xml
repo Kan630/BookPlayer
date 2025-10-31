@@ -799,7 +799,7 @@
     <string name="action_delete">🗑️ Elimina</string>
     <string name="action_change">🖼️ Cambia</string>
 
-    <string name="Podcast_specific_view">Vista specifica podcast</string>
+    <string name="Specific_view">Vista specifica podcast</string>
     <string name="Classic_book_view">Vista libro classica</string>
     <string name="option_podcast_autodownloaded_at_the_top">Quando vengono scaricati nuovi episodi, sposta il podcast in cima all\'elenco degli audiolibri.</string>
     <string name="option_podcast_autodownload_subtitle">"Se contrassegni un podcast come preferito, puoi anche abilitare l\'opzione \'download automatico\'.\nBookPlayer controllerà quindi i nuovi episodi — sia periodicamente sia all\'avvio — e li scaricherà."</string>

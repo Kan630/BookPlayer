@@ -771,7 +771,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="action_delete">🗑️ Supprimer</string>
     <string name="action_change">🖼️ Changer</string>
 
-    <string name="Podcast_specific_view">Vue spécifique podcast</string>
+    <string name="Specific_view">Vue spécifique podcast</string>
     <string name="Classic_book_view">Vue classique du livre</string>
     <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
     <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>

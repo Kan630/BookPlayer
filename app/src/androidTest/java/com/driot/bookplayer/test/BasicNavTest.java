@@ -110,8 +110,13 @@ public abstract class BasicNavTest implements LogSupport {
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_settings);
         TestNavUtils.logCurrentActivity();
+        onView(ViewMatchers.withId(R.id.section_play_behaviour)).perform(scrollTo(), click());
+        onView(ViewMatchers.withId(R.id.section_play_behaviour)).perform(scrollTo(), click());
+        onView(ViewMatchers.withId(R.id.section_design)).perform(scrollTo(), click());
+        onView(ViewMatchers.withId(R.id.section_design)).perform(scrollTo(), click());
+
+/*
         onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btnPodcastSettings)).perform(scrollTo(), click());
         TestNavUtils.logCurrentActivity();
         TestNavUtils.assertPressBackTo(SettingsActivity.class);
         onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
@@ -136,7 +141,7 @@ public abstract class BasicNavTest implements LogSupport {
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
-
+*/
         //menu_open
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_open);

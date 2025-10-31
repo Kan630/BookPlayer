@@ -770,7 +770,7 @@
     <string name="action_delete">🗑️ حذف</string>
     <string name="action_change">🖼️ تغيير</string>
 
-    <string name="Podcast_specific_view">عرض خاص بالبودكاست</string>
+    <string name="Specific_view">عرض خاص بالبودكاست</string>
     <string name="Classic_book_view">عرض الكتاب الكلاسيكي</string>
     <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
     <string name="option_podcast_autodownload_subtitle">"إذا قمت بوضع علامة على بودكاست كمفضل، يمكنك أيضًا تفعيل خيار \'التنزيل التلقائي\'.\nسيتحقق BookPlayer بعد ذلك من الحلقات الجديدة — دوريًا وعند بدء التشغيل — وسيقوم بتنزيلها."</string>

@@ -784,7 +784,7 @@ Sind Sie sicher?"</string>
     <string name="action_delete">🗑️ Löschen</string>
     <string name="action_change">🖼️ Ändern</string>
 
-    <string name="Podcast_specific_view">Podcast-spezifische Ansicht</string>
+    <string name="Specific_view">Podcast-spezifische Ansicht</string>
     <string name="Classic_book_view">Klassische Buchansicht</string>
     <string name="option_podcast_autodownloaded_at_the_top">Wenn neue Episoden heruntergeladen werden, den Podcast oben in der Hörbuchliste anzeigen.</string>
     <string name="option_podcast_autodownload_subtitle">"Wenn Sie einen Podcast als Favorit markieren, können Sie auch die Option 'Auto-Download' aktivieren.\nBookPlayer prüft dann auf neue Episoden – sowohl periodisch als auch beim Start – und lädt sie herunter."</string>

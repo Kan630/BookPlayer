@@ -28,6 +28,7 @@ public class LanguageHelper {
         list.add(new LanguageItem("deu","de",     "Deutsch",        R.drawable.flag_de));
         list.add(new LanguageItem("ita","it",     "Italiano",       R.drawable.flag_it));
         list.add(new LanguageItem("por","pt",     "Português",      R.drawable.flag_pt));
+        list.add(new LanguageItem("hin","hi",     "हिन्दी",            R.drawable.flag_in));
         list.add(new LanguageItem("ara","ar",     "العربية",        R.drawable.flag_sa));
         list.add(new LanguageItem("rus","ru",     "Русский",        R.drawable.flag_ru));
         list.add(new LanguageItem("zho","zh",     "中文",            R.drawable.flag_cn));

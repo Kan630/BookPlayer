@@ -895,7 +895,7 @@
     <string name="action_web_search">🔎 Web search</string>
 
 
-    <string name="Podcast_specific_view">Podcast specific view</string>
+    <string name="Specific_view">Specific view</string>
     <string name="Classic_book_view">Classic book view</string>
 
     <string name="toast_tts_not_ready">"Text-to-Speech not ready !"</string>

@@ -91,10 +91,10 @@
       </SelectionState>
       <SelectionState runConfigName="BasicNavPortraitTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-08T07:28:07.846073400Z">
+        <DropdownSelection timestamp="2025-10-20T07:40:07.976189300Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -153,16 +153,8 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="BasicNavLandscapeTest">
+      <SelectionState runConfigName="expandsEachSection_scrolls_topAndBottom_andSeesControls()">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-10T16:06:16.816564100Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>

@@ -100,7 +100,6 @@ public class LoadManyBookTest implements LogSupport {
     // Launches MainActivity before each test
     @Rule public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
-    @Rule public LoggingWatcher logs = new LoggingWatcher();
 
     StringBuilder logFinalImportMsg;
     StringBuilder logFinalPlayMsg;
@@ -108,8 +107,9 @@ public class LoadManyBookTest implements LogSupport {
     int nbImported = 0;
     String lastImport;
 
+    @Rule public LoggingWatcher logs = new LoggingWatcher();
     @Before
-    public void setUp() {
+        public void setUp() {
         myLog("ooooooooooooooooooooooooooooooooooooooooo");
         myLog("----------------- setUp -----------------");
         myLog("ooooooooooooooooooooooooooooooooooooooooo");

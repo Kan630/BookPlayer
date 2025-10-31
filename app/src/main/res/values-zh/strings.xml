@@ -772,7 +772,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="action_delete">🗑️ 删除</string>
     <string name="action_change">🖼️ 更改</string>
 
-    <string name="Podcast_specific_view">播客专用视图</string>
+    <string name="Specific_view">播客专用视图</string>
     <string name="Classic_book_view">经典书籍视图</string>
     <string name="option_podcast_autodownloaded_at_the_top">当下载新剧集时，将播客移动到有声书列表的顶部。</string>
     <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>

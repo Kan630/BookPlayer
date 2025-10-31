@@ -241,6 +241,13 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS=" + isTTS + " - lastUiState = " + lastUiState);
 
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+
+                    // open PlayActivity
+                    if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
+                        ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                    }
+
+                    // start audio service
                     if (lastUiState==null
                             || !lastUiState.playing
                             || !sameTrack
@@ -255,10 +262,6 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                         );
                     }
 
-                    //maybe open PlayActivity
-                    if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
-                        ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-                    }
                 });
             });
         }
