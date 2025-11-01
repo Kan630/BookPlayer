@@ -31,6 +31,12 @@
                 style="@style/OptionTitle"
                 android:text="@string/app_language" />
 
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_app_language_subtitle"
+                android:textStyle="italic"
+                />
+
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
 

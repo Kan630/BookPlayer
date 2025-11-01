@@ -1028,6 +1028,7 @@
     <string name="option_play_view">"Play View"</string>
     <string name="option_click_container_playpause_text">A click on the image will pause/resume the audio</string>
     <string name="double_click_image_to_get_back_to_text_view">Double-click on the image to get back to text view</string>
+    <string name="option_app_language_subtitle">May not work on some devices (some devices may prevent using a language different from the system default).</string>
 
 
 
