@@ -7,6 +7,8 @@ import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.utils.Tonio;
+
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -46,8 +48,10 @@ public final class Fb2LowLevelHelper {
 
     private static final class Meta {
         String title;                 // <description><title-info><book-title>
-        String coverImageId;          // id without '#' from coverpage image
+        String coverImageId;          // id without '#' from coverpage image (original case)
+        // Store binaries keyed by LOWERCASE id for robust lookup
         final java.util.Map<String, byte[]> binaries = new LinkedHashMap<>();
+        final java.util.Map<String, String> binaryTypes = new LinkedHashMap<>(); // LOWERCASE id -> content-type
     }
 
     // ---------------- Public API ----------------
@@ -57,27 +61,60 @@ public final class Fb2LowLevelHelper {
 
         // Read whole FB2 as UTF-8 text
         String xml = readAllText(ctx, fb2Uri);
-        myLogD("FB2 size: " + xml.length() + " chars");
+        myLogD("FB2 size: " + Tonio.getReadableSize(xml.length()) + " chars");
 
         // Pass 1: metadata + binaries (cover image decoding)
         Meta meta = parseMetaAndBinaries(xml);
         String bookTitle = (meta.title != null && !meta.title.trim().isEmpty()) ? meta.title.trim() : "untitled";
         myLog("Book title: " + bookTitle);
 
-        Bitmap cover = null;
+        // Resolve cover bytes
+        byte[] coverBytes = null;
+        String chosenCoverId = null;
+
         if (meta.coverImageId != null) {
-            byte[] bytes = meta.binaries.get(meta.coverImageId);
-            if (bytes == null) {
-                // try case-insensitive key match
-                for (String k : meta.binaries.keySet()) {
-                    if (k.equalsIgnoreCase(meta.coverImageId)) { bytes = meta.binaries.get(k); break; }
-                }
-            }
-            if (bytes != null) {
-                cover = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
-                if (cover != null) myLogD("Cover decoded OK (" + bytes.length + " bytes)");
+            String key = meta.coverImageId.toLowerCase(Locale.ROOT);
+            coverBytes = meta.binaries.get(key);
+            if (coverBytes != null) {
+                chosenCoverId = key;
             } else {
                 myLogW("Cover id present but no matching <binary>: " + meta.coverImageId);
+            }
+        }
+
+// Fallback: choose the first image/* binary if no explicit cover
+        if (coverBytes == null && !meta.binaryTypes.isEmpty()) {
+            // sort ids alphabetically for deterministic selection
+            List<String> ids = new ArrayList<>(meta.binaryTypes.keySet());
+            ids.sort(String::compareToIgnoreCase);
+
+            for (String id : ids) {
+                String type = meta.binaryTypes.get(id);
+                if (type != null && type.toLowerCase(Locale.ROOT).startsWith("image/")) {
+                    coverBytes = meta.binaries.get(id);
+                    chosenCoverId = id;
+                    myLogW("No <coverpage>; using first image binary id=" + id + " (" + type + ")");
+                    break;
+                }
+            }
+
+            // Last resort: any first binary (sorted by id)
+            if (coverBytes == null && !ids.isEmpty()) {
+                String id = ids.get(0);
+                coverBytes = meta.binaries.get(id);
+                chosenCoverId = id;
+                myLogW("No image/* binaries; using first binary id=" + id);
+            }
+        }
+
+
+        Bitmap cover = null;
+        if (coverBytes != null) {
+            cover = decodeDownsampled(coverBytes, /*maxDim*/ 2048); // safe decode
+            if (cover != null) {
+                myLog("Cover decoded OK (" + Tonio.getReadableSize(coverBytes.length) + " bytes)");
+            } else {
+                myLogW("Cover decode failed for id=" + chosenCoverId);
             }
         }
 
@@ -122,8 +159,10 @@ public final class Fb2LowLevelHelper {
 
         boolean inDescription = false;
         boolean inTitleInfo   = false;
+        boolean inCoverpage   = false;   // NEW: ensure image is from <coverpage>
         boolean inBookTitle   = false;
         boolean inBinary      = false;
+
         String currentBinaryId = null;
         String currentBinaryType = null;
         StringBuilder binBuf = null;
@@ -133,19 +172,19 @@ public final class Fb2LowLevelHelper {
             if (t == XmlPullParser.START_TAG) {
                 String tag = x.getName();
 
-                // Description / title-info / book-title
+                // Description / title-info / coverpage / book-title
                 if ("description".equalsIgnoreCase(tag)) {
                     inDescription = true;
                 } else if (inDescription && "title-info".equalsIgnoreCase(tag)) {
                     inTitleInfo = true;
+                } else if (inTitleInfo && "coverpage".equalsIgnoreCase(tag)) {
+                    inCoverpage = true; // begin cover scope
                 } else if (inTitleInfo && "book-title".equalsIgnoreCase(tag)) {
                     inBookTitle = true;
-                } else if (inTitleInfo && "coverpage".equalsIgnoreCase(tag)) {
-                    // Next <image> element inside may hold xlink:href
-                } else if (inTitleInfo && "image".equalsIgnoreCase(tag)) {
-                    String href = x.getAttributeValue(XLINK, "href");
-                    if (href == null) href = x.getAttributeValue(null, "href");
-                    if (href == null) href = x.getAttributeValue("", "href");
+                } else if (inCoverpage && "image".equalsIgnoreCase(tag)) {
+                    // Only treat image under coverpage as the cover
+                    String href = attrNs(x, XLINK, "href");
+                    if (href == null) href = attr(x, "href");
                     if (href != null && href.startsWith("#")) href = href.substring(1);
                     if (href != null && !href.isEmpty()) {
                         meta.coverImageId = href;
@@ -156,8 +195,8 @@ public final class Fb2LowLevelHelper {
                 // Binary (base64)
                 if ("binary".equalsIgnoreCase(tag)) {
                     inBinary = true;
-                    currentBinaryId   = attr(x,"id");
-                    currentBinaryType = attr(x,"content-type");
+                    currentBinaryId   = attr(x, "id");
+                    currentBinaryType = attr(x, "content-type");
                     binBuf = new StringBuilder(64 * 1024);
                 }
 
@@ -175,7 +214,9 @@ public final class Fb2LowLevelHelper {
             } else if (t == XmlPullParser.END_TAG) {
                 String tag = x.getName();
 
-                if ("book-title".equalsIgnoreCase(tag)) {
+                if ("coverpage".equalsIgnoreCase(tag)) {
+                    inCoverpage = false;
+                } else if ("book-title".equalsIgnoreCase(tag)) {
                     inBookTitle = false;
                 } else if ("title-info".equalsIgnoreCase(tag)) {
                     inTitleInfo = false;
@@ -185,10 +226,14 @@ public final class Fb2LowLevelHelper {
                     inBinary = false;
                     if (currentBinaryId != null && binBuf != null) {
                         try {
-                            String base64 = binBuf.toString().replaceAll("\\s+",""); // strip whitespace
+                            String base64 = binBuf.toString().replaceAll("\\s+",""); // strip whitespace for safety
                             byte[] data = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
-                            meta.binaries.put(currentBinaryId, data);
-                            myLogD("Captured <binary> id=" + currentBinaryId + " bytes=" + data.length + " (" + currentBinaryType + ")");
+                            String key = currentBinaryId.toLowerCase(Locale.ROOT);
+                            meta.binaries.put(key, data);
+                            if (currentBinaryType != null) {
+                                meta.binaryTypes.put(key, currentBinaryType);
+                            }
+                            myLogD("Captured <binary> id=" + currentBinaryId + " bytes=" + Tonio.getReadableSize(data.length) + " (" + currentBinaryType + ")");
                         } catch (Throwable e) {
                             myLogEE(e, "decode <binary> id=" + currentBinaryId);
                         }
@@ -246,8 +291,6 @@ public final class Fb2LowLevelHelper {
                     if (ch != null && ch.text != null && ch.text.trim().length() > 0) {
                         out.add(ch);
                     }
-                } else if (inBody) {
-                    // other tags at body level
                 }
 
             } else if (t == XmlPullParser.END_TAG) {
@@ -424,6 +467,33 @@ public final class Fb2LowLevelHelper {
         return v;
     }
 
+    private static String attrNs(XmlPullParser x, String ns, String name) {
+        return x.getAttributeValue(ns, name);
+    }
+
+    // ---------------- Bitmap decode helper ----------------
+
+    /** Decode with down-sampling if needed to keep the largest dimension <= maxDim. */
+    private static Bitmap decodeDownsampled(byte[] bytes, int maxDim) {
+        if (bytes == null) return null;
+        BitmapFactory.Options o = new BitmapFactory.Options();
+        o.inJustDecodeBounds = true;
+        BitmapFactory.decodeByteArray(bytes, 0, bytes.length, o);
+        int w = o.outWidth, h = o.outHeight;
+        if (w <= 0 || h <= 0) {
+            o.inJustDecodeBounds = false;
+            return BitmapFactory.decodeByteArray(bytes, 0, bytes.length); // try anyway
+        }
+        int sample = 1;
+        while ((w / sample) > maxDim || (h / sample) > maxDim) {
+            sample <<= 1; // power-of-two sample size
+        }
+        BitmapFactory.Options o2 = new BitmapFactory.Options();
+        o2.inSampleSize = sample;
+        o2.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        return BitmapFactory.decodeByteArray(bytes, 0, bytes.length, o2);
+    }
+
     // ---------------- IO ----------------
 
     private static String readAllText(Context ctx, Uri uri) throws Exception {
@@ -437,5 +507,4 @@ public final class Fb2LowLevelHelper {
             return bos.toString(StandardCharsets.UTF_8.name());
         }
     }
-
 }

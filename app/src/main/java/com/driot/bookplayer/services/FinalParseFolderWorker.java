@@ -450,6 +450,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                 if (Option.getCreateCover()) {
                     try {
                         if (importJob.imagePath == null || importJob.imagePath.isEmpty()) {
+                            myLog("creating fallback bitmap as cover");
                             String path = ImageHelper.createFallbackManualFolderImagePreInsert(
                                     context,
                                     importJob.title,
