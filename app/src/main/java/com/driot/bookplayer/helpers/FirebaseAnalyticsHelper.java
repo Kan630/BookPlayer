@@ -44,6 +44,12 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("play_for_1min", bundle);
     }
 
+    public static void tellAnalyticsLoadFileKO(String filePath) {
+        Bundle bundle = new Bundle();
+        bundle.putString("filePath", String.valueOf(filePath));
+        logBundleEvent("load_file_KO", bundle);
+    }
+
     public static void tellCarAutoPlay() {
         logEvent("car_auto_play");
     }

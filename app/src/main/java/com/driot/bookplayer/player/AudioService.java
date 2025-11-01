@@ -29,6 +29,7 @@ import androidx.lifecycle.Observer;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
@@ -1084,7 +1085,7 @@ public class AudioService extends LoggingService {
                 return;
             }
              */
-            loadFileKO();
+            loadFileKO("playlist/zikFile null");
             return;
         }
 
@@ -1097,7 +1098,7 @@ public class AudioService extends LoggingService {
         Uri src = UriHelper.resolvePlayableUri(this, zf);
         if (src == null) {
             myLogEE(null, "resolvePlayableUri failed for: " + zf.getPath());
-            loadFileKO();
+            loadFileKO(zf.getPath());
             return;
         }
 
@@ -1174,7 +1175,7 @@ public class AudioService extends LoggingService {
         } catch (Exception e) {
             myLogEE(e, "loadFile: setDataSource/prepareAsync failed");
             setUiPhase(Intents.PHASE_ERROR, "Failed to prepare TTS");
-            loadFileKO();
+            loadFileKO(zf.getPath());
         }
     }
 
@@ -1449,8 +1450,9 @@ public class AudioService extends LoggingService {
     }
 
 
-    private void loadFileKO() {
+    private void loadFileKO(String strFilePathError) {
         myLog("loadFileKO");
+        FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError);
         LocalBroadcastManager.getInstance(AudioService.this)
                 .sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
         ErrorLoadingFile = true;

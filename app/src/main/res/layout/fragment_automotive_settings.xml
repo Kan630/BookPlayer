@@ -34,6 +34,11 @@
                 android:visibility="gone"
                 />
 
+            <TextView
+                style="@style/GetResourceTextTopOfButton"
+                android:textColor="@color/orange_700"
+                android:text="@string/beta_test" />
+
             <LinearLayout
                 android:id="@+id/ll_automotive_on"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">

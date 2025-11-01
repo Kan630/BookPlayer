@@ -195,6 +195,9 @@ public class PlayActivity extends LoggingActivity {
 
         btnToggleTtsView.setOnClickListener(v -> {
             showingTtsText = !showingTtsText;
+            if (!showingTtsText) {
+                myToast(getString(R.string.double_click_image_to_get_back_to_text_view));
+            }
             applyTtsToggleUi(vm.getState().getValue());
         });
 

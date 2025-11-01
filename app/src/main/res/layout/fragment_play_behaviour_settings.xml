@@ -114,7 +114,30 @@
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
-                android:text="@string/option_visualizer_title" />
+                android:text="@string/option_play_view" />
+
+            <LinearLayout
+                android:id="@+id/ll_open_play_activity"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_open_play_activity"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_open_play_activity" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_visualizer_playpause"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_click_visualizer_playpause"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    android:id="@+id/tx_click_visualizer_playpause"
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_click_container_playpause_text" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/ll_visualizer_on"
@@ -128,17 +151,6 @@
                     android:text="@string/option_visualizer_text_01" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/ll_visualizer_playpause"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_click_visualizer_playpause"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    android:id="@+id/tx_click_visualizer_playpause"
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_click_visualizer_playpause_text_01" />
-            </LinearLayout>
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -226,16 +238,6 @@
                     android:text="@string/option_stop_audio_if_user_closes_app_text" />
             </LinearLayout>
 
-            <LinearLayout
-                android:id="@+id/ll_open_play_activity"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_open_play_activity"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_open_play_activity" />
-            </LinearLayout>
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

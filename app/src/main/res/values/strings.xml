@@ -421,7 +421,7 @@
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
     <string name="option_automotive_let_car_autoplay">Allow Android Auto to trigger play on its own (usually, when connected to the car).</string>
-    <string name="option_open_play_activity">Open play view when playback starts.</string>
+    <string name="option_open_play_activity">Open Play View.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
@@ -1025,7 +1025,9 @@
     <string name="Cannot_write_to_the_chosen_folder">Cannot write to the chosen folder.</string>
     <string name="Export_done_Excl">"Export done !"</string>
 
-
+    <string name="option_play_view">"Play View"</string>
+    <string name="option_click_container_playpause_text">A click on the image will pause/resume the audio</string>
+    <string name="double_click_image_to_get_back_to_text_view">Double-click on the image to get back to text view</string>
 
 
 

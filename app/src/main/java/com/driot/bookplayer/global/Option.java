@@ -21,7 +21,7 @@ public class Option {
     public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
 
     public static final int DEFAULT_FORWARD_SECONDS = 5;
-    public static final int DEFAULT_TIME_BEFORE_SLEEP = 60;
+    public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;
     private static final boolean DEFAULT_UNZIP_LOCAL  = true;
     private static final boolean DEFAULT_COPY_ZIP_LOCAL  = true;
     private static final boolean DEFAULT_SCREEN_ORIENTATION_LOCK  = true;
