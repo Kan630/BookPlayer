@@ -227,17 +227,6 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/ll_auto_play_on_main_player"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_auto_play_on_main_player"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_auto_play_on_main_player_text" />
-            </LinearLayout>
-
-            <LinearLayout
                 android:id="@+id/ll_open_play_activity"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox

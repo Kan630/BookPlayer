@@ -33,8 +33,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private MaterialCheckBox chkVisualizerOn, chkClickVisualizerPlayPause;
     private TextView txVisualizerOn;
 
-    private LinearLayout llRewindAfterPause, llStartNextTrackAtZero, llStopAudioOnClose, llAutoPlayOnMain, llOpenPlayActivity;
-    private MaterialCheckBox chkRewindAfterPause, chkStartNextTrackAtZero, chkStopAudioIfUserClosesApp, chkAutoPlayOnMainPlayer, chkOpenPlayActivity;
+    private LinearLayout llRewindAfterPause, llStartNextTrackAtZero, llStopAudioOnClose, llOpenPlayActivity;
+    private MaterialCheckBox chkRewindAfterPause, chkStartNextTrackAtZero, chkStopAudioIfUserClosesApp, chkOpenPlayActivity;
 
     private LinearLayout llBeepChapter, llBeepAutostop, llBeepBookend;
     private MaterialCheckBox chkBeepChapter, chkBeepAutostop, chkBeepBookend;
@@ -130,12 +130,6 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkStopAudioIfUserClosesApp.setChecked(Option.getStopAudioIfUserClosesApp());
         llStopAudioOnClose.setOnClickListener(v -> chkStopAudioIfUserClosesApp.toggle());
         chkStopAudioIfUserClosesApp.setOnCheckedChangeListener((b, isChecked) -> Option.setStopAudioIfUserClosesApp(isChecked));
-
-        llAutoPlayOnMain = root.findViewById(R.id.ll_auto_play_on_main_player);
-        chkAutoPlayOnMainPlayer = root.findViewById(R.id.chk_auto_play_on_main_player);
-        chkAutoPlayOnMainPlayer.setChecked(Option.getAutoPlayOnMainPlayer());
-        llAutoPlayOnMain.setOnClickListener(v -> chkAutoPlayOnMainPlayer.toggle());
-        chkAutoPlayOnMainPlayer.setOnCheckedChangeListener((b, isChecked) -> Option.setAutoPlayOnMainPlayer(isChecked));
 
         llOpenPlayActivity = root.findViewById(R.id.ll_open_play_activity);
         chkOpenPlayActivity = root.findViewById(R.id.chk_open_play_activity);

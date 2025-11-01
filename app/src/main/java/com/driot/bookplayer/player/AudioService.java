@@ -627,7 +627,8 @@ public class AudioService extends LoggingService {
             //loadFileKO();
             return;
         }
-        pl.nextTrack();
+        final ZikFile nextZikFile = pl.nextTrack();
+
         if (engine != null) {
             try {
                 if (engine instanceof TtsEngine) {
@@ -638,13 +639,29 @@ public class AudioService extends LoggingService {
             } catch (Exception ignored) {
             }
         }
+
         myLog("loading next track : n°" + PlayList.getInstance().getNumSlashTotal());
+        if (nextZikFile == null) {
+            myLogEE(null, "next zikFile null");
+            return;
+        }
+
         if (Option.getBeepChapter()) playBeep("1beep");
-        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-            directPlay = true;
-            loadFile();
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+
+            if (Option.getStartAtZeroNextTrack()) {
+                nextZikFile.setPosition(0L);
+                AppDatabase.getDatabase(this).zikFileDao().update(nextZikFile);
+            }
+
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                directPlay = true;
+                loadFile();
+            });
+            alertNewTrack();
+
         });
-        alertNewTrack();
     }
 
     private void alertNewTrack() {

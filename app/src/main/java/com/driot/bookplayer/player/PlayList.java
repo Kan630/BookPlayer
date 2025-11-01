@@ -104,14 +104,18 @@ public final class PlayList {
         postMetaDistinct(new MetaState(false, null, false));
     }
 
-    public void nextTrack() {
+    public ZikFile nextTrack() {
         synchronized (lock) {
             if (index >= 0 && index + 1 < zikFilesList.size()) {
                 index++;
                 saveToStorage();
+                myLogD("nextTrack() index=" + getNumZikFile());
+                return zikFilesList.get(index);
+            } else {
+                myLogW("nextTrack() return null");
+                return null;
             }
         }
-        myLogD("nextTrack() index=" + getNumZikFile());
     }
 
     public boolean isLastTrack() {
