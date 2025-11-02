@@ -153,6 +153,7 @@ public class GetRadioActivity extends LoggingActivity {
         // If you don’t have adapters yet, leave them empty; we read their .toString() safely.
 
         buttonTrending.setOnClickListener(v -> {
+            myLogI("--- User clicks TRENDING ---");
             // keep your existing lang/country/tag selections if you also filter later
             repo.topVoted(Option.getRadioApiNbResults(), new Callback<>() {
                 @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {

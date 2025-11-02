@@ -965,4 +965,17 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
     <string name="double_click_image_to_get_back_to_text_view">Haz doble clic en la imagen para volver a la vista de texto</string>
     <string name="option_app_language_subtitle">Puede que no funcione en algunos dispositivos (algunos pueden impedir el uso de un idioma diferente al del sistema).</string>
 
+    <string name="browse_radios">explorar radios</string>
+    <string name="Radio_settings">configuración de radio</string>
+    <string name="radio_settings">configuración de radio</string>
+    <string name="live_radio">radio en vivo</string>
+    <string name="stations">emisoras</string>
+    <string name="radio">radio</string>
+    <string name="no_result">sin resultados</string>
+    <string name="radio_cover_desc">descripción de la carátula de la radio</string>
+    <string name="RadioSearch_title">Radios web</string>
+    <string name="RadioSearch_desc">Explora por idioma, país o etiqueta, o busca por nombre de emisora.</string>
+    <string name="trending_radios">radios populares</string>
+    <string name="selected_language_error">error de idioma seleccionado</string>
+
 </resources>

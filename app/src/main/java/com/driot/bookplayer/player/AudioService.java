@@ -412,26 +412,40 @@ public class AudioService extends LoggingService {
                 this, ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, R.mipmap.ic_launcher);
         notif.ensureChannel("Music Playback", "Bookplayer Music Playback Controls");
 
-        // Sleep timer (ticks every second)
+// Sleep timer (ticks every second)
         sleepCheckHandler = new Handler();
         sleepTimer = new com.driot.bookplayer.player.SleepTimer(
-                sleepCheckHandler, DELAY_CHECK_TIMER_SLEEP, (radioMode ? "radio" : "book"),
+                sleepCheckHandler,
+                DELAY_CHECK_TIMER_SLEEP,
                 new SleepTimer.Listener() {
                     @Override
                     public void onTick(int elapsedSeconds) {
                         Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
                         updateZikFileStateInDB(false);
-                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds));
+                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(
+                                new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds)
+                        );
                     }
 
-                    // go SLEEP
+                    @Override
+                    public void onEveryMinute(@NonNull String elapsedCategory) {
+                        // Decide dynamically based on current mode
+                        if (radioMode) {
+                            FirebaseAnalyticsHelper.tellRadioFor1min(elapsedCategory);
+                        } else {
+                            FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory);
+                        }
+                    }
+
                     @Override
                     public void onReachedMax() {
                         if (Option.getBeepAutoStop()) playBeep("2beeps");
-                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+                        LocalBroadcastManager.getInstance(AudioService.this)
+                                .sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
                         pauseAudio();
                     }
-                });
+                }
+        );
 
         // Pause/trim watcher (kills service if paused too long)
         pauseCheckHandler = new Handler();

@@ -978,5 +978,18 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="double_click_image_to_get_back_to_text_view">Дважды щёлкните по изображению, чтобы вернуться к текстовому виду</string>
         <string name="option_app_language_subtitle">Может не работать на некоторых устройствах (некоторые могут запрещать использование языка, отличного от системного по умолчанию).</string>
 
+        <string name="browse_radios">просмотреть радиостанции</string>
+        <string name="Radio_settings">настройки радио</string>
+        <string name="radio_settings">настройки радио</string>
+        <string name="live_radio">прямой эфир радио</string>
+        <string name="stations">станции</string>
+        <string name="radio">радио</string>
+        <string name="no_result">нет результатов</string>
+        <string name="radio_cover_desc">описание обложки радио</string>
+        <string name="RadioSearch_title">Интернет-радио</string>
+        <string name="RadioSearch_desc">Просматривайте по языку, стране или тегу, или ищите по названию станции.</string>
+        <string name="trending_radios">популярные радиостанции</string>
+        <string name="selected_language_error">ошибка выбранного языка</string>
+
 
 </resources>

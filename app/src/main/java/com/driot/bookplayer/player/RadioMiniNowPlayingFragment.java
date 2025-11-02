@@ -48,7 +48,11 @@ public class RadioMiniNowPlayingFragment extends Fragment {
             // Play/pause icon
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
-            Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), s.cover)).into(ivCover);
+            Glide.with(ivCover.getContext())
+                    .load(s.cover)
+                    .placeholder(R.drawable.ic_radio_24px)
+                    .error(R.drawable.ic_radio_24px)
+                    .into(ivCover);
         });
 
         // Observe phase (to show buffering spinner)

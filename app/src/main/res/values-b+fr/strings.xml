@@ -972,4 +972,18 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="double_click_image_to_get_back_to_text_view">Double-cliquez sur l\'image pour revenir à la vue texte</string>
     <string name="option_app_language_subtitle">Peut ne pas fonctionner sur certains appareils (certains peuvent empêcher l\'utilisation d\'une langue différente de celle du système).</string>
 
+    <string name="browse_radios">parcourir les radios</string>
+    <string name="Radio_settings">paramètres radio</string>
+    <string name="radio_settings">paramètres radio</string>
+    <string name="live_radio">radio en direct</string>
+    <string name="stations">stations</string>
+    <string name="radio">radio</string>
+    <string name="no_result">aucun résultat</string>
+    <string name="radio_cover_desc">description de la couverture radio</string>
+    <string name="RadioSearch_title">Radios Web</string>
+    <string name="RadioSearch_desc">Parcourez par langue, pays ou étiquette, ou recherchez par nom de station.</string>
+    <string name="trending_radios">radios populaires</string>
+    <string name="selected_language_error">erreur de langue sélectionnée</string>
+
+
 </resources>

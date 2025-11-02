@@ -74,14 +74,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             holder.codec.setText(nonNull(f.codec));
             holder.bitrate.setText(f.bitrate > 0 ? (f.bitrate + " kbps") : "");
 
-            if (!TextUtils.isEmpty(f.favicon)) {
-                Glide.with(holder.favicon).load(f.favicon)
-                        .placeholder(R.drawable.ic_radio_24px)
-                        .error(R.drawable.ic_radio_24px)
-                        .into(holder.favicon);
-            } else {
-                holder.favicon.setImageResource(R.drawable.ic_radio_24px);
-            }
+            Glide.with(holder.favicon).load(f.favicon)
+                    .placeholder(R.drawable.ic_radio_24px_deportee)
+                    .error(R.drawable.ic_radio_24px_deportee)
+                    .into(holder.favicon);
 
             holder.ibPlay.setOnClickListener(v -> listener.onPlay(f));
             holder.ibFavorite.setOnClickListener(v -> listener.onUnfavorite(f));

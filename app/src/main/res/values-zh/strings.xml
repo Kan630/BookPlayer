@@ -973,4 +973,17 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="double_click_image_to_get_back_to_text_view">双击图片可返回文本视图</string>
     <string name="option_app_language_subtitle">在某些设备上可能不起作用（某些设备可能不允许使用与系统默认语言不同的语言）。</string>
 
+    <string name="browse_radios">浏览电台</string>
+    <string name="Radio_settings">电台设置</string>
+    <string name="radio_settings">电台设置</string>
+    <string name="live_radio">直播电台</string>
+    <string name="stations">电台</string>
+    <string name="radio">广播</string>
+    <string name="no_result">没有结果</string>
+    <string name="radio_cover_desc">电台封面描述</string>
+    <string name="RadioSearch_title">网络电台</string>
+    <string name="RadioSearch_desc">按语言、国家或标签浏览，或按电台名称搜索。</string>
+    <string name="trending_radios">热门电台</string>
+    <string name="selected_language_error">所选语言错误</string>
+
 </resources>

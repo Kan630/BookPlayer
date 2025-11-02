@@ -45,6 +45,7 @@ public class RadioBrowserRepository {
         ).enqueue(new LoggingCallback<>(cb, "searchStations"));
     }
 
+
     public void topVoted(int limit, Callback<List<Station>> cb) {
         api.topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
     }

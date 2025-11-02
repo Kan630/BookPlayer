@@ -976,4 +976,17 @@ Sind Sie sicher?"</string>
     <string name="double_click_image_to_get_back_to_text_view">Doppelklicken Sie auf das Bild, um zur Textansicht zurückzukehren</string>
     <string name="option_app_language_subtitle">Funktioniert möglicherweise auf einigen Geräten nicht (einige Geräte verhindern möglicherweise die Verwendung einer anderen Sprache als der Systemsprache).</string>
 
+    <string name="browse_radios">Radios durchsuchen</string>
+    <string name="Radio_settings">Radioeinstellungen</string>
+    <string name="radio_settings">Radioeinstellungen</string>
+    <string name="live_radio">Live-Radio</string>
+    <string name="stations">Sender</string>
+    <string name="radio">Radio</string>
+    <string name="no_result">kein Ergebnis</string>
+    <string name="radio_cover_desc">Radiocover-Beschreibung</string>
+    <string name="RadioSearch_title">Webradios</string>
+    <string name="RadioSearch_desc">Nach Sprache, Land oder Tag durchsuchen oder nach Stationsnamen suchen.</string>
+    <string name="trending_radios">beliebte Radios</string>
+    <string name="selected_language_error">Fehler bei der ausgewählten Sprache</string>
+
 </resources>

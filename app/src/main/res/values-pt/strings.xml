@@ -988,4 +988,18 @@
     <string name="double_click_image_to_get_back_to_text_view">Dê um duplo clique na imagem para voltar à visualização de texto</string>
     <string name="option_app_language_subtitle">Pode não funcionar em alguns dispositivos (alguns podem impedir o uso de um idioma diferente do padrão do sistema).</string>
 
+    <string name="browse_radios">navegar por rádios</string>
+    <string name="Radio_settings">configurações de rádio</string>
+    <string name="radio_settings">configurações de rádio</string>
+    <string name="live_radio">rádio ao vivo</string>
+    <string name="stations">estações</string>
+    <string name="radio">rádio</string>
+    <string name="no_result">nenhum resultado</string>
+    <string name="radio_cover_desc">descrição da capa da rádio</string>
+    <string name="RadioSearch_title">Rádios da web</string>
+    <string name="RadioSearch_desc">Navegue por idioma, país ou etiqueta, ou pesquise pelo nome da estação.</string>
+    <string name="trending_radios">rádios populares</string>
+    <string name="selected_language_error">erro no idioma selecionado</string>
+
+
 </resources>

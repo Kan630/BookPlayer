@@ -971,4 +971,17 @@
     <string name="double_click_image_to_get_back_to_text_view">انقر نقرًا مزدوجًا على الصورة للعودة إلى عرض النص</string>
     <string name="option_app_language_subtitle">قد لا يعمل على بعض الأجهزة (قد تمنع بعض الأجهزة استخدام لغة مختلفة عن اللغة الافتراضية للنظام).</string>
 
+    <string name="browse_radios">تصفح محطات الراديو</string>
+    <string name="Radio_settings">إعدادات الراديو</string>
+    <string name="radio_settings">إعدادات الراديو</string>
+    <string name="live_radio">راديو مباشر</string>
+    <string name="stations">محطات</string>
+    <string name="radio">راديو</string>
+    <string name="no_result">لا توجد نتائج</string>
+    <string name="radio_cover_desc">وصف غلاف الراديو</string>
+    <string name="RadioSearch_title">راديو الويب</string>
+    <string name="RadioSearch_desc">تصفح حسب اللغة أو البلد أو الوسم، أو ابحث حسب اسم المحطة.</string>
+    <string name="trending_radios">محطات شائعة</string>
+    <string name="selected_language_error">خطأ في اللغة المحددة</string>
+
 </resources>
