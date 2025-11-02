@@ -65,6 +65,7 @@ public final class SleepTimer extends LoggerHelper {
             playedSinceLastMinuteMs += delta;
             if (playedSinceLastMinuteMs >= 60_000L) {
                 playedSinceLastMinuteMs -= 60_000L;
+                myLog(typePlayed);
                 if ("radio".equals(typePlayed)) {
                     FirebaseAnalyticsHelper.tellRadioFor1min(elapsed_category);
                 } else {

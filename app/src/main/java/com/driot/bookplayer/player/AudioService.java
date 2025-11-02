@@ -397,11 +397,7 @@ public class AudioService extends LoggingService {
 
         // Media session (wrapped)
         media = new com.driot.bookplayer.player.MediaSessionController(this, callback);
-        media.updateState(
-                PlaybackStateCompat.STATE_PAUSED,
-                0L,
-                0f,
-                playbackStateCompatAction /* your ACTION_* bitmask */);
+        updateSessionState(false);
 
         PendingIntent contentPi = PendingIntent.getActivity(
                 this, 0,
@@ -568,10 +564,13 @@ public class AudioService extends LoggingService {
                                     AudioService.this, PlaybackStateCompat.ACTION_PAUSE);
                         }
                         @Override public PendingIntent content() {
+                            final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
                             return PendingIntent.getActivity(
-                                    AudioService.this, 0,
-                                    new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class),
-                                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                                    AudioService.this,
+                                    0,
+                                    new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class)
+                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                                    flags
                             );
                         }
                     }
@@ -603,10 +602,13 @@ public class AudioService extends LoggingService {
                                             @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY); }
                                             @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE); }
                                             @Override public PendingIntent content() {
+                                                final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
                                                 return PendingIntent.getActivity(
-                                                        AudioService.this, 0,
-                                                        new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class),
-                                                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                                                        AudioService.this,
+                                                        0,
+                                                        new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class)
+                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                                                        flags
                                                 );
                                             }
                                         }
@@ -752,11 +754,7 @@ public class AudioService extends LoggingService {
         engine.start();
         Pref.setPauseTime(0);
 
-        media.updateState(
-                PlaybackStateCompat.STATE_PLAYING,
-                engine.getCurrentPosition(),
-                (float) getSpeed(),
-                playbackStateCompatAction);
+        updateSessionState(true);
         //engine.setSpeed((float) getSpeed());
         if (!media.session().isActive()) media.setActive(true);
 
@@ -1612,8 +1610,7 @@ public class AudioService extends LoggingService {
     private void enginePause() {
         myLogD("mediaPlayerPause()");
         if (engine != null) engine.pause();
-        media.updateState(PlaybackStateCompat.STATE_PAUSED,
-                engine != null ? engine.getCurrentPosition() : 0, 0f, playbackStateCompatAction);
+        updateSessionState(false);
         Pref.setPauseTime();
     }
 
@@ -1682,14 +1679,7 @@ public class AudioService extends LoggingService {
         if (directPlay) {
             startPlayWithEngine();
         } else {
-            //TODO usefull ?
-            media.updateState(
-                    PlaybackStateCompat.STATE_PAUSED,
-                    engine != null ? engine.getCurrentPosition() : 0,
-                    0f,
-                    playbackStateCompatAction
-            );
-            // paused/ready state: show a paused notification
+            updateSessionState(false);
             showForegroundNotification(false);
         }
     }
@@ -1778,6 +1768,7 @@ public class AudioService extends LoggingService {
     }
 
     private void updatePlaybackStateForPosition() {
+        if (radioMode) return;
         if (engine == null) return;
         boolean playing = engine.isPlaying();
         int state = playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
@@ -1872,6 +1863,26 @@ public class AudioService extends LoggingService {
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
+    // Full file/audiobook actions (current behavior)
+    private static final long ACTIONS_FILE =
+            PlaybackStateCompat.ACTION_PLAY
+                    | PlaybackStateCompat.ACTION_PAUSE
+                    | PlaybackStateCompat.ACTION_STOP
+                    | PlaybackStateCompat.ACTION_REWIND
+                    | PlaybackStateCompat.ACTION_FAST_FORWARD
+                    | PlaybackStateCompat.ACTION_SKIP_TO_NEXT
+                    | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS
+                    | PlaybackStateCompat.ACTION_PLAY_PAUSE
+                    | PlaybackStateCompat.ACTION_SEEK_TO;
+
+    // Radio should only expose play/pause, nothing else
+    private static final long ACTIONS_RADIO =
+            PlaybackStateCompat.ACTION_PLAY
+                    | PlaybackStateCompat.ACTION_PAUSE;
+
+    private long currentActions() {
+        return radioMode ? ACTIONS_RADIO : ACTIONS_FILE;
+    }
     private void playRadioStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
         myLogI("playRadioStream: " + title + " -> " + url);
 
@@ -1891,12 +1902,20 @@ public class AudioService extends LoggingService {
         ErrorLoadingFile = false;
 
         // Update MediaSession to BUFFERING with radio meta
-        media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
-        media.setMetadata(
+        //media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
+        PlaybackStateCompat s = new PlaybackStateCompat.Builder()
+                .setActions(ACTIONS_RADIO)
+                .setState(PlaybackStateCompat.STATE_BUFFERING,
+                        PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                        0f,
+                        System.currentTimeMillis())
+                .build();
+        media.session().setPlaybackState(s);
+
+        media.setMetadataRadio(
                 /* title   */ title,
                 /* artist  */ getString(R.string.live_radio),
                 /* album   */ title,
-                /* durMs   */ 0L,
                 /* artBmp  */ null
         );
         showForegroundNotification(false); // shows paused/buffering style
@@ -1914,6 +1933,28 @@ public class AudioService extends LoggingService {
         } catch (Exception e) {
             myLogEE(e, "playRadioStream setDataSource/prepareAsync failed");
             alertError(null, null);
+        }
+    }
+
+    private void updateSessionState(boolean playing) {
+        if (radioMode) {
+            // radio: unknown position, no seek actions
+            long actions = playing ? PlaybackStateCompat.ACTION_PAUSE : PlaybackStateCompat.ACTION_PLAY;
+            PlaybackStateCompat state = new PlaybackStateCompat.Builder()
+                    .setActions(actions)
+                    .setState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                            PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                            playing ? 1f : 0f,
+                            System.currentTimeMillis())
+                    .setBufferedPosition(PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN)
+                    .build();
+            media.session().setPlaybackState(state);
+        } else {
+            // file/tts: real position/speed and full actions
+            long pos = (engine != null) ? engine.getCurrentPosition() : 0;
+            float sp = playing ? (float) getSpeed() : 0f;
+            media.updateState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                    pos, sp, ACTIONS_FILE);
         }
     }
 

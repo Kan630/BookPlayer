@@ -205,6 +205,7 @@
         @Override
         protected void onResume() {
             super.onResume();
+            sendBroadcast(new Intent(Intents.ACTION_PING_UI));
             LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx, new IntentFilter(InAppMsgManager.ACTION_CACHE_UPDATED));        // Et tente immédiatement avec le cache courant
             InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
             PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);

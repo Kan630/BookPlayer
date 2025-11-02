@@ -64,5 +64,19 @@ public final class MediaSessionController {
         }
         session.setMetadata(b.build());
     }
+    public void setMetadataRadio(@NonNull String title,
+                            @NonNull String artist,
+                            @NonNull String album,
+                            @Nullable android.graphics.Bitmap art /* pass null if you don't have it */) {
+        MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
+                .putText(MediaMetadataCompat.METADATA_KEY_TITLE, title)
+                .putText(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
+                .putText(MediaMetadataCompat.METADATA_KEY_ALBUM, album);
+        if (art != null) {
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, art);
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art);
+        }
+        session.setMetadata(b.build());
+    }
 
 }
