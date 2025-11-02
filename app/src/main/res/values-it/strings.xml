@@ -985,4 +985,9 @@
     <string name="Cannot_write_to_the_chosen_folder">Impossibile scrivere nella cartella scelta.</string>
     <string name="Export_done_Excl">"Esportazione completata!"</string>
 
+    <string name="option_play_view">Vista di riproduzione</string>
+    <string name="option_click_container_playpause_text">Un clic sull\'immagine metterà in pausa o riprenderà l\'audio</string>
+    <string name="double_click_image_to_get_back_to_text_view">Fai doppio clic sull\'immagine per tornare alla vista testo</string>
+    <string name="option_app_language_subtitle">Potrebbe non funzionare su alcuni dispositivi (alcuni potrebbero impedire l\'uso di una lingua diversa da quella di sistema).</string>
+
 </resources>

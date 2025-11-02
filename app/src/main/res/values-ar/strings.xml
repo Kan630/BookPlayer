@@ -966,4 +966,9 @@
     <string name="Cannot_write_to_the_chosen_folder">لا يمكن الكتابة إلى المجلد المختار.</string>
     <string name="Export_done_Excl">"تم التصدير !"</string>
 
+    <string name="option_play_view">عرض التشغيل</string>
+    <string name="option_click_container_playpause_text">سيؤدي النقر على الصورة إلى إيقاف الصوت مؤقتًا أو استئنافه</string>
+    <string name="double_click_image_to_get_back_to_text_view">انقر نقرًا مزدوجًا على الصورة للعودة إلى عرض النص</string>
+    <string name="option_app_language_subtitle">قد لا يعمل على بعض الأجهزة (قد تمنع بعض الأجهزة استخدام لغة مختلفة عن اللغة الافتراضية للنظام).</string>
+
 </resources>

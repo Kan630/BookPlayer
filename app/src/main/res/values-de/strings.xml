@@ -971,4 +971,9 @@ Sind Sie sicher?"</string>
     <string name="Cannot_write_to_the_chosen_folder">In den ausgewählten Ordner kann nicht geschrieben werden.</string>
     <string name="Export_done_Excl">"Export abgeschlossen !"</string>
 
+    <string name="option_play_view">Wiedergabeansicht</string>
+    <string name="option_click_container_playpause_text">Ein Klick auf das Bild pausiert oder setzt die Wiedergabe fort</string>
+    <string name="double_click_image_to_get_back_to_text_view">Doppelklicken Sie auf das Bild, um zur Textansicht zurückzukehren</string>
+    <string name="option_app_language_subtitle">Funktioniert möglicherweise auf einigen Geräten nicht (einige Geräte verhindern möglicherweise die Verwendung einer anderen Sprache als der Systemsprache).</string>
+
 </resources>

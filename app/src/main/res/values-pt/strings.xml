@@ -983,5 +983,9 @@
     <string name="Cannot_write_to_the_chosen_folder">Não é possível gravar na pasta escolhida.</string>
     <string name="Export_done_Excl">"Exportação concluída!"</string>
 
+    <string name="option_play_view">Vista de reprodução</string>
+    <string name="option_click_container_playpause_text">Um clique na imagem pausará ou retomará o áudio</string>
+    <string name="double_click_image_to_get_back_to_text_view">Dê um duplo clique na imagem para voltar à visualização de texto</string>
+    <string name="option_app_language_subtitle">Pode não funcionar em alguns dispositivos (alguns podem impedir o uso de um idioma diferente do padrão do sistema).</string>
 
 </resources>

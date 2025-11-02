@@ -973,6 +973,10 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Cannot_write_to_the_chosen_folder">Невозможно записать в выбранную папку.</string>
         <string name="Export_done_Excl">"Экспорт завершён!"</string>
 
+        <string name="option_play_view">Экран воспроизведения</string>
+        <string name="option_click_container_playpause_text">Щелчок по изображению приостановит или возобновит аудио</string>
+        <string name="double_click_image_to_get_back_to_text_view">Дважды щёлкните по изображению, чтобы вернуться к текстовому виду</string>
+        <string name="option_app_language_subtitle">Может не работать на некоторых устройствах (некоторые могут запрещать использование языка, отличного от системного по умолчанию).</string>
 
 
 </resources>

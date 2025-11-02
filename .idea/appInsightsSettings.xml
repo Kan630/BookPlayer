@@ -31,6 +31,15 @@
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="THIRTY_DAYS" />
+              <option name="versions">
+                <list>
+                  <VersionSetting>
+                    <option name="buildVersion" value="179" />
+                    <option name="displayName" value="179 - Crazy Horse (179)" />
+                    <option name="displayVersion" value="179 - Crazy Horse" />
+                  </VersionSetting>
+                </list>
+              </option>
               <option name="visibilityType" value="ALL" />
             </InsightsFilterSettings>
           </value>
