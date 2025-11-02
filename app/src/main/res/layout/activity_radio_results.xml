@@ -40,10 +40,10 @@
         android:layout_weight="1"
         android:clipToPadding="false" />
 
-    <FrameLayout
-        android:id="@+id/radioMiniContainer"
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/miniNowPlaying"
+        android:name="com.driot.bookplayer.player.MiniNowPlayingHostFragment"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+        android:layout_height="wrap_content" />
 
 </LinearLayout>

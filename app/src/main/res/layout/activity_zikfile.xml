@@ -71,7 +71,7 @@
 
     <fragment
         android:id="@+id/miniNowPlaying"
-        android:name="com.driot.bookplayer.player.MiniNowPlayingFragment"
+        android:name="com.driot.bookplayer.player.MiniNowPlayingHostFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintStart_toStartOf="parent"

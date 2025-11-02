@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,7 @@ import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
 import com.driot.bookplayer.objects.radio.RadioResultsViewModel;
 import com.driot.bookplayer.objects.radio.Station;
+import com.driot.bookplayer.objects.radio.UrlResolve;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
@@ -66,14 +68,14 @@ public class RadioResultsActivity extends LoggingActivity {
         // ---- adapter with play + favorite ----
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
             @Override public void onPlay(Station s) {
-                myLogI("--- user clicks radio item --- : " + s.name);
+                myLogI("-------- USER CLICK radio item -------- : " + s.name);
                 progressBar.setVisibility(View.VISIBLE);
 
                 // Resolve (counts a click on RadioBrowser) then play; fallback to url_resolved
-                repo.resolveUrl(s.stationuuid, new Callback<com.driot.bookplayer.objects.radio.UrlResolve>() {
+                repo.resolveUrl(s.stationuuid, new Callback<>() {
                     @Override public void onResponse(
-                            Call<com.driot.bookplayer.objects.radio.UrlResolve> call,
-                            Response<com.driot.bookplayer.objects.radio.UrlResolve> rsp
+                            Call<UrlResolve> call,
+                            Response<UrlResolve> rsp
                     ) {
                         progressBar.setVisibility(View.GONE);
 
@@ -180,7 +182,8 @@ public class RadioResultsActivity extends LoggingActivity {
 
         // ---- Search ----
         progressBar.setVisibility(View.VISIBLE);
-        repo.search(q, tag, country, lang, Option.getRadioApiNbResults(), new Callback<>() {
+        myLog("Searching..." + q + " " + lang + " " + country + " " + tag);
+        repo.search(nullIfBlank(q), nullIfBlank(tag), nullIfBlank(country), nullIfBlank(lang), Option.getRadioApiNbResults(), new Callback<>() {
             @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.body() != null) {
@@ -209,7 +212,7 @@ public class RadioResultsActivity extends LoggingActivity {
                 viewModel.requestFinish();
             }
         });
-
+/*
         // ---- Mini radio fragment (same as Favorites) ----
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -217,5 +220,10 @@ public class RadioResultsActivity extends LoggingActivity {
                     .replace(R.id.radioMiniContainer, new com.driot.bookplayer.player.RadioMiniNowPlayingFragment())
                     .commitNow();
         }
+
+ */
+    }
+    private static @Nullable String nullIfBlank(String s) {
+        return (s == null || s.trim().isEmpty()) ? null : s.trim();
     }
 }

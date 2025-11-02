@@ -17,7 +17,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.core.view.WindowInsetsControllerCompat;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 /**
  * Edge-to-edge + insets helper (API 26+).
@@ -27,18 +27,6 @@ import com.driot.bookplayer.utils.log.KanLogger;
 public final class InsetHelper {
 
     private InsetHelper() {}
-
-    // ===== Logging (global switch) =====
-    private static volatile boolean LOG_ENABLED = false; // default ON; call setLoggingEnabled(false) to mute
-    private static final String TAG = "InsetHelper";
-    public static void setLoggingEnabled(boolean enabled) { LOG_ENABLED = enabled; }
-    private static void myLog(String s){ if (LOG_ENABLED) KanLogger.myLog(TAG, s); }
-    private static void myLogD(String s){ if (LOG_ENABLED) KanLogger.myLogD(TAG, s); }
-    private static void myLogI(String s){ if (LOG_ENABLED) KanLogger.myLogI(TAG, s); }
-
-    private static void myLogW(String s){ KanLogger.myLogW(TAG, s); }
-    private static void myLogE(String s){ KanLogger.myLogE(TAG, s); }
-    private static void myLogEE(Throwable t, String s){ KanLogger.myToastEE(t, TAG, s); }
 
     // ===== Configs (immutable) =====
     private static final class WindowConfig {
@@ -132,7 +120,7 @@ public final class InsetHelper {
             myLogEE(null,"apply(): root content view is NULL, aborting insets setup.");
             return;
         }
-        KanLogger.myLogD(TAG, "apply() on root");
+        myLogD("apply() on root");
         applyInsets(activity, root,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -149,7 +137,7 @@ public final class InsetHelper {
 
     /** Scrollable view draws behind nav bar with proper bottom padding. */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
-        KanLogger.myLogD(TAG, "applyInsetsForScrollableBehindNavBar()");
+        myLogD("applyInsetsForScrollableBehindNavBar()");
         if (scrollableView == null) { //can be null at runtime, just a compiler check
             myLogEE(null,"applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root.");
             View root = activity.findViewById(android.R.id.content);
@@ -177,7 +165,7 @@ public final class InsetHelper {
     // 1) Ensure a view starts *below* the status bar / cutout.
 //    Keeps edge-to-edge on, but adds only TOP padding (and left/right if you wish).
     public static void applyTopInsetsTo(@NonNull Activity activity, @NonNull View targetView) {
-        KanLogger.myLogD(TAG, "applyTopInsetsTo()");
+        myLogD("applyTopInsetsTo()");
         applyInsets(activity, targetView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -195,7 +183,7 @@ public final class InsetHelper {
     // 2) Scrollable list behind nav bar, with IME lift.
 //    Only bottom padding + optional side padding. No top padding here.
     public static void applyBottomInsetsForScrollable(@NonNull Activity activity, @NonNull View scrollableView) {
-        KanLogger.myLogD(TAG, "applyBottomInsetsForScrollable()");
+        myLogD("applyBottomInsetsForScrollable()");
         applyInsets(activity, scrollableView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -273,7 +261,7 @@ public final class InsetHelper {
                     v.setPadding(left, top, right, bottom);
                 }
 
-                KanLogger.myLogD(TAG, "onApplyWindowInsets -> sys=" + insetsToString(sys)
+                myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
                         + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
                         + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
                         + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom

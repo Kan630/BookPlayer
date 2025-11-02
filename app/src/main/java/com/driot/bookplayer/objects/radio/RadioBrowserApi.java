@@ -6,6 +6,7 @@ import retrofit2.Call;
 import retrofit2.http.GET;
 import retrofit2.http.Path;
 import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 public interface RadioBrowserApi {
 
@@ -29,10 +30,19 @@ public interface RadioBrowserApi {
 
     // ---- Lists ----
     @GET("json/stations/topvote")
-    Call<List<Station>> topVoted(@Query("limit") int limit);
+    Call<List<Station>> topVoted(
+            @Query("limit") int limit,
+            @Query("hidebroken") boolean hideBroken
+    );
 
     // ---- “Click + resolve” recommended path ----
     @GET("json/url/{stationuuid}")
     Call<UrlResolve> resolveUrl(@Path("stationuuid") String stationUuid);
 
+    @GET("json/tags")
+    Call<List<TagItem>> getTags(
+            @Query("order") String order,        // "stationcount"
+            @Query("reverse") boolean reverse,   // true
+            @Query("limit") int limit            // e.g. 18
+    );
 }

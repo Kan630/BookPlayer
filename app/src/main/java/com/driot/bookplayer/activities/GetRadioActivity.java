@@ -8,16 +8,33 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
+import com.driot.bookplayer.objects.radio.Station;
+import com.driot.bookplayer.objects.radio.TagCardAdapter;
+import com.driot.bookplayer.objects.radio.TagItem;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
+
+import java.util.List;
+import java.util.Locale;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * Entry screen to browse/search internet radios (Radio Browser).
@@ -38,6 +55,10 @@ public class GetRadioActivity extends LoggingActivity {
 
     String query, lang, country, tag;
 
+    RecyclerView rvTopTags;
+    TagCardAdapter tagAdapter;
+    RadioBrowserRepository repo;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -49,6 +70,49 @@ public class GetRadioActivity extends LoggingActivity {
                 R.id.topOverlayContainer,
                 new Intent(this, AddResourceActivity.class)
         );
+
+        rvTopTags = findViewById(R.id.rvTopTags);
+        repo = new RadioBrowserRepository(
+                this,
+                /* discoverMirrors */ false,
+                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+        );
+        // Grid for tags
+        int span = getResources().getInteger(R.integer.radio_grid_span); // reuse if you like
+        if (span < 2) span = 2;
+        GridLayoutManager glm = new GridLayoutManager(this, span);
+        rvTopTags.setLayoutManager(glm);
+        rvTopTags.addItemDecoration(
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
+        );
+
+        tagAdapter = new TagCardAdapter(tag -> {
+            // Open results with this tag, carrying spinner-selected lang/country
+            String lang2    = safeLang(spinnerLang);         // <- 2-letter (we fixed this)
+            String country2 = safeCountry(spinnerCountry);   // <- implement same pattern or leave ""
+            Intent i = new Intent(this, RadioResultsActivity.class)
+                    .putExtra("query", "")
+                    .putExtra("lang", lang2)        // radio-browser expects 2-letter (lowercase ok)
+                    .putExtra("country", country2)  // 2-letter country code (e.g., "FR")
+                    .putExtra("tag", tag.name);
+            startActivity(i);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioTrending("", lang2, country2, tag.name);
+        });
+        rvTopTags.setAdapter(tagAdapter);
+
+        // Load top 18 tags
+        repo.getTopTags(18, new Callback<>() {
+            @Override public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
+                if (rsp.isSuccessful() && rsp.body() != null) {
+                    tagAdapter.setItems(rsp.body());
+                } else {
+                    myLogW("getTopTags: empty/unsuccessful");
+                }
+            }
+            @Override public void onFailure(Call<List<TagItem>> call, Throwable t) {
+                myLogEE(t, "getTopTags failed");
+            }
+        });
 
         // ---- find views ----
         buttonTrending = findViewById(R.id.bRadioTrending);
@@ -76,10 +140,10 @@ public class GetRadioActivity extends LoggingActivity {
         LanguageHelper.setupLanguageSpinner(
                 this,
                 spinnerLang,
-                Pref.get_Audio_Language_Radio(this),       // add this getter in Pref (mirroring Librivox one)
-                LanguageHelper.getPodcastLanguages(),       // or getLibrivoxLanguages() / a dedicated list
-                langItem -> Pref.set_Audio_Language_Radio(this, langItem.threeLetterCode),
-                true
+                Pref.get_Audio_Language_Radio(this),
+                LanguageHelper.getRadioLanguages(),
+                langItem -> Pref.set_Audio_Language_Radio(this, langItem.twoLetterCode),
+                false
         );
 
         // ---- optional: country + tag spinners ----
@@ -89,17 +153,22 @@ public class GetRadioActivity extends LoggingActivity {
         // If you don’t have adapters yet, leave them empty; we read their .toString() safely.
 
         buttonTrending.setOnClickListener(v -> {
-            myLogI("--- User clicks RADIO TRENDING ---");
-            query   = "";
-            lang    = safeSpinnerStr(spinnerLang);
-            country = safeSpinnerStr(spinnerCountry);
-            tag     = safeSpinnerStr(spinnerTag);
-
-            if (lang.isEmpty()) {
-                myToast(getString(R.string.selected_language_error));
-                return;
-            }
-            openRadioResultsActivity(/*analyticsEvent=*/"trending");
+            // keep your existing lang/country/tag selections if you also filter later
+            repo.topVoted(Option.getRadioApiNbResults(), new Callback<>() {
+                @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
+                    if (rsp.isSuccessful() && rsp.body() != null) {
+                        // e.g., open results screen with a “Top voted” header,
+                        // or directly set items in a local RecyclerView if you have one here.
+                        openRadioResultsActivity(/*analyticsEvent=*/"trending");
+                    } else {
+                        myToastE(getString(R.string.an_error_occurred));
+                    }
+                }
+                @Override public void onFailure(Call<List<Station>> call, Throwable t) {
+                    myLogEE(t, "topVoted failed");
+                    myToastE(getString(R.string.an_error_occurred));
+                }
+            });
         });
 
         buttonSearch.setOnClickListener(v -> {
@@ -144,10 +213,6 @@ public class GetRadioActivity extends LoggingActivity {
         country = safeSpinnerStr(spinnerCountry);
         tag     = safeSpinnerStr(spinnerTag);
 
-        if (lang.isEmpty()) {
-            myToast(getString(R.string.selected_language_error));
-            return;
-        }
         openRadioResultsActivity(/*analyticsEvent=*/"search");
     }
 
@@ -161,11 +226,9 @@ public class GetRadioActivity extends LoggingActivity {
 
         // Analytics (mirror your Librivox calls)
         if ("trending".equals(analyticsEvent)) {
-            //TODO
-            //FirebaseAnalyticsHelper.tellAnalyticsRadioTrending(query, lang, country, tag);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioTrending(query, lang, country, tag);
         } else if ("search".equals(analyticsEvent)) {
-            //TODO
-            //FirebaseAnalyticsHelper.tellAnalyticsRadioSearch(query, lang, country, tag);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioSearch(query, lang, country, tag);
         }
     }
 
@@ -173,4 +236,22 @@ public class GetRadioActivity extends LoggingActivity {
         if (sp == null || sp.getSelectedItem() == null) return "";
         return String.valueOf(sp.getSelectedItem()).trim().toLowerCase();
     }
+    /** 2-letter language from LanguageItem. */
+    private static String safeLang(Spinner sp) {
+        Object it = (sp == null) ? null : sp.getSelectedItem();
+        if (it instanceof com.driot.bookplayer.objects.LanguageItem) {
+            return ((com.driot.bookplayer.objects.LanguageItem) it).twoLetterCode; // "de", "fr", ...
+        }
+        return "";
+    }
+
+    /** If you use a real CountryItem model, mirror safeLang; else keep "" until you wire one. */
+    private static String safeCountry(Spinner sp) {
+        if (sp == null || sp.getSelectedItem() == null) return "";
+        String s = String.valueOf(sp.getSelectedItem()).trim();
+        // Expect values like "FR", "US" or "" – normalize to upper
+        return s.length() == 2 ? s.toUpperCase() : "";
+    }
+
+
 }

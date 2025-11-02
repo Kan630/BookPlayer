@@ -129,6 +129,16 @@
                     android:text="@string/trending_radios"
                     style="@style/GetResourceButton" />
 
+                <!-- Tags -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/rvTopTags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="8dp"
+                    android:paddingTop="8dp"
+                    android:paddingBottom="4dp"/>
+
                 <!-- Search box -->
                 <com.driot.bookplayer.views.EditTextWithButtons
                     android:id="@+id/etRadio"

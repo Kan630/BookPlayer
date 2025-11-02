@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
+import okhttp3.HttpUrl;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,7 +46,7 @@ public class RadioBrowserRepository {
     }
 
     public void topVoted(int limit, Callback<List<Station>> cb) {
-        api.topVoted(limit).enqueue(new LoggingCallback<>(cb, "topVoted"));
+        api.topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
     }
 
     /** Use this when the user taps Play: it increments click stats AND returns a fresh stream URL. */
@@ -70,4 +71,10 @@ public class RadioBrowserRepository {
             delegate.onFailure(call, t);
         }
     }
+
+    public void getTopTags(int limit, Callback<List<TagItem>> cb) {
+        api.getTags("stationcount", true, limit)
+                .enqueue(new LoggingCallback<>(cb, "getTopTags"));
+    }
+
 }

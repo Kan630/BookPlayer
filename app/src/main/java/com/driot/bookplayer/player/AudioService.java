@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.pm.ServiceInfo;
+import android.graphics.Bitmap;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 import android.net.Uri;
@@ -15,6 +16,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.ResultReceiver;
+import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -30,7 +32,6 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingService;
@@ -418,8 +419,8 @@ public class AudioService extends LoggingService {
         // Sleep timer (ticks every second)
         sleepCheckHandler = new Handler();
         sleepTimer = new com.driot.bookplayer.player.SleepTimer(
-                sleepCheckHandler, DELAY_CHECK_TIMER_SLEEP,
-                new com.driot.bookplayer.player.SleepTimer.Listener() {
+                sleepCheckHandler, DELAY_CHECK_TIMER_SLEEP, (radioMode ? "radio" : "book"),
+                new SleepTimer.Listener() {
                     @Override
                     public void onTick(int elapsedSeconds) {
                         Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
@@ -542,19 +543,30 @@ public class AudioService extends LoggingService {
     private void showForegroundNotification(boolean playing) {
 
         if (radioMode) {
-            CharSequence title = radioTitle != null ? radioTitle : getString(R.string.live_radio);
-            CharSequence text  = getString(R.string.live_radio);
+            // 1) Limit session capabilities
+            applyRadioPlaybackState(playing);
+
+            // 2) (Async) fetch cover, then set metadata & update notif
+            //    If you already have a cached Bitmap, set it now and skip Glide.
+            Bitmap currentArt = null; // your cache if any
+            applyRadioMetadata(currentArt, radioTitle);
 
             Notification n = notif.build(
                     media.session(),
                     playing,
-                    title,
-                    text,
+                    radioTitle != null ? radioTitle : getString(R.string.live_radio),
+                    getString(R.string.live_radio),
                     new PlaybackNotificationManager.ActionProvider() {
-                        @Override public PendingIntent rewind() { return null; } // usually disabled for radio
-                        @Override public PendingIntent play()   { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY); }
-                        @Override public PendingIntent pause()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                        @Override public PendingIntent fastForward() { return null; }
+                        @Override public PendingIntent rewind()      { return null; } // no-op
+                        @Override public PendingIntent fastForward() { return null; } // no-op
+                        @Override public PendingIntent play() {
+                            return MediaButtonReceiver.buildMediaButtonPendingIntent(
+                                    AudioService.this, PlaybackStateCompat.ACTION_PLAY);
+                        }
+                        @Override public PendingIntent pause() {
+                            return MediaButtonReceiver.buildMediaButtonPendingIntent(
+                                    AudioService.this, PlaybackStateCompat.ACTION_PAUSE);
+                        }
                         @Override public PendingIntent content() {
                             return PendingIntent.getActivity(
                                     AudioService.this, 0,
@@ -562,15 +574,54 @@ public class AudioService extends LoggingService {
                                     PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
                             );
                         }
-                    });
+                    }
+            );
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
             } else {
                 startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
             }
-            return;
-        }
+
+            // 3) If you only have a favicon URL, load it and refresh:
+            if (currentArt == null && radioImageUrl != null && !radioImageUrl.isEmpty()) {
+                com.bumptech.glide.Glide.with(getApplicationContext())
+                        .asBitmap()
+                        .load(radioImageUrl)
+                        .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
+                            @Override public void onResourceReady(Bitmap bmp,
+                                                                  com.bumptech.glide.request.transition.Transition<? super Bitmap> t) {
+                                applyRadioMetadata(bmp, radioTitle);
+                                // rebuild/update the notification so largeIcon shows
+                                Notification updated = notif.build(
+                                        media.session(), playing,
+                                        radioTitle != null ? radioTitle : getString(R.string.live_radio),
+                                        getString(R.string.live_radio),
+                                        /* same ActionProvider */ new PlaybackNotificationManager.ActionProvider() {
+                                            @Override public PendingIntent rewind()      { return null; }
+                                            @Override public PendingIntent fastForward() { return null; }
+                                            @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY); }
+                                            @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                                            @Override public PendingIntent content() {
+                                                return PendingIntent.getActivity(
+                                                        AudioService.this, 0,
+                                                        new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class),
+                                                        PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                                                );
+                                            }
+                                        }
+                                );
+                                // For foreground services, call startForeground again or notify:
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, updated, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+                                } else {
+                                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, updated);
+                                }
+                            }
+                            @Override public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {}
+                        });
+            }
+            return;        }
 
 
         ZikFile zf = getCurrentZikFile();
@@ -637,6 +688,39 @@ public class AudioService extends LoggingService {
             startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
         }
     }
+    private void applyRadioPlaybackState(boolean playing) {
+        long actions = 0L;
+        if (playing) actions |= PlaybackStateCompat.ACTION_PAUSE; else actions |= PlaybackStateCompat.ACTION_PLAY;
+
+        // No seek/skip/ff/rw for radio:
+        // (do NOT include SEEK_TO / SKIP_TO_NEXT / SKIP_TO_PREVIOUS / FAST_FORWARD / REWIND)
+
+        final PlaybackStateCompat state = new PlaybackStateCompat.Builder()
+                .setActions(actions)
+                // Hide progress bar by reporting unknown position & speed:
+                .setState(
+                        playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                        PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN, // <- key to hide seek bar
+                        playing ? 1f : 0f,
+                        System.currentTimeMillis()
+                )
+                .build();
+
+        media.session().setPlaybackState(state);
+    }
+    private void applyRadioMetadata(@Nullable Bitmap largeIcon, @Nullable String title) {
+        MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
+                .putString(MediaMetadataCompat.METADATA_KEY_TITLE, title != null ? title : getString(R.string.live_radio));
+        // Do NOT set METADATA_KEY_DURATION for live
+        // Optionally mark as radio/stream via album/artist if you want
+
+        if (largeIcon != null) {
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, largeIcon);
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, largeIcon);
+        }
+        media.session().setMetadata(b.build());
+    }
+
 
 
     private void startPlayWithEngine() {

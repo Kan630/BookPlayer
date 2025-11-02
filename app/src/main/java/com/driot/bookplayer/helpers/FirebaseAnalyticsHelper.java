@@ -44,6 +44,12 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("play_for_1min", bundle);
     }
 
+    public static void tellRadioFor1min(String elapsed_category) {
+        Bundle bundle = new Bundle();
+        bundle.putString("elapsed_category", String.valueOf(elapsed_category));
+        logBundleEvent("radio_for_1min", bundle);
+    }
+
     public static void tellAnalyticsLoadFileKO(String filePath) {
         Bundle bundle = new Bundle();
         bundle.putString("filePath", String.valueOf(filePath));
@@ -205,7 +211,22 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("start_streaming", bundle);
     }
 
-
+    public static void tellAnalyticsRadioTrending(String query, String lang, String country, String tag) {
+        Bundle bundle = new Bundle();
+        bundle.putString("query", String.valueOf(query));
+        bundle.putString("language", String.valueOf(lang));
+        bundle.putString("country", String.valueOf(country));
+        bundle.putString("tag", String.valueOf(tag));
+        logBundleEvent("radio_trending", bundle);
+    }
+    public static void tellAnalyticsRadioSearch(String query, String lang, String country, String tag) {
+        Bundle bundle = new Bundle();
+        bundle.putString("query", String.valueOf(query));
+        bundle.putString("language", String.valueOf(lang));
+        bundle.putString("country", String.valueOf(country));
+        bundle.putString("tag", String.valueOf(tag));
+        logBundleEvent("radio_search", bundle);
+    }
 
     public static void tellAnalyticsLogee(String customErrorTxt, String androidErrorText) {
         Bundle bundle = new Bundle();

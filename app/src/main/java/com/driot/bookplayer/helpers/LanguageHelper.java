@@ -8,7 +8,6 @@ import android.widget.Spinner;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LanguageSpinnerAdapter;
 import com.driot.bookplayer.objects.LanguageItem;
-import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,6 +16,7 @@ public class LanguageHelper {
 
     public static final List<LanguageItem> LIBRIVOX_LANGUAGES;
     public static final List<LanguageItem> PODCAST_LANGUAGES;
+    public static final List<LanguageItem> RADIO_LANGUAGES;
     public static final List<LanguageItem> APP_LANGUAGES;
     static {
         List<LanguageItem> list = new ArrayList<>();
@@ -68,6 +68,9 @@ public class LanguageHelper {
         podcastList.add(new LanguageItem("ukr", "uk", "Українська", R.drawable.flag_ua));
         podcastList.add(new LanguageItem("ces", "cs", "Čeština", R.drawable.flag_cz));
         PODCAST_LANGUAGES = podcastList;
+
+        podcastList.add(new LanguageItem("", "", "All", R.drawable.flag_globe));
+        RADIO_LANGUAGES = podcastList;
     }
 
     public static List<LanguageItem> getLibrivoxLanguages() {
@@ -76,6 +79,10 @@ public class LanguageHelper {
 
     public static List<LanguageItem> getPodcastLanguages() {
         return PODCAST_LANGUAGES;
+    }
+
+    public static List<LanguageItem> getRadioLanguages() {
+        return RADIO_LANGUAGES;
     }
 
     public static List<LanguageItem> getAppLanguages() { return APP_LANGUAGES; }
@@ -126,15 +133,4 @@ public class LanguageHelper {
         return null;
     }
 
-
-    // === LOGGING ===
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "LanguageHelper";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

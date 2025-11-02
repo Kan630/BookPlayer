@@ -7,8 +7,11 @@ import android.widget.*;
 import androidx.annotation.*;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
+
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
 
 public class RadioMiniNowPlayingFragment extends Fragment {
@@ -44,6 +47,8 @@ public class RadioMiniNowPlayingFragment extends Fragment {
 
             // Play/pause icon
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+
+            Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), s.cover)).into(ivCover);
         });
 
         // Observe phase (to show buffering spinner)

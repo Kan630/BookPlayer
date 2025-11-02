@@ -130,13 +130,15 @@ public class RadioFavoritesActivity extends LoggingActivity {
             progressBar.setVisibility(View.GONE);
             adapter.setItems(favorites);
         });
-
+/*
         if (savedInstanceState == null) {
             getSupportFragmentManager()
                     .beginTransaction()
                     .replace(R.id.radioMiniContainer, new com.driot.bookplayer.player.RadioMiniNowPlayingFragment())
                     .commitNow();
         }
+
+ */
     }
 
     /** Minimal Station stub so we can reuse toggleFavorite() which expects a Station. */

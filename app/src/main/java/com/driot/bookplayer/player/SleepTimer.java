@@ -18,17 +18,19 @@ public final class SleepTimer extends LoggerHelper {
     private final Handler h;
     private final int tickMs;
     private final Listener l;
+    private final String typePlayed;
 
     private boolean running = false;
     private long elapsedMs = 0L;
     private String elapsed_category = "00:00";
     private int maxMinutes = 0;
 
-    public SleepTimer(@NonNull Handler handler, int tickMs, @NonNull Listener listener) {
+    public SleepTimer(@NonNull Handler handler, int tickMs, String typePlayed, @NonNull Listener listener) {
         super(SleepTimer.class);
         this.h = handler;
         this.tickMs = tickMs;
         this.l = listener;
+        this.typePlayed = typePlayed;
     }
 
     // monotonic timing helpers
@@ -63,7 +65,12 @@ public final class SleepTimer extends LoggerHelper {
             playedSinceLastMinuteMs += delta;
             if (playedSinceLastMinuteMs >= 60_000L) {
                 playedSinceLastMinuteMs -= 60_000L;
-                FirebaseAnalyticsHelper.tellPlayFor1min(elapsed_category);
+                if ("radio".equals(typePlayed)) {
+                    FirebaseAnalyticsHelper.tellRadioFor1min(elapsed_category);
+                } else {
+                    FirebaseAnalyticsHelper.tellPlayFor1min(elapsed_category);
+                }
+
 
             }
 
