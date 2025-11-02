@@ -175,6 +175,7 @@ public class PlayActivity extends LoggingActivity {
 
         seekbar = findViewById(R.id.seekBar);
         ivCover = findViewById(R.id.folderImage);
+        ivCover.setImageURI(null);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         ttsContainer   = findViewById(R.id.ttsContainer);
@@ -253,12 +254,15 @@ public class PlayActivity extends LoggingActivity {
                 if (!s.cover.equals(lastCoverUri)) {
                     lastCoverUri = s.cover;
                     ivCover.setImageURI(null);
-                    ivCover.setImageURI(Uri.parse(s.cover));
+                    //ivCover.setImageURI(Uri.parse(s.cover));
                     //Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), s.cover)).into(ivCover);
+                    myLogD("loading image : " + s.cover);
+                    Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
                 }
                 ivCover.setVisibility(View.VISIBLE);
                 frequencyVisualizerView.setAlpha(0.6f);
             } else {
+                myLogD("hiding image");
                 if (lastCoverUri != null) {
                     lastCoverUri = null;
                     ivCover.setImageDrawable(null); // free memory
@@ -467,7 +471,6 @@ public class PlayActivity extends LoggingActivity {
         if (!tts) {
             // AUDIO MODE
             ttsContainer.setVisibility(View.GONE);
-            ivCover.setVisibility(ivCover.getDrawable()!=null ? View.VISIBLE : View.GONE);
 
             // Optional visualizer (requires session id → ask VM)
             Integer sessionId = vm.getAudioSessionIdOrNull();

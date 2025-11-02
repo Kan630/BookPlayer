@@ -174,7 +174,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
             } else if ("image".equals(p)) {
                 if (folder.image != null) {
                     h.ivBookCover.setVisibility(View.VISIBLE);
-                    Glide.with(h.ivBookCover.getContext()).load(StorageHelper.checkAndCleanImagePath(context, folder.image)).into(h.ivBookCover);
+                    //Glide.with(h.ivBookCover.getContext()).load(StorageHelper.checkAndCleanImagePath(context, folder.image)).into(h.ivBookCover);
+                    Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
                 } else {
                     h.ivBookCover.setVisibility(View.GONE);
                 }
@@ -206,8 +207,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
         if (folder.image != null) {
             h.ivBookCover.setVisibility(View.VISIBLE);
-            Glide.with(h.ivBookCover.getContext()).load(StorageHelper.checkAndCleanImagePath(context, folder.image)).into(h.ivBookCover);
-            //Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
+            //Glide.with(h.ivBookCover.getContext()).load(StorageHelper.checkAndCleanImagePath(context, folder.image)).into(h.ivBookCover);
+            Glide.with(h.ivBookCover.getContext()).load(folder.image).into(h.ivBookCover);
         } else {
             h.ivBookCover.setVisibility(View.GONE);
         }
@@ -298,6 +299,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
     @Override
     public boolean onLongClick(View v) {
+        myLogI("User pressed long click");
         RecyclerView.ViewHolder vh = (RecyclerView.ViewHolder) v.getTag(R.id.view_holder_tag);
         if (vh == null) return false;
         int pos = vh.getBindingAdapterPosition();

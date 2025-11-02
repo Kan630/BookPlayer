@@ -219,7 +219,8 @@ public class ZikFileActivity extends LoggingActivity {
 
             ivCover.setImageDrawable(null); // force refresh
             Context gildeContext = ivCover.getContext();
-            Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCover);
+            //Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCover);
+            Glide.with(gildeContext).load(folder.image).into(ivCover);
             ivCover.invalidate();
         } else {
             ivCover.setImageDrawable(null);

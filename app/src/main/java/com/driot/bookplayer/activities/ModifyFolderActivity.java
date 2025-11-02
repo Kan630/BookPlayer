@@ -130,25 +130,9 @@ public class ModifyFolderActivity extends LoggingActivity {
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
         ivCoverPreview.setImageResource(R.drawable.no_image_icon);
 
-        /*
-        if (folder.image != null && !folder.image.isEmpty()) {
-            Context gildeContext = ivCoverPreview.getContext();
-            myLogD("glide : " + folder.image);
-            Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCoverPreview);
-        } else {
-            ivCoverPreview.setImageResource(R.drawable.no_image_icon);
-        }
-
-         */
-
-        OnBackPressedCallback callback = new OnBackPressedCallback(true) {
-            @Override
-            public void handleOnBackPressed() {
-                checkBeforeLeave();
-            }
-        };
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
+                myLogI("User pressed back");
                 if (isDeleting || (blockingOverlay != null && blockingOverlay.getVisibility() == View.VISIBLE)) {
                     // Don’t cancel the Work; just finish this Activity
                     setResult(RESULT_OK, new Intent().putExtra("deleteInProgressFolderId", folder.getId()));

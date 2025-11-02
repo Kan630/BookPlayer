@@ -249,7 +249,8 @@ public class AudioService extends LoggingService {
 
         String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
         String text = (z != null) ? z.getDisplayName() : "";
-        String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
+        //String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
+        String cover = (f != null) ? f.image : "";
 
         // Be defensive around engine readiness to avoid 0/0 churn if you want
         long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
