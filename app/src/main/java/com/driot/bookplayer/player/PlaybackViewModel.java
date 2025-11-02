@@ -40,6 +40,9 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Boolean> miniSuppressed = new MutableLiveData<>(false);
     public LiveData<Boolean> getMiniSuppressed() { return miniSuppressed; }
 
+    private final MutableLiveData<Boolean> isRadio = new MutableLiveData<>(false);
+    public LiveData<Boolean> getIsRadio() { return isRadio; }
+
     private AudioService service;
     private boolean bound;
 
@@ -131,6 +134,10 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 }
 
                 miniSuppressed.postValue(i.getBooleanExtra(Intents.EXTRA_UI_SUPPRESS_MINI, false));
+
+                boolean isRadioNow = i.getBooleanExtra(Intents.EXTRA_UI_IS_RADIO, false);
+                isRadio.postValue(isRadioNow);
+
                 state.postValue(new PlaybackUiState(
                         playing, pos, dur, title, sub, cover,
                         trackId, folderId, ready, ttsMode

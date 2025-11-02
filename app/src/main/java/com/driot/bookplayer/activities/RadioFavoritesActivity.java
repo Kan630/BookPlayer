@@ -1,8 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogEE;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myToastE;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -20,9 +17,9 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
 import com.driot.bookplayer.objects.radio.RadioFavoriteItem;
 import com.driot.bookplayer.objects.radio.RadioResultsViewModel;
-import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import retrofit2.Call;
@@ -43,11 +40,9 @@ public class RadioFavoritesActivity extends LoggingActivity {
         setContentView(R.layout.activity_radio_results);
 
         recyclerView = findViewById(R.id.recyclerView);
-        progressBar = findViewById(R.id.progressBar);
+        progressBar  = findViewById(R.id.progressBar);
 
-        InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
-        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
-
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
         OngoingTaskHost.attach(this, R.id.topOverlayContainer, new Intent(this, AddResourceActivity.class));
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
@@ -70,19 +65,32 @@ public class RadioFavoritesActivity extends LoggingActivity {
             @Override public void onPlay(RadioFavoriteItem f) {
                 myLogI("--- user clicks radio item --- : " + f.name);
                 progressBar.setVisibility(View.VISIBLE);
+
+                // Resolve (counts a click on RadioBrowser) then play; fallback to stored url_resolved if you add it later
                 repo.resolveUrl(f.stationuuid, new Callback<>() {
                     @Override public void onResponse(
                             Call<com.driot.bookplayer.objects.radio.UrlResolve> call,
                             Response<com.driot.bookplayer.objects.radio.UrlResolve> rsp
                     ) {
                         progressBar.setVisibility(View.GONE);
+                        String stream = null;
                         if (rsp.isSuccessful() && rsp.body() != null && rsp.body().url != null && !rsp.body().url.isEmpty()) {
                             myLogI("resolveUrl success : " + rsp.body().url);
-                            String stream = rsp.body().url;
-                            Intent i = new Intent(RadioFavoritesActivity.this, PlayActivity.class);
-                            i.putExtra("streamUrl", stream);
-                            i.putExtra("title", f.name);
-                            startActivity(i);
+                            stream = rsp.body().url;
+                        }
+
+                        if (stream != null) {
+                            // Stream with ExoPlayer via RadioMiniPlayer (no PlayActivity)
+                            androidx.core.content.ContextCompat.startForegroundService(
+                                    getApplicationContext(),
+                                    new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                                            .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, stream)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, f.name)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, f.favicon)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "RadioFavoritesActivity - adapter callback: .onPlay()")
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
+                            );
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
                         }
@@ -100,12 +108,11 @@ public class RadioFavoritesActivity extends LoggingActivity {
                         }
                     }
                 });
-
             }
 
             @Override public void onUnfavorite(RadioFavoriteItem f) {
                 myLogI("--- user Unfavorite radio item --- : " + f.name);
-                // Remove and refresh
+                // Remove and refresh (reuse VM’s toggle which expects a Station)
                 viewModel.toggleFavorite(RadioFavoritesActivity.this, toStationStub(f));
             }
         });
@@ -113,9 +120,9 @@ public class RadioFavoritesActivity extends LoggingActivity {
 
         // repo for resolveUrl
         repo = new com.driot.bookplayer.objects.radio.RadioBrowserRepository(
-                this
-                , false // TODO true async
-                , com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+                this,
+                /* discoverMirrors */ false, // keep async discovery for later if you want
+                /* log level */ com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
         );
 
         progressBar.setVisibility(View.VISIBLE);
@@ -123,6 +130,13 @@ public class RadioFavoritesActivity extends LoggingActivity {
             progressBar.setVisibility(View.GONE);
             adapter.setItems(favorites);
         });
+
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.radioMiniContainer, new com.driot.bookplayer.player.RadioMiniNowPlayingFragment())
+                    .commitNow();
+        }
     }
 
     /** Minimal Station stub so we can reuse toggleFavorite() which expects a Station. */
@@ -138,4 +152,5 @@ public class RadioFavoritesActivity extends LoggingActivity {
         s.tags = f.tags;
         return s;
     }
+
 }

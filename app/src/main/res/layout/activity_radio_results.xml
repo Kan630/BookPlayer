@@ -40,53 +40,10 @@
         android:layout_weight="1"
         android:clipToPadding="false" />
 
-    <!-- Mini streaming player for radios -->
-    <LinearLayout
-        android:id="@+id/miniPlayer"
+    <FrameLayout
+        android:id="@+id/radioMiniContainer"
         android:layout_width="match_parent"
-        android:layout_height="64dp"
-        android:orientation="horizontal"
-        android:gravity="center_vertical"
-        android:paddingStart="12dp"
-        android:paddingEnd="8dp"
-        android:background="@color/cardBackground"
-        android:visibility="gone">
-
-        <ImageView
-            android:id="@+id/ivMiniCover"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
-            android:scaleType="centerCrop"
-            android:contentDescription="@string/cover_preview"
-            android:src="@drawable/ic_radio_24px" />
-
-        <TextView
-            android:id="@+id/tvMiniTitle"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:layout_marginStart="12dp"
-            android:maxLines="1"
-            android:ellipsize="end"
-            android:textColor="@android:color/white"
-            android:textSize="14sp"
-            android:text="—" />
-
-        <ProgressBar
-            android:id="@+id/progressMini"
-            style="?android:attr/progressBarStyleSmall"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginEnd="8dp"
-            android:visibility="gone" />
-
-        <ImageButton
-            android:id="@+id/btnMiniPlayPause"
-            android:layout_width="40dp"
-            android:layout_height="40dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_media_play_24"
-            android:contentDescription="@string/play" />
-    </LinearLayout>
+        android:layout_height="wrap_content"
+        />
 
 </LinearLayout>

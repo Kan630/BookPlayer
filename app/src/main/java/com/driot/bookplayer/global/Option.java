@@ -66,6 +66,7 @@ public class Option {
     public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
     public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
     public static final int DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS = 200;
+    public static final int DEFAULT_RADIO_API_NB_RESULTS = 200;
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
 
@@ -298,6 +299,10 @@ public class Option {
     public static int getLibrivoxApiNbResults() {return prefs.getInt("LIBRIVOX_API_NB_RESULTS", DEFAULT_LIBRIVOX_API_NB_RESULTS);}
     public static void setPodcastIndexOrgApiNbResults(int i) {prefs.edit().putInt("PODCAST_INDEX_ORG_API_NB_RESULTS",i).apply();}
     public static int getPodcastIndexOrgApiNbResults() {return prefs.getInt("PODCAST_INDEX_ORG_API_NB_RESULTS", DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS);}
+    public static void setRadioApiNbResults(int i) {prefs.edit().putInt("RADIO_API_NB_RESULTS",i).apply();}
+    public static int getRadioApiNbResults() {return prefs.getInt("RADIO_API_NB_RESULTS", DEFAULT_RADIO_API_NB_RESULTS);}
+
+
 
 
     /////////////////// NIGHT MODE ///////////////////

@@ -3,16 +3,12 @@ package com.driot.bookplayer.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.RadioResultRVAdapter;
 import com.driot.bookplayer.global.Option;
@@ -24,7 +20,6 @@ import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
 import com.driot.bookplayer.objects.radio.RadioResultsViewModel;
 import com.driot.bookplayer.objects.radio.Station;
-import com.driot.bookplayer.player.RadioMiniPlayer;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
@@ -43,27 +38,14 @@ public class RadioResultsActivity extends LoggingActivity {
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
 
-    // --- mini player (via RadioMiniPlayer helper) ---
-    private View miniPlayer;
-    private ImageView ivMiniCover;
-    private TextView tvMiniTitle;
-    private ProgressBar progressMini;
-    private ImageButton btnMiniPlayPause;
-    private RadioMiniPlayer mini;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_radio_results);
 
-        InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
-        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
-
-        OngoingTaskHost.attach(
-                this,
-                R.id.topOverlayContainer,
-                new Intent(this, AddResourceActivity.class)
-        );
+        // Insets & overlays
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
+        OngoingTaskHost.attach(this, R.id.topOverlayContainer, new Intent(this, AddResourceActivity.class));
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar  = findViewById(R.id.progressBar);
@@ -81,41 +63,41 @@ public class RadioResultsActivity extends LoggingActivity {
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
         );
 
-        // ---- mini player views + controller ----
-        miniPlayer      = findViewById(R.id.miniPlayer);
-        ivMiniCover     = findViewById(R.id.ivMiniCover);
-        tvMiniTitle     = findViewById(R.id.tvMiniTitle);
-        progressMini    = findViewById(R.id.progressMini);
-        btnMiniPlayPause= findViewById(R.id.btnMiniPlayPause);
-
-        mini = new RadioMiniPlayer(
-                this, miniPlayer, ivMiniCover, tvMiniTitle, progressMini, btnMiniPlayPause
-        );
-        mini.setListener(msg -> myToastE(msg));
-
         // ---- adapter with play + favorite ----
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
             @Override public void onPlay(Station s) {
                 myLogI("--- user clicks radio item --- : " + s.name);
-                // Resolve (counts a click on RadioBrowser) then play; otherwise fallback to url_resolved
                 progressBar.setVisibility(View.VISIBLE);
+
+                // Resolve (counts a click on RadioBrowser) then play; fallback to url_resolved
                 repo.resolveUrl(s.stationuuid, new Callback<com.driot.bookplayer.objects.radio.UrlResolve>() {
                     @Override public void onResponse(
                             Call<com.driot.bookplayer.objects.radio.UrlResolve> call,
                             Response<com.driot.bookplayer.objects.radio.UrlResolve> rsp
                     ) {
                         progressBar.setVisibility(View.GONE);
+
                         String stream = null;
                         if (rsp.isSuccessful() && rsp.body() != null && rsp.body().url != null && !rsp.body().url.isEmpty()) {
-                            myLogI("rsp.body().url : " + rsp.body().url);
+                            myLogI("resolveUrl success : " + rsp.body().url);
                             stream = rsp.body().url;
                         } else if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
-                            myLogI("s.url_resolved : " + s.url_resolved);
+                            myLogI("fallback url_resolved : " + s.url_resolved);
                             stream = s.url_resolved;
                         }
+
                         if (stream != null) {
-                            // cover/title in mini bar
-                            mini.play(stream, s.name != null ? s.name : "", s.favicon);
+                            // Let AudioService + RadioMiniNowPlayingFragment handle playback & UI
+                            androidx.core.content.ContextCompat.startForegroundService(
+                                    getApplicationContext(),
+                                    new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                                            .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, stream)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, s.name)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, s.favicon)
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "RadioResultsActivity - adapter callback: .onPlay()")
+                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
+                            );
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
                         }
@@ -130,7 +112,17 @@ public class RadioResultsActivity extends LoggingActivity {
                         } else {
                             myLogEE(t, "resolveUrl failed");
                             if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
-                                mini.play(s.url_resolved, s.name != null ? s.name : "", s.favicon);
+                                // Fallback to stored resolved URL
+                                androidx.core.content.ContextCompat.startForegroundService(
+                                        getApplicationContext(),
+                                        new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                                                .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
+                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, s.url_resolved)
+                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, s.name)
+                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, s.favicon)
+                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "RadioResultsActivity - adapter fallback: .onPlay()")
+                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
+                                );
                             } else {
                                 myToastE(getString(R.string.an_error_occurred));
                             }
@@ -172,7 +164,8 @@ public class RadioResultsActivity extends LoggingActivity {
         viewModel.setLastParams(q, lang, country, tag);
 
         // ---- Header text (optional, like Librivox) ----
-        String headerSearch = getString(R.string.Search_2pt) + (q.isEmpty() ? getString(R.string.search_nothing_specified) : q);
+        String headerSearch = getString(R.string.Search_2pt)
+                + (q.isEmpty() ? getString(R.string.search_nothing_specified) : q);
         String headerLang   = getString(R.string.Language_2pt) + lang;
         String headerCountryTag = (country.isEmpty() && tag.isEmpty()) ? "" : (country + (tag.isEmpty() ? "" : " • " + tag));
         adapter.setHeader(headerSearch, headerLang, headerCountryTag);
@@ -187,12 +180,12 @@ public class RadioResultsActivity extends LoggingActivity {
 
         // ---- Search ----
         progressBar.setVisibility(View.VISIBLE);
-        repo.search(q, tag, country, lang, Option.getLibrivoxApiNbResults(), new Callback<List<Station>>() {
+        repo.search(q, tag, country, lang, Option.getRadioApiNbResults(), new Callback<>() {
             @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.body() != null) {
                     if (response.body().isEmpty()) {
-                        myToast(getString(R.string.no_result)); // ensure you have this string
+                        myToast(getString(R.string.no_result));
                         viewModel.requestFinish();
                     } else {
                         viewModel.setResults(response.body());
@@ -216,30 +209,13 @@ public class RadioResultsActivity extends LoggingActivity {
                 viewModel.requestFinish();
             }
         });
-    }
 
-    @Override
-    protected void onDestroy() {
-        if (mini != null) {
-            mini.release();
-            mini = null;
+        // ---- Mini radio fragment (same as Favorites) ----
+        if (savedInstanceState == null) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.radioMiniContainer, new com.driot.bookplayer.player.RadioMiniNowPlayingFragment())
+                    .commitNow();
         }
-        super.onDestroy();
-    }
-
-    // --- tiny helpers for header/cover preview while resolving (optional) ---
-    private void previewMiniBar(String title, String faviconUrl) {
-        tvMiniTitle.setText(title != null && !title.isEmpty() ? title : "Radio");
-        if (faviconUrl != null && !faviconUrl.isEmpty()) {
-            Glide.with(ivMiniCover).load(faviconUrl)
-                    .placeholder(R.drawable.ic_radio_24px)
-                    .error(R.drawable.ic_radio_24px)
-                    .into(ivMiniCover);
-        } else {
-            ivMiniCover.setImageResource(R.drawable.ic_radio_24px);
-        }
-        miniPlayer.setVisibility(View.VISIBLE);
-        progressMini.setVisibility(View.VISIBLE);
-        btnMiniPlayPause.setVisibility(View.INVISIBLE);
     }
 }

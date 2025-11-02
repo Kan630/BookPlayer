@@ -31,6 +31,7 @@
         android:requestLegacyExternalStorage="true"
         android:theme="@style/Theme.BookPlayer"
         android:name=".MyApp"
+        android:usesCleartextTraffic="true"
         >
 
 

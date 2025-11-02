@@ -113,11 +113,15 @@
                         style="@style/Widget.MaterialComponents.Button" />
                 </LinearLayout>
 
+                <TextView
+                    style="@style/GetResourceTextTopOfButton"
+                    android:textColor="@color/orange_700"
+                    android:text="@string/beta_test" />
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginVertical="16dp"
+                    android:layout_marginVertical="0dp"
                     android:padding="24dp">
 
                     <ImageButton

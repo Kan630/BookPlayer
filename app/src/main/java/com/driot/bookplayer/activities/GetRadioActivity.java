@@ -15,6 +15,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -133,8 +134,8 @@ public class GetRadioActivity extends LoggingActivity {
     private void clickSettings() {
         myLogI("--- User clicks RADIO SETTINGS ---");
         // Reuse your SettingsHostActivity with a RadioSettingsFragment (build like LibrivoxSettingsFragment)
-        //TODO
-        //SettingsHostActivity.start(this, RadioSettingsFragment.class, true, R.string.radio_settings);
+
+        SettingsHostActivity.start(this, RadioSettingsFragment.class, true, R.string.radio_settings);
     }
 
     private void doSearch() {

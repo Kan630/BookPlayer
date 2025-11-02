@@ -117,6 +117,12 @@ public class AudioService extends LoggingService {
 
     private static final boolean LOG_TRACE_ALL = false;
 
+    // --- RADIO MODE ---
+    private boolean radioMode = false;
+    @Nullable private String radioTitle = null;
+    @Nullable private String radioImageUrl = null; // you can display it in notif if you already support URL bitmaps
+    @Nullable private Uri    radioUri = null;
+
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
     public static final String FROM = "from";
@@ -218,9 +224,36 @@ public class AudioService extends LoggingService {
 
     //needed for Car ?
     private void broadcastUiState() {
-        PlaybackUiState s = buildUiState();
+        // Build the UI snapshot first (radio-aware)
+        PlaybackUiState s;
+        if (radioMode) {
+            String title = (radioTitle != null) ? radioTitle : getString(R.string.live_radio);
+            String text  = getString(R.string.live_radio);
+            String cover = (radioImageUrl != null) ? radioImageUrl : "";
+            long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
+            long   dur   = (engine != null) ? engine.getDuration()        : 0; // live => likely 0/unknown
+            boolean playing = (engine != null) && engine.isPlaying();
+
+            s = new PlaybackUiState(
+                    playing,
+                    pos,
+                    dur,
+                    title,
+                    text,
+                    cover,
+                    /* trackId */ 0,
+                    /* folderId */ 0,
+                    /* ready */ (engine != null) && engine.isReady(),
+                    /* ttsMode */ (engine instanceof TtsEngine)
+            );
+        } else {
+            s = buildUiState();  // your existing file/TTS path
+        }
+
+        // Cache + publish LiveData
         lastUiState = s;
         uiLive.postValue(s);
+        // Also broadcast the Intent (unchanged structure, but now using 's')
         Intent i = new Intent(Intents.ACTION_UI_STATE)
                 .putExtra(Intents.EXTRA_UI_PLAYING, s.playing)
                 .putExtra(Intents.EXTRA_UI_POS, s.positionMs)
@@ -236,7 +269,9 @@ public class AudioService extends LoggingService {
 
                 .putExtra(Intents.EXTRA_UI_TTS, s.ttsMode)
                 .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
-                .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg);
+                .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
+
+                .putExtra(Intents.EXTRA_UI_IS_RADIO, radioMode);
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
@@ -505,6 +540,39 @@ public class AudioService extends LoggingService {
 // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     private void showForegroundNotification(boolean playing) {
+
+        if (radioMode) {
+            CharSequence title = radioTitle != null ? radioTitle : getString(R.string.live_radio);
+            CharSequence text  = getString(R.string.live_radio);
+
+            Notification n = notif.build(
+                    media.session(),
+                    playing,
+                    title,
+                    text,
+                    new PlaybackNotificationManager.ActionProvider() {
+                        @Override public PendingIntent rewind() { return null; } // usually disabled for radio
+                        @Override public PendingIntent play()   { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PLAY); }
+                        @Override public PendingIntent pause()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(AudioService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                        @Override public PendingIntent fastForward() { return null; }
+                        @Override public PendingIntent content() {
+                            return PendingIntent.getActivity(
+                                    AudioService.this, 0,
+                                    new Intent(AudioService.this, com.driot.bookplayer.activities.MainActivity.class),
+                                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+                            );
+                        }
+                    });
+
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            } else {
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
+            }
+            return;
+        }
+
+
         ZikFile zf = getCurrentZikFile();
         CharSequence title = zf == null ? "---" : zf.getFolderName();
         CharSequence text = zf == null ? "---" : zf.getDisplayName();
@@ -582,7 +650,7 @@ public class AudioService extends LoggingService {
         focus.request();
 
         //if maxReach + introCut + littleRewind
-        setPositionPlayStart();
+        if (!radioMode) setPositionPlayStart();
 
         PlayerEngine e = this.engine; // snapshot to avoid races
         if (e == null) {
@@ -677,11 +745,18 @@ public class AudioService extends LoggingService {
     }
 
     private void alertError(String from, String errMsg) {
-        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
-                .putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile())
-                .putExtra(FROM, from)
-                .putExtra(ERR_MSG, errMsg)
-        );
+        if (radioMode) {
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
+                    .putExtra(FROM, from)
+                    .putExtra(ERR_MSG, errMsg)
+            );
+        } else {
+            LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
+                    .putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile())
+                    .putExtra(FROM, from)
+                    .putExtra(ERR_MSG, errMsg)
+            );
+        }
         myLogE("sendBroadcast alertError");
     }
 
@@ -870,6 +945,24 @@ public class AudioService extends LoggingService {
                 return START_STICKY;
             }
 
+            case Intents.ACTION_PLAY_RADIO: {
+                // Enter foreground ASAP (5s rule)
+                goForegroundPreparing(getString(R.string.live_radio), null);
+
+                final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
+                final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
+                final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
+
+                if (url == null || url.isEmpty()) {
+                    myLogE("ACTION_PLAY_RADIO without url");
+                    return START_NOT_STICKY;
+                }
+
+                playRadioStream(url, title != null ? title : getString(R.string.live_radio), img);
+                return START_STICKY;
+            }
+
+
             default:
                 // Unknown action — keep service alive and ensure we have a notif if needed
                 myLogEE(null, "onStartCommand() - unknown action : [" + action + "]");
@@ -885,6 +978,8 @@ public class AudioService extends LoggingService {
         try {
             CharSequence t = (title != null) ? title : "Preparing…";
             CharSequence s = (text != null) ? text : "Please wait";
+
+            if (radioMode) suppressMiniUntilNextPlay = false;
 
             PlaybackNotificationManager.ActionProvider minimal =
                     new PlaybackNotificationManager.ActionProvider() {
@@ -971,6 +1066,11 @@ public class AudioService extends LoggingService {
         myLogI("shutdown(fromDestroy=" + fromDestroy + ")");
         broadcastUiCleared();
         isRunning = false;
+
+        radioMode = false;
+        radioTitle = null;
+        radioImageUrl = null;
+        radioUri = null;
 
         try {
             PlayList.getMetaLive().removeObserver(metaObs);
@@ -1403,6 +1503,7 @@ public class AudioService extends LoggingService {
      ********************************************************************************
      */
     private void updateZikFileStateInDB(boolean bFinished) {
+        if (radioMode) return;
         ZikFile zf = getCurrentZikFile();
         if (zf == null) {
             myLogEE(null, "updateZikFileState : currentZikFile = null");
@@ -1465,27 +1566,29 @@ public class AudioService extends LoggingService {
 
         setUiPhase(Intents.PHASE_READY, null);
 
-        try {
-            int saved = getSavedResumePosition();
-            myLogD(getCurrentZikFile().getName() + " - savedPosition = " + saved);
-            if (engine != null && saved > 0) {
-                engine.seekTo(saved);
+        if (!radioMode) {
+            try {
+                int saved = getSavedResumePosition();
+                myLogD(getCurrentZikFile().getName() + " - savedPosition = " + saved);
+                if (engine != null && saved > 0) {
+                    engine.seekTo(saved);
+                }
+                justAdvancedToNext = false;
+            } catch (Exception e) {
+                myLogEE(e, "seekTo(saved) in onEnginePrepared");
             }
-            justAdvancedToNext = false;
-        } catch (Exception e) {
-            myLogEE(e, "seekTo(saved) in onEnginePrepared");
-        }
 
-        if (engine != null) {
-            ZikFile z = getCurrentZikFile();
-            if (z != null) {
-                media.setMetadata(
-                        z.getDisplayName(),            // title
-                        z.getFolderName(),             // artist (or podcast show)
-                        z.getFolderName(),             // album (or same as folder)
-                        engine.getDuration(),
-                        /* art */ null                 // optionally load a Bitmap
-                );
+            if (engine != null) {
+                ZikFile z = getCurrentZikFile();
+                if (z != null) {
+                    media.setMetadata(
+                            z.getDisplayName(),            // title
+                            z.getFolderName(),             // artist (or podcast show)
+                            z.getFolderName(),             // album (or same as folder)
+                            engine.getDuration(),
+                            /* art */ null                 // optionally load a Bitmap
+                    );
+                }
             }
         }
 
@@ -1684,5 +1787,51 @@ public class AudioService extends LoggingService {
                 .putExtra(Intents.EXTRA_UI_PHASE_MSG, msg);
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
+
+    private void playRadioStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
+        myLogI("playRadioStream: " + title + " -> " + url);
+
+        // Mark radio mode + meta
+        radioMode = true;
+        radioTitle = title;
+        radioImageUrl = imageUrl;
+        radioUri = Uri.parse(url);
+        suppressMiniUntilNextPlay = false;
+        broadcastUiState();                  // first snapshot (BUFFERING)
+
+        // Swap engine to Exo for radio
+        engineGen++;
+        long gen = engineGen;
+        PlayerEngine fresh = new ExoPlayerEngine(getApplicationContext(), engineCb, gen);
+        setEngine(fresh);
+        ErrorLoadingFile = false;
+
+        // Update MediaSession to BUFFERING with radio meta
+        media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
+        media.setMetadata(
+                /* title   */ title,
+                /* artist  */ getString(R.string.live_radio),
+                /* album   */ title,
+                /* durMs   */ 0L,
+                /* artBmp  */ null
+        );
+        showForegroundNotification(false); // shows paused/buffering style
+
+        try {
+            engine.reset();
+            engine.setDataSource(this, radioUri, title);
+            engine.prepareAsync();
+
+            // Broadcast a first UI state (pos/dur 0)
+            broadcastUiState();
+            // Auto-play when ready
+            directPlay = true;
+
+        } catch (Exception e) {
+            myLogEE(e, "playRadioStream setDataSource/prepareAsync failed");
+            alertError(null, null);
+        }
+    }
+
 }
 
