@@ -128,13 +128,18 @@ public class ModifyFolderActivity extends LoggingActivity {
         etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, folder.getId())));
 
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
+        ivCoverPreview.setImageResource(R.drawable.no_image_icon);
 
+        /*
         if (folder.image != null && !folder.image.isEmpty()) {
             Context gildeContext = ivCoverPreview.getContext();
+            myLogD("glide : " + folder.image);
             Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCoverPreview);
         } else {
             ivCoverPreview.setImageResource(R.drawable.no_image_icon);
         }
+
+         */
 
         OnBackPressedCallback callback = new OnBackPressedCallback(true) {
             @Override
@@ -168,7 +173,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .observe(this, fresh -> {
                     if (fresh == null) return;
                     if (fresh.image != null) {
-                        myLogD("observe : new fresh image : " + fresh.image);
+                        myLogD("observe folderDAO => display new fresh image : " + fresh.image);
                         folder.image = fresh.image;
                         ivCoverPreview.setImageURI(Uri.parse(fresh.image));
                     }
@@ -341,7 +346,10 @@ public class ModifyFolderActivity extends LoggingActivity {
                                 if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
                                 folder.image = newImagePath;
                                 AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
-                                runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath))));
+                                runOnUiThread(() -> {
+                                    myLog("reset ivCoverPreview after activity result : " + newImagePath);
+                                    ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath)));
+                                });
                             } catch (Exception e) {
                                 myLogEE(e, "Error processing selected image");
                                 runOnUiThread(() -> myToastE(getString(R.string.failed_to_change_image)));
@@ -384,7 +392,10 @@ public class ModifyFolderActivity extends LoggingActivity {
                     try {
                         AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), savedPath);
                         folder.image = savedPath;
-                        runOnUiThread(() -> ivCoverPreview.setImageURI(Uri.parse(savedPath)));
+                        runOnUiThread(() -> {
+                            myLog("reset ivCoverPreview after activity result coverGenLauncher : " + savedPath);
+                            ivCoverPreview.setImageURI(Uri.parse(savedPath));
+                        });
                     } catch (Exception e) {
                         myLogEE(e, "save generated cover (CoverGenerationActivity result)");
                     }
