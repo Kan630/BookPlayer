@@ -1031,8 +1031,15 @@
     <string name="option_app_language_subtitle">May not work on some devices (some devices may prevent using a language different from the system default).</string>
 
 
-
-
+    browse_radios
+    <string name="browse_radios">browse radios</string>
+    <string name="no_result">no result</string>
+    <string name="radio_cover_desc">radio cover desc</string>
+    <string name="RadioSearch_title">Web Radios</string>
+    <string name="RadioSearch_desc">Browse by language, country or tag, or search by station name.</string>
+    <string name="trending_radios">Trending</string>
+    <string name="radio_settings">Radio settings</string>
+    <string name="selected_language_error">Selected language error</string>
 
 
 

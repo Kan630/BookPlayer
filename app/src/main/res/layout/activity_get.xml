@@ -113,6 +113,32 @@
                         style="@style/Widget.MaterialComponents.Button" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginVertical="16dp"
+                    android:padding="24dp">
+
+                    <ImageButton
+                        android:id="@+id/bOpenRadiosIcon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:scaleType="fitCenter"
+                        android:src="@drawable/ic_radio_24px"
+                        android:background="@android:color/transparent"
+                        android:layout_marginEnd="20dp" />
+
+                    <Button
+                        android:id="@+id/bOpenRadios"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/browse_radios"
+                        android:backgroundTint="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnPrimary"
+                        style="@style/Widget.MaterialComponents.Button" />
+                </LinearLayout>
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

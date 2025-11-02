@@ -59,5 +59,13 @@ public class GetActivity extends LoggingActivity {
                 startActivity(new Intent(this, GetOtherActivity.class)));
         bOther.setOnClickListener(v ->
                 startActivity(new Intent(this, GetOtherActivity.class)));
+
+        findViewById(R.id.bOpenRadios).setOnClickListener(v ->
+                startActivity(new Intent(this, GetRadioActivity.class)));
+        findViewById(R.id.bOpenRadiosIcon).setOnClickListener(v ->
+                startActivity(new Intent(this, GetRadioActivity.class)));
+
+
+
     }
 }

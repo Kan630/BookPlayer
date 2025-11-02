@@ -368,6 +368,9 @@ public class KanLogger {
         zeReturn = zeReturn.replace(" helpers.", " h.");
         zeReturn = zeReturn.replace(" objects.", " o.");
         zeReturn = zeReturn.replace(" player.", " p.");
+        if (str.endsWith("$Logger")) {
+            zeReturn = str.substring(0, str.length() - "$Logger".length());
+        }
         return zeReturn;
     }
 

@@ -50,6 +50,7 @@
         <activity android:name=".activities.GetOtherActivity" />
         <activity android:name=".activities.GetAudiobookActivity" />
         <activity android:name=".activities.GetPodcastActivity" />
+        <activity android:name=".activities.GetRadioActivity" />
         <activity android:name=".activities.LoadBookActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
@@ -64,6 +65,8 @@
         <activity android:name=".activities.CleanMemoryActivity" />
         <activity android:name=".activities.ExportActivity" />
         <activity android:name=".activities.LibrivoxResultsActivity" />
+        <activity android:name=".activities.RadioResultsActivity" />
+        <activity android:name=".activities.RadioFavoritesActivity" />
         <activity android:name=".activities.LibrivoxDetailActivity" />
         <activity android:name=".activities.PodcastSearchResultsActivity"/>
         <activity android:name=".activities.PodcastEpisodeActivity"/>

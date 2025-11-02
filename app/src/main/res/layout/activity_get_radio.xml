@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/MainContainer"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <View
+            android:id="@+id/focusGuard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <!-- Ongoing task banner container -->
+        <FrameLayout
+            android:id="@+id/topOverlayContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/txtRadio_title"
+                    android:text="@string/RadioSearch_title"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="20dp"
+                    style="@style/GetResourceTextSectionTitle" />
+
+                <View style="@style/GetResourceHorizontalBar" />
+
+                <!-- Row: Favorites + Settings -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/bFavorite"
+                        android:text="@string/Favorites"
+                        style="@style/GetResourceButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+
+                    <ImageButton
+                        android:id="@+id/ibFavorite"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/favorites"
+                        android:src="@drawable/ic_favorite"
+                        android:background="@android:color/transparent"
+                        app:tint="@android:color/holo_red_dark" />
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <ImageButton
+                        android:id="@+id/ibSettings"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/settings"
+                        android:src="@drawable/ic_settings_24"
+                        android:background="@android:color/transparent" />
+                </LinearLayout>
+
+                <View style="@style/GetResourceHorizontalBar" />
+
+                <!-- Description -->
+                <TextView
+                    android:id="@+id/txtRadio_desc"
+                    android:layout_marginTop="30dp"
+                    android:text="@string/RadioSearch_desc"
+                    style="@style/GetResourceTextTopOfButton" />
+
+                <!-- Filters: Language / Country / Tag -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="24dp">
+
+                    <Spinner
+                        android:id="@+id/spinnerRadioLang"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        style="@style/GetResourceSpinner" />
+
+                    <Spinner
+                        android:id="@+id/spinnerRadioCountry"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="12dp"
+                        style="@style/GetResourceSpinner" />
+
+                    <Spinner
+                        android:id="@+id/spinnerRadioTag"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        style="@style/GetResourceSpinner" />
+                </LinearLayout>
+
+                <!-- Trending -->
+                <Button
+                    android:id="@+id/bRadioTrending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="36dp"
+                    android:text="@string/trending_radios"
+                    style="@style/GetResourceButton" />
+
+                <!-- Search box -->
+                <com.driot.bookplayer.views.EditTextWithButtons
+                    android:id="@+id/etRadio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="28dp" />
+
+                <Button
+                    android:id="@+id/bRadioSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:text="@string/Search"
+                    style="@style/GetResourceButton" />
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>
