@@ -16,10 +16,11 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical"
+            android:layout_marginTop="30dp"
             >
             <TextView
                 style="@style/OptionTitle"
-                android:text="@string/radio_settings" />
+                android:text="@string/Radio_Settings" />
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>

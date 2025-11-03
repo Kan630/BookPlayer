@@ -974,7 +974,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
 
     <string name="browse_radios">parcourir les radios</string>
     <string name="Radio_settings">paramètres radio</string>
-    <string name="radio_settings">paramètres radio</string>
+    <string name="Radio_Settings">paramètres radio</string>
     <string name="live_radio">radio en direct</string>
     <string name="stations">stations</string>
     <string name="radio">radio</string>

@@ -967,7 +967,7 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
 
     <string name="browse_radios">explorar radios</string>
     <string name="Radio_settings">configuración de radio</string>
-    <string name="radio_settings">configuración de radio</string>
+    <string name="Radio_Settings">configuración de radio</string>
     <string name="live_radio">radio en vivo</string>
     <string name="stations">emisoras</string>
     <string name="radio">radio</string>

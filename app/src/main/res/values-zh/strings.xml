@@ -975,7 +975,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 
     <string name="browse_radios">浏览电台</string>
     <string name="Radio_settings">电台设置</string>
-    <string name="radio_settings">电台设置</string>
+    <string name="Radio_Settings">电台设置</string>
     <string name="live_radio">直播电台</string>
     <string name="stations">电台</string>
     <string name="radio">广播</string>

@@ -980,7 +980,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
         <string name="browse_radios">просмотреть радиостанции</string>
         <string name="Radio_settings">настройки радио</string>
-        <string name="radio_settings">настройки радио</string>
+        <string name="Radio_Settings">настройки радио</string>
         <string name="live_radio">прямой эфир радио</string>
         <string name="stations">станции</string>
         <string name="radio">радио</string>

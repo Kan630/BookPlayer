@@ -10,8 +10,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.GetRadioActivity;
 import com.driot.bookplayer.activities.PlayActivity;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.TitleHelper;
 
 public class RadioMiniNowPlayingFragment extends Fragment {
@@ -68,12 +68,9 @@ public class RadioMiniNowPlayingFragment extends Fragment {
         vm.getState().observe(getViewLifecycleOwner(), s -> reevaluateVisibility());
         vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
 
-        // Click → full PlayActivity (optional)
-        root.setOnClickListener(_x ->
-                startActivity(new Intent(requireContext(), PlayActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP)));
-
         btnPlayPause.setOnClickListener(_v -> vm.playPause());
+
+        v.setOnClickListener(_x -> startActivity(new Intent(requireContext(), GetRadioActivity.class)));
     }
 
     private void reevaluateVisibility() {
