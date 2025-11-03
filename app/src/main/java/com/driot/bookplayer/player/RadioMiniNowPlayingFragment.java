@@ -13,8 +13,9 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetRadioActivity;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 
-public class RadioMiniNowPlayingFragment extends Fragment {
+public class RadioMiniNowPlayingFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
     private ImageView ivCover;
@@ -68,9 +69,15 @@ public class RadioMiniNowPlayingFragment extends Fragment {
         vm.getState().observe(getViewLifecycleOwner(), s -> reevaluateVisibility());
         vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
 
-        btnPlayPause.setOnClickListener(_v -> vm.playPause());
+        btnPlayPause.setOnClickListener(_v -> {
+            myLogI("---- user press PlayPause button ----");
+            vm.playPause();
+        });
 
-        v.setOnClickListener(_x -> startActivity(new Intent(requireContext(), GetRadioActivity.class)));
+        v.setOnClickListener(_x -> {
+            myLogI("---- user press mini player ----");
+            startActivity(new Intent(requireContext(), GetRadioActivity.class));
+        });
     }
 
     private void reevaluateVisibility() {

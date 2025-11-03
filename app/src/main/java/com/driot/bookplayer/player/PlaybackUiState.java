@@ -36,7 +36,7 @@ public class PlaybackUiState extends LoggerHelper {
         this.ttsMode = ttsMode;
         this.calledFrom = calledFrom;
 
-        myLog(toString());
+        //myLog(toString());
     }
 
     @Override public String toString() {

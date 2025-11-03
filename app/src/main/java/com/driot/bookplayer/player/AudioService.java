@@ -1419,12 +1419,14 @@ public class AudioService extends LoggingService {
             broadcastUiState();
         }
 
-        if (engine == null || needsReloadForPlaylist()) {
-            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                directPlay = true;
-                loadFile();
-            });
-            return;
+        if (!radioMode) {
+            if (engine == null || needsReloadForPlaylist()) {
+                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                    directPlay = true;
+                    loadFile();
+                });
+                return;
+            }
         }
 
         if (engine.isPlaying()) {

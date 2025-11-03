@@ -17,8 +17,9 @@ import androidx.lifecycle.ViewModelProvider;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 
-public class MiniNowPlayingFragment extends Fragment {
+public class MiniNowPlayingFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private TextView tvTitle, tvSubTitle;
     private SeekBar seek;
@@ -77,12 +78,27 @@ public class MiniNowPlayingFragment extends Fragment {
         });
 
 
-        v.setOnClickListener(_x -> startActivity(new Intent(requireContext(), PlayActivity.class)));
+        v.setOnClickListener(_x -> {
+            myLogI("---- user press mini player ----");
+            startActivity(new Intent(requireContext(), PlayActivity.class));
+        });
 
-        btnPrev.setOnClickListener(_v -> vm.prev());
-        btnPlayPause.setOnClickListener(_v -> vm.playPause());
-        btnNext.setOnClickListener(_v -> vm.next());
-        btnStop.setOnClickListener(_v -> vm.dismissMini());
+        btnPrev.setOnClickListener(_v -> {
+            myLogI("---- user press PREV button ----");
+            vm.prev();
+        });
+        btnPlayPause.setOnClickListener(_v -> {
+            myLogI("---- user press PlayPause button ----");
+            vm.playPause();
+        });
+        btnNext.setOnClickListener(_v -> {
+            myLogI("---- user press NEXT button ----");
+            vm.next();
+        });
+        btnStop.setOnClickListener(_v -> {
+            myLogI("---- user press STOP button ----");
+            vm.dismissMini();
+        });
 
         seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
