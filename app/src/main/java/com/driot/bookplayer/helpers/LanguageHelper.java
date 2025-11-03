@@ -36,6 +36,9 @@ public class LanguageHelper {
     }
 
     static {
+        List<LanguageItem> allFirstList = new ArrayList<>();
+        allFirstList.add(new LanguageItem("", "", "All", R.drawable.flag_globe));
+
         List<LanguageItem> baseList  = new ArrayList<>();
         baseList.add(new LanguageItem("eng", "en", "English", R.drawable.flag_uk));
         baseList.add(new LanguageItem("deu", "de", "Deutsch", R.drawable.flag_de));
@@ -69,8 +72,9 @@ public class LanguageHelper {
         podcastList.add(new LanguageItem("ces", "cs", "Čeština", R.drawable.flag_cz));
         PODCAST_LANGUAGES = podcastList;
 
-        podcastList.add(new LanguageItem("", "", "All", R.drawable.flag_globe));
-        RADIO_LANGUAGES = podcastList;
+        List<LanguageItem> radioList = new ArrayList<>(allFirstList);
+        radioList.addAll(podcastList);
+        RADIO_LANGUAGES = radioList;
     }
 
     public static List<LanguageItem> getLibrivoxLanguages() {
