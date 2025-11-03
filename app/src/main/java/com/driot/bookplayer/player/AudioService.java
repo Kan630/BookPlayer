@@ -875,12 +875,14 @@ public class AudioService extends LoggingService {
             String strCallLog = "intent = " + intent +
                     "\ncalled by = " + intent.getStringExtra(Intents.EXTRA_CALLER) +
                     "\nwith action = " + intent.getAction();
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("AudioService.onStartCommand()", strCallLog);
             if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
                 myLogI("FOREGROUND AudioService start\n" + strCallLog);
             } else {
                 myLog("AudioService start\n" + strCallLog);
             }
         } else {            // happens when Android restarts your sticky service after it was killed, no 5-second foreground requirement in this case because the system didn’t just call startForegroundService(...) on your behalf;
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("AudioService.onStartCommand()", "no intent");
             myLogW("AudioService start with no intent - Android restarts? - because of START_STICKY and no START_REDELIVER_INTENT");
             return START_STICKY;
         }
@@ -1037,8 +1039,25 @@ public class AudioService extends LoggingService {
             }
 
             case Intent.ACTION_MEDIA_BUTTON: {
-                myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON");
+                KeyEvent ke = intent.hasExtra(Intent.EXTRA_KEY_EVENT) ? intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT) : null;
+                String keyEventString = (ke!=null) ? ke.getCharacters() : "no key event";
+                myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON : " + keyEventString);
+                FirebaseAnalyticsHelper.setCustomKeyCrashlytics("AudioService.onStartCommand() - ACTION_MEDIA_BUTTON", keyEventString);
+
+                goForegroundPreparing(getString(R.string.media_button_action), null);
                 MediaButtonReceiver.handleIntent(media.session(), intent);
+
+                // Optional: if handling didn’t start playback, keep or drop FG deliberately
+                main.postDelayed(() -> {
+                    boolean playing = (engine != null && engine.isPlaying());
+                    if (!playing) {
+                        // either keep a paused notif…
+                        showForegroundNotification(false);
+                        // …or drop foreground if you prefer:
+                        // stopForeground(false);
+                    }
+                }, 200);
+
                 return START_STICKY;
             }
 
