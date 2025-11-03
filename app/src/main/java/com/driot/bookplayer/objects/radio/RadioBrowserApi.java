@@ -35,6 +35,24 @@ public interface RadioBrowserApi {
             @Query("hidebroken") boolean hideBroken
     );
 
+    // ---- Lists ----
+    @GET("json/stations/bytag/{tag}")
+    Call<List<Station>> byTag(
+            @Path("tag") String tag,
+            @Query("limit") int limit,
+            @Query("order") String order,
+            @Query("hidebroken") boolean hideBroken
+    );
+
+    @GET("json/stations/byname/{name}")
+    Call<List<Station>> byName(
+            @Path("name") String name,
+            @Query("limit") int limit,
+            @Query("order") String order,
+            @Query("hidebroken") boolean hideBroken
+    );
+
+
     // ---- “Click + resolve” recommended path ----
     @GET("json/url/{stationuuid}")
     Call<UrlResolve> resolveUrl(@Path("stationuuid") String stationUuid);

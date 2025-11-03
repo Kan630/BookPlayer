@@ -182,48 +182,92 @@ public class RadioResultsActivity extends LoggingActivity {
 
         // ---- Search ----
         progressBar.setVisibility(View.VISIBLE);
-        myLog("Searching..." + q + " " + lang + " " + country + " " + tag);
-        repo.search(nullIfBlank(q), nullIfBlank(tag), nullIfBlank(country), nullIfBlank(lang), Option.getRadioApiNbResults(), new Callback<>() {
-            @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
-                progressBar.setVisibility(View.GONE);
-                if (response.body() != null) {
-                    if (response.body().isEmpty()) {
-                        myToast(getString(R.string.no_result));
-                        viewModel.requestFinish();
-                    } else {
-                        viewModel.setResults(response.body());
-                        myLog("radio results = " + response.body().size());
-                        adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + response.body().size());
-                    }
+        String station_search_mode = getIntent().getStringExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE);
+        myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country + " - tag=" + tag);
+
+        switch (station_search_mode) {
+            case "MODE_TRENDING":
+                repo.topVoted(Option.getRadioApiNbResults(), resultsCb("trending"));
+                adapter.setHeader(
+                        getString(R.string.Search_2pt) + getString(R.string.trending_radios),
+                        "", ""); // or a nicer header
+                break;
+
+            case "MODE_TAG":
+                if (tag.isEmpty()) {
+                    myToastE(getString(R.string.selected_language_error)); // or a “tag missing” message
+                    finish();
+                    return;
+                }
+                repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
+                adapter.setHeader(
+                        getString(R.string.Search_2pt) + tag,
+                        getString(R.string.Language_2pt) + lang,
+                        country.isEmpty() ? "" : country
+                );
+                break;
+
+            case "MODE_SEARCH":
+            default:
+
+                repo.byName(q, Option.getRadioApiNbResults(), resultsCb("byname"));
+                //repo.search(q, nullIfBlank(tag), country, lang, Option.getRadioApiNbResults(), resultsCb("search"));
+                /*
+                // If you have a combined search, call that; otherwise choose a best-effort:
+                if (!q.isEmpty()) {
+                    repo.byName(q, Option.getRadioApiNbResults(), resultsCb("name"));
+                } else if (!tag.isEmpty()) {
+                    repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
+                } else if (!country.isEmpty()) {
+                    repo.byCountry(country, Option.getRadioApiNbResults(), resultsCb("country"));
+                } else if (!lang.isEmpty()) {
+                    repo.byLanguage(lang, Option.getRadioApiNbResults(), resultsCb("language"));
                 } else {
-                    myToastE(getString(R.string.an_error_occurred));
+                    // fallback to trending if truly nothing specified
+                    repo.topVoted(Option.getRadioApiNbResults(), resultsCb("trending"));
+                }
+                 */
+
+                adapter.setHeader(
+                        getString(R.string.Search_2pt) + (q.isEmpty() ? getString(R.string.search_nothing_specified) : q),
+                        getString(R.string.Language_2pt) + lang,
+                        (country.isEmpty() && tag.isEmpty()) ? "" : (country + (tag.isEmpty() ? "" : " • " + tag))
+                );
+                break;
+        }
+
+    }
+    private static @Nullable String nullIfBlank(String s) {
+        return (s == null || s.trim().isEmpty()) ? null : s.trim();
+    }
+
+
+    private String safe(String s) { return s == null ? "" : s.trim(); }
+
+    private Callback<List<Station>> resultsCb(String source) {
+        return new Callback<>() {
+            @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
+                progressBar.setVisibility(View.GONE);
+                List<Station> body = rsp.body();
+                if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
+                    viewModel.setResults(body);
+                    adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size());
+                    myLog("radio results (" + source + ") = " + body.size());
+                } else {
+                    myToast(getString(R.string.no_result));
                     viewModel.requestFinish();
                 }
             }
-
             @Override public void onFailure(Call<List<Station>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
                 if (NetworkHelper.isUnknownHost(t)) {
                     myToastE(getString(R.string.no_internet_connection));
                 } else {
-                    myLogEE(t, "radio search failed");
+                    myLogEE(t, "radio search failed (" + source + ")");
                     myToastE(getString(R.string.an_error_occurred));
                 }
                 viewModel.requestFinish();
             }
-        });
-/*
-        // ---- Mini radio fragment (same as Favorites) ----
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.radioMiniContainer, new com.driot.bookplayer.player.RadioMiniNowPlayingFragment())
-                    .commitNow();
-        }
-
- */
-    }
-    private static @Nullable String nullIfBlank(String s) {
-        return (s == null || s.trim().isEmpty()) ? null : s.trim();
+        };
     }
 }

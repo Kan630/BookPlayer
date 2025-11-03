@@ -50,6 +50,15 @@ public class RadioBrowserRepository {
         api.topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
     }
 
+    public void byTag(String tag, int limit, Callback<List<Station>> cb) {
+        api.byTag(tag, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byTag"));
+    }
+
+    public void byName(String name, int limit, Callback<List<Station>> cb) {
+        api.byName(name, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
+    }
+
+
     /** Use this when the user taps Play: it increments click stats AND returns a fresh stream URL. */
     public void resolveUrl(String stationUuid, Callback<UrlResolve> cb) {
         api.resolveUrl(stationUuid).enqueue(new LoggingCallback<>(cb, "resolveUrl"));

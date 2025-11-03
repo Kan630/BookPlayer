@@ -219,6 +219,12 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("tag", String.valueOf(tag));
         logBundleEvent("radio_trending", bundle);
     }
+    public static void tellAnalyticsRadioByTag(String tag) {
+        Bundle bundle = new Bundle();
+        bundle.putString("tag", String.valueOf(tag));
+        logBundleEvent("radio_by_tag", bundle);
+    }
+
     public static void tellAnalyticsRadioSearch(String query, String lang, String country, String tag) {
         Bundle bundle = new Bundle();
         bundle.putString("query", String.valueOf(query));

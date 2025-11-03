@@ -40,6 +40,9 @@ import retrofit2.Response;
  */
 public class GetRadioActivity extends LoggingActivity {
 
+    public static final String EXTRA_RADIO_STATION_SEARCH_MODE = "EXTRA_RADIO_STATION_SEARCH_MODE";
+
+
     Spinner spinnerLang;
     Spinner spinnerCountry;   // optional: country filter (2-letter codes like FR/US…)
     Spinner spinnerTag;       // optional: tag/genre (e.g., "jazz", "news", …)
@@ -89,12 +92,13 @@ public class GetRadioActivity extends LoggingActivity {
             String lang2    = safeLang(spinnerLang);         // <- 2-letter (we fixed this)
             String country2 = safeCountry(spinnerCountry);   // <- implement same pattern or leave ""
             Intent i = new Intent(this, RadioResultsActivity.class)
+                    .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TAG")
                     .putExtra("query", "")
                     .putExtra("lang", lang2)        // radio-browser expects 2-letter (lowercase ok)
                     .putExtra("country", country2)  // 2-letter country code (e.g., "FR")
                     .putExtra("tag", tag.name);
             startActivity(i);
-            FirebaseAnalyticsHelper.tellAnalyticsRadioTrending("", lang2, country2, tag.name);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioByTag(tag.name);
         });
         rvTopTags.setAdapter(tagAdapter);
 
@@ -158,8 +162,10 @@ public class GetRadioActivity extends LoggingActivity {
                     if (rsp.isSuccessful() && rsp.body() != null) {
                         // e.g., open results screen with a “Top voted” header,
                         // or directly set items in a local RecyclerView if you have one here.
-                        openRadioResultsActivity(/*analyticsEvent=*/"trending");
-                    } else {
+                        Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
+                                .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TRENDING");
+                        startActivity(i);
+                        FirebaseAnalyticsHelper.tellAnalyticsRadioTrending("", "", "", "");                    } else {
                         myToastE(getString(R.string.an_error_occurred));
                     }
                 }
@@ -212,23 +218,14 @@ public class GetRadioActivity extends LoggingActivity {
         country = safeSpinnerStr(spinnerCountry);
         tag     = safeSpinnerStr(spinnerTag);
 
-        openRadioResultsActivity(/*analyticsEvent=*/"search");
-    }
-
-    private void openRadioResultsActivity(String analyticsEvent) {
-        Intent intent = new Intent(this, RadioResultsActivity.class);
-        intent.putExtra("query", query);
-        intent.putExtra("lang", lang);         // e.g., "fr"
-        intent.putExtra("country", country);   // e.g., "FR"
-        intent.putExtra("tag", tag);           // e.g., "jazz"
+        Intent intent = new Intent(this, RadioResultsActivity.class)
+                .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_SEARCH")
+                .putExtra("query", query)
+                .putExtra("lang", lang)
+                .putExtra("country", country)
+                .putExtra("tag", tag);
         startActivity(intent);
-
-        // Analytics (mirror your Librivox calls)
-        if ("trending".equals(analyticsEvent)) {
-            FirebaseAnalyticsHelper.tellAnalyticsRadioTrending(query, lang, country, tag);
-        } else if ("search".equals(analyticsEvent)) {
-            FirebaseAnalyticsHelper.tellAnalyticsRadioSearch(query, lang, country, tag);
-        }
+        FirebaseAnalyticsHelper.tellAnalyticsRadioSearch(query, lang, country, tag);
     }
 
     private static String safeSpinnerStr(Spinner sp) {
