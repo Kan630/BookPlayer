@@ -208,7 +208,7 @@ public class AudioService extends LoggingService {
     private void broadcastUiCleared() {
         lastUiState = null;
         uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
-                0, 0, false, engine instanceof TtsEngine));
+                0, 0, false, engine instanceof TtsEngine, "AudioService.broadcastUiCleared()"));
         Intent i = new Intent(Intents.ACTION_UI_STATE)
                 .putExtra(Intents.EXTRA_UI_PLAYING, false)
                 .putExtra(Intents.EXTRA_UI_POS, 0L)
@@ -246,6 +246,7 @@ public class AudioService extends LoggingService {
                     /* folderId */ 0,
                     /* ready */ (engine != null) && engine.isReady(),
                     /* ttsMode */ (engine instanceof TtsEngine)
+                    , "AudioService.broadcastUiState()"
             );
         } else {
             s = buildUiState();  // your existing file/TTS path
@@ -299,7 +300,7 @@ public class AudioService extends LoggingService {
         boolean ttsMode = (engine instanceof TtsEngine);
 
         return new PlaybackUiState(playing, pos, dur, title, text, cover,
-                trackId, folderId, ready, ttsMode);
+                trackId, folderId, ready, ttsMode, "AudioService.buildUiState()");
     }
 
 

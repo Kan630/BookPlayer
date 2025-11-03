@@ -74,6 +74,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             holder.codec.setText(nonNull(f.codec));
             holder.bitrate.setText(f.bitrate > 0 ? (f.bitrate + " kbps") : "");
 
+            holder.favicon.setTag(f.stationuuid);
             Glide.with(holder.favicon).load(f.favicon)
                     .placeholder(R.drawable.ic_radio_24px_deportee)
                     .error(R.drawable.ic_radio_24px_deportee)

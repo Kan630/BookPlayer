@@ -156,15 +156,11 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             // Favicon (may be empty)
             holder.favicon.setTag(s.stationuuid); // prevent race
-            if (!TextUtils.isEmpty(s.favicon)) {
-                Glide.with(holder.favicon)
-                        .load(s.favicon)
-                        .placeholder(R.drawable.ic_radio_24px)   // add a small square placeholder
-                        .error(R.drawable.ic_radio_24px)
-                        .into(holder.favicon);
-            } else {
-                holder.favicon.setImageResource(R.drawable.ic_radio_24px);
-            }
+            Glide.with(holder.favicon).load(s.favicon)
+                    .placeholder(R.drawable.ic_radio_24px_deportee)
+                    .error(R.drawable.ic_radio_24px_deportee)
+                    .into(holder.favicon);
+
 
             // Play action: the Activity will call repo.resolveUrl(...) then launch playback
             holder.ibPlay.setOnClickListener(v -> {

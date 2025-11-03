@@ -12,10 +12,10 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.log.LoggingFragment;
 
-public class MiniNowPlayingHostFragment extends Fragment {
+public class MiniNowPlayingHostFragment extends LoggingFragment {
 
-    private PlaybackViewModel vm;
     private boolean lastIsRadio = false; // default
 
     @Nullable @Override
@@ -26,11 +26,12 @@ public class MiniNowPlayingHostFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
-        vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        PlaybackViewModel vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
         // If your VM already exposes isRadio:
         vm.getIsRadio().observe(getViewLifecycleOwner(), isRadio -> {
             boolean target = Boolean.TRUE.equals(isRadio);
+            myLog("vm.getIsRadio().observe: " + target);
             if (target != lastIsRadio) {
                 swapChild(target);
                 lastIsRadio = target;
@@ -46,6 +47,7 @@ public class MiniNowPlayingHostFragment extends Fragment {
     }
 
     private void attachFirstChild(boolean isRadio) {
+        myLog("attachFirstChild, isRadio: " + isRadio);
         final Fragment child = isRadio
                 ? new RadioMiniNowPlayingFragment()
                 : new MiniNowPlayingFragment();
@@ -56,6 +58,7 @@ public class MiniNowPlayingHostFragment extends Fragment {
     }
 
     private void swapChild(boolean isRadio) {
+        myLog("swapChild, isRadio: " + isRadio);
         final String wantTag = isRadio ? "radio" : "general";
         Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
         if (current != null && wantTag.equals(current.getTag())) return; // already correct

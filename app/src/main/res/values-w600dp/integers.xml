@@ -2,5 +2,5 @@
 
 <resources>
     <integer name="classic_grid_span">2</integer>
-    <integer name="radio_grid_span">5</integer>
+    <integer name="radio_grid_span">6</integer>
 </resources>

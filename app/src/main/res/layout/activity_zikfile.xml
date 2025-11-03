@@ -69,7 +69,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/miniNowPlaying" />
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:id="@+id/miniNowPlaying"
         android:name="com.driot.bookplayer.player.MiniNowPlayingHostFragment"
         android:layout_width="match_parent"

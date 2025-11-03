@@ -16,10 +16,12 @@ public class PlaybackUiState extends LoggerHelper {
     public final int folderId;   // current Folder id (or 0 if unknown)
     public final boolean ready;  // engine.isReady()
     public final boolean ttsMode;// engine instanceof TtsEngine
+    public final String calledFrom;
 
     public PlaybackUiState(boolean playing, long pos, long dur,
                            String t, String s, String cover,
-                           int trackId, int folderId, boolean ready, boolean ttsMode) {
+                           int trackId, int folderId, boolean ready,
+                           boolean ttsMode, String calledFrom) {
         super(PlaybackUiState.class);
         this.playing = playing;
         this.positionMs = pos;
@@ -32,7 +34,9 @@ public class PlaybackUiState extends LoggerHelper {
         this.folderId = folderId;
         this.ready = ready;
         this.ttsMode = ttsMode;
-        //myLog(toString());
+        this.calledFrom = calledFrom;
+
+        myLog(toString());
     }
 
     @Override public String toString() {
@@ -47,6 +51,7 @@ public class PlaybackUiState extends LoggerHelper {
                 ", folderId=" + folderId +
                 ", ready=" + ready +
                 ", ttsMode=" + ttsMode +
+                ", calledFrom='" + calledFrom + '\'' +
                 '}';
     }
 

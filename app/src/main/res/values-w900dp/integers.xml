@@ -2,5 +2,5 @@
     <!-- large tablets -->
 
     <integer name="classic_grid_span">3</integer>
-    <integer name="radio_grid_span">8</integer>
+    <integer name="radio_grid_span">9</integer>
 </resources>

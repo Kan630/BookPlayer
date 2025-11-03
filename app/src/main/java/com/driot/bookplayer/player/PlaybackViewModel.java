@@ -140,7 +140,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
                 state.postValue(new PlaybackUiState(
                         playing, pos, dur, title, sub, cover,
-                        trackId, folderId, ready, ttsMode
+                        trackId, folderId, ready, ttsMode, "BroadcastReceiver, ACTION_UI_STATE"
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -174,7 +174,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 prev.trackId,
                 prev.folderId,
                 ready,
-                ttsMode
+                ttsMode,
+                "PlayBackViewModel.pushSnapshot()"
         ));
         miniSuppressed.postValue(service.isMiniSuppressed());
     }

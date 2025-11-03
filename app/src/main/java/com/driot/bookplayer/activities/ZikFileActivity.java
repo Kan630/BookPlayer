@@ -52,6 +52,12 @@ public class ZikFileActivity extends LoggingActivity {
     private boolean didAutoScrollToLast = false;
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        sendBroadcast(new Intent(Intents.ACTION_PING_UI));
+    }
+
+    @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zikfile);
