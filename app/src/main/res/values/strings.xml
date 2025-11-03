@@ -396,10 +396,10 @@
     </string>
     <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
 
-    <string name="option_night_mode_title">Dark mode  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ System</string>
-    <string name="option_night_mode_light">☀️ Light</string>
-    <string name="option_night_mode_dark">🌙 Dark</string>
+    <string name="option_night_mode_title">Dark mode &#160;&#160; ☀️ &#160; 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ &#160; System</string>
+    <string name="option_night_mode_light">☀️ &#160; Light</string>
+    <string name="option_night_mode_dark">🌙 &#160; Dark</string>
     <string name="option_night_mode_dialog_title">Choose theme mode</string>
 
     <string name="option_text_appearance_title">Text appearance</string>

@@ -3,6 +3,7 @@ package com.driot.bookplayer.settings.ui;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -73,12 +74,7 @@ public class DesignSettingsFragment extends LoggingFragment {
         fontChoices.add(new FontChoice("sans-serif-medium", "Sans-serif Medium"));
         fontChoices.add(new FontChoice("sans-serif-smallcaps", "Sans-serif Smallcaps"));
 
-        ArrayAdapter<String> fontAdapter = new ArrayAdapter<>(
-                requireContext(),
-                R.layout.spinner_item,
-                toLabels(fontChoices)
-        );
-        fontAdapter.setDropDownViewResource(R.layout.spinner_item);
+        FontAdapter fontAdapter = new FontAdapter(requireContext(), fontChoices);
         spFontFamily.setAdapter(fontAdapter);
 
         String savedFamily = Option.getFontFamilyKey();
@@ -237,4 +233,68 @@ public class DesignSettingsFragment extends LoggingFragment {
         // Show raw key or map to pretty if you prefer
         btn.setText(modeKey); // You can map to strings if you want localized text.
     }
+
+    private static class FontAdapter extends ArrayAdapter<FontChoice> {
+
+        private final LayoutInflater inflater;
+
+        FontAdapter(@NonNull Context ctx, @NonNull List<FontChoice> items) {
+            super(ctx, 0, items);
+            this.inflater = LayoutInflater.from(ctx);
+        }
+
+        @NonNull @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            // Collapsed spinner view
+            View v = (convertView != null) ? convertView
+                    : inflater.inflate(R.layout.spinner_item, parent, false);
+            bind(position, v);
+            return v;
+        }
+
+        @NonNull @Override
+        public View getDropDownView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            // Dropdown rows
+            View v = (convertView != null) ? convertView
+                    : inflater.inflate(R.layout.spinner_item, parent, false);
+            bind(position, v);
+            return v;
+        }
+
+        private void bind(int position, View v) {
+            TextView tv = (TextView) v; // spinner_item is a TextView root
+            FontChoice item = getItem(position);
+            if (item == null) return;
+
+            tv.setText(item.label);
+
+            // Try to create a Typeface from the family key; fall back gracefully.
+            Typeface tf = resolveTypeface(item.key);
+            if (tf != null) {
+                tv.setTypeface(tf);
+            } else {
+                // fallback for odd/unavailable families
+                tv.setTypeface(Typeface.SANS_SERIF);
+            }
+
+            // Optional: make preview a tad bigger for clarity
+            // tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+        }
+
+        private @Nullable Typeface resolveTypeface(String key) {
+            // Works for system families like "sans-serif", "serif", "monospace",
+            // "casual", "cursive", "serif-monospace", "sans-serif-condensed",
+            // "sans-serif-medium", "sans-serif-smallcaps" (if present on the device).
+            try {
+                Typeface t = Typeface.create(key, Typeface.NORMAL);
+                // Some vendors return default instead of null; add a light sanity check:
+                // If you want stricter fallback detection, you can compare style metrics, but
+                // generally create(key, ...) is fine across API levels.
+                return t;
+            } catch (Throwable ignored) {
+                return null;
+            }
+        }
+    }
+
 }
