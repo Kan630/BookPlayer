@@ -193,6 +193,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 FirebaseAnalyticsHelper.tellAnalyticsPlayAction("play", "");
             }
         } else {
+            myLogEE(null, "playPause while service == null");
             sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
             FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode playpause", "");
         }

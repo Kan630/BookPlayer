@@ -908,6 +908,7 @@ public class AudioService extends LoggingService {
             case Intents.ACTION_PLAY_FROM_TRACK: {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
+                radioMode = false;
 
                 final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
@@ -957,6 +958,8 @@ public class AudioService extends LoggingService {
 
             case Intents.ACTION_PLAY_FROM_FOLDER: {
                 goForegroundPreparing("Preparing…", "Loading folder");
+                radioMode = false;
+
                 final int folderId = intent.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
                 final int index = Math.max(0, intent.getIntExtra(Intents.EXTRA_INDEX, 0));
                 if (folderId > 0) {
