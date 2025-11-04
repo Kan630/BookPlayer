@@ -1070,6 +1070,9 @@ public class AudioService extends LoggingService {
                 // Enter foreground ASAP (5s rule)
                 goForegroundPreparing(getString(R.string.live_radio), null);
 
+                PlayList pl = PlayList.getInstance();
+                if (pl!=null) pl.clear();
+
                 final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
                 final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
                 final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
