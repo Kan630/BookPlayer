@@ -1188,6 +1188,10 @@ public class AudioService extends LoggingService {
         }
 
         myLogI("shutdown(fromDestroy=" + fromDestroy + ")");
+
+        PlayList pl = PlayList.getInstance();
+        if (pl!=null) pl.clear();
+
         broadcastUiCleared();
         isRunning = false;
 
