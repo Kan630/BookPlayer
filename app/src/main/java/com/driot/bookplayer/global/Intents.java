@@ -36,7 +36,7 @@ public class Intents {
     public static final String EXTRA_UI_TRACK_ID  = "extra_ui_track_id";
     public static final String EXTRA_UI_FOLDER_ID = "extra_ui_folder_id";
     public static final String EXTRA_UI_READY     = "extra_ui_ready";
-    public static final String EXTRA_UI_TTS       = "extra_ui_tts";
+    public static final String EXTRA_UI_PLAYMODE = "extra_ui_tts";
     public static final String EXTRA_UI_PHASE       = "extra_ui_phase";
     public static final String EXTRA_UI_PHASE_MSG   = "extra_ui_phase_msg";
 

@@ -215,7 +215,7 @@ public class PlayActivity extends LoggingActivity {
             }
             @Override public void onDoubleTap() {
                 PlaybackUiState s = vm.getState().getValue();
-                if (s != null && s.ttsMode) {
+                if (s != null && "tts".equals(s.playMode)) {
                     showingTtsText = !showingTtsText;
                     applyTtsToggleUi(s);
                 }
@@ -280,7 +280,7 @@ public class PlayActivity extends LoggingActivity {
 
             // Pull the latest playback state to know if we’re in TTS or audio mode
             PlaybackUiState s = vm.getState().getValue();
-            final boolean tts = (s != null && s.ttsMode);
+            final boolean tts = (s != null && "tts".equals(s.playMode));
 
             // Default: hide overlays for pure audio mode unless we’re in an error phase
             if (!tts) {
@@ -464,7 +464,7 @@ public class PlayActivity extends LoggingActivity {
 
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
         if (s == null) return;
-        final boolean tts = s.ttsMode;
+        final boolean tts = "tts".equals(s.playMode);
 
         btnToggleTtsView.setVisibility(tts ? View.VISIBLE : View.GONE);
 
@@ -672,7 +672,7 @@ public class PlayActivity extends LoggingActivity {
                     final boolean wasPlayingFinal = wasPlaying;
                     final String prevGood = currentVoiceName[0];
                     try {
-                        if (vm != null && vm.getState().getValue() != null && vm.getState().getValue().ttsMode) {
+                        if (vm != null && vm.getState().getValue() != null && "tts".equals(vm.getState().getValue().playMode)) {
                             vm.warmUpTtsVoice(picked, (ready, reason) -> runOnUiThread(() -> {
                                 spinnerTtsVoice.setEnabled(true);
 

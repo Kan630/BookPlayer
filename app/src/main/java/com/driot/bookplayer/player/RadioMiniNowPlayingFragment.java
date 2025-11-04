@@ -5,13 +5,11 @@ import android.os.Bundle;
 import android.view.*;
 import android.widget.*;
 import androidx.annotation.*;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetRadioActivity;
-import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
@@ -64,7 +62,7 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
         });
 
         // Visibility rule: show for radio as soon as ready OR buffering; hide only if explicitly suppressed
-        vm.getIsRadio().observe(getViewLifecycleOwner(), isRadio -> reevaluateVisibility());
+        vm.getPlayMode().observe(getViewLifecycleOwner(), playType -> reevaluateVisibility());
         vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> reevaluateVisibility());
         vm.getState().observe(getViewLifecycleOwner(), s -> reevaluateVisibility());
         vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
@@ -84,7 +82,7 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
         PlaybackUiState s = vm.getState().getValue();
         PlaybackViewModel.PhaseUi p = vm.getPhase().getValue();
         Boolean sup = vm.getMiniSuppressed().getValue();
-        Boolean isRadio = vm.getIsRadio().getValue();
+        String playType = vm.getPlayMode().getValue();
 
         if (s == null) { root.setVisibility(View.GONE); return; }
 
@@ -94,7 +92,7 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
                         (
                                 s.playing ||
                                         s.ready ||
-                                        (Boolean.TRUE.equals(isRadio) && buffering)
+                                        ("radio".equals(playType) && buffering)
                         );
 
         root.setVisibility(showMini ? View.VISIBLE : View.GONE);

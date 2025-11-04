@@ -40,8 +40,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Boolean> miniSuppressed = new MutableLiveData<>(false);
     public LiveData<Boolean> getMiniSuppressed() { return miniSuppressed; }
 
-    private final MutableLiveData<Boolean> isRadio = new MutableLiveData<>(false);
-    public LiveData<Boolean> getIsRadio() { return isRadio; }
+    private final MutableLiveData<String> playMode = new MutableLiveData<>();
+    public LiveData<String> getPlayMode() { return playMode; }
 
     private AudioService service;
     private boolean bound;
@@ -125,7 +125,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 final int trackId     = i.getIntExtra(Intents.EXTRA_UI_TRACK_ID, 0);
                 final int folderId    = i.getIntExtra(Intents.EXTRA_UI_FOLDER_ID, 0);
                 final boolean ready   = i.getBooleanExtra(Intents.EXTRA_UI_READY, false);
-                final boolean ttsMode = i.getBooleanExtra(Intents.EXTRA_UI_TTS, false);
+                final String playModeExtra = i.getStringExtra(Intents.EXTRA_UI_PLAYMODE);
 
                 final String uiPhase = i.getStringExtra(Intents.EXTRA_UI_PHASE);
                 final String uiMsg   = i.getStringExtra(Intents.EXTRA_UI_PHASE_MSG);
@@ -135,12 +135,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
                 miniSuppressed.postValue(i.getBooleanExtra(Intents.EXTRA_UI_SUPPRESS_MINI, false));
 
-                boolean isRadioNow = i.getBooleanExtra(Intents.EXTRA_UI_IS_RADIO, false);
-                isRadio.postValue(isRadioNow);
+                playMode.postValue(playModeExtra);
 
                 state.postValue(new PlaybackUiState(
                         playing, pos, dur, title, sub, cover,
-                        trackId, folderId, ready, ttsMode, "BroadcastReceiver, ACTION_UI_STATE"
+                        trackId, folderId, ready, playModeExtra, "BroadcastReceiver, ACTION_UI_STATE"
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -162,7 +161,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         long dur        = (prev.durationMs > 0) ? prev.durationMs : service.getDuration();
 
         boolean ready   = service.isReadyToPlay();
-        boolean ttsMode = service.isTtsMode();
+        String playMode = service.getPlayMode();
 
         state.postValue(new PlaybackUiState(
                 playing,
@@ -174,7 +173,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 prev.trackId,
                 prev.folderId,
                 ready,
-                ttsMode,
+                playMode, // "tts", "radio", "podcast", "book"
                 "PlayBackViewModel.pushSnapshot()"
         ));
         miniSuppressed.postValue(service.isMiniSuppressed());
@@ -400,6 +399,22 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         }
     }
 
+    @Override
+    @NonNull
+    public String toString() {
+        PlaybackUiState st = state.getValue();
+        Boolean suppressed = miniSuppressed.getValue();
+        String mode = playMode.getValue();
+        PhaseUi ph = phase.getValue();
 
+        return "PlaybackViewModel{" +
+                "bound=" + bound +
+                ", service=" + (service == null ? "null" : service.getClass().getSimpleName()) +
+                ", playMode=" + (mode == null ? "null" : '"' + mode + '"') +
+                ", miniSuppressed=" + (suppressed == null ? "null" : suppressed.toString()) +
+                ", phase=" + (ph == null ? "null" : ph.toString()) +
+                ", state=" + (st == null ? "null" : st.toString()) +
+                '}';
+    }
 }
 

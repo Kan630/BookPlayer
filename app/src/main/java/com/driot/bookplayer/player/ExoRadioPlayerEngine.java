@@ -19,13 +19,11 @@ import com.driot.bookplayer.utils.log.LoggerHelper;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
-
 /**
  * ExoPlayer-based PlayerEngine tuned for radio/streaming.
  * Mirrors MediaPlayerEngine's contract and EngineListener flow.
  */
-public final class ExoPlayerEngine extends LoggerHelper implements PlayerEngine {
+public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEngine {
 
     private final EngineListener listener;
     private final long gen;
@@ -40,10 +38,10 @@ public final class ExoPlayerEngine extends LoggerHelper implements PlayerEngine 
 
     private MediaItem currentItem;
 
-    public ExoPlayerEngine(@NonNull Context ctx,
-                           @NonNull EngineListener engineListener,
-                           long generationToken) {
-        super(ExoPlayerEngine.class);
+    public ExoRadioPlayerEngine(@NonNull Context ctx,
+                                @NonNull EngineListener engineListener,
+                                long generationToken) {
+        super(ExoRadioPlayerEngine.class);
         this.appCtx   = ctx.getApplicationContext();
         this.listener = engineListener;
         this.gen      = generationToken;

@@ -14,9 +14,11 @@ import androidx.lifecycle.ViewModelProvider;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
+import java.util.Objects;
+
 public class MiniNowPlayingHostFragment extends LoggingFragment {
 
-    private boolean lastIsRadio = false; // default
+    private String lastPlayType;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -28,49 +30,54 @@ public class MiniNowPlayingHostFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         PlaybackViewModel vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
-        // If your VM already exposes isRadio:
-        vm.getIsRadio().observe(getViewLifecycleOwner(), isRadio -> {
-            boolean target = Boolean.TRUE.equals(isRadio);
-            myLog("vm.getIsRadio().observe: " + target);
-            if (target != lastIsRadio) {
-                swapChild(target);
-                lastIsRadio = target;
+        myLog(vm.toString());
+
+        //Observer
+        vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
+            myLog("vm.getPlayType().observe: " + newPlayType);
+            if (!Objects.equals(newPlayType, lastPlayType)) {
+                swapChild(newPlayType);
+                lastPlayType = newPlayType;
             }
         });
 
         // Initial attach (covers first frame before observer fires)
-        Boolean isRadio = vm.getIsRadio().getValue();
-        if (isRadio != null) {
-            lastIsRadio = isRadio;
+        String firstPlayType = vm.getPlayMode().getValue();
+        if (firstPlayType != null) {
+            lastPlayType = firstPlayType;
         }
-        attachFirstChild(lastIsRadio);
+        attachFirstChild(firstPlayType);
     }
 
-    private void attachFirstChild(boolean isRadio) {
-        myLog("attachFirstChild, isRadio: " + isRadio);
-        final Fragment child = isRadio
-                ? new RadioMiniNowPlayingFragment()
-                : new MiniNowPlayingFragment();
+    private void attachFirstChild(String playType) {
+        myLog("attachFirstChild, playType: " + playType);
+        final Fragment child;
+        if ("radio".equals(playType)) {
+            child = new RadioMiniNowPlayingFragment();
+        } else {
+            child = new MiniNowPlayingFragment();
+        }
         getChildFragmentManager().beginTransaction()
-                .replace(R.id.mini_host_container, child, isRadio ? "radio" : "general")
+                .replace(R.id.mini_host_container, child, playType)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commitNowAllowingStateLoss();
     }
 
-    private void swapChild(boolean isRadio) {
-        myLog("swapChild, isRadio: " + isRadio);
-        final String wantTag = isRadio ? "radio" : "general";
+    private void swapChild(String playType) {
+        myLog("swapChild, playType: " + playType);
         Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
-        if (current != null && wantTag.equals(current.getTag())) return; // already correct
+        if (current != null && playType.equals(current.getTag())) return; // already correct
 
-        Fragment child = getChildFragmentManager().findFragmentByTag(wantTag);
-        if (child == null) {
-            child = isRadio ? new RadioMiniNowPlayingFragment() : new MiniNowPlayingFragment();
+        Fragment child;
+        if ("radio".equals(playType)) {
+            child = new RadioMiniNowPlayingFragment();
+        } else {
+            child = new MiniNowPlayingFragment();
         }
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .replace(R.id.mini_host_container, child, wantTag)
+                .replace(R.id.mini_host_container, child, playType)
                 .commitAllowingStateLoss();
     }
 }

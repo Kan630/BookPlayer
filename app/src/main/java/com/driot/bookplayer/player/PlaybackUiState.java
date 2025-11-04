@@ -15,13 +15,13 @@ public class PlaybackUiState extends LoggerHelper {
     public final int trackId;    // current ZikFile id (or 0 if unknown)
     public final int folderId;   // current Folder id (or 0 if unknown)
     public final boolean ready;  // engine.isReady()
-    public final boolean ttsMode;// engine instanceof TtsEngine
+    public final String playMode;// = "book", "tts", "radio", "podcast", "book"
     public final String calledFrom;
 
     public PlaybackUiState(boolean playing, long pos, long dur,
                            String t, String s, String cover,
                            int trackId, int folderId, boolean ready,
-                           boolean ttsMode, String calledFrom) {
+                           String playMode, String calledFrom) {
         super(PlaybackUiState.class);
         this.playing = playing;
         this.positionMs = pos;
@@ -33,10 +33,10 @@ public class PlaybackUiState extends LoggerHelper {
         this.trackId = trackId;
         this.folderId = folderId;
         this.ready = ready;
-        this.ttsMode = ttsMode;
+        this.playMode = playMode;
         this.calledFrom = calledFrom;
 
-        //myLog(toString());
+        myLog(toString());
     }
 
     @Override public String toString() {
@@ -50,7 +50,7 @@ public class PlaybackUiState extends LoggerHelper {
                 ", trackId=" + trackId +
                 ", folderId=" + folderId +
                 ", ready=" + ready +
-                ", ttsMode=" + ttsMode +
+                ", playMode=" + playMode +
                 ", calledFrom='" + calledFrom + '\'' +
                 '}';
     }

@@ -186,7 +186,7 @@ public class AudioService extends LoggingService {
 
     private void sendReadyToPlay(String why) {
         boolean ok = (engine != null && engine.isReady() && !ErrorLoadingFile);
-        myLogD("sendReadyToPlay? [" + why + "] ok=" + ok + " ttsMode=" + isTtsMode());
+        myLogD("sendReadyToPlay? [" + why + "] ok=" + ok + " playMode=" + getPlayMode());
         if (!ok) return;
 
         Intent i = new Intent(READY_TO_PLAY);
@@ -208,7 +208,7 @@ public class AudioService extends LoggingService {
     private void broadcastUiCleared() {
         lastUiState = null;
         uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
-                0, 0, false, engine instanceof TtsEngine, "AudioService.broadcastUiCleared()"));
+                0, 0, false, getPlayMode(), "AudioService.broadcastUiCleared()"));
         Intent i = new Intent(Intents.ACTION_UI_STATE)
                 .putExtra(Intents.EXTRA_UI_PLAYING, false)
                 .putExtra(Intents.EXTRA_UI_POS, 0L)
@@ -231,21 +231,21 @@ public class AudioService extends LoggingService {
             String title = (radioTitle != null) ? radioTitle : getString(R.string.live_radio);
             String text  = getString(R.string.live_radio);
             String cover = (radioImageUrl != null) ? radioImageUrl : "";
-            long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
-            long   dur   = (engine != null) ? engine.getDuration()        : 0; // live => likely 0/unknown
+            //long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
+            //long   dur   = (engine != null) ? engine.getDuration()        : 0; // live => likely 0/unknown
             boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
                     playing,
-                    pos,
-                    dur,
+                    0, //pos,
+                    0, //dur,
                     title,
                     text,
                     cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* ready */ (engine != null) && engine.isReady(),
-                    /* ttsMode */ (engine instanceof TtsEngine)
+                    /* playMode */ "radio"
                     , "AudioService.broadcastUiState()"
             );
         } else {
@@ -269,7 +269,7 @@ public class AudioService extends LoggingService {
                 .putExtra(Intents.EXTRA_UI_FOLDER_ID, s.folderId)
                 .putExtra(Intents.EXTRA_UI_READY, s.ready)
 
-                .putExtra(Intents.EXTRA_UI_TTS, s.ttsMode)
+                .putExtra(Intents.EXTRA_UI_PLAYMODE, getPlayMode())
                 .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
                 .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
 
@@ -297,10 +297,10 @@ public class AudioService extends LoggingService {
         int trackId = (z != null) ? z.getId() : 0;
         int folderId = (f != null) ? f.getId() : 0;
         boolean ready = (engine != null) && engine.isReady();
-        boolean ttsMode = (engine instanceof TtsEngine);
+        String playMode = getPlayMode();
 
         return new PlaybackUiState(playing, pos, dur, title, text, cover,
-                trackId, folderId, ready, ttsMode, "AudioService.buildUiState()");
+                trackId, folderId, ready, playMode, "AudioService.buildUiState()");
     }
 
 
@@ -1782,12 +1782,22 @@ public class AudioService extends LoggingService {
         broadcastUiState();
     }
 
-    public boolean isTtsMode() {
-        return engine instanceof TtsEngine;
+    public String getPlayMode() {
+        //String playMode = "book", "tts", "radio", "podcast", "book"
+        if (engine instanceof TtsEngine) {
+            return "tts";
+        } else if (engine instanceof ExoRadioPlayerEngine) {
+            return "radio";
+        }
+        return "book";
+    }
+
+    public boolean isRadioMode() {
+        return engine instanceof ExoRadioPlayerEngine;
     }
 
     public String getCurrentTtsVoiceName() {
-        if (isTtsMode()) {
+        if ("tts".equals(getPlayMode())) {
             return ((TtsEngine) engine).getVoiceName();
         }
         return null;
@@ -1936,7 +1946,7 @@ public class AudioService extends LoggingService {
         // Swap engine to Exo for radio
         engineGen++;
         long gen = engineGen;
-        PlayerEngine fresh = new ExoPlayerEngine(getApplicationContext(), engineCb, gen);
+        PlayerEngine fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
         setEngine(fresh);
         ErrorLoadingFile = false;
 
