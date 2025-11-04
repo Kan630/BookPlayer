@@ -30,27 +30,46 @@ public class MiniNowPlayingHostFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         PlaybackViewModel vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
-        myLog(vm.toString());
+        try {
+            myLog(vm.getState().getValue().toString());
+        } catch (Exception e) {
+            myLogE(e.getMessage());
+        }
+
 
         //Observer
         vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
-            myLog("vm.getPlayType().observe: " + newPlayType);
+            myLogW("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
             if (!Objects.equals(newPlayType, lastPlayType)) {
                 swapChild(newPlayType);
-                lastPlayType = newPlayType;
+            } else {
+                //check current display
+                Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
+                if (current == null) {
+                    myLogW("should not happen, no fragment attached, re-attaching");
+                    attachFirstChild(newPlayType);
+                } else{
+                    if (!Objects.equals(newPlayType, current.getTag())) {
+                        myLogW("should not happen, wrong saved play type : [" + current.getTag() + "], swapping");
+                        swapChild(newPlayType);
+                    }
+                }
             }
+            lastPlayType = newPlayType;
         });
 
         // Initial attach (covers first frame before observer fires)
-        String firstPlayType = vm.getPlayMode().getValue();
-        if (firstPlayType != null) {
-            lastPlayType = firstPlayType;
+        String firstPlayType = "book";
+        if (vm.getState().getValue() != null) {
+            firstPlayType = vm.getState().getValue().playMode;
         }
+
         attachFirstChild(firstPlayType);
+        lastPlayType = firstPlayType;
     }
 
     private void attachFirstChild(String playType) {
-        myLog("attachFirstChild, playType: " + playType);
+        myLogI("attachFirstChild, playType: " + playType);
         final Fragment child;
         if ("radio".equals(playType)) {
             child = new RadioMiniNowPlayingFragment();
@@ -64,9 +83,9 @@ public class MiniNowPlayingHostFragment extends LoggingFragment {
     }
 
     private void swapChild(String playType) {
-        myLog("swapChild, playType: " + playType);
+        myLogI("swapChild, playType: " + playType);
         Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
-        if (current != null && playType.equals(current.getTag())) return; // already correct
+        //if (current != null && !Objects.equals(playType, current.getTag())) return;
 
         Fragment child;
         if ("radio".equals(playType)) {

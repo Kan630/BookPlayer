@@ -52,13 +52,8 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
                     .placeholder(R.drawable.ic_radio_24px)
                     .error(R.drawable.ic_radio_24px)
                     .into(ivCover);
-        });
 
-        // Observe phase (to show buffering spinner)
-        vm.getPhase().observe(getViewLifecycleOwner(), p -> {
-            if (p == null) return;
-            boolean busy = p.isBusyPhase();
-            progress.setVisibility(busy ? View.VISIBLE : View.GONE);
+            reevaluateVisibility();
         });
 
         // Visibility rule: show for radio as soon as ready OR buffering; hide only if explicitly suppressed
@@ -86,7 +81,9 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
 
         if (s == null) { root.setVisibility(View.GONE); return; }
 
-        boolean buffering = (p != null) && p.isBusyPhase();
+        boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
+        progress.setVisibility(buffering ? View.VISIBLE : View.GONE); //spinning loading icon
+
         boolean showMini =
                 (sup == null || !sup) &&
                         (
@@ -95,6 +92,7 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
                                         ("radio".equals(playType) && buffering)
                         );
 
+        //myLogD("set Visibility :" + showMini);
         root.setVisibility(showMini ? View.VISIBLE : View.GONE);
     }
 }

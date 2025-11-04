@@ -15,13 +15,14 @@ public class PlaybackUiState extends LoggerHelper {
     public final int trackId;    // current ZikFile id (or 0 if unknown)
     public final int folderId;   // current Folder id (or 0 if unknown)
     public final boolean ready;  // engine.isReady()
+    public final String loadPhase;
     public final String playMode;// = "book", "tts", "radio", "podcast", "book"
     public final String calledFrom;
 
     public PlaybackUiState(boolean playing, long pos, long dur,
                            String t, String s, String cover,
                            int trackId, int folderId, boolean ready,
-                           String playMode, String calledFrom) {
+                           String loadPhase, String playMode, String calledFrom) {
         super(PlaybackUiState.class);
         this.playing = playing;
         this.positionMs = pos;
@@ -34,6 +35,7 @@ public class PlaybackUiState extends LoggerHelper {
         this.folderId = folderId;
         this.ready = ready;
         this.playMode = playMode;
+        this.loadPhase = loadPhase;
         this.calledFrom = calledFrom;
 
         myLog(toString());
@@ -41,7 +43,10 @@ public class PlaybackUiState extends LoggerHelper {
 
     @Override public String toString() {
         return "PlaybackUiState{" +
-                "playing=" + playing +
+                "  loadPhase=" + loadPhase +
+                ", playing=" + playing +
+                ", ready=" + ready +
+                ", playMode=" + playMode +
                 ", positionMs=" + positionMs +
                 ", durationMs=" + durationMs +
                 ", title='" + title + '\'' +
@@ -49,8 +54,6 @@ public class PlaybackUiState extends LoggerHelper {
                 ", cover='" + cover + '\'' +
                 ", trackId=" + trackId +
                 ", folderId=" + folderId +
-                ", ready=" + ready +
-                ", playMode=" + playMode +
                 ", calledFrom='" + calledFrom + '\'' +
                 '}';
     }

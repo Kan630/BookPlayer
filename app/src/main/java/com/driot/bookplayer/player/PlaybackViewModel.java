@@ -111,6 +111,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
+            myLog("BroadcastReceiver : " + action);
             if (Intents.ACTION_UI_STATE.equals(action)) {
                 // we now know the service is running; bind if not already
                 maybeBindOnFirstUiState();
@@ -130,6 +131,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 final String uiPhase = i.getStringExtra(Intents.EXTRA_UI_PHASE);
                 final String uiMsg   = i.getStringExtra(Intents.EXTRA_UI_PHASE_MSG);
                 if (uiPhase != null) {
+                    myLog("uiPhase : " + uiPhase);
                     phase.postValue(new PhaseUi(uiPhase, uiMsg));
                 }
 
@@ -139,7 +141,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
                 state.postValue(new PlaybackUiState(
                         playing, pos, dur, title, sub, cover,
-                        trackId, folderId, ready, playModeExtra, "BroadcastReceiver, ACTION_UI_STATE"
+                        trackId, folderId, ready, uiPhase, playModeExtra, "BroadcastReceiver, ACTION_UI_STATE"
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -162,6 +164,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
         boolean ready   = service.isReadyToPlay();
         String playMode = service.getPlayMode();
+        String loadPhase = service.getLoadPhase();
 
         state.postValue(new PlaybackUiState(
                 playing,
@@ -173,6 +176,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 prev.trackId,
                 prev.folderId,
                 ready,
+                loadPhase,
                 playMode, // "tts", "radio", "podcast", "book"
                 "PlayBackViewModel.pushSnapshot()"
         ));

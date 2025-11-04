@@ -208,7 +208,7 @@ public class AudioService extends LoggingService {
     private void broadcastUiCleared() {
         lastUiState = null;
         uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
-                0, 0, false, getPlayMode(), "AudioService.broadcastUiCleared()"));
+                0, 0, false, "OFF", getPlayMode(), "AudioService.broadcastUiCleared()"));
         Intent i = new Intent(Intents.ACTION_UI_STATE)
                 .putExtra(Intents.EXTRA_UI_PLAYING, false)
                 .putExtra(Intents.EXTRA_UI_POS, 0L)
@@ -245,6 +245,7 @@ public class AudioService extends LoggingService {
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* ready */ (engine != null) && engine.isReady(),
+                    getLoadPhase(),
                     /* playMode */ "radio"
                     , "AudioService.broadcastUiState()"
             );
@@ -298,9 +299,10 @@ public class AudioService extends LoggingService {
         int folderId = (f != null) ? f.getId() : 0;
         boolean ready = (engine != null) && engine.isReady();
         String playMode = getPlayMode();
+        String loadPhase = getLoadPhase();
 
         return new PlaybackUiState(playing, pos, dur, title, text, cover,
-                trackId, folderId, ready, playMode, "AudioService.buildUiState()");
+                trackId, folderId, ready, loadPhase, playMode, "AudioService.buildUiState()");
     }
 
 
@@ -1792,8 +1794,13 @@ public class AudioService extends LoggingService {
         return "book";
     }
 
-    public boolean isRadioMode() {
-        return engine instanceof ExoRadioPlayerEngine;
+    public String getLoadPhase() {
+        if (engine==null) return "OFF";
+        if (engine.isPlaying() || engine.isReady()) {
+            return "READY";
+        } else {
+            return "BUFFERING";
+        }
     }
 
     public String getCurrentTtsVoiceName() {
@@ -1903,6 +1910,7 @@ public class AudioService extends LoggingService {
         myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
+        broadcastPhase(phase, "setUiPhase");
     }
 
     private void broadcastPhase(@NonNull String phase, @Nullable String msg) {
