@@ -8,22 +8,16 @@ import android.widget.ImageButton;
 import android.widget.Spinner;
 
 import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.TagCardAdapter;
-import com.driot.bookplayer.radio.TagItem;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
@@ -56,7 +50,6 @@ public class GetRadioActivity extends LoggingActivity {
 
     String query, lang, country, tag;
 
-    RecyclerView rvTopTags;
     TagCardAdapter tagAdapter;
     RadioBrowserRepository repo;
 
@@ -72,70 +65,50 @@ public class GetRadioActivity extends LoggingActivity {
                 new Intent(this, AddResourceActivity.class)
         );
 
-        rvTopTags = findViewById(R.id.rvTopTags);
         repo = new RadioBrowserRepository(
                 this,
                 /* discoverMirrors */ false,
                 /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
         );
-        // Grid for tags
-        int span = getResources().getInteger(R.integer.radio_grid_span); // reuse if you like
-        if (span < 2) span = 2;
-        GridLayoutManager glm = new GridLayoutManager(this, span);
-        rvTopTags.setLayoutManager(glm);
-        rvTopTags.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
-        );
-
-        tagAdapter = new TagCardAdapter(tag -> {
-            // Open results with this tag, carrying spinner-selected lang/country
-            String lang2    = safeLang(spinnerLang);         // <- 2-letter (we fixed this)
-            String country2 = safeCountry(spinnerCountry);   // <- implement same pattern or leave ""
-            Intent i = new Intent(this, RadioResultsActivity.class)
-                    .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TAG")
-                    .putExtra("query", "")
-                    .putExtra("lang", lang2)        // radio-browser expects 2-letter (lowercase ok)
-                    .putExtra("country", country2)  // 2-letter country code (e.g., "FR")
-                    .putExtra("tag", tag.name);
-            startActivity(i);
-            FirebaseAnalyticsHelper.tellAnalyticsRadioByTag(tag.name);
-        });
-        rvTopTags.setAdapter(tagAdapter);
-
-        // Load top 18 tags
-        repo.getTopTags(18, new Callback<>() {
-            @Override public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                if (rsp.isSuccessful() && rsp.body() != null) {
-                    tagAdapter.setItems(rsp.body());
-                } else {
-                    myLogW("getTopTags: empty/unsuccessful");
-                }
-            }
-            @Override public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                myLogEE(t, "getTopTags failed");
-            }
-        });
 
         // ---- find views ----
         buttonTrending = findViewById(R.id.bRadioTrending);
+        /*
         spinnerLang    = findViewById(R.id.spinnerRadioLang);
         spinnerCountry = findViewById(R.id.spinnerRadioCountry);
         spinnerTag     = findViewById(R.id.spinnerRadioTag);
+
+         */
         etRadio        = findViewById(R.id.etRadio);
         buttonSearch   = findViewById(R.id.bRadioSearch);
         bFavorite      = findViewById(R.id.bFavorite);
         ibFavorite     = findViewById(R.id.ibFavorite);
         ibSettings     = findViewById(R.id.ibSettings);
 
-        // ---- actions ----
+        // ---- open recyclerviews ----
         bFavorite.setOnClickListener(v -> clickFavorite());
         ibFavorite.setOnClickListener(v -> clickFavorite());
         ibSettings.setOnClickListener(v -> clickSettings());
+
+        findViewById(R.id.bByTag).setOnClickListener(v -> {
+            myLogI("---- user clicks BY TAG ---");
+            GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_TAG);
+        });
+        findViewById(R.id.bByCountry).setOnClickListener(v -> {
+            myLogI("---- user clicks BY TAG ---");
+            GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_COUNTRY);
+        });
+        findViewById(R.id.bByLanguage).setOnClickListener(v -> {
+            myLogI("---- user clicks BY TAG ---");
+            GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_LANGUAGE);
+
+        });
 
         etRadio.setHistoryKey("radio_search");     // keep histories separate
         etRadio.setCompletionThreshold(1);
         etRadio.setSuggestOnFocus(true);
 
+        /*
         // ---- language spinner ----
         // Reuse your LanguageHelper. If you prefer a different list for radios,
         // add LanguageHelper.getRadioLanguages() the same way you did for podcasts/librivox.
@@ -153,6 +126,8 @@ public class GetRadioActivity extends LoggingActivity {
         // spinnerCountry: entries like "FR", "US", "" (empty = any)
         // spinnerTag: popular tags ("news", "jazz", "talk", "", etc.)
         // If you don’t have adapters yet, leave them empty; we read their .toString() safely.
+
+         */
 
         buttonTrending.setOnClickListener(v -> {
             myLogI("--- User clicks TRENDING ---");
@@ -214,9 +189,14 @@ public class GetRadioActivity extends LoggingActivity {
 
     private void doSearch() {
         query   = etRadio.getText();
+        /*
         lang    = safeSpinnerStr(spinnerLang);
         country = safeSpinnerStr(spinnerCountry);
         tag     = safeSpinnerStr(spinnerTag);
+         */
+        lang    = null;
+        country = null;
+        tag     = null;
 
         Intent intent = new Intent(this, RadioResultsActivity.class)
                 .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_SEARCH")

@@ -97,4 +97,28 @@ public class RadioFavoritesStore {
                 .putString(KEY_ORDER, GSON.toJson(order, TYPE_ORDER))
                 .apply();
     }
+
+    public synchronized void reorderByUuidList(@NonNull List<String> uuids) {
+        Map<String, RadioFavoriteItem> map = loadMap();
+        // Keep only known ids, keep given order
+        List<String> newOrder = new ArrayList<>(uuids.size());
+        for (String u : uuids) {
+            if (map.containsKey(u)) newOrder.add(u);
+        }
+        // Append any items that exist but weren’t in uuids (safety)
+        for (String existing : loadOrder()) {
+            if (!newOrder.contains(existing) && map.containsKey(existing)) {
+                newOrder.add(existing);
+            }
+        }
+        save(map, newOrder);
+    }
+
+    public synchronized void removeUuid(@NonNull String uuid) {
+        Map<String, RadioFavoriteItem> map = loadMap();
+        List<String> order = loadOrder();
+        map.remove(uuid);
+        order.remove(uuid);
+        save(map, order);
+    }
 }

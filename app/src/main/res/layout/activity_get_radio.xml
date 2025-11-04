@@ -100,64 +100,72 @@
 
                 <!-- Description -->
                 <TextView
-                    android:id="@+id/txtRadio_desc"
                     android:layout_marginTop="30dp"
-                    android:text="@string/RadioSearch_desc"
+                    android:text="@string/quick_lists"
                     style="@style/GetResourceTextTopOfButton" />
+
+                <!-- Trending -->
+                <Button
+                    android:id="@+id/bRadioTrending"
+                    android:layout_width="wrap_content"
+                    android:layout_height="64dp"
+                    android:layout_marginTop="24dp"
+                    android:text="@string/trending_radios"
+                    android:layout_gravity="center_horizontal"
+                    style="@style/GetResourceButton" />
 
                 <!-- Filters: Language / Country / Tag -->
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="24dp">
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="12dp"
+                    android:baselineAligned="false"
+                    android:gravity="top"
+                    >
 
-                    <Spinner
-                        android:id="@+id/spinnerRadioLang"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        style="@style/GetResourceSpinner" />
+                    <Button
+                        android:id="@+id/bByTag"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/by_tag"
+                         />
 
-                    <Spinner
-                        android:id="@+id/spinnerRadioCountry"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="12dp"
-                        style="@style/GetResourceSpinner" />
+                    <Button
+                        android:id="@+id/bByCountry"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/by_country"
+                        />
 
-                    <Spinner
-                        android:id="@+id/spinnerRadioTag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        style="@style/GetResourceSpinner" />
+                    <Button
+                        android:id="@+id/bByLanguage"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/by_language"
+                        />
                 </LinearLayout>
 
-                <!-- Trending -->
-                <Button
-                    android:id="@+id/bRadioTrending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="36dp"
-                    android:text="@string/trending_radios"
-                    style="@style/GetResourceButton" />
+                <View style="@style/GetResourceHorizontalBar" />
 
-                <!-- Tags -->
-                <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvTopTags"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:clipToPadding="false"
-                    android:paddingHorizontal="8dp"
-                    android:paddingTop="8dp"
-                    android:paddingBottom="4dp"/>
+                <TextView
+                    android:layout_marginTop="30dp"
+                    android:text="@string/search_by_station_name"
+                    style="@style/GetResourceTextTopOfButton" />
 
                 <!-- Search box -->
                 <com.driot.bookplayer.views.EditTextWithButtons
                     android:id="@+id/etRadio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="28dp" />
+                    android:layout_marginTop="12dp" />
 
                 <Button
                     android:id="@+id/bRadioSearch"

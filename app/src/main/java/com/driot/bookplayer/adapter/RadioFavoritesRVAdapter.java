@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -18,11 +19,13 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 import java.util.ArrayList;
 import java.util.List;
 
-public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
+
+public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> implements ItemTouchHelperAdapter {
 
     public interface OnActionListener {
         void onPlay(RadioFavoriteItem f);
         void onUnfavorite(RadioFavoriteItem f);
+        void onPersistOrder(List<RadioFavoriteItem> newOrder);
     }
 
     private static final int VT_HEADER = 0;
@@ -72,6 +75,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             holder.info.setText(joinInfo(nonNull(f.country), nonNull(f.language), normalizeTags(f.tags)));
             holder.codec.setText(nonNull(f.codec));
             holder.bitrate.setText(f.bitrate > 0 ? (f.bitrate + " kbps") : "");
+            holder.ibFavorite.setVisibility(View.GONE);
 
             holder.favicon.setTag(f.stationuuid);
             Glide.with(holder.favicon).load(f.favicon)
@@ -80,7 +84,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                     .into(holder.favicon);
 
             holder.ibPlay.setOnClickListener(v -> listener.onPlay(f));
-            holder.ibFavorite.setOnClickListener(v -> listener.onUnfavorite(f));
             holder.itemView.setOnClickListener(v -> listener.onPlay(f));
         }
     }
@@ -96,22 +99,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             tvLang       = v.findViewById(R.id.tvLanguage);
             tvCountryTag = v.findViewById(R.id.tvCountryTag);
             tvCount      = v.findViewById(R.id.tvResultsCount);
-        }
-    }
-
-    static class ItemVH extends RecyclerView.ViewHolder {
-        ImageView favicon;
-        TextView title, info, codec, bitrate;
-        ImageButton ibPlay, ibFavorite;
-        ItemVH(@NonNull View v) {
-            super(v);
-            favicon = v.findViewById(R.id.radio_favicon);
-            title   = v.findViewById(R.id.radio_title);
-            info    = v.findViewById(R.id.radio_info);
-            codec   = v.findViewById(R.id.radio_codec);
-            bitrate = v.findViewById(R.id.radio_bitrate);
-            ibPlay  = v.findViewById(R.id.ibPlay);
-            ibFavorite = v.findViewById(R.id.ibFavorite);
         }
     }
 
@@ -140,5 +127,74 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             sb.append(x);
         }
         return sb.toString();
+    }
+
+
+    // --- ItemTouchHelperAdapter (custom) ---
+    @Override public boolean onItemMove(int fromPos, int toPos) {
+        // account for header at pos 0
+        if (fromPos == 0 || toPos == 0) return false;
+        int a = fromPos - 1;
+        int b = toPos - 1;
+        if (a < 0 || b < 0 || a >= items.size() || b >= items.size()) return false;
+        RadioFavoriteItem moved = items.remove(a);
+        items.add(b, moved);
+        notifyItemMoved(fromPos, toPos);
+        return true;
+    }
+
+    @Override public void onItemDropped() {
+        // persist after a drag is finished
+        if (listener != null) listener.onPersistOrder(new ArrayList<>(items));
+    }
+
+    @Override public void onDroppedInTrash(int adapterPosition) {
+        myLogI("onDroppedInTrash (pos) : " + adapterPosition);
+        if (adapterPosition <= 0) return; // header
+        int idx = adapterPosition - 1;
+        if (idx < 0 || idx >= items.size()) return;
+        RadioFavoriteItem victim = items.get(idx);
+        if (listener != null) listener.onUnfavorite(victim);
+    }
+
+    @Override public void onDroppedInTrashUuid(@NonNull String uuid) {
+        myLogI("onDroppedInTrash (uuid) : " + uuid);
+        RadioFavoriteItem victim = null;
+        for (RadioFavoriteItem it : items) {
+            if (uuid.equals(it.stationuuid)) { victim = it; break; }
+        }
+        if (victim != null && listener != null) {
+            listener.onUnfavorite(victim);
+        }
+    }
+
+    @Override
+    @Nullable
+    public String getUuidForAdapterPosition(int adapterPosition) {
+        if (adapterPosition <= 0) return null; // header
+        int idx = adapterPosition - 1;
+        if (idx < 0 || idx >= items.size()) return null;
+        return items.get(idx).stationuuid;
+    }
+
+    // ---- Drag starter wiring ----
+    public interface OnStartDragListener { void onStartDrag(RecyclerView.ViewHolder vh); }
+    private OnStartDragListener startDragListener;
+    public void setOnStartDragListener(OnStartDragListener l) { this.startDragListener = l; }
+
+    static class ItemVH extends RecyclerView.ViewHolder {
+        ImageView favicon;
+        TextView title, info, codec, bitrate;
+        ImageButton ibPlay, ibFavorite;
+        ItemVH(@NonNull View v) {
+            super(v);
+            favicon = v.findViewById(R.id.radio_favicon);
+            title   = v.findViewById(R.id.radio_title);
+            info    = v.findViewById(R.id.radio_info);
+            codec   = v.findViewById(R.id.radio_codec);
+            bitrate = v.findViewById(R.id.radio_bitrate);
+            ibPlay  = v.findViewById(R.id.ibPlay);
+            ibFavorite = v.findViewById(R.id.ibFavorite);
+        }
     }
 }

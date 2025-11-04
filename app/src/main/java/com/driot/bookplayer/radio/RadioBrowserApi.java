@@ -42,6 +42,20 @@ public interface RadioBrowserApi {
             @Query("order") String order,
             @Query("hidebroken") boolean hideBroken
     );
+    @GET("json/stations/bycountry/{country}")
+    Call<List<Station>> byCountry(
+            @Path("country") String country,
+            @Query("limit") int limit,
+            @Query("order") String order,
+            @Query("hidebroken") boolean hideBroken
+    );
+    @GET("json/stations/bylanguage/{language}")
+    Call<List<Station>> byLanguage(
+            @Path("language") String language,
+            @Query("limit") int limit,
+            @Query("order") String order,
+            @Query("hidebroken") boolean hideBroken
+    );
 
     @GET("json/stations/byname/{name}")
     Call<List<Station>> byName(
@@ -58,6 +72,18 @@ public interface RadioBrowserApi {
 
     @GET("json/tags")
     Call<List<TagItem>> getTags(
+            @Query("order") String order,        // "stationcount"
+            @Query("reverse") boolean reverse,   // true
+            @Query("limit") int limit            // e.g. 18
+    );
+    @GET("json/countries")
+    Call<List<TagItem>> getCountries(
+            @Query("order") String order,        // "stationcount"
+            @Query("reverse") boolean reverse,   // true
+            @Query("limit") int limit            // e.g. 18
+    );
+    @GET("json/languages")
+    Call<List<TagItem>> getLanguages(
             @Query("order") String order,        // "stationcount"
             @Query("reverse") boolean reverse,   // true
             @Query("limit") int limit            // e.g. 18

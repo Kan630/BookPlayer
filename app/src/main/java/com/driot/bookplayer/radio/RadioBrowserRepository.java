@@ -53,6 +53,14 @@ public class RadioBrowserRepository {
         api.byTag(tag, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byTag"));
     }
 
+    public void byCountry(String country, int limit, Callback<List<Station>> cb) {
+        api.byCountry(country, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byCountry"));
+    }
+
+    public void byLanguage(String language, int limit, Callback<List<Station>> cb) {
+        api.byLanguage(language, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byLanguage"));
+    }
+
     public void byName(String name, int limit, Callback<List<Station>> cb) {
         api.byName(name, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
     }
@@ -84,6 +92,16 @@ public class RadioBrowserRepository {
     public void getTopTags(int limit, Callback<List<TagItem>> cb) {
         api.getTags("stationcount", true, limit)
                 .enqueue(new LoggingCallback<>(cb, "getTopTags"));
+    }
+
+    public void getTopCountries(int limit, Callback<List<TagItem>> cb) {
+        api.getCountries("stationcount", true, limit)
+                .enqueue(new LoggingCallback<>(cb, "getTopCountries"));
+    }
+
+    public void getTopLanguages(int limit, Callback<List<TagItem>> cb) {
+        api.getLanguages("stationcount", true, limit)
+                .enqueue(new LoggingCallback<>(cb, "getTopLanguages"));
     }
 
 }

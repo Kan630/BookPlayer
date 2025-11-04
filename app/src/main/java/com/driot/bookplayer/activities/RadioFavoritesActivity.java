@@ -8,9 +8,11 @@ import android.widget.ProgressBar;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.adapter.RadioFavoritesRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -24,6 +26,11 @@ import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -35,6 +42,8 @@ public class RadioFavoritesActivity extends LoggingActivity {
     private ProgressBar progressBar;
     private RadioFavoritesRVAdapter adapter;
     private RadioBrowserRepository repo; // for resolveUrl on play()
+    private View dropZone;
+    private ItemTouchHelper touchHelper;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -43,6 +52,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar  = findViewById(R.id.progressBar);
+        dropZone     = findViewById(R.id.dragDeleteZone);
 
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
         OngoingTaskHost.attach(this, R.id.topOverlayContainer, new Intent(this, AddResourceActivity.class));
@@ -115,10 +125,21 @@ public class RadioFavoritesActivity extends LoggingActivity {
             @Override public void onUnfavorite(RadioFavoriteItem f) {
                 myLogI("--- user Unfavorite radio item --- : " + f.name);
                 // Remove and refresh (reuse VM’s toggle which expects a Station)
-                viewModel.toggleFavorite(RadioFavoritesActivity.this, toStationStub(f));
+                viewModel.removeFavoriteUuid(RadioFavoritesActivity.this, f.stationuuid);
+            }
+
+            @Override public void onPersistOrder(List<RadioFavoriteItem> newOrder) {
+                myLogI("--- user change favorite radio station order --- ");
+                viewModel.reorderFavorites(RadioFavoritesActivity.this, newOrder);
             }
         });
         recyclerView.setAdapter(adapter);
+
+        // Enable dragging
+        FavoritesTouchHelperCallback cb = new FavoritesTouchHelperCallback(recyclerView, dropZone, adapter);
+        touchHelper = new ItemTouchHelper(cb);
+        touchHelper.attachToRecyclerView(recyclerView);
+        adapter.setOnStartDragListener(vh -> touchHelper.startDrag(vh));
 
         // repo for resolveUrl
         repo = new RadioBrowserRepository(
@@ -132,6 +153,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
             progressBar.setVisibility(View.GONE);
             adapter.setItems(favorites);
         });
+
 /*
         if (savedInstanceState == null) {
             getSupportFragmentManager()
@@ -142,6 +164,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
 
  */
     }
+
 
     /** Minimal Station stub so we can reuse toggleFavorite() which expects a Station. */
     private Station toStationStub(RadioFavoriteItem f) {

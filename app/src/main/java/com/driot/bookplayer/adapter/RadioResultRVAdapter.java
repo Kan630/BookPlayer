@@ -59,6 +59,12 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         this.headerCountryTag = countryTag != null ? countryTag : "";
         notifyItemChanged(0); // header
     }
+    public void setHeader(CharSequence search) {
+        this.headerSearch = search != null ? search : "";
+        this.headerLang = null;
+        this.headerCountryTag = null;
+        notifyItemChanged(0); // header
+    }
 
     public void setHeaderCount(CharSequence count) {
         this.headerCount = count != null ? count : "";
@@ -127,10 +133,30 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder vh, int position) {
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
-            h.tvSearch.setText(headerSearch);
-            h.tvLang.setText(headerLang);
-            h.tvCountryTag.setText(headerCountryTag);
-            h.tvCount.setText(headerCount);
+            if (headerSearch == null ||headerSearch.isEmpty()) {
+                h.tvSearch.setVisibility(View.GONE);
+            } else {
+                h.tvSearch.setVisibility(View.VISIBLE);
+                h.tvSearch.setText(headerSearch);
+            }
+            if (headerLang == null || headerLang.isEmpty()) {
+                h.tvLang.setVisibility(View.GONE);
+            } else {
+                h.tvLang.setVisibility(View.VISIBLE);
+                h.tvLang.setText(headerLang);
+            }
+            if (headerCountryTag == null || headerCountryTag.isEmpty()) {
+                h.tvCountryTag.setVisibility(View.GONE);
+            } else {
+                h.tvCountryTag.setVisibility(View.VISIBLE);
+                h.tvCountryTag.setText(headerCountryTag);
+            }
+            if (headerCount == null || headerCount.isEmpty()) {
+                h.tvCount.setVisibility(View.GONE);
+            } else {
+                h.tvCount.setVisibility(View.VISIBLE);
+                h.tvCount.setText(headerCount);
+            }
             // As in your Librivox header, you can attach overlays to h.topOverlayContainer from the Activity
         } else {
             int idx = position - 1;

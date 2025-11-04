@@ -182,14 +182,15 @@ public class RadioResultsActivity extends LoggingActivity {
         // ---- Search ----
         progressBar.setVisibility(View.VISIBLE);
         String station_search_mode = getIntent().getStringExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE);
+        if (station_search_mode==null) station_search_mode = "NO_MODE";
+
         myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country + " - tag=" + tag);
 
         switch (station_search_mode) {
+
             case "MODE_TRENDING":
                 repo.topVoted(Option.getRadioApiNbResults(), resultsCb("trending"));
-                adapter.setHeader(
-                        getString(R.string.Search_2pt) + getString(R.string.trending_radios),
-                        "", ""); // or a nicer header
+                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.trending_radios));
                 break;
 
             case "MODE_TAG":
@@ -199,17 +200,40 @@ public class RadioResultsActivity extends LoggingActivity {
                     return;
                 }
                 repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
-                adapter.setHeader(
-                        getString(R.string.Search_2pt) + tag,
-                        getString(R.string.Language_2pt) + lang,
-                        country.isEmpty() ? "" : country
-                );
+                adapter.setHeader(getString(R.string.by_tag) + " : " + tag);
+                break;
+
+            case "MODE_COUNTRY":
+                if (country.isEmpty()) {
+                    myToastE(getString(R.string.error_generic));
+                    finish();
+                    return;
+                }
+                repo.byCountry(country, Option.getRadioApiNbResults(), resultsCb("country"));
+                adapter.setHeader(getString(R.string.by_country) + " : " + country);
+                break;
+
+            case "MODE_LANGUAGE":
+                if (lang.isEmpty()) {
+                    myToastE(getString(R.string.error_generic));
+                    finish();
+                    return;
+                }
+                repo.byLanguage(lang, Option.getRadioApiNbResults(), resultsCb("language"));
+                adapter.setHeader(getString(R.string.by_language) + " : " + lang);
                 break;
 
             case "MODE_SEARCH":
             default:
-
+                if (q.isEmpty()) {
+                    myToastE(getString(R.string.error_generic));
+                    finish();
+                    return;
+                }
                 repo.byName(q, Option.getRadioApiNbResults(), resultsCb("byname"));
+                adapter.setHeader(getString(R.string.by_name) + " : " + q);
+
+                //TODO maybe later put spinner back... not very useful right now
                 //repo.search(q, nullIfBlank(tag), country, lang, Option.getRadioApiNbResults(), resultsCb("search"));
                 /*
                 // If you have a combined search, call that; otherwise choose a best-effort:
@@ -227,11 +251,6 @@ public class RadioResultsActivity extends LoggingActivity {
                 }
                  */
 
-                adapter.setHeader(
-                        getString(R.string.Search_2pt) + (q.isEmpty() ? getString(R.string.search_nothing_specified) : q),
-                        getString(R.string.Language_2pt) + lang,
-                        (country.isEmpty() && tag.isEmpty()) ? "" : (country + (tag.isEmpty() ? "" : " • " + tag))
-                );
                 break;
         }
 

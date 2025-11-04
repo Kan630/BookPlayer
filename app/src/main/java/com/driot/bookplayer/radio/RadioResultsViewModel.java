@@ -6,6 +6,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -62,6 +63,24 @@ public class RadioResultsViewModel extends ViewModel {
         } else {
             store.add(RadioFavoriteItem.fromStation(s));
         }
+        favoriteUuids.postValue(store.getAllUuids());
+        favoriteItems.postValue(store.getAll());
+    }
+
+
+    public void reorderFavorites(Context ctx, List<RadioFavoriteItem> newOrder) {
+        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
+        List<String> uuids = new ArrayList<>(newOrder.size());
+        for (RadioFavoriteItem it : newOrder) uuids.add(it.stationuuid);
+        store.reorderByUuidList(uuids);
+        // refresh Livedata from store
+        favoriteUuids.postValue(store.getAllUuids());
+        favoriteItems.postValue(store.getAll());
+    }
+
+    public void removeFavoriteUuid(Context ctx, String uuid) {
+        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
+        store.removeUuid(uuid);
         favoriteUuids.postValue(store.getAllUuids());
         favoriteItems.postValue(store.getAll());
     }

@@ -1045,5 +1045,14 @@
     <string name="selected_language_error">Selected language error</string>
 
     <string name="media_button_action">media button action</string>
+    <string name="by_tag">by tag</string>
+    <string name="by_country">by country</string>
+    <string name="by_language">by lang</string>
+    <string name="by_name">by name</string>
+    <string name="quick_lists">Quick lists</string>
+    <string name="remove_from_favorites">remove from favorites</string>
+    <string name="search_by_station_name">search by station name</string>
+
+
 
 </resources>
