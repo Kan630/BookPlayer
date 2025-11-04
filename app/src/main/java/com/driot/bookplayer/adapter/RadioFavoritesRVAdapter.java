@@ -1,5 +1,6 @@
 package com.driot.bookplayer.adapter;
 
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,13 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     private final OnActionListener listener;
     private final List<RadioFavoriteItem> items = new ArrayList<>();
+    private Context appContext;
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView rv) {
+        super.onAttachedToRecyclerView(rv);
+        this.appContext = rv.getContext().getApplicationContext();
+    }
 
     public RadioFavoritesRVAdapter(@NonNull OnActionListener l) {
         this.listener = l;
@@ -150,6 +158,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     @Override public void onDroppedInTrash(int adapterPosition) {
         myLogI("onDroppedInTrash (pos) : " + adapterPosition);
+        if (adapterPosition < 0) myToastEE(null, appContext.getString(R.string.an_error_occurred)); // header
         if (adapterPosition <= 0) return; // header
         int idx = adapterPosition - 1;
         if (idx < 0 || idx >= items.size()) return;
