@@ -17,11 +17,10 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.objects.OngoingTaskHost;
-import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
-import com.driot.bookplayer.objects.radio.RadioResultsViewModel;
-import com.driot.bookplayer.objects.radio.Station;
-import com.driot.bookplayer.objects.radio.UrlResolve;
+import com.driot.bookplayer.radio.RadioBrowserRepository;
+import com.driot.bookplayer.radio.RadioResultsViewModel;
+import com.driot.bookplayer.radio.Station;
+import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
@@ -106,7 +105,7 @@ public class RadioResultsActivity extends LoggingActivity {
                     }
 
                     @Override public void onFailure(
-                            Call<com.driot.bookplayer.objects.radio.UrlResolve> call, Throwable t
+                            Call<UrlResolve> call, Throwable t
                     ) {
                         progressBar.setVisibility(View.GONE);
                         if (NetworkHelper.isUnknownHost(t)) {

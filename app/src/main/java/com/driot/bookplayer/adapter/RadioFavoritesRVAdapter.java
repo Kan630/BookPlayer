@@ -1,6 +1,5 @@
 package com.driot.bookplayer.adapter;
 
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,7 +12,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.objects.radio.RadioFavoriteItem;
+import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;

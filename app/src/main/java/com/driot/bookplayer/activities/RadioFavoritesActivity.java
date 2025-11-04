@@ -17,9 +17,11 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
-import com.driot.bookplayer.objects.radio.RadioBrowserRepository;
-import com.driot.bookplayer.objects.radio.RadioFavoriteItem;
-import com.driot.bookplayer.objects.radio.RadioResultsViewModel;
+import com.driot.bookplayer.radio.RadioBrowserRepository;
+import com.driot.bookplayer.radio.RadioFavoriteItem;
+import com.driot.bookplayer.radio.RadioResultsViewModel;
+import com.driot.bookplayer.radio.Station;
+import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import retrofit2.Call;
@@ -69,8 +71,8 @@ public class RadioFavoritesActivity extends LoggingActivity {
                 // Resolve (counts a click on RadioBrowser) then play; fallback to stored url_resolved if you add it later
                 repo.resolveUrl(f.stationuuid, new Callback<>() {
                     @Override public void onResponse(
-                            Call<com.driot.bookplayer.objects.radio.UrlResolve> call,
-                            Response<com.driot.bookplayer.objects.radio.UrlResolve> rsp
+                            Call<UrlResolve> call,
+                            Response<UrlResolve> rsp
                     ) {
                         progressBar.setVisibility(View.GONE);
                         String stream = null;
@@ -97,7 +99,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
                     }
 
                     @Override public void onFailure(
-                            Call<com.driot.bookplayer.objects.radio.UrlResolve> call, Throwable t
+                            Call<UrlResolve> call, Throwable t
                     ) {
                         progressBar.setVisibility(View.GONE);
                         if (NetworkHelper.isUnknownHost(t)) {
@@ -119,7 +121,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
         recyclerView.setAdapter(adapter);
 
         // repo for resolveUrl
-        repo = new com.driot.bookplayer.objects.radio.RadioBrowserRepository(
+        repo = new RadioBrowserRepository(
                 this,
                 /* discoverMirrors */ false, // keep async discovery for later if you want
                 /* log level */ com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
@@ -142,8 +144,8 @@ public class RadioFavoritesActivity extends LoggingActivity {
     }
 
     /** Minimal Station stub so we can reuse toggleFavorite() which expects a Station. */
-    private com.driot.bookplayer.objects.radio.Station toStationStub(RadioFavoriteItem f) {
-        com.driot.bookplayer.objects.radio.Station s = new com.driot.bookplayer.objects.radio.Station();
+    private Station toStationStub(RadioFavoriteItem f) {
+        Station s = new Station();
         s.stationuuid = f.stationuuid;
         s.name = f.name;
         s.favicon = f.favicon;

@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects.radio;
+package com.driot.bookplayer.radio;
 
 import android.view.LayoutInflater;
 import android.view.View;

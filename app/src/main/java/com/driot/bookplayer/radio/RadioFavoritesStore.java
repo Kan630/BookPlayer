@@ -1,10 +1,9 @@
-package com.driot.bookplayer.objects.radio;
+package com.driot.bookplayer.radio;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;

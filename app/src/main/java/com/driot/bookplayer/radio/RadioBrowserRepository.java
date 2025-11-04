@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects.radio;
+package com.driot.bookplayer.radio;
 
 import android.content.Context;
 
@@ -6,7 +6,6 @@ import androidx.annotation.Nullable;
 
 import java.util.List;
 
-import okhttp3.HttpUrl;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;

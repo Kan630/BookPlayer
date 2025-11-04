@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects.radio;
+package com.driot.bookplayer.radio;
 
 import androidx.annotation.NonNull;
 import com.google.gson.annotations.SerializedName;
