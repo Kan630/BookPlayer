@@ -10,7 +10,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -27,7 +26,7 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -124,17 +123,17 @@ public final class InAppMsgManager {
         myLogD("maybeShowBestMessage: start");
         InAppMessageIndex idx = loadIndexFromCache(activity);
         if (idx == null || idx.messages == null || idx.messages.isEmpty()) {
-            KanLogger.myLogD(TAG, "maybeShowBestMessage: no messages in cache → nothing to show");
+            myLogD("maybeShowBestMessage: no messages in cache → nothing to show");
             return;
         }
 
         InAppMessage best = pickBestMessage(activity, idx);
         if (best == null) {
-            KanLogger.myLogD(TAG, "maybeShowBestMessage: no eligible message (all filtered out or already seen)");
+            myLogD("maybeShowBestMessage: no eligible message (all filtered out or already seen)");
             return;
         }
 
-        KanLogger.myLogD(TAG, "maybeShowBestMessage: showing id=" + best.id + ", priority=" + best.priority
+        myLogD("maybeShowBestMessage: showing id=" + best.id + ", priority=" + best.priority
                 + ", start=" + best.start + ", end=" + best.end);
         showMessageDialog(activity, title, best);
     }
@@ -477,9 +476,6 @@ public final class InAppMsgManager {
         }
     }
 
-    // Petit hack pour avoir un Context (si jamais) — ici non utilisé hors Worker
-    private static Context ctxOrApp(HttpURLConnection c) { return null; }
-
     static class NotModifiedException extends Exception {}
     static class PermanentHttpException extends Exception {
         final int code;
@@ -540,6 +536,10 @@ public final class InAppMsgManager {
 
             } catch (java.net.ConnectException e) {
                 myLogI("FetchWorker: connect error. Will retry.");
+                return Result.retry();
+
+            } catch (java.net.SocketException e) {
+                myLogI("FetchWorker: socket error (connection aborted). Will retry.");
                 return Result.retry();
 
             } catch (javax.net.ssl.SSLException e) {
@@ -631,7 +631,7 @@ public final class InAppMsgManager {
                 safeStartActivity(ctx, i);
             }
         } catch (Throwable t) {
-            Log.w(TAG, "openAction failed", t);
+            myLogEE(t, "openAction failed");
         }
     }
 
@@ -796,23 +796,9 @@ public final class InAppMsgManager {
         return p.length() <= 120 ? p : p.substring(0, 120) + "…";
     }
 
-
+    // used for tests from MainActivity
     public static void deleteInAppMsgCache(Context ctx) {
         prefs(ctx).edit().clear().apply();
         myLogD("deleteInAppMsgCache: all cached in-app messages cleared");
     }
-
-    // ----------------------- LOG -----------------------
-    // ===== Logging (global switch) =====
-    private static final String TAG = "InAppMsgManager";
-    private static volatile boolean LOG_ENABLED = false;
-    public static void setLoggingEnabled(boolean enabled) { LOG_ENABLED = enabled; }
-    private static void myLog(String s){ if (LOG_ENABLED) KanLogger.myLog(TAG, s); }
-    private static void myLogD(String s){ if (LOG_ENABLED) KanLogger.myLogD(TAG, s); }
-    private static void myLogI(String s){ if (LOG_ENABLED) KanLogger.myLogI(TAG, s); }
-
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
 }

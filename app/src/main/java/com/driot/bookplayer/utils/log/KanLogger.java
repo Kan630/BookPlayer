@@ -180,7 +180,9 @@ public class KanLogger {
     public static void myLogEE(Throwable t, String prefix, String str) {
         myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
         try {
-            FirebaseCrashlytics.getInstance().setCustomKey("prefix",prefix);
+            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_prefix",prefix);
+            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_errMessage",(t != null ?  " : " + t.getMessage() : ""));
+            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_customMessage",str);
             String strFirebaseLog =  prefix + " " + str;
             String androidErrorMessage = "";
             if (t!=null) {
