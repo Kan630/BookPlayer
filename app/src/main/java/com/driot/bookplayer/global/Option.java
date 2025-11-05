@@ -61,8 +61,8 @@ public class Option {
     public static final float  MIN_TEXT_SIZE_SP = 12f;
     public static final float  MAX_TEXT_SIZE_SP = 36f;
     public static final boolean DEFAULT_AUTOMOTIVE_ON = true;
-    public static final boolean DEFAULT_AUTOMOTIVE_LET_CAR_AUTOPLAY = true;
     public static final boolean DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT = true;
+    public static final boolean DEFAULT_AUTOMOTIVE_LET_CAR_AUTOPLAY = false;
     public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
     public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
     public static final int DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS = 200;
@@ -207,11 +207,11 @@ public class Option {
         prefs.edit().putString("FONT_FAMILY_KEY", key).apply();
     }
     public static String getFontFamilyKey() {
-        return prefs.getString("FONT_FAMILY_KEY", "sans-serif");
+        return prefs.getString("FONT_FAMILY_KEY", DEFAULT_FONT_FAMILY);
     }
 
     public static @StyleRes int getThemeFontOverlay() {
-        String themeKey = prefs.getString("FONT_FAMILY_KEY", "sans-serif");
+        String themeKey = prefs.getString("FONT_FAMILY_KEY", DEFAULT_FONT_FAMILY);
         switch (themeKey) {
             case "serif":                 return R.style.ThemeOverlay_BookPlayer_Font_Serif;
             case "monospace":             return R.style.ThemeOverlay_BookPlayer_Font_Mono;

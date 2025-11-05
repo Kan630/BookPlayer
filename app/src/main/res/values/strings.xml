@@ -431,7 +431,7 @@
     <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_automotive_title">Automotive</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Auto-resume playback when connected to the car.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
     <string name="option_automotive_keep_phone_playback_on_car_connect">Keep phone playing when connected to the car.</string>
 
 
@@ -1082,15 +1082,18 @@
     <string name="option_tts_highlight_delay_explain_text">
     You may adjust the highlight delay to better synchronize the spoken audio with the highlighted words.
 </string>
-    <string name="option_automotive_on_explain_text">
-    Allow BookPlayer to connect with Android Auto, display its catalog, and control playback.
-</string>
 
-    <string name="option_automotive_let_car_autoplay_explain_text">
-    Allow Android Auto to start playback automatically when connected to the car.
+
+    <string name="option_automotive_on_explain_text">
+    Allow Android Auto to connect with BookPlayer, display its catalog, and control playback.
 </string>
 
     <string name="option_automotive_auto_resume_on_car_connect_explain_text">
-    Allow Android Auto to resume playback automatically upon connection, but only if audio was already playing in the app.
+    Allow Android Auto to resume playback automatically when connected to the car, if audio was already playing in the app.
 </string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+    Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.
+</string>
+
 </resources>

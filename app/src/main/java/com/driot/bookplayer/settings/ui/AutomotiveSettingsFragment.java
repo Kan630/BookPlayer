@@ -62,12 +62,12 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         // Listeners
         chkAutomotiveOn.setOnCheckedChangeListener((button, checked) -> {
             Option.setAutomotiveOn(checked);
-            applyEnableState(); // overall enable/disable of suboptions
+            //applyEnableState(); // overall enable/disable of suboptions
         });
 
         chkLetCarAutoplay.setOnCheckedChangeListener((button, checked) -> {
             Option.setAutomotiveLetCarAutoplay(checked);
-            applyChildEnableState(); // enable/disable the child based on this
+            //applyChildEnableState(); // enable/disable the child based on this
         });
 
         chkAutoResumeOnConnect.setOnCheckedChangeListener((button, checked) -> {
@@ -75,20 +75,20 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         });
 
         // Apply enable/disable rules once
-        applyEnableState();
-        applyChildEnableState();
+        //applyEnableState();
+        //applyChildEnableState();
 
         return root;
     }
-
-    /** Enable/disable the two lower rows when Automotive is ON/OFF */
+/*
+    // Enable/disable the two lower rows when Automotive is ON/OFF
     private void applyEnableState() {
         boolean automotiveOn = chkAutomotiveOn.isChecked();
         setRowEnabled(llLetCarAutoplay, chkLetCarAutoplay, automotiveOn);
         setRowEnabled(llAutoResumeOnConnect, chkAutoResumeOnConnect, automotiveOn && chkLetCarAutoplay.isChecked());
     }
 
-    /** Enable/disable the child row based on parent “let car autoplay” */
+    // Enable/disable the child row based on parent “let car autoplay”
     private void applyChildEnableState() {
         boolean automotiveOn = chkAutomotiveOn.isChecked();
         boolean parentOn = chkLetCarAutoplay.isChecked();
@@ -100,4 +100,6 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         control.setEnabled(enabled);
         row.setAlpha(enabled ? 1f : 0.5f);
     }
+   */
+
 }
