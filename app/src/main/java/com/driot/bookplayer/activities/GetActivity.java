@@ -26,46 +26,35 @@ public class GetActivity extends LoggingActivity {
                 new Intent(this, AddResourceActivity.class)
         );
 
-        /*
-        View topContainer = findViewById(R.id.topContainer);
-        View bottomBar = findViewById(R.id.bottomBar);
-        View contentContainer = findViewById(R.id.contentContainer);
-        InsetHelper.applyEdgeToEdge(this, topContainer, bottomBar, contentContainer);
+        findViewById(R.id.bOpenOther).setOnClickListener(v -> clickOther());
+        findViewById(R.id.bOpenOtherIcon).setOnClickListener(v -> clickOther());
 
- */
-       // InsetHelper.applyEdgeToEdge(this, null, null, null);
+        findViewById(R.id.bOpenAudiobooks).setOnClickListener(v -> clickAudiobooks());
+        findViewById(R.id.bOpenAudiobooksIcon).setOnClickListener(v -> clickAudiobooks());
 
+        findViewById(R.id.bOpenPodcasts).setOnClickListener(v -> clickPodcasts());
+        findViewById(R.id.bOpenPodcastsIcon).setOnClickListener(v -> clickPodcasts());
 
-        Button bPod = findViewById(R.id.bOpenPodcasts);
-        ImageButton bPodcastIcon = findViewById(R.id.bOpenPodcastsIcon);
-
-        Button bAudio = findViewById(R.id.bOpenAudiobooks);
-        ImageButton bAudiobookIcon = findViewById(R.id.bOpenAudiobooksIcon);
-
-        Button bOther = findViewById(R.id.bOpenOther);
-        ImageButton bOtherIcon = findViewById(R.id.bOpenOtherIcon);
-
-        bPodcastIcon.setOnClickListener(v ->
-                startActivity(new Intent(this, GetPodcastActivity.class)));
-        bPod.setOnClickListener(v ->
-                startActivity(new Intent(this, GetPodcastActivity.class)));
-
-        bAudiobookIcon.setOnClickListener(v ->
-                startActivity(new Intent(this, GetAudiobookActivity.class)));
-        bAudio.setOnClickListener(v ->
-                startActivity(new Intent(this, GetAudiobookActivity.class)));
-
-        bOtherIcon.setOnClickListener(v ->
-                startActivity(new Intent(this, GetOtherActivity.class)));
-        bOther.setOnClickListener(v ->
-                startActivity(new Intent(this, GetOtherActivity.class)));
-
-        findViewById(R.id.bOpenRadios).setOnClickListener(v ->
-                startActivity(new Intent(this, GetRadioActivity.class)));
-        findViewById(R.id.bOpenRadiosIcon).setOnClickListener(v ->
-                startActivity(new Intent(this, GetRadioActivity.class)));
-
-
+        findViewById(R.id.bOpenRadios).setOnClickListener(v -> clickRadios());
+        findViewById(R.id.bOpenRadiosIcon).setOnClickListener(v -> clickRadios());
 
     }
+
+    private void clickPodcasts() {
+        myLogI("--- user clicks PODCASTS ----");
+        startActivity(new Intent(this, GetPodcastActivity.class));
+    }
+    private void clickAudiobooks() {
+        myLogI("--- user clicks AUDIOBOOKS ----");
+        startActivity(new Intent(this, GetAudiobookActivity.class));
+    }
+    private void clickRadios() {
+        myLogI("--- user clicks RADIOS ----");
+        startActivity(new Intent(this, GetRadioActivity.class));
+    }
+    private void clickOther() {
+        myLogI("--- user clicks OTHER ----");
+        startActivity(new Intent(this, GetOtherActivity.class));
+    }
+
 }
