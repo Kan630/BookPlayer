@@ -119,15 +119,23 @@ public class NetworkHelper {
 
     /** True if active network is unmetered (Wi-Fi/Ethernet/etc.). Conservative default = false. */
     public static boolean isUnmeteredConnected(Context context) {
+        boolean response;
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
+        if (cm == null) {
+            myLogE("no connectivity manager");
+            return false;
+        }
         Network active = cm.getActiveNetwork();
-        if (active == null) return false;
+        if (active == null) {
+            myLogE("no active network");
+            return false;
+        }
         NetworkCapabilities caps = cm.getNetworkCapabilities(active);
-        return caps != null
+        response = caps != null
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+        return response;
     }
 
     //TODO check for roaming

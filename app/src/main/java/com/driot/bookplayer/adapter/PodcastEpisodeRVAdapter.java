@@ -236,29 +236,11 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                         PodcastHelper.addPodcastToDB(this.context, podcastFeed);
                     });
                     NetworkHelper.logCurrentNetworkState(this.context);
-                    if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(context)) {
-                        new AlertDialog.Builder(context)
-                                .setTitle(R.string.download_warning_title_unmetered)
-                                .setMessage(R.string.download_warning_message_unmetered)
-                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                    handler.onDownloadEpisode(episode);
-                                    if (holder.flickerAnim == null) {
-                                        holder.flickerRunning = true;
-                                        holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
-                                        holder.flickerAnim.start();
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                                    myLogD("User cancelled download (Network state popup)");
-                                })
-                                .show();
-                    } else {
-                        handler.onDownloadEpisode(episode);
-                        if (holder.flickerAnim == null) {
-                            holder.flickerRunning = true;
-                            holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
-                            holder.flickerAnim.start();
-                        }
+                    handler.onDownloadEpisode(episode);
+                    if (holder.flickerAnim == null) {
+                        holder.flickerRunning = true;
+                        holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
+                        holder.flickerAnim.start();
                     }
                 });
             }

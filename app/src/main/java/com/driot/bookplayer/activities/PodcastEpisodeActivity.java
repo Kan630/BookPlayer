@@ -693,7 +693,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             myLog("download already enqueued for " + ep.title);
             return;
         }
-        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && NetworkHelper.isUnmeteredConnected(this)) {
+
+        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.download_warning_title_unmetered)
                     .setMessage(R.string.download_warning_message_unmetered)
