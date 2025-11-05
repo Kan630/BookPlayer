@@ -1,9 +1,11 @@
 package com.driot.bookplayer.activities;
 
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -15,6 +17,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.FileProvider;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -423,39 +426,84 @@ public class ModifyFolderActivity extends LoggingActivity {
         }
 
     private void openFolderInFileExplorer(String pathOrUri) {
-        myLog(pathOrUri);
-        /*
-        Intent intent = new Intent(Intent.ACTION_VIEW);
+        myLog("openFolderInFileExplorer: " + pathOrUri);
 
-        Uri uri;
+        Uri dirTreeOrDocUri = null;
+
         if (pathOrUri.startsWith("content://")) {
-            uri = Uri.parse(pathOrUri);
+            // SAF URI (tree or document)
+            Uri input = Uri.parse(pathOrUri);
+            try {
+                // If it's a tree URI, convert to a document URI pointing at the same folder.
+                String docId = DocumentsContract.getTreeDocumentId(input);
+                dirTreeOrDocUri = DocumentsContract.buildDocumentUriUsingTree(input, docId);
+            } catch (Exception ignore) {
+                // Not a tree? Could already be a document uri; use as-is
+                dirTreeOrDocUri = input;
+            }
         } else {
-            File file = new File(pathOrUri).getParentFile();
-            if (!file.exists()) {
+            // It's a file system path. FileProvider can't "open a folder".
+            // Best UX: if you previously stored a treeUri for this folder, use that here.
+            // Otherwise, just fall back to the picker at that location (see fallback below).
+            File file = new File(pathOrUri);
+            File folder = file.isDirectory() ? file : file.getParentFile();
+            if (folder == null || !folder.exists()) {
                 myToastE("Folder does not exist");
                 return;
             }
-            uri = FileProvider.getUriForFile(
-                    this,
-                    getApplicationContext().getPackageName() + ".FileProvider",
-                    file
-            );
+            // We cannot build a valid SAF uri from a raw path here without prior SAF access.
+            // We'll use the picker with EXTRA_INITIAL_URI as a fallback below.
         }
-*/
-        //intent.setDataAndType(uri, "*/*");
-        /*
-        intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        // 1) Try the system Files app (DocumentsUI) with directory MIME type.
+        Intent viewDir = new Intent(Intent.ACTION_VIEW)
+                .addCategory(Intent.CATEGORY_DEFAULT)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_ACTIVITY_NEW_TASK);
+
+        if (dirTreeOrDocUri != null) {
+            viewDir.setDataAndType(dirTreeOrDocUri, DocumentsContract.Document.MIME_TYPE_DIR);
+            // Prefer the standard Files app when present (AOSP/Pixel); safe to try and ignore if missing
+            viewDir.setPackage("com.android.documentsui");
+            try {
+                myLog("Opening with DocumentsUI: " + dirTreeOrDocUri);
+                startActivity(viewDir);
+                return;
+            } catch (ActivityNotFoundException e) {
+                // Some OEMs don’t ship com.android.documentsui, we’ll try a generic VIEW next.
+                viewDir.setPackage(null);
+                try {
+                    startActivity(viewDir);
+                    return;
+                } catch (ActivityNotFoundException ignored) {
+                    // continue to fallback
+                }
+            }
+        }
+
+        // 2) Fallback: open the system folder picker AT that location (user sees the directory).
+        // Works reliably across Android versions/vendors.
+        Intent openTree = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+                .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                        | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                        | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         try {
-            startActivity(intent);
+            if (dirTreeOrDocUri != null) {
+                openTree.putExtra(DocumentsContract.EXTRA_INITIAL_URI, dirTreeOrDocUri);
+                myLog("Opening picker at EXTRA_INITIAL_URI: " + dirTreeOrDocUri);
+            } else {
+                // If we only had a raw path, try to hint the picker with the last used tree
+                // (optional: store/retrieve a matching treeUri in your DB when the user selects a folder).
+            }
+            startActivity(openTree);
         } catch (ActivityNotFoundException e) {
-            myToastE("No file explorer found to open this folder");
+            myToastE("No file explorer found to show this folder");
         }
-        */
-
     }
+
     private void restoreDeletionIfActive() {
         attachDeletionObserverByTag(deleteTag(folder.getId()));
     }

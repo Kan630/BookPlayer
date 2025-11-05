@@ -16,15 +16,31 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:hint="@string/search_title_hint"
+            android:singleLine="false"
+            android:minLines="2"
             android:imeOptions="actionSearch"
-            android:singleLine="true" />
+            />
 
-        <Button
+        <ImageButton
             android:id="@+id/btnSearch"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/Search" />
+            android:layout_gravity="center_vertical"
+            android:src="@drawable/ic_search_24px"
+            android:text="@string/Search"
+            android:contentDescription="@string/Search"
+            />
     </LinearLayout>
+
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleLarge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:indeterminate="true" />
 
     <TextView
         android:id="@+id/tvEmpty"

@@ -5,8 +5,9 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
@@ -25,7 +26,6 @@ import com.driot.bookplayer.services.DownloadCoverWorker;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.util.List;
 import java.util.concurrent.Executors;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class CoverWebSearchActivity extends LoggingActivity {
     public static final String EXTRA_FOLDER_ID = "folderId";
@@ -34,10 +34,11 @@ public class CoverWebSearchActivity extends LoggingActivity {
 
     private long folderId;
     private EditText etQuery;
+    private ProgressBar progressBar;
     private CoverResultAdapter adapter;
     private final CoverSearchRepository repo = new CoverSearchRepository(this);
 
-    private Button btnSearch;
+    private ImageButton btnSearch;
     private final java.util.concurrent.ExecutorService searchExecutor =
             Executors.newSingleThreadExecutor();
     private volatile boolean searching = false;
@@ -53,6 +54,7 @@ public class CoverWebSearchActivity extends LoggingActivity {
 
         etQuery = findViewById(R.id.etQuery);
         btnSearch = findViewById(R.id.btnSearch);
+        progressBar = findViewById(R.id.progressBar);
 
         etQuery.setText(defaultTitle != null ? defaultTitle : "");
 
@@ -75,11 +77,11 @@ public class CoverWebSearchActivity extends LoggingActivity {
                 runSearch(etQuery.getText().toString().trim()));
 
         // Enable/disable button based on text present (optional)
-        btnSearch.setEnabled(etQuery.getText().length() > 0);
+        btnSearch.setEnabled(!etQuery.getText().isEmpty());
         etQuery.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
             @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
-                btnSearch.setEnabled(s != null && s.toString().trim().length() > 0 && !searching);
+                btnSearch.setEnabled(s != null && !s.toString().trim().isEmpty() && !searching);
             }
             @Override public void afterTextChanged(Editable s) {}
         });
@@ -92,14 +94,15 @@ public class CoverWebSearchActivity extends LoggingActivity {
 
     private void setSearching(boolean isSearching) {
         searching = isSearching;
-        btnSearch.setEnabled(!isSearching && etQuery.getText().toString().trim().length() > 0);
+        progressBar.setVisibility(isSearching ? View.VISIBLE : View.GONE);
+        btnSearch.setEnabled(!isSearching && !etQuery.getText().toString().trim().isEmpty());
         etQuery.setEnabled(!isSearching);
     }
 
     private void runSearch(String q) {
         if (q.isEmpty()) return;
 
-        // (optional) show a quick “searching…” state
+        setSearching(true);
 
         TextView tvEmpty = findViewById(R.id.tvEmpty);
         tvEmpty.setVisibility(View.GONE);
@@ -117,6 +120,7 @@ public class CoverWebSearchActivity extends LoggingActivity {
             runOnUiThread(() -> {
                 adapter.submit(finalList);
                 tvEmpty.setVisibility(finalList == null || finalList.isEmpty() ? View.VISIBLE : View.GONE);
+                setSearching(false);
             });
         });
     }
