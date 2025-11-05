@@ -420,7 +420,7 @@
 "An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
-    <string name="option_automotive_let_car_autoplay">Allow Android Auto to trigger play on its own (usually, when connected to the car).</string>
+    <string name="option_automotive_let_car_autoplay">Allow Auto Play.</string>
     <string name="option_open_play_activity">Open Play View.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
@@ -1054,6 +1054,43 @@
     <string name="search_by_station_name">search by station name</string>
     <string name="play_pause">play pause</string>
 
+    <string name="option_reset_settings_values">Reset Settings Values</string>
+    <string name="reset_to_default">reset to default</string>
+    <string name="reset_for_power_user">reset for power user</string>
 
+    <string name="option_reset_for_power_user_explain_text">
+    The Power User reset restores factory defaults, but with a few specific settings:
+    \nImport:
+        \n* [don\'t copy]
+        \n* [\"Open With\" for any kind of file]
+    \nPlayback behavior:
+        \n* [don\'t open the dedicated play view]
+        \n* [keep audio playing when exiting the app]
+    </string>
 
+    <string name="cancel_ongoing_operation">Cancel ongoing operations</string>
+
+    <string name="option_reset_app_explain_text">
+    Sometimes the app can get stuck, for example after a crash during a book import, preventing further imports or cancellations.
+    In that case, tap this button to cancel and reset any ongoing imports.
+    </string>
+
+    <string name="option_tts_chunk_size_explain_text">
+    The chunk size determines how much text is sent to the TTS engine at once. Increasing it may result in smoother, more natural speech.
+</string>
+
+    <string name="option_tts_highlight_delay_explain_text">
+    You may adjust the highlight delay to better synchronize the spoken audio with the highlighted words.
+</string>
+    <string name="option_automotive_on_explain_text">
+    Allow BookPlayer to connect with Android Auto, display its catalog, and control playback.
+</string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+    Allow Android Auto to start playback automatically when connected to the car.
+</string>
+
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+    Allow Android Auto to resume playback automatically upon connection, but only if audio was already playing in the app.
+</string>
 </resources>

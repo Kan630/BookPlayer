@@ -78,6 +78,58 @@ public class Option {
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
     }
 
+    // in Option.java
+    public static void resetToDefaults(@NonNull Context ctx) {
+        Context app = ctx.getApplicationContext();
+        app.deleteSharedPreferences(SHARED_PREFERENCES_OPTIONS);
+        prefs = app.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+
+        //Context app = ctx.getApplicationContext();
+        //android.content.SharedPreferences sp = app.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        //sp.edit().clear().commit();
+/*
+        Context app = ctx.getApplicationContext();
+        String name = SHARED_PREFERENCES_OPTIONS;
+
+        // 1) Clear synchronously (prevents pending apply() from writing back later)
+        android.content.SharedPreferences sp = app.getSharedPreferences(name, MODE_PRIVATE);
+        sp.edit().clear().commit();
+
+        // 2) Try both CE and DE stores, since some apps move prefs to DE on boot
+        boolean deletedCE = false, deletedDE = false;
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+            deletedCE = app.deleteSharedPreferences(name);
+
+            Context de = app.createDeviceProtectedStorageContext();
+            if (de != null) {
+                // ignore if it doesn't exist there; just try
+                deletedDE = de.deleteSharedPreferences(name);
+            }
+        }
+
+        // 3) Last-resort: physical delete of the XML file(s) for CE & DE paths
+        try {
+            java.io.File ceFile = new java.io.File(app.getApplicationInfo().dataDir + "/shared_prefs/" + name + ".xml");
+            if (ceFile.exists()) ceFile.delete();
+        } catch (Throwable ignored) {}
+
+        try {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.N) {
+                Context de = app.createDeviceProtectedStorageContext();
+                if (de != null) {
+                    java.io.File deFile = new java.io.File(de.getApplicationInfo().dataDir + "/shared_prefs/" + name + ".xml");
+                    if (deFile.exists()) deFile.delete();
+                }
+            }
+        } catch (Throwable ignored) {}
+
+        // 4) Rebind the cached instance to a fresh, empty prefs
+        prefs = app.getSharedPreferences(name, MODE_PRIVATE);
+
+ */
+    }
+
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
     public static void setTimeBeforeSleep(int i) {prefs.edit().putInt("TIME_BEFORE_SLEEP",i).apply();}

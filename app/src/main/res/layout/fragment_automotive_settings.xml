@@ -49,6 +49,12 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_automotive_on" />
             </LinearLayout>
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_automotive_on_explain_text"
+                android:textStyle="italic"
+                />
+
 
             <LinearLayout
                 android:id="@+id/ll_automotive_let_car_autoplay"
@@ -60,6 +66,11 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_automotive_let_car_autoplay" />
             </LinearLayout>
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_automotive_let_car_autoplay_explain_text"
+                android:textStyle="italic"
+                />
 
             <LinearLayout
                 android:id="@+id/ll_automotive_auto_resume_on_car_connect"
@@ -71,6 +82,13 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_automotive_auto_resume_on_car_connect" />
             </LinearLayout>
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_automotive_auto_resume_on_car_connect_explain_text"
+                android:textStyle="italic"
+                />
+
+
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

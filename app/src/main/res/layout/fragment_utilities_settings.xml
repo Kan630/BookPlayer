@@ -111,5 +111,56 @@
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_reset_settings_values"
+                android:layout_marginBottom="15dp"
+                />
+
+            <Button
+                style="@style/GetResourceButton"
+                android:id="@+id/btn_reset_settings_values_to_default"
+                android:text="@string/reset_to_default"
+                />
+            <Button
+                style="@style/GetResourceButton"
+                android:id="@+id/btn_reset_settings_values_for_power_user"
+                android:text="@string/reset_for_power_user"
+                />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_reset_for_power_user_explain_text"
+                android:textStyle="italic"
+                />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout
+            style="@style/LinearLayoutOptionsVertical">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/reset_app"
+                android:layout_marginBottom="15dp"
+                />
+
+            <Button
+                style="@style/GetResourceButton"
+                android:id="@+id/btn_reset_app"
+                android:text="@string/cancel_ongoing_operation"
+                />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_reset_app_explain_text"
+                android:textStyle="italic"
+                />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
     </LinearLayout>
 </ScrollView>
