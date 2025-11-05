@@ -23,7 +23,7 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
-        return inf.inflate(R.layout.fragment_radio_mini, c, false);
+        return inf.inflate(R.layout.fragment_mini_playing_radio, c, false);
     }
 
     @Override

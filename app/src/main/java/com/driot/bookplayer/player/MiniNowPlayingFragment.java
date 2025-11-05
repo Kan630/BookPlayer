@@ -6,14 +6,15 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
@@ -21,6 +22,7 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 
 public class MiniNowPlayingFragment extends LoggingFragment {
     private PlaybackViewModel vm;
+    private ImageView ivCover;
     private TextView tvTitle, tvSubTitle;
     private SeekBar seek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
@@ -29,7 +31,7 @@ public class MiniNowPlayingFragment extends LoggingFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
-        return inf.inflate(R.layout.fragment_mini_now_playing, c, false);
+        return inf.inflate(R.layout.fragment_mini_playing_book, c, false);
     }
 
     @Override
@@ -41,6 +43,7 @@ public class MiniNowPlayingFragment extends LoggingFragment {
         btnPlayPause = v.findViewById(R.id.btnPlayPause);
         btnNext = v.findViewById(R.id.btnNext);
         btnStop = v.findViewById(R.id.btnStop);
+        ivCover = v.findViewById(R.id.ivCover);
 
         btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
         btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
@@ -52,6 +55,12 @@ public class MiniNowPlayingFragment extends LoggingFragment {
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+            if (s.cover != null) {
+                ivCover.setVisibility(View.VISIBLE);
+                Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
+            } else {
+                ivCover.setVisibility(View.GONE);
+            }
             if (!userSeeking) {
                 seek.setMax((int) Math.max(1L, s.durationMs));
                 seek.setProgress((int) Math.min(s.positionMs, s.durationMs));

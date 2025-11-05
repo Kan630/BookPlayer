@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="8dp"
-    android:background="?attr/colorSurface">
+    android:padding="2dp"
+    android:background="?attr/colorPrimary">
 
     <ImageView
         android:id="@+id/ivCover"
@@ -28,7 +28,9 @@
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:maxLines="1"
-            android:ellipsize="end"/>
+            android:ellipsize="end"
+            android:textColor="?attr/colorOnPrimary"
+            />
 
         <TextView
             android:id="@+id/tvSub"
@@ -37,7 +39,9 @@
             android:layout_width="wrap_content"
             android:text="@string/live_radio"
             android:maxLines="1"
-            android:ellipsize="end"/>
+            android:ellipsize="end"
+            android:textColor="?attr/colorOnPrimary"
+            />
     </LinearLayout>
 
     <ProgressBar
@@ -52,6 +56,6 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/play"
+        android:contentDescription="@string/play_pause"
         android:src="@drawable/ic_media_play_24"/>
 </LinearLayout>
