@@ -111,7 +111,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
-            myLog("BroadcastReceiver : " + action);
+            //myLog("BroadcastReceiver : " + action);
             if (Intents.ACTION_UI_STATE.equals(action)) {
                 // we now know the service is running; bind if not already
                 maybeBindOnFirstUiState();

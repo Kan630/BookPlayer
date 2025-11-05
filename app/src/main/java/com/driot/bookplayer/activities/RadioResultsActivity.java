@@ -69,13 +69,16 @@ public class RadioResultsActivity extends LoggingActivity {
             @Override public void onPlay(Station s) {
                 myLogI("-------- USER CLICK radio item -------- : " + s.name);
                 progressBar.setVisibility(View.VISIBLE);
+                myLog("main progressbar true, api call resolve url from stationuuid");
 
                 // Resolve (counts a click on RadioBrowser) then play; fallback to url_resolved
+                final long topStart = System.currentTimeMillis();
                 repo.resolveUrl(s.stationuuid, new Callback<>() {
                     @Override public void onResponse(
                             Call<UrlResolve> call,
                             Response<UrlResolve> rsp
                     ) {
+                        myLog("main progressbar false, api call onResponse in " + (System.currentTimeMillis()-topStart) + "ms.");
                         progressBar.setVisibility(View.GONE);
 
                         String stream = null;
