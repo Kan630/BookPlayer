@@ -498,4 +498,12 @@ public class Tonio {
 
         return input;
     }
+
+    public static String cleanSearchString(String query) {
+        if (query == null) return "";
+        String cleanedString = query.replaceAll("[\\r\\n\\t\\u0000-\\u001F\\u007F]+", "").trim();
+        if (!cleanedString.equals(query)) myLog("cleanSearchString : [" + query + "] => [" + cleanedString + "]");
+        return cleanedString;
+    }
+
 }

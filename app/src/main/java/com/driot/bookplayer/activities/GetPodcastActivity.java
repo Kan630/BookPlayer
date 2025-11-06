@@ -16,6 +16,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -63,7 +64,7 @@ public class GetPodcastActivity extends LoggingActivity {
 
         buttonPodcastSearch.setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");
-            query = editTextPodcast.getText();
+            query = Tonio.cleanSearchString(editTextPodcast.getText());
             LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
             lang = selectedLang.getTwoLetterCode().toLowerCase();
 

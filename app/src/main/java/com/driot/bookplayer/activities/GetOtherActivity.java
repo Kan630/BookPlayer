@@ -33,6 +33,7 @@ import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditText2linesWithPaste;
 
@@ -314,7 +315,7 @@ public class GetOtherActivity extends LoggingActivity {
         });
         bDirectDownload.setOnClickListener(view -> {
             myLogI("Button click : JUST GET IT");
-            String justGetItUrl = etDirectDownload.getText();
+            String justGetItUrl = Tonio.cleanSearchString(etDirectDownload.getText());
             if (justGetItUrl.isEmpty()) {
                 myToast("Please enter a URL");
                 return;

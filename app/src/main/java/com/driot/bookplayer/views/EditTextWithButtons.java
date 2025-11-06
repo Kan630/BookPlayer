@@ -17,6 +17,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +112,7 @@ public class EditTextWithButtons extends LinearLayout {
 
     /** Call this when your search actually runs to persist the query. */
     public void saveCurrentTextToHistory() {
-        String text = getText().trim();
+        String text = Tonio.cleanSearchString(getText());
         if (text.isEmpty()) return;
 
         // Persist

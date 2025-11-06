@@ -19,6 +19,7 @@ import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.TagCardAdapter;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -188,7 +189,7 @@ public class GetRadioActivity extends LoggingActivity {
     }
 
     private void doSearch() {
-        query   = etRadio.getText();
+        query   = Tonio.cleanSearchString(etRadio.getText());
         /*
         lang    = safeSpinnerStr(spinnerLang);
         country = safeSpinnerStr(spinnerCountry);

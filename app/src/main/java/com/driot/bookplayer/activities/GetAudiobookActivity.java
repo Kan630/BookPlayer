@@ -16,6 +16,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditTextWithButtons;
 
@@ -83,7 +84,6 @@ public class GetAudiobookActivity extends LoggingActivity {
 
         buttonSearch.setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");
-            editTextLibrivox.saveCurrentTextToHistory();
             doSearch();
         });
         editTextLibrivox.getEditText().setOnEditorActionListener((v, actionId, event) -> {
@@ -93,9 +93,6 @@ public class GetAudiobookActivity extends LoggingActivity {
 
             if (actionId == EditorInfo.IME_ACTION_SEARCH || isEnterKey) {
                 myLogI("--- User clicks SEARCH --- (via keyboard)");
-
-                // 1) persist the query to MRU history
-                editTextLibrivox.saveCurrentTextToHistory();
 
                 // 2) run your existing search
                 doSearch();
@@ -124,7 +121,8 @@ public class GetAudiobookActivity extends LoggingActivity {
     }
 
     private void doSearch() {
-            query = editTextLibrivox.getText();
+            query = Tonio.cleanSearchString(editTextLibrivox.getText());
+            editTextLibrivox.saveCurrentTextToHistory();
             lang = spinnerLibrivox.getSelectedItem().toString().toLowerCase();
 
             if (lang.isEmpty()) {
