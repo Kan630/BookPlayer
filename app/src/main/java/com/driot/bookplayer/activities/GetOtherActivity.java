@@ -43,6 +43,7 @@ public class GetOtherActivity extends LoggingActivity {
 
     private View importDimScrim;
     private EditText2linesWithPaste etDirectDownload;
+    private OngoingTaskViewModel viewModel;
 
     private PermissionRequest mPermissionRequest;
 
@@ -74,8 +75,7 @@ public class GetOtherActivity extends LoggingActivity {
                                         .addTag("BulkReimportScan")
                                         .build()
                         );
-                        Intent intentActivity = new Intent(this, AddResourceActivity.class);
-                        startActivity(intentActivity);
+                        startActivity(new Intent(this, AddResourceActivity.class));
                     } else {
                         Intent intent = new Intent(this, LoadBookActivity.class);
                         intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
@@ -127,11 +127,11 @@ public class GetOtherActivity extends LoggingActivity {
         );
 
         // ongoing task view model
-        OngoingTaskViewModel viewModel = new ViewModelProvider(
+        viewModel = new ViewModelProvider(
                 com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
         ).get(OngoingTaskViewModel.class);
-        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+        //myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
             setImportOverlayVisible(ui.isRunningLike());

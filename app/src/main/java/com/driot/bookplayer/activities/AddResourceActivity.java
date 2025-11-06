@@ -65,7 +65,7 @@ public class AddResourceActivity extends LoggingActivity {
                 ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
         ).get(OngoingTaskViewModel.class);
 
-        myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+        //myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
             // Bind UI

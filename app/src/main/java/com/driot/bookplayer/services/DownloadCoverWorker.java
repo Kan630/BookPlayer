@@ -32,7 +32,7 @@ public class DownloadCoverWorker extends LoggingWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         long folderId = getInputData().getLong(KEY_FOLDER_ID, -1L);
         String imageUrl = getInputData().getString(KEY_IMAGE_URL);
 
@@ -42,6 +42,9 @@ public class DownloadCoverWorker extends LoggingWorker {
                     .putString("error", "Bad arguments")
                     .build());
         }
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         try {
             setProgressAsync(new Data.Builder().putString("state", "starting").build());

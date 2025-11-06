@@ -47,8 +47,7 @@ public class DeleteFolderWorker extends LoggingWorker {
     }
 
     @NonNull @Override
-    public Result doWork() {
-        myLog("doWork()");
+    public Result doWorkBody() {
         long folderId = getInputData().getLong(KEY_FOLDER_ID, -1L);
         String folderName = getInputData().getString(KEY_FOLDER_NAME);
         if (folderId < 0) {
@@ -57,6 +56,9 @@ public class DeleteFolderWorker extends LoggingWorker {
                     .putString("error", "Bad input: folderId < 0")
                     .build());
         }
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         try {
             // Make sure foreground is set BEFORE any long/opportunistic crash point

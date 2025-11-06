@@ -41,7 +41,7 @@ public class PodcastSyncWorker extends LoggingWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         String path = getInputData().getString(KEY_FOLDER_PATH);
         String name = getInputData().getString(KEY_FOLDER_NAME);
         long feedId = getInputData().getLong(KEY_FEED_ID,0);
@@ -55,6 +55,9 @@ public class PodcastSyncWorker extends LoggingWorker {
         ZikFileDao zikFileDao = db.zikFileDao();
         PodcastDao podcastDao = db.podcastDao();
         EpisodeDao episodeDao = db.episodeDao();
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         // 1. Ensure folder is registered
         Folder folderDb = folderDao.getByName(name);

@@ -302,10 +302,12 @@ public final class InsetHelper {
 
         c.setAppearanceLightStatusBars(statusLight);
         c.setAppearanceLightNavigationBars(navLight);
-
+/*
         myLogD("configureBars(): lightStatus=" + statusLight
                 + ", lightNav=" + navLight
                 + ", statusBarColor(actual)=" + colorHex(actualStatusColor));
+
+ */
     }
 
     // ===== Helpers =====
@@ -338,10 +340,13 @@ public final class InsetHelper {
         }
 
         boolean result = explicitLight || isColorLight(bg);
+        /*
         myLogD("isLightSurface(): bg=" + colorHex(bg)
                 + ", explicitLight=" + explicitLight
                 + ", computedLight=" + isColorLight(bg)
                 + " -> " + result);
+
+         */
         return result;
     }
 

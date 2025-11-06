@@ -486,6 +486,14 @@ public class Tonio {
         return String.format(java.util.Locale.US, "%.3f ms", seconds);
     }
 
+    public static String formatMmSsMs(long ms) {
+        long s = ms / 1000;
+        long m = s / 60;
+        long sec = s % 60;
+        long millis = ms % 1000;
+        return String.format(java.util.Locale.US, "%d:%02d.%03d", m, sec, millis);
+    }
+
     public static String removeLongDuplicates(String input, int duplicate_min_length) {
         // Define a regex pattern to match duplicate substrings longer than 10 characters
         Pattern pattern = Pattern.compile("(.{"+duplicate_min_length+",}).*\\1");

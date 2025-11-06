@@ -43,7 +43,7 @@ public class M4bSplitWorker extends ImportWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_m4b_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
@@ -54,6 +54,9 @@ public class M4bSplitWorker extends ImportWorker {
         myLog("m4bFilePath = " + m4bFilePath);
         myLog("destinationFolderPath = " + destinationFolderPath);
         myLogD("----------------------------------------------------");
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         if (m4bFilePath == null || destinationFolderPath == null) {
             emitFailed(TASK_NAME, "Missing input data for M4bSplitWorker", getApplicationContext().getString(R.string.invalid_resource));

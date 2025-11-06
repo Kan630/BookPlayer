@@ -42,7 +42,7 @@ public class EbookSplitWorker extends ImportWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
@@ -56,6 +56,9 @@ public class EbookSplitWorker extends ImportWorker {
         final String ebookType = guessTypeFromPath(ebookPath); //keep that line here to get some log if null => throw...
         myLog("computed ebookType = " + ebookType);
         myLogD("--------------------------------------------------------------------------");
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         if (ebookPath==null || destinationFolderPath==null || String.valueOf(ebookPath).isEmpty() || String.valueOf(destinationFolderPath).isEmpty()) {
             emitFailed(TASK_NAME, "Missing input data for EbookSplitWorker", getApplicationContext().getString(R.string.invalid_resource));

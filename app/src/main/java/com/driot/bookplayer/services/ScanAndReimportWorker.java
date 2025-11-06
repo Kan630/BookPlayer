@@ -1,6 +1,6 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.services.FinalParseFolderWorker.*;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import android.content.Context;
 import android.net.Uri;
@@ -8,23 +8,32 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkContinuation;
-import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.utils.log.LoggingWorker;
+import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
+import com.driot.bookplayer.imports.ImportWorker;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
 
-public class ScanAndReimportWorker extends LoggingWorker {
+/**
+ * Scans a root folder (SAF tree URI) and re-enqueues missing audiobooks
+ * using the new BookLoadingWorkLauncher pipeline.
+ *
+ * Input:
+ *  - K_ROOT_TREE_URI (required): tree URI string of the root to scan
+ *  - K_SOURCE_LOC    (optional): source location hint ("internal","sdcard","cloud", etc.)
+ */
+public class ScanAndReimportWorker extends ImportWorker {
 
     public static final String K_ROOT_TREE_URI = "root_tree_uri";
     public static final String K_SOURCE_LOC    = "source_location"; // optional
+
+    private static final String TASK_NAME = Var.WORKER_MASS_IMPORT;
 
     public ScanAndReimportWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
         super(appContext, params);
@@ -32,14 +41,16 @@ public class ScanAndReimportWorker extends LoggingWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
+        myLog("ScanAndReimportWorker start");
         Context ctx = getApplicationContext();
+        emitTaskStart(TASK_NAME, "scanning items...");
+
         String rootStr = getInputData().getString(K_ROOT_TREE_URI);
         if (rootStr == null) {
             myLogE("ScanAndReimportWorker: missing root_tree_uri");
             return Result.failure();
         }
-
         Uri rootUri = Uri.parse(rootStr);
         DocumentFile root = DocumentFile.fromTreeUri(ctx, rootUri);
         if (root == null || !root.isDirectory()) {
@@ -49,11 +60,13 @@ public class ScanAndReimportWorker extends LoggingWorker {
 
         // 1) Find candidate audiobook folders under root
         ArrayList<DocumentFile> candidates = findBookCandidates(root);
+        myLogD(candidates.size() + " candidates found under: " + root.getName() + " (" + rootStr + ")");
+        emitTextOnlyProgress("Found " + candidates.size() + " candidates");
 
-        // 2) Filter out those already in DB (by path)
+        // 2) Filter out those already in DB (by SAF path key)
         ArrayList<DocumentFile> toImport = new ArrayList<>();
         for (DocumentFile cand : candidates) {
-            String pathKey = cand.getUri().toString(); // we store path as SAF uri string
+            String pathKey = cand.getUri().toString(); // we store folder path as SAF uri string
             boolean exists = DatabaseClient.getInstance(ctx)
                     .getAppDatabase()
                     .folderDao()
@@ -62,6 +75,7 @@ public class ScanAndReimportWorker extends LoggingWorker {
             if (!exists) {
                 toImport.add(cand);
             } else {
+                emitWarning("[" + cand.getName() + "] already exists");
                 myLogD("Skip (already in DB): " + cand.getName() + " -> " + pathKey);
             }
         }
@@ -71,52 +85,74 @@ public class ScanAndReimportWorker extends LoggingWorker {
             return Result.success();
         }
 
-        // 3) Build a sequential chain of ParseFinalFolderWorker for each missing folder
-        WorkManager wm = WorkManager.getInstance(ctx);
-        WorkContinuation chain = null;
+        myLog(toImport.size() + " folders to re-import under: " + root.getName());
 
         String sourceLoc = getInputData().getString(K_SOURCE_LOC);
+        if (sourceLoc == null) sourceLoc = ""; // optional hint only
 
+        // 3) For each missing folder, create a LoadBookTaskState and launch via the new pipeline
+        // We enqueue with sequential=true so everything is appended to the global "bookload-queue"
         for (int i = 0; i < toImport.size(); i++) {
             DocumentFile bookFolder = toImport.get(i);
 
+            emitTextOnlyProgress("Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
+            myLog("enqueueing " + bookFolder.getName());
+
             // Optional: pick a cover from inside the folder
             String imageUri = pickLargestCoverUri(ctx, bookFolder);
+            myLog("picked image: " + (imageUri == null ? "(none)" : imageUri));
 
-            Data data = new Data.Builder()
-                    .putString(K_DYNAMIC_URI, bookFolder.getUri().toString())
-                    .putString(K_DYNAMIC_TYPE, "Folder")
-                    .putString(K_TITLE, safeName(bookFolder))
-                    .putString(K_FUTURE_PATH, bookFolder.getUri().toString())
-                    .putString(K_SOURCE_LOC, sourceLoc == null ? "" : sourceLoc)
-                    .putString(K_IMAGE_URI, imageUri == null ? "" : imageUri)
-                    .build();
+            // Build state for the new pipeline.
+            // We’re importing an EXISTING folder → no download, no copy, no split.
+            LoadBookTaskState s = new LoadBookTaskState();
+            s.title            = safeName(bookFolder);
+            s.originalUri      = null; // legacy field; we rely on dynamicUri for the current source
+            s.originalType     = "Folder";
+            s.dynamicUri       = bookFolder.getUri();
+            s.dynamicType      = "Folder";
 
-            OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class)
-                    .setInputData(data)
-                    .addTag("BulkReimport")
-                    .build();
+            // Future folder “path” is the same SAF URI; the FinalParse worker will reconcile DB rows.
+            s.futureFolderName = safeName(bookFolder);
+            s.futureFolderPath = bookFolder.getUri().toString();
 
-            if (chain == null) {
-                chain = wm.beginWith(req);
-            } else {
-                chain = chain.then(req);
-            }
+            // File characteristics (folder import → no extension, no split)
+            s.fileExtension    = null;
+            s.playType         = "Folder";
+            s.mimeType         = "vnd.android.document/directory";
+
+            // Options for this path (re-import means keep as-is; just parse/index)
+            s.optionCopy   = false;
+            s.optionSplit  = false;
+            s.optionDelete = false;
+
+            // Provenance (optional hint only; safe to leave empty)
+            s.sourceLocation = sourceLoc;
+
+            // Cover if we found one
+            s.imagePath = imageUri;
+
+            // Clear anything irrelevant
+            s.originalFile = null;
+            s.originalHash = null;
+
+            // Launch into the new pipeline.
+            // Using sequential=true ensures all these tasks go into one global WM queue ("bookload-queue").
+            BookLoadingWorkLauncher.launch(ctx, s, /*sequential*/ true);
         }
 
-        if (chain != null) chain.enqueue();
-
-        myLog("Queued " + toImport.size() + " missing audiobooks for re-import.");
+        myLog("Queued " + toImport.size() + " missing audiobooks for re-import (new pipeline).");
         return Result.success();
     }
+
+    // --------------------- helpers (unchanged from your old class) ---------------------
 
     private static String safeName(DocumentFile f) {
         String n = f.getName();
         return n == null ? "Untitled" : n;
     }
 
-
     private ArrayList<DocumentFile> findBookCandidates(DocumentFile root) {
+        myLogD("findBookCandidates");
         ArrayList<DocumentFile> result = new ArrayList<>();
 
         boolean rootHasTopAudio = hasAudioAtTopLevel(root);
@@ -125,6 +161,8 @@ public class ScanAndReimportWorker extends LoggingWorker {
         ArrayList<DocumentFile> childBooks = new ArrayList<>();
         for (DocumentFile child : root.listFiles()) {
             if (child.isDirectory() && hasAnyAudioRecursive(child)) {
+                myLog("add " + child.getName());
+                emitTextOnlyProgress("add " + child.getName());
                 childBooks.add(child);
             }
         }
@@ -188,9 +226,7 @@ public class ScanAndReimportWorker extends LoggingWorker {
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
     }
 
-
     private String pickLargestCoverUri(Context ctx, DocumentFile folder) {
-        // mirrors your logic (simple & fast): biggest jpg/png/etc in subtree
         DocumentFile best = pickLargestCoverRecursive(folder, null);
         return best == null ? null : best.getUri().toString();
     }

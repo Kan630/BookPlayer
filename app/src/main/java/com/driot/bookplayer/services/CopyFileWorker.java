@@ -50,7 +50,7 @@ public class CopyFileWorker extends ImportWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_copy) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         Uri uri = Uri.parse(j.dynamicUri);
@@ -60,6 +60,9 @@ public class CopyFileWorker extends ImportWorker {
         String fileExtension = j.fileExtension;
         boolean checkSize = true;  //TODO, to check
         long forceSize = -1;
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         sourceLocation = Tonio.getSourceLocation(context, uri);
         destinationLocation = StorageHelper.getMemoryLocationType(context, destinationFolderPath);

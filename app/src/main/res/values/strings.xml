@@ -1035,6 +1035,7 @@
     <string name="Radio_settings">Radio settings</string>
     <string name="Radio_Settings">Radio Settings</string>
     <string name="live_radio">live radio</string>
+    <string name="live_podcast">live podcast</string>
     <string name="stations">stations</string>
     <string name="radio">radio</string>
     <string name="no_result">no result</string>

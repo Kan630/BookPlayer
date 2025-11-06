@@ -3,11 +3,13 @@ package com.driot.bookplayer.utils.log;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.google.common.util.concurrent.ListenableFuture;
 
 
@@ -43,6 +45,39 @@ public abstract class LoggingWorker extends Worker {
     public ForegroundInfo getForegroundInfo() {
         myInsideLogD("getForegroundInfo() requested");
         return super.getForegroundInfo(); // or provide a common default
+    }
+
+    /** Final: guarantees logging wraps all subclasses */
+    @NonNull @Override
+    public final Result doWork() {
+        long t0 = android.os.SystemClock.elapsedRealtime();
+        myInsideLogI("doWork() start");
+        try {
+            // If you need foreground, subclasses can call setForegroundEarly() inside doWorkBody()
+            Result result = doWorkBody();
+            myInsideLogD("doWork() end -> " + result);
+            return result;
+        } catch (Throwable t) {
+            myInsideLogEE(t,"doWork() crash");
+            // Bubble minimal info to output for diagnostics
+            Data out = new Data.Builder()
+                    .putString("error", t.toString())
+                    .build();
+            return Result.failure(out);
+        } finally {
+            long dt = android.os.SystemClock.elapsedRealtime() - t0;
+            myInsideLogI("doWork() duration = " + Tonio.formatMmSsMs(dt));
+        }
+    }
+
+    /** Subclasses implement their actual work here */
+    @NonNull
+    protected abstract Result doWorkBody();
+
+    /** Convenience for subclasses that need foreground early */
+    protected final void setForegroundEarly(@NonNull ForegroundInfo info) {
+        myInsideLogD("setForegroundEarly()");
+        setForegroundAsync(info);
     }
 
 
@@ -114,6 +149,11 @@ public abstract class LoggingWorker extends Worker {
     private void myInsideLogD(String str) {
         if (LOG_LIFECYCLE_TRACE)
             KanLogger.myLogD("Lifecycle", TAG_FROM_BRACKET + str);
+    }
+
+    private void myInsideLogI(String str) {
+        if (LOG_LIFECYCLE_TRACE)
+            KanLogger.myLogI("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
     private void myInsideLogW(String str) {

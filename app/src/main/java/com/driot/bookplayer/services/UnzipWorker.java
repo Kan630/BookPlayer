@@ -41,7 +41,7 @@ public class UnzipWorker extends ImportWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
@@ -52,6 +52,9 @@ public class UnzipWorker extends ImportWorker {
         myLog("From: " + zipFilePath);
         myLog("To: " + destinationFolderPath);
         myLogD("----------------------------------------------------");
+
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         if (zipFilePath == null || destinationFolderPath == null) {
             emitFailed(TASK_NAME, "Missing input data", context.getString(R.string.invalid_resource));

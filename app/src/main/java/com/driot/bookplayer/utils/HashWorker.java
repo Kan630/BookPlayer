@@ -37,7 +37,10 @@ public class HashWorker extends LoggingWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
+
         String uriStr = getInputData().getString("uri");
         if (uriStr != null) {
             return computeHashForUri(uriStr);

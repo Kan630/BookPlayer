@@ -72,51 +72,14 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_final_parse) + " " + context.getString(R.string.import_task_start));
         try {
             DocumentFile df;
             importJob = jobOrFail();
-            /*
-            String originalType = j.originalType;
-            String dynamicType = j.dynamicType;
-            
-            String playType = j.playType;
-            String title = j.title;
-            String futureFolderPath = j.futureFolderPath;
-            String sourceLocation = j.sourceLocation;
-            String originalHash = j.originalHash;
-            String imagePath = j.imagePath;
-            String fileExtension = j.fileExtension;
-            boolean optionCopy = j.optionCopy;
-            boolean optionDelete = j.optionDelete;
-            
-             */
 
-                    
-
-/*
-            // New: override with InputData if provided
-            String inDynUri  = getInputData().getString(K_DYNAMIC_URI);
-            String inDynType = getInputData().getString(K_DYNAMIC_TYPE);
-            if (inDynUri != null && inDynType != null) {
-                // Build a minimal LoadBookTaskState on the fly
-                LoadBookTaskState s = new LoadBookTaskState();
-                s.dynamicUri = Uri.parse(inDynUri);
-                s.dynamicType = inDynType;
-                s.title = getInputData().getString(K_TITLE);
-                s.futureFolderPath = getInputData().getString(K_FUTURE_PATH); // store SAF uri string
-                s.sourceLocation = getInputData().getString(K_SOURCE_LOC);
-                s.originalHash = getInputData().getString(K_ORIGINAL_HASH);
-                s.imagePath = getInputData().getString(K_IMAGE_URI);
-                // sensible defaults
-                s.optionCopy = false;
-                s.optionDelete = false;
-                s.originalType = inDynType;
-                bookState = s;
-            }
-
- */
+            // Optionally enter foreground:
+            // setForegroundEarly(buildForegroundInfo());
 
             if (importJob == null) {
                 emitFailed(TASK_NAME, "importJob == null", getApplicationContext().getString(R.string.invalid_resource));
@@ -230,14 +193,14 @@ public class FinalParseFolderWorker extends ImportWorker {
                     myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
                 } else {
                     myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
-                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
+                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize / 1024 / 1024, 0) + " Mo]");
                     myLogD("-----------------------------");
                 }
                 goFolder();
             });
         } else {
-            myLog("running recursive scan for audio file in a background thread");
-            backgroundThread = new Thread(() -> {
+            myLog("running recursive scan for audio files (blocking in worker thread)");
+            try {
                 addAudioFileRecursive(dfPickedDir);
 
                 myLogD("addAudioFileRecursive done, sorting now...");
@@ -247,26 +210,23 @@ public class FinalParseFolderWorker extends ImportWorker {
                     myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
                 } else {
                     myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
-                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize/1024/1024,0) + " Mo]");
+                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize / 1024 / 1024, 0) + " Mo]");
                     myLogD("-----------------------------");
                 }
                 goFolder();
-            });
-        }
-        try {
-            backgroundThread.start();
-        } catch (Throwable t) {
-            String devErr = "backgroundThread addAudioFileRecursive";
-            String userErr = context.getString(R.string.Error_while_listing_audio_files);
-            if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
-                myLogEE(t,"addAudioFileRecursive : Too many threads or not enough native memory");
-                devErr = "addAudioFileRecursive : Too many threads or not enough native memory" + "\n" + t.getMessage();
-                userErr = context.getString(R.string.Error_Import_OutOfMemory)
-                        + "\n" + context.getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
-            } else {
-                devErr = devErr + "\n" + t.getMessage();
+            } catch (Throwable t) {
+                String devErr = "backgroundThread addAudioFileRecursive";
+                String userErr = context.getString(R.string.Error_while_listing_audio_files);
+                if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
+                    myLogEE(t, "addAudioFileRecursive : Too many threads or not enough native memory");
+                    devErr = "addAudioFileRecursive : Too many threads or not enough native memory" + "\n" + t.getMessage();
+                    userErr = context.getString(R.string.Error_Import_OutOfMemory)
+                            + "\n" + context.getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
+                } else {
+                    devErr = devErr + "\n" + t.getMessage();
+                }
+                failNow(TASK_NAME, devErr, userErr);
             }
-            failNow(TASK_NAME, devErr, userErr);
         }
     }
 
@@ -494,13 +454,12 @@ public class FinalParseFolderWorker extends ImportWorker {
         folder.image = importJob.imagePath;
         folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
 
-        new Thread(() -> {
-            int insertedFolderId = (int) DatabaseClient.getInstance(context).getAppDatabase().folderDao().insert(folder);
-            myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + importJob.title + "]");
-            ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
-            emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
-            saveFiles(insertedFolderId);
-        }).start();
+        int insertedFolderId = (int) DatabaseClient.getInstance(context)
+                .getAppDatabase().folderDao().insert(folder);
+        myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + importJob.title + "]");
+        ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
+        emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
+        saveFiles(insertedFolderId); // this blocks until all tracks are saved and emitSuccess() is called
     }
 
     private void saveFiles(int insertedFolderId) {

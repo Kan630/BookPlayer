@@ -104,7 +104,7 @@ public class DownloadWorker extends ImportWorker {
     }
     @NonNull
     @Override
-    public Result doWork() {
+    public Result doWorkBody() {
         emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         final String urlStr = j.downloadFileUrl;
@@ -120,6 +120,8 @@ public class DownloadWorker extends ImportWorker {
         myLog("isManual: " + isManual);
         myLogD("----------------------------------------------------");
 
+        // Optionally enter foreground:
+        // setForegroundEarly(buildForegroundInfo());
 
         final Context ctx = getApplicationContext();
 
