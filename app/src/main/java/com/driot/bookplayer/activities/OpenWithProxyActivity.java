@@ -42,7 +42,9 @@ public class OpenWithProxyActivity extends LoggingActivity {
 
         myLogD("OpenWithProxyActivity received uri: " + uri);
         boolean persistPermission = UriHelper.checkLongTermReadable(this, uri);
-        FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString());
+        FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString(), "normal", persistPermission);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("ImportMode", "proxy-normal");
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("persistPermission", String.valueOf(persistPermission));
 
         Intent nextIntent = new Intent(this, LoadBookActivity.class);
         nextIntent.putExtra(LoadBookActivity.EXTRA_URI, uri);

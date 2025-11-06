@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 // 2025-07-05
@@ -38,12 +39,15 @@ public class OpenWithProxyActivityAll extends LoggingActivity {
         }
 
         myLogD("OpenWithProxyActivityAll received uri: " + uri);
-
-        FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString());
+        boolean persistPermission = UriHelper.checkLongTermReadable(this, uri);
+        FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString(), "all", persistPermission);
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("ImportMode", "proxy-all");
+        FirebaseAnalyticsHelper.setCustomKeyCrashlytics("persistPermission", String.valueOf(persistPermission));
 
         Intent nextIntent = new Intent(this, LoadBookActivity.class);
         nextIntent.putExtra(LoadBookActivity.EXTRA_URI, uri);
         nextIntent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+        nextIntent.putExtra(LoadBookActivity.EXTRA_FORCE_COPY, !persistPermission);
         startActivityForResult(nextIntent, REQUEST_LOAD_OPTIONS);
 
 
