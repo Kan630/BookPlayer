@@ -20,7 +20,7 @@ import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
-public class MiniNowPlayingFragment extends LoggingFragment {
+public class MiniPlayPodcastFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle;
@@ -31,7 +31,7 @@ public class MiniNowPlayingFragment extends LoggingFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
-        return inf.inflate(R.layout.fragment_mini_playing_book, c, false);
+        return inf.inflate(R.layout.fragment_mini_play_streaming_player, c, false);
     }
 
     @Override

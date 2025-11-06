@@ -50,6 +50,12 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("radio_for_1min", bundle);
     }
 
+    public static void tellPodcastFor1min(String elapsed_category) {
+        Bundle bundle = new Bundle();
+        bundle.putString("elapsed_category", String.valueOf(elapsed_category));
+        logBundleEvent("podcast_for_1min", bundle);
+    }
+
     public static void tellAnalyticsLoadFileKO(String filePath) {
         Bundle bundle = new Bundle();
         bundle.putString("filePath", String.valueOf(filePath));
@@ -128,9 +134,11 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("originalFile", String.valueOf(originalFile));
         logBundleEvent("manual_load", bundle);
     }
-    public static void tellAnalyticsProxyLoad(String originalUri) {
+    public static void tellAnalyticsProxyLoad(String originalUri, String mode, boolean persistedPermission) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", String.valueOf(originalUri));
+        bundle.putString("mode", String.valueOf(mode));
+        bundle.putString("persistedPermission", String.valueOf(persistedPermission));
         logBundleEvent("proxy_load", bundle);
     }
     public static void tellAnalyticsManualDownload(String fileUrl, String destinationFolder) {

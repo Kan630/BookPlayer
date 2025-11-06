@@ -120,6 +120,7 @@ public class AudioService extends LoggingService {
 
     // --- RADIO MODE ---
     private boolean radioMode = false;
+    private boolean podcastMode = false;
     @Nullable private String radioTitle = null;
     @Nullable private String radioImageUrl = null; // you can display it in notif if you already support URL bitmaps
     @Nullable private Uri    radioUri = null;
@@ -247,7 +248,33 @@ public class AudioService extends LoggingService {
                     /* ready */ (engine != null) && engine.isReady(),
                     getLoadPhase(),
                     /* playMode */ "radio"
-                    , "AudioService.broadcastUiState()"
+                    , "AudioService.broadcastUiState() - radio"
+            );
+        } else {
+            s = buildUiState();  // your existing file/TTS path
+        }
+
+        if (podcastMode) {
+            String title = (radioTitle != null) ? radioTitle : getString(R.string.live_podcast);
+            String text  = getString(R.string.live_podcast);
+            String cover = (radioImageUrl != null) ? radioImageUrl : "";
+            //long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
+            //long   dur   = (engine != null) ? engine.getDuration()        : 0; // live => likely 0/unknown
+            boolean playing = (engine != null) && engine.isPlaying();
+
+            s = new PlaybackUiState(
+                    playing,
+                    0, //pos,
+                    0, //dur,
+                    title,
+                    text,
+                    cover,
+                    /* trackId */ 0,
+                    /* folderId */ 0,
+                    /* ready */ (engine != null) && engine.isReady(),
+                    getLoadPhase(),
+                    /* playMode */ "podcast"
+                    , "AudioService.broadcastUiState() - podcast"
             );
         } else {
             s = buildUiState();  // your existing file/TTS path
@@ -435,6 +462,8 @@ public class AudioService extends LoggingService {
                         // Decide dynamically based on current mode
                         if (radioMode) {
                             FirebaseAnalyticsHelper.tellRadioFor1min(elapsedCategory);
+                        } else if (podcastMode) {
+                            FirebaseAnalyticsHelper.tellPodcastFor1min(elapsedCategory);
                         } else {
                             FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory);
                         }
@@ -753,7 +782,7 @@ public class AudioService extends LoggingService {
         focus.request();
 
         //if maxReach + introCut + littleRewind
-        if (!radioMode) setPositionPlayStart();
+        if (!radioMode && !podcastMode) setPositionPlayStart();
 
         PlayerEngine e = this.engine; // snapshot to avoid races
         if (e == null) {
@@ -844,7 +873,7 @@ public class AudioService extends LoggingService {
     }
 
     private void alertError(String from, String errMsg) {
-        if (radioMode) {
+        if (radioMode || podcastMode) {
             LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
                     .putExtra(FROM, from)
                     .putExtra(ERR_MSG, errMsg)
@@ -911,6 +940,7 @@ public class AudioService extends LoggingService {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
                 radioMode = false;
+                podcastMode = false;
 
                 final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
@@ -961,6 +991,7 @@ public class AudioService extends LoggingService {
             case Intents.ACTION_PLAY_FROM_FOLDER: {
                 goForegroundPreparing("Preparing…", "Loading folder");
                 radioMode = false;
+                podcastMode = false;
 
                 final int folderId = intent.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
                 final int index = Math.max(0, intent.getIntExtra(Intents.EXTRA_INDEX, 0));
@@ -1086,6 +1117,26 @@ public class AudioService extends LoggingService {
                 return START_STICKY;
             }
 
+            case Intents.ACTION_PLAY_PODCAST: {
+                // Enter foreground ASAP (5s rule)
+                goForegroundPreparing(getString(R.string.podcasts), null);
+
+                PlayList pl = PlayList.getInstance();
+                if (pl!=null) pl.clear();
+
+                final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
+                final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
+                final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
+
+                if (url == null || url.isEmpty()) {
+                    myLogE("ACTION_PLAY_RADIO without url");
+                    return START_NOT_STICKY;
+                }
+
+                playPodcastStream(url, title != null ? title : getString(R.string.podcasts), img);
+                return START_STICKY;
+            }
+
 
             default:
                 // Unknown action — keep service alive and ensure we have a notif if needed
@@ -1103,7 +1154,7 @@ public class AudioService extends LoggingService {
             CharSequence t = (title != null) ? title : "Preparing…";
             CharSequence s = (text != null) ? text : "Please wait";
 
-            if (radioMode) suppressMiniUntilNextPlay = false;
+            if (radioMode || podcastMode) suppressMiniUntilNextPlay = false;
 
             PlaybackNotificationManager.ActionProvider minimal =
                     new PlaybackNotificationManager.ActionProvider() {
@@ -1196,6 +1247,7 @@ public class AudioService extends LoggingService {
         isRunning = false;
 
         radioMode = false;
+        podcastMode = false;
         radioTitle = null;
         radioImageUrl = null;
         radioUri = null;
@@ -1431,7 +1483,7 @@ public class AudioService extends LoggingService {
             broadcastUiState();
         }
 
-        if (!radioMode) {
+        if (!radioMode && !podcastMode) {
             if (engine == null || needsReloadForPlaylist()) {
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                     directPlay = true;
@@ -1633,7 +1685,7 @@ public class AudioService extends LoggingService {
      ********************************************************************************
      */
     private void updateZikFileStateInDB(boolean bFinished) {
-        if (radioMode) return;
+        if (radioMode || podcastMode) return;
         ZikFile zf = getCurrentZikFile();
         if (zf == null) {
             myLogEE(null, "updateZikFileState : currentZikFile = null");
@@ -1695,7 +1747,7 @@ public class AudioService extends LoggingService {
 
         setUiPhase(Intents.PHASE_READY, null);
 
-        if (!radioMode) {
+        if (!radioMode && !podcastMode) {
             try {
                 int saved = getSavedResumePosition();
                 myLogD(getCurrentZikFile().getName() + " - savedPosition = " + saved);
@@ -1797,6 +1849,8 @@ public class AudioService extends LoggingService {
             return "tts";
         } else if (engine instanceof ExoRadioPlayerEngine) {
             return "radio";
+        } else if (engine instanceof ExoStreamPlayerEngine) {
+            return "podcast";
         }
         return "book";
     }
@@ -1832,6 +1886,7 @@ public class AudioService extends LoggingService {
 
     private void updatePlaybackStateForPosition() {
         if (radioMode) return;
+        if (podcastMode) return;
         if (engine == null) return;
         boolean playing = engine.isPlaying();
         int state = playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
@@ -1952,6 +2007,7 @@ public class AudioService extends LoggingService {
 
         // Mark radio mode + meta
         radioMode = true;
+        podcastMode = false;
         radioTitle = title;
         radioImageUrl = imageUrl;
         radioUri = Uri.parse(url);
@@ -1996,6 +2052,59 @@ public class AudioService extends LoggingService {
 
         } catch (Exception e) {
             myLogEE(e, "playRadioStream setDataSource/prepareAsync failed");
+            alertError(null, null);
+        }
+    }
+    private void playPodcastStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
+        myLogI("playPodcastStream: " + title + " -> " + url);
+
+        // Mark radio mode + meta
+        radioMode = false;
+        podcastMode = true;
+        radioTitle = title;
+        radioImageUrl = imageUrl;
+        radioUri = Uri.parse(url);
+        suppressMiniUntilNextPlay = false;
+        broadcastUiState();                  // first snapshot (BUFFERING)
+
+        // Swap engine to Exo for radio
+        engineGen++;
+        long gen = engineGen;
+        PlayerEngine fresh = new ExoStreamPlayerEngine(getApplicationContext(), engineCb, gen);
+        setEngine(fresh);
+        ErrorLoadingFile = false;
+
+        // Update MediaSession to BUFFERING with radio meta
+        //media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
+        PlaybackStateCompat s = new PlaybackStateCompat.Builder()
+                .setActions(ACTIONS_FILE)
+                .setState(PlaybackStateCompat.STATE_BUFFERING,
+                        PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                        0f,
+                        System.currentTimeMillis())
+                .build();
+        media.session().setPlaybackState(s);
+
+        media.setMetadataRadio(
+                /* title   */ title,
+                /* artist  */ getString(R.string.podcasts),
+                /* album   */ title,
+                /* artBmp  */ null
+        );
+        showForegroundNotification(false); // shows paused/buffering style
+
+        try {
+            engine.reset();
+            engine.setDataSource(this, radioUri, title);
+            engine.prepareAsync();
+
+            // Broadcast a first UI state (pos/dur 0)
+            broadcastUiState();
+            // Auto-play when ready
+            directPlay = true;
+
+        } catch (Exception e) {
+            myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed");
             alertError(null, null);
         }
     }

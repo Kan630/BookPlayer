@@ -49,6 +49,7 @@ public class Intents {
 
     public static final String EXTRA_UI_IS_RADIO = "ui_is_radio";
     public static final String ACTION_PLAY_RADIO = "com.driot.bookplayer.action.PLAY_RADIO";
+    public static final String ACTION_PLAY_PODCAST = "com.driot.bookplayer.action.PLAY_PODCAST";
     public static final String EXTRA_STREAM_URL  = "extra_stream_url";
     public static final String EXTRA_TITLE       = "extra_title";
     public static final String EXTRA_IMAGE_URL   = "extra_image_url";

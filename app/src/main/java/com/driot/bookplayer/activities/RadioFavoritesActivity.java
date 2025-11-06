@@ -154,30 +154,6 @@ public class RadioFavoritesActivity extends LoggingActivity {
             adapter.setItems(favorites);
         });
 
-/*
-        if (savedInstanceState == null) {
-            getSupportFragmentManager()
-                    .beginTransaction()
-                    .replace(R.id.radioMiniContainer, new com.driot.bookplayer.player.RadioMiniNowPlayingFragment())
-                    .commitNow();
-        }
-
- */
-    }
-
-
-    /** Minimal Station stub so we can reuse toggleFavorite() which expects a Station. */
-    private Station toStationStub(RadioFavoriteItem f) {
-        Station s = new Station();
-        s.stationuuid = f.stationuuid;
-        s.name = f.name;
-        s.favicon = f.favicon;
-        s.codec = f.codec;
-        s.bitrate = f.bitrate;
-        s.country = f.country;
-        s.language = f.language;
-        s.tags = f.tags;
-        return s;
     }
 
 }

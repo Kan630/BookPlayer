@@ -16,26 +16,28 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.Objects;
 
-public class MiniNowPlayingHostFragment extends LoggingFragment {
+public class MiniPlayHostFragment extends LoggingFragment {
 
     private String lastPlayType;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
         // Simple container for the child fragment
-        return inf.inflate(R.layout.fragment_mini_host_container, c, false);
+        return inf.inflate(R.layout.fragment_mini_play_host_container, c, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         PlaybackViewModel vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
+        /*
         try {
             myLog(vm.getState().getValue().toString());
         } catch (Exception e) {
             myLogE(e.getMessage());
         }
 
+         */
 
         //Observer
         vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
@@ -72,9 +74,11 @@ public class MiniNowPlayingHostFragment extends LoggingFragment {
         myLogI("attachFirstChild, playType: " + playType);
         final Fragment child;
         if ("radio".equals(playType)) {
-            child = new RadioMiniNowPlayingFragment();
+            child = new MiniPlayRadioFragment();
+        } else if ("podcast".equals(playType)) {
+            child = new MiniPlayPodcastFragment();
         } else {
-            child = new MiniNowPlayingFragment();
+            child = new MiniPlayBookFragment();
         }
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.mini_host_container, child, playType)
@@ -89,9 +93,11 @@ public class MiniNowPlayingHostFragment extends LoggingFragment {
 
         Fragment child;
         if ("radio".equals(playType)) {
-            child = new RadioMiniNowPlayingFragment();
+            child = new MiniPlayRadioFragment();
+        } else if ("podcast".equals(playType)) {
+            child = new MiniPlayPodcastFragment();
         } else {
-            child = new MiniNowPlayingFragment();
+            child = new MiniPlayBookFragment();
         }
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)

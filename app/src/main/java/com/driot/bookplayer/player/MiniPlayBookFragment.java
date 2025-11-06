@@ -1,0 +1,121 @@
+package com.driot.bookplayer.player;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.SeekBar;
+import android.widget.TextView;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.bumptech.glide.Glide;
+import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.utils.log.LoggingFragment;
+
+public class MiniPlayBookFragment extends LoggingFragment {
+    private PlaybackViewModel vm;
+    private ImageView ivCover;
+    private TextView tvTitle, tvSubTitle;
+    private SeekBar seek;
+    private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+    private boolean userSeeking;
+
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
+        return inf.inflate(R.layout.fragment_mini_play_book, c, false);
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
+        tvTitle = v.findViewById(R.id.tvTitle);
+        tvSubTitle = v.findViewById(R.id.tvSubTitle);
+        seek = v.findViewById(R.id.seek);
+        btnPrev = v.findViewById(R.id.btnPrev);
+        btnPlayPause = v.findViewById(R.id.btnPlayPause);
+        btnNext = v.findViewById(R.id.btnNext);
+        btnStop = v.findViewById(R.id.btnStop);
+        ivCover = v.findViewById(R.id.ivCover);
+
+        btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
+        btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
+        btnStop.setImageResource(R.drawable.ic_media_close_24);
+
+        v.setVisibility(View.GONE);
+
+        vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        vm.getState().observe(getViewLifecycleOwner(), s -> {
+            if (s == null) return;
+            TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+            if (s.cover != null) {
+                ivCover.setVisibility(View.VISIBLE);
+                Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
+            } else {
+                ivCover.setVisibility(View.GONE);
+            }
+            if (!userSeeking) {
+                seek.setMax((int) Math.max(1L, s.durationMs));
+                seek.setProgress((int) Math.min(s.positionMs, s.durationMs));
+            }
+            btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+
+            Boolean suppressed = vm.getMiniSuppressed().getValue();
+            boolean hideBecauseSuppressed = Boolean.TRUE.equals(suppressed) && !s.playing;
+            boolean hasContent = s.playing || s.durationMs > 0;
+
+            v.setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
+        });
+
+// also observe the suppression flag to re-evaluate immediately
+        vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> {
+            PlaybackUiState s = vm.getState().getValue();
+            if (s == null) return;
+            boolean hideBecauseSuppressed = Boolean.TRUE.equals(sup) && !s.playing;
+            boolean hasContent =
+                    (s.durationMs > 0) ||
+                            (s.title != null && !s.title.isEmpty()) ||
+                            (s.subTitle != null && !s.subTitle.isEmpty());
+            getView().setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
+        });
+
+
+        v.setOnClickListener(_x -> {
+            myLogI("---- user press mini player ----");
+            startActivity(new Intent(requireContext(), PlayActivity.class));
+        });
+
+        btnPrev.setOnClickListener(_v -> {
+            myLogI("---- user press PREV button ----");
+            vm.prev();
+        });
+        btnPlayPause.setOnClickListener(_v -> {
+            myLogI("---- user press PlayPause button ----");
+            vm.playPause();
+        });
+        btnNext.setOnClickListener(_v -> {
+            myLogI("---- user press NEXT button ----");
+            vm.next();
+        });
+        btnStop.setOnClickListener(_v -> {
+            myLogI("---- user press STOP button ----");
+            vm.dismissMini();
+        });
+
+        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
+            @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
+            @Override public void onStopTrackingTouch(SeekBar sb) {
+                userSeeking = false;
+                vm.seekTo(sb.getProgress());
+            }
+        });
+    }
+}

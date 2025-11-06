@@ -83,7 +83,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private boolean sortNewestFirst;
 
-    private ExoPlayer exoPlayer;
     private boolean isPlaying = false;
 
     private DisplayableEpisode currentEpisode;
@@ -259,108 +258,10 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             }
         });
 
-
-// PLAYER
-        exoPlayer = new ExoPlayer.Builder(this).build();
-        exoPlayer.addListener(new androidx.media3.common.Player.Listener() {
-            @Override
-            public void onPlaybackStateChanged(int state) {
-                boolean playWhenReady = exoPlayer.getPlayWhenReady();
-                switch (state) {
-                    case androidx.media3.common.Player.STATE_BUFFERING:
-                        myLogD("STATE_BUFFERING");
-                        break;
-
-                    case androidx.media3.common.Player.STATE_READY:
-                        myLogD("STATE_READY");
-                        // If we were showing spinner, hide it now; audio may be audible imminently.
-                        break;
-
-                    case androidx.media3.common.Player.STATE_ENDED:
-                        myLogD("STATE_ENDED");
-                        setMiniLoading(false);
-                        setMiniPlayIcon(false);
-                        playNextInList();
-                        break;
-
-                    case androidx.media3.common.Player.STATE_IDLE:
-                        myLogD("STATE_IDLE");
-                        setMiniLoading(false);
-                        setMiniPlayIcon(false);
-                        break;
-                }
-
-                if (state == androidx.media3.common.Player.STATE_READY && playWhenReady) {
-                    long dt = android.os.SystemClock.elapsedRealtime() - clickStartMs;
-                    myLogD("PLAYER READY: " + dt + " ms after click");
-                }
-            }
-
-            @Override
-            public void onIsPlayingChanged(boolean isPlaying) {
-                myLog("onIsPlayingChanged");
-                if (isPlaying) {
-                    long dt = android.os.SystemClock.elapsedRealtime() - clickStartMs;
-                    myLog("AUDIO STARTED: " + dt + " ms after click");
-                    setMiniLoading(false);
-                }
-                setMiniPlayIcon(isPlaying);
-            }
-
-            @Override
-            public void onPlayerError(@NonNull androidx.media3.common.PlaybackException error) {
-                myLogE("onPlayerError " + error.getMessage());
-                myToastE(error.getMessage());
-                setMiniLoading(false);
-                setMiniPlayIcon(false);
-            }
-        });
-
-
-        // If you have a mini PlayerView:
-        // PlayerView pv = findViewById(R.id.playerViewMini);
-        // pv.setPlayer(player);
-
-        btnMiniBack.setOnClickListener(v -> { if (exoPlayer != null) exoPlayer.seekTo(Math.max(0, exoPlayer.getCurrentPosition() - 15_000)); });
-        btnMiniForward.setOnClickListener(v -> { if (exoPlayer != null) exoPlayer.seekTo(exoPlayer.getCurrentPosition() + 15_000); });
-
-        btnMiniPlayPause.setOnClickListener(v -> {
-            if (exoPlayer == null) return;
-            if (exoPlayer.isPlaying()) {
-                exoPlayer.pause();
-            } else {
-                exoPlayer.play();
-            }
-        });
-
-        seekMini.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar sb, int progress, boolean fromUser) {
-                if (!fromUser || exoPlayer == null || miniUserSeeking) return;
-            }
-            @Override public void onStartTrackingTouch(SeekBar sb) { miniUserSeeking = true; }
-            @Override public void onStopTrackingTouch(SeekBar sb) {
-                setMiniLoading(true);
-                if (exoPlayer != null) {
-                    long dur = exoPlayer.getDuration();
-                    if (dur > 0) {
-                        long pos = (dur * sb.getProgress()) / sb.getMax();
-                        exoPlayer.seekTo(pos);
-                    }
-                }
-                miniUserSeeking = false;
-            }
-        });
-
         isExpanded = Option.getPodcastEpisodesDescriptionExpand();
         adapter.setShowDescriptions(isExpanded);
         animateDescriptionHeight(tvDescription, isExpanded);
         updateCollapseIcon();
-    }
-
-    @Override protected void onDestroy() {
-        if (exoPlayer != null) { exoPlayer.release(); exoPlayer = null; }
-        stopMiniTicker();
-        super.onDestroy();
     }
 
     private void toggleFavorite() {
@@ -493,7 +394,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                     new PodcastHelper.EpisodeCallback() {
                         @Override
                         public void onSuccess(List<PodcastEpisode> apiEpisodes) {
-                            myLogI("API CALL - episodes count: " + apiEpisodes.size());
+                            myLogI("API CALL - returned episodes list size: " + apiEpisodes.size());
                             // 3) Persist new/updated from API
                             podcastEpisodeViewModel.insertEpisodesInDB(apiEpisodes, podcast.feedId);
 
@@ -503,7 +404,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                                 List<DisplayableEpisode> fullList =
                                         DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
                                 int nbEpisodeFull = fullList.size();
-                                myLogD("Displayed episodes count: " + nbEpisodeFull);
+                                myLog("Displayed episodes count: " + nbEpisodeFull);
                                 runOnUiThread(() -> {
                                     if (isRefresh) {
                                         myToast(nbEpisodeFull + " " + getString(R.string.episodes) );
@@ -584,7 +485,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                         if (isFinishing() || isDestroyed()) return;
 
                         if (!zikFilesList.isEmpty()) {
-                            closeExoPlayer();
+                            //closeExoPlayer();
                             startActivity(new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
                         } else {
                             myLogE("no ZikFiles in that folder !");
@@ -608,37 +509,20 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         tvToolbarStats.setText(tvStatsText);
     }
 
-    private void playEpisode(DisplayableEpisode ep) {
-        if (ep == null) return;
-
-        stopAudioServiceIfRunning();
-
-        // ExoPlayer
-        currentEpisode = ep;
-        beginStartupTiming();
-        setMiniLoading(true);
-
-        AudioAttributes attrs = new AudioAttributes.Builder()
-                .setUsage(C.USAGE_MEDIA)
-                .setContentType(C.AUDIO_CONTENT_TYPE_SPEECH) // pour musique: MUSIC ; pour podcast/voix: SPEECH (meilleur ducking)
-                .build();
-        exoPlayer.setAudioAttributes(attrs, /*handleAudioFocus=*/ true);
-
-        exoPlayer.setMediaItem(MediaItem.fromUri(ep.enclosureUrl));
-        exoPlayer.prepare();
-        exoPlayer.play();
-
-        isPlaying = true;
-        adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
-        showMini(ep);
-    }
-
     // ROW CLICK CALLBACK
     @Override public void onPlayEpisode(DisplayableEpisode ep) {
         myLogD("onPlayEpisode [" + ep.title + "]");
         if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
             // Same episode toggled
-            if (exoPlayer != null && exoPlayer.isPlaying()) {
+            /*
+            if (AudioService.lastUiState.playing) {
+                vm.playPause();
+                bForward  .setOnClickListener(v -> vm.next());
+                bRewind   .setOnClickListener(v -> vm.prev());
+                bSpeedUp  .setOnClickListener(v -> setSpeedViaVm(+INCREMENT_SPEED));
+                bSpeedDown.setOnClickListener(v -> setSpeedViaVm(-INCREMENT_SPEED));
+                bSetSleep .setOnClickListener(v -> showSleepDialog());
+
                 exoPlayer.pause();
                 isPlaying = false;
             } else if (exoPlayer != null) {
@@ -646,16 +530,39 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 exoPlayer.play();
                 isPlaying = true;
             }
+
+             */
         } else {
             // Different episode → fresh play, show spinner
             FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title);
             playEpisode(ep);
         }
     }
+    private void playEpisode(DisplayableEpisode ep) {
+        if (ep == null) return;
+
+        stopAudioServiceIfRunning();
+        beginStartupTiming();
+
+        androidx.core.content.ContextCompat.startForegroundService(
+                getApplicationContext(),
+                new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                        .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_PODCAST)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, ep.title)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, ep.image)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()")
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
+        );
+
+        isPlaying = true;
+        adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
+    }
+
 
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
-        closeExoPlayer();
+        //closeExoPlayer();
         if (AudioService.isRunning) {
             if (AudioService.lastUiState.trackId==zikFile.getId()) {
                 myLog("already playing that track");
@@ -723,89 +630,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private void beginStartupTiming() {
         clickStartMs = android.os.SystemClock.elapsedRealtime();
-        btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(PodcastEpisodeActivity.this,R.drawable.ic_media_cloud_sync_24));
-    }
-
-    private void showMini(DisplayableEpisode ep) {
-        if (miniPlayer.getVisibility() != View.VISIBLE) miniPlayer.setVisibility(View.VISIBLE);
-        startMiniTicker();
-    }
-
-    private void hideMini() {
-        miniPlayer.setVisibility(View.GONE);
-        stopMiniTicker();
-    }
-
-    private void startMiniTicker() {
-        stopMiniTicker();
-        miniTicker = new Runnable() {
-            @Override public void run() {
-                if (exoPlayer != null && !miniUserSeeking) {
-                    long pos = exoPlayer.getCurrentPosition();
-                    long dur = exoPlayer.getDuration();
-                    if (dur > 0) {
-                        int prog = (int) ((pos * seekMini.getMax()) / dur);
-                        seekMini.setProgress(prog);
-                        String timeString = Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur);
-                        tvMiniTime.setText(timeString);
-                    } else {
-                        seekMini.setProgress(0);
-                        tvMiniTime.setText("--:-- / --:--");
-                    }
-                }
-                miniUi.postDelayed(this, 500);
-            }
-        };
-        miniUi.post(miniTicker);
-    }
-
-    private void stopMiniTicker() {
-        if (miniTicker != null) {
-            miniUi.removeCallbacks(miniTicker);
-            miniTicker = null;
-        }
-    }
-
-    private void playNextInList() {
-        if (currentEpisode == null) return;
-        int idx = adapter.indexOfEpisodeId(currentEpisode.idEpisode);
-        if (idx < 0) return;
-        int next = idx + 1;
-        if (next >= adapter.getCount()) return;
-        DisplayableEpisode ep = adapter.getItem(next);
-        if (ep != null) {
-            onPlayEpisode(ep); // reuse same pipeline
-            // Optionally scroll to make it visible:
-            recyclerEpisodes.smoothScrollToPosition(next);
-        }
-    }
-
-
-    private void setImageBtnPlayPauseIsPlaying(boolean isPlaying) {
-        btnMiniPlayPause.setImageDrawable(AppCompatResources.getDrawable(PodcastEpisodeActivity.this,
-                isPlaying ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24));
-        myLog("setImageBtnPlayPauseIsPlaying " + isPlaying);
-    }
-    // Show/hide the tiny spinner and swap the play/pause button visibility.
-    private void setMiniLoading(boolean loading) {
-        if (loading) {
-            myLogD("set buffer icon ON");
-            if (progressMini != null) progressMini.setVisibility(View.VISIBLE);
-            if (btnMiniPlayPause != null) btnMiniPlayPause.setVisibility(View.INVISIBLE);
-        } else {
-            myLogD("set buffer icon OFF");
-            if (progressMini != null) progressMini.setVisibility(View.GONE);
-            if (btnMiniPlayPause != null) btnMiniPlayPause.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void setMiniPlayIcon(boolean isPlaying) {
-        btnMiniPlayPause.setImageDrawable(
-                AppCompatResources.getDrawable(
-                        this,
-                        isPlaying ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24
-                )
-        );
     }
 
     private void updateCollapseIcon() {
@@ -889,20 +713,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     }
 
 
-    private void closeExoPlayer() {
-        if (exoPlayer != null) {
-            try {
-                exoPlayer.stop();             // stop playback immediately
-                exoPlayer.clearMediaItems();  // remove the streamed item
-            } catch (Exception ignored) {}
-        }
-        isPlaying = false;
-        setMiniLoading(false);
-        setMiniPlayIcon(false);
-        currentEpisode = null;
-        if (adapter != null) adapter.setCurrentlyPlayingEpisodeId(null); // remove highlight
-        hideMini();
-    }
+
 
     private void stopAudioServiceIfRunning() {
         if (AudioService.isRunning) {

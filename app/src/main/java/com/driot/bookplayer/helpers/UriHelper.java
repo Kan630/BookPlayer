@@ -493,10 +493,10 @@ public class UriHelper {
             myLog("persisting permission for uri [" + src + "]");
             return true; // persistable → good
         } catch (SecurityException e) {
-            myLogW("could not persist permission for uri [" + src + "] - " + e.getMessage());
+            myLogEE(null,"could not persist permission for uri [" + src + "] - " + e.getMessage());
             return false;
         } catch (Exception e) {
-            myLogW("Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());
+            myLogEE(null,"Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());
             return false;
         }
 

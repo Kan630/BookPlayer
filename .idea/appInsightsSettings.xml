@@ -34,6 +34,11 @@
               <option name="versions">
                 <list>
                   <VersionSetting>
+                    <option name="buildVersion" value="187" />
+                    <option name="displayName" value="187 - Crazy Horse (187)" />
+                    <option name="displayVersion" value="187 - Crazy Horse" />
+                  </VersionSetting>
+                  <VersionSetting>
                     <option name="buildVersion" value="185" />
                     <option name="displayName" value="185 - Crazy Horse (185)" />
                     <option name="displayVersion" value="185 - Crazy Horse" />

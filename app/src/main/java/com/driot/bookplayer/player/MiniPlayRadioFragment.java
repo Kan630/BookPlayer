@@ -13,7 +13,7 @@ import com.driot.bookplayer.activities.GetRadioActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
-public class RadioMiniNowPlayingFragment extends LoggingFragment {
+public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
     private ImageView ivCover;
@@ -23,7 +23,7 @@ public class RadioMiniNowPlayingFragment extends LoggingFragment {
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
-        return inf.inflate(R.layout.fragment_mini_playing_radio, c, false);
+        return inf.inflate(R.layout.fragment_mini_play_radio, c, false);
     }
 
     @Override
