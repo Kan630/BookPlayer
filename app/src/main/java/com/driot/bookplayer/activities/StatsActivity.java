@@ -209,6 +209,7 @@ public class StatsActivity extends LoggingActivity {
     private void resetApp() {
         myLogI("--- user clicks RESET APP ---");
         ImportHelper.cancelCurrentImport(this);
+        ImportHelper.cancelAll_in_DB(this);
         myToast("App Reset Done");
     }
 

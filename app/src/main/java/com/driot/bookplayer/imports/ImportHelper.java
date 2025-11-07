@@ -96,6 +96,14 @@ public class ImportHelper {
         });
     }
 
+    public static void cancelAll_in_DB(Context ctx) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            AppDatabase.getInstance(ctx.getApplicationContext()).importJobDao().cancelAll(System.currentTimeMillis(), ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+        });
+    }
+
+
+
     public static void setShowToUser(Context ctx, boolean showToUser) {
         Context app = ctx.getApplicationContext();
         AppDatabase db = AppDatabase.getInstance(app);
@@ -115,7 +123,12 @@ public class ImportHelper {
 
     public static boolean isAnyImportActiveSync(Context ctx) {
         AppDatabase db = AppDatabase.getInstance(ctx.getApplicationContext());
-        return db.importJobDao().countActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED) > 0;
+        int nbActive = db.importJobDao().countActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+                if (nbActive > 0) {
+                    myLogI("isAnyImportActiveSync : [" + nbActive + "]");
+                    myLog(db.importJobDao().getActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED).toString());
+                }
+        return nbActive > 0;
     }
 
     public static LiveData<Boolean> observeAnyImportActive(Context ctx) {

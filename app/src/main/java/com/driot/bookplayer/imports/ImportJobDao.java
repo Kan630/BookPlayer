@@ -18,6 +18,10 @@ public interface ImportJobDao {
     @Update
     void update(ImportJob job);
 
+    @Query("UPDATE ImportJob SET status = '" + ImportJob.S_CANCELLED + "'" +
+            ", updatedAt=:ts WHERE status IN (:s1, :s2, :s3)")
+    void cancelAll(long ts, String s1, String s2, String s3);
+
     @Query("SELECT * FROM ImportJob WHERE importId = :id LIMIT 1")
     ImportJob get(String id);
 
@@ -125,6 +129,9 @@ public interface ImportJobDao {
 
     @Query("SELECT COUNT(*) FROM ImportJob WHERE status IN (:s1, :s2, :s3)")
     int countActive(String s1, String s2, String s3);
+
+    @Query("SELECT * FROM ImportJob WHERE status IN (:s1, :s2, :s3)")
+    List<ImportJob> getActive(String s1, String s2, String s3);
 
     @Query("SELECT COUNT(*) FROM ImportJob WHERE status IN (:s1, :s2, :s3)")
     LiveData<Integer> observeActiveCount(String s1, String s2, String s3);

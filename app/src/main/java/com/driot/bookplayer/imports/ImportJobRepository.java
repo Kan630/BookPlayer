@@ -80,4 +80,8 @@ public class ImportJobRepository extends LoggerHelper {
         if (j!=null) FirebaseAnalyticsHelper.tellLoadBookSuccess(j.originalUri, j.fileExtension, j.doDownload);
     }
 
+    public void silentSuccess(String id, String endOfProgressText) {
+        dao.success(id, endOfProgressText, System.currentTimeMillis());
+    }
+
 }

@@ -178,7 +178,7 @@ public class LibrivoxDetailActivity extends LoggingActivity {
             runOnUiThread(() -> {
                 bGet.setEnabled(!running);
                 if (running) {
-                    tvDownloadLink.append("\n❌ " + getString(R.string.librivox_wait_integration));
+                    tvDownloadLink.append("\n❌ " + getString(R.string.please_wait_another_book));
                 }
             });
         });

@@ -108,6 +108,7 @@ public class AddResourceActivity extends LoggingActivity {
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
         ImportHelper.cancelCurrentImport(this);
+        ImportHelper.cancelAll_in_DB(this);
         enterExitMode();
     }
 

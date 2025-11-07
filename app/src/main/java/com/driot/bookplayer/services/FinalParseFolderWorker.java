@@ -51,7 +51,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     private int nbFileScan;
     private int totalAudioToScan = 0;
     private int nbAudioScanned = 0;
-    
+
     ImportJob importJob;
 
     public static final String K_DYNAMIC_URI   = "dynamic_uri";
@@ -182,51 +182,38 @@ public class FinalParseFolderWorker extends ImportWorker {
         audioFileInfoArrayList = new ArrayList<>();
         Thread backgroundThread;
         myLog("importJob.playType = " + importJob.playType);
-        if (importJob.playType != null && importJob.playType.equals(Var.PLAY_TYPE_TEXT)) {
-            backgroundThread = new Thread(() -> {
+        try {
+            if (importJob.playType != null && importJob.playType.equals(Var.PLAY_TYPE_TEXT)) {
+                myLog("running recursive scan for TEXT files");
                 addTextFileRecursive(dfPickedDir);
-
-                myLogD("addTextFileRecursive done, sorting now...");
-                audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
-
-                if (audioFileInfoArrayList.isEmpty()) {
-                    myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
-                } else {
-                    myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
-                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize / 1024 / 1024, 0) + " Mo]");
-                    myLogD("-----------------------------");
-                }
-                goFolder();
-            });
-        } else {
-            myLog("running recursive scan for audio files (blocking in worker thread)");
-            try {
+            } else {
+                myLog("running recursive scan for AUDIO files");
                 addAudioFileRecursive(dfPickedDir);
-
-                myLogD("addAudioFileRecursive done, sorting now...");
-                audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
-
-                if (audioFileInfoArrayList.isEmpty()) {
-                    myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
-                } else {
-                    myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
-                    myLog("Full directory size : [" + formatMemPadding(fullFolderSize / 1024 / 1024, 0) + " Mo]");
-                    myLogD("-----------------------------");
-                }
-                goFolder();
-            } catch (Throwable t) {
-                String devErr = "backgroundThread addAudioFileRecursive";
-                String userErr = context.getString(R.string.Error_while_listing_audio_files);
-                if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
-                    myLogEE(t, "addAudioFileRecursive : Too many threads or not enough native memory");
-                    devErr = "addAudioFileRecursive : Too many threads or not enough native memory" + "\n" + t.getMessage();
-                    userErr = context.getString(R.string.Error_Import_OutOfMemory)
-                            + "\n" + context.getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
-                } else {
-                    devErr = devErr + "\n" + t.getMessage();
-                }
-                failNow(TASK_NAME, devErr, userErr);
             }
+            myLogD("Recursive done, sorting now...");
+            audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
+
+            if (audioFileInfoArrayList.isEmpty()) {
+                myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
+            } else {
+                myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
+                myLog("Full directory size : [" + formatMemPadding(fullFolderSize / 1024 / 1024, 0) + " Mo]");
+                myLogD("-----------------------------");
+            }
+            goFolder();
+
+        } catch (Throwable t) {
+            String devErr = "add Audio/Text FileRecursive";
+            String userErr = context.getString(R.string.Error_while_listing_audio_files);
+            if (t instanceof OutOfMemoryError && t.getMessage() != null && t.getMessage().contains("pthread_create")) {
+                myLogEE(t, "addAudioFileRecursive : Too many threads or not enough native memory");
+                devErr = "addAudioFileRecursive : Too many threads or not enough native memory" + "\n" + t.getMessage();
+                userErr = context.getString(R.string.Error_Import_OutOfMemory)
+                        + "\n" + context.getString(R.string.Error_Import_This_folder_may_contain_too_many_books);
+            } else {
+                devErr = devErr + "\n" + t.getMessage();
+            }
+            failNow(TASK_NAME, devErr, userErr);
         }
     }
 

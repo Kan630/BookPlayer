@@ -100,8 +100,9 @@ public class ScanAndReimportWorker extends ImportWorker {
         }
 
         if (toImport.isEmpty()) {
-            emitStepProgress( TASK_NAME,100, appContext.getString(R.string.Nothing_to_re_import_among) + " " + nbCandidates + " " + appContext.getString(R.string.items)
-                    + "\n" + appContext.getString(R.string.in) + " " + appContext.getString(R.string.folder) + " [" + root.getName() + "]");
+            String StringEndOfProgress = appContext.getString(R.string.Nothing_to_re_import_among) + " " + nbCandidates + " " + appContext.getString(R.string.items) + " "
+                    + "\n" + appContext.getString(R.string.in) + " " + appContext.getString(R.string.folder) + " [" + root.getName() + "]";
+            emitSilentSuccess(StringEndOfProgress);
             return Result.success();
         }
 
@@ -166,6 +167,9 @@ public class ScanAndReimportWorker extends ImportWorker {
         }
 
         myLog("Queued " + toImport.size() + " missing audiobooks for re-import (new pipeline).");
+        String StringEndOfProgress = nbCandidates + " " + appContext.getString(R.string.items) + " "
+                + "\n" + appContext.getString(R.string.in) + " " + appContext.getString(R.string.folder) + " [" + root.getName() + "]";
+        emitSilentSuccess(StringEndOfProgress);
         return Result.success();
     }
 

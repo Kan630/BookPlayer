@@ -86,6 +86,12 @@ public abstract class ImportWorker extends LoggingWorker {
         ImportHelper.cleanUp(appContext, false, jobOrFail().futureFolderPath);
     }
 
+    protected void emitSilentSuccess(String endOfProgressText) {
+        myLogI("emitSilentSuccess");
+        repo.silentSuccess(importId, endOfProgressText);
+    }
+
+
     protected void emitDownloadPause(String why) {
         myLogI("emitDownloadPause " + why);
         repo.downloadPause(importId, why);

@@ -2,15 +2,12 @@ package com.driot.bookplayer.settings.ui;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,11 +17,8 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
-
-import java.util.List;
 
 public class UtilitiesSettingsFragment extends LoggingFragment {
 
@@ -117,6 +111,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         root.findViewById(R.id.btn_reset_app).setOnClickListener(v -> {
             myLogI("--- user clicks RESET APP ---");
             ImportHelper.cancelCurrentImport(requireContext().getApplicationContext());
+            ImportHelper.cancelAll_in_DB(requireContext().getApplicationContext());
             myToast("App Reset Done");
         });
 
