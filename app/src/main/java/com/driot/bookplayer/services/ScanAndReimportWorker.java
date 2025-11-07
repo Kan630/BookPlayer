@@ -100,7 +100,8 @@ public class ScanAndReimportWorker extends ImportWorker {
         }
 
         if (toImport.isEmpty()) {
-            myLog("Nothing to re-import under: " + root.getName());
+            emitStepProgress( TASK_NAME,100, appContext.getString(R.string.Nothing_to_re_import_among) + " " + nbCandidates + " " + appContext.getString(R.string.items)
+                    + "\n" + appContext.getString(R.string.in) + " " + appContext.getString(R.string.folder) + " [" + root.getName() + "]");
             return Result.success();
         }
 
@@ -110,7 +111,8 @@ public class ScanAndReimportWorker extends ImportWorker {
         if (sourceLoc == null) sourceLoc = ""; // optional hint only
 
         //delete any stuck
-        WorkManager.getInstance(ctx).cancelUniqueWork("bookload-queue");
+        WorkManager.getInstance(ctx).cancelUniqueWork("bookload-queue"); // stop active items
+        WorkManager.getInstance(ctx).pruneWork(); // removes finished work with no dependents
 
         // 3) For each missing folder, create a LoadBookTaskState and launch via the new pipeline
         // We enqueue with sequential=true so everything is appended to the global "bookload-queue"

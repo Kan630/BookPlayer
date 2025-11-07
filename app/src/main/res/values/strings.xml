@@ -1097,10 +1097,15 @@
     Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.
 </string>
 
-    <string name="Mass_Import">Mass Import</string>
+    <string name="Mass_Import">Massive Import</string>
     <string name="scanning_folder">scanning folder</string>
     <string name="candidates">candidates</string>
     <string name="found">found</string>
+    <string name="from">from</string>
+    <string name="in">in</string>
+    <string name="items">items</string>
+    <string name="folder">folder</string>
+    <string name="Nothing_to_re_import_among">Nothing to re-import among</string>
 
 
 </resources>

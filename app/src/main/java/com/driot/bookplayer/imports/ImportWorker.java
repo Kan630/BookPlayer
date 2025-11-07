@@ -32,10 +32,10 @@ public abstract class ImportWorker extends LoggingWorker {
 
     /** Step-scoped progress: converts 0..100 for a step into global % and writes Room. */
     protected void emitStepProgress(String stepKey, int stepPercent, String text) {
-        myLog("emitStepProgress - stepKey = [" + stepKey + "] - stepPercent = [" + stepPercent + "] - text = [" + text + "]");
+        //myLog("emitStepProgress - stepKey = [" + stepKey + "] - stepPercent = [" + stepPercent + "] - text = [" + text + "]");
         ImportJob j = jobOrFail();
         int global = ImportProgressWeigher.toGlobalPercent(j, stepKey, stepPercent);
-        myLog("emitStepProgress - global = [" + global + "]");
+        //myLog("emitStepProgress - global = [" + global + "]");
         repo.setProgress(importId, text, global);
         // Worker internal logic can hold progress...
         //setProgressAsync(new Data.Builder().putInt("progressPercent", global).putString("progressText", text).build());
