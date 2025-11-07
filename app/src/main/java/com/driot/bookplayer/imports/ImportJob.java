@@ -86,4 +86,56 @@ public class ImportJob {
     public static final String S_PAUSED    = "PAUSED";
 
     public boolean isFinished() { return Objects.equals(status, S_SUCCEEDED) || Objects.equals(status, S_FAILED) || Objects.equals(status, S_CANCELLED); }
+
+    @Override
+    public String toString() {
+        return "ImportJob{" +
+                "importId='" + importId + '\'' +
+                ", originalUri='" + originalUri + '\'' +
+                ", originalType='" + originalType + '\'' +
+                ", dynamicUri='" + dynamicUri + '\'' +
+                ", dynamicType='" + dynamicType + '\'' +
+                ", title='" + title + '\'' +
+                ", futureFolderName='" + futureFolderName + '\'' +
+                ", futureFolderPath='" + futureFolderPath + '\'' +
+                ", optionSplit=" + optionSplit +
+                ", optionCopy=" + optionCopy +
+                ", optionDelete=" + optionDelete +
+                ", originalFile='" + originalFile + '\'' +
+                ", originalHash='" + originalHash + '\'' +
+                ", sourceLocation='" + sourceLocation + '\'' +
+                ", fileExtension='" + fileExtension + '\'' +
+                ", mimeType='" + mimeType + '\'' +
+                ", imagePath='" + imagePath + '\'' +
+                ", progressText='" + progressText + '\'' +
+                ", progressPercent=" + progressPercent +
+                ", isLoadingPaused=" + isLoadingPaused +
+                ", isPauseAvailable=" + isPauseAvailable +
+                ", currentOperation='" + currentOperation + '\'' +
+                ", downloadFileUrl='" + downloadFileUrl + '\'' +
+                ", downloadDestinationFolder='" + downloadDestinationFolder + '\'' +
+                ", downloadRetryCount=" + downloadRetryCount +
+                ", downloadStartTime=" + downloadStartTime +
+                ", downloadDuration=" + downloadDuration +
+                ", downloadedFilePath='" + downloadedFilePath + '\'' +
+                ", downloadedFileReady=" + downloadedFileReady +
+                ", dynamicDestinationFolderPath='" + dynamicDestinationFolderPath + '\'' +
+                ", dynamicSourceFilePath='" + dynamicSourceFilePath + '\'' +
+                ", doDownload=" + doDownload +
+                ", doCopy=" + doCopy +
+                ", doSplitM4b=" + doSplitM4b +
+                ", doSplitEbook=" + doSplitEbook +
+                ", doUnzip=" + doUnzip +
+                ", playType='" + playType + '\'' +
+                ", downloadWorkId='" + downloadWorkId + '\'' +
+                ", uniqueChainName='" + uniqueChainName + '\'' +
+                ", status='" + status + '\'' +
+                ", showToUser=" + showToUser +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", warningText='" + warningText + '\'' +
+                ", errorTextDev='" + errorTextDev + '\'' +
+                ", errorTextUser='" + errorTextUser + '\'' +
+                '}';
+    }
 }

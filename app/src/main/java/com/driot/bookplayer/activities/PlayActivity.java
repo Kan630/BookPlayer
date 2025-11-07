@@ -625,8 +625,6 @@ public class PlayActivity extends LoggingActivity {
         }
         final String[] currentVoiceName = { saved };  // track last good value
 
-
-
         final boolean[] first = {true};
         final boolean[] touched = {false};
         final boolean[] suppressSelect = {false};
@@ -650,6 +648,7 @@ public class PlayActivity extends LoggingActivity {
                 spinnerTtsVoice,
                 saved,
                 voice -> {
+                    myLogD("setupTtsVoiceSpinner callback : first=[" + first[0] + "] - touched=[" + touched[0] + "] - suppressSelect=[" + suppressSelect[0] + "]");
                     if (first[0]) { first[0]=false; return; }
                     if (!touched[0]) return;
                     if (suppressSelect[0]) return;
@@ -664,6 +663,7 @@ public class PlayActivity extends LoggingActivity {
 
                     Pref.setBookTtsVoiceName(this, folderId, picked);
                     spinnerTtsVoice.setEnabled(false);  // Disable immediately (guard against rapid taps)
+                    myLogD("spinnerTtsVoice disabled");
 
                     boolean wasPlaying = false;
                     PlaybackUiState s = vm.getState().getValue();
@@ -675,16 +675,19 @@ public class PlayActivity extends LoggingActivity {
                         if (vm != null && vm.getState().getValue() != null && "tts".equals(vm.getState().getValue().playMode)) {
                             vm.warmUpTtsVoice(picked, (ready, reason) -> runOnUiThread(() -> {
                                 spinnerTtsVoice.setEnabled(true);
+                                myLogD("spinnerTtsVoice enabled");
 
                                 if (ready) {
                                     currentVoiceName[0] = picked; // commit
                                     if (wasPlayingFinal) {
+                                        myLogD("...play");
                                         // If your TtsEngine resumes automatically after warm-up,
                                         // you can omit the toggles below. If not, re-kick play:
                                         vm.playPause(); // pause
                                         vm.playPause(); // play
                                     }
                                 } else {
+                                    myLogD("...rollback");
                                     // Roll back visually + persistently
                                     Pref.setBookTtsVoiceName(this, folderId, prevGood);
                                     selectVoiceByNameWithoutCallback(spinnerTtsVoice, prevGood, suppressSelect);
@@ -692,7 +695,9 @@ public class PlayActivity extends LoggingActivity {
                                 }
                             }));
                         }
-                    } catch (Throwable ignored) {
+                    } catch (Throwable t) {
+                        myLogEE(t, "setupTtsVoiceSpinner");
+                        myLogD("spinnerTtsVoice enabled");
                         spinnerTtsVoice.setEnabled(true);
                     }
 
@@ -701,6 +706,7 @@ public class PlayActivity extends LoggingActivity {
     }
     /** Finds a voice by engine name and selects it without firing the spinner listener. */
     private void selectVoiceByNameWithoutCallback(Spinner spinner, String name, boolean[] suppressFlag) {
+        myLog("selectVoiceByNameWithoutCallback");
         try {
             android.widget.SpinnerAdapter a = spinner.getAdapter();
             if (!(a instanceof com.driot.bookplayer.adapter.VoiceSpinnerAdapter)) return;
@@ -713,6 +719,7 @@ public class PlayActivity extends LoggingActivity {
                 if (n.equalsIgnoreCase(name)) { target = i; break; }
             }
             suppressFlag[0] = true;
+            myLog("selectVoiceByNameWithoutCallback : " + target);
             spinner.setSelection(target, false);
             spinner.post(() -> suppressFlag[0] = false);
         } catch (Throwable ignored) {}

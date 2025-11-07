@@ -8,6 +8,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,10 +27,16 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportJobRepository;
+import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.MediaScanner2;
@@ -38,6 +46,9 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditText2linesWithPaste;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+
+import java.util.UUID;
+import java.util.concurrent.Executors;
 
 public class GetOtherActivity extends LoggingActivity {
 
@@ -66,16 +77,35 @@ public class GetOtherActivity extends LoggingActivity {
                     );
 
                     if (type.equals("MassImport")) {
-                        WorkManager.getInstance(this).enqueue(
-                                new OneTimeWorkRequest.Builder(com.driot.bookplayer.services.ScanAndReimportWorker.class)
-                                        .setInputData(new Data.Builder()
-                                                .putString(com.driot.bookplayer.services.ScanAndReimportWorker.K_ROOT_TREE_URI, uri.toString())
-                                                .putString(com.driot.bookplayer.services.ScanAndReimportWorker.K_SOURCE_LOC, "MassImport")
-                                                .build())
-                                        .addTag("BulkReimportScan")
-                                        .build()
-                        );
-                        startActivity(new Intent(this, AddResourceActivity.class));
+
+                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                            Executors.newSingleThreadExecutor().execute(() -> {
+                                String importId = "mass_import_" + UUID.randomUUID();
+                                ImportJob j = new ImportJob();
+                                j.importId = importId;
+                                j.status = ImportJob.S_RUNNING;
+                                j.createdAt = j.updatedAt = System.currentTimeMillis();
+                                j.showToUser = true;
+                                j.title = getString(R.string.Mass_Import);
+                                ImportJobRepository repo = new ImportJobRepository(this.getApplicationContext());
+                                repo.upsert(j);
+                                ImportHelper.setShowToUser(this.getApplicationContext(), true);
+                                myLogD("ImportJobRepository populated (for proper UI display), now worker code");
+                                WorkManager.getInstance(this).enqueue(
+                                        new OneTimeWorkRequest.Builder(com.driot.bookplayer.services.ScanAndReimportWorker.class)
+                                                .setInputData(new Data.Builder()
+                                                        .putString(ImportWorker.KEY_IMPORT_ID, importId)
+                                                        .putString(com.driot.bookplayer.services.ScanAndReimportWorker.K_ROOT_TREE_URI, uri.toString())
+                                                        .putString(com.driot.bookplayer.services.ScanAndReimportWorker.K_SOURCE_LOC, "MassImport")
+                                                        .build())
+                                                .addTag("BulkReimportScan")
+                                                .build()
+                                );
+                                myLogD("and open activity");
+                                startActivity(new Intent(this, AddResourceActivity.class));
+                            });
+                        }, 0);
+
                     } else {
                         Intent intent = new Intent(this, LoadBookActivity.class);
                         intent.putExtra(LoadBookActivity.EXTRA_URI, uri);

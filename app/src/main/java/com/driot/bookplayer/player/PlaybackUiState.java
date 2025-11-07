@@ -38,7 +38,7 @@ public class PlaybackUiState extends LoggerHelper {
         this.loadPhase = loadPhase;
         this.calledFrom = calledFrom;
 
-        myLog(toString());
+        //myLog(toString());
     }
 
     @Override public String toString() {

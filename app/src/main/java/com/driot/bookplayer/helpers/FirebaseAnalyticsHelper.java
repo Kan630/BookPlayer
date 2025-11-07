@@ -251,7 +251,7 @@ public final class FirebaseAnalyticsHelper {
 
     private static void logBundleEvent(String logName, Bundle bundle) {
         try {
-            myLogD("Analytics logging - " + logName);
+            myLogD("Analytics logging - " + logName + " - " + bundle.toString());
             FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
             firebaseAnalytics.logEvent(logName, bundle);
         } catch (Exception e) {

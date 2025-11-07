@@ -21,9 +21,12 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         LiveData<ImportJob> src = db.importJobDao().observeUniqueJob();
 
         ui.addSource(src, job -> {
+            //myLog("ui.addSource => src = " + job.toString());
+
             //if (job == null) return; // 👈 no "idle" emission
             //TaskUiState next = TaskUiState.from(job);
             TaskUiState next = (job == null) ? TaskUiState.idle() : TaskUiState.from(job);
+
             TaskUiState prev = ui.getValue();
             if (!next.equals(prev)) ui.setValue(next); // distinctUntilChanged
         });

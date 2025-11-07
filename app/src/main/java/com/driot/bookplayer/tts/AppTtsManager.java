@@ -137,7 +137,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 }
                 // used for words highlighting
                 @Override public void onRangeStart(String uttId, int start, int end, int frame) {
-                    myLogD("setOnUtteranceProgressListener.onRangeStart, uttId=" + uttId + " - " + start + "=>" + end + " - frame=" + frame);
+                    //myLogD("setOnUtteranceProgressListener.onRangeStart, uttId=" + uttId + " - " + start + "=>" + end + " - frame=" + frame);
                     // Convert to absolute using the uttId "utt_<absStart>_<absEnd>"
                     int[] se = TtsIds.parseUtt(uttId);
                     if (se != null) {

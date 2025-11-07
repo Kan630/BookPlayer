@@ -4,6 +4,7 @@ import com.driot.bookplayer.global.Var;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 public final class ImportProgressWeigher {
 
@@ -14,6 +15,7 @@ public final class ImportProgressWeigher {
 
     private static final Map<String, StepInfo> steps = new LinkedHashMap<>();
     static {
+        steps.put(Var.WORKER_MASS_IMPORT,           new StepInfo(0, 2));
         steps.put(Var.WORKER_TASK_LABEL_DOWNLOAD,   new StepInfo(1, 20));
         steps.put(Var.WORKER_TASK_LABEL_COPY,       new StepInfo(2, 3));
         steps.put(Var.WORKER_TASK_LABEL_UNZIP,      new StepInfo(3, 7));
@@ -52,6 +54,7 @@ public final class ImportProgressWeigher {
             case Var.WORKER_TASK_LABEL_UNZIP:      return j.doUnzip;
             case Var.WORKER_TASK_LABEL_SPLIT_M4B:  return j.doSplitM4b;
             case Var.WORKER_TASK_LABEL_SPLIT_EBOOK:return j.doSplitEbook;
+            case Var.WORKER_MASS_IMPORT:           return Objects.equals(j.sourceLocation, "MassImport");
             case Var.WORKER_TASK_LABEL_SCAN:       return true;
         }
         return false;
@@ -64,6 +67,7 @@ public final class ImportProgressWeigher {
         if (j.doUnzip)     t += steps.get(Var.WORKER_TASK_LABEL_UNZIP).weight;
         if (j.doSplitM4b)  t += steps.get(Var.WORKER_TASK_LABEL_SPLIT_M4B).weight;
         if (j.doSplitEbook)t += steps.get(Var.WORKER_TASK_LABEL_SPLIT_EBOOK).weight;
+        if (Objects.equals(j.sourceLocation, "MassImport"))t += steps.get(Var.WORKER_MASS_IMPORT).weight;
         t += steps.get(Var.WORKER_TASK_LABEL_SCAN).weight;
         return t;
     }

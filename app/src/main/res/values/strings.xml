@@ -1097,4 +1097,6 @@
     Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.
 </string>
 
+    <string name="Mass_Import">Mass Import</string>
+
 </resources>

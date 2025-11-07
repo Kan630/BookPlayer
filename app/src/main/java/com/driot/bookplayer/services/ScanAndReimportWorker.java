@@ -13,12 +13,16 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
+import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.imports.ImportJobRepository;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Scans a root folder (SAF tree URI) and re-enqueues missing audiobooks
@@ -35,14 +39,23 @@ public class ScanAndReimportWorker extends ImportWorker {
 
     private static final String TASK_NAME = Var.WORKER_MASS_IMPORT;
 
+    ImportJob importJob;
+
+    private final Context appContext;
+    private int nbCandidates;
+
     public ScanAndReimportWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
         super(appContext, params);
+        this.appContext = appContext.getApplicationContext();
     }
 
     @NonNull
     @Override
     public Result doWorkBody() {
         myLog("ScanAndReimportWorker start");
+
+        importJob = jobOrFail(); //important ! to init repo...
+
         Context ctx = getApplicationContext();
         emitTaskStart(TASK_NAME, "scanning items...");
 
@@ -60,8 +73,9 @@ public class ScanAndReimportWorker extends ImportWorker {
 
         // 1) Find candidate audiobook folders under root
         ArrayList<DocumentFile> candidates = findBookCandidates(root);
-        myLogD(candidates.size() + " candidates found under: " + root.getName() + " (" + rootStr + ")");
-        emitTextOnlyProgress("Found " + candidates.size() + " candidates");
+        nbCandidates =candidates.size();
+        myLogD( nbCandidates+ " candidates found under: " + root.getName() + " (" + rootStr + ")");
+        emitStepProgress(TASK_NAME, 0, "Found " + nbCandidates + " candidates");
 
         // 2) Filter out those already in DB (by SAF path key)
         ArrayList<DocumentFile> toImport = new ArrayList<>();
@@ -95,7 +109,8 @@ public class ScanAndReimportWorker extends ImportWorker {
         for (int i = 0; i < toImport.size(); i++) {
             DocumentFile bookFolder = toImport.get(i);
 
-            emitTextOnlyProgress("Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
+            //emitTextOnlyProgress("Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
+            emitStepProgress(TASK_NAME, i+1/nbCandidates*100, "Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
             myLog("enqueueing " + bookFolder.getName());
 
             // Optional: pick a cover from inside the folder

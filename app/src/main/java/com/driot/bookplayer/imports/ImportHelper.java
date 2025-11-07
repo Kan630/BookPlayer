@@ -1,6 +1,8 @@
 package com.driot.bookplayer.imports;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -105,7 +107,7 @@ public class ImportHelper {
             if (job == null) {
                 myLogW("No active import to deal with");
             } else {
-                myLog("show user set to [" + showToUser + "]");
+                myLog("show user set to [" + showToUser + "] for job [" + job.importId + "]");
                 dao.setShowToUser(job.importId, showToUser, System.currentTimeMillis());
             }
         });
@@ -185,6 +187,22 @@ public class ImportHelper {
 
         try { AppViewModelStoreOwner.clear(); } catch (Exception e) { myLogEE(e, "cleanup - clear AppViewModelStoreOwner"); }
 
-        myLogD("Cleanup finished (bg).");
+        myLogI("Cleanup finished (bg), sending signal to UI (ShowUser=False in DB) in 3sec.");
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            try {
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+                    ImportJobDao dao = db.importJobDao();
+                    ImportJob job = dao.getUniqueJob();
+                    job.showToUser = false;
+                    dao.update(job);
+                });
+
+            } catch (Exception e) {
+                myLogEE(e, "showToUser set false ko");
+            }
+        }, 3000);
+
+
     }
 }

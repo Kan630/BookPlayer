@@ -30,12 +30,14 @@ public interface ImportJobDao {
     LiveData<List<ImportJob>> observeAllActive(String s1, String s2, String s3);
 
     @Query("UPDATE ImportJob SET status = '" + ImportJob.S_RUNNING + "'" +
+            ", showToUser = 1" +
             ", progressText=:txt" +
             ", progressPercent=:pct" +
             ", updatedAt=:ts WHERE importId=:id")
     void updateProgress(String id, String txt, int pct, long ts);
 
     @Query("UPDATE ImportJob SET status = '" + ImportJob.S_RUNNING + "'" +
+            ", showToUser = 1" +
             ", progressText=:txt" +
             ", updatedAt=:ts WHERE importId=:id")
     void updateProgressText(String id, String txt, long ts);
@@ -66,18 +68,21 @@ public interface ImportJobDao {
     void success(String id, String progressText, long ts);
 
     @Query("UPDATE ImportJob SET warningText = COALESCE(warningText || '\n', '') || :why" +
+            ", showToUser = 1" +
             ", isLoadingPaused = 1" +
             ", status='" + ImportJob.S_PAUSED + "'" +
             ", updatedAt=:ts WHERE importId=:id")
     void downloadPause(String id, String why, long ts);
 
     @Query("UPDATE ImportJob SET progressText=:progressText" +
+            ", showToUser = 1" +
             ", isLoadingPaused = 0" +
             ",  status='" + ImportJob.S_RUNNING + "'" +
             ", updatedAt=:ts WHERE importId=:id")
     void downloadResuming(String id, String progressText, long ts);
 
     @Query("UPDATE ImportJob SET status='" + ImportJob.S_RUNNING + "'" +
+            ", showToUser = 1" +
             ", currentOperation=:currentOperation" +
             ", dynamicType = 'File'" +
             ", dynamicUri=:downloadedFileFullPath" +
@@ -97,6 +102,7 @@ public interface ImportJobDao {
             , long ts);
 
     @Query("UPDATE ImportJob SET status='" + ImportJob.S_RUNNING + "'" +
+            ", showToUser = 1" +
             ", currentOperation=:currentOperation" +
             ", progressText=:progressText" +
             ", dynamicType = 'Folder'" +
@@ -108,6 +114,7 @@ public interface ImportJobDao {
     void taskComplete(String id, String currentOperation, String destinationFolderPath, String playType, String progressText, long ts);
 
     @Query("UPDATE ImportJob SET status='" + ImportJob.S_RUNNING + "'" +
+            ", showToUser = 1" +
             ", currentOperation=:currentOperation" +
             ", progressText=:progressText" +
             ", updatedAt=:ts WHERE importId=:id")
