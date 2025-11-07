@@ -1098,5 +1098,9 @@
 </string>
 
     <string name="Mass_Import">Mass Import</string>
+    <string name="scanning_folder">scanning folder</string>
+    <string name="candidates">candidates</string>
+    <string name="found">found</string>
+
 
 </resources>

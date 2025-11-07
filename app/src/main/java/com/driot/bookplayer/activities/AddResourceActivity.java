@@ -68,7 +68,7 @@ public class AddResourceActivity extends LoggingActivity {
         //myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
-            //myLog("observing UI state [" + ui.title + "] - showToUser=[" + ui.showToUser + "] - result=[" + ui.result + "]");
+            myLog("observing UI state [" + ui.title + "] - showToUser=[" + ui.showToUser + "] - result=[" + ui.result + "] - progressPercent=[" + ui.progressPercent + "]");
             // Bind UI
             tvTitle.setText(ui.title);
             progressBarText.setText(ui.progressText);

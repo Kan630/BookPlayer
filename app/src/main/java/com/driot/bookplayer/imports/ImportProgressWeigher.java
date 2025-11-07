@@ -6,6 +6,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 public final class ImportProgressWeigher {
 
     static class StepInfo {
@@ -28,8 +30,12 @@ public final class ImportProgressWeigher {
 
     /** Convert the *current step's* 0..100 to global 0..100. */
     public static int toGlobalPercent(ImportJob j, String stepKey, int stepPercent) {
+        //myLog("toGlobalPercent() for job=" + j.importId + " - stepKey=" + stepKey + " - stepPercent=" + stepPercent);
         int total = totalWeight(j);
-        if (total <= 0) return 0;
+        if (total <= 0) {
+            //myLogE("totalWeight <= 0 for job=" + j.importId + " - stepKey=" + stepKey + " - stepPercent=" + stepPercent);
+            return 0;
+        }
 
         int acc = 0;
         for (Map.Entry<String, StepInfo> e : steps.entrySet()) {
@@ -54,21 +60,28 @@ public final class ImportProgressWeigher {
             case Var.WORKER_TASK_LABEL_UNZIP:      return j.doUnzip;
             case Var.WORKER_TASK_LABEL_SPLIT_M4B:  return j.doSplitM4b;
             case Var.WORKER_TASK_LABEL_SPLIT_EBOOK:return j.doSplitEbook;
-            case Var.WORKER_MASS_IMPORT:           return Objects.equals(j.sourceLocation, "MassImport");
+            case Var.WORKER_MASS_IMPORT:
+                //myLog("key=" + key + " - j.sourceLocation=" + j.sourceLocation);
+                return Objects.equals(j.sourceLocation, Var.WORKER_MASS_IMPORT);
             case Var.WORKER_TASK_LABEL_SCAN:       return true;
         }
+
         return false;
     }
 
     private static int totalWeight(ImportJob j) {
         int t = 0;
+        if (Objects.equals(j.sourceLocation, "MassImport")) t += steps.get(Var.WORKER_MASS_IMPORT).weight;
+
         if (j.doDownload)  t += steps.get(Var.WORKER_TASK_LABEL_DOWNLOAD).weight;
         if (j.doCopy)      t += steps.get(Var.WORKER_TASK_LABEL_COPY).weight;
         if (j.doUnzip)     t += steps.get(Var.WORKER_TASK_LABEL_UNZIP).weight;
         if (j.doSplitM4b)  t += steps.get(Var.WORKER_TASK_LABEL_SPLIT_M4B).weight;
         if (j.doSplitEbook)t += steps.get(Var.WORKER_TASK_LABEL_SPLIT_EBOOK).weight;
-        if (Objects.equals(j.sourceLocation, "MassImport"))t += steps.get(Var.WORKER_MASS_IMPORT).weight;
+
         t += steps.get(Var.WORKER_TASK_LABEL_SCAN).weight;
+
+        //myLog("totalWeight=" + t + " for job=" + j.importId);
         return t;
     }
 }

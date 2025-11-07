@@ -8,8 +8,10 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
+import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
@@ -42,6 +44,7 @@ public class ScanAndReimportWorker extends ImportWorker {
     ImportJob importJob;
 
     private final Context appContext;
+    private int nbFolders;
     private int nbCandidates;
 
     public ScanAndReimportWorker(@NonNull Context appContext, @NonNull WorkerParameters params) {
@@ -54,7 +57,7 @@ public class ScanAndReimportWorker extends ImportWorker {
     public Result doWorkBody() {
         myLog("ScanAndReimportWorker start");
 
-        importJob = jobOrFail(); //important ! to init repo...
+        //importJob = jobOrFail(); //important ! to init repo...
 
         Context ctx = getApplicationContext();
         emitTaskStart(TASK_NAME, "scanning items...");
@@ -71,11 +74,13 @@ public class ScanAndReimportWorker extends ImportWorker {
             return Result.failure();
         }
 
+        nbFolders = root.listFiles().length;
+
         // 1) Find candidate audiobook folders under root
         ArrayList<DocumentFile> candidates = findBookCandidates(root);
         nbCandidates =candidates.size();
         myLogD( nbCandidates+ " candidates found under: " + root.getName() + " (" + rootStr + ")");
-        emitStepProgress(TASK_NAME, 0, "Found " + nbCandidates + " candidates");
+        emitStepProgress(TASK_NAME, 80,  nbCandidates + " " + appContext.getString(R.string.candidates)  + " " + appContext.getString(R.string.found));
 
         // 2) Filter out those already in DB (by SAF path key)
         ArrayList<DocumentFile> toImport = new ArrayList<>();
@@ -104,14 +109,17 @@ public class ScanAndReimportWorker extends ImportWorker {
         String sourceLoc = getInputData().getString(K_SOURCE_LOC);
         if (sourceLoc == null) sourceLoc = ""; // optional hint only
 
+        //delete any stuck
+        WorkManager.getInstance(ctx).cancelUniqueWork("bookload-queue");
+
         // 3) For each missing folder, create a LoadBookTaskState and launch via the new pipeline
         // We enqueue with sequential=true so everything is appended to the global "bookload-queue"
         for (int i = 0; i < toImport.size(); i++) {
             DocumentFile bookFolder = toImport.get(i);
 
-            //emitTextOnlyProgress("Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
-            emitStepProgress(TASK_NAME, i+1/nbCandidates*100, "Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
-            myLog("enqueueing " + bookFolder.getName());
+            double stepProgress = (double) i / nbCandidates * 20 + 80;
+            emitStepProgress(TASK_NAME, (int) stepProgress, "Re-importing " + (i + 1) + " of " + toImport.size() + ": " + safeName(bookFolder));
+            myLog("launching " + bookFolder.getName());
 
             // Optional: pick a cover from inside the folder
             String imageUri = pickLargestCoverUri(ctx, bookFolder);
@@ -174,10 +182,13 @@ public class ScanAndReimportWorker extends ImportWorker {
 
         // Collect child folders that contain audio somewhere in their subtree
         ArrayList<DocumentFile> childBooks = new ArrayList<>();
+        int i = 0;
         for (DocumentFile child : root.listFiles()) {
+            i = i + 1;
+            double stepPercent = (double) i / nbFolders * 80;
+            emitStepProgress( TASK_NAME, (int) stepPercent, appContext.getString(R.string.scanning_folder) + " n°" + i + "/" + nbFolders + "\n\n[" + child.getName() + "]");
             if (child.isDirectory() && hasAnyAudioRecursive(child)) {
                 myLog("add " + child.getName());
-                emitTextOnlyProgress("add " + child.getName());
                 childBooks.add(child);
             }
         }

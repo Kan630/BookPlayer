@@ -192,6 +192,7 @@ public class BookLoadingWorkLauncher {
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
 
             WorkManager wm = WorkManager.getInstance(ctx);
+
             String uniqueName = sequential ? "bookload-queue" : "bookload:" + importId;
             myLogD("uniqueName = " + uniqueName);
             ExistingWorkPolicy policy = sequential ? ExistingWorkPolicy.APPEND : ExistingWorkPolicy.REPLACE;
@@ -201,12 +202,23 @@ public class BookLoadingWorkLauncher {
             for (int i = 1; i < steps.size(); i++) cont = cont.then(steps.get(i));
             cont.enqueue();
 
-
             // some logging
             /*
+            Handler main = new Handler(Looper.getMainLooper());
+            main.post(() -> {
+                        wm.getWorkInfosForUniqueWorkLiveData("bookload-queue").observeForever(infos -> {
+                            if (infos == null) return;
+                            for (WorkInfo wi : infos) {
+                                myLogD("WM unique 'bookload-queue' -> " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags());
+                            }
+                        });
+                    });
+
+
             for (int i = 0; i < steps.size(); i++) {
                 myLogD("step[" + i + "] id=" + steps.get(i).getId() + " cls=" + steps.get(i).getClass().getSimpleName());
             }
+
             Handler main = new Handler(Looper.getMainLooper());
             main.post(() -> {
                 WorkManager.getInstance(ctx)
