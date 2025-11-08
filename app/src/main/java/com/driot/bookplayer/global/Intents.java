@@ -35,6 +35,7 @@ public class Intents {
     public static final String EXTRA_UI_COVER       = "extra_ui_cover";
     public static final String EXTRA_UI_TRACK_ID  = "extra_ui_track_id";
     public static final String EXTRA_UI_FOLDER_ID = "extra_ui_folder_id";
+    public static final String EXTRA_UI_PODCAST_FEED_ID = "extra_ui_podcast_id";
     public static final String EXTRA_UI_READY     = "extra_ui_ready";
     public static final String EXTRA_UI_PLAYMODE = "extra_ui_tts";
     public static final String EXTRA_UI_PHASE       = "extra_ui_phase";
@@ -53,4 +54,5 @@ public class Intents {
     public static final String EXTRA_STREAM_URL  = "extra_stream_url";
     public static final String EXTRA_TITLE       = "extra_title";
     public static final String EXTRA_IMAGE_URL   = "extra_image_url";
+    public static final String EXTRA_PODCAST_FEED_ID = "EXTRA_PODCAST_ID";
 }

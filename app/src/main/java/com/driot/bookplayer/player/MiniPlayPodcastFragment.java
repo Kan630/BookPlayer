@@ -17,7 +17,9 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.activities.PodcastEpisodeActivity;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
@@ -75,10 +77,11 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                 long pos = s.positionMs;
                 long dur = s.durationMs;
                 if (dur > 0) {
-                    int prog = (int) ((pos * sbMiniSeek.getMax()) / dur);
-                    sbMiniSeek.setProgress(prog);
-                //.setMax((int) Math.max(1L, s.durationMs));
-                //.setProgress((int) Math.min(s.positionMs, s.durationMs));
+                    //int prog = (int) ((pos * sbMiniSeek.getMax()) / dur);
+                    //sbMiniSeek.setProgress(prog);
+                    sbMiniSeek.setMax((int) s.durationMs);
+                    sbMiniSeek.setProgress((int) Math.min(s.positionMs, s.durationMs));
+
                     String timeString = Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur);
                     tvMiniTime.setText(timeString);
                 } else {
@@ -112,8 +115,15 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
 
 
         v.setOnClickListener(_x -> {
-            myLogI("---- user press mini player ----");
-            startActivity(new Intent(requireContext(), PlayActivity.class));
+            myLogI("---- user clicks on mini player root ----");
+            if (vm.getState() != null && vm.getState().getValue()!=null) {
+                long idPodcast = vm.getState().getValue().podcastFeedId;
+                myLogD("idPodcast = " + idPodcast);
+                AppDatabase.databaseReadExecutor.execute(() -> {
+                    Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao().getPodcastByFeedId(idPodcast);
+                    startActivity(new Intent(requireContext(), PodcastEpisodeActivity.class).putExtra("podcast", podcast));
+                });
+            }
         });
 
         btnPrev.setOnClickListener(_v -> {
@@ -141,6 +151,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
             @Override public void onStopTrackingTouch(SeekBar sb) {
                 userSeeking = false;
+                myLogI("---- user press SEEK BAR ----");
                 vm.seekTo(sb.getProgress());
             }
         });

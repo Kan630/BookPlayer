@@ -34,6 +34,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingService;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.global.Option;
@@ -120,10 +121,11 @@ public class AudioService extends LoggingService {
 
     // --- RADIO MODE ---
     private boolean radioMode = false;
-    private boolean podcastMode = false;
     @Nullable private String radioTitle = null;
     @Nullable private String radioImageUrl = null; // you can display it in notif if you already support URL bitmaps
     @Nullable private Uri    radioUri = null;
+    private boolean podcastMode = false;
+    private long podcastFeedId = -2;
 
     private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
@@ -209,7 +211,7 @@ public class AudioService extends LoggingService {
     private void broadcastUiCleared() {
         lastUiState = null;
         uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
-                0, 0, false, "OFF", getPlayMode(), "AudioService.broadcastUiCleared()"));
+                0, 0,0, false, "OFF", getPlayMode(), "AudioService.broadcastUiCleared()"));
         Intent i = new Intent(Intents.ACTION_UI_STATE)
                 .putExtra(Intents.EXTRA_UI_PLAYING, false)
                 .putExtra(Intents.EXTRA_UI_POS, 0L)
@@ -245,6 +247,7 @@ public class AudioService extends LoggingService {
                     cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
+                    /* podcastFeedId */ 0,
                     /* ready */ (engine != null) && engine.isReady(),
                     getLoadPhase(),
                     /* playMode */ "radio"
@@ -267,6 +270,7 @@ public class AudioService extends LoggingService {
                     cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
+                    podcastFeedId,
                     /* ready */ (engine != null) && engine.isReady(),
                     getLoadPhase(),
                     /* playMode */ "podcast"
@@ -291,6 +295,7 @@ public class AudioService extends LoggingService {
 
                 .putExtra(Intents.EXTRA_UI_TRACK_ID, s.trackId)
                 .putExtra(Intents.EXTRA_UI_FOLDER_ID, s.folderId)
+                .putExtra(Intents.EXTRA_UI_PODCAST_FEED_ID, s.podcastFeedId)
                 .putExtra(Intents.EXTRA_UI_READY, s.ready)
 
                 .putExtra(Intents.EXTRA_UI_PLAYMODE, getPlayMode())
@@ -314,7 +319,7 @@ public class AudioService extends LoggingService {
 
         if (!"book".equals(playMode)) {
             return new PlaybackUiState(playing, pos, dur, lastUiState.title, lastUiState.subTitle, lastUiState.cover,
-                    lastUiState.trackId, lastUiState.folderId, ready, loadPhase, playMode, "AudioService.buildUiState()");
+                    lastUiState.trackId, lastUiState.folderId, lastUiState.podcastFeedId, ready, loadPhase, playMode, "AudioService.buildUiState()");
         };
 
         //TODO not sure this below is usefull...
@@ -334,7 +339,7 @@ public class AudioService extends LoggingService {
 
 
         return new PlaybackUiState(playing, pos, dur, title, subTitle, cover,
-                trackId, folderId, ready, loadPhase, playMode, "AudioService.buildUiState()");
+                trackId, folderId, 0, ready, loadPhase, playMode, "AudioService.buildUiState()");
     }
 
 
@@ -1132,13 +1137,14 @@ public class AudioService extends LoggingService {
                 final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
                 final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
                 final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
+                final long podcastFeedID = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
 
                 if (url == null || url.isEmpty()) {
                     myLogE("ACTION_PLAY_RADIO without url");
                     return START_NOT_STICKY;
                 }
 
-                playPodcastStream(url, title != null ? title : getString(R.string.podcasts), img);
+                playPodcastStream(podcastFeedID, url, title != null ? title : getString(R.string.podcasts), img);
                 return START_STICKY;
             }
 
@@ -1572,7 +1578,7 @@ public class AudioService extends LoggingService {
      */
 
     public void setPosition(int position) {
-        myLog("setPosition() : " + myDF.format(position));
+        myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatMmSs(position));
         if (engine != null) {
             engine.seekTo(position);
             updatePlaybackStateForPosition();
@@ -1794,7 +1800,8 @@ public class AudioService extends LoggingService {
         if (!ErrorLoadingFile) {
             updateZikFileStateInDB(true);
             alertTrackFinished();
-            if (PlayList.getInstance().isLastTrack()) {
+            PlayList pl = PlayList.getInstance();
+            if (pl!=null && pl.isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");
                 alertPlaylistFinished();
                 shutdown(false);
@@ -2060,15 +2067,20 @@ public class AudioService extends LoggingService {
             alertError(null, null);
         }
     }
-    private void playPodcastStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
-        myLogI("playPodcastStream: " + title + " -> " + url);
+    private void playPodcastStream(long podcastFeedId, @NonNull String url, @NonNull String title, @Nullable String imageUrl) {
+        myLogI("playPodcastStream: [" + title + "] -> [" + url + "] - id=" + podcastFeedId);
 
         // Mark radio mode + meta
         radioMode = false;
         podcastMode = true;
         radioTitle = title;
         radioImageUrl = imageUrl;
+        this.podcastFeedId = podcastFeedId;
         radioUri = Uri.parse(url);
+        if (radioUri==null) {
+            myLogEE(null, "playPodcastStream : radioUri==null");
+            return;
+        }
         suppressMiniUntilNextPlay = false;
         broadcastUiState();                  // first snapshot (BUFFERING)
 

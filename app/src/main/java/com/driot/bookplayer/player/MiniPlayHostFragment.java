@@ -32,10 +32,11 @@ public class MiniPlayHostFragment extends LoggingFragment {
 
         //Observer
         vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
-            myLogW("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
             if (!Objects.equals(newPlayType, lastPlayType)) {
+                myLogI("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
                 swapChild(newPlayType);
             } else {
+                myLogD("vm.getPlayType().observe: same as before newPlayType=[" + newPlayType + "]");
                 //check current display
                 Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
                 if (current == null) {
@@ -70,7 +71,8 @@ public class MiniPlayHostFragment extends LoggingFragment {
         } else if ("book".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            throw new RuntimeException("unknown playType: " + playType + " - should not happen");
+            myLogE("unknown playType: " + playType);
+            return;
         }
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.mini_host_container, child, playType)
@@ -91,7 +93,8 @@ public class MiniPlayHostFragment extends LoggingFragment {
         } else if ("book".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            throw new RuntimeException("unknown playType: " + playType + " - should not happen");
+            myLogE("unknown playType: " + playType);
+            return;
         }
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)

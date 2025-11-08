@@ -517,13 +517,14 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         androidx.core.content.ContextCompat.startForegroundService(
                 getApplicationContext(),
-                new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
-                        .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_PODCAST)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, ep.title)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, ep.image)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()")
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
+                new Intent(getApplicationContext(), AudioService.class)
+                        .setAction(Intents.ACTION_PLAY_PODCAST)
+                        .putExtra(Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
+                        .putExtra(Intents.EXTRA_PODCAST_FEED_ID, podcast.feedId)
+                        .putExtra(Intents.EXTRA_TITLE, ep.title)
+                        .putExtra(Intents.EXTRA_IMAGE_URL, ep.image)
+                        .putExtra(Intents.EXTRA_CALLER, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()")
+                        .putExtra(Intents.EXTRA_FOREGROUND, true)
         );
 
         isPlaying = true;

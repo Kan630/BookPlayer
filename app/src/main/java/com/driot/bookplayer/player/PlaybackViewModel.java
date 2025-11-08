@@ -22,6 +22,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 /**
@@ -121,10 +122,13 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 final long dur        = i.getLongExtra(Intents.EXTRA_UI_DUR, 0);
                 final String title    = i.getStringExtra(Intents.EXTRA_UI_TITLE);
                 final String sub      = i.getStringExtra(Intents.EXTRA_UI_SUBTITLE);
+
                 final String cover    = i.getStringExtra(Intents.EXTRA_UI_COVER);
 
                 final int trackId     = i.getIntExtra(Intents.EXTRA_UI_TRACK_ID, 0);
                 final int folderId    = i.getIntExtra(Intents.EXTRA_UI_FOLDER_ID, 0);
+                final long podcastFeedId = i.getLongExtra(Intents.EXTRA_UI_PODCAST_FEED_ID,-4);
+
                 final boolean ready   = i.getBooleanExtra(Intents.EXTRA_UI_READY, false);
                 final String playModeExtra = i.getStringExtra(Intents.EXTRA_UI_PLAYMODE);
 
@@ -141,7 +145,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
                 state.postValue(new PlaybackUiState(
                         playing, pos, dur, title, sub, cover,
-                        trackId, folderId, ready, uiPhase, playModeExtra, "BroadcastReceiver, ACTION_UI_STATE"
+                        trackId, folderId, podcastFeedId, ready, uiPhase, playModeExtra, "BroadcastReceiver, ACTION_UI_STATE"
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -175,6 +179,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 prev.cover,
                 prev.trackId,
                 prev.folderId,
+                prev.podcastFeedId,
                 ready,
                 loadPhase,
                 playMode, // "tts", "radio", "podcast", "book"
@@ -226,7 +231,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     /** seek needs binder access; no safe media-button fallback. */
     public void seekTo(int ms) {
-        myLog("seekTo");
+        myLog("seekTo - " + Tonio.formatMmSs(ms) + " - isServiceNull=" + (service==null));
         if (service != null) {
             service.setPosition(ms);
             FirebaseAnalyticsHelper.tellAnalyticsPlayAction("seekTo", "");

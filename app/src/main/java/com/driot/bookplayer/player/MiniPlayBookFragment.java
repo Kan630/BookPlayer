@@ -24,7 +24,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle;
-    private SeekBar seek;
+    private SeekBar sbMiniSeek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
     private boolean userSeeking;
 
@@ -38,7 +38,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSubTitle);
-        seek = v.findViewById(R.id.sbMiniSeek);
+        sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
         btnPrev = v.findViewById(R.id.bMiniBackward);
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
         btnNext = v.findViewById(R.id.bMiniForward);
@@ -62,8 +62,8 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 ivCover.setVisibility(View.GONE);
             }
             if (!userSeeking) {
-                seek.setMax((int) Math.max(1L, s.durationMs));
-                seek.setProgress((int) Math.min(s.positionMs, s.durationMs));
+                sbMiniSeek.setMax((int) Math.max(1L, s.durationMs));
+                sbMiniSeek.setProgress((int) Math.min(s.positionMs, s.durationMs));
             }
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
@@ -88,7 +88,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
 
         v.setOnClickListener(_x -> {
-            myLogI("---- user press mini player ----");
+            myLogI("---- user clicks on mini player root ----");
             startActivity(new Intent(requireContext(), PlayActivity.class));
         });
 
@@ -109,10 +109,11 @@ public class MiniPlayBookFragment extends LoggingFragment {
             vm.dismissMini();
         });
 
-        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        sbMiniSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
             @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
             @Override public void onStopTrackingTouch(SeekBar sb) {
+                myLogI("---- user press SEEK BAR ----");
                 userSeeking = false;
                 vm.seekTo(sb.getProgress());
             }
