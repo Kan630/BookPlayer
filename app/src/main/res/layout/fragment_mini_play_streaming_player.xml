@@ -4,91 +4,114 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
-    android:background="?colorSecondary"
+    android:layout_height="wrap_content"
+    android:background="?attr/colorSecondary"
     android:paddingStart="12dp"
     android:paddingEnd="12dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
     android:gravity="center_vertical"
     android:elevation="8dp"
     android:clickable="true"
     android:focusable="true"
-    android:visibility="gone"
     >
-    <ImageView
-        android:id="@+id/ivCover"
-        android:layout_width="40dp"
-        android:layout_height="40dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/cover_preview"
-        android:src="@drawable/ic_radio_24px" />
 
-    <!-- Controls row -->
+    <!-- Row 1: Controls -->
     <LinearLayout
         android:id="@+id/miniControlsRow"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toTopOf="parent"
-        android:gravity="center_vertical">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <ImageView
+            android:id="@+id/ivCover"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/cover_preview"
+            android:src="@drawable/ic_radio_24px"
+            android:clickable="false"
+            android:layout_marginEnd="30dp"
+            />
 
         <ImageButton
             android:id="@+id/bMiniBackward"
             android:src="@drawable/ic_media_fast_rewind_24"
-            style="@style/miniPlayerButton" />
+            style="@style/miniPlayerButton"
+            android:layout_marginHorizontal="8dp"
+            />
 
         <ProgressBar
             android:id="@+id/progressMini"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:layout_marginStart="8dp"
+            android:layout_marginHorizontal="8dp"
             android:indeterminate="true"
             android:indeterminateTint="?attr/colorOnSecondary"
-            android:visibility="gone"/>
+            android:visibility="gone" />
 
         <ProgressBar
             android:id="@+id/progress"
             style="?android:attr/progressBarStyleSmall"
             android:layout_width="24dp"
             android:layout_height="24dp"
-            android:visibility="gone"/>
+            android:layout_marginHorizontal="8dp"
+            android:visibility="gone"
+            />
 
         <ImageButton
             android:id="@+id/bMiniPlayPause"
             android:src="@drawable/ic_media_play_24"
             style="@style/miniPlayerButton"
             android:layout_width="48dp"
-            android:layout_height="48dp" />
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="8dp"
+            />
 
         <ImageButton
             android:id="@+id/bMiniForward"
             android:src="@drawable/ic_media_fast_forward_24"
-            style="@style/miniPlayerButton" />
+            android:layout_marginHorizontal="8dp"
+            style="@style/miniPlayerButton"
+            />
 
-        <SeekBar
-            android:id="@+id/sbMiniSeek"
+        <!-- invisible spacer -->
+        <View
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:progressTint="?attr/colorPrimaryVariant"
-            android:thumbTint="?colorSecondaryVariant"
-            android:max="1000"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <TextView
             android:id="@+id/tvMiniTime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textColor="?colorOnSecondary"
+            android:textColor="?attr/colorOnSecondary"
             android:textSize="12sp"
-            android:paddingHorizontal="8dp"/>
+            android:layout_marginStart="30dp"
+            android:layout_marginEnd="5dp"
+            android:text="--:--/123:22"
+            />
     </LinearLayout>
 
-    <!-- Tiny “Streaming” badge -->
+    <!-- Row 2: SeekBar only -->
+    <SeekBar
+        android:id="@+id/sbMiniSeek"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:max="1000"
+        android:progressTint="?attr/colorPrimaryVariant"
+        android:thumbTint="?attr/colorSecondaryVariant"
+        app:layout_constraintTop_toBottomOf="@id/miniControlsRow"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+    <!-- Tiny “Streaming” badge (floats top-end) -->
     <TextView
         android:id="@+id/labelStreaming"
         android:layout_width="wrap_content"
@@ -98,9 +121,8 @@
         android:textSize="10sp"
         android:textColor="?attr/colorOnSecondary"
         android:alpha="0.8"
-        android:paddingTop="0dp"
         android:paddingEnd="2dp"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        />
+        app:layout_constraintEnd_toEndOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

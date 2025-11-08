@@ -257,14 +257,14 @@ public class AudioService extends LoggingService {
             String title = (radioTitle != null) ? radioTitle : getString(R.string.live_podcast);
             String text  = getString(R.string.live_podcast);
             String cover = (radioImageUrl != null) ? radioImageUrl : "";
-            //long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
-            //long   dur   = (engine != null) ? engine.getDuration()        : 0; // live => likely 0/unknown
+            long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
+            long   dur   = (engine != null) ? engine.getDuration()        : 0;
             boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
                     playing,
-                    0, //pos,
-                    0, //dur,
+                    pos,
+                    dur,
                     title,
                     text,
                     cover,
@@ -828,11 +828,18 @@ public class AudioService extends LoggingService {
 
         if (engine instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
 
+        if (engine instanceof ExoStreamPlayerEngine) {
+            if (Option.getBeepBookEnd()) playBeep("3beeps");
+            myLog("podcast streaming end => kill service");
+            shutdown(false);
+            return;
+        }
+
         justAdvancedToNext = true;
         PlayList pl = PlayList.getInstance();
         if (pl == null) {
             alertError("nextTrack", "nextTrack : error getting playlist");
-            //loadFileKO();
+            loadFileKO(null);
             return;
         }
         final ZikFile nextZikFile = pl.nextTrack();
@@ -895,7 +902,7 @@ public class AudioService extends LoggingService {
                     .putExtra(ERR_MSG, errMsg)
             );
         }
-        myLogE("sendBroadcast alertError");
+        myLogE("sendBroadcast alertError - from [" + from + "] - errMsg=[" + errMsg + "]" );
     }
 
     private void alertTrackFinished() {
