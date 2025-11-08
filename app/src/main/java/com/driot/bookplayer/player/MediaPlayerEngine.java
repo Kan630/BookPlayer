@@ -92,7 +92,7 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
     @Override public boolean isReady()   { return prepared && !preparing; }
 
     @Override
-    public int getCurrentPosition() {
+    public long getCurrentPosition() {
         if (!prepared) {
             myLogD("getCurrentPosition() while not prepared -> 0");
             return 0;
@@ -102,7 +102,7 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
     }
 
     @Override
-    public int getDuration() {
+    public long getDuration() {
         if (!prepared) {
             myLogD("getDuration() while not prepared -> 0");
             return 0;
@@ -114,7 +114,7 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
     @Override public int getAudioSessionId()  { return mp.getAudioSessionId(); }
 
     @Override
-    public void seekTo(int ms) {
+    public void seekTo(long ms) {
         if (!prepared) {
             myLogE("seekTo(" + ms + ") while not prepared");
             return;
@@ -122,7 +122,7 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
         try {
                 //mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
                 //myLogD("seekTo CLOSEST " + ms);
-                mp.seekTo(ms);
+                mp.seekTo((int) ms);
                 myLogD("seekTo NORMAL " + ms);
         } catch (Throwable t) {
             myLogEE(null, "seekTo failed: " + t.getMessage());

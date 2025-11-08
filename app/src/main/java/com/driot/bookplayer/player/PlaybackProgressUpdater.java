@@ -25,7 +25,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
         this.app = ctx.getApplicationContext();
     }
 
-    public void update(@NonNull ZikFile zf, boolean finished, int pos, int dur) {
+    public void update(@NonNull ZikFile zf, boolean finished, long pos, long dur) {
         io.submit(() -> {
             try {
                 if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {

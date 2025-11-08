@@ -210,15 +210,14 @@ public class AudioService extends LoggingService {
 
     private void broadcastUiCleared() {
         lastUiState = null;
-        uiLive.postValue(new PlaybackUiState(false, 0, 0, "", "", "",
-                0, 0,0, false, "OFF", getPlayMode(), "AudioService.broadcastUiCleared()"));
+        uiLive.postValue(new PlaybackUiState(Intents.PHASE_OFF, false, false, getPlayMode(), 0, 0, "", "", "",
+                0, 0,0, "AudioService.broadcastUiCleared()"));
         Intent i = new Intent(Intents.ACTION_UI_STATE)
                 .putExtra(Intents.EXTRA_UI_PLAYING, false)
                 .putExtra(Intents.EXTRA_UI_POS, 0L)
                 .putExtra(Intents.EXTRA_UI_DUR, 0L)
                 .putExtra(Intents.EXTRA_UI_TITLE, "")
-                .putExtra(Intents.EXTRA_UI_SUBTITLE, "")
-                .putExtra(Intents.EXTRA_UI_SUPPRESS_MINI, true);
+                .putExtra(Intents.EXTRA_UI_SUBTITLE, "");
 
         currentUiPhase = Intents.PHASE_LOADING_TEXT;
         currentUiPhaseMsg = null;
@@ -239,8 +238,8 @@ public class AudioService extends LoggingService {
             boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
-                    playing,
-                    0, //pos,
+                    getLoadPhase(), playing,
+                    (engine != null) && engine.isReady(), "radio", 0, //pos,
                     0, //dur,
                     title,
                     text,
@@ -248,10 +247,9 @@ public class AudioService extends LoggingService {
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
-                    /* ready */ (engine != null) && engine.isReady(),
-                    getLoadPhase(),
-                    /* playMode */ "radio"
-                    , "AudioService.broadcastUiState() - radio"
+                    /* ready */
+                    /* playMode */
+                    "AudioService.broadcastUiState() - radio"
             );
         } else if  (podcastMode) {
             String title = (radioTitle != null) ? radioTitle : getString(R.string.live_podcast);
@@ -262,8 +260,8 @@ public class AudioService extends LoggingService {
             boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
-                    playing,
-                    pos,
+                    getLoadPhase(), playing,
+                    (engine != null) && engine.isReady(), "podcast", pos,
                     dur,
                     title,
                     text,
@@ -271,10 +269,9 @@ public class AudioService extends LoggingService {
                     /* trackId */ 0,
                     /* folderId */ 0,
                     podcastFeedId,
-                    /* ready */ (engine != null) && engine.isReady(),
-                    getLoadPhase(),
-                    /* playMode */ "podcast"
-                    , "AudioService.broadcastUiState() - podcast"
+                    /* ready */
+                    /* playMode */
+                    "AudioService.broadcastUiState() - podcast"
             );
         } else {
             s = buildUiState();  // your existing file/TTS path
@@ -318,8 +315,8 @@ public class AudioService extends LoggingService {
         boolean ready = (engine != null) && engine.isReady();
 
         if (!"book".equals(playMode)) {
-            return new PlaybackUiState(playing, pos, dur, lastUiState.title, lastUiState.subTitle, lastUiState.cover,
-                    lastUiState.trackId, lastUiState.folderId, lastUiState.podcastFeedId, ready, loadPhase, playMode, "AudioService.buildUiState()");
+            return new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, lastUiState.title, lastUiState.subTitle, lastUiState.cover,
+                    lastUiState.trackId, lastUiState.folderId, lastUiState.podcastFeedId, "AudioService.buildUiState()");
         };
 
         //TODO not sure this below is usefull...
@@ -338,8 +335,8 @@ public class AudioService extends LoggingService {
         int folderId = (f != null) ? f.getId() : 0;
 
 
-        return new PlaybackUiState(playing, pos, dur, title, subTitle, cover,
-                trackId, folderId, 0, ready, loadPhase, playMode, "AudioService.buildUiState()");
+        return new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, title, subTitle, cover,
+                trackId, folderId, 0, "AudioService.buildUiState()");
     }
 
 
@@ -1561,7 +1558,7 @@ public class AudioService extends LoggingService {
 
     public void forwardAudio(int lag) {
         myLog("forwardAudio of " + lag);
-        int temp = getPosition();
+        long temp = getPosition();
         if ((temp + lag) <= getDuration()) {
             setPosition(temp + lag);
         }
@@ -1573,7 +1570,7 @@ public class AudioService extends LoggingService {
 
     public void backwardAudio(int lag) {
         myLog("backwardAudio() : " + lag);
-        int temp = getPosition();
+        long temp = getPosition();
         if ((temp - lag) > 0) {
             setPosition(temp - lag);
         }
@@ -1584,7 +1581,7 @@ public class AudioService extends LoggingService {
      ********************************************************************************
      */
 
-    public void setPosition(int position) {
+    public void setPosition(long position) {
         myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatMmSs(position));
         if (engine != null) {
             engine.seekTo(position);
@@ -1593,17 +1590,17 @@ public class AudioService extends LoggingService {
         }
     }
 
-    public int getPosition() {
-        int pos = engine != null ? engine.getCurrentPosition() : 0;
+    public long getPosition() {
+        long pos = engine != null ? engine.getCurrentPosition() : 0;
         if (LOG_TRACE_ALL && PlayList.getInstance() != null && PlayList.getInstance().getZikFile() != null) {
             int curPosGlobalVar = (int) PlayList.getInstance().getZikFile().getPosition();
-            int diff = curPosGlobalVar - pos;
+            long diff = curPosGlobalVar - pos;
             myLogD("getPosition() Saved/EngineCurrent  " + curPosGlobalVar + "/" + pos + "  -  Diff = " + diff);
         }
         return pos;
     }
 
-    public int getDuration() {
+    public long getDuration() {
         return engine != null ? engine.getDuration() : 0;
     }
 
@@ -1710,8 +1707,8 @@ public class AudioService extends LoggingService {
             return;
         }
         try {
-            int pos = bFinished ? (int) zf.getDuration() : getPosition();
-            int dur = bFinished ? (int) zf.getDuration() : getDuration();
+            long pos = bFinished ? (int) zf.getDuration() : getPosition();
+            long dur = bFinished ? (int) zf.getDuration() : getDuration();
             progress.update(zf, bFinished, pos, dur);
         } catch (Exception e) {
             myLogEE(e, "updateZikFileStateInDB");
@@ -1838,10 +1835,17 @@ public class AudioService extends LoggingService {
 
 
     private void onEngineFatal(String msg, int what, int extra) {
-        myLogEE(null, "Engine FATAL: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
         sleepTimer.stop();
         alertError(null, null);
+        if (podcastMode) {
+            if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {
+                myToastEE(null, getString(R.string.Podcast_source_error));
+            } else {
+                myToastE(getString(R.string.unexpected_error));
+                myLogEE(null, "Engine FATAL: " + msg + " (" + what + "," + extra + ")");
+            }
+        }
     }
 
 
@@ -1875,11 +1879,11 @@ public class AudioService extends LoggingService {
     }
 
     public String getLoadPhase() {
-        if (engine==null) return "OFF";
+        if (engine==null) return Intents.PHASE_OFF;;
         if (engine.isPlaying() || engine.isReady()) {
-            return "READY";
+            return Intents.PHASE_READY;
         } else {
-            return "BUFFERING";
+            return Intents.PHASE_BUFFERING;
         }
     }
 
@@ -1973,7 +1977,7 @@ public class AudioService extends LoggingService {
             //Cut Intro (book option)
             int introCut = Pref.getIntroCutFromPref(this, zikFile.getIdFolder()) * 1000;
             if (introCut > 0) {
-                int position = getPosition();
+                long position = getPosition();
                 myLog("position : [" + position + "]  introCut : [" + introCut + "]");
                 if (position < introCut) {
                     engine.seekTo(introCut);

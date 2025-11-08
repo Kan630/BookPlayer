@@ -176,7 +176,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     @Override public boolean isPlaying() { return player != null && player.isPlaying(); }
     @Override public boolean isReady()   { return prepared && !preparing; }
 
-    @Override public int getCurrentPosition() {
+    @Override public long getCurrentPosition() {
         if (!prepared) {
             myLogD("getCurrentPosition() while not prepared -> 0");
             return 0;
@@ -185,7 +185,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         catch (Throwable e) { myLogE("getCurrentPosition() ex"); return 0; }
     }
 
-    @Override public int getDuration() {
+    @Override public long getDuration() {
         if (!prepared) {
             myLogD("getDuration() while not prepared -> 0");
             return 0;
@@ -199,7 +199,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         catch (Throwable ignored) { return 0; }
     }
 
-    @Override public void seekTo(int positionMs) {
+    @Override public void seekTo(long positionMs) {
         if (!prepared) {
             myLogE("seekTo(" + positionMs + ") while not prepared");
             return;

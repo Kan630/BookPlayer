@@ -22,13 +22,13 @@ public interface PlayerEngine {
 
     boolean isReady();
 
-    int getCurrentPosition();
+    long getCurrentPosition();
 
-    int getDuration();
+    long getDuration();
 
     int getAudioSessionId();
 
-    void seekTo(int positionMs);
+    void seekTo(long positionMs);
 
     void setSpeed(float speed);
 

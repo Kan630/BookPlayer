@@ -21,26 +21,29 @@ public class PlaybackUiState extends LoggerHelper {
     public final String playMode;// = "book", "tts", "radio", "podcast", "book"
     public final String calledFrom;
 
-    public PlaybackUiState(boolean playing, long pos, long dur,
-                           String t, String s, String cover,
+    public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
+                           long pos, long dur,
+                           String title, String subTitle, String cover,
                            int trackId, int folderId, long podcastId,
-                           boolean ready, String loadPhase, String playMode,
                            String calledFrom) {
+
         super(PlaybackUiState.class);
+
+        this.loadPhase = loadPhase;
         this.playing = playing;
+        this.ready = ready;
+        this.playMode = playMode;
+
         this.positionMs = pos;
         this.durationMs = dur;
-        this.title = t;
-        this.subTitle = s;
+        this.title = title;
+        this.subTitle = subTitle;
         this.cover = cover;
 
         this.trackId = trackId;
         this.folderId = folderId;
         this.podcastFeedId = podcastId;
 
-        this.ready = ready;
-        this.playMode = playMode;
-        this.loadPhase = loadPhase;
         this.calledFrom = calledFrom;
 
         myLog(toString());

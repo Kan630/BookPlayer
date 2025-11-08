@@ -51,8 +51,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private String text = "";
     private int lastCharSpoken = 0;
     private int resumeOffsetChars = 0;
-    private int estDurationMs = 0;
-    private int estPositionMs = 0;
+    private long estDurationMs = 0;
+    private long estPositionMs = 0;
     private float speechRate = 1.0f;
 
     private float volume = 1f;
@@ -148,14 +148,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override public boolean isPlaying() { return playing; }
     @Override public boolean isReady()   { return !disposed && prepared && tts != null; }
-    @Override public int getCurrentPosition() { return estPositionMs; }
-    @Override public int getDuration()        { return estDurationMs; }
+    @Override public long getCurrentPosition() { return estPositionMs; }
+    @Override public long getDuration()        { return estDurationMs; }
     @Override public int getAudioSessionId()  { return 0; } // no visualizer for TTS
 
     @Override
-    public void seekTo(int positionMs) {
+    public void seekTo(long positionMs) {
         if (estDurationMs <= 0 || text.isEmpty()) return;
-        int clamped = Math.max(0, Math.min(positionMs, estDurationMs));
+        long clamped = Math.max(0, Math.min(positionMs, estDurationMs));
         int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
         resumeOffsetChars = charPos;
         estPositionMs = clamped;
@@ -170,7 +170,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     @Override
     public void setSpeed(float speed) {
         this.speechRate = Math.max(0.1f, speed);
-        int old = estDurationMs;
+        long old = estDurationMs;
         estDurationMs = estimateDurationMs(text, speechRate);
         if (old > 0) estPositionMs = (int) (estPositionMs * (estDurationMs / (double) old));
         if (playing && tts != null) tts.setSpeechRate(speechRate);

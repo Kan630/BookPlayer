@@ -6,24 +6,31 @@
     android:layout_height="match_parent"
     style="@style/MainContainer">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
-        <!-- Ongoing task banner container -->
+        <!-- Top overlay -->
         <FrameLayout
             android:id="@+id/topOverlayContainer"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp" />
+            android:layout_margin="12dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Your original scrollable content -->
+        <!-- Scrollable centered content -->
         <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
-            android:fillViewport="true">
+            android:id="@+id/mainScroll"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:fillViewport="true"
+            app:layout_constraintTop_toBottomOf="@id/topOverlayContainer"
+            app:layout_constraintBottom_toTopOf="@id/miniNowPlaying"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintVertical_bias="0.5">
 
             <LinearLayout
                 android:id="@+id/root"
@@ -145,5 +152,15 @@
 
             </LinearLayout>
         </ScrollView>
-    </LinearLayout>
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/miniNowPlaying"
+        android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_insetEdge="bottom"
+        />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>

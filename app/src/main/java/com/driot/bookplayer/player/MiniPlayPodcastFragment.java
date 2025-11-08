@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -20,9 +19,11 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.google.android.material.slider.Slider;
 
 public class MiniPlayPodcastFragment extends LoggingFragment {
     private PlaybackViewModel vm;
@@ -30,14 +31,17 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     private ProgressBar progress;
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle, tvMiniTime;
-    private SeekBar sbMiniSeek;
-    private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+    private Slider sbMiniSeek; // <- change type
     private boolean userSeeking;
+    private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+
+    private boolean isVisible;
+    private boolean buffering;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
-        return inf.inflate(R.layout.fragment_mini_play_streaming_player, c, false);
+        return inf.inflate(R.layout.fragment_mini_play_podcast, c, false);
     }
 
     @Override
@@ -58,7 +62,27 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
         //btnStop.setImageResource(R.drawable.ic_media_close_24);
 
-        v.setVisibility(View.GONE);
+        // Show a mm:ss bubble while dragging
+        sbMiniSeek.setLabelFormatter(value -> Tonio.formatMmSs((long) value * 1000L));
+
+        sbMiniSeek.addOnChangeListener((slider, value, fromUser) -> {
+            if (fromUser) {
+                // Live preview while scrubbing
+                long previewMs = (long) value * 1000L;
+                PlaybackUiState s = vm.getState().getValue();
+                long dur = (s != null) ? s.durationMs : 0L;
+                tvMiniTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
+            }
+        });
+
+        sbMiniSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+            @Override public void onStartTrackingTouch(@NonNull Slider slider) { userSeeking = true; }
+            @Override public void onStopTrackingTouch(@NonNull Slider slider) {
+                userSeeking = false;
+                myLogI("---- user finished SLIDER seek ----");
+                vm.seekTo((long) slider.getValue() * 1000L);
+            }
+        });
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
@@ -76,28 +100,33 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             if (!userSeeking) {
                 long pos = s.positionMs;
                 long dur = s.durationMs;
-                if (dur > 0) {
-                    //int prog = (int) ((pos * sbMiniSeek.getMax()) / dur);
-                    //sbMiniSeek.setProgress(prog);
-                    sbMiniSeek.setMax((int) s.durationMs);
-                    sbMiniSeek.setProgress((int) Math.min(s.positionMs, s.durationMs));
 
-                    String timeString = Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur);
-                    tvMiniTime.setText(timeString);
+                if (dur > 0) {
+                    // Use seconds on the slider to avoid float precision issues on long files
+                    float durSec = dur / 1000f;
+                    float posSec = Math.min(pos, dur) / 1000f;
+
+                    // valueTo must be >= value
+                    if (sbMiniSeek.getValueTo() != durSec) sbMiniSeek.setValueTo(durSec);
+                    if (sbMiniSeek.getValue() != posSec) sbMiniSeek.setValue(posSec);
+
+                    tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
                 } else {
-                    sbMiniSeek.setProgress(0);
+                    sbMiniSeek.setValueTo(1000f);
+                    sbMiniSeek.setValue(0f);
                     tvMiniTime.setText("--:-- / --:--");
                 }
             }
 
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
+/*
             reevaluateVisibility();
-
             vm.getPlayMode().observe(getViewLifecycleOwner(), playType -> reevaluateVisibility());
-            vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> reevaluateVisibility());
             vm.getState().observe(getViewLifecycleOwner(), state -> reevaluateVisibility());
             vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
+
+ */
         });
 /*
 // also observe the suppression flag to re-evaluate immediately
@@ -146,40 +175,32 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
 
          */
 
-        sbMiniSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
-            @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
-            @Override public void onStopTrackingTouch(SeekBar sb) {
-                userSeeking = false;
-                myLogI("---- user press SEEK BAR ----");
-                vm.seekTo(sb.getProgress());
-            }
-        });
-
-
 
     }
     private void reevaluateVisibility() {
         PlaybackUiState s = vm.getState().getValue();
-        PlaybackViewModel.PhaseUi p = vm.getPhase().getValue();
-        Boolean sup = vm.getMiniSuppressed().getValue();
-        String playType = vm.getPlayMode().getValue();
+        if (s == null) { myLogE("s null"); setGone(); return; }
 
-        if (s == null) { root.setVisibility(View.GONE); return; }
-
-        boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
-        progress.setVisibility(buffering ? View.VISIBLE : View.GONE); //spinning loading icon
-
-        boolean showMini =
-                (sup == null || !sup) &&
-                        (
-                                s.playing ||
-                                        s.ready ||
-                                        ("radio".equals(playType) && buffering)
-                        );
-
-        //myLogD("set Visibility :" + showMini);
-        root.setVisibility(showMini ? View.VISIBLE : View.GONE);
+        //spinning loading icon in miniPlayer
+        if (Intents.PHASE_BUFFERING.equals(s.loadPhase)) {
+            buffering = true;
+            myLog("---- buffering ----");
+            progress.setVisibility(View.VISIBLE);
+        } else {
+            buffering = false;
+            progress.setVisibility(View.GONE);
+        }
+        setVisible();
     }
 
+    private void setGone() {
+        if (isVisible) myLog("---- setGone ----");
+        isVisible = false;
+        root.setVisibility(View.GONE);
+    }
+    private void setVisible() {
+        if (!isVisible) myLog("---- setVisible ----");
+        isVisible = true;
+        root.setVisibility(View.VISIBLE);
+    }
 }

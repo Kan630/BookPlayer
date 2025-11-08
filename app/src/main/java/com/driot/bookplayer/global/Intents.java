@@ -47,6 +47,9 @@ public class Intents {
     public static final String PHASE_STARTING       = "STARTING";       // start() called, waiting first utterance
     public static final String PHASE_SPEAKING       = "SPEAKING";       // first utt_ started
     public static final String PHASE_ERROR          = "ERROR";          // optional, on early failure
+    public static final String PHASE_BUFFERING      = "BUFFERING";      //podcast... streams...
+    public static final String PHASE_OFF            = "OFF";
+
 
     public static final String EXTRA_UI_IS_RADIO = "ui_is_radio";
     public static final String ACTION_PLAY_RADIO = "com.driot.bookplayer.action.PLAY_RADIO";

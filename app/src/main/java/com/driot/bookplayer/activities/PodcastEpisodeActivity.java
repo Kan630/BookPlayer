@@ -485,24 +485,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         myLogD("onPlayEpisode [" + ep.title + "]");
         if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
             // Same episode toggled
-            /*
-            if (AudioService.lastUiState.playing) {
-                vm.playPause();
-                bForward  .setOnClickListener(v -> vm.next());
-                bRewind   .setOnClickListener(v -> vm.prev());
-                bSpeedUp  .setOnClickListener(v -> setSpeedViaVm(+INCREMENT_SPEED));
-                bSpeedDown.setOnClickListener(v -> setSpeedViaVm(-INCREMENT_SPEED));
-                bSetSleep .setOnClickListener(v -> showSleepDialog());
-
-                exoPlayer.pause();
-                isPlaying = false;
-            } else if (exoPlayer != null) {
-                // resume (no spinner here; RESUME is near-instant)
-                exoPlayer.play();
-                isPlaying = true;
-            }
-
-             */
         } else {
             // Different episode → fresh play, show spinner
             FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title);
@@ -510,6 +492,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         }
         currentEpisode = ep;
     }
+
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
 
@@ -522,7 +505,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                         .putExtra(Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
                         .putExtra(Intents.EXTRA_PODCAST_FEED_ID, podcast.feedId)
                         .putExtra(Intents.EXTRA_TITLE, ep.title)
-                        .putExtra(Intents.EXTRA_IMAGE_URL, ep.image)
+                        .putExtra(Intents.EXTRA_IMAGE_URL, (ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image))
                         .putExtra(Intents.EXTRA_CALLER, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()")
                         .putExtra(Intents.EXTRA_FOREGROUND, true)
         );

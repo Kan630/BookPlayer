@@ -144,8 +144,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 playMode.postValue(playModeExtra);
 
                 state.postValue(new PlaybackUiState(
-                        playing, pos, dur, title, sub, cover,
-                        trackId, folderId, podcastFeedId, ready, uiPhase, playModeExtra, "BroadcastReceiver, ACTION_UI_STATE"
+                        uiPhase, playing, ready, playModeExtra, pos, dur, title, sub, cover,
+                        trackId, folderId, podcastFeedId, "BroadcastReceiver, ACTION_UI_STATE"
                 ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 if (bound && service != null) pushSnapshot();
@@ -162,7 +162,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         if (prev == null) return; // nothing to smooth yet
 
         boolean playing = service.isPlaying();
-        int pos         = service.getPosition();
+        long pos        = service.getPosition();
         // Prefer existing duration unless service can provide a non-zero duration now
         long dur        = (prev.durationMs > 0) ? prev.durationMs : service.getDuration();
 
@@ -171,8 +171,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         String loadPhase = service.getLoadPhase();
 
         state.postValue(new PlaybackUiState(
-                playing,
-                pos,
+                loadPhase, playing,
+                ready, playMode, pos,
                 dur,
                 prev.title,
                 prev.subTitle,
@@ -180,9 +180,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 prev.trackId,
                 prev.folderId,
                 prev.podcastFeedId,
-                ready,
-                loadPhase,
-                playMode, // "tts", "radio", "podcast", "book"
+                // "tts", "radio", "podcast", "book"
                 "PlayBackViewModel.pushSnapshot()"
         ));
         miniSuppressed.postValue(service.isMiniSuppressed());
@@ -202,8 +200,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             }
         } else {
             myLogEE(null, "playPause while service == null");
+            return;
+            /*
             sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
             FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode playpause", "");
+             */
         }
     }
 
@@ -230,7 +231,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     /** seek needs binder access; no safe media-button fallback. */
-    public void seekTo(int ms) {
+    public void seekTo(long ms) {
         myLog("seekTo - " + Tonio.formatMmSs(ms) + " - isServiceNull=" + (service==null));
         if (service != null) {
             service.setPosition(ms);

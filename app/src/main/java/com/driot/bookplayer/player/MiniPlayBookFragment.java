@@ -18,13 +18,15 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.google.android.material.slider.Slider;
 
 public class MiniPlayBookFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle;
-    private SeekBar sbMiniSeek;
+    private Slider sbMiniSeek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
     private boolean userSeeking;
 
@@ -49,7 +51,28 @@ public class MiniPlayBookFragment extends LoggingFragment {
         btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
         btnStop.setImageResource(R.drawable.ic_media_close_24);
 
-        v.setVisibility(View.GONE);
+        // Show a mm:ss bubble while dragging
+        sbMiniSeek.setLabelFormatter(value -> Tonio.formatMmSs((long) value * 1000L));
+
+        sbMiniSeek.addOnChangeListener((slider, value, fromUser) -> {
+            if (fromUser) {
+                // Live preview while scrubbing
+                long previewMs = (long) value * 1000L;
+                PlaybackUiState s = vm.getState().getValue();
+                long dur = (s != null) ? s.durationMs : 0L;
+                //tvMiniTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
+            }
+        });
+
+        sbMiniSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+            @Override public void onStartTrackingTouch(@NonNull Slider slider) { userSeeking = true; }
+            @Override public void onStopTrackingTouch(@NonNull Slider slider) {
+                userSeeking = false;
+                myLogI("---- user finished SLIDER seek ----");
+                vm.seekTo((long) slider.getValue() * 1000L);
+            }
+        });
+
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
@@ -62,8 +85,26 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 ivCover.setVisibility(View.GONE);
             }
             if (!userSeeking) {
-                sbMiniSeek.setMax((int) Math.max(1L, s.durationMs));
-                sbMiniSeek.setProgress((int) Math.min(s.positionMs, s.durationMs));
+                //sbMiniSeek.setMax((int) Math.max(1L, s.durationMs));
+                //sbMiniSeek.setProgress((int) Math.min(s.positionMs, s.durationMs));
+                long pos = s.positionMs;
+                long dur = s.durationMs;
+
+                if (dur > 0) {
+                    // Use seconds on the slider to avoid float precision issues on long files
+                    float durSec = dur / 1000f;
+                    float posSec = Math.min(pos, dur) / 1000f;
+
+                    // valueTo must be >= value
+                    if (sbMiniSeek.getValueTo() != durSec) sbMiniSeek.setValueTo(durSec);
+                    if (sbMiniSeek.getValue() != posSec) sbMiniSeek.setValue(posSec);
+
+                    //tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
+                } else {
+                    sbMiniSeek.setValueTo(1000f);
+                    sbMiniSeek.setValue(0f);
+                    //tvMiniTime.setText("--:-- / --:--");
+                }
             }
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
@@ -109,14 +150,5 @@ public class MiniPlayBookFragment extends LoggingFragment {
             vm.dismissMini();
         });
 
-        sbMiniSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
-            @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
-            @Override public void onStopTrackingTouch(SeekBar sb) {
-                myLogI("---- user press SEEK BAR ----");
-                userSeeking = false;
-                vm.seekTo(sb.getProgress());
-            }
-        });
     }
 }

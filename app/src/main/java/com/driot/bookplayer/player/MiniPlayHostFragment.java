@@ -12,13 +12,18 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.Objects;
 
 public class MiniPlayHostFragment extends LoggingFragment {
 
+    private View root;
+
     private String lastPlayType;
+    private PlaybackViewModel vm;
+    private boolean buffering;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -28,10 +33,14 @@ public class MiniPlayHostFragment extends LoggingFragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
-        PlaybackViewModel vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        root = v.findViewById(R.id.mini_host_container);
 
         //Observer
         vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
+
+            reevaluateVisibility();
+
             if (!Objects.equals(newPlayType, lastPlayType)) {
                 myLogI("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
                 swapChild(newPlayType);
@@ -102,4 +111,19 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 .replace(R.id.mini_host_container, child, playType)
                 .commitAllowingStateLoss();
     }
+    private void reevaluateVisibility() {
+        PlaybackUiState s = vm.getState().getValue();
+        if (s == null) { myLogE("s null"); setGone(); return; }
+        setVisible();
+    }
+
+    private void setGone() {
+        if (root.getVisibility()==View.VISIBLE) myLog("---- setGone ----");
+        root.setVisibility(View.GONE);
+    }
+    private void setVisible() {
+        if (root.getVisibility()==View.GONE) myLog("---- setVisible ----");
+        root.setVisibility(View.VISIBLE);
+    }
+
 }

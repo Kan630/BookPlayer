@@ -5,29 +5,38 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    style="@style/MainContainer"
-    >
+    style="@style/MainContainer">
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="16dp"
-        android:descendantFocusability="beforeDescendants"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        >
+        android:layout_height="match_parent"
+        android:animateLayoutChanges="true">
+
+        <!-- Focus guard (kept) -->
         <View
             android:id="@+id/focusGuard"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:focusable="true"
-            android:focusableInTouchMode="true" />
+            android:focusableInTouchMode="true"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- Scrollable content; reserved space = mini player's height -->
         <ScrollView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:id="@+id/mainScroll"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:padding="16dp"
+            android:descendantFocusability="beforeDescendants"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
             android:fillViewport="true"
-            tools:context=".activities.MainActivity">
+            tools:context=".activities.MainActivity"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/miniNowPlaying"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -59,8 +68,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    >
+                    android:orientation="horizontal">
 
                     <Button
                         android:id="@+id/bFavorite"
@@ -68,9 +76,7 @@
                         style="@style/GetResourceButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="0dp"
-
-                    />
+                        android:layout_marginEnd="0dp" />
 
                     <ImageButton
                         android:id="@+id/ibFavorite"
@@ -81,7 +87,6 @@
                         android:background="@android:color/transparent"
                         app:tint="@android:color/holo_red_dark" />
 
-                    <!-- Spacer pushes the next item to the right -->
                     <View
                         android:layout_width="0dp"
                         android:layout_height="0dp"
@@ -94,11 +99,8 @@
                         android:contentDescription="@string/settings"
                         android:src="@drawable/ic_settings_24"
                         android:background="@android:color/transparent"
-                        app:tint="@color/verylightgray"
-
-                        />
-            </LinearLayout>
-
+                        app:tint="@color/verylightgray" />
+                </LinearLayout>
 
                 <View style="@style/GetResourceHorizontalBar"/>
 
@@ -107,46 +109,51 @@
                     android:text="@string/PodcastSearch_desc"
                     style="@style/GetResourceTextTopOfButton" />
 
-
                 <Spinner
-                    android:layout_marginTop="30dp"
                     android:id="@+id/spinnerLang"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    style="@style/GetResourceSpinner"
+                    android:layout_marginTop="30dp"
                     android:layout_marginEnd="20dp"
-                    />
+                    style="@style/GetResourceSpinner" />
 
                 <Button
-                    android:layout_marginTop="30dp"
                     android:id="@+id/bPodcastTrending"
                     android:text="@string/Trending"
                     style="@style/GetResourceButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    />
-
+                    android:layout_marginTop="30dp"
+                    android:layout_marginEnd="4dp" />
 
                 <com.driot.bookplayer.views.EditTextWithButtons
-                    android:layout_marginTop="30dp"
                     android:id="@+id/etPodcast"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"/>
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="30dp" />
 
                 <Button
-                    android:layout_marginTop="10dp"
                     android:id="@+id/bPodcastSearch"
                     android:text="@string/Search"
                     style="@style/GetResourceButton"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"/>
-
-
+                    android:layout_marginTop="10dp"
+                    android:layout_marginEnd="4dp" />
 
             </LinearLayout>
         </ScrollView>
-    </LinearLayout>
 
+        <!-- Bottom mini player host (space is reserved above) -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/miniNowPlaying"
+            android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_insetEdge="bottom" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </FrameLayout>
