@@ -2,9 +2,9 @@
 <androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/miniPlayer"
+    android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="64dp"
+    android:layout_height="50dp"
     android:background="?colorSecondary"
     android:paddingStart="12dp"
     android:paddingEnd="12dp"
@@ -14,6 +14,13 @@
     android:focusable="true"
     android:visibility="gone"
     >
+    <ImageView
+        android:id="@+id/ivCover"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:scaleType="centerCrop"
+        android:contentDescription="@string/cover_preview"
+        android:src="@drawable/ic_radio_24px" />
 
     <!-- Controls row -->
     <LinearLayout
@@ -28,7 +35,7 @@
         android:gravity="center_vertical">
 
         <ImageButton
-            android:id="@+id/btnMiniBack"
+            android:id="@+id/bMiniBackward"
             android:src="@drawable/ic_media_fast_rewind_24"
             style="@style/miniPlayerButton" />
 
@@ -42,20 +49,27 @@
             android:indeterminateTint="?attr/colorOnSecondary"
             android:visibility="gone"/>
 
+        <ProgressBar
+            android:id="@+id/progress"
+            style="?android:attr/progressBarStyleSmall"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:visibility="gone"/>
+
         <ImageButton
-            android:id="@+id/btnMiniPlayPause"
+            android:id="@+id/bMiniPlayPause"
             android:src="@drawable/ic_media_play_24"
             style="@style/miniPlayerButton"
             android:layout_width="48dp"
             android:layout_height="48dp" />
 
         <ImageButton
-            android:id="@+id/btnMiniForward"
+            android:id="@+id/bMiniForward"
             android:src="@drawable/ic_media_fast_forward_24"
             style="@style/miniPlayerButton" />
 
         <SeekBar
-            android:id="@+id/seekMini"
+            android:id="@+id/sbMiniSeek"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"

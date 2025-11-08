@@ -30,15 +30,6 @@ public class MiniPlayHostFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         PlaybackViewModel vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
-        /*
-        try {
-            myLog(vm.getState().getValue().toString());
-        } catch (Exception e) {
-            myLogE(e.getMessage());
-        }
-
-         */
-
         //Observer
         vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
             myLogW("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
@@ -61,13 +52,12 @@ public class MiniPlayHostFragment extends LoggingFragment {
         });
 
         // Initial attach (covers first frame before observer fires)
-        String firstPlayType = "book";
         if (vm.getState().getValue() != null) {
-            firstPlayType = vm.getState().getValue().playMode;
+            String firstPlayType = vm.getState().getValue().playMode;
+            attachFirstChild(firstPlayType);
+            lastPlayType = firstPlayType;
         }
 
-        attachFirstChild(firstPlayType);
-        lastPlayType = firstPlayType;
     }
 
     private void attachFirstChild(String playType) {
@@ -77,8 +67,10 @@ public class MiniPlayHostFragment extends LoggingFragment {
             child = new MiniPlayRadioFragment();
         } else if ("podcast".equals(playType)) {
             child = new MiniPlayPodcastFragment();
-        } else {
+        } else if ("book".equals(playType)) {
             child = new MiniPlayBookFragment();
+        } else {
+            throw new RuntimeException("unknown playType: " + playType + " - should not happen");
         }
         getChildFragmentManager().beginTransaction()
                 .replace(R.id.mini_host_container, child, playType)
@@ -96,8 +88,10 @@ public class MiniPlayHostFragment extends LoggingFragment {
             child = new MiniPlayRadioFragment();
         } else if ("podcast".equals(playType)) {
             child = new MiniPlayPodcastFragment();
-        } else {
+        } else if ("book".equals(playType)) {
             child = new MiniPlayBookFragment();
+        } else {
+            throw new RuntimeException("unknown playType: " + playType + " - should not happen");
         }
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)

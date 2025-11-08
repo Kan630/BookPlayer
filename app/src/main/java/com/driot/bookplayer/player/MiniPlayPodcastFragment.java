@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -18,13 +19,16 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 public class MiniPlayPodcastFragment extends LoggingFragment {
     private PlaybackViewModel vm;
+    private View root;
+    private ProgressBar progress;
     private ImageView ivCover;
-    private TextView tvTitle, tvSubTitle;
-    private SeekBar seek;
+    private TextView tvTitle, tvSubTitle, tvMiniTime;
+    private SeekBar sbMiniSeek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
     private boolean userSeeking;
 
@@ -36,44 +40,63 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
+        root = v.findViewById(R.id.root);
+        progress= v.findViewById(R.id.progress);
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSubTitle);
-        seek = v.findViewById(R.id.seek);
-        btnPrev = v.findViewById(R.id.btnPrev);
-        btnPlayPause = v.findViewById(R.id.btnPlayPause);
-        btnNext = v.findViewById(R.id.btnNext);
-        btnStop = v.findViewById(R.id.btnStop);
+        sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
+        btnPrev = v.findViewById(R.id.bMiniBackward);
+        btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
+        btnNext = v.findViewById(R.id.bMiniForward);
+        tvMiniTime = v.findViewById(R.id.tvMiniTime);
+        //btnStop = v.findViewById(R.id.btnStop);
         ivCover = v.findViewById(R.id.ivCover);
 
         btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
         btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
-        btnStop.setImageResource(R.drawable.ic_media_close_24);
+        //btnStop.setImageResource(R.drawable.ic_media_close_24);
 
         v.setVisibility(View.GONE);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
+
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+
             if (s.cover != null) {
                 ivCover.setVisibility(View.VISIBLE);
                 Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
             } else {
                 ivCover.setVisibility(View.GONE);
             }
+
             if (!userSeeking) {
-                seek.setMax((int) Math.max(1L, s.durationMs));
-                seek.setProgress((int) Math.min(s.positionMs, s.durationMs));
+                long pos = s.positionMs;
+                long dur = s.durationMs;
+                if (dur > 0) {
+                    int prog = (int) ((pos * sbMiniSeek.getMax()) / dur);
+                    sbMiniSeek.setProgress(prog);
+                //.setMax((int) Math.max(1L, s.durationMs));
+                //.setProgress((int) Math.min(s.positionMs, s.durationMs));
+                    String timeString = Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur);
+                    tvMiniTime.setText(timeString);
+                } else {
+                    sbMiniSeek.setProgress(0);
+                    tvMiniTime.setText("--:-- / --:--");
+                }
             }
+
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
-            Boolean suppressed = vm.getMiniSuppressed().getValue();
-            boolean hideBecauseSuppressed = Boolean.TRUE.equals(suppressed) && !s.playing;
-            boolean hasContent = s.playing || s.durationMs > 0;
+            reevaluateVisibility();
 
-            v.setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
+            vm.getPlayMode().observe(getViewLifecycleOwner(), playType -> reevaluateVisibility());
+            vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> reevaluateVisibility());
+            vm.getState().observe(getViewLifecycleOwner(), state -> reevaluateVisibility());
+            vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
         });
-
+/*
 // also observe the suppression flag to re-evaluate immediately
         vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> {
             PlaybackUiState s = vm.getState().getValue();
@@ -85,6 +108,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                             (s.subTitle != null && !s.subTitle.isEmpty());
             getView().setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
         });
+ */
 
 
         v.setOnClickListener(_x -> {
@@ -104,12 +128,15 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             myLogI("---- user press NEXT button ----");
             vm.next();
         });
+        /*
         btnStop.setOnClickListener(_v -> {
             myLogI("---- user press STOP button ----");
             vm.dismissMini();
         });
 
-        seek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+         */
+
+        sbMiniSeek.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
             @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
             @Override public void onStopTrackingTouch(SeekBar sb) {
@@ -117,5 +144,31 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                 vm.seekTo(sb.getProgress());
             }
         });
+
+
+
     }
+    private void reevaluateVisibility() {
+        PlaybackUiState s = vm.getState().getValue();
+        PlaybackViewModel.PhaseUi p = vm.getPhase().getValue();
+        Boolean sup = vm.getMiniSuppressed().getValue();
+        String playType = vm.getPlayMode().getValue();
+
+        if (s == null) { root.setVisibility(View.GONE); return; }
+
+        boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
+        progress.setVisibility(buffering ? View.VISIBLE : View.GONE); //spinning loading icon
+
+        boolean showMini =
+                (sup == null || !sup) &&
+                        (
+                                s.playing ||
+                                        s.ready ||
+                                        ("radio".equals(playType) && buffering)
+                        );
+
+        //myLogD("set Visibility :" + showMini);
+        root.setVisibility(showMini ? View.VISIBLE : View.GONE);
+    }
+
 }

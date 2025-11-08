@@ -38,10 +38,10 @@ public class MiniPlayBookFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSubTitle);
-        seek = v.findViewById(R.id.seek);
-        btnPrev = v.findViewById(R.id.btnPrev);
-        btnPlayPause = v.findViewById(R.id.btnPlayPause);
-        btnNext = v.findViewById(R.id.btnNext);
+        seek = v.findViewById(R.id.sbMiniSeek);
+        btnPrev = v.findViewById(R.id.bMiniBackward);
+        btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
+        btnNext = v.findViewById(R.id.bMiniForward);
         btnStop = v.findViewById(R.id.btnStop);
         ivCover = v.findViewById(R.id.ivCover);
 

@@ -250,11 +250,7 @@ public class AudioService extends LoggingService {
                     /* playMode */ "radio"
                     , "AudioService.broadcastUiState() - radio"
             );
-        } else {
-            s = buildUiState();  // your existing file/TTS path
-        }
-
-        if (podcastMode) {
+        } else if  (podcastMode) {
             String title = (radioTitle != null) ? radioTitle : getString(R.string.live_podcast);
             String text  = getString(R.string.live_podcast);
             String cover = (radioImageUrl != null) ? radioImageUrl : "";
@@ -308,27 +304,36 @@ public class AudioService extends LoggingService {
 
 
     private PlaybackUiState buildUiState() {
+        String playMode = getPlayMode();
+        String loadPhase = getLoadPhase();
+
+        long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
+        long dur = (engine != null) ? (long) engine.getDuration() : 0;
+        boolean playing = (engine != null) && engine.isPlaying();
+        boolean ready = (engine != null) && engine.isReady();
+
+        if (!"book".equals(playMode)) {
+            return new PlaybackUiState(playing, pos, dur, lastUiState.title, lastUiState.subTitle, lastUiState.cover,
+                    lastUiState.trackId, lastUiState.folderId, ready, loadPhase, playMode, "AudioService.buildUiState()");
+        };
+
+        //TODO not sure this below is usefull...
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl != null) ? pl.getZikFile() : null;
         Folder f = (pl != null) ? pl.getFolder() : null;
 
         String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
-        String text = (z != null) ? z.getDisplayName() : "";
+        String subTitle = (z != null) ? z.getDisplayName() : "";
         //String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
         String cover = (f != null) ? f.image : "";
 
-        // Be defensive around engine readiness to avoid 0/0 churn if you want
-        long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
-        long dur = (engine != null) ? (long) engine.getDuration() : 0;
-        boolean playing = (engine != null) && engine.isPlaying();
 
+        // Be defensive around engine readiness to avoid 0/0 churn if you want
         int trackId = (z != null) ? z.getId() : 0;
         int folderId = (f != null) ? f.getId() : 0;
-        boolean ready = (engine != null) && engine.isReady();
-        String playMode = getPlayMode();
-        String loadPhase = getLoadPhase();
 
-        return new PlaybackUiState(playing, pos, dur, title, text, cover,
+
+        return new PlaybackUiState(playing, pos, dur, title, subTitle, cover,
                 trackId, folderId, ready, loadPhase, playMode, "AudioService.buildUiState()");
     }
 

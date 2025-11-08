@@ -50,7 +50,7 @@
 
         <!-- Seek = ~half width -->
         <SeekBar
-            android:id="@+id/seek"
+            android:id="@+id/sbMiniSeek"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1" />
@@ -64,19 +64,19 @@
             android:layout_marginStart="8dp">
 
             <ImageButton
-                android:id="@+id/btnPrev"
+                android:id="@+id/bMiniBackward"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/rewind" />
 
             <ImageButton
-                android:id="@+id/btnPlayPause"
+                android:id="@+id/bMiniPlayPause"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/play" />
 
             <ImageButton
-                android:id="@+id/btnNext"
+                android:id="@+id/bMiniForward"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/forward" />

@@ -15,21 +15,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
-import androidx.media3.common.AudioAttributes;
-import androidx.media3.common.C;
-import androidx.media3.common.MediaItem;
-import androidx.media3.exoplayer.ExoPlayer;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
@@ -56,7 +48,6 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
-import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -90,18 +81,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private final java.util.Map<String, androidx.lifecycle.Observer<ZikFile>> pendingSwitchObservers = new java.util.HashMap<>();
     private final java.util.Set<Long> enqueuedEpisodeIds = new java.util.HashSet<>();
 
-    // timing / loader
-    private long clickStartMs = 0L;
 
-    private View miniPlayer;
-    private ImageButton btnMiniPlayPause, btnMiniBack, btnMiniForward;
-    private SeekBar seekMini;
-    private TextView tvMiniTime;
-
-    private final android.os.Handler miniUi = new android.os.Handler(android.os.Looper.getMainLooper());
-    private Runnable miniTicker;
-    private boolean miniUserSeeking = false;
-    private ProgressBar progressMini;
     private boolean isExpanded;
 
     private com.google.android.material.appbar.AppBarLayout appBar;
@@ -141,15 +121,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         btnRefreshOverlay = findViewById(R.id.btnRefreshOverlay);
         btnSortOverlay = findViewById(R.id.btnSortOverlay);
         btnCollapseOverlay = findViewById(R.id.btnCollapseOverlay);
-
-// MINI PLAYER
-        miniPlayer = findViewById(R.id.miniPlayer);
-        btnMiniPlayPause = findViewById(R.id.btnMiniPlayPause);
-        btnMiniBack = findViewById(R.id.btnMiniBack);
-        btnMiniForward = findViewById(R.id.btnMiniForward);
-        seekMini = findViewById(R.id.seekMini);
-        tvMiniTime = findViewById(R.id.tvMiniTime);
-        progressMini = findViewById(R.id.progressMini);
 
         appBar = findViewById(R.id.appBar);
         toolbar = findViewById(R.id.toolbar);
@@ -537,12 +508,12 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title);
             playEpisode(ep);
         }
+        currentEpisode = ep;
     }
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
 
         stopAudioServiceIfRunning();
-        beginStartupTiming();
 
         androidx.core.content.ContextCompat.startForegroundService(
                 getApplicationContext(),
@@ -627,10 +598,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         PodcastDownloadManager.enqueueDownloads(this, feedId, singleList, targetFolder, null);
     }
 
-
-    private void beginStartupTiming() {
-        clickStartMs = android.os.SystemClock.elapsedRealtime();
-    }
 
     private void updateCollapseIcon() {
         btnCollapseOverlay.setImageDrawable(

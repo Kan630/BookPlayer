@@ -59,11 +59,13 @@ public class PodcastFavoritesActivity extends LoggingActivity {
 
         adapter = new PodcastFavoritesRVAdapter(
                 item -> {
+                    myLogI(" --- user clicks podcast ---");
                     Intent intent = new Intent(this, PodcastEpisodeActivity.class);
                     intent.putExtra("podcast", item);
                     startActivity(intent);
                 },
                 (item, newState) -> {
+                    myLogI(" --- user clicks autodownload ---");
                     AppDatabase.databaseWriteExecutor.execute(() -> {
                         AppDatabase.getDatabase(this)
                                 .podcastDao()

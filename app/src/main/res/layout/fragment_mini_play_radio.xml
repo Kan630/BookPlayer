@@ -52,7 +52,7 @@
         android:visibility="gone"/>
 
     <ImageButton
-        android:id="@+id/btnPlayPause"
+        android:id="@+id/bMiniPlayPause"
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:background="?attr/selectableItemBackgroundBorderless"

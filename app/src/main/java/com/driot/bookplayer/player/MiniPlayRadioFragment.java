@@ -13,6 +13,7 @@ import com.driot.bookplayer.activities.GetRadioActivity;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
+
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
@@ -20,6 +21,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     private TextView tvTitle, tvSub;
     private ProgressBar progress;
     private ImageButton btnPlayPause;
+
+    PlaybackUiState lastState;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -33,7 +36,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSub   = v.findViewById(R.id.tvSub);
         progress= v.findViewById(R.id.progress);
-        btnPlayPause = v.findViewById(R.id.btnPlayPause);
+        btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
 
         root.setVisibility(View.GONE);
 
@@ -42,18 +45,23 @@ public class MiniPlayRadioFragment extends LoggingFragment {
         // Observe UI state
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
+            myLogI("vm.getState().observe " + s.toString());
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSub, s.title, s.subTitle);
 
             // Play/pause icon
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
-            Glide.with(ivCover.getContext())
-                    .load(s.cover)
-                    .placeholder(R.drawable.ic_radio_24px)
-                    .error(R.drawable.ic_radio_24px)
-                    .into(ivCover);
+            if (lastState==null || !lastState.cover.equals(s.cover)) {
+                myLogD("gliding cover image");
+                Glide.with(ivCover.getContext())
+                        .load(s.cover)
+                        .placeholder(R.drawable.ic_radio_24px)
+                        .error(R.drawable.ic_radio_24px)
+                        .into(ivCover);
+            }
 
             reevaluateVisibility();
+            lastState = vm.getState().getValue();
         });
 
         // Visibility rule: show for radio as soon as ready OR buffering; hide only if explicitly suppressed
