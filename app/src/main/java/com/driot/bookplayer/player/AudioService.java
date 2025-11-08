@@ -53,8 +53,8 @@ import static com.driot.bookplayer.utils.Tonio.formatTime;
 
 public class AudioService extends LoggingService {
 
-    // ---- TTS phase tracking ----
-    private @NonNull String currentUiPhase = Intents.PHASE_LOADING_TEXT;
+    // ---- Load phase tracking ----
+    private @NonNull String currentUiPhase = Intents.PHASE_OFF;
     private @Nullable String currentUiPhaseMsg = null;
 
     private final MutableLiveData<PlaybackUiState> uiLive = new MutableLiveData<>();
@@ -197,32 +197,33 @@ public class AudioService extends LoggingService {
     }
 
     private PlayerEngine engine;
-    private final Runnable onPrepared = this::onEnginePrepared;
 
     public boolean directPlay;
     private boolean justAdvancedToNext = false; //for TTS starting anywhere
 
     private boolean suppressMiniUntilNextPlay = false;
 
-    public boolean isMiniSuppressed() {
-        return suppressMiniUntilNextPlay;
-    }
-
     private void broadcastUiCleared() {
-        lastUiState = null;
-        uiLive.postValue(new PlaybackUiState(Intents.PHASE_OFF, false, false, getPlayMode(), 0, 0, "", "", "",
-                0, 0,0, "AudioService.broadcastUiCleared()"));
-        Intent i = new Intent(Intents.ACTION_UI_STATE)
-                .putExtra(Intents.EXTRA_UI_PLAYING, false)
-                .putExtra(Intents.EXTRA_UI_POS, 0L)
-                .putExtra(Intents.EXTRA_UI_DUR, 0L)
-                .putExtra(Intents.EXTRA_UI_TITLE, "")
-                .putExtra(Intents.EXTRA_UI_SUBTITLE, "");
 
-        currentUiPhase = Intents.PHASE_LOADING_TEXT;
+        lastUiState = null;
+        currentUiPhase = Intents.PHASE_OFF;
         currentUiPhaseMsg = null;
 
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+        uiLive.postValue(new PlaybackUiState(currentUiPhase, false, false, getPlayMode(), 0, 0, "", "", "",
+                0, 0,0, "AudioService.broadcastUiCleared()"));
+
+        LocalBroadcastManager.getInstance(this).sendBroadcast(
+                new Intent(Intents.ACTION_UI_STATE)
+                        .putExtra(Intents.EXTRA_UI_PLAYMODE, "")
+                        .putExtra(Intents.EXTRA_UI_PLAYING, false)
+                        .putExtra(Intents.EXTRA_UI_READY, false)
+                        .putExtra(Intents.EXTRA_UI_POS, 0L)
+                        .putExtra(Intents.EXTRA_UI_DUR, 0L)
+                        .putExtra(Intents.EXTRA_UI_TITLE, "-cleared-")
+                        .putExtra(Intents.EXTRA_UI_SUBTITLE, "")
+                        .putExtra(Intents.EXTRA_UI_COVER, "")
+                        .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
+        );
     }
 
     //needed for Car ?
@@ -238,8 +239,11 @@ public class AudioService extends LoggingService {
             boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
-                    getLoadPhase(), playing,
-                    (engine != null) && engine.isReady(), "radio", 0, //pos,
+                    getLoadPhase(),
+                    playing,
+                    (engine != null) && engine.isReady(),
+                    "radio",
+                    0, //pos,
                     0, //dur,
                     title,
                     text,
@@ -247,8 +251,6 @@ public class AudioService extends LoggingService {
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
-                    /* ready */
-                    /* playMode */
                     "AudioService.broadcastUiState() - radio"
             );
         } else if  (podcastMode) {
@@ -260,21 +262,23 @@ public class AudioService extends LoggingService {
             boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
-                    getLoadPhase(), playing,
-                    (engine != null) && engine.isReady(), "podcast", pos,
-                    dur,
+                    getLoadPhase()
+                    , playing
+                    , (engine != null) && engine.isReady()
+                    , "podcast"
+                    , pos
+                    , dur,
                     title,
                     text,
                     cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     podcastFeedId,
-                    /* ready */
-                    /* playMode */
                     "AudioService.broadcastUiState() - podcast"
             );
         } else {
-            s = buildUiState();  // your existing file/TTS path
+
+            s = buildUiState();
         }
 
         // Cache + publish LiveData
@@ -298,8 +302,7 @@ public class AudioService extends LoggingService {
                 .putExtra(Intents.EXTRA_UI_PLAYMODE, getPlayMode())
                 .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
                 .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
-
-                .putExtra(Intents.EXTRA_UI_IS_RADIO, radioMode);
+                ;
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
@@ -309,8 +312,8 @@ public class AudioService extends LoggingService {
         String playMode = getPlayMode();
         String loadPhase = getLoadPhase();
 
-        long pos = (engine != null) ? (long) engine.getCurrentPosition() : 0;
-        long dur = (engine != null) ? (long) engine.getDuration() : 0;
+        long pos = (engine != null) ? engine.getCurrentPosition() : 0;
+        long dur = (engine != null) ? engine.getDuration() : 0;
         boolean playing = (engine != null) && engine.isPlaying();
         boolean ready = (engine != null) && engine.isReady();
 
@@ -1073,13 +1076,13 @@ public class AudioService extends LoggingService {
                 }
                 if (engine instanceof TtsEngine) {
                     try {
-                        broadcastPhase(Intents.PHASE_WARMING_UP, getString(R.string.tts_phase_warming_up));
+                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP); //, getString(R.string.tts_phase_warming_up)
                         boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
                         myLog("Voice change success = " + ok);
                         if (ok) {
-                            broadcastPhase(Intents.PHASE_READY, null);
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_READY);
                         } else {
-                            broadcastPhase(Intents.PHASE_ERROR, getString(R.string.tts_phase_error));
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR); //getString(R.string.tts_phase_error)
                         }
 
                     } catch (Throwable ignored) {
@@ -1144,7 +1147,7 @@ public class AudioService extends LoggingService {
                 final long podcastFeedID = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
 
                 if (url == null || url.isEmpty()) {
-                    myLogE("ACTION_PLAY_RADIO without url");
+                    myLogE("ACTION_PLAY_PODCAST without url");
                     return START_NOT_STICKY;
                 }
 
@@ -1995,6 +1998,7 @@ public class AudioService extends LoggingService {
         myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
+        //PlaybackUiBus.get().setLoadPhase(phase);
         broadcastPhase(phase, "setUiPhase");
     }
 

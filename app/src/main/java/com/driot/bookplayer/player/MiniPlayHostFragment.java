@@ -12,7 +12,6 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.Objects;
@@ -37,15 +36,17 @@ public class MiniPlayHostFragment extends LoggingFragment {
         root = v.findViewById(R.id.mini_host_container);
 
         //Observer
-        vm.getPlayMode().observe(getViewLifecycleOwner(), newPlayType -> {
+        vm.getState().observe(getViewLifecycleOwner(), newState -> {
 
-            reevaluateVisibility();
+            setVisible();
+            String newPlayType = newState.playMode;
 
             if (!Objects.equals(newPlayType, lastPlayType)) {
                 myLogI("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
                 swapChild(newPlayType);
             } else {
-                myLogD("vm.getPlayType().observe: same as before newPlayType=[" + newPlayType + "]");
+                //myLogD("vm.getPlayType().observe: same as before newPlayType=[" + newPlayType + "]");
+
                 //check current display
                 Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
                 if (current == null) {
@@ -80,7 +81,8 @@ public class MiniPlayHostFragment extends LoggingFragment {
         } else if ("book".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            myLogE("unknown playType: " + playType);
+            myLogE("attachFirstChild - unknown playType: " + playType);
+            setGone();
             return;
         }
         getChildFragmentManager().beginTransaction()
@@ -102,7 +104,8 @@ public class MiniPlayHostFragment extends LoggingFragment {
         } else if ("book".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            myLogE("unknown playType: " + playType);
+            myLogE("swapChild - unknown playType: " + playType);
+            setGone();
             return;
         }
         getChildFragmentManager().beginTransaction()
@@ -110,11 +113,6 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.mini_host_container, child, playType)
                 .commitAllowingStateLoss();
-    }
-    private void reevaluateVisibility() {
-        PlaybackUiState s = vm.getState().getValue();
-        if (s == null) { myLogE("s null"); setGone(); return; }
-        setVisible();
     }
 
     private void setGone() {

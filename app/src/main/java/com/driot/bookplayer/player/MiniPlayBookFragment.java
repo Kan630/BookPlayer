@@ -7,7 +7,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -107,24 +106,6 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 }
             }
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
-
-            Boolean suppressed = vm.getMiniSuppressed().getValue();
-            boolean hideBecauseSuppressed = Boolean.TRUE.equals(suppressed) && !s.playing;
-            boolean hasContent = s.playing || s.durationMs > 0;
-
-            v.setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
-        });
-
-// also observe the suppression flag to re-evaluate immediately
-        vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> {
-            PlaybackUiState s = vm.getState().getValue();
-            if (s == null) return;
-            boolean hideBecauseSuppressed = Boolean.TRUE.equals(sup) && !s.playing;
-            boolean hasContent =
-                    (s.durationMs > 0) ||
-                            (s.title != null && !s.title.isEmpty()) ||
-                            (s.subTitle != null && !s.subTitle.isEmpty());
-            getView().setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
         });
 
 

@@ -1,5 +1,6 @@
 <!-- res/layout/fragment_mini_now_playing.xml -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/miniRoot"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -49,11 +50,20 @@
         </LinearLayout>
 
         <!-- Seek = ~half width -->
-        <SeekBar
+        <com.google.android.material.slider.Slider
             android:id="@+id/sbMiniSeek"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_height="10dp"
+            android:layout_weight="1"
+            app:layout_constraintTop_toBottomOf="@id/miniControlsRow"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:labelBehavior="floating"
+            app:trackHeight="2dp"
+            app:trackColor="?attr/colorSecondary"
+            app:thumbColor="?attr/colorSecondary"
+            />
 
         <!-- Controls -->
         <LinearLayout

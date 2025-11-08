@@ -239,8 +239,8 @@ public class PlayActivity extends LoggingActivity {
             tvSeekBar.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
 
-            PlaybackViewModel.PhaseUi p = vm.getPhase().getValue();
-            boolean isStarting = (p != null && Intents.PHASE_STARTING.equals(p.phase));
+            String p = (vm.getState().getValue() == null ? null : vm.getState().getValue().loadPhase);
+            boolean isStarting = (Intents.PHASE_STARTING.equals(p));
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -272,24 +272,22 @@ public class PlayActivity extends LoggingActivity {
             }
             // TTS vs Audio UI
             applyTtsToggleUi(s);
-        });
 
-        vm.getPhase().observe(this, p -> {
+
             if (p == null) return;
             myLog("Phase observer : " + p);
 
             // Pull the latest playback state to know if we’re in TTS or audio mode
-            PlaybackUiState s = vm.getState().getValue();
-            final boolean tts = (s != null && "tts".equals(s.playMode));
+            final boolean tts = ("tts".equals(s.playMode));
 
             // Default: hide overlays for pure audio mode unless we’re in an error phase
             if (!tts) {
                 // Show only ERROR message if present
-                boolean showError = Intents.PHASE_ERROR.equals(p.phase);
+                boolean showError = Intents.PHASE_ERROR.equals(p);
                 progressOverlay.setVisibility(View.GONE);
                 if (showError) {
                     progressTitle.setText("");
-                    progressMessage.setText(p.message != null ? p.message : getString(R.string.error_generic));
+                    //progressMessage.setText(p.message != null ? p.message : getString(R.string.error_generic));
                     messageOverlay.setVisibility(View.VISIBLE);
                 } else {
                     messageOverlay.setVisibility(View.GONE);
@@ -305,7 +303,7 @@ public class PlayActivity extends LoggingActivity {
 
 
             String label;
-            switch (p.phase) {
+            switch (p) {
                 case Intents.PHASE_LOADING_TEXT: label = getString(R.string.tts_phase_loading_text); break;
                 case Intents.PHASE_STARTING:     label = getString(R.string.tts_phase_starting);     break;
                 case Intents.PHASE_READY:        label = getString(R.string.tts_phase_ready);        break;
@@ -314,12 +312,12 @@ public class PlayActivity extends LoggingActivity {
                 default:                         label = "";                                         break;
             }
             // Prefer explicit message from service if present
-            if (p.message != null && !p.message.isEmpty()) label = p.message;
-            progressMessage.setText(label);
+            //if (p.message != null && !p.message.isEmpty()) label = p.message;
+            //progressMessage.setText(label);
 
             // Error message overlay (non-blocking)
-            if (Intents.PHASE_ERROR.equals(p.phase)) {
-                progressMessage.setText(p.message != null ? p.message : getString(R.string.tts_phase_error));
+            if (Intents.PHASE_ERROR.equals(p)) {
+                //progressMessage.setText(p.message != null ? p.message : getString(R.string.tts_phase_error));
                 messageOverlay.setVisibility(View.VISIBLE);
             } else {
                 messageOverlay.setVisibility(View.GONE);
@@ -332,6 +330,7 @@ public class PlayActivity extends LoggingActivity {
             bForward.setEnabled(controlsEnabled);
             seekbar.setEnabled(controlsEnabled);
              */
+
         });
 
 
@@ -636,12 +635,15 @@ public class PlayActivity extends LoggingActivity {
             return false;
         });
 
+        spinnerTtsVoice.setEnabled(true);
         // Re-enable spinner when phase is not busy
+        /*
         vm.getPhase().observe(this, p -> {
             if (p == null) return;
             boolean busy = p.isBusyPhase(); // you already have this helper
-            spinnerTtsVoice.setEnabled(!busy);
+
         });
+         */
 
         vm.setupTtsVoiceSpinner(
                 this,

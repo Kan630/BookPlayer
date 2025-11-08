@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     style="@style/MainContainer"
     android:layout_width="match_parent"
@@ -178,4 +179,11 @@
             </LinearLayout>
         </ScrollView>
     </LinearLayout>
-</FrameLayout>
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/miniNowPlaying"
+        android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

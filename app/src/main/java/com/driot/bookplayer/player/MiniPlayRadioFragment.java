@@ -17,9 +17,9 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
+    private ProgressBar progress;
     private ImageView ivCover;
     private TextView tvTitle, tvSub;
-    private ProgressBar progress;
     private ImageButton btnPlayPause;
 
     PlaybackUiState lastState;
@@ -32,13 +32,11 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         root = v.findViewById(R.id.root);
+        progress= v.findViewById(R.id.progress);
         ivCover = v.findViewById(R.id.ivCover);
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSub   = v.findViewById(R.id.tvSub);
-        progress= v.findViewById(R.id.progress);
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
-
-        root.setVisibility(View.GONE);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
@@ -60,15 +58,11 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                         .into(ivCover);
             }
 
-            reevaluateVisibility();
+            boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
+            progress.setVisibility(buffering ? View.VISIBLE : View.GONE); //spinning loading icon
+
             lastState = vm.getState().getValue();
         });
-
-        // Visibility rule: show for radio as soon as ready OR buffering; hide only if explicitly suppressed
-        vm.getPlayMode().observe(getViewLifecycleOwner(), playType -> reevaluateVisibility());
-        vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> reevaluateVisibility());
-        vm.getState().observe(getViewLifecycleOwner(), s -> reevaluateVisibility());
-        vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
 
         btnPlayPause.setOnClickListener(_v -> {
             myLogI("---- user press PlayPause button ----");
@@ -79,28 +73,5 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             myLogI("---- user press mini player ----");
             startActivity(new Intent(requireContext(), GetRadioActivity.class));
         });
-    }
-
-    private void reevaluateVisibility() {
-        PlaybackUiState s = vm.getState().getValue();
-        PlaybackViewModel.PhaseUi p = vm.getPhase().getValue();
-        Boolean sup = vm.getMiniSuppressed().getValue();
-        String playType = vm.getPlayMode().getValue();
-
-        if (s == null) { root.setVisibility(View.GONE); return; }
-
-        boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
-        progress.setVisibility(buffering ? View.VISIBLE : View.GONE); //spinning loading icon
-
-        boolean showMini =
-                (sup == null || !sup) &&
-                        (
-                                s.playing ||
-                                        s.ready ||
-                                        ("radio".equals(playType) && buffering)
-                        );
-
-        //myLogD("set Visibility :" + showMini);
-        root.setVisibility(showMini ? View.VISIBLE : View.GONE);
     }
 }
