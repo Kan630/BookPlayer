@@ -39,10 +39,10 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     private final List<Station> items = new ArrayList<>();
 
     // Header data
-    private CharSequence headerSearch  = "";
-    private CharSequence headerLang    = "";
-    private CharSequence headerCountryTag = "";
-    private CharSequence headerCount   = "";
+    private String headerSearch  = "";
+    private String headerLang    = "";
+    private String headerCountryTag = "";
+    private String headerCount   = "";
 
     // Favorite reflection (UUIDs from VM)
     private final Set<String> favoriteUuids = new HashSet<>();
@@ -53,20 +53,20 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     // --- Header API ---
     /** e.g. search="Jazz", lang="fr", countryTag="FR • chillout" */
-    public void setHeader(CharSequence search, CharSequence lang, CharSequence countryTag) {
+    public void setHeader(String search, String lang, String countryTag) {
         this.headerSearch = search != null ? search : "";
         this.headerLang = lang != null ? lang : "";
         this.headerCountryTag = countryTag != null ? countryTag : "";
         notifyItemChanged(0); // header
     }
-    public void setHeader(CharSequence search) {
+    public void setHeader(String search) {
         this.headerSearch = search != null ? search : "";
         this.headerLang = null;
         this.headerCountryTag = null;
         notifyItemChanged(0); // header
     }
 
-    public void setHeaderCount(CharSequence count) {
+    public void setHeaderCount(String count) {
         this.headerCount = count != null ? count : "";
         notifyItemChanged(0);
     }
@@ -133,7 +133,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder vh, int position) {
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
-            if (headerSearch == null ||headerSearch.isEmpty()) {
+            if (headerSearch == null || headerSearch.isEmpty()) {
                 h.tvSearch.setVisibility(View.GONE);
             } else {
                 h.tvSearch.setVisibility(View.VISIBLE);
