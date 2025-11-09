@@ -35,14 +35,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     public interface WarmupUiCallback { void onResult(boolean ready, int reason); }
 
-    private final MutableLiveData<PlaybackUiState> state = new MutableLiveData<>();
-    public LiveData<PlaybackUiState> getState() { return state; }
-
-    private final MutableLiveData<Boolean> miniSuppressed = new MutableLiveData<>(false);
-    public LiveData<Boolean> getMiniSuppressed() { return miniSuppressed; }
-
-    private final MutableLiveData<String> playMode = new MutableLiveData<>();
-    public LiveData<String> getPlayMode() { return playMode; }
+    public LiveData<PlaybackUiState> getState() { return PlaybackUiBus.get().state(); }
 
     private AudioService service;
     private boolean bound;
@@ -63,10 +56,6 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         @NonNull
         public String toString() { return phase + " - message = [" + message + "] - busy = [" + isBusyPhase() + "]"; }
     }
-
-    private final MutableLiveData<PhaseUi> phase = new MutableLiveData<>(new PhaseUi(Intents.PHASE_LOADING_TEXT, null));
-    public LiveData<PhaseUi> getPhase() { return phase; }
-
 
     private final ServiceConnection conn = new ServiceConnection() {
         @Override public void onServiceConnected(ComponentName name, IBinder binder) {
@@ -102,10 +91,9 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         // Initial seed: if running and we have a last snapshot, use it; otherwise leave null.
         // (Leaving null keeps the mini hidden via fragment's initial GONE + null guard.)
         if (AudioService.isRunning && AudioService.lastUiState != null) {
-            state.setValue(AudioService.lastUiState);
-            // Use the suppression coming from service if you cache it there;
-            // otherwise start "not suppressed" and wait for first ACTION_UI_STATE.
-            miniSuppressed.setValue(false);
+            myLog("Initial seed => overwriting with last UI state");
+            //state.setValue(AudioService.lastUiState);
+            PlaybackUiBus.get().emit(AudioService.lastUiState);
         }
     }
 
@@ -130,25 +118,24 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 final long podcastFeedId = i.getLongExtra(Intents.EXTRA_UI_PODCAST_FEED_ID,-4);
 
                 final boolean ready   = i.getBooleanExtra(Intents.EXTRA_UI_READY, false);
-                final String playModeExtra = i.getStringExtra(Intents.EXTRA_UI_PLAYMODE);
+                final String playMode = i.getStringExtra(Intents.EXTRA_UI_PLAYMODE);
 
                 final String uiPhase = i.getStringExtra(Intents.EXTRA_UI_PHASE);
-                final String uiMsg   = i.getStringExtra(Intents.EXTRA_UI_PHASE_MSG);
-                if (uiPhase != null) {
-                    myLog("uiPhase : " + uiPhase);
-                    phase.postValue(new PhaseUi(uiPhase, uiMsg));
-                }
 
-                miniSuppressed.postValue(i.getBooleanExtra(Intents.EXTRA_UI_SUPPRESS_MINI, false));
+                final String caller = i.getStringExtra(Intents.EXTRA_CALLER);
 
-                playMode.postValue(playModeExtra);
+                PlaybackUiState next = new PlaybackUiState(
+                        uiPhase, playing, ready, playMode, pos, dur, title, sub, cover,
+                        trackId, folderId, podcastFeedId, "BroadcastReceiver, called from : [" + caller + "]"
+                );
+                PlaybackUiBus.get().emit(next);
 
-                state.postValue(new PlaybackUiState(
-                        uiPhase, playing, ready, playModeExtra, pos, dur, title, sub, cover,
-                        trackId, folderId, podcastFeedId, "BroadcastReceiver, ACTION_UI_STATE"
-                ));
             } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
-                if (bound && service != null) pushSnapshot();
+                if (bound && service != null) {
+                    pushSnapshot();
+                } else {
+                    myLogE("BroadcastReceiver but not bound or service null ---- bound = " + bound + " - service = " + service);
+                }
             }
         }
     };
@@ -156,34 +143,26 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     /** Progress-only refresh. Never called when unbound. */
     private void pushSnapshot() {
-        if (!bound || service == null) return;
+        if (!bound || service == null) {
+            myLogE("pushSnapshot() but not bound or service null ---- bound = " + bound + " - service = " + service);
+            return;
+        }
 
-        PlaybackUiState prev = state.getValue();
+        PlaybackUiState prev = PlaybackUiBus.get().state().getValue();
         if (prev == null) return; // nothing to smooth yet
 
-        boolean playing = service.isPlaying();
-        long pos        = service.getPosition();
-        // Prefer existing duration unless service can provide a non-zero duration now
-        long dur        = (prev.durationMs > 0) ? prev.durationMs : service.getDuration();
-
-        boolean ready   = service.isReadyToPlay();
-        String playMode = service.getPlayMode();
-        String loadPhase = service.getLoadPhase();
-
-        state.postValue(new PlaybackUiState(
-                loadPhase, playing,
-                ready, playMode, pos,
-                dur,
-                prev.title,
-                prev.subTitle,
-                prev.cover,
-                prev.trackId,
-                prev.folderId,
-                prev.podcastFeedId,
-                // "tts", "radio", "podcast", "book"
+        PlaybackUiState next = new PlaybackUiState(
+                service.getLoadPhase(),
+                service.isPlaying(),
+                service.isReadyToPlay(),
+                service.getPlayMode(),
+                service.getPosition(),
+                (prev.durationMs > 0 ? prev.durationMs : service.getDuration()),
+                prev.title, prev.subTitle, prev.cover,
+                prev.trackId, prev.folderId, prev.podcastFeedId,
                 "PlayBackViewModel.pushSnapshot()"
-        ));
-        miniSuppressed.postValue(service.isMiniSuppressed());
+        );
+        PlaybackUiBus.get().emit(next); // add emit(...) helper, or specific setters
     }
 
 
@@ -241,9 +220,6 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     /** Close/hide mini and pause audio even if we're not bound. */
     public void dismissMini() {
-        // Optimistic local UX
-        miniSuppressed.setValue(true);
-
         // Let the service do the real work regardless of binding.
         Context app = getApplication();
         try {
@@ -269,6 +245,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 getApplication().bindService(
                         new Intent(getApplication(), AudioService.class),
                         conn,
+                        //Context.BIND_AUTO_CREATE ---> mybe if creation of service is delayed... ?
                         0 /* no auto-create; service is already running because it just broadcast */
                 );
             } catch (Throwable ignored) {}
@@ -367,25 +344,32 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     private volatile boolean inError = false;
 
-    private void setPhase(@NonNull String phaseId, @Nullable String message) {
+    private void setLoadPhase(@NonNull String phaseId, @Nullable String message) {
+        myLog("setLoadPhase " + phaseId + " - " + message);
         // If you want to ignore warmup/starting while in error, keep this guard:
         if (inError && (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_STARTING.equals(phaseId))) {
+            myLogE("setLoadPhase - inError");
             return;
         }
         if (Intents.PHASE_ERROR.equals(phaseId)) inError = true;
         if (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_LOADING_TEXT.equals(phaseId)) inError = false;
 
-        PhaseUi p = new PhaseUi(phaseId, message);
-        if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) {
-            phase.setValue(p);
-        } else {
-            phase.postValue(p);
-        }
+        PlaybackUiState cur = PlaybackUiBus.get().state().getValue();
+        if (cur == null) { myLogEE(null,"setLoadPhase - no current"); return; }
+
+        PlaybackUiState next = new PlaybackUiState(
+                phaseId, cur.playing, cur.ready, cur.playMode,
+                cur.positionMs, cur.durationMs,
+                cur.title, cur.subTitle, cur.cover,
+                cur.trackId, cur.folderId, cur.podcastFeedId,
+                "PlayBackViewModel.setPhase"
+        );
+        PlaybackUiBus.get().emit(next);
     }
 
         public void warmUpTtsVoice(String voiceName, @Nullable WarmupUiCallback cb) {
         // Show spinner in the Activity while we switch
-        setPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
+        setLoadPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
 
         try {
             Context app = getApplication();
@@ -401,30 +385,13 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
             // Consider it ready (we switched instantly). If you later add true warm-up,
             // you can move this to the success callback.
-            setPhase(Intents.PHASE_READY, null);
+            setLoadPhase(Intents.PHASE_READY, null);
             if (cb != null) cb.onResult(true, TtsHelper.READY);
         } catch (Throwable t) {
-            setPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
+            setLoadPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
             if (cb != null) cb.onResult(false, TtsHelper.ERROR);
         }
     }
 
-    @Override
-    @NonNull
-    public String toString() {
-        PlaybackUiState st = state.getValue();
-        Boolean suppressed = miniSuppressed.getValue();
-        String mode = playMode.getValue();
-        PhaseUi ph = phase.getValue();
-
-        return "PlaybackViewModel{" +
-                "bound=" + bound +
-                ", service=" + (service == null ? "null" : service.getClass().getSimpleName()) +
-                ", playMode=" + (mode == null ? "null" : '"' + mode + '"') +
-                ", miniSuppressed=" + (suppressed == null ? "null" : suppressed.toString()) +
-                ", phase=" + (ph == null ? "null" : ph.toString()) +
-                ", state=" + (st == null ? "null" : st.toString()) +
-                '}';
-    }
 }
 

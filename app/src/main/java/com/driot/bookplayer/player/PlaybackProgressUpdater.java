@@ -20,12 +20,18 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
     private final ExecutorService io = Executors.newSingleThreadExecutor();
     private final DecimalFormat df = new DecimalFormat("#,###.");
 
+    private volatile long suspendUntil = 0;
+
     public PlaybackProgressUpdater(@NonNull Context ctx) {
         super(PlaybackProgressUpdater.class);
         this.app = ctx.getApplicationContext();
     }
 
     public void update(@NonNull ZikFile zf, boolean finished, long pos, long dur) {
+        if (System.currentTimeMillis() < suspendUntil) {
+            myLog("update() skipped (suspended)");
+            return;
+        }
         io.submit(() -> {
             try {
                 if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {
@@ -56,5 +62,10 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 myLogEE(t, "update exception");
             }
         });
+    }
+    /** Temporarily suspend DB updates for a few milliseconds (e.g., after a seek). */
+    public void suspendOnce(long millis) {
+        suspendUntil = System.currentTimeMillis() + millis;
+        myLogD("suspending updates for " + millis + "ms");
     }
 }

@@ -24,7 +24,7 @@ import com.google.android.material.slider.Slider;
 public class MiniPlayBookFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private ImageView ivCover;
-    private TextView tvTitle, tvSubTitle;
+    private TextView tvTitle, tvSubTitle, tvMiniTime;
     private Slider sbMiniSeek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
     private boolean userSeeking;
@@ -39,6 +39,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSubTitle);
+        tvMiniTime = v.findViewById(R.id.tvMiniTime);
         sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
         btnPrev = v.findViewById(R.id.bMiniBackward);
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
@@ -59,7 +60,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 long previewMs = (long) value * 1000L;
                 PlaybackUiState s = vm.getState().getValue();
                 long dur = (s != null) ? s.durationMs : 0L;
-                //tvMiniTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
+                tvMiniTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
             }
         });
 
@@ -76,6 +77,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
+            myLogD(s.toString());
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
             if (s.cover != null) {
                 ivCover.setVisibility(View.VISIBLE);
@@ -84,8 +86,6 @@ public class MiniPlayBookFragment extends LoggingFragment {
                 ivCover.setVisibility(View.GONE);
             }
             if (!userSeeking) {
-                //sbMiniSeek.setMax((int) Math.max(1L, s.durationMs));
-                //sbMiniSeek.setProgress((int) Math.min(s.positionMs, s.durationMs));
                 long pos = s.positionMs;
                 long dur = s.durationMs;
 
@@ -98,11 +98,11 @@ public class MiniPlayBookFragment extends LoggingFragment {
                     if (sbMiniSeek.getValueTo() != durSec) sbMiniSeek.setValueTo(durSec);
                     if (sbMiniSeek.getValue() != posSec) sbMiniSeek.setValue(posSec);
 
-                    //tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
+                    tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
                 } else {
                     sbMiniSeek.setValueTo(1000f);
                     sbMiniSeek.setValue(0f);
-                    //tvMiniTime.setText("--:-- / --:--");
+                    tvMiniTime.setText("--:-- / --:--");
                 }
             }
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);

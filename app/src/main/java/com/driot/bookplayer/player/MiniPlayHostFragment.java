@@ -38,7 +38,6 @@ public class MiniPlayHostFragment extends LoggingFragment {
         //Observer
         vm.getState().observe(getViewLifecycleOwner(), newState -> {
 
-            setVisible();
             String newPlayType = newState.playMode;
 
             if (!Objects.equals(newPlayType, lastPlayType)) {
@@ -50,11 +49,11 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 //check current display
                 Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
                 if (current == null) {
-                    myLogW("should not happen, no fragment attached, re-attaching");
+                    myLogD("same playType, no fragment attached, re-attaching");
                     attachFirstChild(newPlayType);
                 } else{
                     if (!Objects.equals(newPlayType, current.getTag())) {
-                        myLogW("should not happen, wrong saved play type : [" + current.getTag() + "], swapping");
+                        myLogE("should not happen, wrong saved play type : [" + current.getTag() + "], swapping");
                         swapChild(newPlayType);
                     }
                 }
@@ -78,10 +77,10 @@ public class MiniPlayHostFragment extends LoggingFragment {
             child = new MiniPlayRadioFragment();
         } else if ("podcast".equals(playType)) {
             child = new MiniPlayPodcastFragment();
-        } else if ("book".equals(playType)) {
+        } else if ("book".equals(playType) || "tts".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            myLogE("attachFirstChild - unknown playType: " + playType);
+            myLogD("attachFirstChild - unknown playType: " + playType);
             setGone();
             return;
         }
@@ -89,6 +88,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 .replace(R.id.mini_host_container, child, playType)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commitNowAllowingStateLoss();
+        setVisible();
     }
 
     private void swapChild(String playType) {
@@ -101,7 +101,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
             child = new MiniPlayRadioFragment();
         } else if ("podcast".equals(playType)) {
             child = new MiniPlayPodcastFragment();
-        } else if ("book".equals(playType)) {
+        } else if ("book".equals(playType) || "tts".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
             myLogE("swapChild - unknown playType: " + playType);
@@ -113,6 +113,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .replace(R.id.mini_host_container, child, playType)
                 .commitAllowingStateLoss();
+        setVisible();
     }
 
     private void setGone() {

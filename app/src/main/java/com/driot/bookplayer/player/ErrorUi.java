@@ -36,14 +36,20 @@ public class ErrorUi {
                     } else {
                         if (!isReadAudioPermissionGranted(context)) {
                             errMessage = context.getString(R.string.permission_not_set);
+
+                            Intent appDetails = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                                    .setData(Uri.fromParts("package", context.getPackageName(), null));
+                            if (!(context instanceof android.app.Activity)) {
+                                appDetails.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            }
+
                             MsgBox.alertWithNeutral(
                                     context,
                                     context.getString(R.string.error_reading_track),
                                     errMessage,
                                     pathText,
                                     context.getString(R.string.settings),
-                                    new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
-                                            .setData(android.net.Uri.fromParts("package", context.getPackageName(), null))
+                                    appDetails
                             );
                             return;
                         } else {

@@ -19,6 +19,9 @@ public final class MsgBox {
 
     public static void info(Context ctx, String title, String message, @Nullable String details) {
         Intent i = MsgBoxActivity.buildInfo(ctx, title, message, details);
+        if (!(ctx instanceof Activity)) {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         ctx.startActivity(i);
     }
 
@@ -29,6 +32,9 @@ public final class MsgBox {
 
     public static void alert(Context ctx, String title, String message, @Nullable String details) {
         Intent i = MsgBoxActivity.buildAlert(ctx, title, message, details);
+        if (!(ctx instanceof Activity)) {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
         ctx.startActivity(i);
     }
 
@@ -42,6 +48,9 @@ public final class MsgBox {
         i.putExtra(MsgBoxActivity.EXTRA_NEUTRAL, neutralText);
         if (neutralIntent != null) {
             i.putExtra(MsgBoxActivity.EXTRA_NEUTRAL_INTENT, neutralIntent);
+        }
+        if (!(ctx instanceof Activity)) {
+            i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         }
         ctx.startActivity(i);
     }

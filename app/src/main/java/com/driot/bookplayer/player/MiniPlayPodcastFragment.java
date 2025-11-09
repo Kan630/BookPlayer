@@ -19,7 +19,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
@@ -35,9 +34,6 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     private boolean userSeeking;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
 
-    private boolean isVisible;
-    private boolean buffering;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -47,7 +43,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         root = v.findViewById(R.id.root);
-        progress= v.findViewById(R.id.progress);
+        progress = v.findViewById(R.id.progress);
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSubTitle);
         sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
@@ -76,8 +72,13 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         });
 
         sbMiniSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-            @Override public void onStartTrackingTouch(@NonNull Slider slider) { userSeeking = true; }
-            @Override public void onStopTrackingTouch(@NonNull Slider slider) {
+            @Override
+            public void onStartTrackingTouch(@NonNull Slider slider) {
+                userSeeking = true;
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NonNull Slider slider) {
                 userSeeking = false;
                 myLogI("---- user finished SLIDER seek ----");
                 vm.seekTo((long) slider.getValue() * 1000L);
@@ -87,6 +88,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
+            myLogD(s.toString());
 
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
 
@@ -120,32 +122,11 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
 
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
-/*
-            reevaluateVisibility();
-            vm.getPlayMode().observe(getViewLifecycleOwner(), playType -> reevaluateVisibility());
-            vm.getState().observe(getViewLifecycleOwner(), state -> reevaluateVisibility());
-            vm.getPhase().observe(getViewLifecycleOwner(), p -> reevaluateVisibility());
-
- */
         });
-/*
-// also observe the suppression flag to re-evaluate immediately
-        vm.getMiniSuppressed().observe(getViewLifecycleOwner(), sup -> {
-            PlaybackUiState s = vm.getState().getValue();
-            if (s == null) return;
-            boolean hideBecauseSuppressed = Boolean.TRUE.equals(sup) && !s.playing;
-            boolean hasContent =
-                    (s.durationMs > 0) ||
-                            (s.title != null && !s.title.isEmpty()) ||
-                            (s.subTitle != null && !s.subTitle.isEmpty());
-            getView().setVisibility((hasContent && !hideBecauseSuppressed) ? View.VISIBLE : View.GONE);
-        });
- */
-
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
-            if (vm.getState() != null && vm.getState().getValue()!=null) {
+            if (vm.getState() != null && vm.getState().getValue() != null) {
                 long idPodcast = vm.getState().getValue().podcastFeedId;
                 myLogD("idPodcast = " + idPodcast);
                 AppDatabase.databaseReadExecutor.execute(() -> {
@@ -174,33 +155,5 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         });
 
          */
-
-
-    }
-    private void reevaluateVisibility() {
-        PlaybackUiState s = vm.getState().getValue();
-        if (s == null) { myLogE("s null"); setGone(); return; }
-
-        //spinning loading icon in miniPlayer
-        if (Intents.PHASE_BUFFERING.equals(s.loadPhase)) {
-            buffering = true;
-            myLog("---- buffering ----");
-            progress.setVisibility(View.VISIBLE);
-        } else {
-            buffering = false;
-            progress.setVisibility(View.GONE);
-        }
-        setVisible();
-    }
-
-    private void setGone() {
-        if (isVisible) myLog("---- setGone ----");
-        isVisible = false;
-        root.setVisibility(View.GONE);
-    }
-    private void setVisible() {
-        if (!isVisible) myLog("---- setVisible ----");
-        isVisible = true;
-        root.setVisibility(View.VISIBLE);
     }
 }

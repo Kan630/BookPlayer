@@ -65,6 +65,18 @@
             app:thumbColor="?attr/colorSecondary"
             />
 
+        <TextView
+            android:id="@+id/tvMiniTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSecondary"
+            android:textSize="12sp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:text="--:--/123:22"
+            />
+
         <!-- Controls -->
         <LinearLayout
             android:layout_width="wrap_content"

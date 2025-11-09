@@ -222,6 +222,7 @@ public class AudioService extends LoggingService {
                         .putExtra(Intents.EXTRA_UI_TITLE, "-cleared-")
                         .putExtra(Intents.EXTRA_UI_SUBTITLE, "")
                         .putExtra(Intents.EXTRA_UI_COVER, "")
+                        .putExtra(Intents.EXTRA_CALLER, "audioService.broadcastUiCleared()")
                         .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
         );
     }
@@ -302,6 +303,8 @@ public class AudioService extends LoggingService {
                 .putExtra(Intents.EXTRA_UI_PLAYMODE, getPlayMode())
                 .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
                 .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
+
+                .putExtra(Intents.EXTRA_CALLER, "audioService.broadcastUiState")
                 ;
 
         LocalBroadcastManager.getInstance(this).sendBroadcast(i);
@@ -1130,6 +1133,7 @@ public class AudioService extends LoggingService {
                     return START_NOT_STICKY;
                 }
 
+                if (engine != null) engine.stop();
                 playRadioStream(url, title != null ? title : getString(R.string.live_radio), img);
                 return START_STICKY;
             }
@@ -1151,6 +1155,7 @@ public class AudioService extends LoggingService {
                     return START_NOT_STICKY;
                 }
 
+                if (engine != null) engine.stop();
                 playPodcastStream(podcastFeedID, url, title != null ? title : getString(R.string.podcasts), img);
                 return START_STICKY;
             }
@@ -1587,6 +1592,7 @@ public class AudioService extends LoggingService {
     public void setPosition(long position) {
         myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatMmSs(position));
         if (engine != null) {
+            progress.suspendOnce(300); //avoid races from progressUpdater => UI
             engine.seekTo(position);
             updatePlaybackStateForPosition();
             broadcastUiState();
@@ -1754,9 +1760,9 @@ public class AudioService extends LoggingService {
     private void loadFileKO(String strFilePathError) {
         myLog("loadFileKO");
         FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError);
-        LocalBroadcastManager.getInstance(AudioService.this)
-                .sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+        //LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
         ErrorLoadingFile = true;
+        ErrorUi.showPlayAudioErrorMessage(this, null);
         shutdown(false);
     }
 
@@ -1998,15 +2004,7 @@ public class AudioService extends LoggingService {
         myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
-        //PlaybackUiBus.get().setLoadPhase(phase);
-        broadcastPhase(phase, "setUiPhase");
-    }
-
-    private void broadcastPhase(@NonNull String phase, @Nullable String msg) {
-        Intent i = new Intent(Intents.ACTION_UI_STATE)
-                .putExtra(Intents.EXTRA_UI_PHASE, phase)
-                .putExtra(Intents.EXTRA_UI_PHASE_MSG, msg);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
+        PlaybackUiBus.get().setLoadPhase(phase);
     }
 
     // Full file/audiobook actions (current behavior)

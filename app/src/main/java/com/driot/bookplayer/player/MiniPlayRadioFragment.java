@@ -43,6 +43,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
         // Observe UI state
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
+            myLogD(s.toString());
             myLogI("vm.getState().observe " + s.toString());
             TitleHelper.setTitleAndSubtitle(tvTitle, tvSub, s.title, s.subTitle);
 

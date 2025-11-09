@@ -118,7 +118,7 @@
         android:id="@+id/labelStreaming"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/streaming"
+        android:text="@string/Streaming_Podcast"
         android:textStyle="italic"
         android:textSize="10sp"
         android:textColor="?attr/colorOnSecondary"

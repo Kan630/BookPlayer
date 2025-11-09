@@ -79,19 +79,35 @@
                 android:contentDescription="@string/stop" />
         </LinearLayout>
     </LinearLayout>
-
-    <com.google.android.material.slider.Slider
-        android:id="@+id/sbMiniSeek"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="10dp"
-        app:layout_constraintTop_toBottomOf="@id/miniControlsRow"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:labelBehavior="floating"
-        app:trackHeight="2dp"
-        app:trackColor="?attr/colorSecondary"
-        app:thumbColor="?attr/colorSecondary"
-        />
-
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        >
+        <com.google.android.material.slider.Slider
+            android:id="@+id/sbMiniSeek"
+            android:layout_width="0dp"
+            android:layout_height="10dp"
+            android:layout_weight="1"
+            app:layout_constraintTop_toBottomOf="@id/miniControlsRow"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:labelBehavior="floating"
+            app:trackHeight="2dp"
+            app:trackColor="?attr/colorSecondary"
+            app:thumbColor="?attr/colorSecondary"
+            />
+        <TextView
+            android:id="@+id/tvMiniTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="?attr/colorOnSecondary"
+            android:textSize="12sp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:text="--:--/123:22"
+            />
+    </LinearLayout>
 </LinearLayout>

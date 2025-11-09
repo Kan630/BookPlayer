@@ -1108,5 +1108,7 @@
     <string name="Nothing_to_re_import_among">Nothing to re-import among</string>
     <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.\nIf that is not the case, you can use the Reset App button in [Settings &gt; Utilities &gt; Cancel ongoing operation] (at the very bottom).</string>
     <string name="Podcast_source_error">"Podcast source error"</string>
+    <string name="Streaming_Podcast">Streaming Podcast</string>
+
 
 </resources>

@@ -159,6 +159,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
         resumeOffsetChars = charPos;
         estPositionMs = clamped;
+        lastCharSpoken = resumeOffsetChars;
         if (playing) {
             if (tts != null) {
                 tts.stop();
@@ -223,8 +224,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     @Override
     public void onUtteranceRange(int start, int end) {
         if (disposed) return;
-        // Use 'end' for better sync to audible progress
-        if (end > lastCharSpoken) lastCharSpoken = end;
+        lastCharSpoken = Math.min(Math.max(0, end), text.length());
         if (!text.isEmpty() && estDurationMs > 0) {
             estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
         }
@@ -246,6 +246,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     public void setStartOffsetChars(@IntRange(from = 0) int charOffset) {
         int target = Math.max(0, Math.min(charOffset, text.length()));
         resumeOffsetChars = target;
+        lastCharSpoken = target;
 
         if (estDurationMs > 0 && !text.isEmpty()) {
             estPositionMs = (int) ((resumeOffsetChars / (double) text.length()) * estDurationMs);

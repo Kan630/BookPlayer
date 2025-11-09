@@ -496,7 +496,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
 
-        stopAudioServiceIfRunning();
+        //stopAudioServiceIfRunning(); => will be done in startCommand
 
         androidx.core.content.ContextCompat.startForegroundService(
                 getApplicationContext(),
