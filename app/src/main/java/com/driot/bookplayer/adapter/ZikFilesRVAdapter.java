@@ -27,6 +27,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
+import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
@@ -232,7 +233,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
 
                 // was something playing ?
-                PlaybackUiState lastUiState = AudioService.lastUiState;
+                PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
 
                 //is same track clicked ?
                 PlayList pl = PlayList.getInstance();

@@ -3,8 +3,11 @@ package com.driot.bookplayer.player;
 
 import android.os.Looper;
 
+import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
+import com.driot.bookplayer.global.Intents;
 
 public final class PlaybackUiBus {
     private static final PlaybackUiBus INSTANCE = new PlaybackUiBus();
@@ -13,22 +16,20 @@ public final class PlaybackUiBus {
     private final MutableLiveData<PlaybackUiState> _state = new MutableLiveData<>();
     public LiveData<PlaybackUiState> state() { return _state; }
 
+    @Nullable
+    public PlaybackUiState snapshot() { return _state.getValue(); }
+
     public void emit(PlaybackUiState next) {
         if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper()) _state.setValue(next);
         else _state.postValue(next);
     }
 
-    private PlaybackUiBus() {
-        // Optional: set an initial state
-        _state.setValue(new PlaybackUiState(
-                /*loadPhase*/ "OFF",
-                /*playing*/ false,
-                /*ready*/ false,
-                /*playMode*/ null,
-                /*pos*/ 0L, /*dur*/ 0L,
-                /*title*/ null, /*subTitle*/ null,/*cover*/ null,
-                /*trackId*/ 0, /*folderId*/ 0, /*podcastId*/ 0L,
-                /*calledFrom*/ "PlaybackUiBus constructor"
+    public void clear() {
+        emit(new PlaybackUiState(
+                Intents.PHASE_OFF, false, false, "book",
+                0, 0, "", "", "",
+                0, 0, 0,
+                "PlaybackUiBus.clear()", 0
         ));
     }
 
@@ -43,7 +44,7 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
-                cur.calledFrom
+                cur.calledFrom, cur.callCounter + 1
         ));
     }
 
@@ -56,7 +57,7 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
-                cur.calledFrom
+                cur.calledFrom, cur.callCounter + 1
         ));
     }
 

@@ -57,4 +57,11 @@ public class Intents {
     public static final String EXTRA_TITLE       = "extra_title";
     public static final String EXTRA_IMAGE_URL   = "extra_image_url";
     public static final String EXTRA_PODCAST_FEED_ID = "EXTRA_PODCAST_ID";
+
+    public static final String CMD_UPDATE_SLEEP = "CMD_UPDATE_SLEEP";
+    public static final String EXTRA_MINUTES = "EXTRA_MINUTES";
+    public static final String CMD_SET_SPEED = "CMD_SET_SPEED";
+    public static final String EXTRA_SPEED = "EXTRA_SPEED";
+
+
 }

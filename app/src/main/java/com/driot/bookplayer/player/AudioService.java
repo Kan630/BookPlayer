@@ -57,11 +57,10 @@ public class AudioService extends LoggingService {
     private @NonNull String currentUiPhase = Intents.PHASE_OFF;
     private @Nullable String currentUiPhaseMsg = null;
 
-    private final MutableLiveData<PlaybackUiState> uiLive = new MutableLiveData<>();
     private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, false);
     private final Observer<PlayList.MetaState> metaObs = meta -> {
         lastPlayListMeta = meta;          // cache latest meta
-        broadcastUiState();       // rebuild + emit unified UI
+        //broadcastUiState("PlayList.MetaState");       // rebuild + emit unified UI
     };
 
     private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
@@ -72,7 +71,7 @@ public class AudioService extends LoggingService {
             if (i == null) return;
             if (Intents.ACTION_PING_UI.equals(i.getAction())) {
                 myLog("PING received");
-                broadcastUiState();
+                broadcastUiState("pingReceiver");
             }
         }
     };
@@ -81,7 +80,6 @@ public class AudioService extends LoggingService {
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
 
 
-    public static volatile com.driot.bookplayer.player.PlaybackUiState lastUiState = null;
     private boolean pausedByFocusLoss = false;
     private float preDuckVolume = 1f;
 
@@ -204,55 +202,33 @@ public class AudioService extends LoggingService {
     private boolean suppressMiniUntilNextPlay = false;
 
     private void broadcastUiCleared() {
-
-        lastUiState = null;
         currentUiPhase = Intents.PHASE_OFF;
         currentUiPhaseMsg = null;
-
-        uiLive.postValue(new PlaybackUiState(currentUiPhase, false, false, getPlayMode(), 0, 0, "", "", "",
-                0, 0,0, "AudioService.broadcastUiCleared()"));
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(
-                new Intent(Intents.ACTION_UI_STATE)
-                        .putExtra(Intents.EXTRA_UI_PLAYMODE, "")
-                        .putExtra(Intents.EXTRA_UI_PLAYING, false)
-                        .putExtra(Intents.EXTRA_UI_READY, false)
-                        .putExtra(Intents.EXTRA_UI_POS, 0L)
-                        .putExtra(Intents.EXTRA_UI_DUR, 0L)
-                        .putExtra(Intents.EXTRA_UI_TITLE, "-cleared-")
-                        .putExtra(Intents.EXTRA_UI_SUBTITLE, "")
-                        .putExtra(Intents.EXTRA_UI_COVER, "")
-                        .putExtra(Intents.EXTRA_CALLER, "audioService.broadcastUiCleared()")
-                        .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
-        );
+        PlaybackUiBus.get().clear();
     }
 
-    //needed for Car ?
-    private void broadcastUiState() {
-        // Build the UI snapshot first (radio-aware)
+
+    private void broadcastUiState(String fromWhere) {
+        final String phase   = getLoadPhase();
+        final boolean ready  = isReadyToPlay();
+        final boolean playing= isPlaying();
+        final String mode    = getPlayMode();
+
         PlaybackUiState s;
         if (radioMode) {
             String title = (radioTitle != null) ? radioTitle : getString(R.string.live_radio);
             String text  = getString(R.string.live_radio);
             String cover = (radioImageUrl != null) ? radioImageUrl : "";
-            //long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
-            //long   dur   = (engine != null) ? engine.getDuration()        : 0; // live => likely 0/unknown
-            boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
-                    getLoadPhase(),
-                    playing,
-                    (engine != null) && engine.isReady(),
-                    "radio",
+                    phase, playing, ready, "radio",
                     0, //pos,
                     0, //dur,
-                    title,
-                    text,
-                    cover,
+                    title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
-                    "AudioService.broadcastUiState() - radio"
+                    "AudioService.broadcastUiState() - radio " + fromWhere,-10
             );
         } else if  (podcastMode) {
             String title = (radioTitle != null) ? radioTitle : getString(R.string.live_podcast);
@@ -260,89 +236,42 @@ public class AudioService extends LoggingService {
             String cover = (radioImageUrl != null) ? radioImageUrl : "";
             long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
             long   dur   = (engine != null) ? engine.getDuration()        : 0;
-            boolean playing = (engine != null) && engine.isPlaying();
 
             s = new PlaybackUiState(
-                    getLoadPhase()
-                    , playing
-                    , (engine != null) && engine.isReady()
-                    , "podcast"
-                    , pos
-                    , dur,
-                    title,
-                    text,
-                    cover,
+                    phase, playing, ready, "podcast",
+                    pos, dur, title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     podcastFeedId,
-                    "AudioService.broadcastUiState() - podcast"
+                    "AudioService.broadcastUiState() - podcast " + fromWhere, -10
             );
         } else {
 
-            s = buildUiState();
+            String playMode = getPlayMode();
+            String loadPhase = getLoadPhase();
+
+            long pos = (engine != null) ? engine.getCurrentPosition() : 0;
+            long dur = (engine != null) ? engine.getDuration() : 0;
+
+            PlayList pl = PlayList.getInstance();
+            ZikFile z = (pl != null) ? pl.getZikFile() : null;
+            Folder f = (pl != null) ? pl.getFolder() : null;
+
+            String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
+            String subTitle = (z != null) ? z.getDisplayName() : "";
+            String cover = (f != null) ? f.image : "";
+
+            // Be defensive around engine readiness to avoid 0/0 churn if you want
+            int trackId = (z != null) ? z.getId() : 0;
+            int folderId = (f != null) ? f.getId() : 0;
+
+
+            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, title, subTitle, cover,
+                    trackId, folderId, 0, "AudioService.broadcastUiState() " + fromWhere, -10);
         }
 
-        // Cache + publish LiveData
-        lastUiState = s;
-        uiLive.postValue(s);
-        // Also broadcast the Intent (unchanged structure, but now using 's')
-        Intent i = new Intent(Intents.ACTION_UI_STATE)
-                .putExtra(Intents.EXTRA_UI_PLAYING, s.playing)
-                .putExtra(Intents.EXTRA_UI_POS, s.positionMs)
-                .putExtra(Intents.EXTRA_UI_DUR, s.durationMs)
-                .putExtra(Intents.EXTRA_UI_TITLE, s.title)
-                .putExtra(Intents.EXTRA_UI_SUBTITLE, s.subTitle)
-                .putExtra(Intents.EXTRA_UI_COVER, s.cover)
-                .putExtra(Intents.EXTRA_UI_SUPPRESS_MINI, suppressMiniUntilNextPlay)
+        PlaybackUiBus.get().emit(s);
 
-                .putExtra(Intents.EXTRA_UI_TRACK_ID, s.trackId)
-                .putExtra(Intents.EXTRA_UI_FOLDER_ID, s.folderId)
-                .putExtra(Intents.EXTRA_UI_PODCAST_FEED_ID, s.podcastFeedId)
-                .putExtra(Intents.EXTRA_UI_READY, s.ready)
-
-                .putExtra(Intents.EXTRA_UI_PLAYMODE, getPlayMode())
-                .putExtra(Intents.EXTRA_UI_PHASE, currentUiPhase)
-                .putExtra(Intents.EXTRA_UI_PHASE_MSG, currentUiPhaseMsg)
-
-                .putExtra(Intents.EXTRA_CALLER, "audioService.broadcastUiState")
-                ;
-
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-    }
-
-
-    private PlaybackUiState buildUiState() {
-        String playMode = getPlayMode();
-        String loadPhase = getLoadPhase();
-
-        long pos = (engine != null) ? engine.getCurrentPosition() : 0;
-        long dur = (engine != null) ? engine.getDuration() : 0;
-        boolean playing = (engine != null) && engine.isPlaying();
-        boolean ready = (engine != null) && engine.isReady();
-
-        if (!"book".equals(playMode)) {
-            return new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, lastUiState.title, lastUiState.subTitle, lastUiState.cover,
-                    lastUiState.trackId, lastUiState.folderId, lastUiState.podcastFeedId, "AudioService.buildUiState()");
-        };
-
-        //TODO not sure this below is usefull...
-        PlayList pl = PlayList.getInstance();
-        ZikFile z = (pl != null) ? pl.getZikFile() : null;
-        Folder f = (pl != null) ? pl.getFolder() : null;
-
-        String title = (z != null) ? z.getFolderName() : (f != null ? f.getName() : "");
-        String subTitle = (z != null) ? z.getDisplayName() : "";
-        //String cover = (f != null) ? StorageHelper.checkAndCleanImagePath(this, f.image) : "";
-        String cover = (f != null) ? f.image : "";
-
-
-        // Be defensive around engine readiness to avoid 0/0 churn if you want
-        int trackId = (z != null) ? z.getId() : 0;
-        int folderId = (f != null) ? f.getId() : 0;
-
-
-        return new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, title, subTitle, cover,
-                trackId, folderId, 0, "AudioService.buildUiState()");
     }
 
 
@@ -465,9 +394,7 @@ public class AudioService extends LoggingService {
                     public void onTick(int elapsedSeconds) {
                         Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
                         updateZikFileStateInDB(false);
-                        LocalBroadcastManager.getInstance(AudioService.this).sendBroadcast(
-                                new Intent(NOTIFICATION_PLAYBACK_TIMER_VALUE).putExtra(TIMER_VALUE, elapsedSeconds)
-                        );
+                        emitUiTick("AudioService.SleepTimer.onTick");
                     }
 
                     @Override
@@ -823,7 +750,7 @@ public class AudioService extends LoggingService {
         }
 
         showForegroundNotification(true);
-        broadcastUiState();
+        broadcastUiState("startPlayWithEngine");
     }
 
     private void nextTrack() {
@@ -1474,7 +1401,7 @@ public class AudioService extends LoggingService {
 
             // Optional: broadcast current title/pos (dur likely 0 → mini remains hidden).
             // This “primes” the UI with labels without forcing visibility.
-            broadcastUiState();
+            broadcastUiState("loadFile");
 
         } catch (Exception e) {
             myLogEE(e, "loadFile: setDataSource/prepareAsync failed");
@@ -1494,8 +1421,8 @@ public class AudioService extends LoggingService {
         int wantId = (cur != null) ? cur.getId() : 0;
 
         // If we have no last snapshot or ids differ, we need to load.
-        if (lastUiState == null) return true;
-        return lastUiState.trackId != wantId;
+        if (PlaybackUiBus.get().state().getValue() == null) return true;
+        return PlaybackUiBus.get().state().getValue().trackId != wantId;
     }
 
     public void playAudio() {
@@ -1503,7 +1430,7 @@ public class AudioService extends LoggingService {
 
         if (suppressMiniUntilNextPlay) {
             suppressMiniUntilNextPlay = false;
-            broadcastUiState();
+            broadcastUiState("playAudio");
         }
 
         if (!radioMode && !podcastMode) {
@@ -1536,7 +1463,7 @@ public class AudioService extends LoggingService {
             focus.abandon();
             sleepTimer.stop();
             showForegroundNotification(false);
-            broadcastUiState();
+            broadcastUiState("pauseAudioNoSave");
         }
     }
 
@@ -1547,7 +1474,7 @@ public class AudioService extends LoggingService {
             focus.abandon();
             sleepTimer.stop();
             showForegroundNotification(false);
-            broadcastUiState();
+            broadcastUiState("pauseAudio");
         }
     }
 
@@ -1595,7 +1522,7 @@ public class AudioService extends LoggingService {
             progress.suspendOnce(300); //avoid races from progressUpdater => UI
             engine.seekTo(position);
             updatePlaybackStateForPosition();
-            broadcastUiState();
+            broadcastUiState("setPosition");
         }
     }
 
@@ -1806,6 +1733,7 @@ public class AudioService extends LoggingService {
             updateSessionState(false);
             showForegroundNotification(false);
         }
+        broadcastUiState("onEnginePrepared");
     }
 
     private void onEngineCompletion() {
@@ -1872,7 +1800,7 @@ public class AudioService extends LoggingService {
     }
 
     public void pingUi() {
-        broadcastUiState();
+        broadcastUiState("pingUi");
     }
 
     public String getPlayMode() {
@@ -2037,7 +1965,7 @@ public class AudioService extends LoggingService {
         radioImageUrl = imageUrl;
         radioUri = Uri.parse(url);
         suppressMiniUntilNextPlay = false;
-        broadcastUiState();                  // first snapshot (BUFFERING)
+        broadcastUiState("playRadioStream");                  // first snapshot (BUFFERING)
 
         // Swap engine to Exo for radio
         engineGen++;
@@ -2071,7 +1999,7 @@ public class AudioService extends LoggingService {
             engine.prepareAsync();
 
             // Broadcast a first UI state (pos/dur 0)
-            broadcastUiState();
+            broadcastUiState("playRadioStream2");
             // Auto-play when ready
             directPlay = true;
 
@@ -2095,7 +2023,7 @@ public class AudioService extends LoggingService {
             return;
         }
         suppressMiniUntilNextPlay = false;
-        broadcastUiState();                  // first snapshot (BUFFERING)
+        broadcastUiState("playPodcastStream");                  // first snapshot (BUFFERING)
 
         // Swap engine to Exo for radio
         engineGen++;
@@ -2129,7 +2057,7 @@ public class AudioService extends LoggingService {
             engine.prepareAsync();
 
             // Broadcast a first UI state (pos/dur 0)
-            broadcastUiState();
+            broadcastUiState("playPodcastStream2");
             // Auto-play when ready
             directPlay = true;
 
@@ -2159,6 +2087,25 @@ public class AudioService extends LoggingService {
             media.updateState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
                     pos, sp, ACTIONS_FILE);
         }
+    }
+
+    //TODO replace all this shot by MediaSession controller
+    private void emitUiTick(String calledFrom) {
+        broadcastUiState(calledFrom);
+        // TODO for later, just a light snapshot :
+        /*
+        public void setPositionAndPlaying(long pos, long dur, boolean playing, String calledFrom) {
+            PlaybackUiState cur = _state.getValue();
+            if (cur == null) return;
+            emit(new PlaybackUiState(
+                    cur.loadPhase, playing, cur.ready, cur.playMode,
+                    pos, dur, cur.title, cur.subTitle, cur.cover,
+                    cur.trackId, cur.folderId, cur.podcastFeedId,
+                    calledFrom, cur.callCounter + 1
+            ));
+
+        }
+         */
     }
 
 }

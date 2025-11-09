@@ -19,7 +19,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.slider.Slider;
@@ -90,7 +89,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             if (s == null) return;
             myLogD(s.toString());
 
-            TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+            UiHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
 
             if (s.cover != null) {
                 ivCover.setVisibility(View.VISIBLE);

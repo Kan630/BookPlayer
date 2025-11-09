@@ -4,28 +4,29 @@ import com.driot.bookplayer.utils.log.LoggerHelper;
 
 public class PlaybackUiState extends LoggerHelper {
 
+    public final String loadPhase;
     public final boolean playing;
+    public final boolean ready;  // engine.isReady()
+    public final String playMode;// = "book", "tts", "radio", "podcast", "book"
+
     public final long positionMs;
     public final long durationMs;
     public final String title;
     public final String subTitle;
     public final String cover;
 
-    // NEW — identity + engine info
     public final int trackId;    // current ZikFile id (or 0 if unknown)
     public final int folderId;   // current Folder id (or 0 if unknown)
     public final long podcastFeedId;
 
-    public final boolean ready;  // engine.isReady()
-    public final String loadPhase;
-    public final String playMode;// = "book", "tts", "radio", "podcast", "book"
     public final String calledFrom;
+    public final long callCounter;
 
     public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
                            long pos, long dur,
                            String title, String subTitle, String cover,
                            int trackId, int folderId, long podcastId,
-                           String calledFrom) {
+                           String calledFrom, long callCounter) {
 
         super(PlaybackUiState.class);
 
@@ -45,6 +46,7 @@ public class PlaybackUiState extends LoggerHelper {
         this.podcastFeedId = podcastId;
 
         this.calledFrom = calledFrom;
+        this.callCounter = callCounter;
 
         myLog(toString());
     }
@@ -52,9 +54,11 @@ public class PlaybackUiState extends LoggerHelper {
     @Override public String toString() {
         return "PlaybackUiState{" +
                 "  loadPhase=" + loadPhase +
+                ", playMode=" + playMode +
+                ", calledFrom='" + calledFrom + '\'' +
+                ", callCounter=" + callCounter +
                 ", playing=" + playing +
                 ", ready=" + ready +
-                ", playMode=" + playMode +
                 ", positionMs=" + positionMs +
                 ", durationMs=" + durationMs +
                 ", title='" + title + '\'' +
@@ -63,7 +67,6 @@ public class PlaybackUiState extends LoggerHelper {
                 ", trackId=" + trackId +
                 ", folderId=" + folderId +
                 ", podcastId=" + podcastFeedId +
-                ", calledFrom='" + calledFrom + '\'' +
                 '}';
     }
 

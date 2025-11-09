@@ -13,11 +13,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PlayActivity;
-import com.driot.bookplayer.helpers.TitleHelper;
-import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.slider.Slider;
 
@@ -27,7 +24,8 @@ public class MiniPlayBookFragment extends LoggingFragment {
     private TextView tvTitle, tvSubTitle, tvMiniTime;
     private Slider sbMiniSeek;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
-    private boolean userSeeking;
+
+    private UiHelper.SliderBinding sliderBinding;
 
     @Nullable
     @Override
@@ -37,99 +35,47 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
-        tvTitle = v.findViewById(R.id.tvTitle);
-        tvSubTitle = v.findViewById(R.id.tvSubTitle);
-        tvMiniTime = v.findViewById(R.id.tvMiniTime);
-        sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
-        btnPrev = v.findViewById(R.id.bMiniBackward);
-        btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
-        btnNext = v.findViewById(R.id.bMiniForward);
-        btnStop = v.findViewById(R.id.btnStop);
-        ivCover = v.findViewById(R.id.ivCover);
+        tvTitle     = v.findViewById(R.id.tvTitle);
+        tvSubTitle  = v.findViewById(R.id.tvSubTitle);
+        tvMiniTime  = v.findViewById(R.id.tvMiniTime);
+        sbMiniSeek  = v.findViewById(R.id.sbMiniSeek);
+        btnPrev     = v.findViewById(R.id.bMiniBackward);
+        btnPlayPause= v.findViewById(R.id.bMiniPlayPause);
+        btnNext     = v.findViewById(R.id.bMiniForward);
+        btnStop     = v.findViewById(R.id.btnStop);
+        ivCover     = v.findViewById(R.id.ivCover);
 
         btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
         btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
         btnStop.setImageResource(R.drawable.ic_media_close_24);
 
-        // Show a mm:ss bubble while dragging
-        sbMiniSeek.setLabelFormatter(value -> Tonio.formatMmSs((long) value * 1000L));
-
-        sbMiniSeek.addOnChangeListener((slider, value, fromUser) -> {
-            if (fromUser) {
-                // Live preview while scrubbing
-                long previewMs = (long) value * 1000L;
-                PlaybackUiState s = vm.getState().getValue();
-                long dur = (s != null) ? s.durationMs : 0L;
-                tvMiniTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
-            }
-        });
-
-        sbMiniSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-            @Override public void onStartTrackingTouch(@NonNull Slider slider) { userSeeking = true; }
-            @Override public void onStopTrackingTouch(@NonNull Slider slider) {
-                userSeeking = false;
-                myLogI("---- user finished SLIDER seek ----");
-                vm.seekTo((long) slider.getValue() * 1000L);
-            }
-        });
-
-
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+
+        // Centralized slider logic:
+        sliderBinding = UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
+
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
-            myLogD(s.toString());
-            TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
-            if (s.cover != null) {
-                ivCover.setVisibility(View.VISIBLE);
-                Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
-            } else {
-                ivCover.setVisibility(View.GONE);
-            }
-            if (!userSeeking) {
-                long pos = s.positionMs;
-                long dur = s.durationMs;
-
-                if (dur > 0) {
-                    // Use seconds on the slider to avoid float precision issues on long files
-                    float durSec = dur / 1000f;
-                    float posSec = Math.min(pos, dur) / 1000f;
-
-                    // valueTo must be >= value
-                    if (sbMiniSeek.getValueTo() != durSec) sbMiniSeek.setValueTo(durSec);
-                    if (sbMiniSeek.getValue() != posSec) sbMiniSeek.setValue(posSec);
-
-                    tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
-                } else {
-                    sbMiniSeek.setValueTo(1000f);
-                    sbMiniSeek.setValue(0f);
-                    tvMiniTime.setText("--:-- / --:--");
-                }
-            }
-            btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+            UiHelper.FillUiBasic(s, vm, btnPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek);
         });
-
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
             startActivity(new Intent(requireContext(), PlayActivity.class));
         });
 
-        btnPrev.setOnClickListener(_v -> {
-            myLogI("---- user press PREV button ----");
-            vm.prev();
-        });
-        btnPlayPause.setOnClickListener(_v -> {
-            myLogI("---- user press PlayPause button ----");
-            vm.playPause();
-        });
-        btnNext.setOnClickListener(_v -> {
-            myLogI("---- user press NEXT button ----");
-            vm.next();
-        });
-        btnStop.setOnClickListener(_v -> {
-            myLogI("---- user press STOP button ----");
-            vm.dismissMini();
-        });
+        btnPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
+        btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
+        btnNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
+        btnStop.setOnClickListener(_v -> { myLogI("---- user press STOP button ----"); vm.send_stop(); });
+    }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (sbMiniSeek != null) {
+            UiHelper.unbindSeekBar(sbMiniSeek);
+        }
+        sliderBinding = null;
     }
 }

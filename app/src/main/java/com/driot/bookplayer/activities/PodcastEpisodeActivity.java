@@ -47,6 +47,7 @@ import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -518,8 +519,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
         //closeExoPlayer();
-        if (AudioService.isRunning) {
-            if (AudioService.lastUiState.trackId==zikFile.getId()) {
+        if (AudioService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
+            if (PlaybackUiBus.get().state().getValue().trackId==zikFile.getId()) {
                 myLog("already playing that track");
                 startActivity(new Intent(this, PlayActivity.class));
                 return;

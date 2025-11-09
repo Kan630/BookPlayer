@@ -1,11 +1,9 @@
 package com.driot.bookplayer.player;
 
 import android.app.Application;
-import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.view.KeyEvent;
@@ -15,8 +13,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
@@ -40,30 +36,13 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private AudioService service;
     private boolean bound;
 
-    // NEW: small holder for phase+message
-    public static final class PhaseUi {
-        public final @NonNull String phase;
-        public final @Nullable String message;
-        public PhaseUi(@NonNull String phase, @Nullable String message) {
-            this.phase = phase; this.message = message;
-        }
-        public boolean isBusyPhase() {
-            // Phases where we want a loading spinner
-            return Intents.PHASE_LOADING_TEXT.equals(phase)
-                    || Intents.PHASE_WARMING_UP.equals(phase)
-                    || Intents.PHASE_STARTING.equals(phase);
-        }
-        @NonNull
-        public String toString() { return phase + " - message = [" + message + "] - busy = [" + isBusyPhase() + "]"; }
-    }
-
     private final ServiceConnection conn = new ServiceConnection() {
         @Override public void onServiceConnected(ComponentName name, IBinder binder) {
             AudioService.BackgroundBinder b = (AudioService.BackgroundBinder) binder;
             service = b.getService();
             bound = true;
             // Optional: seed a first progress snapshot (won't affect visibility logic)
-            pushSnapshot();
+            //pushSnapshot();
         }
         @Override public void onServiceDisconnected(ComponentName name) {
             bound = false;
@@ -80,69 +59,22 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         if (AudioService.isRunning) {
             app.bindService(new Intent(app, AudioService.class), conn, 0 /* no BIND_AUTO_CREATE */);
         }
-
-        // Listen to unified UI state and (optionally) timer ticks for progress.
-        LocalBroadcastManager lb = LocalBroadcastManager.getInstance(app);
-        IntentFilter f = new IntentFilter();
-        f.addAction(Intents.ACTION_UI_STATE);
-        f.addAction(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE); // progress only
-        lb.registerReceiver(receiver, f);
-
+/*
         // Initial seed: if running and we have a last snapshot, use it; otherwise leave null.
         // (Leaving null keeps the mini hidden via fragment's initial GONE + null guard.)
-        if (AudioService.isRunning && AudioService.lastUiState != null) {
+        if (AudioService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
             myLog("Initial seed => overwriting with last UI state");
             //state.setValue(AudioService.lastUiState);
             PlaybackUiBus.get().emit(AudioService.lastUiState);
         }
+
+ */
     }
-
-    private final BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override public void onReceive(Context c, Intent i) {
-            final String action = i.getAction();
-            //myLog("BroadcastReceiver : " + action);
-            if (Intents.ACTION_UI_STATE.equals(action)) {
-                // we now know the service is running; bind if not already
-                maybeBindOnFirstUiState();
-
-                final boolean playing = i.getBooleanExtra(Intents.EXTRA_UI_PLAYING, false);
-                final long pos        = i.getLongExtra(Intents.EXTRA_UI_POS, 0);
-                final long dur        = i.getLongExtra(Intents.EXTRA_UI_DUR, 0);
-                final String title    = i.getStringExtra(Intents.EXTRA_UI_TITLE);
-                final String sub      = i.getStringExtra(Intents.EXTRA_UI_SUBTITLE);
-
-                final String cover    = i.getStringExtra(Intents.EXTRA_UI_COVER);
-
-                final int trackId     = i.getIntExtra(Intents.EXTRA_UI_TRACK_ID, 0);
-                final int folderId    = i.getIntExtra(Intents.EXTRA_UI_FOLDER_ID, 0);
-                final long podcastFeedId = i.getLongExtra(Intents.EXTRA_UI_PODCAST_FEED_ID,-4);
-
-                final boolean ready   = i.getBooleanExtra(Intents.EXTRA_UI_READY, false);
-                final String playMode = i.getStringExtra(Intents.EXTRA_UI_PLAYMODE);
-
-                final String uiPhase = i.getStringExtra(Intents.EXTRA_UI_PHASE);
-
-                final String caller = i.getStringExtra(Intents.EXTRA_CALLER);
-
-                PlaybackUiState next = new PlaybackUiState(
-                        uiPhase, playing, ready, playMode, pos, dur, title, sub, cover,
-                        trackId, folderId, podcastFeedId, "BroadcastReceiver, called from : [" + caller + "]"
-                );
-                PlaybackUiBus.get().emit(next);
-
-            } else if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
-                if (bound && service != null) {
-                    pushSnapshot();
-                } else {
-                    myLogE("BroadcastReceiver but not bound or service null ---- bound = " + bound + " - service = " + service);
-                }
-            }
-        }
-    };
 
 
     /** Progress-only refresh. Never called when unbound. */
     private void pushSnapshot() {
+        myLog("pushSnapshot()");
         if (!bound || service == null) {
             myLogE("pushSnapshot() but not bound or service null ---- bound = " + bound + " - service = " + service);
             return;
@@ -160,7 +92,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 (prev.durationMs > 0 ? prev.durationMs : service.getDuration()),
                 prev.title, prev.subTitle, prev.cover,
                 prev.trackId, prev.folderId, prev.podcastFeedId,
-                "PlayBackViewModel.pushSnapshot()"
+                "PlayBackViewModel.pushSnapshot()", prev.callCounter + 1
         );
         PlaybackUiBus.get().emit(next); // add emit(...) helper, or specific setters
     }
@@ -219,7 +151,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     /** Close/hide mini and pause audio even if we're not bound. */
-    public void dismissMini() {
+    public void send_stop() {
         // Let the service do the real work regardless of binding.
         Context app = getApplication();
         try {
@@ -235,7 +167,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     @Override protected void onCleared() {
         if (bound) getApplication().unbindService(conn);
-        LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(receiver);
+//        LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(receiver);
     }
 
 
@@ -303,6 +235,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         return null;
     }
 
+
+    // --------------------------------------------------------------------
+    // --       TTS
+    // --------------------------------------------------------------------
+
     public String getTtsTextOrEmpty() {
         if (service != null) try { String t = service.getTtsText(); return t == null ? "" : t; } catch (Throwable ignored) {}
         return "";
@@ -362,7 +299,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 cur.positionMs, cur.durationMs,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
-                "PlayBackViewModel.setPhase"
+                "PlayBackViewModel.setPhase", cur.callCounter + 1
         );
         PlaybackUiBus.get().emit(next);
     }
@@ -392,6 +329,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             if (cb != null) cb.onResult(false, TtsHelper.ERROR);
         }
     }
+    // --------------------------------------------------------------------
 
 }
 

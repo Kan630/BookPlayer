@@ -10,7 +10,6 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetRadioActivity;
-import com.driot.bookplayer.helpers.TitleHelper;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 
@@ -42,15 +41,18 @@ public class MiniPlayRadioFragment extends LoggingFragment {
 
         // Observe UI state
         vm.getState().observe(getViewLifecycleOwner(), s -> {
-            if (s == null) return;
+            if (s == null) {
+                myLog("vm.getState().observe : s == null");
+                return;
+            }
             myLogD(s.toString());
-            myLogI("vm.getState().observe " + s.toString());
-            TitleHelper.setTitleAndSubtitle(tvTitle, tvSub, s.title, s.subTitle);
+            myLogI("vm.getState().observe " + s);
+            UiHelper.setTitleAndSubtitle(tvTitle, tvSub, s.title, s.subTitle);
 
             // Play/pause icon
             btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
-            if (lastState==null || !lastState.cover.equals(s.cover)) {
+            if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");
                 Glide.with(ivCover.getContext())
                         .load(s.cover)

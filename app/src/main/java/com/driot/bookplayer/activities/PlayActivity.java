@@ -40,7 +40,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.TitleHelper;
+import com.driot.bookplayer.player.UiHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -115,7 +115,8 @@ public class PlayActivity extends LoggingActivity {
                 // Non-TTS: keep the old fatal path
                 finishAndShowFatalError(em);
             } else if (AudioService.NOTIFICATION_FILENOTFOUND.equals(action)) {
-                finishAndShowFatalError(null);
+                finish();
+                //    finishAndShowFatalError(null);
             } else if (AudioService.NOTIFICATION_PLAYLISTFINISHED.equals(action)) {
                 myToast(getString(R.string.notification_playlist_finished));
                 finish();
@@ -221,10 +222,14 @@ public class PlayActivity extends LoggingActivity {
 
         // Observe playback state (single source of truth)
         vm.getState().observe(this, s -> {
-            if (s == null) return;
+            if (s == null) {
+                myLogD("observe : s == null");
+                return;
+            }
+            myLog("observe : " + s);
 
             // Title/sub
-            TitleHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+            UiHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
 
             // Seek/progress
             seekbar.setMax((int) Math.max(1L, s.durationMs));
@@ -249,7 +254,7 @@ public class PlayActivity extends LoggingActivity {
                     ivCover.setImageURI(null);
                     //ivCover.setImageURI(Uri.parse(s.cover));
                     //Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), s.cover)).into(ivCover);
-                    myLogD("loading image : " + s.cover);
+                    myLogD("gliding image : " + s.cover);
                     Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
                 }
                 ivCover.setVisibility(View.VISIBLE);
@@ -355,7 +360,15 @@ public class PlayActivity extends LoggingActivity {
             @Override public void handleOnBackPressed() {
                 myLogI("--- user press BACK ---");
                 PlaybackUiState s = vm.getState().getValue();
-                if (s == null || !s.playing) vm.dismissMini(); // sends STOP to service
+                if (s == null ) {
+                    myLog("s == null");
+                    vm.send_stop();
+                } else {
+                    if (!s.playing ) {
+                        myLog("!s.playing");
+                        vm.send_stop();
+                    }
+                }
                 finish();
             }
         });

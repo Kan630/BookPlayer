@@ -22,6 +22,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.AudioService;
+import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -86,14 +87,13 @@ public class ModifyZikFileActivity extends LoggingActivity {
         }
 
         findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
-            if (AudioService.lastUiState!=null) {
-                myToast(getString(R.string.Please_first_stop_the_player));
-            } else {
-                startActivity(new Intent(this, ZikFileActivity.class)
-                        .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
-                        .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
-                );
+            if ( PlaybackUiBus.get().state().getValue() != null) {
+                myToast(getString(R.string.Stop_the_player_to_move_playing_tracks));
             }
+            startActivity(new Intent(this, ZikFileActivity.class)
+                    .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
+                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
+            );
         });
 
         bReset.setOnClickListener(view -> bResetClick(zikFile));

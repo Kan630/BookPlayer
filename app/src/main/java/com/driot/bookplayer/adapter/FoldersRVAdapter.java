@@ -36,6 +36,7 @@ import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.AudioService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
+import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
@@ -256,7 +257,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                     } else {
                         myLogD("Single file");
                         // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
-                        PlaybackUiState lastUiState = AudioService.lastUiState;
+                        PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
                         PlayList pl = PlayList.getInstance();
                         boolean sameTrack = (pl != null && pl.getFolder() != null && pl.getFolder().getId() == clickedFolder.getId());  //keep getId() => needed !
                         boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
