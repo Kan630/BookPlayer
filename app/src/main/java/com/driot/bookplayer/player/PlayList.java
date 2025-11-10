@@ -87,6 +87,16 @@ public final class PlayList {
         pl.loadMetaAsync();     // async podcast fetch
         myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
     }
+/*
+    public static void createFromScratch(@NonNull Context ctx) {
+        Context app = ctx.getApplicationContext();
+        PlayList pl = new PlayList(app);
+        pl.createItems();
+        instance = pl;
+    }
+
+ */
+
 
     public void clear() {
         synchronized (lock) {
@@ -188,6 +198,15 @@ public final class PlayList {
         }
         postMetaDistinct(new MetaState(false, null, false));
     }
+/*
+    private void createItems() {
+        synchronized (lock) {
+/// from lastUpdated ZikFile... like in onPlay from Automotive FROM_TRACK
+        }
+        postMetaDistinct(new MetaState(false, null, false));
+    }
+
+ */
 
     private void loadMetaAsync() {
         final long v;

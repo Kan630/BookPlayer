@@ -25,7 +25,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.player.AudioService;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -255,7 +255,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                     ) {
                         ContextCompat.startForegroundService(
                                 ctx.getApplicationContext(),
-                                new Intent(ctx.getApplicationContext(), AudioService.class)
+                                new Intent(ctx.getApplicationContext(), MediaService.class)
                                         .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                         .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
                                         .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")

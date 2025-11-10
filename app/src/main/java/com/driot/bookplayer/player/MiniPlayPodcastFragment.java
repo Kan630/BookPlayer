@@ -14,7 +14,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -26,12 +25,16 @@ import com.google.android.material.slider.Slider;
 public class MiniPlayPodcastFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
-    private ProgressBar progress;
+    private ProgressBar progressBar;
     private ImageView ivCover;
-    private TextView tvTitle, tvSubTitle, tvMiniTime;
+    //private TextView tvTitle, tvSubTitle;
+    private TextView tvMiniTime;
     private Slider sbMiniSeek; // <- change type
     private boolean userSeeking;
     private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+
+    private UiHelper.SliderBinding sliderBinding;
+
 
     @Nullable
     @Override
@@ -42,9 +45,9 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         root = v.findViewById(R.id.root);
-        progress = v.findViewById(R.id.progress);
-        tvTitle = v.findViewById(R.id.tvTitle);
-        tvSubTitle = v.findViewById(R.id.tvSubTitle);
+        progressBar = v.findViewById(R.id.progress);
+        //tvTitle = v.findViewById(R.id.tvTitle);
+        //tvSubTitle = v.findViewById(R.id.tvSubTitle);
         sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
         btnPrev = v.findViewById(R.id.bMiniBackward);
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
@@ -85,43 +88,17 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         });
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
+        sliderBinding = UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
             myLogD(s.toString());
-
-            UiHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
-
-            if (s.cover != null) {
-                ivCover.setVisibility(View.VISIBLE);
-                Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
-            } else {
-                ivCover.setVisibility(View.GONE);
-            }
-
-            if (!userSeeking) {
-                long pos = s.positionMs;
-                long dur = s.durationMs;
-
-                if (dur > 0) {
-                    // Use seconds on the slider to avoid float precision issues on long files
-                    float durSec = dur / 1000f;
-                    float posSec = Math.min(pos, dur) / 1000f;
-
-                    // valueTo must be >= value
-                    if (sbMiniSeek.getValueTo() != durSec) sbMiniSeek.setValueTo(durSec);
-                    if (sbMiniSeek.getValue() != posSec) sbMiniSeek.setValue(posSec);
-
-                    tvMiniTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
-                } else {
-                    sbMiniSeek.setValueTo(1000f);
-                    sbMiniSeek.setValue(0f);
-                    tvMiniTime.setText("--:-- / --:--");
-                }
-            }
-
-            btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
-
+            UiHelper.FillUiBasic(s, progressBar, btnPlayPause, null, null, tvMiniTime, ivCover, sbMiniSeek);
         });
+
+        btnPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
+        btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
+        btnNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
+        //btnStop.setOnClickListener(_v -> { myLogI("---- user press STOP button ----"); vm.stop(); });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
@@ -134,25 +111,14 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                 });
             }
         });
+    }
 
-        btnPrev.setOnClickListener(_v -> {
-            myLogI("---- user press PREV button ----");
-            vm.prev();
-        });
-        btnPlayPause.setOnClickListener(_v -> {
-            myLogI("---- user press PlayPause button ----");
-            vm.playPause();
-        });
-        btnNext.setOnClickListener(_v -> {
-            myLogI("---- user press NEXT button ----");
-            vm.next();
-        });
-        /*
-        btnStop.setOnClickListener(_v -> {
-            myLogI("---- user press STOP button ----");
-            vm.dismissMini();
-        });
-
-         */
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        if (sbMiniSeek != null) {
+            UiHelper.unbindSeekBar(sbMiniSeek);
+        }
+        sliderBinding = null;
     }
 }

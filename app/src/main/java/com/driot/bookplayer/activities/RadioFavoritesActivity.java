@@ -19,17 +19,14 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
-import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -95,7 +92,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
                             // Stream with ExoPlayer via RadioMiniPlayer (no PlayActivity)
                             androidx.core.content.ContextCompat.startForegroundService(
                                     getApplicationContext(),
-                                    new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                                    new Intent(getApplicationContext(), MediaService.class)
                                             .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
                                             .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, stream)
                                             .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, f.name)

@@ -33,6 +33,8 @@ public class TtsHelper {
 
     public static final int READY=0, SET_VOICE_FAILED=1, MISSING_DATA=2, SYNTH_FAIL=3, ERROR=4, TIMEOUT=5;
 
+    private static final int MIN_FIRST_UTT_CHARS = 25;
+
     // optional raw access
     public TextToSpeech raw() { return tts; }
 
@@ -57,61 +59,64 @@ public class TtsHelper {
             myLogD("speakFromOffset : not ready");
             return;
         }
-        int maxLen = Option.getTtsChunkSize();
-        myLog("speakFromOffset : text length = [" + Tonio.getReadableSize(text.length()) + "] - start = [" + Tonio.getReadableSize(startOffset) + "] - chunk buffer = [" + maxLen + "] chars");
 
-        List<Chunk> chunks = buildChunks(text, maxLen);
-        int safeOffset = Math.max(0, Math.min(startOffset, text.length()));
+        final int maxLen = Option.getTtsChunkSize();
+        myLog("speakFromOffset : text length = [" + Tonio.getReadableSize(text.length()) +
+                "] - start = [" + Tonio.getReadableSize(startOffset) + "] - chunk buffer = [" + maxLen + "] chars");
 
-        // NEW: if we're at or beyond the end, do nothing (avoid empty utterances)
-        if (safeOffset >= text.length()) {
+        // Clamp and short-circuit if at end
+        final int N = text.length();
+        final int safeOffset = Math.max(0, Math.min(startOffset, N));
+        if (safeOffset >= N) {
             myLogD("speakFromOffset : at end, nothing to speak");
             return;
         }
 
+        // Build sentence-based chunks (<= maxLen each)
+        final List<Chunk> chunks = buildChunks(text, maxLen);
+        if (chunks.isEmpty()) {
+            myLogD("speakFromOffset : no chunks built");
+            return;
+        }
+
+        // Find first chunk to use (never returns a microscopic tail)
         int idx = findChunkIndexForOffset(chunks, safeOffset);
-        if (idx >= chunks.size()) return;
-
-        Chunk base = chunks.get(idx);
-
-        // If offset is past this chunk's end (can happen at exact boundary),
-        // skip to the next chunk; if none, return.
-        if (safeOffset >= base.end) {
-            if (++idx >= chunks.size()) return;
-            base = chunks.get(idx);
+        if (idx >= chunks.size()) {
+            myLogD("speakFromOffset : offset beyond last chunk");
+            return;
         }
 
-        int headEnd = Math.min(base.end, safeOffset + maxLen);
-        if (headEnd <= safeOffset) {
-            // Nothing meaningful in head; fall through to queue remainder chunks
-            myLogD("speakFromOffset : head slice empty, skip");
-        }
-
-        Bundle p = new Bundle();
+        // Params
+        final Bundle p = new Bundle();
         p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
 
-        // Only queue the head if it has content
-        if (headEnd > safeOffset) {
-            String headId = com.driot.bookplayer.tts.TtsIds.utt(safeOffset, headEnd);
-            int r = tts.speak(text.substring(safeOffset, headEnd), TextToSpeech.QUEUE_FLUSH, p, headId);
-            TtsErrorUtils.logOperationResult("TTS", "speak()", r);
+        // Hard flush once to clear any stale queue
+        try { tts.stop(); } catch (Throwable ignore) {}
+
+        // 1) First utterance: either slice mid-chunk, or speak the whole chunk
+        final Chunk first = chunks.get(idx);
+        int firstStart = (safeOffset > first.start) ? safeOffset : first.start;
+
+        if (first.end - firstStart < MIN_FIRST_UTT_CHARS && idx + 1 < chunks.size()) {
+            // Too small → skip to next full chunk instead
+            idx++;
         } else {
-            // No head → still flush to clear any stale queue
-            tts.stop(); // reliable flush
+            // Speak [firstStart, first.end)
+            String id = com.driot.bookplayer.tts.TtsIds.utt(firstStart, first.end);
+            int r = tts.speak(text.substring(firstStart, first.end), TextToSpeech.QUEUE_ADD, p, id);
+            TtsErrorUtils.logOperationResult("TTS", "speak(first)", r);
+            idx++; // next chunks follow
         }
 
-        if (headEnd < base.end) {
-            String tailId = com.driot.bookplayer.tts.TtsIds.utt(headEnd, base.end);
-            int r = tts.speak(text.substring(headEnd, base.end), TextToSpeech.QUEUE_ADD, p, tailId);
-            TtsErrorUtils.logOperationResult("TTS", "speak()", r);
-        }
-        for (int i = idx + 1; i < chunks.size(); i++) {
+        // 2) Remaining chunks: enqueue as-is
+        for (int i = idx; i < chunks.size(); i++) {
             Chunk c = chunks.get(i);
             String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end);
             int r = tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
-            TtsErrorUtils.logOperationResult("TTS", "speak()", r);
+            TtsErrorUtils.logOperationResult("TTS", "speak(chunk)", r);
         }
     }
+
 
     public void setSpeechRate(float rate) { if (tts != null) tts.setSpeechRate(rate); }
     public void stop()  { if (tts != null) tts.stop(); }
@@ -163,17 +168,22 @@ public class TtsHelper {
     }
 
     private static int findChunkIndexForOffset(List<Chunk> chunks, int offset) {
-        int lo = 0, hi = chunks.size() - 1, ans = 0;
+        if (chunks.isEmpty()) return 0;
+        // Binary search: smallest i with offset < chunks[i].end
+        int lo = 0, hi = chunks.size() - 1, ans = chunks.size(); // default = after last
         while (lo <= hi) {
             int mid = (lo + hi) >>> 1;
             Chunk c = chunks.get(mid);
-            if (offset < c.start) hi = mid - 1;
-            else { ans = mid; lo = mid + 1; }
+            if (offset < c.end) { ans = mid; hi = mid - 1; }
+            else { lo = mid + 1; }
         }
-        while (ans < chunks.size() - 1 && chunks.get(ans).end <= offset) ans++;
+        if (ans >= chunks.size()) return chunks.size(); // signals "past end"
+        // If we're *extremely* close to boundary (e.g., < 25 chars left), prefer the next chunk
+        final int MIN_FIRST_UTT_CHARS = 25;
+        Chunk c = chunks.get(ans);
+        if (offset >= c.end - MIN_FIRST_UTT_CHARS && ans + 1 < chunks.size()) return ans + 1;
         return ans;
     }
-
 
     /** Returns [wordStart, wordEnd] for a given offset. */
     public static int[] findWordBounds(CharSequence text, int off) {
@@ -379,5 +389,31 @@ public class TtsHelper {
         } else {
             return "unknown";
         }
+    }
+
+    /** Very small, allocation-free-ish word-bound finder used to snap the highlight immediately. */
+    public static int[] findWordBounds(@NonNull String s, int off) {
+        final int n = s.length();
+        if (n == 0) return new int[]{0, 0};
+        int i = Math.max(0, Math.min(off, n - 1));
+
+        // If tap lands on whitespace, prefer the next non-space char (if any)
+        while (i < n && Character.isWhitespace(s.charAt(i))) i++;
+        if (i >= n) i = n - 1;
+
+        // Allowed "word" chars: letters/digits plus a few intra-word symbols (’'_-)
+        java.util.function.IntPredicate isWord = c ->
+                Character.isLetterOrDigit(c) || c == '\'' || c == '’' || c == '_' || c == '-';
+
+        int start = i;
+        while (start > 0 && isWord.test(s.charAt(start - 1))) start--;
+        int end = i;
+        while (end < n && isWord.test(s.charAt(end))) end++;
+
+        if (end <= start) { // fallback: highlight at least one char
+            start = Math.max(0, i);
+            end = Math.min(n, i + 1);
+        }
+        return new int[]{start, end};
     }
 }

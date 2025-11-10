@@ -690,4 +690,53 @@ public class ImageHelper {
         }
     }
 
+    @Nullable
+    public static android.graphics.Bitmap decodeBitmapFromStringUri(Context context, String uriString, int maxSidePx) {
+        //myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
+        if (uriString == null) return null;
+        try {
+            android.net.Uri uri = android.net.Uri.parse(uriString);
+
+            // File path support (if your DB sometimes stores plain paths)
+            //myLog("decodeBitmapFromStringUri by file");
+            if ("file".equalsIgnoreCase(uri.getScheme()) || uriString.startsWith("/")) {
+                String path = "file".equalsIgnoreCase(uri.getScheme()) ? uri.getPath() : uriString;
+                if (path == null) return null;
+                android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeFile(path, o);
+                int sample = 1;
+                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
+                android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
+                o2.inSampleSize = sample;
+                o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
+                return android.graphics.BitmapFactory.decodeFile(path, o2);
+            }
+
+            // Content:// (SAF) — decode via stream (we are the same app → we can read it)
+            try (java.io.InputStream is = context.getContentResolver().openInputStream(uri)) {
+                myLogW("decodeBitmapFromStringUri by stream");
+                if (is == null) return null;
+                byte[] all = readAll(is);
+                android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
+                o.inJustDecodeBounds = true;
+                android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o);
+                int sample = 1;
+                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
+                android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
+                o2.inSampleSize = sample;
+                o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
+                return android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o2);
+            }
+        } catch (Throwable ignored) { }
+        return null;
+    }
+    private static byte[] readAll(java.io.InputStream is) throws java.io.IOException {
+        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
+        byte[] buf = new byte[16 * 1024];
+        int r;
+        while ((r = is.read(buf)) != -1) bos.write(buf, 0, r);
+        return bos.toByteArray();
+    }
+
 }

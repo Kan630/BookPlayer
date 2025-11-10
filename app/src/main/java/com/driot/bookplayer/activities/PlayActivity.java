@@ -44,7 +44,7 @@ import com.driot.bookplayer.player.UiHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.player.AudioService;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
@@ -55,12 +55,10 @@ import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
-import static com.driot.bookplayer.player.AudioService.TIMER_VALUE;
+import static com.driot.bookplayer.player.MediaService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
 public class PlayActivity extends LoggingActivity {
-
-    private static final float INCREMENT_SPEED = 0.05f;
 
     private PlaybackViewModel vm;
 
@@ -97,15 +95,11 @@ public class PlayActivity extends LoggingActivity {
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
-            if (AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
+            if (MediaService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
                 reDrawListeningSince(i.getIntExtra(TIMER_VALUE, -999));
-            } else if (Intents.NOTIFICATION_TTS_RANGE.equals(action)) {
-                int s = i.getIntExtra(Intents.EXTRA_TTS_START, -1);
-                int e = i.getIntExtra(Intents.EXTRA_TTS_END, -1);
-                scheduleTtsHighlight(s, e);
-            } else if (AudioService.NOTIFICATION_ERROR.equals(action)) {
+            } else if (MediaService.NOTIFICATION_ERROR.equals(action)) {
                 // If it’s a TTS error, it’s recoverable → UI is already driven by phases
-                String em = i.getStringExtra(AudioService.ERR_MSG);
+                String em = i.getStringExtra(MediaService.ERR_MSG);
                 PlaybackUiState s = vm.getState().getValue();
                 if (em != null && em.startsWith("TTS")) {
                     // Show non-blocking message overlay via vm.getPhase() observer
@@ -114,13 +108,13 @@ public class PlayActivity extends LoggingActivity {
                 }
                 // Non-TTS: keep the old fatal path
                 finishAndShowFatalError(em);
-            } else if (AudioService.NOTIFICATION_FILENOTFOUND.equals(action)) {
+            } else if (MediaService.NOTIFICATION_FILENOTFOUND.equals(action)) {
                 finish();
                 //    finishAndShowFatalError(null);
-            } else if (AudioService.NOTIFICATION_PLAYLISTFINISHED.equals(action)) {
+            } else if (MediaService.NOTIFICATION_PLAYLISTFINISHED.equals(action)) {
                 myToast(getString(R.string.notification_playlist_finished));
                 finish();
-            } else if (AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH.equals(action)) {
+            } else if (MediaService.NOTIFICATION_PLAYBACK_MAXTIMEREACH.equals(action)) {
                 myToast(getString(R.string.notification_auto_sleep));
                 finish();
             }
@@ -181,12 +175,12 @@ public class PlayActivity extends LoggingActivity {
         progressTitle.setText(getString(R.string.Text_To_Speech));
 
         // Clicks
-        bPlayPause.setOnClickListener(v -> {vm.playPause();suppressAutoScroll = false;});
-        bForward  .setOnClickListener(v -> vm.next());
-        bRewind   .setOnClickListener(v -> vm.prev());
-        bSpeedUp  .setOnClickListener(v -> setSpeedViaVm(+INCREMENT_SPEED));
-        bSpeedDown.setOnClickListener(v -> setSpeedViaVm(-INCREMENT_SPEED));
-        bSetSleep .setOnClickListener(v -> showSleepDialog());
+        bPlayPause.setOnClickListener(v -> {myLogI("--- user press PLAY/PAUSE ---"); vm.playPause(); suppressAutoScroll = false;});
+        bForward  .setOnClickListener(v -> {myLogI("--- user press FORWARD ---"); vm.next(); });
+        bRewind   .setOnClickListener(v -> {myLogI("--- user press REWIND ---"); vm.prev(); });
+        bSpeedUp  .setOnClickListener(v -> {myLogI("--- user press SPEED+ ---"); setSpeedViaVm(+Var.PLAY_SPEED_STEP); });
+        bSpeedDown.setOnClickListener(v -> {myLogI("--- user press SPEED- ---"); setSpeedViaVm(-Var.PLAY_SPEED_STEP); });
+        bSetSleep .setOnClickListener(v -> {myLogI("--- user press SLEEP- ---"); showSleepDialog(); });
 
         btnToggleTtsView.setOnClickListener(v -> {
             showingTtsText = !showingTtsText;
@@ -228,8 +222,16 @@ public class PlayActivity extends LoggingActivity {
             }
             myLog("observe : " + s);
 
+            Double speed = null;
+            if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
+                speed = s.extras.getDouble(Intents.EXTRA_SPEED);
+            }
+            if (speed != null) {
+                tvSpeed.setText(Tonio.formatPercentStringForSpeed(speed * 100.0));
+            }
+
             // Title/sub
-            UiHelper.setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+            UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, null);
 
             // Seek/progress
             seekbar.setMax((int) Math.max(1L, s.durationMs));
@@ -273,7 +275,7 @@ public class PlayActivity extends LoggingActivity {
 
 
             if (p == null) return;
-            myLog("Phase observer : " + p);
+            //myLog("Phase observer : " + p);
 
             // Pull the latest playback state to know if we’re in TTS or audio mode
             final boolean tts = ("tts".equals(s.playMode));
@@ -331,6 +333,23 @@ public class PlayActivity extends LoggingActivity {
 
         });
 
+        vm.getTtsRange().observe(this, p -> {
+            //myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
+            if (p != null) scheduleTtsHighlight(p.first, p.second);
+        });
+
+        vm.getTtsText().observe(this, txt -> {
+            myLog("observe Tts Text : [" + txt + "]");
+            if (txt == null) txt = "";
+            if (!txt.equals(lastTtsTextString)) {
+                lastTtsTextString = txt;
+                SpannableStringBuilder sb = new SpannableStringBuilder(txt);
+                tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
+                spannableText = (Spannable) tvTtsText.getText();
+                tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
+                tvTtsText.setVerticalScrollBarEnabled(true);
+            }
+        });
 
         // Seekbar → VM.seekTo (only acts if VM is bound; otherwise ignored safely)
         seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -362,25 +381,25 @@ public class PlayActivity extends LoggingActivity {
                 PlaybackUiState s = vm.getState().getValue();
                 if (s == null ) {
                     myLog("s == null");
-                    vm.send_stop();
+                    vm.stop();
                 } else {
                     if (!s.playing ) {
                         myLog("!s.playing");
-                        vm.send_stop();
+                        vm.stop();
                     }
                 }
                 finish();
             }
         });
 
+
         // Register UI-level broadcasts we still use
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(this);
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_PLAYBACK_TIMER_VALUE)); //for UI displayed Sleep counters
-        lb.registerReceiver(uiReceiver, new IntentFilter(Intents.NOTIFICATION_TTS_RANGE));
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_ERROR));
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_FILENOTFOUND));
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_PLAYLISTFINISHED));
-        lb.registerReceiver(uiReceiver, new IntentFilter(AudioService.NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYBACK_TIMER_VALUE)); //for UI displayed Sleep counters
+        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_ERROR));
+        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_FILENOTFOUND));
+        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYLISTFINISHED));
+        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYBACK_MAXTIMEREACH));
     }
 
     @Override protected void onDestroy() {
@@ -391,12 +410,24 @@ public class PlayActivity extends LoggingActivity {
     // ---------- UI bits that used to call the service directly ----------
 
     private void setSpeedViaVm(double delta) {
-        Double cur = vm.getSpeedOrNull();          // VM tries service if bound; otherwise returns null
+        // Prefer UI value (quick change) fallback on UiState
+        PlaybackUiState s = vm.getState().getValue();
+        Double cur = null;
+        try {
+            cur = Double.parseDouble(tvSpeed.getText().toString().replace('\u00A0', ' ').replaceAll("[^0-9,.\\s]", "").replace(',', '.').trim())/100;
+        } catch (Throwable t) {
+            myLogEE(t, "could not read speed : [" + tvSpeed.getText() + "]");
+        }
+        if (cur==null && s != null && s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
+            cur = s.extras.getDouble(Intents.EXTRA_SPEED);
+        }
+        myLogD("current speed = " + cur);
         double next = (cur == null ? 1.0 : cur) + delta;
-        next = Math.max(0.5, Math.min(3.0, next)); // clamp example
-        vm.setSpeed(next);                          // VM proxies to service (no-ops if unbound)
+        next = Math.max(Var.PLAY_SPEED_MIN, Math.min(Var.PLAY_SPEED_MAX, next));
+        vm.setSpeed(next);
         tvSpeed.setText(Tonio.formatPercentStringForSpeed(next * 100));
     }
+
 
     private void showSleepDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -446,10 +477,21 @@ public class PlayActivity extends LoggingActivity {
             if (seconds >= 0) {
                 String since = tvListeningTimeBaseText + " " + Tonio.formatTime(seconds*1000, true);
                 tvListeningTime.setText(seconds > 0 ? since : "");
-                Integer mins = vm.getCustomSleepMinutesOrNull();
-                int timeBeforeSleep = (mins == null || mins == 0) ? Option.getTimeBeforeSleep() : mins;
+
+                // Prefer custom minutes from UI state extras; fallback to Option
+                int timeBeforeSleepMinutes;
+                PlaybackUiState s = vm.getState().getValue();
+                if (s != null && s.extras != null && s.extras.containsKey(Intents.EXTRA_CUSTOM_SLEEP_MINUTES)) {
+                    timeBeforeSleepMinutes = s.extras.getInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, 0);
+                } else {
+                    timeBeforeSleepMinutes = 0;
+                }
+                if (timeBeforeSleepMinutes == 0) {
+                    timeBeforeSleepMinutes = Option.getTimeBeforeSleep();
+                }
+
                 String left = getString(R.string.tv_TimeLeft) + " : " +
-                        Tonio.formatTime(timeBeforeSleep*60*1000 - seconds*1000, true);
+                        Tonio.formatTime(timeBeforeSleepMinutes * 60 * 1000 - seconds * 1000, true);
                 tvTimeLeft.setText(left);
             } else {
                 tvListeningTime.setText("");
@@ -479,7 +521,10 @@ public class PlayActivity extends LoggingActivity {
             ttsContainer.setVisibility(View.GONE);
 
             // Optional visualizer (requires session id → ask VM)
-            Integer sessionId = vm.getAudioSessionIdOrNull();
+            Integer sessionId = null;
+            if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
+                sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
+            }
             if (Option.getVisualizerOn() && isRecordAudioPermissionGranted(this) && sessionId != null) {
                 try {
                     frequencyVisualizerView.link_toto(sessionId);
@@ -495,20 +540,10 @@ public class PlayActivity extends LoggingActivity {
                 ttsContainer.setVisibility(View.VISIBLE);
                 ivCover.setVisibility(View.GONE);
 
-                String txt = vm.getTtsTextOrEmpty();
-                if (txt == null) txt = "";
-
-// Only rebuild when text content actually changed
-                boolean textChanged = (lastTtsTextString == null) || !lastTtsTextString.equals(txt);
-                if (textChanged) {
-                    lastTtsTextString = txt;
-                    SpannableStringBuilder sb = new SpannableStringBuilder(txt);
-                    tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
-                    spannableText = (Spannable) tvTtsText.getText();
-                    // (Re)enable movement/scroll once, fine to keep as-is
-                    tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
-                    tvTtsText.setVerticalScrollBarEnabled(true);
+                if (lastTtsTextString == null || lastTtsTextString.isEmpty()) {
+                    vm.requestTtsTextOnce();
                 }
+
                 // Tap-to-seek within text
                 final android.view.GestureDetector tapDetector =
                         new android.view.GestureDetector(tvTtsText.getContext(),
@@ -572,8 +607,6 @@ public class PlayActivity extends LoggingActivity {
                             return false;
                     }
                 });
-
-
 
                 btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next → image
             } else {

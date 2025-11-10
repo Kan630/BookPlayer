@@ -52,15 +52,15 @@ public final class MediaSessionController {
                             @NonNull String artist,
                             @NonNull String album,
                             long durationMs,
-                            @Nullable android.graphics.Bitmap art /* pass null if you don't have it */) {
+                            @Nullable android.graphics.Bitmap bitmap /* pass null if you don't have it */) {
         MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
                 .putText(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putText(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
                 .putText(MediaMetadataCompat.METADATA_KEY_ALBUM, album)
                 .putLong(MediaMetadataCompat.METADATA_KEY_DURATION, durationMs);
-        if (art != null) {
-            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, art);
-            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, art);
+        if (bitmap != null) {
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+            b.putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmap);
         }
         session.setMetadata(b.build());
     }

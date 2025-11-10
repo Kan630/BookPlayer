@@ -1,6 +1,7 @@
 package com.driot.bookplayer.player;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,7 +11,9 @@ import android.speech.tts.Voice;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.tts.TtsErrorUtils;
@@ -276,6 +279,11 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed || tts == null) return;
         tts.setSpeechRate(speechRate);
         final int off = Math.max(0, Math.min(offsetChars, text.length()));
+        LocalBroadcastManager.getInstance(app).sendBroadcast(
+                new Intent(Intents.NOTIFICATION_TTS_RANGE)
+                        .putExtra(Intents.EXTRA_TTS_START, off)
+                        .putExtra(Intents.EXTRA_TTS_END, off)
+        );
         tts.speakFromOffset(text, off, volume);  // all chunking lives in TtsHelper
         logCurrentVoice();
     }
@@ -332,7 +340,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     public String getVoiceName() {
         TextToSpeech raw = mgr.raw();
         if (raw == null) return null;
-        return mgr.raw().getVoice().getName();
+        Voice v = raw.getVoice();
+        return (v != null) ? v.getName() : null;
     }
 
     public boolean setVoiceByName(@Nullable String voiceName) {

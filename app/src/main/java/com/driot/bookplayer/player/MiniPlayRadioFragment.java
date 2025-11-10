@@ -16,9 +16,9 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
-    private ProgressBar progress;
+    private ProgressBar progressBar;
     private ImageView ivCover;
-    private TextView tvTitle, tvSub;
+    private TextView tvTitle, tvSubTitle;
     private ImageButton btnPlayPause;
 
     PlaybackUiState lastState;
@@ -31,15 +31,14 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
         root = v.findViewById(R.id.root);
-        progress= v.findViewById(R.id.progress);
+        progressBar = v.findViewById(R.id.progress);
         ivCover = v.findViewById(R.id.ivCover);
         tvTitle = v.findViewById(R.id.tvTitle);
-        tvSub   = v.findViewById(R.id.tvSub);
+        tvSubTitle = v.findViewById(R.id.tvSub);
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
-        // Observe UI state
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) {
                 myLog("vm.getState().observe : s == null");
@@ -47,10 +46,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             }
             myLogD(s.toString());
             myLogI("vm.getState().observe " + s);
-            UiHelper.setTitleAndSubtitle(tvTitle, tvSub, s.title, s.subTitle);
-
-            // Play/pause icon
-            btnPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+            UiHelper.FillUiBasic(s, progressBar, btnPlayPause, tvTitle, tvSubTitle, null, null, null);
 
             if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");
@@ -61,16 +57,10 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                         .into(ivCover);
             }
 
-            boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
-            progress.setVisibility(buffering ? View.VISIBLE : View.GONE); //spinning loading icon
-
             lastState = vm.getState().getValue();
         });
 
-        btnPlayPause.setOnClickListener(_v -> {
-            myLogI("---- user press PlayPause button ----");
-            vm.playPause();
-        });
+        btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user press mini player ----");

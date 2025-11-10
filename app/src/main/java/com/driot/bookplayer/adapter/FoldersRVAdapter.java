@@ -32,8 +32,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.player.AudioService;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
 import com.driot.bookplayer.player.PlaybackUiBus;
@@ -280,7 +279,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
                             ) {
                                 ContextCompat.startForegroundService(
                                         context.getApplicationContext(),
-                                        new Intent(context.getApplicationContext(), AudioService.class)
+                                        new Intent(context.getApplicationContext(), MediaService.class)
                                                 .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
                                                 .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
                                                 .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")

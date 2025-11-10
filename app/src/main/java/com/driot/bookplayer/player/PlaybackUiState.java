@@ -1,5 +1,9 @@
 package com.driot.bookplayer.player;
 
+import android.os.Bundle;
+
+import androidx.annotation.Nullable;
+
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 public class PlaybackUiState extends LoggerHelper {
@@ -22,11 +26,15 @@ public class PlaybackUiState extends LoggerHelper {
     public final String calledFrom;
     public final long callCounter;
 
+    @Nullable
+    public final Bundle extras;
+
     public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
                            long pos, long dur,
                            String title, String subTitle, String cover,
                            int trackId, int folderId, long podcastId,
-                           String calledFrom, long callCounter) {
+                           String calledFrom, long callCounter,
+                           @Nullable Bundle extras) {
 
         super(PlaybackUiState.class);
 
@@ -48,6 +56,8 @@ public class PlaybackUiState extends LoggerHelper {
         this.calledFrom = calledFrom;
         this.callCounter = callCounter;
 
+        this.extras = extras;
+
         myLog(toString());
     }
 
@@ -67,6 +77,7 @@ public class PlaybackUiState extends LoggerHelper {
                 ", trackId=" + trackId +
                 ", folderId=" + folderId +
                 ", podcastId=" + podcastFeedId +
+                ", extras=" + (extras == null ? "null" : extras.keySet()) +
                 '}';
     }
 

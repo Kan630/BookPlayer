@@ -36,17 +36,4 @@ public class ComponentUtils {
         );
     }
 
-    public static void setAutomotiveEnabled(Context context, boolean enabled) {
-        PackageManager pm = context.getPackageManager();
-        ComponentName cn = new ComponentName(context, CarMediaService.class);
-        int newState = enabled
-                ? PackageManager.COMPONENT_ENABLED_STATE_ENABLED
-                : PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
-        pm.setComponentEnabledSetting(
-                cn,
-                newState,
-                PackageManager.DONT_KILL_APP
-        );
-    }
-
 }

@@ -17,6 +17,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.Station;
@@ -94,7 +95,7 @@ public class RadioResultsActivity extends LoggingActivity {
                             // Let AudioService + RadioMiniNowPlayingFragment handle playback & UI
                             androidx.core.content.ContextCompat.startForegroundService(
                                     getApplicationContext(),
-                                    new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                                    new Intent(getApplicationContext(), MediaService.class)
                                             .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
                                             .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, stream)
                                             .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, s.name)
@@ -119,7 +120,7 @@ public class RadioResultsActivity extends LoggingActivity {
                                 // Fallback to stored resolved URL
                                 androidx.core.content.ContextCompat.startForegroundService(
                                         getApplicationContext(),
-                                        new Intent(getApplicationContext(), com.driot.bookplayer.player.AudioService.class)
+                                        new Intent(getApplicationContext(), MediaService.class)
                                                 .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
                                                 .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, s.url_resolved)
                                                 .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, s.name)

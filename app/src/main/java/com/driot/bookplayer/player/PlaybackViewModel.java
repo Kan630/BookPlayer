@@ -1,11 +1,13 @@
 package com.driot.bookplayer.player;
 
 import android.app.Application;
-import android.content.ComponentName;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+import android.content.IntentFilter;
+import android.os.Bundle;
+import android.support.v4.media.session.MediaControllerCompat;
+import android.util.Pair;
 import android.view.KeyEvent;
 import android.widget.Spinner;
 
@@ -13,10 +15,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
@@ -33,219 +36,90 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     public LiveData<PlaybackUiState> getState() { return PlaybackUiBus.get().state(); }
 
-    private AudioService service;
-    private boolean bound;
+    private final MutableLiveData<Pair<Integer,Integer>> ttsRange = new MutableLiveData<>();
+    public LiveData<Pair<Integer,Integer>> getTtsRange() { return ttsRange; }
 
-    private final ServiceConnection conn = new ServiceConnection() {
-        @Override public void onServiceConnected(ComponentName name, IBinder binder) {
-            AudioService.BackgroundBinder b = (AudioService.BackgroundBinder) binder;
-            service = b.getService();
-            bound = true;
-            // Optional: seed a first progress snapshot (won't affect visibility logic)
-            //pushSnapshot();
-        }
-        @Override public void onServiceDisconnected(ComponentName name) {
-            bound = false;
-            service = null;
-            // IMPORTANT: do NOT post an empty state here.
-            // We keep last known ACTION_UI_STATE so mini doesn't flicker/hide.
-        }
-    };
+    // --- TTS on-demand text fetch via custom action ---
+    private final androidx.lifecycle.MutableLiveData<String> _ttsText = new androidx.lifecycle.MutableLiveData<>("");
+    public androidx.lifecycle.LiveData<String> getTtsText() { return _ttsText; }
+
+    public void requestTtsTextOnce() {
+        android.os.ResultReceiver rr = new android.os.ResultReceiver(
+                new android.os.Handler(android.os.Looper.getMainLooper())) {
+            @Override protected void onReceiveResult(int resultCode, android.os.Bundle resultData) {
+                String txt = resultData != null ? resultData.getString(Intents.EXTRA_TTS_TEXT, "") : "";
+                _ttsText.setValue(txt);
+            }
+        };
+        PlaybackCommands.requestTtsText(getApplication(), rr);
+    }
+
 
     public PlaybackViewModel(@NonNull Application app) {
         super(app);
-
-        // Bind only if service is already running. Never auto-create.
-        if (AudioService.isRunning) {
-            app.bindService(new Intent(app, AudioService.class), conn, 0 /* no BIND_AUTO_CREATE */);
-        }
-/*
-        // Initial seed: if running and we have a last snapshot, use it; otherwise leave null.
-        // (Leaving null keeps the mini hidden via fragment's initial GONE + null guard.)
-        if (AudioService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
-            myLog("Initial seed => overwriting with last UI state");
-            //state.setValue(AudioService.lastUiState);
-            PlaybackUiBus.get().emit(AudioService.lastUiState);
-        }
-
- */
+        LocalBroadcastManager.getInstance(app).registerReceiver(ttsRangeRx, new IntentFilter(Intents.NOTIFICATION_TTS_RANGE));
     }
-
-
-    /** Progress-only refresh. Never called when unbound. */
-    private void pushSnapshot() {
-        myLog("pushSnapshot()");
-        if (!bound || service == null) {
-            myLogE("pushSnapshot() but not bound or service null ---- bound = " + bound + " - service = " + service);
-            return;
-        }
-
-        PlaybackUiState prev = PlaybackUiBus.get().state().getValue();
-        if (prev == null) return; // nothing to smooth yet
-
-        PlaybackUiState next = new PlaybackUiState(
-                service.getLoadPhase(),
-                service.isPlaying(),
-                service.isReadyToPlay(),
-                service.getPlayMode(),
-                service.getPosition(),
-                (prev.durationMs > 0 ? prev.durationMs : service.getDuration()),
-                prev.title, prev.subTitle, prev.cover,
-                prev.trackId, prev.folderId, prev.podcastFeedId,
-                "PlayBackViewModel.pushSnapshot()", prev.callCounter + 1
-        );
-        PlaybackUiBus.get().emit(next); // add emit(...) helper, or specific setters
-    }
-
 
     // Transport
     public void playPause() {
         myLog("playpause");
-        if (service != null) {
-            if (service.isPlaying()) {
-                service.pauseAudio();
-                FirebaseAnalyticsHelper.tellAnalyticsPlayAction("pause", "");
-            } else {
-                service.playAudio();
-                FirebaseAnalyticsHelper.tellAnalyticsPlayAction("play", "");
-            }
-        } else {
-            myLogEE(null, "playPause while service == null");
-            return;
-            /*
-            sendMediaButton(KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE);
-            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode playpause", "");
-             */
-        }
+        PlaybackCommands.playPause(getApplication());
     }
 
     public void next() {
         myLog("next");
-        if (service != null) {
-            service.forwardAudio();
-            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("next", "");
-        } else {
-            sendMediaButton(KeyEvent.KEYCODE_MEDIA_NEXT);
-            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode next", "");
-        }
+        PlaybackCommands.next(getApplication());
     }
 
     public void prev() {
         myLog("prev");
-        if (service != null) {
-            service.backwardAudio();
-            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("prev", "");
-        } else {
-            sendMediaButton(KeyEvent.KEYCODE_MEDIA_PREVIOUS);
-            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("keycode prev", "");
-        }
+        PlaybackCommands.prev(getApplication());
     }
 
-    /** seek needs binder access; no safe media-button fallback. */
     public void seekTo(long ms) {
-        myLog("seekTo - " + Tonio.formatMmSs(ms) + " - isServiceNull=" + (service==null));
-        if (service != null) {
-            service.setPosition(ms);
-            FirebaseAnalyticsHelper.tellAnalyticsPlayAction("seekTo", "");
-        }
+        myLog("seekTo " + Tonio.formatMmSs(ms));
+        PlaybackCommands.seekTo(getApplication(), ms);
     }
 
     /** Close/hide mini and pause audio even if we're not bound. */
-    public void send_stop() {
-        // Let the service do the real work regardless of binding.
-        Context app = getApplication();
-        try {
-            app.startService(new Intent(app, AudioService.class)
-                    .setAction("CMD_STOP")
-                    .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName()));
-        } catch (IllegalStateException e) {
-            // If the app is truly backgrounded and startService() is disallowed,
-            // just request a hard stop (no-ops if not running).
-            app.stopService(new Intent(app, AudioService.class));
-        }
+    public void stop() {
+        myLog("stop");
+        PlaybackCommands.stop(getApplication());
     }
 
-    @Override protected void onCleared() {
-        if (bound) getApplication().unbindService(conn);
-//        LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(receiver);
-    }
-
-
-    private void maybeBindOnFirstUiState() {
-        if (!bound) {
-            try {
-                getApplication().bindService(
-                        new Intent(getApplication(), AudioService.class),
-                        conn,
-                        //Context.BIND_AUTO_CREATE ---> mybe if creation of service is delayed... ?
-                        0 /* no auto-create; service is already running because it just broadcast */
-                );
-            } catch (Throwable ignored) {}
-        }
-    }
-
-    /** Send a media button to the service so it routes via MediaSession callbacks. */
-    private void sendMediaButton(int keyCode) {
-        Context app = getApplication();
-        // ACTION_DOWN
-        Intent down = new Intent(app, AudioService.class)
-                .setAction(Intent.ACTION_MEDIA_BUTTON)
-                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_DOWN, keyCode))
-                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName())
-                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                ;
-        ContextCompat.startForegroundService(app, down);
-        // ACTION_UP (some OEMs need both)
-        Intent up = new Intent(app, AudioService.class)
-                .setAction(Intent.ACTION_MEDIA_BUTTON)
-                .putExtra(Intent.EXTRA_KEY_EVENT, new KeyEvent(KeyEvent.ACTION_UP, keyCode))
-                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName())
-                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                ;
-        ContextCompat.startForegroundService(app, up);
-    }
-    // inside PlaybackViewModel
+    // Speed / Sleep timer via custom actions (or fallback intents)
     @Nullable public Double getSpeedOrNull() {
-        if (service != null) try { return service.getSpeed(); } catch (Throwable ignored) {}
+        // Prefer surfacing speed in PlaybackUiState or via MediaSession extras;
+        // otherwise return null and let UI render “—”.
         return null;
     }
     public void setSpeed(double s) {
-        if (service != null) { try { service.setSpeed(s); return; } catch (Throwable ignored) {} }
-        // optional: send intent command if you have one (e.g., EXTRA_CMD_SET_SPEED)
-        // ContextCompat.startForegroundService(getApplication(),
-        //     new Intent(getApplication(), AudioService.class)
-        //         .setAction(AudioService.EXTRA_CMD_SET_SPEED)
-        //         .putExtra(AudioService.EXTRA_SPEED, s)
-        //         .putExtra(Var.EXTRA_CALLER, getClass().getSimpleName()));
+        PlaybackCommands.setSpeed(getApplication(), s);
     }
-
     public void updateSleepTimer(int minutes) {
-        if (service != null) { try { service.updateSleepTimer(minutes); return; } catch (Throwable ignored) {} }
-        // or send an intent to service if you support it
+        PlaybackCommands.updateSleepTimer(getApplication(), minutes);
     }
-
-    @Nullable public Integer getCustomSleepMinutesOrNull() {
-        if (service != null) try { return service.getCustomSleepTime(); } catch (Throwable ignored) {}
-        return null;
-    }
-
-    @Nullable
-    public Integer getAudioSessionIdOrNull() {
-        if (service != null) try { return service.getAudioSessionId(); } catch (Throwable ignored) {}
-        return null;
-    }
-
 
     // --------------------------------------------------------------------
     // --       TTS
     // --------------------------------------------------------------------
 
-    public String getTtsTextOrEmpty() {
-        if (service != null) try { String t = service.getTtsText(); return t == null ? "" : t; } catch (Throwable ignored) {}
-        return "";
+    private final BroadcastReceiver ttsRangeRx = new BroadcastReceiver() {
+        @Override public void onReceive(Context c, Intent i) {
+            if (Intents.NOTIFICATION_TTS_RANGE.equals(i.getAction())) {
+                int s = i.getIntExtra(Intents.EXTRA_TTS_START, -1);
+                int e = i.getIntExtra(Intents.EXTRA_TTS_END, -1);
+                if (s >= 0) ttsRange.postValue(new Pair<>(s,e));
+            }
+        }
+    };
+
+    @Override protected void onCleared() {
+        LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(ttsRangeRx);
     }
+
     public void setTtsStartOffsetChars(int start) {
-        if (service != null) try { service.setTtsStartOffsetChars(start); } catch (Throwable ignored) {}
+        PlaybackCommands.setTtsStartOffset(getApplication(), start);
     }
 
     public void setupTtsVoiceSpinner(
@@ -258,26 +132,27 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         final java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
 
         TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, voiceItem -> {
-            // 1) Always forward to UI if needed
             if (onSelected != null) onSelected.onSelected(voiceItem);
+            if (first.getAndSet(false)) return; // skip programmatic preselect
 
-            // 2) Skip the very first callback (it’s the programmatic preselect)
-            if (first.getAndSet(false)) return;
-
-            // 3) Only warm up if it’s actually a new voice vs current engine
             final String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
                     ? "system" : voiceItem.name;
 
-            String current = null;
-            if (service != null) try { current = service.getCurrentTtsVoiceName(); } catch (Throwable ignored) {}
-            if (current != null && current.equalsIgnoreCase(picked)) {
-                myLog("setupTtsVoiceSpinner: same as current engine voice → no warmup");
+            // If you expose currentVoice in PlaybackUiState.extras, you can compare here:
+            String currentVoice = null;
+            PlaybackUiState s = PlaybackUiBus.get().state().getValue();
+            if (s != null && s.extras != null) {
+                currentVoice = s.extras.getString(Intents.EXTRA_TTS_VOICE_NAME, null);
+            }
+            if (currentVoice != null && currentVoice.equalsIgnoreCase(picked)) {
+                myLog("setupTtsVoiceSpinner: same voice → no warmup");
                 return;
             }
 
             warmUpTtsVoice(picked, /*cb*/ null);
         });
     }
+
 
     private volatile boolean inError = false;
 
@@ -300,6 +175,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1
+                , cur.extras
         );
         PlaybackUiBus.get().emit(next);
     }
@@ -309,16 +185,10 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         setLoadPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
 
         try {
-            Context app = getApplication();
-            // Ask the service to apply the voice right away
-            ContextCompat.startForegroundService(
-                    app,
-                    new Intent(app, AudioService.class)
-                            .setAction(Intents.CMD_TTS_SET_VOICE)
-                            .putExtra(Intents.EXTRA_TTS_VOICE_NAME, voiceName)
-                            .putExtra(Intents.EXTRA_FOREGROUND, true)
-                            .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".warmUpTtsVoice()")
-            );
+            MediaControllerCompat mc = PlaybackCommands.mcOrNull(getApplication());
+            Bundle b = new Bundle();
+            b.putString(Intents.EXTRA_TTS_VOICE_NAME, voiceName);
+            mc.getTransportControls().sendCustomAction(Intents.CMD_TTS_SET_VOICE, b);
 
             // Consider it ready (we switched instantly). If you later add true warm-up,
             // you can move this to the success callback.
@@ -329,7 +199,6 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             if (cb != null) cb.onResult(false, TtsHelper.ERROR);
         }
     }
-    // --------------------------------------------------------------------
 
 }
 

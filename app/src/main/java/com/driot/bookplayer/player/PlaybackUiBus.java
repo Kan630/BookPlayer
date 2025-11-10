@@ -26,10 +26,10 @@ public final class PlaybackUiBus {
 
     public void clear() {
         emit(new PlaybackUiState(
-                Intents.PHASE_OFF, false, false, "book",
+                Intents.PHASE_OFF, false, false, null,
                 0, 0, "", "", "",
                 0, 0, 0,
-                "PlaybackUiBus.clear()", 0
+                "PlaybackUiBus.clear()", 0, null
         ));
     }
 
@@ -44,7 +44,7 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
-                cur.calledFrom, cur.callCounter + 1
+                cur.calledFrom, cur.callCounter + 1, cur.extras
         ));
     }
 
@@ -57,7 +57,7 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
-                cur.calledFrom, cur.callCounter + 1
+                cur.calledFrom, cur.callCounter + 1, cur.extras
         ));
     }
 

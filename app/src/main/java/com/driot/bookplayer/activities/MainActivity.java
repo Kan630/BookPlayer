@@ -35,7 +35,7 @@
     import com.driot.bookplayer.helpers.ViewHelper;
     import com.driot.bookplayer.objects.OngoingTaskHost;
     import com.driot.bookplayer.player.PlayList;
-    import com.driot.bookplayer.player.AudioService;
+    import com.driot.bookplayer.player.MediaService;
     import com.driot.bookplayer.helpers.InfoHelper;
     import com.driot.bookplayer.player.PlaybackUiState;
     import com.driot.bookplayer.player.PlaybackViewModel;
@@ -66,13 +66,13 @@
             super.onRestoreInstanceState(savedInstanceState);
             HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
         }
-
+/*
         // Just in case we are here while we shouldn't, because isPlaying...
-        AudioService audioService;
+        MediaService audioService;
         private final ServiceConnection audioServiceConnection = new ServiceConnection() {
             @Override
             public void onServiceConnected(ComponentName className, IBinder service) {
-                AudioService.BackgroundBinder binder = (AudioService.BackgroundBinder) service;
+                MediaService.BackgroundBinder binder = (MediaService.BackgroundBinder) service;
                 audioService = binder.getService();
                 if (audioService.isPlaying()) {
                     myLogW("AudioService.isPlaying => return to PlayActivity");
@@ -87,6 +87,8 @@
             public void onServiceDisconnected(ComponentName arg0) {
             }
         };
+
+ */
 
         private final BroadcastReceiver inAppMsgRx = new BroadcastReceiver() {
             @Override public void onReceive(Context c, Intent i) {
@@ -174,7 +176,7 @@
                     myLogI("--- USER CLICK BACK from MAIN --- (system button)");
                     if (Option.getStopAudioIfUserClosesApp()) {
                         startService(
-                                new Intent(MainActivity.this, AudioService.class)
+                                new Intent(MainActivity.this, MediaService.class)
                                         .setAction(Intents.EXTRA_CMD_STOP)
                                         .putExtra(Intents.EXTRA_CALLER, "press back from MainActivity"));
                     }

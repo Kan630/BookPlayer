@@ -235,13 +235,16 @@
         </activity>
 
         <service
-            android:name=".player.AudioService"
+            android:name=".player.MediaService"
             android:enabled="true"
             android:foregroundServiceType="mediaPlayback"
-            android:exported="false"
-            android:stopWithTask="false">
+            android:exported="true"
+            android:stopWithTask="false"
+            >
             <intent-filter>
-                <action android:name="android.intent.action.MEDIA_BUTTON" />
+                <action android:name="android.media.browse.MediaBrowserService" />
+                <!-- Optional legacy AA action, some HUs still ping this -->
+                <action android:name="com.google.android.media.browse.MediaBrowserService" />
             </intent-filter>
         </service>
         <receiver android:name="androidx.media.session.MediaButtonReceiver"
@@ -262,13 +265,6 @@
         <meta-data
             android:name="com.google.android.gms.car.application"
             android:resource="@xml/automotive_app_desc" />
-        <service
-            android:name=".player.CarMediaService"
-            android:exported="true">             <!--android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"-->
-            <intent-filter>
-                <action android:name="android.media.browse.MediaBrowserService" />
-            </intent-filter>
-        </service>
 
         <provider
             android:name="androidx.core.content.FileProvider"

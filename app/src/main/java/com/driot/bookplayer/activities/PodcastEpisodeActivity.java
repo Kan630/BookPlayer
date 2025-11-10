@@ -40,7 +40,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
-import com.driot.bookplayer.player.AudioService;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
@@ -444,7 +444,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 if (folder == null) return;
 
                 //TODO we need a AudioService.isPlaying
-                if (AudioService.isRunning && PlayList.getInstance()!=null &&  PlayList.getInstance().getZikFile()!=null && PlayList.getInstance().getZikFile().getIdFolder()==podcast.idFolder) {
+                if (MediaService.isRunning && PlayList.getInstance()!=null &&  PlayList.getInstance().getZikFile()!=null && PlayList.getInstance().getZikFile().getIdFolder()==podcast.idFolder) {
                     startActivity(new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
                 } else {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
@@ -501,7 +501,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
         androidx.core.content.ContextCompat.startForegroundService(
                 getApplicationContext(),
-                new Intent(getApplicationContext(), AudioService.class)
+                new Intent(getApplicationContext(), MediaService.class)
                         .setAction(Intents.ACTION_PLAY_PODCAST)
                         .putExtra(Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
                         .putExtra(Intents.EXTRA_PODCAST_FEED_ID, podcast.feedId)
@@ -519,7 +519,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
         //closeExoPlayer();
-        if (AudioService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
+        if (MediaService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
             if (PlaybackUiBus.get().state().getValue().trackId==zikFile.getId()) {
                 myLog("already playing that track");
                 startActivity(new Intent(this, PlayActivity.class));
@@ -535,7 +535,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 myLog("id = " + id);
                 ContextCompat.startForegroundService(
                         this.getApplicationContext(),
-                        new Intent(this.getApplicationContext(), AudioService.class)
+                        new Intent(this.getApplicationContext(), MediaService.class)
                                 .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                 .putExtra(Intents.EXTRA_TRACK_ID, (int) id)
                                 .putExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
@@ -668,8 +668,8 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
 
     private void stopAudioServiceIfRunning() {
-        if (AudioService.isRunning) {
-            Intent intentStopService = new Intent(this, AudioService.class).
+        if (MediaService.isRunning) {
+            Intent intentStopService = new Intent(this, MediaService.class).
                     setAction(Intents.EXTRA_CMD_STOP)
                     .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName());
             try {
@@ -678,7 +678,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             } catch (IllegalStateException e) {
                 // Si jamais l’app est en arrière-plan, au pire on force l’arrêt
                 myLogEE(e, "startService CMD_STOP failed");
-                stopService(new Intent(this, AudioService.class));
+                stopService(new Intent(this, MediaService.class));
             }
         }
     }

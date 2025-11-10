@@ -15,6 +15,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.utils.ComponentUtils;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
@@ -81,10 +82,9 @@ public class MyApp extends Application {
         }
         myLog("Proxy setup: openWith=" + openWithEnabled + " / all=" + openWithEnabledAll);
 
-        ComponentUtils.setAutomotiveEnabled(this, Option.getAutomotiveOn());
-        myLog("Android Auto, allow connect: " + Option.getAutomotiveOn());
-
         ImportHelper.checkImportJobsAtStartUp(getApplicationContext());
+
+        MediaControllerHolder.ensureConnected(getApplicationContext());
 
     }
 /// STRICT MODE

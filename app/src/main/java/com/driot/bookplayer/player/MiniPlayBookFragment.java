@@ -51,12 +51,11 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
-        // Centralized slider logic:
         sliderBinding = UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
 
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
-            UiHelper.FillUiBasic(s, vm, btnPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek);
+            UiHelper.FillUiBasic(s, null, btnPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek);
         });
 
         v.setOnClickListener(_x -> {
@@ -67,7 +66,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
         btnPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
         btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
         btnNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
-        btnStop.setOnClickListener(_v -> { myLogI("---- user press STOP button ----"); vm.send_stop(); });
+        btnStop.setOnClickListener(_v -> { myLogI("---- user press STOP button ----"); vm.stop(); });
     }
 
     @Override

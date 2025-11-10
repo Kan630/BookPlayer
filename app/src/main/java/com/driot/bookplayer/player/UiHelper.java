@@ -3,10 +3,12 @@ package com.driot.bookplayer.player;
 import android.view.View;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.MainThread;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
@@ -109,24 +111,38 @@ public class UiHelper {
 
     public static void FillUiBasic(
             @NonNull PlaybackUiState s,
-            @NonNull PlaybackViewModel vm,
-            @NonNull ImageButton ibPlayPause,
-            @NonNull TextView tvTitle,
-            @NonNull TextView tvSubTitle,
-            @NonNull TextView tvTime,
-            @NonNull ImageView ivCover,
-            @NonNull Slider sbSeek
+            @Nullable ProgressBar progressBar,
+            @Nullable ImageButton ibPlayPause,
+            @Nullable TextView tvTitle,
+            @Nullable TextView tvSubTitle,
+            @Nullable TextView tvTime,
+            @Nullable ImageView ivCover,
+            @Nullable Slider sbSeek
     ) {
         myLogD(s.toString());
 
-        setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+        if (tvTitle!=null && tvSubTitle!=null) {
+            setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
+        }
 
-        ibPlayPause.setImageResource(
-                s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24
-        );
+        if (progressBar != null && ibPlayPause!=null) {
+            boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
+            if (buffering) {
+                progressBar.setVisibility(View.VISIBLE);
+                ibPlayPause.setVisibility(View.GONE);
+            } else {
+                progressBar.setVisibility(View.GONE);
+                ibPlayPause.setVisibility(View.VISIBLE);
+            }
+        }
+        if (ibPlayPause!=null) {
+            ibPlayPause.setImageResource(
+                    s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24
+            );
+        }
 
         // Only drive the slider/time when NOT scrubbing
-        if (!isUserSeeking(sbSeek)) {
+        if (sbSeek==null || !isUserSeeking(sbSeek)) {
             final long pos = s.positionMs;
             final long dur = s.durationMs;
 
@@ -134,27 +150,29 @@ public class UiHelper {
                 float durSec = dur / 1000f;
                 float posSec = Math.min(pos, dur) / 1000f;
 
-                if (sbSeek.getValueTo() != durSec) sbSeek.setValueTo(durSec);
-                if (sbSeek.getValue() != posSec) sbSeek.setValue(posSec);
+                if (sbSeek!=null) if (sbSeek.getValueTo() != durSec) sbSeek.setValueTo(durSec);
+                if (sbSeek!=null) if (sbSeek.getValue() != posSec) sbSeek.setValue(posSec);
 
-                tvTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
+                if (tvTime!=null) tvTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
             } else {
                 // Unknown duration
-                if (sbSeek.getValueTo() != 1000f) sbSeek.setValueTo(1000f);
-                if (sbSeek.getValue() != 0f) sbSeek.setValue(0f);
-                tvTime.setText("--:-- / --:--");
+                if (sbSeek!=null) if (sbSeek.getValueTo() != 1000f) sbSeek.setValueTo(1000f);
+                if (sbSeek!=null) if (sbSeek.getValue() != 0f) sbSeek.setValue(0f);
+                if (tvTime!=null) tvTime.setText("--:-- / --:--");
             }
         }
 
-        if (s.cover != null) {
-            ivCover.setVisibility(View.VISIBLE);
-            Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
-        } else {
-            ivCover.setVisibility(View.GONE);
+        if (ivCover!=null) {
+            if (s.cover != null) {
+                ivCover.setVisibility(View.VISIBLE);
+                Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
+            } else {
+                ivCover.setVisibility(View.GONE);
+            }
         }
     }
 
-    public static void setTitleAndSubtitle(
+    private static void setTitleAndSubtitle(
             @NonNull TextView tvTitle,
             @NonNull TextView tvSubTitle,
             String folderName,

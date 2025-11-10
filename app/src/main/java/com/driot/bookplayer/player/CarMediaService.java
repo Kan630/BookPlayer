@@ -1,6 +1,5 @@
 package com.driot.bookplayer.player;
 
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -28,6 +27,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
 
 
@@ -163,7 +163,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                                 myLog("go for last played zikfile : [" + zikFile.getDisplayName() + "], starting FOREGROUND");
                                 ContextCompat.startForegroundService(
                                         CarMediaService.this,
-                                        new Intent(CarMediaService.this, AudioService.class)
+                                        new Intent(CarMediaService.this, MediaService.class)
                                                 .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                                 .putExtra(Intents.EXTRA_TRACK_ID, zikFile.getId())
                                                 .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlay()")
@@ -196,7 +196,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
             @Override public void onSkipToPrevious()    { sendCmd("CMD_PREV"); }
             @Override public void onSeekTo(long posMs)  {
                 FirebaseAnalyticsHelper.tellCarSendCmd("CMD_SEEK");
-                Intent i = new Intent(CarMediaService.this, AudioService.class).setAction("CMD_SEEK");
+                Intent i = new Intent(CarMediaService.this, MediaService.class).setAction("CMD_SEEK");
                 i.putExtra("posMs", (int) posMs);
                 i.putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + " (CarMediaService)");
                 startService(i);
@@ -212,7 +212,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                     if (trackId > 0) {
                         ContextCompat.startForegroundService(
                                 CarMediaService.this,
-                                new Intent(CarMediaService.this, AudioService.class)
+                                new Intent(CarMediaService.this, MediaService.class)
                                         .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                         .putExtra(Intents.EXTRA_TRACK_ID, trackId)
                                         .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onPlayFromMediaId()")
@@ -230,7 +230,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                         // If you want to play index 0 immediately (single-track or your UX choice):
                         ContextCompat.startForegroundService(
                                 CarMediaService.this,
-                                new Intent(CarMediaService.this, AudioService.class)
+                                new Intent(CarMediaService.this, MediaService.class)
                                         .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
                                         .putExtra(Intents.EXTRA_FOLDER_ID, folderId)
                                         .putExtra(Intents.EXTRA_INDEX, 0)
@@ -249,7 +249,81 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
                 androidx.media.session.MediaButtonReceiver.handleIntent(mediaSession, mediaButtonIntent);
                 return true; // we handled it
             }
+
+            @Override
+            public void onCustomAction(@NonNull String action, Bundle extras) {
+                switch (action) {
+                    case Intents.CMD_TTS_SET_VOICE: {
+                        String voice = extras != null ? extras.getString(Intents.EXTRA_TTS_VOICE_NAME) : null;
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, MediaService.class)
+                                        .setAction(Intents.CMD_TTS_SET_VOICE)
+                                        .putExtra(Intents.EXTRA_TTS_VOICE_NAME, voice)
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, "CarMediaService.onCustomAction")
+                        );
+                        break;
+                    }
+                    case Intents.CMD_TTS_SET_START: {
+                        int start = extras != null ? extras.getInt(Intents.EXTRA_TTS_START_OFFSET, 0) : 0;
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, MediaService.class)
+                                        .setAction(Intents.CMD_TTS_SET_START)
+                                        .putExtra(Intents.EXTRA_TTS_START_OFFSET, start)
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, "CarMediaService.onCustomAction")
+                        );
+                        break;
+                    }
+                    case Intents.CMD_SET_SPEED: {
+                        double sp = extras != null ? extras.getDouble(Intents.EXTRA_SPEED, 1.0) : 1.0;
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, MediaService.class)
+                                        .setAction(Intents.CMD_SET_SPEED)
+                                        .putExtra(Intents.EXTRA_SPEED, sp)
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, "CarMediaService.onCustomAction")
+                        );
+                        break;
+                    }
+                    case Intents.CMD_UPDATE_SLEEP: {
+                        int minutes = extras != null ? extras.getInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, 0) : 0;
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, MediaService.class)
+                                        .setAction(Intents.CMD_UPDATE_SLEEP)
+                                        .putExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, minutes)
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, "CarMediaService.onCustomAction")
+                        );
+                        break;
+                    }
+                    case Intents.CMD_TTS_GET_TEXT: {
+                        // Optional: support queries with a ResultReceiver
+                        android.os.ResultReceiver rr = extras != null
+                                ? extras.getParcelable(Intents.EXTRA_RESULT_RECEIVER) : null;
+
+                        // You can ask AudioService to produce the value and reply into rr
+                        ContextCompat.startForegroundService(
+                                CarMediaService.this,
+                                new Intent(CarMediaService.this, MediaService.class)
+                                        .setAction(Intents.CMD_TTS_GET_TEXT)
+                                        .putExtra(Intents.EXTRA_RESULT_RECEIVER, rr)
+                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                        .putExtra(Intents.EXTRA_CALLER, "CarMediaService.onCustomAction")
+                        );
+                        break;
+                    }
+
+                    default:
+                        super.onCustomAction(action, extras);
+                }
+            }
         });
+
         mediaSession.setActive(true);
 
         // 2) s’abonner aux mises à jour UI de l’AudioService
@@ -311,195 +385,10 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
         return new BrowserRoot(ROOT_ID, extras);
     }
 
-// getString(R.string.automotive_no_item_in_bookplayer)
-
-    @Override
-    public void onLoadChildren(@NonNull String parentId,
-                               @NonNull Result<List<MediaBrowserCompat.MediaItem>> result,
-                               @NonNull Bundle options) {
-        myLogI("onLoadChildren(+opts) parentId=" + parentId + " opts=" + options);
-        loadChildrenImpl(parentId, options, result);
-    }
-
     @Override
     public void onLoadChildren(@NonNull String parentId,
                                @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        myLogI("onLoadChildren parentId=" + parentId + " (no options)");
-        loadChildrenImpl(parentId, null, result);
-    }
-
-    private void loadChildrenImpl(@NonNull String parentId,
-                                  @Nullable Bundle options,
-                                  @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        myLogI("------------ OnChildren ------------   parentId=" + parentId);
-        FirebaseAnalyticsHelper.tellCarOnChildren();
-        // Chargements DB → thread bg
-        result.detach();
-
-        // Optional: honor paging if host asks
-        // int page = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1) : -1;
-        // int pageSize = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1) :
-
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
-
-            if (ROOT_ID.equals(parentId)) {
-                List<Folder> folders = AppDatabase.getDatabase(getApplicationContext())
-                        .folderDao().getAll();
-
-                if (folders == null || folders.isEmpty()) {
-                    out.add(browsable("hint", getString(R.string.automotive_no_item_in_bookplayer)));
-                    result.sendResult(out);
-                    return;
-                }
-
-                for (Folder f : folders) {
-                    MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
-                            .setMediaId(PREFIX_FOLDER + f.getId())
-                            .setTitle(f.getName());
-
-                    // Small icon
-                    Bitmap icon = null;
-                    if (f.image != null) {
-                        icon = iconCache.get(f.image);
-                        if (icon == null) {
-                            icon = decodeBitmapFromStringUri(f.image, ICON_MAX_PX);
-                            if (icon != null) iconCache.put(f.image, icon);
-                        }
-                    }
-                    if (icon != null) b.setIconBitmap(icon);
-
-                    // If only 1 track => Make the "folder" tap play directly
-                    int count = AppDatabase.getDatabase(getApplicationContext())
-                            .zikFileDao().countTracks(f.getId());
-                    if (count == 1) {
-                        ZikFile only = AppDatabase.getDatabase(getApplicationContext()).zikFileDao().getFirstInFolder(f.getId());
-                        if (only != null) {
-                            b.setSubtitle(only.getDisplayName());      // track label
-                            out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
-                        }
-                    } else {
-                        out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-                    }
-                }
-
-                myLogI("sendResult count=" + out.size() + " for ROOT parentId=" + parentId);
-                result.sendResult(out);
-                return;
-            }
-
-            if (parentId.startsWith(PREFIX_FOLDER)) {
-                int folderId = safeParseInt(parentId.substring(PREFIX_FOLDER.length()), -1);
-                if (folderId > 0) {
-                    List<ZikFile> tracks = AppDatabase.getDatabase(getApplicationContext())
-                            .zikFileDao().getZikFiles(folderId);
-
-                    if (tracks == null || tracks.isEmpty()) {
-                        out.add(browsable("hint", getString(R.string.automotive_empty_book)));
-                        result.sendResult(out);
-                        return;
-                    }
-
-                    // Put a "Resume" item first
-                    ZikFile resume = AppDatabase.getDatabase(this).zikFileDao().getLastListenedZikFileOfFolder(folderId);
-                    if (resume != null) {
-                        MediaDescriptionCompat.Builder rb = new MediaDescriptionCompat.Builder()
-                                .setMediaId(PREFIX_TRACK + resume.getId())
-                                .setTitle("▶ " + getString(R.string.automotive_resume_play) + " : \n" + resume.getDisplayName())
-                                .setSubtitle(resume.getFolderName());
-                        // optional icon from folder cover (reuse your icon code)
-                        Folder f = AppDatabase.getDatabase(getApplicationContext()).folderDao().getById(folderId);
-                        Bitmap icon = null;
-                        if (f != null && f.image != null) {
-                            icon = iconCache.get(f.image);
-                            if (icon == null) {
-                                icon = decodeBitmapFromStringUri(f.image, ICON_MAX_PX);
-                                if (icon != null) iconCache.put(f.image, icon);
-                            }
-                        }
-                        if (icon != null) rb.setIconBitmap(icon);
-
-                        Bundle rExtras = new Bundle();
-                        if (resume.getDuration() > 0) rExtras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) resume.getDuration());
-                        rb.setExtras(rExtras);
-
-                        out.add(new MediaBrowserCompat.MediaItem(rb.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
-                    }
-
-                    // Fetch folder (for its image)
-                    Folder f = AppDatabase.getDatabase(getApplicationContext())
-                            .folderDao().getById(folderId); // add DAO method if missing
-                    android.graphics.Bitmap icon = null;
-                    if (f != null && f.image != null) {
-                        icon = iconCache.get(f.image);
-                        if (icon == null) {
-                            icon = decodeBitmapFromStringUri(f.image, ICON_MAX_PX);
-                            if (icon != null) iconCache.put(f.image, icon);
-                        }
-                    }
-                    for (ZikFile z : tracks) {
-                        MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
-                                .setMediaId(PREFIX_TRACK + z.getId()) // or getIdZikFile()
-                                .setTitle(z.getDisplayName())
-                                .setSubtitle(z.getFolderName());
-                        if (icon != null) b.setIconBitmap(icon);
-
-                        Bundle extras = new Bundle();
-                        if (z.getDuration() > 0) {
-                            extras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) z.getDuration());
-                        }
-                        b.setExtras(extras);
-
-                        out.add(new MediaBrowserCompat.MediaItem(
-                                b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
-                    }
-
-                }
-                myLogI("sendResult count=" + out.size() + " for parentId=" + parentId);
-                result.sendResult(out);
-                return;
-            }
-
-            myLogW("sendResult emptyList for parentId=" + parentId);
-            result.sendResult(Collections.emptyList());
-        });
-    }
-
-    @Override
-    public void onSearch(@NonNull String query, Bundle extras,
-                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
-        myLogI("onSearch q=" + query + " extras=" + extras);
-        result.detach();
-
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
-
-            // naive search: match folder or track names containing the query
-            String q = query.toLowerCase(Locale.US);
-            for (Folder f : AppDatabase.getDatabase(getApplicationContext()).folderDao().getAll()) {
-                if (f.getName().toLowerCase(Locale.US).contains(q)) {
-                    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
-                            .setMediaId(PREFIX_FOLDER + f.getId())
-                            .setTitle(f.getName())
-                            .build();
-                    out.add(new MediaBrowserCompat.MediaItem(desc,
-                            MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
-                }
-            }
-            for (ZikFile z : AppDatabase.getDatabase(getApplicationContext()).zikFileDao().getAll()) {
-                if (z.getDisplayName().toLowerCase(Locale.US).contains(q)) {
-                    MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
-                            .setMediaId(PREFIX_TRACK + z.getId())
-                            .setTitle(z.getDisplayName())
-                            .setSubtitle(z.getFolderName())
-                            .build();
-                    out.add(new MediaBrowserCompat.MediaItem(desc,
-                            MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
-                }
-            }
-
-            result.sendResult(out);
-        });
+        myLogD("onLoadChildren parentId=" + parentId + " (no options)  --->  doing nothing");
     }
 
 
@@ -567,7 +456,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
             art = artCache.get(coverUri);
             if (art == null) {
                 // If you notice stutter, move this to imgExec and set a small placeholder first
-                art = decodeBitmapFromStringUri(coverUri, ART_MAX_PX);
+                art = ImageHelper.decodeBitmapFromStringUri(this.getApplicationContext(), coverUri, ART_MAX_PX);
                 if (art != null) artCache.put(coverUri, art);
             }
         }
@@ -616,7 +505,7 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
         myLog("sendCmd : " + action);
         FirebaseAnalyticsHelper.tellCarSendCmd(action);
         ContextCompat.startForegroundService(
-                this, new Intent(this, AudioService.class).setAction(action)
+                this, new Intent(this, MediaService.class).setAction(action)
                         .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".sendCmd " + action)
                         .putExtra(Intents.EXTRA_FOREGROUND, true)
         );
@@ -627,55 +516,8 @@ public class CarMediaService extends LoggingMediaBrowserServiceCompat {
         try { return Integer.parseInt(s); } catch (Exception e) { return def; }
     }
 
-    @Nullable
-    private android.graphics.Bitmap decodeBitmapFromStringUri(String uriString, int maxSidePx) {
-        //myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
-        if (uriString == null) return null;
-        try {
-            android.net.Uri uri = android.net.Uri.parse(uriString);
 
-            // File path support (if your DB sometimes stores plain paths)
-            //myLog("decodeBitmapFromStringUri by file");
-            if ("file".equalsIgnoreCase(uri.getScheme()) || uriString.startsWith("/")) {
-                String path = "file".equalsIgnoreCase(uri.getScheme()) ? uri.getPath() : uriString;
-                if (path == null) return null;
-                android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
-                o.inJustDecodeBounds = true;
-                android.graphics.BitmapFactory.decodeFile(path, o);
-                int sample = 1;
-                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
-                android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
-                o2.inSampleSize = sample;
-                o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
-                return android.graphics.BitmapFactory.decodeFile(path, o2);
-            }
 
-            // Content:// (SAF) — decode via stream (we are the same app → we can read it)
-            try (java.io.InputStream is = getContentResolver().openInputStream(uri)) {
-                myLogW("decodeBitmapFromStringUri by stream");
-                if (is == null) return null;
-                byte[] all = readAll(is);
-                android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
-                o.inJustDecodeBounds = true;
-                android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o);
-                int sample = 1;
-                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
-                android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
-                o2.inSampleSize = sample;
-                o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
-                return android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o2);
-            }
-        } catch (Throwable ignored) { }
-        return null;
-    }
-
-    private static byte[] readAll(java.io.InputStream is) throws java.io.IOException {
-        java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
-        byte[] buf = new byte[16 * 1024];
-        int r;
-        while ((r = is.read(buf)) != -1) bos.write(buf, 0, r);
-        return bos.toByteArray();
-    }
 
     private void requestFolderRefresh(int folderId) {
         myLog("requestFolderRefresh - folderId = " + folderId);
