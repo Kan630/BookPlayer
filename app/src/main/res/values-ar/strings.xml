@@ -984,4 +984,70 @@
     <string name="trending_radios">محطات شائعة</string>
     <string name="selected_language_error">خطأ في اللغة المحددة</string>
 
+    <string name="media_button_action">إجراء زر الوسائط</string>
+    <string name="by_tag">حسب الوسم</string>
+    <string name="by_country">حسب البلد</string>
+    <string name="by_language">حسب اللغة</string>
+    <string name="by_name">حسب الاسم</string>
+    <string name="quick_lists">قوائم سريعة</string>
+    <string name="remove_from_favorites">إزالة من المفضلة</string>
+    <string name="search_by_station_name">بحث حسب اسم المحطة</string>
+    <string name="play_pause">تشغيل إيقاف مؤقت</string>
+
+    <string name="option_reset_settings_values">إعادة تعيين قيم الإعدادات</string>
+    <string name="reset_to_default">إعادة إلى الوضع الافتراضي</string>
+    <string name="reset_for_power_user">إعادة تعيين للمستخدم المتقدم</string>
+
+    <string name="option_reset_for_power_user_explain_text">
+إعادة تعيين المستخدم المتقدم تسترجع الإعدادات الافتراضية، مع بعض الخيارات الخاصة:
+\nالاستيراد:
+\n* [لا تنسخ]
+\n* [\"فتح باستخدام\" لأي نوع من الملفات]
+\nسلوك التشغيل:
+\n* [لا تفتح واجهة التشغيل الخاصة]
+\n* [استمر في التشغيل عند مغادرة التطبيق]
+</string>
+
+    <string name="cancel_ongoing_operation">إلغاء العمليات الجارية</string>
+
+    <string name="option_reset_app_explain_text">
+أحيانًا يتوقف التطبيق بعد تعطل أثناء استيراد كتاب مما يمنع المزيد من العمليات.
+في هذه الحالة، اضغط على هذا الزر لإلغاء وإعادة تعيين أي عمليات قيد التنفيذ.
+</string>
+
+    <string name="option_tts_chunk_size_explain_text">
+يحدد حجم الجزء مقدار النص المرسل إلى محرك TTS في المرة الواحدة. زيادته قد تجعل الصوت أكثر سلاسة وطبيعية.
+</string>
+
+    <string name="option_tts_highlight_delay_explain_text">
+يمكنك ضبط تأخير التمييز لمزامنة الصوت مع الكلمات المعروضة بشكل أفضل.
+</string>
+
+    <string name="option_automotive_on_explain_text">
+السماح لـ Android Auto بالاتصال بـ BookPlayer وعرض الكتالوج والتحكم في التشغيل.
+</string>
+
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+السماح لـ Android Auto باستئناف التشغيل تلقائيًا عند الاتصال بالسيارة إذا كان الصوت قيد التشغيل مسبقًا.
+</string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+السماح لـ Android Auto ببدء التشغيل تلقائيًا عند الاتصال بالسيارة حتى إن لم يكن هناك تشغيل سابق.
+</string>
+
+    <string name="Mass_Import">استيراد ضخم</string>
+    <string name="scanning_folder">فحص المجلد</string>
+    <string name="candidates">مرشحون</string>
+    <string name="found">تم العثور</string>
+    <string name="from">من</string>
+    <string name="in">في</string>
+    <string name="items">عناصر</string>
+    <string name="folder">مجلد</string>
+    <string name="Nothing_to_re_import_among">لا يوجد ما يمكن إعادة استيراده من بين</string>
+    <string name="please_wait_another_book">يرجى الانتظار — لا يزال كتاب آخر قيد التنزيل أو التحميل.\nإذا لم يكن كذلك، استخدم زر إعادة تعيين التطبيق في [الإعدادات &gt; الأدوات &gt; إلغاء العملية الجارية].</string>
+    <string name="Podcast_source_error">خطأ في مصدر البودكاست</string>
+    <string name="Streaming_Podcast">بودكاست مباشر</string>
+    <string name="Stop_the_player_to_move_playing_tracks">يجب إيقاف التشغيل لنقل المقطع الجاري تشغيله</string>
+
+
 </resources>

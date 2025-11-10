@@ -949,7 +949,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="voice_name">nom de la voix</string>
     <string name="Clipboard_is_empty">Le presse-papiers est vide</string>
 
-    <string name="chars">caractères</string> <!-- means : word character -->
+    <string name="chars">caract.</string> <!-- means : word character -->
     <string name="reorder">réorganiser</string>
     <string name="new_">nouveau</string>
     <string name="icon">icône</string>
@@ -985,5 +985,69 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="trending_radios">radios populaires</string>
     <string name="selected_language_error">erreur de langue sélectionnée</string>
 
+    <string name="media_button_action">action du bouton média</string> <!-- media control -->
+    <string name="by_tag">par étiquette</string>
+    <string name="by_country">par pays</string>
+    <string name="by_language">par langue</string>
+    <string name="by_name">par nom</string>
+    <string name="quick_lists">Listes rapides</string>
+    <string name="remove_from_favorites">retirer des favoris</string>
+    <string name="search_by_station_name">rechercher par nom de station</string>
+    <string name="play_pause">lecture pause</string>
+
+    <string name="option_reset_settings_values">Réinitialiser les valeurs des paramètres</string>
+    <string name="reset_to_default">réinitialiser par défaut</string>
+    <string name="reset_for_power_user">réinitialiser pour utilisateur avancé</string>
+
+    <string name="option_reset_for_power_user_explain_text">
+La réinitialisation pour utilisateur avancé restaure les valeurs d\'usine, mais garde quelques réglages spécifiques :
+\nImportation :
+\n* [ne pas copier]
+\n* [\"Ouvrir avec\" pour tout type de fichier]
+\nComportement de lecture :
+\n* [ne pas ouvrir la vue de lecture dédiée]
+\n* [continuer la lecture audio en quittant l\'application]
+</string>
+
+    <string name="cancel_ongoing_operation">Annuler les opérations en cours</string>
+
+    <string name="option_reset_app_explain_text">
+Parfois, l\'application peut se bloquer, par exemple après un crash pendant une importation, empêchant toute autre importation ou annulation.
+Dans ce cas, appuyez sur ce bouton pour annuler et réinitialiser les importations en cours.
+</string>
+
+    <string name="option_tts_chunk_size_explain_text">
+La taille du bloc détermine combien de texte est envoyé au moteur TTS à la fois. L\'augmenter peut donner une voix plus fluide et naturelle.
+</string>
+
+    <string name="option_tts_highlight_delay_explain_text">
+Vous pouvez ajuster le délai de surbrillance pour mieux synchroniser l\'audio avec les mots affichés.
+</string>
+
+    <string name="option_automotive_on_explain_text">
+Autoriser Android Auto à se connecter à BookPlayer, afficher le catalogue et contrôler la lecture.
+</string>
+
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+Autoriser Android Auto à reprendre automatiquement la lecture lors de la connexion à la voiture, si l\'audio était déjà en cours.
+</string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+Autoriser Android Auto à démarrer automatiquement la lecture lors de la connexion à la voiture, même si rien ne jouait.
+</string>
+
+    <string name="Mass_Import">Importation massive</string>
+    <string name="scanning_folder">analyse du dossier</string>
+    <string name="candidates">candidats</string>
+    <string name="found">trouvé</string>
+    <string name="from">de</string>
+    <string name="in">dans</string>
+    <string name="items">éléments</string>
+    <string name="folder">dossier</string>
+    <string name="Nothing_to_re_import_among">Rien à réimporter parmi</string>
+    <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres &gt; Utilitaires &gt; Annuler l\'opération en cours] (tout en bas).</string>
+    <string name="Podcast_source_error">Erreur de source du podcast</string>
+    <string name="Streaming_Podcast">Podcast en streaming</string>
+    <string name="Stop_the_player_to_move_playing_tracks">Vous devez arrêter la lecture pour déplacer la piste en cours</string>
 
 </resources>

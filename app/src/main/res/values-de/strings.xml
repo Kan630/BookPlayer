@@ -989,4 +989,69 @@ Sind Sie sicher?"</string>
     <string name="trending_radios">beliebte Radios</string>
     <string name="selected_language_error">Fehler bei der ausgewählten Sprache</string>
 
+    <string name="media_button_action">Medientastenaktion</string>
+    <string name="by_tag">nach Tag</string>
+    <string name="by_country">nach Land</string>
+    <string name="by_language">nach Sprache</string>
+    <string name="by_name">nach Name</string>
+    <string name="quick_lists">Schnelllisten</string>
+    <string name="remove_from_favorites">aus Favoriten entfernen</string>
+    <string name="search_by_station_name">nach Sendernamen suchen</string>
+    <string name="play_pause">Wiedergabe Pause</string>
+
+    <string name="option_reset_settings_values">Einstellungen zurücksetzen</string>
+    <string name="reset_to_default">auf Standard zurücksetzen</string>
+    <string name="reset_for_power_user">für Power-User zurücksetzen</string>
+
+    <string name="option_reset_for_power_user_explain_text">
+Der Power-User-Reset stellt die Werkseinstellungen wieder her, behält jedoch einige spezifische Optionen:
+\nImport:
+\n* [nicht kopieren]
+\n* [\"Öffnen mit\" für jede Art von Datei]
+\nWiedergabeverhalten:
+\n* [keine spezielle Wiedergabeansicht öffnen]
+\n* [Audio weiter abspielen, wenn die App geschlossen wird]
+</string>
+
+    <string name="cancel_ongoing_operation">Laufende Vorgänge abbrechen</string>
+
+    <string name="option_reset_app_explain_text">
+Manchmal kann die App hängen bleiben, z. B. nach einem Absturz während eines Buchimports.
+In diesem Fall tippen Sie auf diese Schaltfläche, um laufende Importe abzubrechen und zurückzusetzen.
+</string>
+
+    <string name="option_tts_chunk_size_explain_text">
+Die Blockgröße bestimmt, wie viel Text gleichzeitig an die TTS-Engine gesendet wird. Eine größere Größe kann eine natürlichere Sprache bewirken.
+</string>
+
+    <string name="option_tts_highlight_delay_explain_text">
+Passen Sie die Hervorhebungsverzögerung an, um Audio und Text besser zu synchronisieren.
+</string>
+
+    <string name="option_automotive_on_explain_text">
+Erlaubt Android Auto, sich mit BookPlayer zu verbinden, den Katalog anzuzeigen und die Wiedergabe zu steuern.
+</string>
+
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+Erlaubt Android Auto, die Wiedergabe automatisch fortzusetzen, wenn es mit dem Auto verbunden wird und bereits Audio lief.
+</string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit dem Auto verbunden wird, auch wenn nichts lief.
+</string>
+
+    <string name="Mass_Import">Massenimport</string>
+    <string name="scanning_folder">Ordner wird gescannt</string>
+    <string name="candidates">Kandidaten</string>
+    <string name="found">gefunden</string>
+    <string name="from">von</string>
+    <string name="in">in</string>
+    <string name="items">Elemente</string>
+    <string name="folder">Ordner</string>
+    <string name="Nothing_to_re_import_among">Nichts zum Re-Importieren unter</string>
+    <string name="please_wait_another_book">Bitte warten — ein anderes Buch wird noch heruntergeladen oder geladen.\nFalls nicht, verwenden Sie die Schaltfläche App zurücksetzen unter [Einstellungen &gt; Dienstprogramme &gt; Laufende Operation abbrechen].</string>
+    <string name="Podcast_source_error">Podcast-Quellenfehler</string>
+    <string name="Streaming_Podcast">Streaming-Podcast</string>
+    <string name="Stop_the_player_to_move_playing_tracks">Bitte Wiedergabe stoppen, um den aktuell gespielten Titel zu verschieben</string>
+
 </resources>

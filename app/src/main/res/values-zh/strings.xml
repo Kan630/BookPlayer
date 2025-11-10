@@ -986,4 +986,69 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="trending_radios">热门电台</string>
     <string name="selected_language_error">所选语言错误</string>
 
+    <string name="media_button_action">媒体按钮操作</string>
+    <string name="by_tag">按标签</string>
+    <string name="by_country">按国家</string>
+    <string name="by_language">按语言</string>
+    <string name="by_name">按名称</string>
+    <string name="quick_lists">快速列表</string>
+    <string name="remove_from_favorites">从收藏中移除</string>
+    <string name="search_by_station_name">按电台名称搜索</string>
+    <string name="play_pause">播放 暂停</string>
+
+    <string name="option_reset_settings_values">重置设置值</string>
+    <string name="reset_to_default">重置为默认值</string>
+    <string name="reset_for_power_user">为高级用户重置</string>
+
+    <string name="option_reset_for_power_user_explain_text">
+高级用户重置将恢复出厂设置，但保留某些特定选项：
+\n导入：
+\n* [不复制]
+\n* [\"使用其他应用打开\" 适用于任何文件类型]
+\n播放行为：
+\n* [不打开专用播放界面]
+\n* [退出应用时保持音频播放]
+</string>
+
+    <string name="cancel_ongoing_operation">取消正在进行的操作</string>
+
+    <string name="option_reset_app_explain_text">
+有时应用可能会卡住，例如在导入图书时崩溃后。
+此时请点击此按钮以取消并重置正在进行的导入。
+</string>
+
+    <string name="option_tts_chunk_size_explain_text">
+块大小决定一次发送到TTS引擎的文本量。增大它可以让语音更自然流畅。
+</string>
+
+    <string name="option_tts_highlight_delay_explain_text">
+您可以调整高亮延迟，以更好地同步语音与文字。
+</string>
+
+    <string name="option_automotive_on_explain_text">
+允许Android Auto连接BookPlayer、显示目录并控制播放。
+</string>
+
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+如果应用中音频已在播放，允许Android Auto连接汽车时自动恢复播放。
+</string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+允许Android Auto在连接汽车时自动开始播放，即使之前没有播放任何内容。
+</string>
+
+    <string name="Mass_Import">批量导入</string>
+    <string name="scanning_folder">正在扫描文件夹</string>
+    <string name="candidates">候选项</string>
+    <string name="found">已找到</string>
+    <string name="from">来自</string>
+    <string name="in">在</string>
+    <string name="items">项目</string>
+    <string name="folder">文件夹</string>
+    <string name="Nothing_to_re_import_among">没有可重新导入的内容</string>
+    <string name="please_wait_another_book">请稍候 — 另一本书仍在下载或加载中。\n如果不是这种情况，请使用 [设置 &gt; 工具 &gt; 取消正在进行的操作] 中的重置应用按钮。</string>
+    <string name="Podcast_source_error">播客源错误</string>
+    <string name="Streaming_Podcast">流媒体播客</string>
+    <string name="Stop_the_player_to_move_playing_tracks">必须停止播放才能移动当前正在播放的曲目</string>
+
 </resources>

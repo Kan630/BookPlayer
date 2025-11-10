@@ -991,5 +991,70 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="trending_radios">популярные радиостанции</string>
         <string name="selected_language_error">ошибка выбранного языка</string>
 
+        <string name="media_button_action">действие кнопки медиа</string>
+        <string name="by_tag">по тегу</string>
+        <string name="by_country">по стране</string>
+        <string name="by_language">по языку</string>
+        <string name="by_name">по имени</string>
+        <string name="quick_lists">Быстрые списки</string>
+        <string name="remove_from_favorites">удалить из избранного</string>
+        <string name="search_by_station_name">поиск по названию станции</string>
+        <string name="play_pause">воспроизведение пауза</string>
+
+        <string name="option_reset_settings_values">Сброс значений настроек</string>
+        <string name="reset_to_default">сброс по умолчанию</string>
+        <string name="reset_for_power_user">сброс для опытного пользователя</string>
+
+        <string name="option_reset_for_power_user_explain_text">
+Сброс для опытного пользователя восстанавливает заводские настройки, но сохраняет некоторые параметры:
+\nИмпорт:
+\n* [не копировать]
+\n* [\"Открыть с помощью\" для любого типа файла]
+\nПоведение воспроизведения:
+\n* [не открывать отдельное окно плеера]
+\n* [продолжать воспроизведение при выходе из приложения]
+</string>
+
+        <string name="cancel_ongoing_operation">Отменить текущие операции</string>
+
+        <string name="option_reset_app_explain_text">
+Иногда приложение может зависнуть, например после сбоя во время импорта книги.
+В этом случае нажмите эту кнопку, чтобы отменить и сбросить все активные импорты.
+</string>
+
+        <string name="option_tts_chunk_size_explain_text">
+Размер блока определяет, сколько текста отправляется в TTS-движок за раз. Увеличение может сделать речь более естественной.
+</string>
+
+        <string name="option_tts_highlight_delay_explain_text">
+Вы можете отрегулировать задержку подсветки для лучшей синхронизации аудио и текста.
+</string>
+
+        <string name="option_automotive_on_explain_text">
+Разрешить Android Auto подключаться к BookPlayer, отображать каталог и управлять воспроизведением.
+</string>
+
+        <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+Разрешить Android Auto автоматически возобновлять воспроизведение при подключении к автомобилю, если аудио уже играло.
+</string>
+
+        <string name="option_automotive_let_car_autoplay_explain_text">
+Разрешить Android Auto автоматически начинать воспроизведение при подключении к автомобилю, даже если ничего не играло.
+</string>
+
+        <string name="Mass_Import">Массовый импорт</string>
+        <string name="scanning_folder">сканирование папки</string>
+        <string name="candidates">кандидаты</string>
+        <string name="found">найдено</string>
+        <string name="from">из</string>
+        <string name="in">в</string>
+        <string name="items">элементы</string>
+        <string name="folder">папка</string>
+        <string name="Nothing_to_re_import_among">Нечего повторно импортировать среди</string>
+        <string name="please_wait_another_book">Пожалуйста, подождите — другая книга всё ещё загружается или открывается.\nЕсли это не так, используйте кнопку Сброс приложения в [Настройки &gt; Утилиты &gt; Отменить текущую операцию].</string>
+        <string name="Podcast_source_error">Ошибка источника подкаста</string>
+        <string name="Streaming_Podcast">Потоковый подкаст</string>
+        <string name="Stop_the_player_to_move_playing_tracks">Остановите воспроизведение, чтобы переместить текущий трек</string>
+
 
 </resources>

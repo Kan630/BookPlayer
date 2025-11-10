@@ -978,4 +978,69 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
     <string name="trending_radios">radios populares</string>
     <string name="selected_language_error">error de idioma seleccionado</string>
 
+    <string name="media_button_action">acción del botón multimedia</string>
+    <string name="by_tag">por etiqueta</string>
+    <string name="by_country">por país</string>
+    <string name="by_language">por idioma</string>
+    <string name="by_name">por nombre</string>
+    <string name="quick_lists">Listas rápidas</string>
+    <string name="remove_from_favorites">quitar de favoritos</string>
+    <string name="search_by_station_name">buscar por nombre de estación</string>
+    <string name="play_pause">reproducir pausar</string>
+
+    <string name="option_reset_settings_values">Restablecer valores de configuración</string>
+    <string name="reset_to_default">restablecer a valores predeterminados</string>
+    <string name="reset_for_power_user">restablecer para usuario avanzado</string>
+
+    <string name="option_reset_for_power_user_explain_text">
+El reinicio para usuario avanzado restaura los valores de fábrica pero conserva algunos ajustes específicos:
+\nImportar:
+\n* [no copiar]
+\n* [\"Abrir con\" para cualquier tipo de archivo]
+\nComportamiento de reproducción:
+\n* [no abrir la vista dedicada de reproducción]
+\n* [mantener la reproducción al salir de la app]
+</string>
+
+    <string name="cancel_ongoing_operation">Cancelar operaciones en curso</string>
+
+    <string name="option_reset_app_explain_text">
+A veces la aplicación puede quedarse bloqueada, por ejemplo después de un fallo durante una importación.
+En ese caso, pulsa este botón para cancelar y restablecer las importaciones en curso.
+</string>
+
+    <string name="option_tts_chunk_size_explain_text">
+El tamaño del bloque determina cuánta cantidad de texto se envía al motor TTS de una vez. Aumentarlo puede hacer la voz más natural y fluida.
+</string>
+
+    <string name="option_tts_highlight_delay_explain_text">
+Puedes ajustar el retraso del resaltado para sincronizar mejor el audio con las palabras mostradas.
+</string>
+
+    <string name="option_automotive_on_explain_text">
+Permitir que Android Auto se conecte con BookPlayer, muestre su catálogo y controle la reproducción.
+</string>
+
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
+Permitir que Android Auto reanude la reproducción automáticamente al conectarse al coche si el audio ya estaba en reproducción.
+</string>
+
+    <string name="option_automotive_let_car_autoplay_explain_text">
+Permitir que Android Auto inicie la reproducción automáticamente al conectarse al coche, incluso si no se estaba reproduciendo nada.
+</string>
+
+    <string name="Mass_Import">Importación masiva</string>
+    <string name="scanning_folder">escaneando carpeta</string>
+    <string name="candidates">candidatos</string>
+    <string name="found">encontrado</string>
+    <string name="from">de</string>
+    <string name="in">en</string>
+    <string name="items">elementos</string>
+    <string name="folder">carpeta</string>
+    <string name="Nothing_to_re_import_among">Nada que volver a importar entre</string>
+    <string name="please_wait_another_book">Por favor espera — otro libro todavía se está descargando o cargando.\nSi no es así, usa el botón Restablecer aplicación en [Configuración &gt; Utilidades &gt; Cancelar operación en curso].</string>
+    <string name="Podcast_source_error">Error de fuente del podcast</string>
+    <string name="Streaming_Podcast">Podcast en streaming</string>
+    <string name="Stop_the_player_to_move_playing_tracks">Debes detener la reproducción para mover la pista que se está reproduciendo</string>
+
 </resources>

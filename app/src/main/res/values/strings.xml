@@ -1004,7 +1004,7 @@
     <string name="voice_name">voice name</string>
     <string name="Clipboard_is_empty">Clipboard is empty</string>
 
-    <string name="chars">chars</string> //means : word character
+    <string name="chars">chars</string> //means : word character //indication :  try to find a short translation (less than 5/6 letters)
     <string name="reorder">reorder</string>
     <string name="new_">new</string>
     <string name="icon">icon</string>
@@ -1044,6 +1044,9 @@
     <string name="RadioSearch_desc">Browse by language, country or tag, or search by station name.</string>
     <string name="trending_radios">Trending</string>
     <string name="selected_language_error">Selected language error</string>
+
+
+
 
     <string name="media_button_action">media button action</string>
     <string name="by_tag">by tag</string>
