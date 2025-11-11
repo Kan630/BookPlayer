@@ -1116,7 +1116,7 @@
 
     <string name="bOpenMassImport_warning">Only subfolders containing audio files are supported for now</string>
     <string name="librivox_search_edittext_title">Search by author or title...\nTip: a single word often gives better results</string>
-    <string name="podcast_search_edittext_title">Search...\nTip: a single word often gives better results</string>
+    <string name="podcast_search_edittext_title">Search... (all languages)\nTip: a single word often gives better results</string>
 
 
 
