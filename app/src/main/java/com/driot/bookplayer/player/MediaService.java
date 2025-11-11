@@ -732,28 +732,23 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 title,
                 text,
                 new com.driot.bookplayer.player.PlaybackNotificationManager.ActionProvider() {
-                    @Override
-                    public PendingIntent rewind() {
+                    @NonNull @Override public PendingIntent rewind() {
                         return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_REWIND);
                     }
 
-                    @Override
-                    public PendingIntent play() {
+                    @NonNull @Override public PendingIntent play() {
                         return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY);
                     }
 
-                    @Override
-                    public PendingIntent pause() {
+                    @NonNull @Override public PendingIntent pause() {
                         return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
                     }
 
-                    @Override
-                    public PendingIntent fastForward() {
+                    @NonNull @Override public PendingIntent fastForward() {
                         return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_FAST_FORWARD);
                     }
 
-                    @Override
-                    public PendingIntent content() {
+                    @NonNull @Override public PendingIntent content() {
                         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
                         androidx.core.app.TaskStackBuilder tsb = androidx.core.app.TaskStackBuilder.create(MediaService.this);
@@ -894,32 +889,31 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void alertError(String from, String errMsg) {
-        if (radioMode || podcastMode) {
-            LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
-                    .putExtra(FROM, from)
-                    .putExtra(ERR_MSG, errMsg)
-            );
-        } else {
-            LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_ERROR)
-                    .putExtra(TRACKNUMBER, PlayList.getInstance().getNumZikFile())
-                    .putExtra(FROM, from)
-                    .putExtra(ERR_MSG, errMsg)
-            );
-        }
         myLogE("sendBroadcast alertError - from [" + from + "] - errMsg=[" + errMsg + "]" );
+        Intent i = new Intent(NOTIFICATION_ERROR)
+                .putExtra(FROM, from)
+                .putExtra(ERR_MSG, errMsg);
+        PlayList pl = PlayList.getInstance();
+        if (pl!=null && pl.getNumZikFile()>0 && !(radioMode || podcastMode)) {
+            i.putExtra(TRACKNUMBER, pl.getNumZikFile());
+        }
+        LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
     }
 
     private void alertTrackFinished() {
-        LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_TRACKFINISHED));
         myLog("--------------------------------------------------------------------------------- sendBroadcast alertTrackFinished --------------------------------------------------------------------------------");
+        LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_TRACKFINISHED));
     }
 
     private void alertPlaylistFinished() {
-        LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYLISTFINISHED));
         myLog("sendBroadcast alertPlaylistFinished");
+        LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_PLAYLISTFINISHED));
     }
 
-
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------
+    //------    START COMMAND
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         myLog("onStartCommand()");
@@ -1185,6 +1179,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
         }
     }
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------------------------------------------------------------------
 
     /**
      * Minimal foreground entry used before async prep to satisfy the 5s requirement.
@@ -2074,7 +2070,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return radioMode ? ACTIONS_RADIO : ACTIONS_FILE;
     }
     private void playRadioStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
-        myLogI("playRadioStream: " + title + " -> " + url);
+        myLogD("playRadioStream: " + title + " -> " + url);
 
         // Mark radio mode + meta
         radioMode = true;

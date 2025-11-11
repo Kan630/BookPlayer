@@ -41,7 +41,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
             String newPlayType = newState.playMode;
 
             if (!Objects.equals(newPlayType, lastPlayType)) {
-                myLogI("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
+                myLogD("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
                 swapChild(newPlayType);
             } else {
                 //myLogD("vm.getPlayType().observe: same as before newPlayType=[" + newPlayType + "]");
@@ -71,7 +71,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
     }
 
     private void attachFirstChild(String playType) {
-        myLogI("attachFirstChild, playType: " + playType);
+        myLog("attachFirstChild, playType: " + playType);
         final Fragment child;
         if ("radio".equals(playType)) {
             child = new MiniPlayRadioFragment();
@@ -92,7 +92,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
     }
 
     private void swapChild(String playType) {
-        myLogI("swapChild, playType: " + playType);
+        myLog("swapChild, playType: " + playType);
         Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
         //if (current != null && !Objects.equals(playType, current.getTag())) return;
 

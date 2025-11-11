@@ -4,7 +4,6 @@ import android.os.Handler;
 
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
@@ -61,6 +60,7 @@ public final class SleepTimer extends LoggerHelper {
             playedSinceLastMinuteMs += delta;
             if (playedSinceLastMinuteMs >= 60_000L) {
                 playedSinceLastMinuteMs -= 60_000L;
+                myLog(Tonio.formatMmSs(elapsedMs) + "...     sleep in " + Tonio.formatMmSs(((long) maxMinutes*60 - elapsedSec)*1000) + " -- from " + maxMinutes + "min.");
                 l.onEveryMinute(elapsed_category);
             }
 
@@ -77,6 +77,7 @@ public final class SleepTimer extends LoggerHelper {
     };
 
     public void start(int customMinutes) {
+        myLog("=> starting - (sleep in " + customMinutes + " min.)");
         this.maxMinutes = Math.max(0, customMinutes);
         this.elapsedMs = 0L;
         this.playedSinceLastMinuteMs = 0L;
@@ -87,7 +88,11 @@ public final class SleepTimer extends LoggerHelper {
         h.postDelayed(r, tickMs);
     }
 
-    public void stop() { running = false; h.removeCallbacks(r); }
+    public void stop() {
+        myLog("=> stopping after " + Tonio.formatMmSsMs(elapsedMs));
+        running = false;
+        h.removeCallbacks(r);
+    }
     public void reload(int customMinutes) { stop(); start(customMinutes); }
     public boolean isRunning() { return running; }
 }
