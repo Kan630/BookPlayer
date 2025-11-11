@@ -32,6 +32,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -62,6 +63,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, false);
     private final Observer<PlayList.MetaState> metaObs = meta -> {
         lastPlayListMeta = meta;          // cache latest meta
+        //media.setImage(meta.)
         //broadcastUiState("PlayList.MetaState");       // rebuild + emit unified UI
     };
 
@@ -278,7 +280,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, title, subTitle, cover,
                     trackId, folderId, 0, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
-
         PlaybackUiBus.get().emit(s);
 
     }
@@ -882,9 +883,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void alertNewTrack() {
         myLog("alertNewTrack()");
         ZikFile z = getCurrentZikFile();
+        PlayList pl = PlayList.getInstance();
+        String cover = null;
+        if (pl!=null && pl.getFolder()!=null) cover = pl.getFolder().image;
         if (z != null) {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
-            media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(), 0L, null);
+            media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
             showForegroundNotification(isPlaying());
         }
     }
@@ -1501,16 +1505,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Update media session metadata early (title/sub), set BUFFERING, show paused notif
         media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
-        ZikFile cur = getCurrentZikFile(); // should be zf, but stay defensive
-        if (cur != null) {
-            media.setMetadata(
-                    cur.getDisplayName(),
-                    cur.getFolderName(),
-                    cur.getFolderName(),
-                    0L,
-                    null
-            );
-        }
+
+        String cover = (pl.getFolder()==null) ? null : pl.getFolder().image;
+        media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+
         showForegroundNotification(isPlaying());
 
         try {
@@ -1832,15 +1830,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
 
             if (engine != null) {
-                ZikFile z = getCurrentZikFile();
-                if (z != null) {
-                    media.setMetadata(
-                            z.getDisplayName(),            // title
-                            z.getFolderName(),             // artist (or podcast show)
-                            z.getFolderName(),             // album (or same as folder)
-                            engine.getDuration(),
-                            /* art */ null                 // optionally load a Bitmap
-                    );
+                PlayList pl = PlayList.getInstance();
+                if (pl != null) {
+                    ZikFile zf = pl.getZikFile();
+                    if (zf != null) {
+                        String cover = (pl.getFolder()==null ? null : pl.getFolder().image);
+                        media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(), engine.getDuration(), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+                    }
                 }
             }
         }

@@ -6,6 +6,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.graphics.Bitmap;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
@@ -31,6 +32,13 @@ public final class MediaSessionController {
                 .build();
         session.setMetadata(md);
     }
+    public void setImage(Bitmap bitmap) {
+        MediaMetadataCompat md = new MediaMetadataCompat.Builder()
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap)
+                .putBitmap(MediaMetadataCompat.METADATA_KEY_ART, bitmap)
+                .build();
+        session.setMetadata(md);
+    }
 
     public void updateState(int state, long position, float speed, long actions) {
         PlaybackStateCompat ps = new PlaybackStateCompat.Builder()
@@ -52,7 +60,7 @@ public final class MediaSessionController {
                             @NonNull String artist,
                             @NonNull String album,
                             long durationMs,
-                            @Nullable android.graphics.Bitmap bitmap /* pass null if you don't have it */) {
+                            @Nullable Bitmap bitmap /* pass null if you don't have it */) {
         MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
                 .putText(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putText(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
@@ -64,10 +72,11 @@ public final class MediaSessionController {
         }
         session.setMetadata(b.build());
     }
+
     public void setMetadataRadio(@NonNull String title,
                             @NonNull String artist,
                             @NonNull String album,
-                            @Nullable android.graphics.Bitmap art /* pass null if you don't have it */) {
+                            @Nullable Bitmap art /* pass null if you don't have it */) {
         MediaMetadataCompat.Builder b = new MediaMetadataCompat.Builder()
                 .putText(MediaMetadataCompat.METADATA_KEY_TITLE, title)
                 .putText(MediaMetadataCompat.METADATA_KEY_ARTIST, artist)
