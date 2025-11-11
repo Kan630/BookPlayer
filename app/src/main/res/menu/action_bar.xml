@@ -5,19 +5,11 @@
         tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_menu_radio"
-        android:icon="@drawable/ic_radio_24px"
-        android:title="@string/radio"
-        app:showAsAction="ifRoom"
-        >
-    </item>
-    <item
         android:id="@+id/action_menu_addBook"
-        android:icon="@drawable/ic_btn_add_book"
+        android:icon="@drawable/ic_add_book_24"
         android:title="@string/add_book"
         app:showAsAction="ifRoom"
-        >
-    </item>
+        />
     <item
         android:id="@+id/action_menu_three_dot"
         android:icon="@drawable/ic_baseline_more_vert_24"
