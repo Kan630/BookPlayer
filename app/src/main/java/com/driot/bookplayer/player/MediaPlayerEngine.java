@@ -6,6 +6,7 @@ import android.net.Uri;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
@@ -123,7 +124,7 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
                 //mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
                 //myLogD("seekTo CLOSEST " + ms);
                 mp.seekTo((int) ms);
-                myLogD("seekTo NORMAL " + ms);
+                myLogD("seekTo NORMAL " + Tonio.formatMmSsMs(ms));
         } catch (Throwable t) {
             myLogEE(null, "seekTo failed: " + t.getMessage());
         }

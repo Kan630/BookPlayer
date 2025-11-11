@@ -340,7 +340,7 @@ public class PlayActivity extends LoggingActivity {
         });
 
         vm.getTtsText().observe(this, txt -> {
-            myLog("observe Tts Text : [" + txt + "]");
+            //myLog("observe Tts Text : [" + txt + "]");
             if (txt == null) txt = "";
             if (!txt.equals(lastTtsTextString)) {
                 lastTtsTextString = txt;

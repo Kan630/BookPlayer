@@ -5,6 +5,13 @@
         tools:context=".MainActivity">
 
     <item
+        android:id="@+id/action_menu_radio"
+        android:icon="@drawable/ic_radio_24px"
+        android:title="@string/radio"
+        app:showAsAction="ifRoom"
+        >
+    </item>
+    <item
         android:id="@+id/action_menu_addBook"
         android:icon="@drawable/ic_btn_add_book"
         android:title="@string/add_book"

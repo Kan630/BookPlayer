@@ -108,6 +108,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         }
         prepared = true;
         preparing = false;
+        logCurrentVoice();
         listener.onPrepared(gen);
     }
 
@@ -285,7 +286,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                         .putExtra(Intents.EXTRA_TTS_END, off)
         );
         tts.speakFromOffset(text, off, volume);  // all chunking lives in TtsHelper
-        logCurrentVoice();
     }
 
     private int logicalTextEndIndex() {

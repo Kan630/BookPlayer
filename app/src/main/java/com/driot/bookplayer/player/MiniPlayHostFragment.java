@@ -92,7 +92,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
     }
 
     private void swapChild(String playType) {
-        myLog("swapChild, playType: " + playType);
+        myLog("swapChild, playType: " + playType + "   on activity " + getActivity().getOpPackageName());
         Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
         //if (current != null && !Objects.equals(playType, current.getTag())) return;
 

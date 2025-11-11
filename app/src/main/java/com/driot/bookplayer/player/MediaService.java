@@ -204,7 +204,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private PlayerEngine engine;
 
     public boolean directPlay;
-    private boolean justAdvancedToNext = false; //for TTS starting anywhere
 
     private void broadcastUiCleared() {
         currentUiPhase = Intents.PHASE_OFF;
@@ -787,9 +786,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         // Audio focus first
         focus.request();
 
-        //if maxReach + introCut + littleRewind
-        if (!radioMode && !podcastMode) setPositionPlayStart();
-
         PlayerEngine e = this.engine; // snapshot to avoid races
         if (e == null) {
             myLogE("startPlayWithEngine: engine is null (race) — aborting start");
@@ -831,7 +827,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return;
         }
 
-        justAdvancedToNext = true;
         PlayList pl = PlayList.getInstance();
         if (pl == null) {
             alertError("nextTrack", "nextTrack : error getting playlist");
@@ -1815,12 +1810,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         if (!radioMode && !podcastMode) {
             try {
-                int saved = getSavedResumePosition();
-                myLogD(getCurrentZikFile().getName() + " - savedPosition = " + saved);
-                if (engine != null && saved > 0) {
-                    engine.seekTo(saved);
-                }
-                justAdvancedToNext = false;
+                setPositionPlayStart();
+
             } catch (Exception e) {
                 myLogEE(e, "seekTo(saved) in onEnginePrepared");
             }
@@ -1896,16 +1887,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogEE(null, "Engine FATAL: " + msg + " (" + what + "," + extra + ")");
             }
         }
-    }
-
-
-    private int getSavedResumePosition() {
-        ZikFile z = getCurrentZikFile();
-        if (z == null) return 0;
-        int pos = (int) z.getPosition();
-        int dur = (int) z.getDuration();
-        if (dur > 0) pos = Math.max(0, Math.min(pos, dur));
-        return pos;
     }
 
     public boolean isReadyToPlay() {
@@ -1992,7 +1973,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void setPositionPlayStart() {
-        myLogD("setPositionPlayStart()");
         try {
             PlayList pl = PlayList.getInstance();
             if (pl == null) {
@@ -2004,11 +1984,27 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogEE(null, "setPositionPlayStart() - zikFile null");
                 return;
             }
+            if (engine == null) {
+                myLogEE(null, "setPositionPlayStart() - engine null");
+                return;
+            }
+
+            int savedPos = (int) zikFile.getPosition();
+            int dur = (int) zikFile.getDuration();
+            if (dur > 0) savedPos = Math.max(0, Math.min(savedPos, dur));
+            myLogD(zikFile.getName() + " - savedPosition = " + savedPos);
+            if (savedPos >= (dur - Var.START_AT_ZERO_IF_TRACK_AT_END_BUFFER_DELAY_IN_MS)) {
+                engine.seekTo(0);
+                myLog("at end or near end, reset position to 0");
+            } else {
+                engine.seekTo(savedPos);
+            }
 
             //max reach ?, reset to 0
             //if (zikFile.getPosition() >= zikFile.getDuration()) {
-            myLog((engine == null ? "" : "pos=" + engine.getCurrentPosition() + " - dur=" + engine.getDuration()));
+            myLogD("setPositionPlayStart() : " + (engine == null ? "engine is null" : "pos=" + Tonio.formatMmSsMs(engine.getCurrentPosition()) + " - dur=" + Tonio.formatMmSsMs(engine.getDuration())));
             if (engine != null && engine.getCurrentPosition() >= (engine.getDuration() - Var.START_AT_ZERO_IF_TRACK_AT_END_BUFFER_DELAY_IN_MS)) { // because sometime, nearly at end but not at end !
+                myLogE("failsafe - at end or near end, reset position to 0");
                 engine.seekTo(0);
             } else { // Rewind-after-pause
                 if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {

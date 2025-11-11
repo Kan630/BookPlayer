@@ -28,6 +28,7 @@
     import com.driot.bookplayer.MyApp;
     import com.driot.bookplayer.R;
     import com.driot.bookplayer.adapter.FoldersRVAdapter;
+    import com.driot.bookplayer.db.AppDatabase;
     import com.driot.bookplayer.global.Intents;
     import com.driot.bookplayer.global.Option;
     import com.driot.bookplayer.global.Var;
@@ -273,6 +274,10 @@
             } else if (itemId == R.id.action_menu_addBook) {
                 myLogI("--- USER clicks MENU : ADD BOOK ---");
                 startActivity(new Intent(getApplicationContext(), GetActivity.class));
+            } else if (itemId == R.id.action_menu_radio) {
+                myLogI("--- USER clicks MENU : RADIO ---");
+                startRadioActivity();
+
          // } else if (itemId == R.id.menu_synchro) {
            //     startActivity(new Intent(this, SynchroActivity.class));
             } else {
@@ -291,6 +296,19 @@
                     recreate();
                 }
             }
+        }
+
+        public void startRadioActivity() {
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                //TODO boolean hasRadioFavorite = AppDatabase.getDatabase(this).radioDao()...
+                boolean hasRadioFavorite = false;
+                if (hasRadioFavorite) {
+                    startActivity(new Intent(getApplicationContext(), RadioFavoritesActivity.class));
+                } else {
+                    startActivity(new Intent(getApplicationContext(), GetRadioActivity.class));
+                }
+            });
+
         }
 
     }

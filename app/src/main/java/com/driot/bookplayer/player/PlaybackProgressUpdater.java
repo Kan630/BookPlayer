@@ -56,7 +56,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                     myLogD("zik updated (" + zf.getName() + ") pos=" + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - " + zf.getPercentdone() + "%");
                     Sql.calculateFolderProgress(app, zf.getIdFolder());
                 } else {
-                    myLogE("update failed for " + zf.getName());
+                    myLogEE(null,"update failed for " + zf.getName());
                 }
             } catch (Throwable t) {
                 myLogEE(t, "update exception");
