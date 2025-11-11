@@ -18,12 +18,12 @@ import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.EditTextWithButtons;
+import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 public class GetAudiobookActivity extends LoggingActivity {
 
     Spinner spinnerLibrivox;
-    EditTextWithButtons editTextLibrivox;
+    EditText1lineWithPasteDelete editTextLibrivox;
     Button bFavorite;
     ImageButton ibFavorite;
     ImageButton ibSettings;

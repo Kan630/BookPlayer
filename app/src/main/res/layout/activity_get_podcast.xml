@@ -2,7 +2,6 @@
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     style="@style/MainContainer">
@@ -32,7 +31,6 @@
             android:focusable="true"
             android:focusableInTouchMode="true"
             android:fillViewport="true"
-            tools:context=".activities.MainActivity"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/miniNowPlaying"
             app:layout_constraintStart_toStartOf="parent"
@@ -124,12 +122,21 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="30dp"
+                    android:layout_marginBottom="10dp"
                     android:layout_marginEnd="4dp" />
 
-                <com.driot.bookplayer.views.EditTextWithButtons
+                <View style="@style/GetResourceHorizontalBar" />
+
+                <TextView
+                    android:layout_marginTop="20dp"
+                    android:text="@string/podcast_search_edittext_title"
+                    style="@style/GetResourceTextTopOfButton" />
+
+                <com.driot.bookplayer.views.EditText1lineWithPasteDelete
                     android:id="@+id/etPodcast"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    app:scrollOnFocus="true"
                     android:layout_marginTop="30dp" />
 
                 <Button

@@ -30,6 +30,7 @@
             android:layout_marginBottom="12dp" />
 
         <ScrollView
+            android:id="@+id/mainScroll"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fillViewport="true"
@@ -109,7 +110,7 @@
 
                 <TextView
                     android:id="@+id/txtLibrivoxSearch_desc"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="20dp"
                     android:text="@string/LibrivoxSearch_desc"
                     style="@style/GetResourceTextTopOfButton" />
 
@@ -117,23 +118,35 @@
                     android:id="@+id/spinnerLibrivox"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="30dp"
                     android:layout_marginEnd="20dp"
+                    android:layout_marginBottom="20dp"
                     style="@style/GetResourceSpinner" />
+
+                <View style="@style/GetResourceHorizontalBar"/>
 
                 <Button
                     android:id="@+id/bLibrivoxTrending"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="50dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:text="@string/most_downloaded"
                     style="@style/GetResourceButton" />
 
-                <com.driot.bookplayer.views.EditTextWithButtons
+                <View style="@style/GetResourceHorizontalBar" />
+
+                <TextView
+                    android:layout_marginTop="20dp"
+                    android:text="@string/librivox_search_edittext_title"
+                    style="@style/GetResourceTextTopOfButton" />
+
+                <com.driot.bookplayer.views.EditText1lineWithPasteDelete
                     android:id="@+id/etLibrivox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="40dp" />
+                    app:scrollOnFocus="true"
+                    android:layout_marginTop="20dp" />
 
                 <Button
                     android:id="@+id/bLibrivoxSearch"

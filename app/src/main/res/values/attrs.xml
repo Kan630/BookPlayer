@@ -17,4 +17,8 @@
         <attr name="sectionIcon"  format="reference"/>
     </declare-styleable>
 
+    <declare-styleable name="EditTextWithButtons">
+        <attr name="scrollOnFocus" format="boolean" />
+    </declare-styleable>
+
 </resources>

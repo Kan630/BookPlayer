@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:hint="@string/type_here_"
             android:inputType="textMultiLine|textNoSuggestions"
-            android:imeOptions="actionNone"
+            android:imeOptions="actionSearch"
             android:scrollHorizontally="false"
             android:ellipsize="none"
             android:singleLine="false"

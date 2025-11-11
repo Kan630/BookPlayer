@@ -1,23 +1,27 @@
 package com.driot.bookplayer.views;
 
+import android.app.Activity;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,29 +43,38 @@ public class EditText2linesWithPaste extends LinearLayout {
     private String historyKey = "default_search_history";
     private int maxHistory = 20;
     private int completionThreshold = 1;
+
     private boolean suggestOnFocus = true;
+    private boolean scrollOnFocus = false; // custom to set in the layout
 
     private ArrayAdapter<String> adapter;
 
     public EditText2linesWithPaste(Context context) {
         super(context);
-        init(context);
+        init(context, null);
     }
 
     public EditText2linesWithPaste(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
-        init(context);
+        init(context, attrs);
     }
 
     public EditText2linesWithPaste(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        init(context);
+        init(context, attrs);
     }
 
-    private void init(Context context) {
-        LayoutInflater.from(context).inflate(R.layout.view_edittext_with_buttons2, this, true);
+    private void init(Context context, @Nullable AttributeSet attrs) {
+        LayoutInflater.from(context).inflate(R.layout.view_edittext_with_btn_paste, this, true);
         editText = findViewById(R.id.editText); // now an AutoCompleteTextView in XML
         ImageButton btnPaste = findViewById(R.id.btnPaste);
+
+        // --- should we scroll down ---
+        if (attrs != null) {
+            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EditTextWithButtons);
+            scrollOnFocus = a.getBoolean(R.styleable.EditTextWithButtons_scrollOnFocus, false);
+            a.recycle();
+        }
 
         // --- Suggestions adapter from history ---
         List<String> history = SearchHistoryStore.get(context, historyKey);
@@ -69,12 +82,22 @@ public class EditText2linesWithPaste extends LinearLayout {
         editText.setAdapter(adapter);
         editText.setThreshold(completionThreshold);
 
-        // Show dropdown when focusing the field (optional)
         editText.setOnFocusChangeListener((v, hasFocus) -> {
+            //KanLogger.myLog("EditText1lineWithPasteDelete", "hasFocus = " + hasFocus + " - scrollOnFocus = " + scrollOnFocus + " - suggestOnFocus = " + suggestOnFocus);
+
             if (hasFocus && suggestOnFocus && TextUtils.isEmpty(editText.getText())) {
                 editText.post(editText::showDropDown);
             }
+
+            if (hasFocus && scrollOnFocus) {
+                v.postDelayed(() -> {
+                    ScrollView scroll = ((Activity) getContext()).findViewById(R.id.mainScroll);
+                    if (scroll == null) KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
+                    if (scroll != null) scroll.fullScroll(View.FOCUS_DOWN);
+                }, 300);
+            }
         });
+
 
         // Enter/IME action can commit to history too (if you use actionSearch)
         editText.setOnEditorActionListener((tv, actionId, event) -> {

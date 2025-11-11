@@ -18,12 +18,12 @@ import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.EditTextWithButtons;
+import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 public class GetPodcastActivity extends LoggingActivity {
 
     String query, lang;
-    EditTextWithButtons editTextPodcast;
+    EditText1lineWithPasteDelete editTextPodcast;
     Button bFavorite;
     ImageButton ibFavorite;
     ImageButton ibSettings;

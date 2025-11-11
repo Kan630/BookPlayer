@@ -27,8 +27,6 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -348,7 +346,7 @@ public class GetOtherActivity extends LoggingActivity {
             myLogI("Button click : JUST GET IT");
             String justGetItUrl = Tonio.cleanSearchString(etDirectDownload.getText());
             if (justGetItUrl.isEmpty()) {
-                myToast("Please enter a URL");
+                myToast(getString(R.string.Please_enter_a_URL));
                 return;
             }
             if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {

@@ -21,7 +21,7 @@ import com.driot.bookplayer.radio.TagCardAdapter;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.EditTextWithButtons;
+import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 import java.util.List;
 
@@ -42,7 +42,7 @@ public class GetRadioActivity extends LoggingActivity {
     Spinner spinnerCountry;   // optional: country filter (2-letter codes like FR/US…)
     Spinner spinnerTag;       // optional: tag/genre (e.g., "jazz", "news", …)
 
-    EditTextWithButtons etRadio;
+    EditText1lineWithPasteDelete etRadio;
     Button bFavorite;
     ImageButton ibFavorite;
     ImageButton ibSettings;
