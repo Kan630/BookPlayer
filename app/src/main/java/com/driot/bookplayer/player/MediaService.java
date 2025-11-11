@@ -38,7 +38,6 @@ import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
-import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
@@ -143,7 +142,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
-    public static final String NOTIFICATION_PLAYBACK_TIMER_VALUE = "NOTIFICATION_PLAYBACK_TIMER_VALUE";
 
     private com.driot.bookplayer.player.PlaybackNotificationManager notif;
     private com.driot.bookplayer.player.MediaSessionController media;
@@ -233,8 +231,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
-                    0, //pos,
-                    0, //dur,
+                    0,0, getSleepLeftMs(),
                     title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
@@ -250,7 +247,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
-                    pos, dur, title, text, cover,
+                    pos, dur, getSleepLeftMs(),
+                    title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     podcastFeedId,
@@ -276,7 +274,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             extras.putString(Intents.EXTRA_TTS_VOICE_NAME, getCurrentTtsVoiceName());
             //extras.putInt(Intents.EXTRA_TTS_START_OFFSET, currentStartChars);
 
-            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, title, subTitle, cover,
+            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, getSleepLeftMs(), title, subTitle, cover,
                     trackId, folderId, 0, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
@@ -766,7 +764,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         }
 
                         // 3) Finally PlayActivity (singleTop/clearTop like you already do)
-                        tsb.addNextIntent(new Intent(MediaService.this, com.driot.bookplayer.activities.PlayActivity.class)
+                        tsb.addNextIntent(new Intent(MediaService.this, PlayActivity.class)
                                 .putExtra(Intents.EXTRA_AUTOPLAY, false));
 
                         return tsb.getPendingIntent(0, flags);
@@ -1164,6 +1162,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 Bundle out = new Bundle();
                 out.putString(Intents.EXTRA_TTS_TEXT, (txt != null) ? txt : "");
                 if (rr != null) rr.send(0, out);
+                return START_STICKY;
+            }
+
+            case Intents.CMD_UPDATE_SLEEP: {
+                int newSleepValueInMin = intent.getIntExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, -1);
+                if (newSleepValueInMin>0) sleepTimer.reload(newSleepValueInMin);
                 return START_STICKY;
             }
 
@@ -1809,12 +1813,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         setUiPhase(Intents.PHASE_READY, null);
 
         if (!radioMode && !podcastMode) {
-            try {
-                setPositionPlayStart();
-
-            } catch (Exception e) {
-                myLogEE(e, "seekTo(saved) in onEnginePrepared");
-            }
+            setPositionPlayStart();
 
             if (engine != null) {
                 PlayList pl = PlayList.getInstance();
@@ -1895,6 +1894,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     public void pingUi() {
         broadcastUiState("pingUi");
+    }
+
+    public long getSleepLeftMs() {
+        //myLog("sleep:" + (sleepTimer!=null ? "" + sleepTimer.getSleepLeftMs() : "sleep timer null"));
+        return (sleepTimer!=null) ? sleepTimer.getSleepLeftMs() : 0;
     }
 
     public String getPlayMode() {

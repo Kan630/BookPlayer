@@ -20,6 +20,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
@@ -42,6 +43,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     // --- TTS on-demand text fetch via custom action ---
     private final androidx.lifecycle.MutableLiveData<String> _ttsText = new androidx.lifecycle.MutableLiveData<>("");
     public androidx.lifecycle.LiveData<String> getTtsText() { return _ttsText; }
+
+    public int sleepCustomMinutes = Option.getTimeBeforeSleep();
 
     public void requestTtsTextOnce() {
         android.os.ResultReceiver rr = new android.os.ResultReceiver(
@@ -98,6 +101,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
     public void updateSleepTimer(int minutes) {
         PlaybackCommands.updateSleepTimer(getApplication(), minutes);
+        sleepCustomMinutes = minutes; // for activity display (listening without actions since...)
     }
 
     // --------------------------------------------------------------------
@@ -171,7 +175,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
         PlaybackUiState next = new PlaybackUiState(
                 phaseId, cur.playing, cur.ready, cur.playMode,
-                cur.positionMs, cur.durationMs,
+                cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1

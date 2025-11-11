@@ -43,7 +43,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activities.PlayActivity"
+        <activity android:name=".player.PlayActivity"
             android:parentActivityName=".activities.MainActivity"/>
         <activity android:name=".activities.ZikFileActivity"
             android:parentActivityName=".activities.MainActivity"/>

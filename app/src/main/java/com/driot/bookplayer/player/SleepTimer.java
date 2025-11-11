@@ -95,4 +95,8 @@ public final class SleepTimer extends LoggerHelper {
     }
     public void reload(int customMinutes) { stop(); start(customMinutes); }
     public boolean isRunning() { return running; }
+
+    public long getSleepLeftMs() {
+        return Math.max(0, (long) maxMinutes*60*1000-elapsedMs);
+    }
 }

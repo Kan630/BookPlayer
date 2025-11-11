@@ -22,7 +22,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyFolderActivity;
-import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;

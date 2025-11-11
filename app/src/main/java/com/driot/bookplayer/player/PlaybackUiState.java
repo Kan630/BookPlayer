@@ -15,6 +15,8 @@ public class PlaybackUiState extends LoggerHelper {
 
     public final long positionMs;
     public final long durationMs;
+    public final long sleepLeftMS;
+
     public final String title;
     public final String subTitle;
     public final String cover;
@@ -30,7 +32,7 @@ public class PlaybackUiState extends LoggerHelper {
     public final Bundle extras;
 
     public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
-                           long pos, long dur,
+                           long pos, long dur, long sleepLeftMS,
                            String title, String subTitle, String cover,
                            int trackId, int folderId, long podcastId,
                            String calledFrom, long callCounter,
@@ -45,6 +47,8 @@ public class PlaybackUiState extends LoggerHelper {
 
         this.positionMs = pos;
         this.durationMs = dur;
+        this.sleepLeftMS = sleepLeftMS;
+
         this.title = title;
         this.subTitle = subTitle;
         this.cover = cover;
@@ -71,6 +75,7 @@ public class PlaybackUiState extends LoggerHelper {
                 ", ready=" + ready +
                 ", positionMs=" + positionMs +
                 ", durationMs=" + durationMs +
+                ", sleepLeftMS=" + sleepLeftMS +
                 ", title='" + title + '\'' +
                 ", subTitle='" + subTitle + '\'' +
                 ", cover='" + cover + '\'' +

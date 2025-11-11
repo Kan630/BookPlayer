@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.player;
 
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -32,6 +32,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.PodcastEpisodeActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
@@ -40,15 +42,8 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.player.MediaControllerHolder;
-import com.driot.bookplayer.player.UiHelper;
-import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.player.MediaService;
-import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.player.PlaybackUiState;
-import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -56,7 +51,6 @@ import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
-import static com.driot.bookplayer.player.MediaService.TIMER_VALUE;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
 public class PlayActivity extends LoggingActivity {
@@ -96,9 +90,7 @@ public class PlayActivity extends LoggingActivity {
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
         @Override public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
-            if (MediaService.NOTIFICATION_PLAYBACK_TIMER_VALUE.equals(action)) {
-                reDrawListeningSince(i.getIntExtra(TIMER_VALUE, -999));
-            } else if (MediaService.NOTIFICATION_ERROR.equals(action)) {
+            if (MediaService.NOTIFICATION_ERROR.equals(action)) {
                 // If it’s a TTS error, it’s recoverable → UI is already driven by phases
                 String em = i.getStringExtra(MediaService.ERR_MSG);
                 PlaybackUiState s = vm.getState().getValue();
@@ -230,6 +222,7 @@ public class PlayActivity extends LoggingActivity {
             if (speed != null) {
                 tvSpeed.setText(Tonio.formatPercentStringForSpeed(speed * 100.0));
             }
+            reDrawSleepTextViews(vm.sleepCustomMinutes);
 
             // Title/sub
             UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, null);
@@ -396,7 +389,6 @@ public class PlayActivity extends LoggingActivity {
 
         // Register UI-level broadcasts we still use
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(this);
-        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYBACK_TIMER_VALUE)); //for UI displayed Sleep counters
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_ERROR));
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_FILENOTFOUND));
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYLISTFINISHED));
@@ -473,33 +465,22 @@ public class PlayActivity extends LoggingActivity {
         inputMinutes.post(inputMinutes::requestFocus);
     }
 
-    private void reDrawListeningSince(int seconds) {
+    private void reDrawSleepTextViews(int customSleepMinutes) {
         try {
-            if (seconds >= 0) {
-                String since = tvListeningTimeBaseText + " " + Tonio.formatTime(seconds*1000, true);
-                tvListeningTime.setText(seconds > 0 ? since : "");
+            PlaybackUiState s = vm.getState().getValue();
+            long timeLeftMs = (s != null ? s.sleepLeftMS : 0);
+            long timePassedMs = (long) customSleepMinutes*60*1000 - timeLeftMs;
 
-                // Prefer custom minutes from UI state extras; fallback to Option
-                int timeBeforeSleepMinutes;
-                PlaybackUiState s = vm.getState().getValue();
-                if (s != null && s.extras != null && s.extras.containsKey(Intents.EXTRA_CUSTOM_SLEEP_MINUTES)) {
-                    timeBeforeSleepMinutes = s.extras.getInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, 0);
-                } else {
-                    timeBeforeSleepMinutes = 0;
-                }
-                if (timeBeforeSleepMinutes == 0) {
-                    timeBeforeSleepMinutes = Option.getTimeBeforeSleep();
-                }
+            //myLog("timeLeftMs : " + timeLeftMs + " - timePassedMs : " + timePassedMs);
 
-                String left = getString(R.string.tv_TimeLeft) + " : " +
-                        Tonio.formatTime(timeBeforeSleepMinutes * 60 * 1000 - seconds * 1000, true);
-                tvTimeLeft.setText(left);
-            } else {
-                tvListeningTime.setText("");
-                tvTimeLeft.setText("");
-            }
+            String timeLeftText = getString(R.string.tv_TimeLeft) + " : " + Tonio.formatTime(timeLeftMs, true);
+            tvTimeLeft.setText(timeLeftMs>0 && timePassedMs>0 ? timeLeftText : "");
+
+            String timePassedText = tvListeningTimeBaseText + " " + Tonio.formatTime(timePassedMs, true);
+            tvListeningTime.setText(timeLeftMs>0 && timePassedMs>0 ? timePassedText : "");
+
         } catch (Throwable t) {
-            myLogEE(t, "reDrawListeningSince(" + seconds + ")");
+            myLogEE(t, "reDrawSleepTextViews(" + customSleepMinutes + ")");
         }
     }
 

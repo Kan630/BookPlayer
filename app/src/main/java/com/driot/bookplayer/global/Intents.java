@@ -16,7 +16,6 @@ public class Intents {
     public static final String EXTRA_TRACK_ORDER_NEWEST_FIRST = "com.driot.bookplayer.EXTRA_TRACK_ORDER_NEWEST_FIRST";
     public static final String EXTRA_IS_PODCAST = "com.driot.bookplayer.EXTRA_IS_PODCAST";
     public static final String EXTRA_INDEX     = "extra_index"; // optional, default 0
-    public static final String EXTRA_UI_SUPPRESS_MINI = "extra_ui_suppress_mini";
 
     public static final String CMD_TTS_SET_VOICE = "com.driot.bookplayer.CMD_TTS_SET_VOICE";
     public static final String EXTRA_TTS_VOICE_NAME = "com.driot.bookplayer.EXTRA_TTS_VOICE_NAME";
@@ -25,21 +24,7 @@ public class Intents {
     public static final String EXTRA_TTS_START = "EXTRA_TTS_START";
     public static final String EXTRA_TTS_END   = "EXTRA_TTS_END";
 
-    public static final String ACTION_UI_STATE      = "com.driot.bookplayer.action.UI_STATE";
     public static final String ACTION_PING_UI = "com.driot.bookplayer.PING_UI";
-    public static final String EXTRA_UI_PLAYING     = "extra_ui_playing";
-    public static final String EXTRA_UI_POS         = "extra_ui_pos";
-    public static final String EXTRA_UI_DUR         = "extra_ui_dur";
-    public static final String EXTRA_UI_TITLE       = "extra_ui_title";
-    public static final String EXTRA_UI_SUBTITLE    = "extra_ui_subtitle";
-    public static final String EXTRA_UI_COVER       = "extra_ui_cover";
-    public static final String EXTRA_UI_TRACK_ID  = "extra_ui_track_id";
-    public static final String EXTRA_UI_FOLDER_ID = "extra_ui_folder_id";
-    public static final String EXTRA_UI_PODCAST_FEED_ID = "extra_ui_podcast_id";
-    public static final String EXTRA_UI_READY     = "extra_ui_ready";
-    public static final String EXTRA_UI_PLAYMODE = "extra_ui_tts";
-    public static final String EXTRA_UI_PHASE       = "extra_ui_phase";
-    public static final String EXTRA_UI_PHASE_MSG   = "extra_ui_phase_msg";
 
     public static final String PHASE_LOADING_TEXT   = "LOADING_TEXT";   // text extraction / normalization
     public static final String PHASE_WARMING_UP     = "WARMING_UP";     // voice warm-up / prepareAsync
@@ -62,7 +47,7 @@ public class Intents {
     public static final String EXTRA_AUDIO_SESSION_ID = "EXTRA_AUDIO_SESSION_ID";
 
     public static final String CMD_UPDATE_SLEEP = "CMD_UPDATE_SLEEP";
-    public static final String EXTRA_CUSTOM_SLEEP_MINUTES = "EXTRA_MINUTES";
+    public static final String EXTRA_CUSTOM_SLEEP_MINUTES = "EXTRA_CUSTOM_SLEEP_MINUTES";
     public static final String CMD_SET_SPEED = "CMD_SET_SPEED";
     public static final String EXTRA_SPEED = "EXTRA_SPEED";
 

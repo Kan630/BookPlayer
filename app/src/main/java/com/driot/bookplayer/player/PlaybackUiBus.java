@@ -1,8 +1,6 @@
 // PlaybackUiBus.java
 package com.driot.bookplayer.player;
 
-import android.os.Looper;
-
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -27,7 +25,7 @@ public final class PlaybackUiBus {
     public void clear() {
         emit(new PlaybackUiState(
                 Intents.PHASE_OFF, false, false, null,
-                0, 0, "", "", "",
+                0, 0, 0, "", "", "",
                 0, 0, 0,
                 "PlaybackUiBus.clear()", 0, null
         ));
@@ -41,7 +39,7 @@ public final class PlaybackUiBus {
         emit(new PlaybackUiState(
                 newPhase,
                 cur.playing, cur.ready, cur.playMode,
-                cur.positionMs, cur.durationMs,
+                cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
                 cur.calledFrom, cur.callCounter + 1, cur.extras
@@ -54,7 +52,7 @@ public final class PlaybackUiBus {
         emit(new PlaybackUiState(
                 cur.loadPhase,
                 playing, cur.ready, cur.playMode,
-                cur.positionMs, cur.durationMs,
+                cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId,
                 cur.calledFrom, cur.callCounter + 1, cur.extras

@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.PlayActivity;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.slider.Slider;
 

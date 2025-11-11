@@ -7,7 +7,6 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
 import static com.driot.bookplayer.testutil.TestNavUtils.getRecyclerItemCount;
-import static com.driot.bookplayer.testutil.TestNavUtils.isOn;
 import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 
@@ -28,11 +27,10 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
-import com.driot.bookplayer.activities.PlayActivity;
+import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
