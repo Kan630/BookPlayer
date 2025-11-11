@@ -39,19 +39,19 @@ public final class PlaybackCommands {
             PlaybackStateCompat st = mc.getPlaybackState();
             if (st != null) {
                 myLogD("MediaControllerCompat, previous State = " + stateToString(st.getState()));
+                if (st.getState() == PlaybackStateCompat.STATE_PLAYING) {
+                    mc.getTransportControls().pause();
+                    FirebaseAnalyticsHelper.tellAnalyticsPlayAction("pause", "");
+                } else {
+                    mc.getTransportControls().play();
+                    FirebaseAnalyticsHelper.tellAnalyticsPlayAction("play", "");
+                }
+                return;
             } else {
                 myLogE("MediaControllerCompat, PlaybackStateCompat is null");
             }
-            if (st != null && st.getState() == PlaybackStateCompat.STATE_PLAYING) {
-                mc.getTransportControls().pause();
-                FirebaseAnalyticsHelper.tellAnalyticsPlayAction("pause", "");
-            } else {
-                mc.getTransportControls().play();
-                FirebaseAnalyticsHelper.tellAnalyticsPlayAction("play", "");
-            }
-            return;
         }
-        myLog("MediaControllerCompat fallback");
+        myLog("MediaControllerCompat fallback => MediaButtonReceiver + KEYCODE_MEDIA_PLAY_PAUSE");
         // Fallback: media buttons (for legacy/device quirks)
         MediaButtonReceiver.handleIntent(null,
                 new android.content.Intent(Intent.ACTION_MEDIA_BUTTON)

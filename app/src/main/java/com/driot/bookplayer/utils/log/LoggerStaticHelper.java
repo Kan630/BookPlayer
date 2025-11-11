@@ -1,5 +1,7 @@
 package com.driot.bookplayer.utils.log;
 
+import android.os.Bundle;
+
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,6 +30,8 @@ public final class LoggerStaticHelper {
     public static void myLogE(String str)          { KanLogger.myLogE(getCallerTag(), str); }
     public static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, getCallerTag(), str); }
     public static void myLogInFile(String str)     { KanLogger.myLogInFile(getCallerTag(), str); }
+    public static void myLogBundle(Bundle bundle)     { KanLogger.myLogBundle(getCallerTag(), bundle); }
+    public static String getBundleString(Bundle bundle)     { return KanLogger.getBundleString(bundle); }
 
     public static void myToast(String str)         { KanLogger.myToast(getCallerTag(), str); }
     public static void myToastE(String str)        { KanLogger.myToastE(getCallerTag(), str); }

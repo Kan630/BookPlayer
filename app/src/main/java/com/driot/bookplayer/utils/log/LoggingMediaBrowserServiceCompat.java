@@ -227,6 +227,10 @@ public abstract class LoggingMediaBrowserServiceCompat extends MediaBrowserServi
         FirebaseAnalyticsHelper.logCrashlytics(strLog);
     }
 
+    public static void myLogBundle(Bundle bundle)     { KanLogger.myLogBundle(LOG_TAG, bundle); }
+    public static String getBundleString(Bundle bundle)     { return KanLogger.getBundleString(bundle); }
+
+
     /// ///////////////////////////////////////////////////////////////////
     ///            LOGGER        (For this specific Helper Class)
     /// ///////////////////////////////////////////////////////////////////

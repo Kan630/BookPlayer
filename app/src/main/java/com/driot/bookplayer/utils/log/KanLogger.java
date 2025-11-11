@@ -2,6 +2,7 @@ package com.driot.bookplayer.utils.log;
 
 import android.content.Context;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
@@ -207,6 +208,21 @@ public class KanLogger {
         } else {
             if (LOG_THEM_ALL) Log.e(newPrefix, str);
         }
+    }
+    public static void myLogBundle(Bundle bundle) {myLogBundle("", bundle);}
+    public static void myLogBundle(String prefix, Bundle bundle) {
+        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        myLog(newPrefix, getBundleString(bundle));
+    }
+    public static String getBundleString(Bundle bundle) {
+        if (bundle == null) return "Bundle is null";
+        StringBuilder sb = new StringBuilder("Bundle{ ");
+        for (String key : bundle.keySet()) {
+            Object value = bundle.get(key);
+            sb.append(key).append("=").append(value).append("; ");
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
 
