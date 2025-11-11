@@ -41,7 +41,7 @@ public class StartPlayHelper {
 
     public static void carOnPlay(Context context) {
         if (!Option.getAutomotiveLetCarAutoplay()) {
-            myLogW("Android Auto not authorized to start audio (from Bookplayer settings)");
+            myLogW("Android Auto not authorized to start audio on its own (from Bookplayer settings)");
             return;
         }
 
@@ -277,7 +277,9 @@ public class StartPlayHelper {
         }
 
         Bundle extras = new Bundle();
-        if (!"AppUI".equals(callerInfo)) {
+        if ("AppUI".equals(callerInfo)) {
+            extras.putBoolean(MediaBrowserServiceCompat.BrowserRoot.EXTRA_OFFLINE, true);
+        } else {
             // Tell host we support styled lists (same keys AA passed you)
             extras.putBoolean("android.media.browse.CONTENT_STYLE_SUPPORTED", true);
 

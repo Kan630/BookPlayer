@@ -104,7 +104,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
         } else if ("book".equals(playType) || "tts".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            myLogE("swapChild - unknown playType: " + playType);
+            myLogD("swapChild - unknown playType: " + playType);
             setGone();
             return;
         }

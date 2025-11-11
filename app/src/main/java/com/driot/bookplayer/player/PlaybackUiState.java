@@ -58,7 +58,7 @@ public class PlaybackUiState extends LoggerHelper {
 
         this.extras = extras;
 
-        myLog(toString());
+        //myLog(toString());
     }
 
     @Override public String toString() {

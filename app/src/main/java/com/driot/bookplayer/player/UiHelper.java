@@ -119,7 +119,7 @@ public class UiHelper {
             @Nullable ImageView ivCover,
             @Nullable Slider sbSeek
     ) {
-        myLogD(s.toString());
+        //myLogD(s.toString());
 
         if (tvTitle!=null && tvSubTitle!=null) {
             setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);

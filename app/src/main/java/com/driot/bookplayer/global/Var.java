@@ -22,6 +22,7 @@ public class Var {
     public static final double PLAY_SPEED_MIN = 0.5;
     public static final double PLAY_SPEED_MAX = 3.0;
     public static final double PLAY_SPEED_STEP = 0.05;
+    public static final double START_AT_ZERO_IF_TRACK_AT_END_BUFFER_DELAY_IN_MS = 100;
 
     public static final String FOREGROUND_DOWNLOAD_SERVICE_TAG = "download_retry";
 

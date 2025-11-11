@@ -67,4 +67,16 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             startActivity(new Intent(requireContext(), GetRadioActivity.class));
         });
     }
+
+    @Override public void onStart() {
+        super.onStart();
+        MediaControllerHolder.attachTo(this.getActivity());
+        MediaControllerHolder.ensureConnected(requireContext().getApplicationContext());
+    }
+
+    @Override public void onStop() {
+        MediaControllerHolder.detachFrom(this.getActivity());
+        super.onStop();
+    }
+
 }

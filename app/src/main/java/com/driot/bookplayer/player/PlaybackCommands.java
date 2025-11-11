@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.media.session.MediaButtonReceiver;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
+import android.view.KeyEvent;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -50,34 +51,76 @@ public final class PlaybackCommands {
             } else {
                 myLogE("MediaControllerCompat, PlaybackStateCompat is null");
             }
+        } else {
+            myLogE("MediaControllerCompat is null");
         }
-        myLog("MediaControllerCompat fallback => MediaButtonReceiver + KEYCODE_MEDIA_PLAY_PAUSE");
-        // Fallback: media buttons (for legacy/device quirks)
-        MediaButtonReceiver.handleIntent(null,
-                new android.content.Intent(Intent.ACTION_MEDIA_BUTTON)
-                        .putExtra(Intent.EXTRA_KEY_EVENT,
-                                new android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN,
-                                        android.view.KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE)));
+        myLog("MediaControllerCompat fallback => call Service CMD");
+        // Fallback: use your app’s own UI bus to decide
+        boolean currentlyPlaying = false;
+        var s = PlaybackUiBus.get().state().getValue();
+        if (s != null) currentlyPlaying = s.playing;
+
+        String action = currentlyPlaying ? "CMD_PAUSE" : "CMD_PLAY";
+        ContextCompat.startForegroundService(
+                ctx,
+                new Intent(ctx, MediaService.class)
+                        .setAction(action)
+                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+                        .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.playPause.fallback")
+        );
+        // other possible Fallback: media buttons (for legacy/device quirks) like :
+        /*
+        private static void sendMediaButtonToService(Context ctx, int keyCode) {
+            Intent down = new Intent(ctx, MediaService.class)
+                    .setAction(Intent.ACTION_MEDIA_BUTTON)
+                    .putExtra(Intent.EXTRA_KEY_EVENT,
+                            new android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, keyCode));
+            ContextCompat.startForegroundService(ctx, down);
+
+            Intent up = new Intent(ctx, MediaService.class)
+                    .setAction(Intent.ACTION_MEDIA_BUTTON)
+                    .putExtra(Intent.EXTRA_KEY_EVENT,
+                            new android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, keyCode));
+            ContextCompat.startForegroundService(ctx, up);
+        }
+         */
     }
 
     public static void next(Context ctx) {
-        MediaControllerCompat mc = mcOrNull(ctx);
         FirebaseAnalyticsHelper.tellAnalyticsPlayAction("next", "");
-        if (mc != null) { mc.getTransportControls().skipToNext(); return; }
-        sendMediaButton(ctx, android.view.KeyEvent.KEYCODE_MEDIA_NEXT);
+        MediaControllerCompat mc = mcOrNull(ctx);
+        if (mc == null) {
+            myLogE("MediaControllerCompat is null");
+        } else {
+            if (mc.getPlaybackState()==null) {
+                myLogE("PlaybackState == null");
+            } else {
+                MediaControllerCompat.TransportControls tc = mc.getTransportControls();
+                if (tc == null) {
+                    myLogE("MediaControllerCompat, TransportControls is null");
+                } else {
+                    tc.fastForward();
+                    return;
+                }
+            }
+        }
+        myLog("fallback sendMediaButtonToService");
+        sendMediaButtonToService(ctx, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD);
     }
 
     public static void prev(Context ctx) {
         MediaControllerCompat mc = mcOrNull(ctx);
         FirebaseAnalyticsHelper.tellAnalyticsPlayAction("prev", "");
-        if (mc != null) { mc.getTransportControls().skipToPrevious(); return; }
-        sendMediaButton(ctx, android.view.KeyEvent.KEYCODE_MEDIA_PREVIOUS);
+        if (mc != null) { mc.getTransportControls().rewind(); return; }
+        myLogE("MediaControllerCompat is null => fallback sendMediaButtonToService");
+        sendMediaButtonToService(ctx, KeyEvent.KEYCODE_MEDIA_REWIND);
     }
 
     public static void seekTo(Context ctx, long ms) {
         MediaControllerCompat mc = mcOrNull(ctx);
         FirebaseAnalyticsHelper.tellAnalyticsPlayAction("seekTo", "");
         if (mc != null) { mc.getTransportControls().seekTo(ms); return; }
+        myLogE("MediaControllerCompat is null => no fallback");
         // No reliable fallback → ignore (UI state will catch up when service updates)
     }
 
@@ -102,6 +145,7 @@ public final class PlaybackCommands {
             mc.getTransportControls().sendCustomAction(Intents.CMD_SET_SPEED, b);
             return;
         }
+        myLogE("Fallback");
         // Fallback: foreground service command
         ContextCompat.startForegroundService(ctx,
                 new Intent(ctx, MediaService.class)
@@ -118,6 +162,7 @@ public final class PlaybackCommands {
             mc.getTransportControls().sendCustomAction(Intents.CMD_UPDATE_SLEEP, b);
             return;
         }
+        myLogE("Fallback");
         ContextCompat.startForegroundService(ctx,
                 new Intent(ctx, MediaService.class)
                         .setAction(Intents.CMD_UPDATE_SLEEP)
@@ -129,12 +174,27 @@ public final class PlaybackCommands {
         Intent down = new Intent(Intent.ACTION_MEDIA_BUTTON)
                 .putExtra(Intent.EXTRA_KEY_EVENT,
                         new android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, keyCode));
-        MediaButtonReceiver.handleIntent(null, down);
+        MediaButtonReceiver.handleIntent(null, down); //TODO null for mediaSessionCompat maybe the reason its not working, anyway below doesnt work as well
 
         Intent up = new Intent(Intent.ACTION_MEDIA_BUTTON)
                 .putExtra(Intent.EXTRA_KEY_EVENT,
                         new android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, keyCode));
         MediaButtonReceiver.handleIntent(null, up);
+    }
+    private static void sendMediaButtonToService(Context ctx, int keyCode) {
+        Intent down = new Intent(ctx, MediaService.class)
+                .setAction(Intent.ACTION_MEDIA_BUTTON)
+                .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.sendMediaButtonToService : " + keyCode)
+                .putExtra(Intent.EXTRA_KEY_EVENT,
+                        new android.view.KeyEvent(android.view.KeyEvent.ACTION_DOWN, keyCode));
+        ContextCompat.startForegroundService(ctx, down);
+
+        Intent up = new Intent(ctx, MediaService.class)
+                .setAction(Intent.ACTION_MEDIA_BUTTON)
+                .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.sendMediaButtonToService : " + keyCode)
+                .putExtra(Intent.EXTRA_KEY_EVENT,
+                        new android.view.KeyEvent(android.view.KeyEvent.ACTION_UP, keyCode));
+        ContextCompat.startForegroundService(ctx, up);
     }
 
 
@@ -164,6 +224,7 @@ public final class PlaybackCommands {
             mc.getTransportControls().sendCustomAction(Intents.CMD_TTS_SET_VOICE, b);
             return;
         }
+        myLogE("Fallback");
         ContextCompat.startForegroundService(ctx,
                 new Intent(ctx, MediaService.class)
                         .setAction(Intents.CMD_TTS_SET_VOICE)

@@ -34,4 +34,12 @@ public interface PlayerEngine {
 
     void setVolume(float volume);  // 0f..1f
     float getVolume();             // current effective volume (0f..1f)
+
+    void release();
+
+    /** Optional, but handy to avoid calling into a dead engine. */
+    //default boolean isReleased() { return false; }
+
+    // If you want try-with-resources:
+    // @Override default void close() { release(); }
 }

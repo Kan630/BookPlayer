@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -29,6 +30,7 @@ import androidx.lifecycle.Observer;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
@@ -43,7 +45,7 @@ import com.driot.bookplayer.global.Pref;
 import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
@@ -63,8 +65,26 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         //broadcastUiState("PlayList.MetaState");       // rebuild + emit unified UI
     };
 
-    private final AtomicBoolean isShuttingDown = new AtomicBoolean(false);
+    private final java.util.concurrent.atomic.AtomicInteger boundClientCount = new java.util.concurrent.atomic.AtomicInteger();
+    private final android.os.Handler serviceHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private static final int STOP_GRACE_MS = 3000; // small delay to avoid reconnect storms
+    private final Runnable stopRunnable = () -> {
+        if (boundClientCount.get() == 0) {
+            myLogI("No bound clients after grace → stopSelf()");
+            stopSelf();
+        } else {
+            myLogI("Clients re-bound during grace → keep service alive");
+        }
+    };
+    private boolean hasBrowserClients() { return boundClientCount.get() > 0; }
+
     public static volatile boolean isRunning = false;
+    enum ServiceState { RUNNING, SHUTTING_DOWN, STOPPED }
+    private final AtomicReference<ServiceState> state = new AtomicReference<>(ServiceState.RUNNING);
+    private boolean beginShutdown() {
+        // Only the first caller wins; others will still be safe to call finalizeShutdown()
+        return state.compareAndSet(ServiceState.RUNNING, ServiceState.SHUTTING_DOWN);
+    }
 
     private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
     private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
@@ -315,8 +335,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         @Override
         public void onFastForward() {
-            super.onFastForward();
             myLog("MediaSessionCompat.Callback - onFastForward()");
+            forwardAudio();
+            //super.onFastForward();
         }
 
         @Override
@@ -328,7 +349,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         @Override
         public void onRewind() {
             myLog("MediaSessionCompat.Callback - onRewind()");
-            super.onRewind();
+            backwardAudio();
+            //super.onRewind();
         }
 
         @Override
@@ -342,14 +364,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         public void onSkipToNext() {
             forwardAudio();
             myLog("MediaSessionCompat.Callback - onSkipToNext()");
-            super.onSkipToNext();
+            //super.onSkipToNext();
         }
 
         @Override
         public void onSkipToPrevious() {
             backwardAudio();
             myLog("MediaSessionCompat.Callback - onSkipToPrevious()");
-            super.onSkipToPrevious();
+            //super.onSkipToPrevious();
         }
 
         @Override
@@ -450,6 +472,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogI("SERVICE session getCallingPackage=" + session.getCallingPackage()
                 + " token=" + session.getSessionToken()
                 + " token@=" + System.identityHashCode(session.getSessionToken()));
+/*
+        media.session().setPlaybackState(
+                new PlaybackStateCompat.Builder()
+                        .setState(PlaybackStateCompat.STATE_PAUSED, 0L, 0f, System.currentTimeMillis())
+                        .setActions(currentActions())
+                        .build()
+        );
+
+ */
 
         updateSessionState(false);
 
@@ -1254,71 +1285,77 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void shutdown(boolean fromDestroy) {
-        if (!isShuttingDown.compareAndSet(false, true)) {
-            myLogI("shutdown() already running; ignore");
-            return;
-        }
+        final boolean first = beginShutdown();
+        myLogI("shutdown(" + fromDestroy + ") first=" + first + " state=" + state.get());
 
-        myLogI("shutdown(fromDestroy=" + fromDestroy + ")");
-
-        PlayList pl = PlayList.getInstance();
-        if (pl!=null) pl.clear();
+        // Quiesce repeating sources no matter who called us
+        stopAsyncWork();
 
         broadcastUiCleared();
+
+        // Tell controllers we’re stopping (prevents AA/BT from poking)
+        try {
+            if (media != null) {
+                PlaybackStateCompat s = new PlaybackStateCompat.Builder()
+                        .setActions(0L)
+                        .setState(PlaybackStateCompat.STATE_STOPPED, 0L, 0f, System.currentTimeMillis())
+                        .build();
+                media.session().setPlaybackState(s);
+                media.setActive(false);
+            }
+        } catch (Throwable ignored) {}
+
+        // Always kill the audio path (idempotent)
+        hardStopAudio("shutdown");
+
+        // Drop focus after we’re silent
+        try { if (focus != null) focus.abandon(); } catch (Throwable ignored) {}
+
+        // Remove UI surface *after* silence
+        try { stopForeground(true); } catch (Throwable ignored) {}
+        try { if (notif != null) notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT); } catch (Throwable ignored) {}
+
+        // Release session last
+        //try { if (media != null) media.release(); } catch (Throwable ignored) {} //no or I will get infinite onGetRoot !!
+
+        // Clear state (safe to run twice)
+        try { PlayList pl = PlayList.getInstance(); if (pl != null) pl.clear(); } catch (Throwable ignored) {}
+        radioMode = false; podcastMode = false;
+        radioTitle = null; radioImageUrl = null; radioUri = null;
         isRunning = false;
 
-        radioMode = false;
-        podcastMode = false;
-        radioTitle = null;
-        radioImageUrl = null;
-        radioUri = null;
-
-        try {
-            PlayList.getMetaLive().removeObserver(metaObs);
-        } catch (Throwable ignore) {
-        }
-        try {
-            sleepTimer.stop();
-        } catch (Throwable ignore) {
-        }
-        try {
-            focus.abandon();
-        } catch (Throwable ignore) {
-        }
-        try {
-            stopForeground(true);
-        } catch (Throwable ignore) {
-        }
-        try {
-            notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
-        } catch (Throwable ignore) {
-        }
-        PlayerEngine e = engine; // snapshot
-        engine = null;           // prevent reuse elsewhere after shutdown begins
-        if (e != null) {
-            if (e instanceof TtsEngine) {
-                try {
-                    ((TtsEngine) e).release();
-                } catch (Exception ex) {
-                    myLogEE(ex, "TTS release");
-                }
-            } else {
-                try {
-                    e.stop();
-                } catch (Exception ex) {
-                    myLogEE(ex, "engine stop");
-                }
-                try {
-                    e.reset();
-                } catch (Exception ex) {
-                    myLogEE(ex, "engine reset");
-                }
-            }
-        }
-        if (media != null) media.release();
-
-        if (!fromDestroy) stopSelf();
+        state.set(ServiceState.STOPPED);
+        if (!fromDestroy) requestGracefulStopIfNoClients(); // safe if already stopping
     }
+    private void requestGracefulStopIfNoClients() {
+        serviceHandler.removeCallbacks(stopRunnable);
+        if (!hasBrowserClients()) {
+            serviceHandler.postDelayed(stopRunnable, STOP_GRACE_MS);
+        } else {
+            myLogI("Browser clients present → do not stop service");
+        }
+    }
+    private void stopAsyncWork() {
+        try { if (sleepTimer != null) sleepTimer.stop(); } catch (Throwable ignored) {}
+        try { if (pauseWatcher != null) pauseWatcher.stop(); } catch (Throwable ignored) {}
+        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignored) {}
+        try { main.removeCallbacksAndMessages(null); } catch (Throwable ignored) {}
+    }
+    private void hardStopAudio(@NonNull String why) {
+        myLogI("hardStopAudio: " + why);
+        PlayerEngine e = this.engine;
+        this.engine = null; // prevent any more calls into it
+        if (e != null) {
+            try { e.pause(); }   catch (Throwable ignored) {}
+            try { e.stop(); }    catch (Throwable ignored) {}
+            try { e.release(); } catch (Throwable t) { myLogEE(t, "engine.release failed"); }
+            try { e.reset(); }   catch (Throwable ignored) {} // ok to be a no-op after release
+        }
+        try { if (sleepTimer != null) sleepTimer.stop(); } catch (Throwable ignored) {}
+        try { if (pauseWatcher != null) pauseWatcher.stop(); } catch (Throwable ignored) {}
+        try { if (focus != null) focus.abandon(); } catch (Throwable ignored) {}
+    }
+
 
     @Override
     public void onDestroy() {
@@ -1363,10 +1400,27 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         StartPlayHelper.doSearch(this, query, extras, result);
     }
 
-    @Override
-    public boolean onUnbind(Intent intent) {
-        myLog("onUnBind() - intent.DataString = " + intent.getDataString());
-        return super.onUnbind(intent);
+
+    @Override public IBinder onBind(Intent intent) {
+        int c = boundClientCount.incrementAndGet();
+        myLogD("onBind() -> boundClientCount=" + c + " intent=" + intent);
+        // if a stop was pending, cancel it because a client just bound
+        serviceHandler.removeCallbacks(stopRunnable);
+        return super.onBind(intent);
+    }
+
+    @Override public boolean onUnbind(Intent intent) {
+        int c = boundClientCount.decrementAndGet();
+        myLogD("onUnbind() -> boundClientCount=" + c + " intent=" + intent);
+        // allow rebind callbacks if you want to observe them
+        return true; // keep onRebind() callbacks
+    }
+
+    @Override public void onRebind(Intent intent) {
+        int c = boundClientCount.incrementAndGet();
+        myLogD("onRebind() -> boundClientCount=" + c + " intent=" + intent);
+        serviceHandler.removeCallbacks(stopRunnable);
+        super.onRebind(intent);
     }
 
     /********************************************************************************
@@ -1961,7 +2015,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             //max reach ?, reset to 0
             //if (zikFile.getPosition() >= zikFile.getDuration()) {
-            if (engine != null && engine.getCurrentPosition() >= engine.getDuration()) {
+            myLog((engine == null ? "" : "pos=" + engine.getCurrentPosition() + " - dur=" + engine.getDuration()));
+            if (engine != null && engine.getCurrentPosition() >= (engine.getDuration() - Var.START_AT_ZERO_IF_TRACK_AT_END_BUFFER_DELAY_IN_MS)) { // because sometime, nearly at end but not at end !
                 engine.seekTo(0);
             } else { // Rewind-after-pause
                 if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
@@ -2127,25 +2182,50 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void updateSessionState(boolean playing) {
-        if (radioMode) {
-            // radio: unknown position, no seek actions
-            long actions = playing ? PlaybackStateCompat.ACTION_PAUSE : PlaybackStateCompat.ACTION_PLAY;
-            PlaybackStateCompat state = new PlaybackStateCompat.Builder()
-                    .setActions(actions)
-                    .setState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-                            PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
-                            playing ? 1f : 0f,
-                            System.currentTimeMillis())
-                    .setBufferedPosition(PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN)
-                    .build();
-            media.session().setPlaybackState(state);
-        } else {
-            // file/tts: real position/speed and full actions
-            long pos = (engine != null) ? engine.getCurrentPosition() : 0;
-            float sp = playing ? (float) getSpeed() : 0f;
-            media.updateState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
-                    pos, sp, currentActions());
-        }
+        // Always run on main (MediaSession is main-thread oriented)
+        main.post(() -> {
+            MediaSessionCompat s = media.session();
+
+            // Ensure we have *some* state before anyone reads it
+            PlaybackStateCompat cur = s.getController().getPlaybackState();
+            if (cur == null || cur.getState() == PlaybackStateCompat.STATE_NONE) {
+                long actions = currentActions();
+                long pos     = (radioMode || podcastMode) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
+                        : (engine != null ? engine.getCurrentPosition() : 0L);
+                float sp     = playing ? (float) getSpeed() : 0f;
+
+                PlaybackStateCompat init = new PlaybackStateCompat.Builder()
+                        .setActions(actions)
+                        .setState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                                pos, sp, System.currentTimeMillis())
+                        .build();
+                s.setPlaybackState(init);
+                cur = init; // so the debug log below never sees null
+            }
+
+            myLogD("updateSessionState(): active=" + s.isActive()
+                    + " prev=" + cur.getState()
+                    + " actions=" + Long.toHexString(cur.getActions()));
+
+            // Then set the *actual* state you want (radio vs file/tts)
+            if (radioMode) {
+                long actions = playing ? PlaybackStateCompat.ACTION_PAUSE : PlaybackStateCompat.ACTION_PLAY;
+                PlaybackStateCompat st = new PlaybackStateCompat.Builder()
+                        .setActions(actions)
+                        .setState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                                PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN,
+                                playing ? 1f : 0f,
+                                System.currentTimeMillis())
+                        .setBufferedPosition(PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN)
+                        .build();
+                s.setPlaybackState(st);
+            } else {
+                long pos = (engine != null) ? engine.getCurrentPosition() : 0L;
+                float sp = playing ? (float) getSpeed() : 0f;
+                media.updateState(playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED,
+                        pos, sp, currentActions()); // your helper calls setPlaybackState()
+            }
+        });
     }
 
     //TODO replace all this shot by MediaSession controller

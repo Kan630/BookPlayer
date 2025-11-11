@@ -40,6 +40,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.player.UiHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
@@ -220,7 +221,7 @@ public class PlayActivity extends LoggingActivity {
                 myLogD("observe : s == null");
                 return;
             }
-            myLog("observe : " + s);
+            //myLog("observe : " + s);
 
             Double speed = null;
             if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
@@ -785,6 +786,18 @@ public class PlayActivity extends LoggingActivity {
             default:
                 return R.string.tts_phase_error; // generic fallback
         }
+    }
+
+    @Override protected void onStart() {
+        super.onStart();
+        // Bind controller to this Activity and ensure the browser is up
+        MediaControllerHolder.attachTo(this);
+        MediaControllerHolder.ensureConnected(getApplicationContext());
+    }
+
+    @Override protected void onStop() {
+        MediaControllerHolder.detachFrom(this);
+        super.onStop();
     }
 
 }

@@ -121,4 +121,16 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         }
         sliderBinding = null;
     }
+
+    @Override public void onStart() {
+        super.onStart();
+        MediaControllerHolder.attachTo(this.getActivity());
+        MediaControllerHolder.ensureConnected(requireContext().getApplicationContext());
+    }
+
+    @Override public void onStop() {
+        MediaControllerHolder.detachFrom(this.getActivity());
+        super.onStop();
+    }
+
 }
