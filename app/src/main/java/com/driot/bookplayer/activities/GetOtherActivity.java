@@ -14,6 +14,7 @@ import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import androidx.activity.result.ActivityResult;
@@ -37,6 +38,8 @@ import com.driot.bookplayer.imports.ImportJobRepository;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
+import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.utils.Tonio;
@@ -139,6 +142,8 @@ public class GetOtherActivity extends LoggingActivity {
         Button bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
         Button bDirectDownload = findViewById(R.id.bDirectDownload);
         etDirectDownload = findViewById(R.id.etDirectDownload);
+
+        findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
         importDimScrim = findViewById(R.id.importDimScrim);
 
@@ -516,4 +521,10 @@ public class GetOtherActivity extends LoggingActivity {
                             : View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
         }
     }
+
+    private void clickSettings() {
+        myLogI("--- User clicks SETTINGS ---");
+        SettingsHostActivity.start(this, ImportSettingsFragment.class, true, R.string.import_settings);
+    }
+
 }

@@ -26,7 +26,6 @@ public class GetAudiobookActivity extends LoggingActivity {
     EditText1lineWithPasteDelete editTextLibrivox;
     Button bFavorite;
     ImageButton ibFavorite;
-    ImageButton ibSettings;
     Button buttonTrending;
     Button buttonSearch;
 
@@ -50,11 +49,10 @@ public class GetAudiobookActivity extends LoggingActivity {
         buttonSearch = findViewById(R.id.bLibrivoxSearch);
         bFavorite = findViewById(R.id.bFavorite);
         ibFavorite = findViewById(R.id.ibFavorite);
-        ibSettings = findViewById(R.id.ibSettings);
 
         bFavorite.setOnClickListener(v -> clickFavorite());
         ibFavorite.setOnClickListener(v -> clickFavorite());
-        ibSettings.setOnClickListener(v -> clickSettings());
+        findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
         editTextLibrivox.setHistoryKey("librivox_search"); // keep histories separate
         editTextLibrivox.setCompletionThreshold(1);        // suggestions after 1 char

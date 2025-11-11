@@ -15,11 +15,12 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:layout_marginVertical="20dp"
             android:visibility="gone">
             <TextView
                 style="@style/OptionTitle"
-                android:text="@string/Import" />
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
+                android:text="@string/import_settings" />
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
         </LinearLayout>
 
         <!-- SD Card -->
@@ -129,6 +130,13 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_split_m4b_text" />
             </LinearLayout>
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_split_m4b_subtitle" />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/option_split_m4b_subtitle_note"
+                android:textStyle="italic" />
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

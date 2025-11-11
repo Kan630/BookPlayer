@@ -1117,6 +1117,9 @@
     <string name="bOpenMassImport_warning">Only subfolders containing audio files are supported for now</string>
     <string name="librivox_search_edittext_title">Search by author or title...\nTip: a single word often gives better results</string>
     <string name="podcast_search_edittext_title">Search... (all languages)\nTip: a single word often gives better results</string>
+    <string name="import_settings">Import settings</string>
+    <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
+    <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>
 
 
 
