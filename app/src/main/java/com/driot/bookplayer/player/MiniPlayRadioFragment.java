@@ -44,8 +44,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 myLog("vm.getState().observe : s == null");
                 return;
             }
-            myLogD(s.toString());
-            myLogI("vm.getState().observe " + s);
+            //myLogD(s.toString());
+            //myLogI("vm.getState().observe " + s);
             UiHelper.FillUiBasic(s, progressBar, btnPlayPause, tvTitle, tvSubTitle, null, null, null);
 
             if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {

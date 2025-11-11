@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-11-04T07:13:30.480553100Z">
+        <DropdownSelection timestamp="2025-11-11T15:43:12.290224900Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Baklava.avd" />
@@ -77,10 +77,10 @@
       </SelectionState>
       <SelectionState runConfigName="M4bSplitWorkerTest">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-17T09:09:50.375701600Z">
+        <DropdownSelection timestamp="2025-11-11T15:43:29.606820600Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Baklava.avd" />
             </handle>
           </Target>
         </DropdownSelection>

@@ -165,11 +165,11 @@
                 <TextView
                     style="@style/warningTextView"
                     android:layout_marginStart="30dp"
-                    android:text="@string/warning_beta_test" />
+                    android:text="@string/beta_test" />
                 <TextView
                     style="@style/warningTextView"
                     android:layout_marginStart="30dp"
-                    android:text="pick an emplacement containing only folders of mp3" />
+                    android:text="@string/bOpenMassImport_warning" />
 
                 <Button
                     android:id="@+id/bMassImport"

@@ -1114,6 +1114,7 @@
     <string name="Streaming_Podcast">Streaming Podcast</string>
     <string name="Stop_the_player_to_move_playing_tracks">You must stop playback to move the track that is currently playing</string>
 
+    <string name="bOpenMassImport_warning">Only subfolders containing audio files are supported for now</string>
 
 
 </resources>
