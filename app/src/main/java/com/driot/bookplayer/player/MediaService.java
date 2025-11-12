@@ -1367,7 +1367,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
         myLogI("------------ onGetRoot ------------  ");
-        myLog("from pkg=" + clientPackageName + " uid=" + clientUid  + "\n" + " hints=" + rootHints.toString().replace(",","\n"));
+        //myLog("from pkg=" + clientPackageName + " uid=" + clientUid  + "\nhints : " + (rootHints==null ? "bundle is null" : rootHints.toString().replace(",","\n")));
 
         var info = MediaCallerHelper.getCallerInfo(MediaService.this);
         String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
