@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
+import com.driot.bookplayer.imports.ImportJob;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -84,33 +86,26 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("car_send_cmd", bundle);
     }
 
-    public static void tellLoadBookFailed(String originalUri, String currentOperation, String errorText, String progressText, String extension, boolean doDownload) {
-        Bundle bundle = new Bundle();
-        bundle.putString("originalUri", String.valueOf(originalUri));
-        bundle.putString("taskName", String.valueOf(currentOperation));
-        bundle.putString("errorText", String.valueOf(errorText));
-        bundle.putString("progressText", String.valueOf(progressText));
-        bundle.putString("extension", String.valueOf(extension));
-        bundle.putBoolean("doDownload", doDownload);
-        logBundleEvent("load_book_failed", bundle);
+    public static void tellLoadBookFailed(ImportJob j) {
+        logBundleEvent("load_book_failed", getImportJobBundle(j));
     }
-
-    public static void tellLoadBookCancelled(String originalUri, String currentOperation, String progressText, String extension, boolean doDownload) {
-        Bundle bundle = new Bundle();
-        bundle.putString("originalUri", String.valueOf(originalUri));
-        bundle.putString("taskName", String.valueOf(currentOperation));
-        bundle.putString("progressText", String.valueOf(progressText));
-        bundle.putString("extension", String.valueOf(extension));
-        bundle.putBoolean("doDownload", doDownload);
-        logBundleEvent("load_book_cancelled", bundle);
+    public static void tellLoadBookCancelled(ImportJob j) {
+        logBundleEvent("load_book_cancelled", getImportJobBundle(j));
     }
-
-    public static void tellLoadBookSuccess(String originalUri, String extension, boolean doDownload) {
+    public static void tellLoadBookSuccess(ImportJob j) {
+        logBundleEvent("load_book_success", getImportJobBundle(j));
+    }
+    private static Bundle getImportJobBundle(ImportJob j) {
         Bundle bundle = new Bundle();
-        bundle.putString("originalUri", String.valueOf(originalUri));
-        bundle.putString("extension", String.valueOf(extension));
-        bundle.putBoolean("doDownload", doDownload);
-        logBundleEvent("load_book_success", bundle);
+        bundle.putString("originalUri", String.valueOf(j.originalUri));
+        bundle.putString("taskName", String.valueOf(j.currentOperation));
+        bundle.putString("progressText", String.valueOf(j.progressText));
+        bundle.putBoolean("doDownload", j.doDownload);
+        bundle.putString("extension", String.valueOf(j.fileExtension));
+        bundle.putString("folderName", String.valueOf(j.futureFolderName));
+        bundle.putString("errorText", String.valueOf(j.errorTextDev));
+        bundle.putString("warningText", String.valueOf(j.warningText));
+        return bundle;
     }
 
     public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {

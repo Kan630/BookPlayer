@@ -59,13 +59,13 @@ public class ImportJobRepository extends LoggerHelper {
         dao.fail(id, devErrorMsg, usrErrorMsg, System.currentTimeMillis());
         myToast(context.getString(R.string.Import_failed));
         ImportJob j = dao.get(id);
-        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookFailed(j.originalUri, j.currentOperation, j.errorTextDev, j.progressText, j.fileExtension, j.doDownload);
+        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookFailed(j);
     }
 
     public void cancel(String id) {
         dao.cancel(id, System.currentTimeMillis());
         ImportJob j = dao.get(id);
-        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookCancelled(j.originalUri, j.currentOperation, j.progressText, j.fileExtension, j.doDownload);
+        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookCancelled(j);
     }
 
     public void success(String id) {
@@ -77,7 +77,7 @@ public class ImportJobRepository extends LoggerHelper {
         dao.success(id, text, System.currentTimeMillis());
         myToast(text);
         ImportJob j = dao.get(id);
-        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookSuccess(j.originalUri, j.fileExtension, j.doDownload);
+        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookSuccess(j);
     }
 
     public void silentSuccess(String id, String endOfProgressText) {

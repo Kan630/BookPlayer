@@ -71,9 +71,9 @@ public class EditText2linesWithPaste extends LinearLayout {
 
         // --- should we scroll down ---
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EditTextWithButtons);
-            scrollOnFocus = a.getBoolean(R.styleable.EditTextWithButtons_scrollOnFocus, false);
-            a.recycle();
+            try (TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EditTextWithButtons)) {
+                scrollOnFocus = a.getBoolean(R.styleable.EditTextWithButtons_scrollOnFocus, false);
+            }
         }
 
         // --- Suggestions adapter from history ---

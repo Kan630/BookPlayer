@@ -636,11 +636,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     radioTitle != null ? radioTitle : getString(R.string.live_radio),
                     getString(R.string.live_radio),
                     new PlaybackNotificationManager.ActionProvider() {
-                        @Override public PendingIntent rewind()      { return null; } // no-op
-                        @Override public PendingIntent fastForward() { return null; } // no-op
-                        @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
-                        @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                        @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
+                        @NonNull @Override public PendingIntent rewind()      { return null; } // no-op
+                        @NonNull @Override public PendingIntent fastForward() { return null; } // no-op
+                        @NonNull @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
+                        @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                        @NonNull @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
                     }
             );
             startForegroundWithBuildCheck(n);
@@ -651,7 +651,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         .asBitmap()
                         .load(radioImageUrl)
                         .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
-                            @Override public void onResourceReady(Bitmap bmp,
+                            @Override public void onResourceReady(@NonNull Bitmap bmp,
                                                                   com.bumptech.glide.request.transition.Transition<? super Bitmap> t) {
                                 media.setMetadataRadio(radioTitle != null ? radioTitle : getString(R.string.live_radio), "", "", bmp);
                                 // rebuild/update the notification so largeIcon shows
@@ -660,11 +660,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                         radioTitle != null ? radioTitle : getString(R.string.live_radio),
                                         getString(R.string.live_radio),
                                         /* same ActionProvider */ new PlaybackNotificationManager.ActionProvider() {
-                                            @Override public PendingIntent rewind()      { return null; }
-                                            @Override public PendingIntent fastForward() { return null; }
-                                            @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
-                                            @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                                            @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
+                                            @NonNull @Override public PendingIntent rewind()      { return null; }
+                                            @NonNull @Override public PendingIntent fastForward() { return null; }
+                                            @NonNull @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
+                                            @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                                            @NonNull @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
                                         }
                                 );
                                 startForegroundWithBuildCheck(updated);
@@ -1110,7 +1110,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @Override public PendingIntent play() { return null; }
                         @Override public PendingIntent pause() { return null; }
                         @Override public PendingIntent fastForward() { return null; }
-                        @Override public PendingIntent content() { return UiHelper.navigateToActivity(MediaService.this); }
+                        @NonNull @Override public PendingIntent content() { return UiHelper.navigateToActivity(MediaService.this); }
                     };
 
             Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());
@@ -1294,14 +1294,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         super.onRebind(intent);
     }
 
-    /********************************************************************************
-     ***       LOADING FILES
-     ********************************************************************************
-     */
-
-    /**
-     * Swap current engine with a new one, releasing TTS if needed, keeping flags intact.
-     */
+    // Swap current engine with a new one, releasing TTS if needed, keeping flags intact.
     private void setEngine(@NonNull PlayerEngine newEngine) {
         try {
             if (engine != null) {
@@ -1333,7 +1326,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 loadFileKO(null);
                 return;
             }
-
  */
             loadFileKO("playlist/zikFile null");
             return;
