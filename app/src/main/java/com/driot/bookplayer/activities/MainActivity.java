@@ -277,7 +277,7 @@
 /*
             } else if (itemId == R.id.action_menu_radio) {
                 myLogI("--- USER clicks MENU : RADIO ---");
-                startRadioActivity();
+                UiHelper.startRadioActivity();
 
  */
 
@@ -301,17 +301,5 @@
             }
         }
 
-        public void startRadioActivity() {
-            AppDatabase.databaseReadExecutor.execute(() -> {
-                //TODO boolean hasRadioFavorite = AppDatabase.getDatabase(this).radioDao()...
-                boolean hasRadioFavorite = false;
-                if (hasRadioFavorite) {
-                    startActivity(new Intent(getApplicationContext(), RadioFavoritesActivity.class));
-                } else {
-                    startActivity(new Intent(getApplicationContext(), GetRadioActivity.class));
-                }
-            });
-
-        }
 
     }

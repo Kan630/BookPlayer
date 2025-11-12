@@ -24,6 +24,15 @@ public class Var {
     public static final double PLAY_SPEED_STEP = 0.05;
     public static final double START_AT_ZERO_IF_TRACK_AT_END_BUFFER_DELAY_IN_MS = 500;
 
+    public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
+            {2, 3000},
+            {30, 5000},
+            {60 * 12, 10000},
+            {60 * 36, 15000},
+            {60 * 24 * 3, 20000},
+            {60 * 24 * 30, 30000},
+    };
+
     public static final String FOREGROUND_DOWNLOAD_SERVICE_TAG = "download_retry";
 
     public static final String USER_AGENT_BOOKPLAYER = "BookPlayer/1.0 (Android)";

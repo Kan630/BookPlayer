@@ -103,18 +103,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final int TRIM_MEMORY_THRESHOLD = 20;
     public static final int DELAY_CHECK_TIMER_PAUSE = 60 * 1000;
     public static final int TRIM_AFTER_PAUSE_MS = 7 * 24 * 60 * 60 * 1000; // so basically never... 7 days
-    //public static final int DELAY_CHECK_TIMER_PAUSE = 2*1000;
-    //public static final int TRIM_AFTER_PAUSE_MS = 5*1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
 
-    public static final int[][] REWIND_AFTER_PAUSE = {  // stopped listening since (in min)  ,  rewind delay (in ms)
-            {2, 3000},
-            {30, 5000},
-            {60 * 12, 10000},
-            {60 * 36, 15000},
-            {60 * 24 * 3, 20000},
-            {60 * 24 * 30, 30000},
-    };
+
 
     private static final boolean LOG_TRACE_ALL = false;
 
@@ -135,7 +126,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final String TRACKNUMBER = "tracknumber";
     public static final String FROM = "from";
     public static final String ERR_MSG = "err_msg";
-    public static final String TIMER_VALUE = "TIMER_VALUE";
     public static final String READY_TO_PLAY = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_FILENOTFOUND = "NOTIFICATION_FILENOTFOUND";
@@ -648,32 +638,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     new PlaybackNotificationManager.ActionProvider() {
                         @Override public PendingIntent rewind()      { return null; } // no-op
                         @Override public PendingIntent fastForward() { return null; } // no-op
-                        @Override public PendingIntent play() {
-                            return MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                    MediaService.this, PlaybackStateCompat.ACTION_PLAY);
-                        }
-                        @Override public PendingIntent pause() {
-                            return MediaButtonReceiver.buildMediaButtonPendingIntent(
-                                    MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
-                        }
-                        @Override public PendingIntent content() {
-                            final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-                            return PendingIntent.getActivity(
-                                    MediaService.this,
-                                    0,
-                                    new Intent(MediaService.this, com.driot.bookplayer.activities.MainActivity.class)
-                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                                    flags
-                            );
-                        }
+                        @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
+                        @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                        @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
                     }
             );
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-            } else {
-                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
-            }
+            startForegroundWithBuildCheck(n);
 
             // 3) If you only have a favicon URL, load it and refresh:
             if (currentArt == null && radioImageUrl != null && !radioImageUrl.isEmpty()) {
@@ -694,30 +664,16 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                             @Override public PendingIntent fastForward() { return null; }
                                             @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
                                             @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                                            @Override public PendingIntent content() {
-                                                final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-                                                return PendingIntent.getActivity(
-                                                        MediaService.this,
-                                                        0,
-                                                        new Intent(MediaService.this, com.driot.bookplayer.activities.MainActivity.class)
-                                                                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                                                        flags
-                                                );
-                                            }
+                                            @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
                                         }
                                 );
-                                // For foreground services, call startForeground again or notify:
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, updated, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-                                } else {
-                                    startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, updated);
-                                }
+                                startForegroundWithBuildCheck(updated);
                             }
                             @Override public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {}
                         });
             }
-            return;        }
-
+            return;
+        }
 
         ZikFile zf = getCurrentZikFile();
         CharSequence title = zf == null ? "---" : zf.getFolderName();
@@ -729,54 +685,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 title,
                 text,
                 new com.driot.bookplayer.player.PlaybackNotificationManager.ActionProvider() {
-                    @NonNull @Override public PendingIntent rewind() {
-                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_REWIND);
-                    }
-
-                    @NonNull @Override public PendingIntent play() {
-                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY);
-                    }
-
-                    @NonNull @Override public PendingIntent pause() {
-                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
-                    }
-
-                    @NonNull @Override public PendingIntent fastForward() {
-                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_FAST_FORWARD);
-                    }
-
-                    @NonNull @Override public PendingIntent content() {
-                        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-
-                        androidx.core.app.TaskStackBuilder tsb = androidx.core.app.TaskStackBuilder.create(MediaService.this);
-                        // 1) Always start at Main
-                        tsb.addNextIntent(new Intent(MediaService.this, com.driot.bookplayer.activities.MainActivity.class));
-
-                        // 2) If multiple tracks, insert the track list screen before PlayActivity
-                        PlayList pl = PlayList.getInstance();
-                        ZikFile z = (pl != null) ? pl.getZikFile() : null;
-                        int folderId = (z != null) ? z.getIdFolder() : -1;
-
-                        if (folderId > 0 && pl != null && pl.getSize() > 1) {
-                            Intent trackList = new Intent(MediaService.this, com.driot.bookplayer.activities.ZikFileActivity.class)
-                                    .putExtra(Intents.EXTRA_FOLDER_ID, folderId);
-                            tsb.addNextIntent(trackList);
-                        }
-
-                        // 3) Finally PlayActivity (singleTop/clearTop like you already do)
-                        tsb.addNextIntent(new Intent(MediaService.this, PlayActivity.class)
-                                .putExtra(Intents.EXTRA_AUTOPLAY, false));
-
-                        return tsb.getPendingIntent(0, flags);
-                    }
-
+                    @NonNull @Override public PendingIntent rewind() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_REWIND); }
+                    @NonNull @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
+                    @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
+                    @NonNull @Override public PendingIntent fastForward() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_FAST_FORWARD); }
+                    @NonNull @Override public PendingIntent content() { return UiHelper.navigateToActivity(MediaService.this); }
                 });
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-        } else {
-            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
-        }
+        startForegroundWithBuildCheck(n);
     }
 
 
@@ -1191,63 +1106,20 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             PlaybackNotificationManager.ActionProvider minimal =
                     new PlaybackNotificationManager.ActionProvider() {
-                        @Override
-                        public PendingIntent rewind() {
-                            return null;
-                        }
-
-                        @Override
-                        public PendingIntent play() {
-                            return null;
-                        }
-
-                        @Override
-                        public PendingIntent pause() {
-                            return null;
-                        }
-
-                        @Override
-                        public PendingIntent fastForward() {
-                            return null;
-                        }
-
-                        @Override
-                        public PendingIntent content() {
-                            // Tap → open PlayActivity (or your main)
-                            return PendingIntent.getActivity(
-                                    MediaService.this, 0,
-                                    new Intent(MediaService.this, PlayActivity.class)
-                                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-                            );
-                        }
+                        @Override public PendingIntent rewind() { return null; }
+                        @Override public PendingIntent play() { return null; }
+                        @Override public PendingIntent pause() { return null; }
+                        @Override public PendingIntent fastForward() { return null; }
+                        @Override public PendingIntent content() { return UiHelper.navigateToActivity(MediaService.this); }
                     };
 
             Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());
-            /*
-            Notification n = notif.build(
-                    media.session(),
-                    false,
-                    t,
-                    s,
-                    minimal
-            );
-*/
-            // to call before 5sec :
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-            } else {
-                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
-            }
+            startForegroundWithBuildCheck(n);
 
             media.setActive(true);
 
-            final long actions = radioMode
-                    ? ACTIONS_RADIO
-                    : ACTIONS_FILE;
-
             PlaybackStateCompat placeholder = new PlaybackStateCompat.Builder()
-                    .setActions(actions)
+                    .setActions(currentActions())
                     .setState(
                             PlaybackStateCompat.STATE_BUFFERING,
                             0L,
@@ -2014,7 +1886,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
                     long minutes = (System.currentTimeMillis() - zikFile.lLastAccess) / (60 * 1000);
                     int rewindMs = 0;
-                    for (int[] rule : REWIND_AFTER_PAUSE) {
+                    for (int[] rule : Var.REWIND_AFTER_PAUSE) {
                         if (minutes >= rule[0]) rewindMs = rule[1];
                         else break;
                     }
@@ -2078,6 +1950,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         radioTitle = title;
         radioImageUrl = imageUrl;
         radioUri = Uri.parse(url);
+        if (radioUri==null) {
+            myLogEE(null, "playRadioStream : radioUri==null for url=" + url);
+            return;
+        }
         broadcastUiState("playRadioStream");                  // first snapshot (BUFFERING)
 
         // Swap engine to Exo for radio
@@ -2111,7 +1987,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             directPlay = true;
 
         } catch (Exception e) {
-            myLogEE(e, "playRadioStream setDataSource/prepareAsync failed");
+            myLogEE(e, "playRadioStream setDataSource/prepareAsync failed, radioUri=" + radioUri);
             alertError(null, null);
         }
     }
@@ -2126,7 +2002,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         this.podcastFeedId = podcastFeedId;
         radioUri = Uri.parse(url);
         if (radioUri==null) {
-            myLogEE(null, "playPodcastStream : radioUri==null");
+            myLogEE(null, "playPodcastStream : radioUri==null for url=" + url);
             return;
         }
         broadcastUiState("playPodcastStream");                  // first snapshot (BUFFERING)
@@ -2168,7 +2044,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             directPlay = true;
 
         } catch (Exception e) {
-            myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed");
+            myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed, radioUri=" + radioUri);
             alertError(null, null);
         }
     }
@@ -2300,6 +2176,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         // 5) Reflect new position in MediaSession/notification & UI snapshot
         updatePlaybackStateForPosition();   // keeps session in sync
         broadcastUiState("handleTtsSeekChars");
+    }
+
+    private void startForegroundWithBuildCheck(Notification n) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+        } else {
+            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
+        }
     }
 
 }
