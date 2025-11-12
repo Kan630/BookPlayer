@@ -6,6 +6,7 @@ import android.os.Bundle;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
@@ -40,29 +41,52 @@ public final class FirebaseAnalyticsHelper {
         }
     }
 
-    public static void tellPlayFor1min(String elapsed_category) {
+    // PLAY 1min
+
+    public static void tellPlayFor1min(String elapsed_category, String playMode) {
         Bundle bundle = new Bundle();
         bundle.putString("elapsed_category", String.valueOf(elapsed_category));
+        logBundleEvent( playMode + "_for_1min", bundle);
+        bundle.putString("play_mode", String.valueOf(playMode));
         logBundleEvent("play_for_1min", bundle);
     }
 
-    public static void tellRadioFor1min(String elapsed_category) {
+    // IMPORT JOB
+
+    public static void tellLoadBookFailed(ImportJob j) {
+        logBundleEvent("load_book_failed", getImportJobBundle(j));
+    }
+    public static void tellLoadBookCancelled(ImportJob j) {
+        logBundleEvent("load_book_cancelled", getImportJobBundle(j));
+    }
+    public static void tellLoadBookSuccess(ImportJob j) {
+        logBundleEvent("load_book_success", getImportJobBundle(j));
+    }
+    private static Bundle getImportJobBundle(ImportJob j) {
         Bundle bundle = new Bundle();
-        bundle.putString("elapsed_category", String.valueOf(elapsed_category));
-        logBundleEvent("radio_for_1min", bundle);
+        bundle.putString("originalUri", String.valueOf(j.originalUri));
+        bundle.putString("taskName", String.valueOf(j.currentOperation));
+        bundle.putString("progressText", String.valueOf(j.progressText));
+        bundle.putBoolean("doDownload", j.doDownload);
+        bundle.putString("extension", String.valueOf(j.fileExtension));
+        bundle.putString("folderName", String.valueOf(j.futureFolderName));
+        bundle.putString("errorText", String.valueOf(j.errorTextDev));
+        bundle.putString("warningText", String.valueOf(j.warningText));
+        return bundle;
     }
 
-    public static void tellPodcastFor1min(String elapsed_category) {
-        Bundle bundle = new Bundle();
-        bundle.putString("elapsed_category", String.valueOf(elapsed_category));
-        logBundleEvent("podcast_for_1min", bundle);
-    }
+    // PLAY PROBLEM
 
-    public static void tellAnalyticsLoadFileKO(String filePath) {
+    public static void tellAnalyticsLoadFileKO(String filePath, String playMode) {
         Bundle bundle = new Bundle();
+        bundle.putString("playMode", String.valueOf(playMode));
         bundle.putString("filePath", String.valueOf(filePath));
+        bundle.putString("fileName", Tonio.getFileNameFromPath(String.valueOf(filePath)));
+        bundle.putString("extension", Tonio.getExtension(String.valueOf(filePath)));
         logBundleEvent("load_file_KO", bundle);
     }
+
+    // AUTOMOTIVE
 
     public static void tellCarAutoPlay() {
         logEvent("car_auto_play");
@@ -86,27 +110,6 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("car_send_cmd", bundle);
     }
 
-    public static void tellLoadBookFailed(ImportJob j) {
-        logBundleEvent("load_book_failed", getImportJobBundle(j));
-    }
-    public static void tellLoadBookCancelled(ImportJob j) {
-        logBundleEvent("load_book_cancelled", getImportJobBundle(j));
-    }
-    public static void tellLoadBookSuccess(ImportJob j) {
-        logBundleEvent("load_book_success", getImportJobBundle(j));
-    }
-    private static Bundle getImportJobBundle(ImportJob j) {
-        Bundle bundle = new Bundle();
-        bundle.putString("originalUri", String.valueOf(j.originalUri));
-        bundle.putString("taskName", String.valueOf(j.currentOperation));
-        bundle.putString("progressText", String.valueOf(j.progressText));
-        bundle.putBoolean("doDownload", j.doDownload);
-        bundle.putString("extension", String.valueOf(j.fileExtension));
-        bundle.putString("folderName", String.valueOf(j.futureFolderName));
-        bundle.putString("errorText", String.valueOf(j.errorTextDev));
-        bundle.putString("warningText", String.valueOf(j.warningText));
-        return bundle;
-    }
 
     public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {
         Bundle bundle = new Bundle();
@@ -139,8 +142,9 @@ public final class FirebaseAnalyticsHelper {
     public static void tellAnalyticsManualDownload(String fileUrl, String destinationFolder) {
         Bundle bundle = new Bundle();
         bundle.putString("fileUrl", String.valueOf(fileUrl));
+        bundle.putString("fileName", Tonio.getFileNameFromUrl(String.valueOf(fileUrl)));
         bundle.putString("destinationFolder", String.valueOf(destinationFolder));
-        logBundleEvent("manual_download", bundle);
+        logBundleEvent("just_get_it", bundle);
     }
 
     public static void tellLibrivoxDownload(String title) {
@@ -222,10 +226,10 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("tag", String.valueOf(tag));
         logBundleEvent("radio_trending", bundle);
     }
-    public static void tellAnalyticsRadioByTag(String tag) {
+    public static void tellAnalyticsRadioBy(String byWhat) {
         Bundle bundle = new Bundle();
-        bundle.putString("tag", String.valueOf(tag));
-        logBundleEvent("radio_by_tag", bundle);
+        bundle.putString(byWhat, String.valueOf(byWhat));
+        logBundleEvent("radio_by_" + byWhat, bundle);
     }
 
     public static void tellAnalyticsRadioSearch(String query, String lang, String country, String tag) {

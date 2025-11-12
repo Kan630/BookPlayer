@@ -26,6 +26,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -93,7 +94,6 @@ public class PlayActivity extends LoggingActivity {
             if (MediaService.NOTIFICATION_ERROR.equals(action)) {
                 // If it’s a TTS error, it’s recoverable → UI is already driven by phases
                 String em = i.getStringExtra(MediaService.ERR_MSG);
-                PlaybackUiState s = vm.getState().getValue();
                 if (em != null && em.startsWith("TTS")) {
                     // Show non-blocking message overlay via vm.getPhase() observer
                     // Do NOT finish the activity.
@@ -101,9 +101,6 @@ public class PlayActivity extends LoggingActivity {
                 }
                 // Non-TTS: keep the old fatal path
                 finishAndShowFatalError(em);
-            } else if (MediaService.NOTIFICATION_FILENOTFOUND.equals(action)) {
-                finish();
-                //    finishAndShowFatalError(null);
             } else if (MediaService.NOTIFICATION_PLAYLISTFINISHED.equals(action)) {
                 myToast(getString(R.string.notification_playlist_finished));
                 finish();
@@ -248,8 +245,6 @@ public class PlayActivity extends LoggingActivity {
                 if (!s.cover.equals(lastCoverUri)) {
                     lastCoverUri = s.cover;
                     ivCover.setImageURI(null);
-                    //ivCover.setImageURI(Uri.parse(s.cover));
-                    //Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), s.cover)).into(ivCover);
                     myLogD("gliding image : " + s.cover);
                     Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
                 }
@@ -390,7 +385,6 @@ public class PlayActivity extends LoggingActivity {
         // Register UI-level broadcasts we still use
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(this);
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_ERROR));
-        lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_FILENOTFOUND));
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYLISTFINISHED));
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYBACK_MAXTIMEREACH));
     }
@@ -530,11 +524,11 @@ public class PlayActivity extends LoggingActivity {
                 final android.view.GestureDetector tapDetector =
                         new android.view.GestureDetector(tvTtsText.getContext(),
                                 new android.view.GestureDetector.SimpleOnGestureListener() {
-                                    @Override public boolean onDown(MotionEvent e) {
+                                    @Override public boolean onDown(@NonNull MotionEvent e) {
                                         // must return true so we keep receiving events
                                         return true;
                                     }
-                                    @Override public boolean onSingleTapUp(MotionEvent e) {
+                                    @Override public boolean onSingleTapUp(@NonNull MotionEvent e) {
                                         // Only on real tap, not on scroll/fling
                                         Layout layout = tvTtsText.getLayout();
                                         if (layout == null || spannableText == null) return false;

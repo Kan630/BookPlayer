@@ -110,12 +110,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private static final boolean LOG_TRACE_ALL = false;
 
     // --- RADIO MODE ---
-    private boolean radioMode = false;
     @Nullable private String radioTitle = null;
     @Nullable private String radioImageUrl = null; // you can display it in notif if you already support URL bitmaps
     @Nullable private Uri    radioUri = null;
     private int lastCustomSleepMinutes = 0;
-    private boolean podcastMode = false;
     private long podcastFeedId = -2;
 
     // cache for Android Auto Bitmaps
@@ -456,10 +454,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         setSessionToken(session.getSessionToken());
         session.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                 | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-
-        myLogI("SERVICE session getCallingPackage=" + session.getCallingPackage()
-                + " token=" + session.getSessionToken()
+        myLogI("SERVICE session token=" + session.getSessionToken()
                 + " token@=" + System.identityHashCode(session.getSessionToken()));
+
+
 /*
         media.session().setPlaybackState(
                 new PlaybackStateCompat.Builder()
@@ -500,14 +498,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                     @Override
                     public void onEveryMinute(@NonNull String elapsedCategory) {
-                        // Decide dynamically based on current mode
-                        if (radioMode) {
-                            FirebaseAnalyticsHelper.tellRadioFor1min(elapsedCategory);
-                        } else if (podcastMode) {
-                            FirebaseAnalyticsHelper.tellPodcastFor1min(elapsedCategory);
-                        } else {
-                            FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory);
-                        }
+                        FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory, getPlayMode());
                     }
 
                     @Override
@@ -620,7 +611,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void showForegroundNotification(boolean playing) {
 
-        if (radioMode) {
+        if ("radio".equals(getPlayMode())) {
             // 1) Limit session capabilities
             updateSessionState(playing);
 
@@ -802,7 +793,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 .putExtra(FROM, from)
                 .putExtra(ERR_MSG, errMsg);
         PlayList pl = PlayList.getInstance();
-        if (pl!=null && pl.getNumZikFile()>0 && !(radioMode || podcastMode)) {
+        if (pl!=null && pl.getNumZikFile()>0 && !("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
             i.putExtra(TRACKNUMBER, pl.getNumZikFile());
         }
         LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
@@ -862,8 +853,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             case Intents.ACTION_PLAY_FROM_TRACK: {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
-                radioMode = false;
-                podcastMode = false;
 
                 final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
@@ -913,8 +902,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intents.ACTION_PLAY_FROM_FOLDER: {
                 goForegroundPreparing("Preparing…", "Loading folder");
-                radioMode = false;
-                podcastMode = false;
 
                 final int folderId = intent.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
                 final int index = Math.max(0, intent.getIntExtra(Intents.EXTRA_INDEX, 0));
@@ -1110,7 +1097,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @Override public PendingIntent play() { return null; }
                         @Override public PendingIntent pause() { return null; }
                         @Override public PendingIntent fastForward() { return null; }
-                        @NonNull @Override public PendingIntent content() { return UiHelper.navigateToActivity(MediaService.this); }
+                        @NonNull @Override public PendingIntent content() { return UiHelper.navigateToMain(MediaService.this); }
                     };
 
             Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());
@@ -1191,7 +1178,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Clear state (safe to run twice)
         try { PlayList pl = PlayList.getInstance(); if (pl != null) pl.clear(); } catch (Throwable ignored) {}
-        radioMode = false; podcastMode = false;
         radioTitle = null; radioImageUrl = null; radioUri = null;
         isRunning = false;
 
@@ -1239,7 +1225,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
         myLogI("------------ onGetRoot ------------  ");
-        //myLog("from pkg=" + clientPackageName + " uid=" + clientUid  + "\nhints : " + (rootHints==null ? "bundle is null" : rootHints.toString().replace(",","\n")));
+        myLog("from pkg=" + clientPackageName + " uid=" + clientUid  + "\nhints : " + getBundleString(rootHints).replace(";","\n"));
 
         var info = MediaCallerHelper.getCallerInfo(MediaService.this);
         String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
@@ -1249,25 +1235,22 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
 
-    @Override
-    public void onLoadChildren(@NonNull String parentId,
-                               @NonNull Result<List<MediaBrowserCompat.MediaItem>> result,
-                               @NonNull Bundle options) {
+    @Override public void onLoadChildren(@NonNull String parentId,
+                                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result,
+                                         @NonNull Bundle options) {
         myLogD("onLoadChildren(+opts) parentId=" + parentId + "  - options=" + getBundleString(options));
         StartPlayHelper.loadChildrenImpl(this, parentId, options, result);
     }
 
-    @Override
-    public void onLoadChildren(@NonNull String parentId,
-                               @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+    @Override public void onLoadChildren(@NonNull String parentId,
+                                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
         myLogD("onLoadChildren parentId=" + parentId + " (no options)");
         StartPlayHelper.loadChildrenImpl(this, parentId, null, result);
     }
 
 
-    @Override
-    public void onSearch(@NonNull String query, Bundle extras,
-                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+    @Override public void onSearch(@NonNull String query, Bundle extras,
+                                   @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
         StartPlayHelper.doSearch(this, query, extras, result);
     }
 
@@ -1292,6 +1275,30 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogD("onRebind() -> boundClientCount=" + c + " intent=" + intent);
         serviceHandler.removeCallbacks(stopRunnable);
         super.onRebind(intent);
+    }
+
+    //----------------------------------------------------------------------------------------------
+    //----------------------------------------------------------------------------------------------
+
+    @Override public void onTrimMemory(int level) {
+        super.onTrimMemory(level);
+        if (level >= TRIM_MEMORY_THRESHOLD) {
+            myLogW("onTrimMemory() - level=[" + level + "] >= " + TRIM_MEMORY_THRESHOLD);
+            logPauseTime();
+            /*
+            if (mediaPlayer != null) {
+                try {
+                    mediaPlayer.release();
+                    mediaPlayer = null;
+                    myLog("mediaPlayer released due to memory pressure");
+                } catch (Exception e) {
+                    myLogEE(e,"onTrimMemory - Error releasing mediaPlayer");
+                }
+            } else {
+                myLog("mediaPlayer was already null");
+            }
+             */
+        }
     }
 
     // Swap current engine with a new one, releasing TTS if needed, keeping flags intact.
@@ -1435,7 +1442,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         broadcastUiState("playAudio");
 
-        if (!radioMode && !podcastMode) {
+        if (!("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
             if (engine == null || needsReloadForPlaylist()) {
                 new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                     directPlay = true;
@@ -1517,6 +1524,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ***       SPEED - POSITION
      ********************************************************************************
      */
+    public long getPosition() { return engine != null ? engine.getCurrentPosition() : 0; }
+    public long getDuration() { return engine != null ? engine.getDuration() : 0; }
+    public boolean isPlaying() { return engine != null && engine.isPlaying(); }
+    public boolean isRunning() { return isRunning; }
+    public int getAudioSessionId() { return engine != null ? engine.getAudioSessionId() : 0; }
 
     public void setPosition(long position) {
         myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatMmSs(position));
@@ -1526,28 +1538,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             updatePlaybackStateForPosition();
             broadcastUiState("setPosition");
         }
-    }
-
-    public long getPosition() {
-        long pos = engine != null ? engine.getCurrentPosition() : 0;
-        if (LOG_TRACE_ALL && PlayList.getInstance() != null && PlayList.getInstance().getZikFile() != null) {
-            int curPosGlobalVar = (int) PlayList.getInstance().getZikFile().getPosition();
-            long diff = curPosGlobalVar - pos;
-            myLogD("getPosition() Saved/EngineCurrent  " + curPosGlobalVar + "/" + pos + "  -  Diff = " + diff);
-        }
-        return pos;
-    }
-
-    public long getDuration() {
-        return engine != null ? engine.getDuration() : 0;
-    }
-
-    public boolean isPlaying() {
-        return engine != null && engine.isPlaying();
-    }
-
-    public int getAudioSessionId() {
-        return engine != null ? engine.getAudioSessionId() : 0;
     }
 
     public void setSpeed(double speed) {
@@ -1569,36 +1559,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return speed;
     }
 
-    public boolean isRunning() {
-        if (LOG_TRACE_ALL) myLogD("isRunning : " + isRunning);
-        return isRunning;
-    }
 
     private @Nullable ZikFile getCurrentZikFile() {
         PlayList pl = PlayList.getInstance();
         return (pl != null) ? pl.getZikFile() : null;
-    }
-
-    @Override
-    public void onTrimMemory(int level) {
-        super.onTrimMemory(level);
-        if (level >= TRIM_MEMORY_THRESHOLD) {
-            myLogW("onTrimMemory() - level=[" + level + "] >= " + TRIM_MEMORY_THRESHOLD);
-            logPauseTime();
-            /*
-            if (mediaPlayer != null) {
-                try {
-                    mediaPlayer.release();
-                    mediaPlayer = null;
-                    myLog("mediaPlayer released due to memory pressure");
-                } catch (Exception e) {
-                    myLogEE(e,"onTrimMemory - Error releasing mediaPlayer");
-                }
-            } else {
-                myLog("mediaPlayer was already null");
-            }
-             */
-        }
     }
 
     public void logPauseTime() {
@@ -1614,7 +1578,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ********************************************************************************
      */
     private void updateZikFileStateInDB(boolean bFinished) {
-        if (radioMode || podcastMode) return;
+        if ("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode())) return;
         ZikFile zf = getCurrentZikFile();
         if (zf == null) {
             myLogEE(null, "updateZikFileState : currentZikFile = null");
@@ -1664,8 +1628,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void loadFileKO(String strFilePathError) {
         myLogE("loadFileKO");
-        FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError);
-        //LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_FILENOTFOUND));
+        FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError, getPlayMode());
         ErrorLoadingFile = true;
         ErrorUi.showPlayAudioErrorMessage(this, null);
         shutdown(false);
@@ -1676,7 +1639,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         setUiPhase(Intents.PHASE_READY, null);
 
-        if (!radioMode && !podcastMode) {
+        if (!("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
             setPositionPlayStart();
 
             if (engine != null) {
@@ -1742,7 +1705,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         ErrorLoadingFile = true;
         sleepTimer.stop();
         alertError(null, null);
-        if (podcastMode) {
+        if ("podcast".equals(getPlayMode())) {
             if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {
                 myToastEE(null, getString(R.string.Podcast_source_error));
             } else {
@@ -1807,9 +1770,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void updatePlaybackStateForPosition() {
-        if (radioMode) return;
-        if (podcastMode) return;
         if (engine == null) return;
+        if (getPlayMode().equals("radio") || getPlayMode().equals("podcast")) return;
         boolean playing = engine.isPlaying();
         int state = playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
         media.updateState(state,
@@ -1931,14 +1893,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     | PlaybackStateCompat.ACTION_PAUSE;
 
     private long currentActions() {
-        return radioMode ? ACTIONS_RADIO : ACTIONS_FILE;
+        return "radio".equals(getPlayMode()) ? ACTIONS_RADIO : ACTIONS_FILE;
     }
     private void playRadioStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
         myLogD("playRadioStream: " + title + " -> " + url);
 
-        // Mark radio mode + meta
-        radioMode = true;
-        podcastMode = false;
         radioTitle = title;
         radioImageUrl = imageUrl;
         radioUri = Uri.parse(url);
@@ -1986,9 +1945,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void playPodcastStream(long podcastFeedId, @NonNull String url, @NonNull String title, @Nullable String imageUrl) {
         myLogI("playPodcastStream: [" + title + "] -> [" + url + "] - id=" + podcastFeedId);
 
-        // Mark radio mode + meta
-        radioMode = false;
-        podcastMode = true;
         radioTitle = title;
         radioImageUrl = imageUrl;
         this.podcastFeedId = podcastFeedId;
@@ -2050,7 +2006,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             PlaybackStateCompat cur = s.getController().getPlaybackState();
             if (cur == null || cur.getState() == PlaybackStateCompat.STATE_NONE) {
                 long actions = currentActions();
-                long pos     = (radioMode || podcastMode) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
+                long pos     = ("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode())) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
                         : (engine != null ? engine.getCurrentPosition() : 0L);
                 float sp     = playing ? (float) getSpeed() : 0f;
 
@@ -2068,7 +2024,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     + " actions=" + Long.toHexString(cur.getActions()));
 
             // Then set the *actual* state you want (radio vs file/tts)
-            if (radioMode) {
+            if ("radio".equals(getPlayMode())) {
                 long actions = playing ? PlaybackStateCompat.ACTION_PAUSE : PlaybackStateCompat.ACTION_PLAY;
                 PlaybackStateCompat st = new PlaybackStateCompat.Builder()
                         .setActions(actions)

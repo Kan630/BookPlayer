@@ -12,7 +12,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.Toast;
@@ -27,20 +26,9 @@ import com.driot.bookplayer.utils.log.KanLogger;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * EditText with Paste/Clear buttons + dropdown suggestions from previous searches.
- *
- * Knobs you can tune:
- * - historyKey: namespace of the history (one per screen/feature)
- * - maxHistory: how many items to retain (MRU)
- * - completionThreshold: chars before suggestions appear
- * - suggestOnFocus: show dropdown immediately when focused and empty
- */
 public class EditText1lineWithPasteDelete extends LinearLayout {
 
     private AppCompatAutoCompleteTextView editText;
-    private ImageButton btnPaste;
-    private ImageButton btnClear;
 
     // --- Knobs (defaults) ---
     private String historyKey = "default_search_history";
@@ -70,14 +58,12 @@ public class EditText1lineWithPasteDelete extends LinearLayout {
     private void init(Context context, @Nullable AttributeSet attrs) {
         LayoutInflater.from(context).inflate(R.layout.view_edittext_with_btn_paste_delete, this, true);
         editText = findViewById(R.id.editText); // now an AutoCompleteTextView in XML
-        btnPaste = findViewById(R.id.btnPaste);
-        btnClear = findViewById(R.id.btnClear);
 
         // --- should we scroll down ---
         if (attrs != null) {
-            TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EditTextWithButtons);
-            scrollOnFocus = a.getBoolean(R.styleable.EditTextWithButtons_scrollOnFocus, false);
-            a.recycle();
+            try (TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.EditTextWithButtons)) {
+                scrollOnFocus = a.getBoolean(R.styleable.EditTextWithButtons_scrollOnFocus, false);
+            }
         }
 
         // --- Suggestions adapter from history ---
@@ -111,7 +97,7 @@ public class EditText1lineWithPasteDelete extends LinearLayout {
             return false; // let caller handle actual search
         });
 
-        btnPaste.setOnClickListener(v -> {
+        findViewById(R.id.btnPaste).setOnClickListener(v -> {
             ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
             if (clipboard != null && clipboard.hasPrimaryClip()) {
                 ClipData clip = clipboard.getPrimaryClip();
@@ -128,7 +114,7 @@ public class EditText1lineWithPasteDelete extends LinearLayout {
             }
         });
 
-        btnClear.setOnClickListener(v -> editText.setText(""));
+        findViewById(R.id.btnClear).setOnClickListener(v -> editText.setText(""));
     }
 
     // --- Public API ---

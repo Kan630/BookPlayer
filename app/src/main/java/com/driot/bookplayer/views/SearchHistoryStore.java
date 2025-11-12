@@ -16,7 +16,7 @@ class SearchHistoryStore {
         SharedPreferences sp = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
         String raw = sp.getString(key, "");
         List<String> out = new ArrayList<>();
-        if (raw == null || raw.isEmpty()) return out;
+        if (raw.isEmpty()) return out;
         String[] parts = raw.split("\\|\\|", -1);
         for (String p : parts) {
             if (!p.isEmpty()) out.add(p);
@@ -53,7 +53,7 @@ class SearchHistoryStore {
     private static void save(Context c, String key, List<String> items) {
         StringBuilder sb = new StringBuilder();
         for (String s : items) {
-            if (sb.length() > 0) sb.append("||");
+            if (!sb.isEmpty()) sb.append("||");
             // very simple escaping: replace our delimiter if present
             sb.append(s.replace("||", "¦¦"));
         }

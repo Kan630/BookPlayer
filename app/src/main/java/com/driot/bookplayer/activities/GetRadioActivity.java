@@ -93,14 +93,17 @@ public class GetRadioActivity extends LoggingActivity {
 
         findViewById(R.id.bByTag).setOnClickListener(v -> {
             myLogI("---- user clicks BY TAG ---");
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("tag");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_TAG);
         });
         findViewById(R.id.bByCountry).setOnClickListener(v -> {
-            myLogI("---- user clicks BY TAG ---");
+            myLogI("---- user clicks BY COUNTRY ---");
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("country");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_COUNTRY);
         });
         findViewById(R.id.bByLanguage).setOnClickListener(v -> {
-            myLogI("---- user clicks BY TAG ---");
+            myLogI("---- user clicks BY LANGUAGE ---");
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lang");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_LANGUAGE);
 
         });
@@ -141,7 +144,8 @@ public class GetRadioActivity extends LoggingActivity {
                         Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                                 .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TRENDING");
                         startActivity(i);
-                        FirebaseAnalyticsHelper.tellAnalyticsRadioTrending("", "", "", "");                    } else {
+                        FirebaseAnalyticsHelper.tellAnalyticsRadioTrending("", "", "", "");
+                    } else {
                         myToastE(getString(R.string.an_error_occurred));
                     }
                 }

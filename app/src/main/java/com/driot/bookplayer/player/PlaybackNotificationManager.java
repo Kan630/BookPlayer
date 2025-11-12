@@ -5,22 +5,20 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
-import android.os.Build;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 
-import android.service.notification.StatusBarNotification;
 import android.support.v4.media.session.MediaSessionCompat;
 
 public final class PlaybackNotificationManager {
 
     public interface ActionProvider {
-        @NonNull PendingIntent rewind();
-        @NonNull PendingIntent play();
-        @NonNull PendingIntent pause();
-        @NonNull PendingIntent fastForward();
-        @NonNull PendingIntent content();
+        PendingIntent rewind();
+        PendingIntent play();
+        PendingIntent pause();
+        PendingIntent fastForward();
+        PendingIntent content();
     }
 
     private final Context app;

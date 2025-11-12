@@ -205,6 +205,18 @@ public class UiHelper {
         }
     }
 
+    public static PendingIntent navigateToMain(Context context) {
+        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP;
+        return PendingIntent.getActivity(
+                context,
+                0,
+                new Intent(context, com.driot.bookplayer.activities.MainActivity.class)
+                        .addFlags(flags),
+                flags
+        );
+    }
+
+
     public static PendingIntent navigateToActivity(Context context) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
@@ -241,14 +253,14 @@ public class UiHelper {
             );
         });
              */
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        return PendingIntent.getActivity(
-                context,
-                0,
-                new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                flags
-        );
+            final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+            return PendingIntent.getActivity(
+                    context,
+                    0,
+                    new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                    flags
+            );
     }
 
 

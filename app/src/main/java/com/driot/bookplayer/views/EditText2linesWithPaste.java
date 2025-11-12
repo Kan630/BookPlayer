@@ -26,15 +26,6 @@ import com.driot.bookplayer.utils.log.KanLogger;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * EditText with Paste/Clear buttons + dropdown suggestions from previous searches.
- *
- * Knobs you can tune:
- * - historyKey: namespace of the history (one per screen/feature)
- * - maxHistory: how many items to retain (MRU)
- * - completionThreshold: chars before suggestions appear
- * - suggestOnFocus: show dropdown immediately when focused and empty
- */
 public class EditText2linesWithPaste extends LinearLayout {
 
     private AppCompatAutoCompleteTextView editText;
