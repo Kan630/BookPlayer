@@ -1050,4 +1050,11 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="Streaming_Podcast">Podcast en streaming</string>
     <string name="Stop_the_player_to_move_playing_tracks">Vous devez arrêter la lecture pour déplacer la piste en cours</string>
 
+    <string name="bOpenMassImport_warning">Seuls les sous-dossiers contenant des fichiers audio sont pris en charge pour l\'instant</string>
+    <string name="librivox_search_edittext_title">Recherche par auteur ou titre...\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
+    <string name="podcast_search_edittext_title">Recherche... (toutes langues)\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
+    <string name="import_settings">Paramètres d\'importation</string>
+    <string name="option_split_m4b_subtitle">Si décoché, les fichiers M4B seront importés comme des pistes uniques.</string>
+    <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>
+
 </resources>

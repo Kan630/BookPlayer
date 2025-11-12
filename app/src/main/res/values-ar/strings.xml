@@ -1049,5 +1049,11 @@
     <string name="Streaming_Podcast">بودكاست مباشر</string>
     <string name="Stop_the_player_to_move_playing_tracks">يجب إيقاف التشغيل لنقل المقطع الجاري تشغيله</string>
 
+    <string name="bOpenMassImport_warning">يتم دعم المجلدات الفرعية التي تحتوي على ملفات صوتية فقط حالياً</string>
+    <string name="librivox_search_edittext_title">ابحث حسب المؤلف أو العنوان...\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
+    <string name="podcast_search_edittext_title">ابحث... (جميع اللغات)\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
+    <string name="import_settings">إعدادات الاستيراد</string>
+    <string name="option_split_m4b_subtitle">إذا لم يتم التحديد، سيتم استيراد ملفات M4B كمسارات مفردة.</string>
+    <string name="option_split_m4b_subtitle_note">ملاحظة: ميزة تقسيم الفصول تدعم حالياً فقط ملفات M4B القياسية جداً.</string>
 
 </resources>

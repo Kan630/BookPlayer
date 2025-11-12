@@ -1051,4 +1051,10 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Streaming_Podcast">流媒体播客</string>
     <string name="Stop_the_player_to_move_playing_tracks">必须停止播放才能移动当前正在播放的曲目</string>
 
+    <string name="bOpenMassImport_warning">目前仅支持包含音频文件的子文件夹</string>
+    <string name="librivox_search_edittext_title">按作者或标题搜索...\n提示：单个词通常能获得更好的结果</string>
+    <string name="podcast_search_edittext_title">搜索...（所有语言）\n提示：单个词通常能获得更好的结果</string>
+    <string name="import_settings">导入设置</string>
+    <string name="option_split_m4b_subtitle">如果未选中，M4B 文件将作为单个音轨导入。</string>
+    <string name="option_split_m4b_subtitle_note">注意：章节拆分功能目前仅支持非常标准的 M4B 文件。</string>
 </resources>

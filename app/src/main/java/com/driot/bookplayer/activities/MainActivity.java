@@ -274,9 +274,12 @@
             } else if (itemId == R.id.action_menu_addBook) {
                 myLogI("--- USER clicks MENU : ADD BOOK ---");
                 startActivity(new Intent(getApplicationContext(), GetActivity.class));
+/*
             } else if (itemId == R.id.action_menu_radio) {
                 myLogI("--- USER clicks MENU : RADIO ---");
                 startRadioActivity();
+
+ */
 
          // } else if (itemId == R.id.menu_synchro) {
            //     startActivity(new Intent(this, SynchroActivity.class));

@@ -1054,4 +1054,11 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="Streaming_Podcast">Streaming-Podcast</string>
     <string name="Stop_the_player_to_move_playing_tracks">Bitte Wiedergabe stoppen, um den aktuell gespielten Titel zu verschieben</string>
 
+    <string name="bOpenMassImport_warning">Nur Unterordner mit Audiodateien werden derzeit unterstützt</string>
+    <string name="librivox_search_edittext_title">Suche nach Autor oder Titel...\nTipp: Ein einzelnes Wort liefert oft bessere Ergebnisse</string>
+    <string name="podcast_search_edittext_title">Suche... (alle Sprachen)\nTipp: Ein einzelnes Wort liefert oft bessere Ergebnisse</string>
+    <string name="import_settings">Importeinstellungen</string>
+    <string name="option_split_m4b_subtitle">Wenn nicht aktiviert, werden M4B-Dateien als einzelne Titel importiert.</string>
+    <string name="option_split_m4b_subtitle_note">Hinweis: Die Kapitelerkennungsfunktion unterstützt derzeit nur sehr standardisierte M4B-Dateien.</string>
+
 </resources>
