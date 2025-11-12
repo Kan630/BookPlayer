@@ -153,29 +153,14 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
+        // Read & validate on UI thread
+        final int tbs = Option.clampInt(requireContext(), etTimeBeforeSleep, MIN_TIME_BEFORE_SLEEP, MAX_TIME_BEFORE_SLEEP, Option.DEFAULT_TIME_BEFORE_SLEEP, getString(R.string.option_timeBeforeSleep));
+        final int fwd = Option.clampInt(requireContext(), etForwardSeconds, MIN_FORWARD_SECONDS, MAX_FORWARD_SECONDS, Option.DEFAULT_FORWARD_SECONDS, getString(R.string.option_backward_forward_title));
+
+        // Persist off the UI thread
         Executors.newSingleThreadExecutor().execute(() -> {
-            if (etTimeBeforeSleep != null) {
-                int value = Option.clampInt(
-                        requireContext(),
-                        etTimeBeforeSleep,
-                        MIN_TIME_BEFORE_SLEEP,
-                        MAX_TIME_BEFORE_SLEEP,
-                        Option.DEFAULT_TIME_BEFORE_SLEEP,
-                        getString(R.string.option_timeBeforeSleep)
-                );
-                Option.setTimeBeforeSleep(value);
-            }
-            if (etForwardSeconds != null) {
-                int value = Option.clampInt(
-                        requireContext(),
-                        etForwardSeconds,
-                        MIN_FORWARD_SECONDS,
-                        MAX_FORWARD_SECONDS,
-                        Option.DEFAULT_FORWARD_SECONDS,
-                        getString(R.string.option_backward_forward_title)
-                );
-                Option.set_ForwardSeconds(value);
-            }
+            Option.setTimeBeforeSleep(tbs);
+            Option.set_ForwardSeconds(fwd);
         });
     }
 

@@ -89,7 +89,7 @@ public final class SleepTimer extends LoggerHelper {
     }
 
     public void stop() {
-        myLog("=> stopping after " + Tonio.formatMmSsMs(elapsedMs));
+        if (!running) myLog("=> stopping after " + Tonio.formatMmSsMs(elapsedMs));
         running = false;
         h.removeCallbacks(r);
     }
