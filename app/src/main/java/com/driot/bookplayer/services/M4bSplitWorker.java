@@ -14,13 +14,15 @@ import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
+import com.coremedia.iso.boxes.sampleentry.AudioSampleEntry;
+import com.googlecode.mp4parser.DataSource;
 import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
-import com.coremedia.iso.boxes.sampleentry.AudioSampleEntry;
 import com.googlecode.mp4parser.boxes.mp4.ESDescriptorBox;
 import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.AudioSpecificConfig;
+import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -28,7 +30,11 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
 
 public class M4bSplitWorker extends ImportWorker {
 
@@ -44,7 +50,9 @@ public class M4bSplitWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_m4b_split) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME,
+                context.getString(R.string.import_task_m4b_split) + " " +
+                        context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
         final String m4bFilePath = ImportHelper.getSourceFilePathForWorker(j);
@@ -55,12 +63,10 @@ public class M4bSplitWorker extends ImportWorker {
         myLog("destinationFolderPath = " + destinationFolderPath);
         myLogD("----------------------------------------------------");
 
-        // Optionally enter foreground:
-        // setForegroundEarly(buildForegroundInfo());
-
         if (m4bFilePath == null || destinationFolderPath == null) {
-            emitFailed(TASK_NAME, "Missing input data for M4bSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
-            myLogEE(null,"Missing input data for M4bSplitWorker");
+            emitFailed(TASK_NAME, "Missing input data for M4bSplitWorker",
+                    getApplicationContext().getString(R.string.invalid_resource));
+            myLogEE(null, "Missing input data for M4bSplitWorker");
             return Result.failure();
         }
 
@@ -74,25 +80,28 @@ public class M4bSplitWorker extends ImportWorker {
         Context context = getApplicationContext();
         File m4bFile = new File(m4bFilePath);
 
-// METADATA
+        // --- METADATA ---
         emitTextOnlyProgress(getApplicationContext().getString(R.string.parsing_metadata));
         try {
-            // don't remove stuff is done in class for image
-            // MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, new File(m4bFilePath));
             AudioInfo audioInfo = AudioProber.probe(context, Uri.fromFile(new File(m4bFilePath)), true);
-            if (audioInfo!=null && audioInfo.cover != null) {
+            if (audioInfo != null && audioInfo.cover != null) {
                 audioInfo.saveCover(this.getApplicationContext());
             }
         } catch (Exception e) {
-            myLogEE(e,"Error Parsing Metadata");
+            myLogEE(e, "Error Parsing Metadata");
         }
 
-
-// CHAPTERS
+        // --- CHAPTERS ---
+        DataSource dataSource = null;
         try {
             File outputFolder = new File(destinationFolderPath);
+            // pas grave si false, on tente quand même
+            //noinspection ResultOfMethodCallIgnored
             outputFolder.mkdirs();
-            Movie movie = MovieCreator.build(m4bFilePath);
+
+            // IMPORTANT : éviter FileDataSourceImpl (mmap) → utiliser FileDataSourceViaHeapImpl
+            dataSource = new FileDataSourceViaHeapImpl(m4bFilePath);
+            Movie movie = MovieCreator.build(dataSource);
 
             Track aacTrack = null;
             Track chapterTrack = null;
@@ -102,7 +111,8 @@ public class M4bSplitWorker extends ImportWorker {
                     emitCancelled(TASK_NAME);
                     return false;
                 }
-                if ("soun".equals(track.getHandler()) && track.getSampleDescriptionBox().getSampleEntry().getType().equals("mp4a")) {
+                if ("soun".equals(track.getHandler())
+                        && track.getSampleDescriptionBox().getSampleEntry().getType().equals("mp4a")) {
                     aacTrack = track;
                 } else if ("text".equals(track.getHandler()) || "sbtl".equals(track.getHandler())) {
                     chapterTrack = track;
@@ -133,11 +143,14 @@ public class M4bSplitWorker extends ImportWorker {
             DecimalFormat chapterFormat = new DecimalFormat("000");
 
             long chapterTime = 0;
+            byte[] frameBuffer = null; // on réutilise ce buffer pour limiter les allocations
+
             for (int c = 0; c < chapterSamples.size(); c++) {
                 if (isStopped()) {
                     emitCancelled(TASK_NAME);
                     return false;
                 }
+
                 String title = extractCleanChapterTitle(chapterSamples.get(c));
                 if (usedNames.contains(title) || title.isEmpty()) {
                     title = "chapter" + chapterFormat.format(c + 1);
@@ -157,24 +170,32 @@ public class M4bSplitWorker extends ImportWorker {
 
                 double progress = (double) (c + 1) / chapterSamples.size() * 100;
                 String text = context.getString(R.string.Import_Progress_splitting_m4b_file)
-                        + (c + 1) + "/" + chapterSamples.size() + "\n\n" + title;
+                        + (c + 1) + "/" + chapterSamples.size() + "\n\n" + context.getString(R.string.Import_Progress_chapter_title) + " : " + title;
                 emitStepProgress(TASK_NAME, (int) progress, text);
-                myLogD((int) progress + "% - " + text.replace("\n"," - "));
+                myLogD((int) progress + "% - " + text.replace("\n", " - "));
 
                 FileOutputStream fos = new FileOutputStream(new File(outputFolder, filename));
-                for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
-                    if (isStopped()) {
-                        emitCancelled(TASK_NAME);
-                        return false;
+                try {
+                    for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
+                        if (isStopped()) {
+                            emitCancelled(TASK_NAME);
+                            return false;
+                        }
+                        ByteBuffer buffer = audioSamples.get(i).asByteBuffer();
+                        int len = buffer.remaining();
+
+                        if (frameBuffer == null || frameBuffer.length < len) {
+                            frameBuffer = new byte[len];
+                        }
+
+                        buffer.get(frameBuffer, 0, len);
+                        byte[] header = buildAdtsHeader(len, aot, sfi, cc);
+                        fos.write(header);
+                        fos.write(frameBuffer, 0, len);
                     }
-                    ByteBuffer buffer = audioSamples.get(i).asByteBuffer();
-                    byte[] frame = new byte[buffer.remaining()];
-                    buffer.get(frame);
-                    byte[] header = buildAdtsHeader(frame.length, aot, sfi, cc);
-                    fos.write(header);
-                    fos.write(frame);
+                } finally {
+                    fos.close();
                 }
-                fos.close();
             }
 
             if (!m4bFile.delete()) {
@@ -182,33 +203,97 @@ public class M4bSplitWorker extends ImportWorker {
                 emitWarning("Error Deleting source M4B file after split.");
             }
 
-            emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath(), context.getString(R.string.import_task_m4b_split) + " " + context.getString(R.string.import_task_complete));
+            emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath(),
+                    context.getString(R.string.import_task_m4b_split) + " " +
+                            context.getString(R.string.import_task_complete));
             return true;
 
         } catch (Exception e) {
-            String msg = (e.getMessage() != null ? e.getMessage() : "");
+            // On enrichit le catch pour distinguer les cas
+            String raw = (e.getMessage() != null ? e.getMessage() : "");
+            String causeMsg = (e.getCause() != null && e.getCause().getMessage() != null)
+                    ? e.getCause().getMessage()
+                    : "";
 
-            // --- Check for ENOSPC ("no space left on device") ---
-            boolean noSpace = msg.contains("ENOSPC")
-                    || msg.contains("No space left on device")
-                    || (e.getCause() != null && String.valueOf(e.getCause().getMessage()).contains("ENOSPC"));
+            String msg = (raw + " " + causeMsg).toLowerCase(Locale.ROOT);
+
+            // --- Case 1 : Disk full (ENOSPC) ---
+            boolean noSpace = msg.contains("enospc")
+                    || msg.contains("no space left")
+                    || msg.contains("not enough space");
 
             if (noSpace) {
                 myLogEE(e, "splitM4bLocal - disk full (ENOSPC)");
                 String userMsg = context.getString(R.string.error_no_space_left)
                         + "\n\n" + context.getString(R.string.solution_free_space);
                 emitWarning(userMsg);
-                emitFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
+                emitFailed(TASK_NAME, "No space left on device",
+                        context.getString(R.string.error_no_space_left));
                 return false;
             }
 
-            myLogEE(e, "splitM4bLocal");
+            // --- Case 2 : Fichier trop gros / mmap impossible / mémoire ---
+            boolean tooLarge =
+                    msg.contains("map failed")
+                            || msg.contains("mmap")
+                            || msg.contains("filechannelimpl.map")
+                            || msg.contains("cannot allocate")
+                            || msg.contains("outofmemory")
+                            || msg.contains("enomem")
+                            || msg.contains("scudo")
+                            || msg.contains("markcompact")
+                            || msg.contains("kernelpreparerange")
+                            || msg.contains("size >")
+                            || msg.contains("too large");
+
+            if (tooLarge) {
+                myLogEE(e, "splitM4bLocal - file too large or mmap/memory issue");
+                String userMsg = ""
+                        + "This M4B file is too large or uses a structure that is incompatible "
+                        + "with Android's memory system.\n\n"
+                        + "BookPlayer currently supports only standard M4B files.\n\n"
+                        + "Tips:\n"
+                        + "- Try converting the M4B with an external tool (ffmpeg, mp4box...),\n"
+                        + "- Or split it on a computer and import the chapters separately.";
+                emitWarning(userMsg);
+                emitFailed(TASK_NAME, "Cannot split large M4B", userMsg);
+                return false;
+            }
+
+            // --- Case 3 : Structure M4B non standard ---
+            boolean structure =
+                    msg.contains("no suitable")
+                            || msg.contains("required audio or chapter")
+                            || msg.contains("parse")
+                            || msg.contains("box")
+                            || msg.contains("corrupt");
+
+            if (structure) {
+                myLogEE(e, "splitM4bLocal - non-standard M4B structure");
+                String userMsg = "This M4B file uses a non-standard chapter format.\n"
+                        + "BookPlayer can only split M4B files that use embedded text chapters.\n\n"
+                        + "Tip: try importing the file as a single track instead.";
+                emitWarning(userMsg);
+                emitFailed(TASK_NAME, "Unsupported M4B structure", userMsg);
+                return false;
+            }
+
+            // --- Generic fallback ---
+            myLogEE(e, "splitM4bLocal - generic error");
             emitWarning(context.getString(R.string.Import_Experimental_M4B_warning)
                     + "\n\n" + context.getString(R.string.Import_Experimental_M4B_iferror)
                     + ", " + context.getString(R.string.Import_Experimental_M4B_solution_1)
                     + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2));
             emitFailed(TASK_NAME, e.getMessage(), null);
             return false;
+
+        } finally {
+            if (dataSource != null) {
+                try {
+                    dataSource.close();
+                } catch (Exception ignore) {
+                }
+            }
         }
     }
 
@@ -240,7 +325,10 @@ public class M4bSplitWorker extends ImportWorker {
         byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
         String raw = new String(Arrays.copyOfRange(data, 2, data.length), StandardCharsets.UTF_8);
-        raw = raw.replaceAll("encd.*$", "").replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "").replace("\uFEFF", "").trim();
+        raw = raw.replaceAll("encd.*$", "")
+                .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")
+                .replace("\uFEFF", "")
+                .trim();
         return raw.isEmpty() ? "chapter" : raw;
     }
 
@@ -255,4 +343,3 @@ public class M4bSplitWorker extends ImportWorker {
     }
 
 }
-
