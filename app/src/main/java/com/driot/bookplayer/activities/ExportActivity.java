@@ -83,6 +83,7 @@ public class ExportActivity extends LoggingActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             uiHandler.post(() -> {
+                tvCurrentTrack.setText(getString(R.string.Export_done_Excl));
                 tvCurrentTrack.setTextColor(getColor(R.color.green_700));
                 btnCancel.setText(getString(R.string.ok));
             });

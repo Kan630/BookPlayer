@@ -253,14 +253,34 @@ public class UiHelper {
             );
         });
              */
-            final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-            return PendingIntent.getActivity(
-                    context,
-                    0,
-                    new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                    flags
-            );
+        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.getActivity(
+                context,
+                0,
+                new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                flags
+        );
+    }
+    public static PendingIntent navigateToPodcastActivity(Context context) {
+        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.getActivity(
+                context,
+                0,
+                new Intent(context, com.driot.bookplayer.activities.GetPodcastActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                flags
+        );
+    }
+    public static PendingIntent navigateToLibrivoxActivity(Context context) {
+        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        return PendingIntent.getActivity(
+                context,
+                0,
+                new Intent(context, com.driot.bookplayer.activities.GetAudiobookActivity.class)
+                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                flags
+        );
     }
 
 
