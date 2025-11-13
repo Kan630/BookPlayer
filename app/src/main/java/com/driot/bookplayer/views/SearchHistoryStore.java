@@ -53,7 +53,7 @@ class SearchHistoryStore {
     private static void save(Context c, String key, List<String> items) {
         StringBuilder sb = new StringBuilder();
         for (String s : items) {
-            if (!sb.isEmpty()) sb.append("||");
+            if (sb.length() != 0) sb.append("||");
             // very simple escaping: replace our delimiter if present
             sb.append(s.replace("||", "¦¦"));
         }
