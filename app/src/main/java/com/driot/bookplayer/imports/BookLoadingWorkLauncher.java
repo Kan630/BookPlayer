@@ -1,8 +1,6 @@
 package com.driot.bookplayer.imports;
 
 import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -11,11 +9,11 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
-import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -25,12 +23,13 @@ import com.driot.bookplayer.services.DownloadWorker;
 import com.driot.bookplayer.services.EbookSplitWorker;
 import com.driot.bookplayer.services.FinalParseFolderWorker;
 import com.driot.bookplayer.services.M4bSplitWorker;
-import com.driot.bookplayer.services.UnzipWorker;
+import com.driot.bookplayer.services.UncompressWorker;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -47,7 +46,7 @@ public class BookLoadingWorkLauncher {
             boolean doCopy = false;
             boolean doSplitM4b = false;
             boolean doSplitEbook = false;
-            boolean doUnzip = false;
+            boolean doUncompress = false;
 
             myLog("*********************************************************************************************************");
             myLog("*********************************************************************************************************");
@@ -87,10 +86,10 @@ public class BookLoadingWorkLauncher {
                 doCopy = true;
                 doSplitM4b = true;
             }
-            if (s.fileExtension != null && s.fileExtension.equalsIgnoreCase("zip")) {
-                myLogD("ZIP => unzip + copy");
+            if (s.fileExtension != null && Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(s.fileExtension.toLowerCase(Locale.ROOT))) {
+                myLogD("COMPRESSED => unzip + copy");
                 doCopy = true;
-                doUnzip = true;
+                doUncompress = true;
             }
             if (s.fileExtension != null && s.fileExtension.equalsIgnoreCase("epub")) {
                 myLogD("epub");
@@ -120,7 +119,7 @@ public class BookLoadingWorkLauncher {
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalUri", String.valueOf(s.originalUri));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doDownload", String.valueOf(doDownload));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doCopy", String.valueOf(doCopy));
-            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doUnzip", String.valueOf(doUnzip));
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doUnzip", String.valueOf(doUncompress));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doSplitM4b", String.valueOf(doSplitM4b));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doSplitEbook", String.valueOf(doSplitEbook));
 
@@ -151,7 +150,7 @@ public class BookLoadingWorkLauncher {
             j.doDownload = doDownload;
             j.doSplitM4b = doSplitM4b;
             j.doSplitEbook = doSplitEbook;
-            j.doUnzip = doUnzip;
+            j.doUnzip = doUncompress;
             j.doCopy = doCopy;
 
             j.status = ImportJob.S_RUNNING; //.S_QUEUED;
@@ -181,7 +180,7 @@ public class BookLoadingWorkLauncher {
 
             if (j.doCopy) steps.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(UnzipWorker.class)
+            if (j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(UncompressWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
             if (j.doSplitM4b) steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());

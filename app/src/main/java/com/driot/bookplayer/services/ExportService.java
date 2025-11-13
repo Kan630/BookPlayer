@@ -11,6 +11,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ExportActivity;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingService;
 
 import java.io.BufferedOutputStream;
@@ -19,6 +22,9 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -32,36 +38,63 @@ public class ExportService extends LoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String folderPath = intent.getStringExtra(ExportActivity.EXTRA_FOLDER_PATH);
+        Folder folder = intent.getParcelableExtra(Intents.EXTRA_BOOK_SOURCE_FOLDER);
+        if (folder == null) {
+            myLogEE(null, "folder is null");
+            stopSelf();
+            return START_NOT_STICKY;
+        }
         String destFileFullPath = intent.getStringExtra(ExportActivity.EXTRA_DEST_FILE_FULL_PATH); // legacy path
         String destUriStr = intent.getStringExtra(ExportActivity.EXTRA_DEST_URI);                  // SAF Uri (preferred)
 
         myLogD("------------------------------------------------------------------------------------------------");
-        myLog("folderPath: " + folderPath);
+        myLog("folderPath: " + folder.getName());
+        myLog("folderPath: " + folder.getPath());
         myLog("destFileFullPath: " + destFileFullPath);
         myLog("destUriStr: " + destUriStr);
         myLogD("------------------------------------------------------------------------------------------------");
 
-        if (folderPath != null) {
-            new Thread(() -> zipFolder(folderPath, destFileFullPath, destUriStr)).start();
+        if (folder.getPath() != null) {
+            new Thread(() -> zipFolder(folder, destFileFullPath, destUriStr)).start();
+        } else {
+            myLogEE(null, "path is null");
         }
         return START_NOT_STICKY;
     }
 
-    private void zipFolder(String folderPath, String destFileFullPath, String destUriStr) {
-        File folder = new File(folderPath);
-        if (!folder.exists() || !folder.isDirectory()) {
+    private void zipFolder(Folder folder, String destFileFullPath, String destUriStr) {
+        String folderPath = folder.getPath();
+        File fileFolder = new File(folderPath);
+        if (!fileFolder.exists() || !fileFolder.isDirectory()) {
             myLogEE(null, "Export aborted: invalid folderPath: " + folderPath);
-            sendFail();
+            sendFail( "invalid folder path: " + folderPath);
             return;
         }
 
-        File[] files = folder.listFiles(File::isFile);
-        totalFiles = (files == null) ? 0 : files.length;
+        File[] audioFiles = fileFolder.listFiles(File::isFile);
+        List<File> filesList = new ArrayList<>();
+        if (audioFiles == null || audioFiles.length == 0) {
+            myLogEE(null, "no audio file found in folder");
+            sendFail("no audio file found in folder");
+            return;
+        }
+        Collections.addAll(filesList, audioFiles);
 
-        totalSize = 0;
-        if (files != null) {
-            for (File f : files) totalSize += f.length();
+        totalFiles = filesList.size();
+        totalSize = 0L;
+
+        for (File f : filesList) {
+            totalSize += f.length();
+        }
+        myLog("total audio size = " + Tonio.getReadableSize(totalSize));
+
+        String pathImage = folder.image;
+        if (pathImage != null && !pathImage.isEmpty()) {
+            File fileImage = new File(pathImage);
+            if (fileImage.exists()) {
+                myLog("image found : " + Tonio.getFileNameFromPath(pathImage));
+                filesList.add(fileImage);
+            }
         }
 
         boolean useSaf = (destUriStr != null);
@@ -89,26 +122,25 @@ public class ExportService extends LoggingService {
                 long zippedSoFar = 0;
                 int currentIndex = 0;
 
-                if (files != null) {
-                    for (File file : files) {
-                        currentIndex++;
-                        sendProgress(file.getName(), zippedSoFar, currentIndex);
+                for (File file : filesList) {
+                    currentIndex++;
+                    sendProgress(file.getName(), zippedSoFar, currentIndex);
 
-                        try (FileInputStream fis = new FileInputStream(file)) {
-                            ZipEntry entry = new ZipEntry(file.getName());
-                            zos.putNextEntry(entry);
+                    try (FileInputStream fis = new FileInputStream(file)) {
+                        ZipEntry entry = new ZipEntry(file.getName());
+                        zos.putNextEntry(entry);
 
-                            byte[] buffer = new byte[4096];
-                            int length;
-                            while ((length = fis.read(buffer)) != -1) {
-                                zos.write(buffer, 0, length);
-                                zippedSoFar += length;
-                                sendProgress(file.getName(), zippedSoFar, currentIndex);
-                            }
-                            zos.closeEntry();
+                        byte[] buffer = new byte[4096];
+                        int length;
+                        while ((length = fis.read(buffer)) != -1) {
+                            zos.write(buffer, 0, length);
+                            zippedSoFar += length;
+                            sendProgress(file.getName(), zippedSoFar, currentIndex);
                         }
+                        zos.closeEntry();
                     }
                 }
+
 
                 zos.flush();
                 sendProgress(getString(R.string.Export_done_Excl), totalSize, totalFiles);
@@ -140,20 +172,22 @@ public class ExportService extends LoggingService {
                         boolean deleted = outputFile.delete();
                         myLog("Deleted bad ZIP: " + deleted);
                     }
-                    sendFail();
+                    sendFail("Export failed or incomplete: file too small or missing.");
                 }
             }
 
         } catch (Throwable e) {
-            myToastEE(e, getString(R.string.Export_error) + ": " + e.getMessage());
-            sendFail();
+            myLogEE(e,"export general error");
+            e.printStackTrace();
+            sendFail(getString(R.string.Export_error) + ": " + e.getMessage());
         }
     }
 
-    private void sendFail() {
-        Intent failIntent = new Intent("EXPORT_FAIL");
-        failIntent.putExtra("zipUri", (Parcelable) null);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(failIntent);
+    private void sendFail(String errMessage) {
+        Intent i = new Intent("EXPORT_FAIL");
+        i.putExtra("zipUri", (Parcelable) null);
+        i.putExtra("displayText", errMessage);
+        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
     }
 
     private void sendProgress(String currentTrack, long zippedSoFar, int fileIndex) {

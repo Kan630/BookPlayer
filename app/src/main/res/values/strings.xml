@@ -1121,6 +1121,8 @@
     <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
     <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>
 
+    <string name="Import_Progress_chapter_title">"Track title"</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"exported file name should have at least 3 characters"</string>
 
 
 </resources>

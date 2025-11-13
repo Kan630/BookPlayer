@@ -2,7 +2,9 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.content.*;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,7 +21,8 @@ import androidx.documentfile.provider.DocumentFile;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.services.ExportService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -30,23 +33,19 @@ import java.io.File;
 
 public class ExportActivity extends LoggingActivity {
 
-    public static final String EXTRA_FOLDER_ID = "EXTRA_FOLDER_ID";
-    public static final String EXTRA_FOLDER_PATH = "EXTRA_FOLDER_PATH";
-    public static final String EXTRA_DEST_FILE_FULL_PATH = "EXTRA_FILE_NAME";
+    public static final String EXTRA_DEST_FILE_FULL_PATH = "EXTRA_DEST_FILE_FULL_PATH";
+    public static final String EXTRA_DEST_URI = "EXTRA_DEST_URI";
 
     public static final int REQUEST_CODE_destinationFolder = 35737;
-    public static final String EXTRA_DEST_URI = "EXTRA_DEST_URI"; // New: Uri string of the created zip file
     private static final String STATE_EXPORT_TREE_URI = "STATE_EXPORT_TREE_URI";
     private Uri exportTreeUri = null;  // user-chosen folder (tree) Uri
 
-    private int folderId;
-    File folder;
-    private String folderPath;
+    Folder folder;
+    File fileFolder;
     private ProgressBar progressBar;
     private TextView progressText, tvCurrentTrack, tvExportAudioBookName;
+    private EditText etDestinationFileName;
     private Button btnExport, btnCancel, b_destinationFolder;
-
-    private String exportFolder;
 
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
 
@@ -60,6 +59,7 @@ public class ExportActivity extends LoggingActivity {
             uiHandler.post(() -> {
                 String zeText = getString(R.string.Processing) + ":\n" + currentTrack;
                 tvCurrentTrack.setText(zeText);
+                tvCurrentTrack.setTextColor(getColor(R.color.bp_onSurface));
                 progressText.setText(displayText);
                 progressBar.setProgress(progress);
             });
@@ -67,6 +67,17 @@ public class ExportActivity extends LoggingActivity {
         }
     };
 
+    private final BroadcastReceiver exportFailReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String displayText = intent.getStringExtra("displayText");
+            uiHandler.post(() -> {
+                tvCurrentTrack.setText(displayText);
+                tvCurrentTrack.setTextColor(getColor(R.color.red_700));
+            });
+            myLogE("broadcast FAIL received - " + displayText);
+        }
+    };
 
     private final BroadcastReceiver exportDoneReceiver = new BroadcastReceiver() {
         @Override
@@ -93,7 +104,21 @@ public class ExportActivity extends LoggingActivity {
         setContentView(R.layout.activity_export);
         InsetHelper.apply(this);
 
-        folderId = getIntent().getIntExtra(EXTRA_FOLDER_ID, -1);
+        folder = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
+        if (folder == null) {
+            myLogEE(null, "folder is null");
+            finish();
+            return;
+        }
+
+        //ScreenLock //TODO later, we will have a room table to store export and status, with livedata for observing fragment/activity
+        int currentOrientation = getResources().getConfiguration().orientation;
+        if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }
+
 
         progressBar = findViewById(R.id.progressBarExport);
         progressText = findViewById(R.id.tvProgressText);
@@ -114,7 +139,6 @@ public class ExportActivity extends LoggingActivity {
         // Cancel button can always close
         btnCancel.setOnClickListener(v -> finish());
 
-
         b_destinationFolder.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -124,77 +148,104 @@ public class ExportActivity extends LoggingActivity {
             startActivityForResult(intent, REQUEST_CODE_destinationFolder);
         });
 
-        // Load folder path in a background thread
-        new Thread(() -> {
-            folderPath = AppDatabase.getDatabase(this).zikFileDao().getFolderPath(folderId);
-            myLog("folderPath : " + folderPath);
-            folder = new File(folderPath);
-            onFolderPathLoaded();
-        }).start();
-    }
+        myLog("folderPath : " + folder.getPath());
+        fileFolder = new File(folder.getPath());
+        if (!fileFolder.exists() || !fileFolder.isDirectory()) {
+            tvExportAudioBookName.setText(getString(R.string.Export_display_no_valid_audiobook));
+            tvExportAudioBookName.setTextColor(getColor(R.color.red_700));
+            btnExport.setEnabled(false);
+            return;
+        }
 
-    private void onFolderPathLoaded() {
-        runOnUiThread(() -> {
-            if (folderPath == null || !folder.exists()) {
-                tvExportAudioBookName.setText(getString(R.string.Export_display_no_valid_audiobook));
-                tvExportAudioBookName.setTextColor(getColor(R.color.red_700));
-                btnExport.setEnabled(false);
-                return;
+        String destinationFileName = "BookplayerExport_" + fileFolder.getName();
+        etDestinationFileName = findViewById(R.id.etDestinationFileName);
+        etDestinationFileName.setText(destinationFileName);
+
+        tvExportAudioBookName.setText(fileFolder.getName());
+
+        // below Android 10, need permission to write to Downloads
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        123); // arbitrary request code
+                return; // wait for user to accept before continuing
             }
+        }
 
-            tvExportAudioBookName.setText(folder.getName());
-
-            // below Android 10, need permission to write to Downloads
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-                if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        != PackageManager.PERMISSION_GRANTED) {
-
-                    ActivityCompat.requestPermissions(this,
-                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
-                            123); // arbitrary request code
-                    return; // wait for user to accept before continuing
-                }
-            }
-
-            goExport();
-
-        });
+        goExport();
     }
 
     private void goExport() {
         btnExport.setEnabled(true);
 
         btnExport.setOnClickListener(v -> {
-            String exportFileName = "BookplayerExport_" + folder.getName() + ".zip";
+            String destinationFileName = etDestinationFileName.getText().toString();
+            myLogI("--- user click goExport ---  , exportFileName = " + destinationFileName);
+            if (destinationFileName.isEmpty() || destinationFileName.length()<3) {
+                tvCurrentTrack.setText(getString(R.string.Export_Progress_file_name_should_have_at_east_3_chars));
+                tvCurrentTrack.setTextColor(getColor(R.color.red_700));
+                return;
+            }
 
             Intent serviceIntent = new Intent(this, ExportService.class);
-            serviceIntent.putExtra(EXTRA_FOLDER_PATH, folderPath);
+            serviceIntent.putExtra(Intents.EXTRA_BOOK_SOURCE_FOLDER, folder);
 
-            if (exportTreeUri != null) {
+            if (exportTreeUri != null) { //user picked a specific folder
                 // Create the destination ZIP file inside the chosen folder
                 DocumentFile tree = DocumentFile.fromTreeUri(this, exportTreeUri);
                 if (tree == null || !tree.canWrite()) {
-                    myToastE(getString(R.string.Cannot_write_to_the_chosen_folder));
+                    tvCurrentTrack.setText(getString(R.string.Cannot_write_to_the_chosen_folder));
+                    tvCurrentTrack.setTextColor(getColor(R.color.red_700));
                     return;
                 }
                 // Ensure a clean filename (no extension duplication)
-                if (exportFileName.endsWith(".zip")) exportFileName = exportFileName.substring(0, exportFileName.length() - 4);
-                DocumentFile zipDoc = tree.createFile("application/zip", exportFileName);
+                if (destinationFileName.endsWith(".zip")) destinationFileName = destinationFileName.substring(0, destinationFileName.length() - 4);
+                DocumentFile zipDoc = tree.createFile("application/zip", destinationFileName);
                 if (zipDoc == null) {
-                    myToastE(getString(R.string.Failed_to_create_the_destionation_file));
+                    tvCurrentTrack.setText(getString(R.string.Failed_to_create_the_destionation_file));
+                    tvCurrentTrack.setTextColor(getColor(R.color.red_700));
                     return;
                 }
 
                 // Pass Uri to the service
+                myLog("Export destination (SAF) = " + zipDoc.getUri());
                 serviceIntent.putExtra(EXTRA_DEST_URI, zipDoc.getUri().toString());
 
             } else {
-                // Legacy fallback: plain path in Downloads (pre-Q or when no folder chosen)
-                String detFileFullPath = new File(
-                        Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
-                        "BookplayerExport_" + folder.getName() + ".zip"
-                ).getPath();
-                serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, detFileFullPath);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                    // Legacy: real path + WRITE_EXTERNAL_STORAGE
+                    File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                    File outFile = new File(downloadsDir, destinationFileName);
+                    String detFileFullPath = outFile.getAbsolutePath();
+                    myLog("Export destination (legacy Downloads path) = " + detFileFullPath);
+                    serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, detFileFullPath);
+
+                } else {
+                    // Android 10+ : use MediaStore.Downloads so it shows in the Downloads app
+                    myLog("Creating export file via MediaStore.Downloads");
+
+                    android.content.ContentValues values = new android.content.ContentValues();
+                    values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, destinationFileName);
+                    values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/zip");
+
+                    // optional: subfolder inside Downloads (e.g. "Download/BookPlayer")
+                    values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/BookPlayer");
+
+                    Uri downloadsUri = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI;
+                    Uri destUri = getContentResolver().insert(downloadsUri, values);
+                    if (destUri == null) {
+                        myToastE(getString(R.string.Failed_to_create_the_destionation_file));
+                        myLogE("MediaStore insert returned null for Downloads");
+                        return;
+                    }
+
+                    myLog("Export destination (MediaStore Downloads) = " + destUri);
+                    serviceIntent.putExtra(EXTRA_DEST_URI, destUri.toString());
+                }
+
             }
 
             startService(serviceIntent);
@@ -209,6 +260,7 @@ public class ExportActivity extends LoggingActivity {
         super.onResume();
         LocalBroadcastManager.getInstance(this).registerReceiver(exportProgressReceiver, new IntentFilter("EXPORT_PROGRESS"));
         LocalBroadcastManager.getInstance(this).registerReceiver(exportDoneReceiver, new IntentFilter("EXPORT_DONE"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(exportFailReceiver, new IntentFilter("EXPORT_FAIL"));
     }
 
     @Override
@@ -216,6 +268,7 @@ public class ExportActivity extends LoggingActivity {
         super.onPause();
         LocalBroadcastManager.getInstance(this).unregisterReceiver(exportProgressReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(exportDoneReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(exportFailReceiver);
     }
 
     @Override
@@ -239,6 +292,7 @@ public class ExportActivity extends LoggingActivity {
         if (requestCode == REQUEST_CODE_destinationFolder && resultCode == RESULT_OK && data != null) {
             Uri tree = data.getData();
             if (tree != null) {
+                myLogI("--- user chooses folder ---, " + tree.getPath());
                 // Persist access so we can use it later (and from the service)
                 final int takeFlags = (data.getFlags()
                         & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
@@ -254,7 +308,7 @@ public class ExportActivity extends LoggingActivity {
                 b_destinationFolder.setText(name);
 
                 // If everything else is ready, you can enable export here as well
-                if (folder != null && folder.exists()) btnExport.setEnabled(true);
+                if (fileFolder != null && fileFolder.exists()) btnExport.setEnabled(true);
             }
         }
     }

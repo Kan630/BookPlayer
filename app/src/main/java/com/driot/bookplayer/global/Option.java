@@ -52,7 +52,7 @@ public class Option {
     public static final int DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN = 60;
     public static final boolean DEFAULT_PODCAST_AUTO_DOWNLOADED_AT_THE_TOP = false;
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
-    public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = true;
+    public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = false;
     public static final boolean DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
     private static final String DEFAULT_LANGUAGE = "system";

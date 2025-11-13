@@ -57,5 +57,6 @@ public class Intents {
     public static final String EXTRA_RESULT_RECEIVER = "EXTRA_RESULT_RECEIVER";
     public static final String EXTRA_TTS_TEXT = "EXTRA_TTS_TEXT";
 
+    public static final String EXTRA_BOOK_SOURCE_FOLDER = "EXTRA_BOOK_SOURCE_FOLDER";
 
 }

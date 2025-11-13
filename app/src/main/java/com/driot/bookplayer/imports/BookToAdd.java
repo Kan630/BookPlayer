@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.imports;
 
 import android.content.Context;
 import android.net.Uri;
@@ -17,7 +17,7 @@ public class BookToAdd extends LoggerHelper {
     private static Context appContext;
 
     private Uri uri;
-    private String type;
+    private String pickedType;
 
     private boolean isBroken;
     private boolean isMimeSupported;
@@ -29,11 +29,14 @@ public class BookToAdd extends LoggerHelper {
     private String fileExtension;
     private String mimeType;
     private String playType;
+    private String specialType;
 
     private String infoMimeExtension = "init...";
     private String infoMimeExtensionSmall = "init...";
     private String infoSourceLocation = "init...";
     private String extractedfileName = "...";
+
+    private String workerType;
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
@@ -41,21 +44,21 @@ public class BookToAdd extends LoggerHelper {
     /// ////////////////////////////////////////////////////////////////////////////////////////
     ///    CONSTRUCTOR
     /// ////////////////////////////////////////////////////////////////////////////////////////
-    public BookToAdd(Uri uri, String type) {
+    public BookToAdd(Uri pickedUri, String pickedType) {
         super(BookToAdd.class);
 
-        this.type = type;
-        this.uri = uri;
-        this.originalType = type;
+        this.pickedType = pickedType;
+        this.originalType = pickedType;
+        this.uri = pickedUri;
         this.isMimeSupported = true;
 
-        this.sourceLocation = Tonio.getSourceLocation(appContext, uri);
+        this.sourceLocation = Tonio.getSourceLocation(appContext, pickedUri);
         this.infoSourceLocation = "[" + this.sourceLocation + "]";
 
-        if (type.equals("File")) {
+        if (pickedType.equals("File")) {
             //TODO check that 3 methods (and they are also in in Librivox, somewhere else in the code is use Tonio.get...)
-            mimeType = SupportedFilesHelper.getMimeType(appContext, uri);
-            extractedfileName = SupportedFilesHelper.getFileName(appContext, uri) ;
+            mimeType = SupportedFilesHelper.getMimeType(appContext, pickedUri);
+            extractedfileName = SupportedFilesHelper.getFileName(appContext, pickedUri) ;
             fileExtension = SupportedFilesHelper.getFileExtension(extractedfileName);
 
             if (Objects.toString(fileExtension,"").isEmpty()) {
@@ -64,13 +67,13 @@ public class BookToAdd extends LoggerHelper {
             }
 
             // specific workers....
-            String specialType = SupportedFilesHelper.getSpecialType(extractedfileName);
-            if (specialType != null && !specialType.isEmpty()) { this.type = specialType; }
+            specialType = SupportedFilesHelper.getSpecialType(extractedfileName);
+            //if (specialType != null && !specialType.isEmpty()) { this.pickedType = specialType; }
 
-            this.infoMimeExtension = "[" + type + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+            this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
 
-            if (this.type.equals(SupportedFilesHelper.SPECIAL_TYPE_ZIP) || SupportedFilesHelper.isBookSupported(extractedfileName)
+            if (SupportedFilesHelper.isBookSupported(extractedfileName)
             ) {
                 myLogD("Mime/Extension supported - " + infoMimeExtension);
             } else {
@@ -84,10 +87,10 @@ public class BookToAdd extends LoggerHelper {
             this.audioBookName = Tonio.formatNameForDisplay(extractedfileName);
             this.originalFile = extractedfileName;
 
-        } else if (type.equals("Folder")) {
+        } else if (pickedType.equals("Folder")) {
 
-            this.infoMimeExtension = "[" + type + "]";
-            this.audioBookName = getBookName_with2folders(uri.getPath(), false);
+            this.infoMimeExtension = "[" + pickedType + "]";
+            this.audioBookName = getBookName_with2folders(pickedUri.getPath(), false);
 
         }
         trimAudioBookPrefix();
@@ -103,7 +106,7 @@ public class BookToAdd extends LoggerHelper {
     }
 
     public String getType() {
-        return type;
+        return pickedType;
     }
 
     public boolean isBroken() {
@@ -153,9 +156,9 @@ public class BookToAdd extends LoggerHelper {
         return mimeType;
     }
 
-    public String getPlayType() {
-        return playType;
-    }
+    public String getPlayType() { return playType; }
+    public String getSpecialType() { return specialType; }
+
 
 
     /// ////////////////////////////////////////////////////////////////////////////////////////
@@ -199,13 +202,14 @@ public class BookToAdd extends LoggerHelper {
     @Override
     public String toString() {
         return "uri=" + uri +
-                "\ntype='" + type + '\'' +
+                "\npickedType='" + pickedType + '\'' +
+                "\noriginalType='" + originalType + '\'' +
+                "\nspecialType='" + specialType + '\'' +
                 "\nisBroken=" + isBroken +
                 "\nsourceLocation='" + sourceLocation + '\'' +
                 "\naudioBookName='" + audioBookName + '\'' +
                 "\ndf=" + df +
                 "\noriginalFile='" + originalFile + '\'' +
-                "\noriginalType='" + originalType + '\'' +
                 "\nfileExtension='" + fileExtension + '\'' +
                 "\nmimeType='" + mimeType + '\'' +
                 "\ninfoMimeExtension='" + infoMimeExtension + '\'' +

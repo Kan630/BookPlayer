@@ -53,7 +53,7 @@
         <activity android:name=".activities.GetPodcastActivity" />
         <activity android:name=".activities.GetRadioActivity" />
         <activity android:name=".activities.GetRadioCardListActivity" />
-        <activity android:name=".activities.LoadBookActivity" />
+        <activity android:name=".imports.LoadBookActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
         <activity android:name=".activities.ModifyZikFileActivity" />

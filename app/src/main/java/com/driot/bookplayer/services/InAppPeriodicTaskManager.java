@@ -1,6 +1,6 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
+import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 
 import android.content.Context;
 
@@ -33,7 +33,7 @@ public class InAppPeriodicTaskManager {
 
 ///  Pocasts
                 if (Pref.shouldCheckApiForAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
-                    PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCASTINDEXORG_SINCE);
+                    PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCAST_INDEX_ORG_SINCE);
                     PodcastHelper.checkForEpisodesToAutoDelete(context);
                 }
 /// Images

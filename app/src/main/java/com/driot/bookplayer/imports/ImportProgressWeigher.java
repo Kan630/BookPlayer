@@ -6,8 +6,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
-
 public final class ImportProgressWeigher {
 
     static class StepInfo {
@@ -20,7 +18,7 @@ public final class ImportProgressWeigher {
         steps.put(Var.WORKER_MASS_IMPORT,           new StepInfo(0, 2));
         steps.put(Var.WORKER_TASK_LABEL_DOWNLOAD,   new StepInfo(1, 20));
         steps.put(Var.WORKER_TASK_LABEL_COPY,       new StepInfo(2, 3));
-        steps.put(Var.WORKER_TASK_LABEL_UNZIP,      new StepInfo(3, 7));
+        steps.put(Var.WORKER_TASK_LABEL_DECOMPRESS,      new StepInfo(3, 7));
         steps.put(Var.WORKER_TASK_LABEL_SPLIT_M4B,  new StepInfo(4, 12));
         steps.put(Var.WORKER_TASK_LABEL_SPLIT_EBOOK,new StepInfo(4, 7));
         steps.put(Var.WORKER_TASK_LABEL_SCAN,       new StepInfo(5, 2));
@@ -57,7 +55,7 @@ public final class ImportProgressWeigher {
         switch (key) {
             case Var.WORKER_TASK_LABEL_DOWNLOAD:   return j.doDownload;
             case Var.WORKER_TASK_LABEL_COPY:       return j.doCopy;
-            case Var.WORKER_TASK_LABEL_UNZIP:      return j.doUnzip;
+            case Var.WORKER_TASK_LABEL_DECOMPRESS:      return j.doUnzip;
             case Var.WORKER_TASK_LABEL_SPLIT_M4B:  return j.doSplitM4b;
             case Var.WORKER_TASK_LABEL_SPLIT_EBOOK:return j.doSplitEbook;
             case Var.WORKER_MASS_IMPORT:
@@ -75,7 +73,7 @@ public final class ImportProgressWeigher {
 
         if (j.doDownload)  t += steps.get(Var.WORKER_TASK_LABEL_DOWNLOAD).weight;
         if (j.doCopy)      t += steps.get(Var.WORKER_TASK_LABEL_COPY).weight;
-        if (j.doUnzip)     t += steps.get(Var.WORKER_TASK_LABEL_UNZIP).weight;
+        if (j.doUnzip)     t += steps.get(Var.WORKER_TASK_LABEL_DECOMPRESS).weight;
         if (j.doSplitM4b)  t += steps.get(Var.WORKER_TASK_LABEL_SPLIT_M4B).weight;
         if (j.doSplitEbook)t += steps.get(Var.WORKER_TASK_LABEL_SPLIT_EBOOK).weight;
 

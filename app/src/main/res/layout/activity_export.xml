@@ -55,26 +55,41 @@
         android:layout_marginTop="20dp"
         />
 
-    <LinearLayout
+    <View style="@style/GetResourceHorizontalBar"/>
+    <TextView
+        style="@style/simpleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="destination folder :"
+        android:textSize="20sp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="10dp"
+        />
+    <Button
+        android:id="@+id/b_destinationFolder"
+        style="@style/GetResourceButton"
+        android:text="Download folder"
+        android:layout_marginBottom="5dp"
+        />
+    <TextView
+        style="@style/simpleText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="destination file name :"
+        android:textSize="20sp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginTop="10dp"
+        />
+    <EditText
+        android:id="@+id/etDestinationFileName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
-
-        <TextView
-            style="@style/simpleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="in"
-            android:textSize="20sp"
-            />
-        <Button
-            android:id="@+id/b_destinationFolder"
-            style="@style/GetResourceButton"
-            android:text="Download folder"/>
+        style="@style/EditText"
+        />
 
 
+    <View style="@style/GetResourceHorizontalBar"/>
 
-    </LinearLayout>
 
 
     <TextView

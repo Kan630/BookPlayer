@@ -11,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.utils.log.KanLogger;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
 import java.net.URLConnection;
@@ -24,13 +24,16 @@ public class SupportedFilesHelper {
     public static final String FILE_TYPE_VIDEO = "video";
     public static final String FILE_TYPE_IMAGE = "image";
     public static final String FILE_TYPE_EBOOK = "ebook";
+    public static final String FILE_TYPE_BUNDLE = "bundle";
 
     // --- Special type constants ---
     public static final String SPECIAL_TYPE_EPUB = "EPUB";
     public static final String SPECIAL_TYPE_FB2  = "FB2";
     public static final String SPECIAL_TYPE_ODT  = "ODT";
     public static final String SPECIAL_TYPE_M4B  = "M4B";
-    public static final String SPECIAL_TYPE_ZIP  = "ZIP";
+    public static final String SPECIAL_TYPE_ZIP = "ZIP";
+    public static final String SPECIAL_TYPE_7Z = "7Z";
+    public static final String SPECIAL_TYPE_TAR = "TAR";
     public static final String SPECIAL_TYPE_TXT  = "TXT";
 
     public static boolean isAudio(DocumentFile docFile) {
@@ -249,6 +252,7 @@ public class SupportedFilesHelper {
         if (Var.SUPPORTED_VIDEO_EXTENSIONS.contains(extLower)) return FILE_TYPE_VIDEO;
         if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(extLower)) return FILE_TYPE_IMAGE;
         if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(extLower)) return FILE_TYPE_EBOOK;
+        if (Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(extLower)) return FILE_TYPE_BUNDLE;
         return null;
     }
 
@@ -304,10 +308,18 @@ public class SupportedFilesHelper {
         String mime = getMimeType(docFile);
 
         // TXT (by mime or ext)
-        if ((!mime.isEmpty() && mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)) return SPECIAL_TYPE_TXT;
+        if ((mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)) return SPECIAL_TYPE_TXT;
 
         switch (ext) {
             case "zip": return SPECIAL_TYPE_ZIP;
+            case "7z": return SPECIAL_TYPE_7Z;
+            case "tar":
+            case "tgz":
+            case "tbz2":
+            case "txz":
+            case "tar.bz2":
+            case "tar.xz":
+                return SPECIAL_TYPE_TAR;
             case "m4b": return SPECIAL_TYPE_M4B;
             case "odt": return SPECIAL_TYPE_ODT;
             case "fb2": return SPECIAL_TYPE_FB2;
@@ -322,10 +334,18 @@ public class SupportedFilesHelper {
         String ext  = extractExtension(name);
         String mime = getMimeType(ctx, uri);
 
-        if ((!mime.isEmpty() && mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)) return SPECIAL_TYPE_TXT;
+        if ((mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext)) return SPECIAL_TYPE_TXT;
 
         switch (ext) {
             case "zip": return SPECIAL_TYPE_ZIP;
+            case "7z": return SPECIAL_TYPE_7Z;
+            case "tar":
+            case "tgz":
+            case "tbz2":
+            case "txz":
+            case "tar.bz2":
+            case "tar.xz":
+                return SPECIAL_TYPE_TAR;
             case "m4b": return SPECIAL_TYPE_M4B;
             case "odt": return SPECIAL_TYPE_ODT;
             case "fb2": return SPECIAL_TYPE_FB2;
@@ -337,10 +357,17 @@ public class SupportedFilesHelper {
 
     public static String getSpecialType(String fileName) {
         if (fileName == null) return null;
-        String ext = extractExtension(fileName);
-        if ("txt".equalsIgnoreCase(ext)) return SPECIAL_TYPE_TXT;
+        String ext = extractExtension(fileName).toLowerCase(Locale.ROOT);
         switch (ext) {
             case "zip": return SPECIAL_TYPE_ZIP;
+            case "7z": return SPECIAL_TYPE_7Z;
+            case "tar":
+            case "tgz":
+            case "tbz2":
+            case "txz":
+            case "tar.bz2":
+            case "tar.xz":
+                return SPECIAL_TYPE_TAR;
             case "m4b": return SPECIAL_TYPE_M4B;
             case "odt": return SPECIAL_TYPE_ODT;
             case "fb2": return SPECIAL_TYPE_FB2;
@@ -366,7 +393,9 @@ public class SupportedFilesHelper {
         String type = getType(fileName);
         return FILE_TYPE_AUDIO.equals(type)
                 || FILE_TYPE_VIDEO.equals(type)
-                || FILE_TYPE_EBOOK.equals(type);
+                || FILE_TYPE_EBOOK.equals(type)
+                || FILE_TYPE_BUNDLE.equals(type)
+                ;
     }
 
     // ----------------------- PLAY TYPE -----------------------
@@ -398,7 +427,8 @@ public class SupportedFilesHelper {
         switch (type) {
             case FILE_TYPE_EBOOK: return Var.PLAY_TYPE_TEXT;
             case FILE_TYPE_AUDIO:
-            case FILE_TYPE_VIDEO: return Var.PLAY_TYPE_AUDIO;
+            case FILE_TYPE_VIDEO:
+            case FILE_TYPE_BUNDLE: return Var.PLAY_TYPE_AUDIO;
             default:              return null;
         }
     }
@@ -522,13 +552,17 @@ public class SupportedFilesHelper {
         return "*/*";
     }
 
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "SupportedFilesHelper";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+    // Group helpers for special types
+    public static boolean isBundleSpecial(String specialType) {
+        return SPECIAL_TYPE_ZIP.equals(specialType)
+                || SPECIAL_TYPE_7Z.equals(specialType)
+                || SPECIAL_TYPE_TAR.equals(specialType);
+    }
+
+    public static boolean isEbookSpecial(String specialType) {
+        return SPECIAL_TYPE_EPUB.equals(specialType)
+                || SPECIAL_TYPE_FB2.equals(specialType)
+                || SPECIAL_TYPE_ODT.equals(specialType)
+                || SPECIAL_TYPE_TXT.equals(specialType);
+    }
 }

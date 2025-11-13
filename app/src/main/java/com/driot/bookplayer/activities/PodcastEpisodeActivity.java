@@ -1,6 +1,6 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
+import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 
 import android.animation.Animator;
@@ -280,7 +280,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             if (podcast.autoDownload) {
                 myLog("---> On");
                 myToast(getString(R.string.podcast_autodownload_add));
-                downloadAllEpisodesToFolder(podcast, PODCASTINDEXORG_SINCE);
+                downloadAllEpisodesToFolder(podcast, PODCAST_INDEX_ORG_SINCE);
                 FirebaseAnalyticsHelper.tellAnalyticsPodcastAutoDownload(podcast.title, podcast.language);
             }
             runOnUiThread(() -> {
@@ -342,7 +342,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
                 updateAdapter(initial);
             });
         });
-        if (!isRefresh && podcast.lastCheck > System.currentTimeMillis() - 1000 * 60 * Var.PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
+        if (!isRefresh && podcast.lastCheck > System.currentTimeMillis() - 1000 * 60 * Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
             return;
         }
 
@@ -352,9 +352,9 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
             int maxEpisode;
             if (isRefresh) {
                 since = 0;
-                maxEpisode = Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE;
+                maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE;
             } else {
-                maxEpisode = Var.PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE;
+                maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE;
                 Long lastPublished = podcastEpisodeViewModel.getLastPublishedForPodcastSync(podcast.getId()); // epoch seconds
                 since = (lastPublished == null) ? 0L : Math.max(0L, lastPublished - 60);  //30j :  -(60*60*24*30)
             }

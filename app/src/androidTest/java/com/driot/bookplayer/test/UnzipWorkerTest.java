@@ -23,7 +23,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportJobRepository;
 import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.services.UnzipWorker;
+import com.driot.bookplayer.services.UncompressWorker;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.utils.log.KanLogger;
@@ -153,7 +153,7 @@ public class UnzipWorkerTest implements LogSupport {
 
         // 3) Run Worker
         OneTimeWorkRequest req = new OneTimeWorkRequest
-                .Builder(UnzipWorker.class)
+                .Builder(UncompressWorker.class)
                 .setInputData(new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build())
                 .addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId)
                 .build();

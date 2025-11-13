@@ -267,7 +267,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     private void bExportClick() {
         myLogI("user clicks - export");
         Intent intent = new Intent(this, ExportActivity.class);
-        intent.putExtra(ExportActivity.EXTRA_FOLDER_ID, folder.getId());
+        intent.putExtra(Intents.EXTRA_FOLDER, folder);
         this.startActivity(intent);
     }
 

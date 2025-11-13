@@ -34,8 +34,8 @@ public class EditText1lineWithPasteDelete extends LinearLayout {
     private String historyKey = "default_search_history";
     private int maxHistory = 20;
     private int completionThreshold = 1;
+    private boolean suggestOnFocus = false;
 
-    private boolean suggestOnFocus = true;
     private boolean scrollOnFocus = false; // custom to set in the layout
 
     private ArrayAdapter<String> adapter;

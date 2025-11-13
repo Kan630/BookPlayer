@@ -28,7 +28,7 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
-import com.driot.bookplayer.activities.LoadBookActivity;
+import com.driot.bookplayer.imports.LoadBookActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;

@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.imports;
 
 import static com.driot.bookplayer.utils.HashWorker.HASH_NOT_COMPUTED;
 import static com.driot.bookplayer.utils.HashWorker.WORKER_TAG_COMPUTE_HASH;
@@ -29,15 +29,14 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.objects.BookToAdd;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -364,14 +363,14 @@ public class LoadBookActivity extends LoggingActivity {
             llSplit.setVisibility(View.GONE);
         }
 
-        if ("ZIP".equals(bookToAdd.getType())) {
+        if (SupportedFilesHelper.isBundleSpecial(bookToAdd.getSpecialType())) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
             llCopy.setAlpha(0.4f);
         }
 
-        if ("EPUB, FB2, ODT".contains(bookToAdd.getType())) {
+        if (SupportedFilesHelper.isEbookSpecial(bookToAdd.getSpecialType())) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);

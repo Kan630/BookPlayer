@@ -12,7 +12,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 public class Var {
 
     public static final String WORKER_TASK_LABEL_DOWNLOAD = "Download";
-    public static final String WORKER_TASK_LABEL_UNZIP = "Unzip";
+    public static final String WORKER_TASK_LABEL_DECOMPRESS = "Decompress";
     public static final String WORKER_TASK_LABEL_SPLIT_M4B = "SplitM4b";
     public static final String WORKER_TASK_LABEL_SPLIT_EBOOK = "SplitEbook";
     public static final String WORKER_TASK_LABEL_COPY = "Copy";
@@ -32,8 +32,6 @@ public class Var {
             {60 * 24 * 3, 20000},
             {60 * 24 * 30, 30000},
     };
-
-    public static final String FOREGROUND_DOWNLOAD_SERVICE_TAG = "download_retry";
 
     public static final String USER_AGENT_BOOKPLAYER = "BookPlayer/1.0 (Android)";
 
@@ -63,14 +61,14 @@ public class Var {
     public static final int LIBRIVOX_API_MIN_RESULTS = 20;
     public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_PODCASTS = 1000;
     public static final int PODCAST_INDEX_ORG_API_MIN_RESULTS_FOR_PODCASTS = 20;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;
-    public static final int PODCASTINDEXORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;
-    public static final int PODCASTINDEXORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
+    public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;
+    public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;
+    public static final int PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
 
     public static final String PODCAST_SOURCE = "podcastindex.org";
 
-    //public static final int PODCASTINDEXORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
-    public static final int PODCASTINDEXORG_SINCE = 0 ; //5 juillet, 2025
+    //public static final int PODCAST_INDEX_ORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
+    public static final int PODCAST_INDEX_ORG_SINCE = 0 ; //5 juillet, 2025
     public static final int PODCAST_DETAIL_ANIMATION_COUNT = 5 ;
 
 
@@ -98,7 +96,13 @@ public class Var {
     public static final Set<String> SUPPORTED_COMPRESSED_FILE_EXTENSIONS = new HashSet<>(
             Arrays.asList(
                     "zip"
-                    //,"7z"
+                    ,"7z"
+                    ,"tar"
+                    ,"tgz"
+                    ,"tbz2"
+                    ,"txz"
+                    //,"tar.bz2"
+                    //,"tar.xz"
             )
     );
 

@@ -1,6 +1,6 @@
 package com.driot.bookplayer.adapter;
 
-import static com.driot.bookplayer.global.Var.PODCASTINDEXORG_SINCE;
+import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 
 import android.os.Handler;
 import android.os.Looper;
@@ -169,7 +169,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
 
                 // ⬇ Trigger download if enabled
                 if (newState) {
-                    PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(itemView.getContext(), podcast, PODCASTINDEXORG_SINCE);
+                    PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(itemView.getContext(), podcast, PODCAST_INDEX_ORG_SINCE);
                 }
             });
 

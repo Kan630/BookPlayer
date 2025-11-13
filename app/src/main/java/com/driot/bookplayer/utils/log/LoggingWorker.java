@@ -52,6 +52,11 @@ public abstract class LoggingWorker extends Worker {
     public final Result doWork() {
         long t0 = android.os.SystemClock.elapsedRealtime();
         myInsideLogI("doWork() start");
+        Result result = doWorkBody();
+        myInsideLogD("doWork() end -> " + result);
+        return result;
+    }
+        /*
         try {
             // If you need foreground, subclasses can call setForegroundEarly() inside doWorkBody()
             Result result = doWorkBody();
@@ -68,7 +73,7 @@ public abstract class LoggingWorker extends Worker {
             long dt = android.os.SystemClock.elapsedRealtime() - t0;
             myInsideLogI("doWork() duration = " + Tonio.formatMmSsMs(dt));
         }
-    }
+         */
 
     /** Subclasses implement their actual work here */
     @NonNull

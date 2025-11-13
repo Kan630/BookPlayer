@@ -34,8 +34,8 @@ public class EditText2linesWithPaste extends LinearLayout {
     private String historyKey = "default_search_history";
     private int maxHistory = 20;
     private int completionThreshold = 1;
+    private boolean suggestOnFocus = false; //true = show suggestion as soon as user enter, even with nothing typed
 
-    private boolean suggestOnFocus = true;
     private boolean scrollOnFocus = false; // custom to set in the layout
 
     private ArrayAdapter<String> adapter;
