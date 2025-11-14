@@ -89,7 +89,7 @@ public final class PlayList {
         instance = pl;
         pl.saveToStorage();     // persist folderId + index -//TODO remove
         pl.loadMetaAsync();     // async podcast fetch
-        myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
+        myLogD("Playlist [" + playMode + "] created with " + items.size() + " items, index=" + pl.index);
     }
 
     public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url) {
@@ -98,20 +98,19 @@ public final class PlayList {
         if (url==null || url.isEmpty()) throw new IllegalStateException("PlayList.createFromRadio(): no url");
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
+
         pl.replaceItems(playMode, null, null, -1, url);
         instance = pl;
-        myLogD("Playlist created for STREAM with url = " + url);
+        pl.saveToStorage();     // persist folderId + index -//TODO remove
+        pl.loadMetaAsync();     // async podcast fetch
+        myLogD("Playlist [" + playMode + "] created with url = [" + url + "]");
     }
 
-    /*
-    public static void createFromScratch(@NonNull Context ctx) {
+    public static void createFromStorage(@NonNull Context ctx) {
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
-        pl.createItems();
-        instance = pl;
+        pl.getFromStorage();
     }
-
- */
 
 
     public void clear() {
@@ -268,7 +267,9 @@ public final class PlayList {
 
     // ==== Persistence (SharedPreferences) ====
     private static final String PREFS = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
+    private static final String KEY_PLAY_MODE = "KEY_PLAY_MODE";
     private static final String KEY_FOLDER_ID = "KEY_FOLDER_ID";
+    private static final String KEY_URL = "KEY_URL";
     private static final String KEY_INDEX = "KEY_INDEX";
 
     private void saveToStorage() {
@@ -279,10 +280,30 @@ public final class PlayList {
             if (!zikFilesList.isEmpty()) folderId = zikFilesList.get(0).getIdFolder();
             e.putInt(KEY_FOLDER_ID, folderId);
             e.putInt(KEY_INDEX, index);
+            e.putString(KEY_PLAY_MODE, playMode);
+            e.putString(KEY_URL, url);
         }
         e.apply();
         myLogD("saveToStorage(): folderId=" + folderId + " index=" + index);
     }
+
+    private void getFromStorage() {
+        SharedPreferences prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        //TODO, not finished, load async fucking folder, or delete all this shit and play with "playFromTrackId"...  the cover and other shit got covered by UiState updates
+
+        synchronized (lock) {
+            this.playMode = prefs.getString(KEY_PLAY_MODE, null);
+            this.url      = prefs.getString(KEY_URL, null);
+
+            this.index    = prefs.getInt(KEY_INDEX, -1);
+            int folderId  = prefs.getInt(KEY_FOLDER_ID, -1);
+
+            myLogD("getFromStorage(): folderId=" + folderId + " index=" + index + " playMode=" + playMode + " url=" + url);
+        }
+
+    }
+
+
 
     private void clearStorage() {
         SharedPreferences prefs = app.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
