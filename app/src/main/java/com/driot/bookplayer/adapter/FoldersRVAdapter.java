@@ -12,7 +12,6 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
@@ -22,26 +21,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyFolderActivity;
-import com.driot.bookplayer.player.PlayActivity;
-import com.driot.bookplayer.activities.PodcastEpisodeActivity;
-import com.driot.bookplayer.activities.ZikFileActivity;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.player.MediaService;
-import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.IconHelper;
-import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.List;
-import java.util.Objects;
 
 import static com.driot.bookplayer.utils.Tonio.*;
 
@@ -229,73 +218,8 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         if (clickedFolder == null) return;
         myLogI("--- USER CLICKS on FOLDER/BOOK ---    position=" + pos + " - " + clickedFolder.getName());
 
-        // DB work off main; UI nav back on main
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            try {
-                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(clickedFolder.getId());
-                if (zikFilesList.isEmpty()) {
-                    if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())) {
-                        if (!Option.getPodcastOpenSpecificView()) {
-                            postToast(context.getString(R.string.no_episode_all_deleted));
-                            //lets open the podcast specific view anyway
-                        }
-                    } else {
-                        postToast(context.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
-                        return;
-                    }
-                }
-
-                if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())
-                        && (Option.getPodcastOpenSpecificView() || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))
-                ) {
-                    Podcast p = AppDatabase.getDatabase(context).podcastDao().getPodcastByFolderId(clickedFolder.getId());
-                    runOnUi(() -> context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p)));
-                } else {
-                    if (zikFilesList.size() > 1) {
-                        runOnUi(() -> context.startActivity(new Intent(context, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, clickedFolder)));
-                    } else {
-                        myLogD("Single file");
-                        // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
-                        PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
-                        PlayList pl = PlayList.getInstance();
-                        boolean sameTrack = (pl != null && pl.getFolder() != null && pl.getFolder().getId() == clickedFolder.getId());  //keep getId() => needed !
-                        boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
-                        myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
-
-                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                            // open play screen ?
-                            if (Option.getOpenPlayActivity()
-                                    || isTTS
-                                    || sameTrack
-                            ) {
-                                context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-                            }
-
-                            // start foreground audio service ?
-                            if (lastUiState==null
-                                    || !lastUiState.playing
-                                    || !sameTrack
-                                //|| isTTS //TODO remove : TTS not perfect yet, so we force reload...
-                            ) {
-                                ContextCompat.startForegroundService(
-                                        context.getApplicationContext(),
-                                        new Intent(context.getApplicationContext(), MediaService.class)
-                                                .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
-                                                .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
-                                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]")
-                                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                );
-                            }
-                        });
-
-                    }
-                }
-            } catch (Exception e) {
-                myLogEE(e, "error getting nb of ZikFiles");
-                postToast(context.getString(R.string.ErrorCouldNotLoadAudios));
-            }
-        });
-    }
+        StartPlayHelper.onFolderClick(context, clickedFolder, this.getClass().getSimpleName() + ".onClick() [FoldersRVAdapter]");
+  }
 
     @Override
     public boolean onLongClick(View v) {
@@ -308,10 +232,6 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         if (folder == null) return false;
         runOnUi(() -> context.startActivity(new Intent(context, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder)));
         return true;
-    }
-
-    private void postToast(String msg) {
-        runOnUi(() -> myToastE(msg));
     }
 
     private void runOnUi(Runnable r) {

@@ -49,6 +49,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -488,8 +489,6 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
         if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
             // Same episode toggled
         } else {
-            // Different episode → fresh play, show spinner
-            FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title);
             playEpisode(ep);
         }
         currentEpisode = ep;
@@ -497,20 +496,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
-
-        //stopAudioServiceIfRunning(); => will be done in startCommand
-
-        androidx.core.content.ContextCompat.startForegroundService(
-                getApplicationContext(),
-                new Intent(getApplicationContext(), MediaService.class)
-                        .setAction(Intents.ACTION_PLAY_PODCAST)
-                        .putExtra(Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
-                        .putExtra(Intents.EXTRA_PODCAST_FEED_ID, podcast.feedId)
-                        .putExtra(Intents.EXTRA_TITLE, ep.title)
-                        .putExtra(Intents.EXTRA_IMAGE_URL, (ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image))
-                        .putExtra(Intents.EXTRA_CALLER, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()")
-                        .putExtra(Intents.EXTRA_FOREGROUND, true)
-        );
+        StartPlayHelper.onPodcastClick(getApplicationContext(), ep, podcast.feedId, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
 
         isPlaying = true;
         adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);

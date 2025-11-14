@@ -67,6 +67,7 @@ public final class PlayList {
 
     private Folder folder;
     private Podcast podcast;
+    private String url;
     private boolean isPodcast;
     private boolean metaLoaded = false;
 
@@ -81,13 +82,23 @@ public final class PlayList {
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
 
-        pl.replaceItems(folder, items, startIndex);
+        pl.replaceItems(folder, items, startIndex, null);
         instance = pl;
         pl.saveToStorage();     // persist folderId + index -//TODO remove
         pl.loadMetaAsync();     // async podcast fetch
         myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
     }
-/*
+
+    public static void createFromStream(@NonNull Context ctx, String url) {
+        if (url==null || url.isEmpty()) throw new IllegalStateException("PlayList.createFromRadio(): no url");
+        Context app = ctx.getApplicationContext();
+        PlayList pl = new PlayList(app);
+        pl.replaceItems(null, null, -1, url);
+        instance = pl;
+        myLogD("Playlist created for STREAM with url = " + url);
+    }
+
+    /*
     public static void createFromScratch(@NonNull Context ctx) {
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
@@ -104,6 +115,7 @@ public final class PlayList {
             index = -1;
             folder = null;
             podcast = null;
+            url = null;
             isPodcast = false;
             metaLoaded = false;
             version++;
@@ -184,12 +196,13 @@ public final class PlayList {
         }
     }
 
-    private void replaceItems(@NonNull Folder folder, @NonNull List<ZikFile> list, int startIndex) {
+    private void replaceItems(Folder folder, List<ZikFile> list, int startIndex, String url) {
         synchronized (lock) {
             //direct args
             this.folder = folder;
             this.zikFilesList = Collections.unmodifiableList(list);
             this.index = clamp(startIndex, 0, list.size() - 1);
+            this.url = url;
             // async data
             this.podcast = null;
             this.isPodcast = false;
@@ -198,15 +211,6 @@ public final class PlayList {
         }
         postMetaDistinct(new MetaState(false, null, false));
     }
-/*
-    private void createItems() {
-        synchronized (lock) {
-/// from lastUpdated ZikFile... like in onPlay from Automotive FROM_TRACK
-        }
-        postMetaDistinct(new MetaState(false, null, false));
-    }
-
- */
 
     private void loadMetaAsync() {
         final long v;

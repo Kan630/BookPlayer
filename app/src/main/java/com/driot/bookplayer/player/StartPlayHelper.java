@@ -15,13 +15,20 @@ import androidx.core.content.ContextCompat;
 import androidx.media.MediaBrowserServiceCompat;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.PodcastEpisodeActivity;
+import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.objects.DisplayableEpisode;
+import com.driot.bookplayer.radio.RadioFavoriteItem;
+import com.driot.bookplayer.radio.Station;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -29,15 +36,172 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 
 public class StartPlayHelper {
 
     private static final String ROOT_ID = "root";
     private static final String PREFIX_FOLDER = "folder:";
-    private static final String PREFIX_TRACK  = "track:";
+    private static final String PREFIX_TRACK = "track:";
 
-    private static final int ART_MAX_PX  = 512;  // big artwork
+    private static final int ART_MAX_PX = 512;  // big artwork
     private static final int ICON_MAX_PX = 158; //was 128 158=hints fron AndroidAuto // list thumbnails
+
+    public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
+        PlayList.createFromStream(context, ep.enclosureUrl);
+        FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title, ep.enclosureUrl, "podcast");
+
+        androidx.core.content.ContextCompat.startForegroundService(
+                context,
+                new Intent(context, MediaService.class)
+                        .setAction(Intents.ACTION_PLAY_PODCAST)
+                        .putExtra(Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
+                        .putExtra(Intents.EXTRA_PODCAST_FEED_ID, podcast.feedId)
+                        .putExtra(Intents.EXTRA_TITLE, ep.title)
+                        .putExtra(Intents.EXTRA_IMAGE_URL, (ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image))
+                        .putExtra(Intents.EXTRA_CALLER, caller)
+                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+        );
+    }
+
+    public static void onRadioClick(Context context, Station f, String streamUrl, String caller) {
+        playRadio(context, f.name, f.favicon, streamUrl, caller);
+    }
+
+    public static void  onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
+        playRadio(context, f.name, f.favicon, streamUrl, caller);
+    }
+
+    private static void playRadio(Context context, String name, String cover, String streamUrl, String caller) {
+        PlayList.createFromStream(context, streamUrl);
+        FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(name, streamUrl, "radio");
+        androidx.core.content.ContextCompat.startForegroundService(
+                context,
+                new Intent(context, MediaService.class)
+                        .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, streamUrl)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, name)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, cover)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, caller)
+                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true));
+    }
+
+    public static void onFolderClick(Context context,Folder clickedFolder, String caller) {
+        // DB work off main; UI nav back on main
+        AppDatabase.databaseReadExecutor.execute(()->
+
+        {
+            try {
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(clickedFolder.getId());
+                if (zikFilesList.isEmpty()) {
+                    if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())) {
+                        if (!Option.getPodcastOpenSpecificView()) {
+                            myToast(context.getString(R.string.no_episode_all_deleted));
+                            //lets open the podcast specific view anyway
+                        }
+                    } else {
+                        myToastE(context.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
+                        return;
+                    }
+                }
+
+                if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())
+                        && (Option.getPodcastOpenSpecificView() || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))
+                ) {
+                    Podcast p = AppDatabase.getDatabase(context).podcastDao().getPodcastByFolderId(clickedFolder.getId());
+                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                        context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p));
+                    });
+                } else {
+                    if (zikFilesList.size() > 1) {
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                                    context.startActivity(new Intent(context, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, clickedFolder));
+                                });
+                    } else {
+                        myLogD("Single file");
+                        // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
+                        PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
+                        PlayList pl = PlayList.getInstance();
+                        boolean sameTrack = (pl != null && pl.getFolder() != null && pl.getFolder().getId() == clickedFolder.getId());  //keep getId() => needed !
+                        boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
+                        myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
+
+                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                            // open play screen ?
+                            if (Option.getOpenPlayActivity()
+                                    || isTTS
+                                    || sameTrack
+                            ) {
+                                context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                            }
+
+                            // start foreground audio service ?
+                            if (lastUiState == null
+                                    || !lastUiState.playing
+                                    || !sameTrack
+                                //|| isTTS //TODO remove : TTS not perfect yet, so we force reload...
+                            ) {
+                                ContextCompat.startForegroundService(
+                                        context.getApplicationContext(),
+                                        new Intent(context.getApplicationContext(), MediaService.class)
+                                                .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
+                                                .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
+                                                .putExtra(Intents.EXTRA_CALLER, caller)
+                                                .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                );
+                            }
+                        });
+
+                    }
+                }
+            } catch (Exception e) {
+                myToastEE(e, "error getting nb of ZikFiles");
+            }
+        });
+    }
+
+    public static void onZikFileClick(Context ctx, ZikFile clickedZikFile, String caller) {
+        AppDatabase.databaseReadExecutor.execute(()-> {
+            //TTS ?
+            final boolean isTTS;
+            Folder folder = AppDatabase.getDatabase(ctx).folderDao().getById(clickedZikFile.getIdFolder());
+            isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
+
+            // was something playing ?
+            PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
+
+            //is same track clicked ?
+            PlayList pl = PlayList.getInstance();
+            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
+
+            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS=" + isTTS + " - lastUiState = " + lastUiState);
+
+            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+
+                // open PlayActivity
+                if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
+                    ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                }
+
+                // start audio service
+                if (lastUiState==null
+                        || !lastUiState.playing
+                        || !sameTrack
+                ) {
+                    ContextCompat.startForegroundService(
+                            ctx.getApplicationContext(),
+                            new Intent(ctx.getApplicationContext(), MediaService.class)
+                                    .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                                    .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
+                                    .putExtra(Intents.EXTRA_CALLER, caller)
+                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
+                    );
+                }
+
+            });
+        });
+    }
+
 
     public static void carOnPlay(Context context) {
         if (!Option.getAutomotiveLetCarAutoplay()) {

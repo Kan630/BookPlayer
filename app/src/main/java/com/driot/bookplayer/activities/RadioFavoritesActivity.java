@@ -19,7 +19,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.OngoingTaskHost;
-import com.driot.bookplayer.player.MediaService;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
@@ -89,17 +89,7 @@ public class RadioFavoritesActivity extends LoggingActivity {
                         }
 
                         if (stream != null) {
-                            // Stream with ExoPlayer via RadioMiniPlayer (no PlayActivity)
-                            androidx.core.content.ContextCompat.startForegroundService(
-                                    getApplicationContext(),
-                                    new Intent(getApplicationContext(), MediaService.class)
-                                            .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, stream)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, f.name)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, f.favicon)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "RadioFavoritesActivity - adapter callback: .onPlay()")
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
-                            );
+                            StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, stream, "RadioFavoritesActivity - adapter callback: .onPlay()");
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
                         }

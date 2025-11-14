@@ -18,6 +18,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.MediaService;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.Station;
@@ -92,17 +93,7 @@ public class RadioResultsActivity extends LoggingActivity {
                         }
 
                         if (stream != null) {
-                            // Let AudioService + RadioMiniNowPlayingFragment handle playback & UI
-                            androidx.core.content.ContextCompat.startForegroundService(
-                                    getApplicationContext(),
-                                    new Intent(getApplicationContext(), MediaService.class)
-                                            .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, stream)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, s.name)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, s.favicon)
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "RadioResultsActivity - adapter callback: .onPlay()")
-                                            .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
-                            );
+                            StartPlayHelper.onRadioClick(getApplicationContext(), s, stream, "RadioResultsActivity - adapter callback: .onPlay()");
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
                         }

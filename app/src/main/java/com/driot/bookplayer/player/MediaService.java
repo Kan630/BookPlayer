@@ -631,7 +631,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @NonNull @Override public PendingIntent fastForward() { return null; } // no-op
                         @NonNull @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
                         @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                        @NonNull @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
+                        @NonNull @Override public PendingIntent content() { return NavHelper.navigateToRadioActivity(MediaService.this); }
                     }
             );
             startForegroundWithBuildCheck(n);
@@ -655,7 +655,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                             @NonNull @Override public PendingIntent fastForward() { return null; }
                                             @NonNull @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
                                             @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                                            @NonNull @Override public PendingIntent content() { return UiHelper.navigateToRadioActivity(MediaService.this); }
+                                            @NonNull @Override public PendingIntent content() { return NavHelper.navigateToRadioActivity(MediaService.this); }
                                         }
                                 );
                                 startForegroundWithBuildCheck(updated);
@@ -680,7 +680,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     @NonNull @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
                     @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
                     @NonNull @Override public PendingIntent fastForward() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_FAST_FORWARD); }
-                    @NonNull @Override public PendingIntent content() { return UiHelper.navigateToActivity(MediaService.this); }
+                    @NonNull @Override public PendingIntent content() { return NavHelper.navigateToActivity(MediaService.this); }
                 });
         startForegroundWithBuildCheck(n);
     }
@@ -1097,7 +1097,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @Override public PendingIntent play() { return null; }
                         @Override public PendingIntent pause() { return null; }
                         @Override public PendingIntent fastForward() { return null; }
-                        @NonNull @Override public PendingIntent content() { return UiHelper.navigateToMain(MediaService.this); }
+                        @NonNull @Override public PendingIntent content() { return NavHelper.navigateToMain(MediaService.this); }
                     };
 
             Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());

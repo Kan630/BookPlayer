@@ -10,7 +10,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.DiffUtil;
@@ -18,21 +17,12 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
-import com.driot.bookplayer.player.PlayActivity;
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.player.MediaService;
-import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
-
-import java.util.Objects;
 
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
@@ -224,47 +214,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
             ZikFile clickedZikFile = getItem(position);
             if (clickedZikFile == null) return;
-            Context ctx = itemView.getContext();
-
-            AppDatabase.databaseReadExecutor.execute(()-> {
-                //TTS ?
-                final boolean isTTS;
-                Folder folder = AppDatabase.getDatabase(ctx).folderDao().getById(clickedZikFile.getIdFolder());
-                isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
-
-                // was something playing ?
-                PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
-
-                //is same track clicked ?
-                PlayList pl = PlayList.getInstance();
-                boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
-
-                myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS=" + isTTS + " - lastUiState = " + lastUiState);
-
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-
-                    // open PlayActivity
-                    if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
-                        ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-                    }
-
-                    // start audio service
-                    if (lastUiState==null
-                            || !lastUiState.playing
-                            || !sameTrack
-                    ) {
-                        ContextCompat.startForegroundService(
-                                ctx.getApplicationContext(),
-                                new Intent(ctx.getApplicationContext(), MediaService.class)
-                                        .setAction(Intents.ACTION_PLAY_FROM_TRACK)
-                                        .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
-                                        .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]")
-                                        .putExtra(Intents.EXTRA_FOREGROUND, true)
-                        );
-                    }
-
-                });
-            });
+            StartPlayHelper.onZikFileClick(itemView.getContext(), clickedZikFile, this.getClass().getSimpleName() + ".onClick() [ZikFilesRVAdapter]");
         }
 
         @Override
