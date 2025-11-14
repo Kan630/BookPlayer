@@ -43,16 +43,24 @@ public class RadioResultsViewModel extends ViewModel {
     // fields:
     private final MutableLiveData<Set<String>> favoriteUuids = new MutableLiveData<>(new HashSet<>());
     private final MutableLiveData<List<RadioFavoriteItem>> favoriteItems = new MutableLiveData<>(Collections.emptyList());
+    private final MutableLiveData<Boolean> hasFavorites = new MutableLiveData<>(false);
 
     // expose:
     public LiveData<Set<String>> getFavoriteUuids() { return favoriteUuids; }
     public LiveData<List<RadioFavoriteItem>> getFavoriteItems() { return favoriteItems; }
+    public LiveData<Boolean> getHasFavorites() { return hasFavorites; }
 
     // init/load favorites:
     public void loadFavorites(Context ctx) {
         RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
         favoriteUuids.postValue(store.getAllUuids());
         favoriteItems.postValue(store.getAll());
+    }
+
+    public void updateFavorite(Context ctx, RadioFavoriteItem item) {
+        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
+        store.update(item);
+        refreshFromStore(ctx);
     }
 
     // toggle favorite from a Station
@@ -84,5 +92,17 @@ public class RadioResultsViewModel extends ViewModel {
         favoriteUuids.postValue(store.getAllUuids());
         favoriteItems.postValue(store.getAll());
     }
+
+    private void refreshFromStore(Context ctx) {
+        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
+        Set<String> uuids = store.getAllUuids();
+        List<RadioFavoriteItem> items = store.getAll();
+
+        favoriteUuids.postValue(uuids);
+        favoriteItems.postValue(items);
+        hasFavorites.postValue(store.anyFavoriteExists());
+        // or: hasFavorites.postValue(!uuids.isEmpty());
+    }
+
 
 }

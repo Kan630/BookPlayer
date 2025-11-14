@@ -15,6 +15,7 @@ public class RadioFavoriteItem implements Serializable {
     @SerializedName("country")     public String country;
     @SerializedName("language")    public String language;
     @SerializedName("tags")        public String tags;
+    @SerializedName("last_url")    public String last_url;
 
     public static RadioFavoriteItem fromStation(@NonNull Station s) {
         RadioFavoriteItem f = new RadioFavoriteItem();
@@ -26,6 +27,7 @@ public class RadioFavoriteItem implements Serializable {
         f.country     = s.country;
         f.language    = s.language;
         f.tags        = s.tags;
+        f.last_url    = (s.url_resolved != null && !s.url_resolved.isEmpty()) ? s.url_resolved : s.url;
         return f;
     }
 }

@@ -110,9 +110,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private static final boolean LOG_TRACE_ALL = false;
 
     // --- RADIO MODE ---
-    @Nullable private String radioTitle = null;
-    @Nullable private String radioImageUrl = null; // you can display it in notif if you already support URL bitmaps
-    @Nullable private Uri    radioUri = null;
+    @Nullable private String streamTitle = null;
+    @Nullable private String streamImageUrl = null; // you can display it in notif if you already support URL bitmaps
+    @Nullable private Uri streamUri = null;
     private int lastCustomSleepMinutes = 0;
     private long podcastFeedId = -2;
 
@@ -212,9 +212,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
 
         if (Objects.equals(playMode, "radio")) {
-            String title = (radioTitle != null) ? radioTitle : getString(R.string.live_radio);
+            String title = (streamTitle != null) ? streamTitle : getString(R.string.live_radio);
             String text = getString(R.string.live_radio);
-            String cover = (radioImageUrl != null) ? radioImageUrl : "";
+            String cover = (streamImageUrl != null) ? streamImageUrl : "";
 
 
             s = new PlaybackUiState(
@@ -227,9 +227,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, null
             );
         } else if (Objects.equals(playMode, "podcast")) {
-            String title = (radioTitle != null) ? radioTitle : getString(R.string.live_podcast);
+            String title = (streamTitle != null) ? streamTitle : getString(R.string.live_podcast);
             String text  = getString(R.string.live_podcast);
-            String cover = (radioImageUrl != null) ? radioImageUrl : "";
+            String cover = (streamImageUrl != null) ? streamImageUrl : "";
             long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
             long   dur   = (engine != null) ? engine.getDuration()        : 0;
 
@@ -618,13 +618,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // 2) (Async) fetch cover, then set metadata & update notif
             //    If you already have a cached Bitmap, set it now and skip Glide.
             Bitmap currentArt = null; // your cache if any
-            media.setMetadataRadio(radioTitle != null ? radioTitle : getString(R.string.live_radio), "", "", currentArt);
+            media.setMetadataRadio(streamTitle != null ? streamTitle : getString(R.string.live_radio), "", "", currentArt);
 
 
             Notification n = notif.build(
                     media.session(),
                     playing,
-                    radioTitle != null ? radioTitle : getString(R.string.live_radio),
+                    streamTitle != null ? streamTitle : getString(R.string.live_radio),
                     getString(R.string.live_radio),
                     new PlaybackNotificationManager.ActionProvider() {
                         @NonNull @Override public PendingIntent rewind()      { return null; } // no-op
@@ -637,18 +637,18 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             startForegroundWithBuildCheck(n);
 
             // 3) If you only have a favicon URL, load it and refresh:
-            if (currentArt == null && radioImageUrl != null && !radioImageUrl.isEmpty()) {
+            if (currentArt == null && streamImageUrl != null && !streamImageUrl.isEmpty()) {
                 com.bumptech.glide.Glide.with(getApplicationContext())
                         .asBitmap()
-                        .load(radioImageUrl)
+                        .load(streamImageUrl)
                         .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
                             @Override public void onResourceReady(@NonNull Bitmap bmp,
                                                                   com.bumptech.glide.request.transition.Transition<? super Bitmap> t) {
-                                media.setMetadataRadio(radioTitle != null ? radioTitle : getString(R.string.live_radio), "", "", bmp);
+                                media.setMetadataRadio(streamTitle != null ? streamTitle : getString(R.string.live_radio), "", "", bmp);
                                 // rebuild/update the notification so largeIcon shows
                                 Notification updated = notif.build(
                                         media.session(), playing,
-                                        radioTitle != null ? radioTitle : getString(R.string.live_radio),
+                                        streamTitle != null ? streamTitle : getString(R.string.live_radio),
                                         getString(R.string.live_radio),
                                         /* same ActionProvider */ new PlaybackNotificationManager.ActionProvider() {
                                             @NonNull @Override public PendingIntent rewind()      { return null; }
@@ -888,7 +888,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                             }
                         }
 
-                        PlayList.create(getApplicationContext(), folder, list, index);
+                        PlayList.create(getApplicationContext(), Var.PLAY_MODE_BOOK, folder, list, index);
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             directPlay = true;
                             loadFile();
@@ -910,7 +910,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
                         List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
                         if (list == null || list.isEmpty()) return;
-                        PlayList.create(getApplicationContext(), folder, list, Math.min(index, list.size() - 1));
+                        PlayList.create(getApplicationContext(), Var.PLAY_MODE_BOOK, folder, list, Math.min(index, list.size() - 1));
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             directPlay = true;
                             loadFile();
@@ -984,49 +984,29 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
             }
 
-            case Intents.ACTION_PLAY_RADIO: {
+            case Intents.ACTION_PLAY_STREAM: {
                 // Enter foreground ASAP (5s rule)
-                goForegroundPreparing(getString(R.string.live_radio), null);
+                goForegroundPreparing(getString(R.string.loading), null);
 
-                PlayList pl = PlayList.getInstance();
-                if (pl!=null) pl.clear();
-
+                final String playMode = intent.getStringExtra(Intents.EXTRA_PLAY_MODE);
                 final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
                 final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
                 final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
+                this.podcastFeedId = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
 
                 if (url == null || url.isEmpty()) {
-                    myLogE("ACTION_PLAY_RADIO without url");
+                    myLogE("ACTION_PLAY_STREAM without url");
+                    return START_NOT_STICKY;
+                }
+                if (playMode == null || playMode.isEmpty()) {
+                    myLogE("ACTION_PLAY_STREAM without playMode");
                     return START_NOT_STICKY;
                 }
 
                 if (engine != null) engine.stop();
-                playRadioStream(url, title != null ? title : getString(R.string.live_radio), img);
+                playStream(playMode, url, title, img);
                 return START_STICKY;
             }
-
-            case Intents.ACTION_PLAY_PODCAST: {
-                // Enter foreground ASAP (5s rule)
-                goForegroundPreparing(getString(R.string.podcasts), null);
-
-                PlayList pl = PlayList.getInstance();
-                if (pl!=null) pl.clear();
-
-                final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
-                final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
-                final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
-                final long podcastFeedID = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
-
-                if (url == null || url.isEmpty()) {
-                    myLogE("ACTION_PLAY_PODCAST without url");
-                    return START_NOT_STICKY;
-                }
-
-                if (engine != null) engine.stop();
-                playPodcastStream(podcastFeedID, url, title != null ? title : getString(R.string.podcasts), img);
-                return START_STICKY;
-            }
-
 
             case Intents.CMD_TTS_SET_VOICE: {
                 final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
@@ -1178,7 +1158,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Clear state (safe to run twice)
         try { PlayList pl = PlayList.getInstance(); if (pl != null) pl.clear(); } catch (Throwable ignored) {}
-        radioTitle = null; radioImageUrl = null; radioUri = null;
+        streamTitle = null; streamImageUrl = null; streamUri = null;
         isRunning = false;
 
         state.set(ServiceState.STOPPED);
@@ -1898,10 +1878,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void playRadioStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
         myLogD("playRadioStream: " + title + " -> " + url);
 
-        radioTitle = title;
-        radioImageUrl = imageUrl;
-        radioUri = Uri.parse(url);
-        if (radioUri==null) {
+        streamTitle = title;
+        streamImageUrl = imageUrl;
+        streamUri = Uri.parse(url);
+        if (streamUri ==null) {
             myLogEE(null, "playRadioStream : radioUri==null for url=" + url);
             return;
         }
@@ -1929,7 +1909,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         try {
             engine.reset();
-            engine.setDataSource(this, radioUri, title);
+            engine.setDataSource(this, streamUri, title);
             engine.prepareAsync();
 
             // Broadcast a first UI state (pos/dur 0)
@@ -1938,27 +1918,39 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             directPlay = true;
 
         } catch (Exception e) {
-            myLogEE(e, "playRadioStream setDataSource/prepareAsync failed, radioUri=" + radioUri);
+            myLogEE(e, "playRadioStream setDataSource/prepareAsync failed, radioUri=" + streamUri);
             alertError(null, null);
         }
     }
-    private void playPodcastStream(long podcastFeedId, @NonNull String url, @NonNull String title, @Nullable String imageUrl) {
-        myLogI("playPodcastStream: [" + title + "] -> [" + url + "] - id=" + podcastFeedId);
+    private void playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
+        myLogI(playMode + ": [" + title + "] -> [" + url + "]");
 
-        radioTitle = title;
-        radioImageUrl = imageUrl;
-        this.podcastFeedId = podcastFeedId;
-        radioUri = Uri.parse(url);
-        if (radioUri==null) {
+        streamTitle = title;
+        streamImageUrl = imageUrl;
+        streamUri = Uri.parse(url);
+        if (streamUri ==null) {
             myLogEE(null, "playPodcastStream : radioUri==null for url=" + url);
             return;
         }
-        broadcastUiState("playPodcastStream");                  // first snapshot (BUFFERING)
+        broadcastUiState("playStream " + playMode);                  // first snapshot (BUFFERING)
 
         // Swap engine to Exo for radio
         engineGen++;
         long gen = engineGen;
-        PlayerEngine fresh = new ExoStreamPlayerEngine(getApplicationContext(), engineCb, gen);
+        PlayerEngine fresh = null;
+        String playModeString;
+
+        if ("podcast".equals(playMode)) {
+            fresh = new ExoStreamPlayerEngine(getApplicationContext(), engineCb, gen);
+            playModeString = getString(R.string.podcasts);
+        } else if ("radio".equals(playMode)) {
+            playModeString = getString(R.string.radio);
+            fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
+        } else {
+            myToastEE(null, "unknown playMode " + playMode);
+            return;
+        }
+
         setEngine(fresh);
         ErrorLoadingFile = false;
 
@@ -1975,7 +1967,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         media.setMetadataRadio(
                 /* title   */ title,
-                /* artist  */ getString(R.string.podcasts),
+                /* artist  */ playModeString,
                 /* album   */ title,
                 /* artBmp  */ null
         );
@@ -1983,7 +1975,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         try {
             engine.reset();
-            engine.setDataSource(this, radioUri, title);
+            engine.setDataSource(this, streamUri, title);
             engine.prepareAsync();
 
             // Broadcast a first UI state (pos/dur 0)
@@ -1992,7 +1984,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             directPlay = true;
 
         } catch (Exception e) {
-            myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed, radioUri=" + radioUri);
+            myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed, radioUri=" + streamUri);
             alertError(null, null);
         }
     }

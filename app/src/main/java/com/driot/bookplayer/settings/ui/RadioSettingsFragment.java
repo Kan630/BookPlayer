@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,7 +29,6 @@ public class RadioSettingsFragment extends LoggingFragment {
 
         View root = inflater.inflate(R.layout.fragment_settings_radio, container, false);
 
-
         boolean showLocalTitle = true;
         Bundle args = getArguments();
         if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
@@ -38,6 +39,15 @@ public class RadioSettingsFragment extends LoggingFragment {
 
         etRadioNbResults = root.findViewById(R.id.et_api_nb_results);
         etRadioNbResults.setText(String.valueOf(Option.getRadioApiNbResults()));
+
+        CheckBox chk_radio_renew_url = root.findViewById(R.id.chk_radio_renew_url);
+        LinearLayout ll_radio_renew_url = root.findViewById(R.id.ll_radio_renew_url);
+        chk_radio_renew_url.setChecked(Option.getRadioRenewUrl());
+        ll_radio_renew_url.setOnClickListener(v -> chk_radio_renew_url.toggle());
+        chk_radio_renew_url.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRenewUrl(isChecked));
+
+
+
 
         return root;
     }

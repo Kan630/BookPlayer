@@ -1123,6 +1123,12 @@
 
     <string name="Import_Progress_chapter_title">"Track title"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"exported file name should have at least 3 characters"</string>
+    <string name="option_radio_renew_url_title">on Play from favorites</string>
+    <string name="option_radio_renew_url">check for best mirror before playing</string>
+    <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensure you are playing from the best source available, but can take some time (current timeout is 10sec.)</string>
+    <string name="checking_for_best_mirror">checking for best mirror</string>
+    <string name="error_radio_renew_url">error getting radio mirror link</string>
+    <string name="loading">loading</string>
 
 
 </resources>

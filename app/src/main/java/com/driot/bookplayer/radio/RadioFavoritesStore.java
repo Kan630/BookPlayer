@@ -121,4 +121,21 @@ public class RadioFavoritesStore {
         order.remove(uuid);
         save(map, order);
     }
+
+    public synchronized boolean anyFavoriteExists() {
+        Map<String, RadioFavoriteItem> map = loadMap();
+        return !map.isEmpty();
+    }
+
+     //Update an existing favorite item while keeping its position in the order list.
+     //If the uuid does not exist, nothing happens.
+    public synchronized void update(@NonNull RadioFavoriteItem updated) {
+        Map<String, RadioFavoriteItem> map = loadMap();
+        List<String> order = loadOrder();
+        if (!map.containsKey(updated.stationuuid)) {
+            return; // nothing to update
+        }
+        map.put(updated.stationuuid, updated);
+        save(map, order);
+    }
 }

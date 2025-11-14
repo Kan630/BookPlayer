@@ -22,8 +22,8 @@
                 style="@style/OptionTitle"
                 android:text="@string/Radio_Settings" />
 
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <LinearLayout
             android:id="@+id/ll_Search"
@@ -34,22 +34,22 @@
                 android:text="@string/Search"
                 android:layout_marginTop="0dp" />
             <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:gravity="center"
-                    android:layout_width="match_parent">
-                    <TextView
-                        style="@style/OptionPodcastTextBeforeEditText"
-                        android:text="@string/return_max"
-                        />
-                    <EditText
-                        style="@style/OptionPodcastEditText"
-                        android:layout_width="70dp"
-                        android:id="@+id/et_api_nb_results"
-                        />
-                    <TextView
-                        style="@style/OptionPodcastTextAfterEditText"
-                        android:text="@string/stations"
-                        />
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center"
+                android:layout_width="match_parent">
+                <TextView
+                    style="@style/OptionPodcastTextBeforeEditText"
+                    android:text="@string/return_max"
+                    />
+                <EditText
+                    style="@style/OptionPodcastEditText"
+                    android:layout_width="70dp"
+                    android:id="@+id/et_api_nb_results"
+                    />
+                <TextView
+                    style="@style/OptionPodcastTextAfterEditText"
+                    android:text="@string/stations"
+                    />
             </LinearLayout>
             <TextView
                 android:text="Min = 20"
@@ -60,6 +60,30 @@
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/option_radio_renew_url_title"/>
+        <LinearLayout
+            android:id="@+id/ll_radio_renew_url"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_radio_renew_url"
+                style="@style/OptionCheckBox"
+                android:layout_height="match_parent" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_radio_renew_url" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_radio_renew_url_subtitle" />
+
+
+        <View style="@style/myStyleViewSimpleHorizontalBar"
+            android:layout_marginTop="20dp"
+            />
 
     </LinearLayout>
 </ScrollView>

@@ -69,6 +69,7 @@ public class Option {
     public static final int DEFAULT_RADIO_API_NB_RESULTS = 200;
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
+    public static final boolean DEFAULT_RADIO_RENEW_URL = true;
 
 
     private static Context appContext;
@@ -354,7 +355,8 @@ public class Option {
     public static void setRadioApiNbResults(int i) {prefs.edit().putInt("RADIO_API_NB_RESULTS",i).apply();}
     public static int getRadioApiNbResults() {return prefs.getInt("RADIO_API_NB_RESULTS", DEFAULT_RADIO_API_NB_RESULTS);}
 
-
+    public static void setRadioRenewUrl(boolean bool) {prefs.edit().putBoolean("RADIO_RENEW_URL",bool).apply();}
+    public static boolean getRadioRenewUrl() {return prefs.getBoolean("RADIO_RENEW_URL", DEFAULT_RADIO_RENEW_URL);}
 
 
     /////////////////// NIGHT MODE ///////////////////

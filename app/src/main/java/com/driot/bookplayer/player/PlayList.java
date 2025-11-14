@@ -32,6 +32,7 @@ import java.util.Objects;
  */
 public final class PlayList {
 
+
     /** Immutable meta state exposed to UI */
     public static final class MetaState {
         public final boolean loaded;
@@ -60,7 +61,6 @@ public final class PlayList {
     // ==== Instance ====
     private final Context app;
     private final Object lock = new Object();
-    private final Handler main = new Handler(Looper.getMainLooper());
 
     private List<ZikFile> zikFilesList = Collections.emptyList();
     private int index = -1;
@@ -68,6 +68,7 @@ public final class PlayList {
     private Folder folder;
     private Podcast podcast;
     private String url;
+    private String playMode;
     private boolean isPodcast;
     private boolean metaLoaded = false;
 
@@ -77,23 +78,27 @@ public final class PlayList {
 
     private PlayList(Context app) { this.app = app; }
 
-    public static void create(@NonNull Context ctx, @NonNull Folder folder, @NonNull List<ZikFile> items, int startIndex) {
+    public static void create(@NonNull Context ctx, @NonNull String playMode, @NonNull Folder folder, @NonNull List<ZikFile> items, int startIndex) {
+        if (ctx==null) throw new IllegalStateException("PlayList.createFromRadio(): no context");
+        if (playMode==null || playMode.isEmpty()) throw new IllegalStateException("PlayList.createFromRadio(): no playMode");
         if (items.isEmpty()) throw new IllegalStateException("PlayList.create(): empty list");
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
 
-        pl.replaceItems(folder, items, startIndex, null);
+        pl.replaceItems(playMode, folder, items, startIndex, null);
         instance = pl;
         pl.saveToStorage();     // persist folderId + index -//TODO remove
         pl.loadMetaAsync();     // async podcast fetch
         myLogD("Playlist created with " + items.size() + " items, index=" + pl.index);
     }
 
-    public static void createFromStream(@NonNull Context ctx, String url) {
+    public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url) {
+        if (ctx==null) throw new IllegalStateException("PlayList.createFromRadio(): no context");
+        if (playMode==null || playMode.isEmpty()) throw new IllegalStateException("PlayList.createFromRadio(): no playMode");
         if (url==null || url.isEmpty()) throw new IllegalStateException("PlayList.createFromRadio(): no url");
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
-        pl.replaceItems(null, null, -1, url);
+        pl.replaceItems(playMode, null, null, -1, url);
         instance = pl;
         myLogD("Playlist created for STREAM with url = " + url);
     }
@@ -177,6 +182,16 @@ public final class PlayList {
             return folder;
         }
     }
+    public @NonNull String getPlayMode() {
+        synchronized (lock) {
+            return playMode;
+        }
+    }
+    public @NonNull String getUrl() {
+        synchronized (lock) {
+            return url;
+        }
+    }
 
 
     // ==== Internal helpers ====
@@ -196,12 +211,18 @@ public final class PlayList {
         }
     }
 
-    private void replaceItems(Folder folder, List<ZikFile> list, int startIndex, String url) {
+    private void replaceItems(String playMode, Folder folder, List<ZikFile> list, int startIndex, String url) {
         synchronized (lock) {
             //direct args
+            this.playMode = playMode;
             this.folder = folder;
-            this.zikFilesList = Collections.unmodifiableList(list);
-            this.index = clamp(startIndex, 0, list.size() - 1);
+            if (list!=null) {
+                this.zikFilesList = Collections.unmodifiableList(list);
+                this.index = clamp(startIndex, 0, list.size() - 1);
+            } else {
+                this.zikFilesList = Collections.emptyList();
+                this.index = -1;
+            }
             this.url = url;
             // async data
             this.podcast = null;

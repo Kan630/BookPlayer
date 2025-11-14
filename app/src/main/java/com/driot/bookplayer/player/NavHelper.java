@@ -6,6 +6,7 @@ import android.content.Intent;
 
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.radio.RadioFavoritesStore;
 
 public class NavHelper {
     public static PendingIntent navigateToMain(Context context) {
@@ -44,25 +45,23 @@ public class NavHelper {
     }
 
     public static PendingIntent navigateToRadioActivity(Context context) {
-            /*
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            //TODO boolean hasRadioFavorite = AppDatabase.getDatabase(this).radioDao()...
-            boolean hasRadioFavorite = false;
-            if (hasRadioFavorite) {
-                context.startActivity(new Intent(context.getApplicationContext(), RadioFavoritesActivity.class));
-            } else {
-            }
-            );
-        });
-             */
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        return PendingIntent.getActivity(
-                context,
-                0,
-                new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                flags
-        );
+        RadioFavoritesStore store = new RadioFavoritesStore(context);
+        if (store.anyFavoriteExists()) {
+            androidx.core.app.TaskStackBuilder tsb = androidx.core.app.TaskStackBuilder.create(context);
+            tsb.addNextIntent(new Intent(context, com.driot.bookplayer.activities.MainActivity.class));
+            tsb.addNextIntent(new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class));
+            tsb.addNextIntent(new Intent(context, com.driot.bookplayer.activities.RadioFavoritesActivity.class));
+            return tsb.getPendingIntent(0, flags);
+        } else {
+            return PendingIntent.getActivity(
+                    context,
+                    0,
+                    new Intent(context, com.driot.bookplayer.activities.GetRadioActivity.class)
+                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
+                    flags
+            );
+        }
     }
 
     public static PendingIntent navigateToPodcastActivity(Context context) {

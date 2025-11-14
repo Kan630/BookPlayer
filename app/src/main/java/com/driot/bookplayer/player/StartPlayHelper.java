@@ -48,43 +48,18 @@ public class StartPlayHelper {
     private static final int ICON_MAX_PX = 158; //was 128 158=hints fron AndroidAuto // list thumbnails
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
-        PlayList.createFromStream(context, ep.enclosureUrl);
-        FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(ep.title, ep.enclosureUrl, "podcast");
-
-        androidx.core.content.ContextCompat.startForegroundService(
-                context,
-                new Intent(context, MediaService.class)
-                        .setAction(Intents.ACTION_PLAY_PODCAST)
-                        .putExtra(Intents.EXTRA_STREAM_URL, ep.enclosureUrl)
-                        .putExtra(Intents.EXTRA_PODCAST_FEED_ID, podcast.feedId)
-                        .putExtra(Intents.EXTRA_TITLE, ep.title)
-                        .putExtra(Intents.EXTRA_IMAGE_URL, (ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image))
-                        .putExtra(Intents.EXTRA_CALLER, caller)
-                        .putExtra(Intents.EXTRA_FOREGROUND, true)
-        );
+        String cover = ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image;
+        playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, ep.title, cover, caller);
     }
 
     public static void onRadioClick(Context context, Station f, String streamUrl, String caller) {
-        playRadio(context, f.name, f.favicon, streamUrl, caller);
+        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.name, f.favicon, caller);
     }
 
     public static void  onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
-        playRadio(context, f.name, f.favicon, streamUrl, caller);
+        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.name, f.favicon, caller);
     }
 
-    private static void playRadio(Context context, String name, String cover, String streamUrl, String caller) {
-        PlayList.createFromStream(context, streamUrl);
-        FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(name, streamUrl, "radio");
-        androidx.core.content.ContextCompat.startForegroundService(
-                context,
-                new Intent(context, MediaService.class)
-                        .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, streamUrl)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, name)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, cover)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, caller)
-                        .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true));
-    }
 
     public static void onFolderClick(Context context,Folder clickedFolder, String caller) {
         // DB work off main; UI nav back on main
@@ -242,7 +217,8 @@ public class StartPlayHelper {
         //myLogW("Android Auto not authorized to resume playback (from Bookplayer settings)");
 
         PlayList pl = PlayList.getInstance();
-        if (pl==null || pl.getZikFile()==null) {
+        if (pl==null) {
+// NO PLAYLIST
             myLogI("Car onPlay but Playlist is null");
             FirebaseAnalyticsHelper.tellCarAutoPlay();
             AppDatabase.databaseReadExecutor.execute(() -> {
@@ -257,7 +233,7 @@ public class StartPlayHelper {
                             new Intent(context, MediaService.class)
                                     .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                     .putExtra(Intents.EXTRA_TRACK_ID, zikFile.getId())
-                                    .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName() + ".onPlay()")
+                                    .putExtra(Intents.EXTRA_CALLER, "carOnPlay()")
                                     .putExtra(Intents.EXTRA_FOREGROUND, true)
                     );
                     // Optional: show buffering right away in AA
@@ -265,16 +241,16 @@ public class StartPlayHelper {
                 }
             });
         } else {
-            ZikFile zikFile = pl.getZikFile();
-            myLog("Car onPlay, resuming : [" + zikFile.getDisplayName() + "]");
-            FirebaseAnalyticsHelper.tellCarSendCmd("CMD_PLAY");
-            ContextCompat.startForegroundService(
-                    context,
-                    new Intent(context, MediaService.class)
-                            .setAction("CMD_PLAY")
-                            .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName() + ".sendCmd " + "CMD_PLAY")
-                            .putExtra(Intents.EXTRA_FOREGROUND, true)
-            );
+// PLAYLIST EXISTS
+            String playMode = pl.getPlayMode();
+            if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
+                myLog("Car onPlay, resuming... send play stream");
+                playStream(context, playMode, pl.getUrl(), -1, null, null, "carOnPlay()");
+            } else {
+                ZikFile zikFile = pl.getZikFile();
+                myLog("Car onPlay, resuming... send CMD play");
+                sendCmdPlay(context);
+            }
         }
     }
 
@@ -534,7 +510,38 @@ public class StartPlayHelper {
 
 
 
-// private Helpers
+
+
+    private static void sendCmdPlay(Context context) {
+        FirebaseAnalyticsHelper.tellCarSendCmd("CMD_PLAY");
+        ContextCompat.startForegroundService(
+                context,
+                new Intent(context, MediaService.class)
+                        .setAction("CMD_PLAY")
+                        .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName() + ".sendCmd " + "CMD_PLAY")
+                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+        );
+    }
+
+    private static void playStream(Context context, String playMode, String streamUrl, long id, String title, String cover, String caller) {
+        PlayList.createFromStream(context, playMode, streamUrl);
+        FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
+        androidx.core.content.ContextCompat.startForegroundService(
+                context,
+                new Intent(context, MediaService.class)
+                        .setAction(Intents.ACTION_PLAY_STREAM)
+                        .putExtra(Intents.EXTRA_PLAY_MODE, playMode)
+                        .putExtra(Intents.EXTRA_STREAM_URL, streamUrl)
+                        .putExtra(Intents.EXTRA_PODCAST_FEED_ID, id)
+                        .putExtra(Intents.EXTRA_TITLE, title)
+                        .putExtra(Intents.EXTRA_IMAGE_URL, cover)
+                        .putExtra(Intents.EXTRA_CALLER, caller)
+                        .putExtra(Intents.EXTRA_FOREGROUND, true));
+    }
+
+
+
+    // private Helpers
     private static MediaBrowserCompat.MediaItem browsable(String id, String title) {
         MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
                 .setMediaId(id)

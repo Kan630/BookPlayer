@@ -38,9 +38,11 @@ public class Intents {
 
     public static final String ACTION_PLAY_RADIO = "com.driot.bookplayer.action.PLAY_RADIO";
     public static final String ACTION_PLAY_PODCAST = "com.driot.bookplayer.action.PLAY_PODCAST";
-    public static final String EXTRA_STREAM_URL  = "extra_stream_url";
-    public static final String EXTRA_TITLE       = "extra_title";
-    public static final String EXTRA_IMAGE_URL   = "extra_image_url";
+    public static final String ACTION_PLAY_STREAM = "com.driot.bookplayer.action.PLAY_STREAM";
+    public static final String EXTRA_STREAM_URL  = "EXTRA_STREAM_URL";
+    public static final String EXTRA_PLAY_MODE  = "EXTRA_PLAY_MODE";
+    public static final String EXTRA_TITLE       = "EXTRA_TITLE";
+    public static final String EXTRA_IMAGE_URL   = "EXTRA_IMAGE_URL";
     public static final String EXTRA_PODCAST_FEED_ID = "EXTRA_PODCAST_ID";
 
 

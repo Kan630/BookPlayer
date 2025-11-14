@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
@@ -14,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.adapter.RadioFavoritesRVAdapter;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -36,7 +38,6 @@ public class RadioFavoritesActivity extends LoggingActivity {
 
     private RadioResultsViewModel viewModel;
     private RecyclerView recyclerView;
-    private ProgressBar progressBar;
     private RadioFavoritesRVAdapter adapter;
     private RadioBrowserRepository repo; // for resolveUrl on play()
     private View dropZone;
@@ -48,7 +49,6 @@ public class RadioFavoritesActivity extends LoggingActivity {
         setContentView(R.layout.activity_radio_results);
 
         recyclerView = findViewById(R.id.recyclerView);
-        progressBar  = findViewById(R.id.progressBar);
         dropZone     = findViewById(R.id.dragDeleteZone);
 
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
@@ -73,40 +73,51 @@ public class RadioFavoritesActivity extends LoggingActivity {
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override public void onPlay(RadioFavoriteItem f) {
                 myLogI("--- user clicks radio item --- : " + f.name);
-                progressBar.setVisibility(View.VISIBLE);
 
-                // Resolve (counts a click on RadioBrowser) then play; fallback to stored url_resolved if you add it later
-                repo.resolveUrl(f.stationuuid, new Callback<>() {
-                    @Override public void onResponse(
-                            Call<UrlResolve> call,
-                            Response<UrlResolve> rsp
-                    ) {
-                        progressBar.setVisibility(View.GONE);
-                        String stream = null;
-                        if (rsp.isSuccessful() && rsp.body() != null && rsp.body().url != null && !rsp.body().url.isEmpty()) {
-                            myLogI("resolveUrl success : " + rsp.body().url);
-                            stream = rsp.body().url;
+                if (Option.getRadioRenewUrl() || f.last_url==null || f.last_url.isEmpty()) {
+                    myLog("Option renew Url = " + Option.getRadioRenewUrl() + ", lastUrl = [" + f.last_url + "]... => repo.resolveUrl(" + f.stationuuid + ") - " + f.name);
+                    setProgressVisible(true, getString(R.string.checking_for_best_mirror));
+
+                    // Resolve (counts a click on RadioBrowser) then play; fallback to stored url_resolved if you add it later
+                    repo.resolveUrl(f.stationuuid, new Callback<>() {
+                        @Override public void onResponse(
+                                Call<UrlResolve> call,
+                                Response<UrlResolve> rsp
+                        ) {
+                            setProgressVisible(false, null);
+                            String stream = null;
+                            if (rsp.isSuccessful() && rsp.body() != null && rsp.body().url != null && !rsp.body().url.isEmpty()) {
+                                stream = rsp.body().url;
+                                myLogI("resolveUrl success : " + stream);
+                                f.last_url = stream;
+                            }
+
+                            if (stream != null) {
+                                StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, stream, "RadioFavoritesActivity - adapter callback: .onPlay() - after url renewed");
+                            } else {
+                                myToastE(getString(R.string.an_error_occurred));
+                            }
                         }
 
-                        if (stream != null) {
-                            StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, stream, "RadioFavoritesActivity - adapter callback: .onPlay()");
-                        } else {
-                            myToastE(getString(R.string.an_error_occurred));
+                        @Override public void onFailure(
+                                Call<UrlResolve> call, Throwable t
+                        ) {
+                            setProgressVisible(false, null);
+                            if (NetworkHelper.isUnknownHost(t)) {
+                                myToastE(getString(R.string.no_internet_connection));
+                            } else {
+                                myLogEE(t, "resolveUrl failed");
+                                myToastE(getString(R.string.error_radio_renew_url));
+                                if (!(f.last_url==null || f.last_url.isEmpty())) {
+                                    StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, f.last_url,"RadioFavoritesActivity - adapter callback: .onPlay() - url NOT renewed");
+                                }
+                            }
                         }
-                    }
-
-                    @Override public void onFailure(
-                            Call<UrlResolve> call, Throwable t
-                    ) {
-                        progressBar.setVisibility(View.GONE);
-                        if (NetworkHelper.isUnknownHost(t)) {
-                            myToastE(getString(R.string.no_internet_connection));
-                        } else {
-                            myLogEE(t, "resolveUrl failed");
-                            myToastE(getString(R.string.an_error_occurred));
-                        }
-                    }
-                });
+                    });
+                } else {
+                    myLogD("Option renew Url = False");
+                    StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, f.last_url,"RadioFavoritesActivity - adapter callback: .onPlay() - url NOT renewed");
+                }
             }
 
             @Override public void onUnfavorite(RadioFavoriteItem f) {
@@ -135,12 +146,29 @@ public class RadioFavoritesActivity extends LoggingActivity {
                 /* log level */ com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
         );
 
-        progressBar.setVisibility(View.VISIBLE);
+        setProgressVisible(true, getString(R.string.loading));
         viewModel.getFavoriteItems().observe(this, favorites -> {
-            progressBar.setVisibility(View.GONE);
+            setProgressVisible(false, null);
             adapter.setItems(favorites);
         });
 
+    }
+
+    private void setProgressVisible(boolean visible, String progressMessage) {
+        ProgressBar progressBar = findViewById(R.id.progressBar);
+        TextView progressText = findViewById(R.id.progressText);
+        if (visible) {
+            progressBar.setVisibility(View.VISIBLE);
+            if (progressMessage != null && !progressMessage.isEmpty()) {
+                progressText.setText(progressMessage);
+                progressText.setVisibility(View.VISIBLE);
+            } else {
+                progressText.setVisibility(View.GONE);
+            }
+        } else {
+            progressBar.setVisibility(View.GONE);
+            progressText.setVisibility(View.GONE);
+        }
     }
 
 }
