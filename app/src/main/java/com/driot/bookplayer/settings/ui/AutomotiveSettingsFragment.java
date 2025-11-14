@@ -30,7 +30,7 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_automotive_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_automotive, container, false);
 
         // Hide local title when embedded
         boolean showLocalTitle = true;

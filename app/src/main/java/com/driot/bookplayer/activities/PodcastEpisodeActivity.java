@@ -496,7 +496,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
-        StartPlayHelper.onPodcastClick(getApplicationContext(), ep, podcast.feedId, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
+        StartPlayHelper.onPodcastClick(getApplicationContext(), ep, podcast, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
 
         isPlaying = true;
         adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
@@ -505,36 +505,7 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
 
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
-        //closeExoPlayer();
-        if (MediaService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
-            if (PlaybackUiBus.get().state().getValue().trackId==zikFile.getId()) {
-                myLog("already playing that track");
-                startActivity(new Intent(this, PlayActivity.class));
-                return;
-            }
-        }
-
-        new Thread(() -> {
-            try {
-                myLog("onOpenLocalEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
-
-                final int id = zikFile.getId();
-                myLog("id = " + id);
-                ContextCompat.startForegroundService(
-                        this.getApplicationContext(),
-                        new Intent(this.getApplicationContext(), MediaService.class)
-                                .setAction(Intents.ACTION_PLAY_FROM_TRACK)
-                                .putExtra(Intents.EXTRA_TRACK_ID, (int) id)
-                                .putExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
-                                .putExtra(Intents.EXTRA_IS_PODCAST, true)
-                                .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName() + ".onOpenLocalEpisode()")
-                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                );
-
-            } catch (Exception e) {
-                myLogEE(e, "clickOnEpisode - playThatShit");
-            }
-        }).start();
+        StartPlayHelper.onZikFileFromPodcast(getApplicationContext(), zikFile, this.getClass().getSimpleName() + ".onOpenLocalEpisode()", sortNewestFirst);
     }
 
     @Override

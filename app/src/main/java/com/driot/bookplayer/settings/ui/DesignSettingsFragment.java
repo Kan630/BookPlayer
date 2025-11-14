@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.util.Executors;
 import com.driot.bookplayer.R;
@@ -49,7 +48,7 @@ public class DesignSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_design_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_design, container, false);
 
         // Hide the title row when embedded inline
         boolean showLocalTitle = true;

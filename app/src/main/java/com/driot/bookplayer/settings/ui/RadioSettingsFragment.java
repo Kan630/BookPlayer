@@ -25,7 +25,7 @@ public class RadioSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_radio_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_radio, container, false);
 
 
         boolean showLocalTitle = true;

@@ -29,7 +29,7 @@ public class TtsSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_tts_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_tts, container, false);
 
         // Show/hide local title when embedded
         boolean showLocalTitle = true;

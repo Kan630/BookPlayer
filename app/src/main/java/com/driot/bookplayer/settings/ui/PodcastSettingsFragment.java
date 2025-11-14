@@ -48,7 +48,7 @@ public class PodcastSettingsFragment extends LoggingFragment {
                              @Nullable Bundle savedInstanceState) {
 
         // Reuse your existing layout as-is
-        View root = inflater.inflate(R.layout.fragment_podcast_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_podcast, container, false);
 
         // ====== CHECKBOXES ======
         chk_podcast_open_specific_view = root.findViewById(R.id.chk_podcast_open_specific_view);

@@ -31,7 +31,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_utilities_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_utilities, container, false);
 
         // Hide local title when embedded
         boolean showLocalTitle = true;

@@ -17,7 +17,6 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
@@ -50,7 +49,7 @@ public class ImportSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_import_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_import, container, false);
 
         // Local title visibility (hidden when embedded inline)
         boolean showLocalTitle = true;

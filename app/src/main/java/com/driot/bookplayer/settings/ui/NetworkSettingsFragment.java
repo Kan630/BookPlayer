@@ -25,7 +25,7 @@ public class NetworkSettingsFragment extends LoggingFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_network_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_network, container, false);
 
         // Hide local title if embedded
         boolean showLocalTitle = true;

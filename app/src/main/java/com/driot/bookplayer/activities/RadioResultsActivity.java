@@ -109,16 +109,8 @@ public class RadioResultsActivity extends LoggingActivity {
                             myLogEE(t, "resolveUrl failed");
                             if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
                                 // Fallback to stored resolved URL
-                                androidx.core.content.ContextCompat.startForegroundService(
-                                        getApplicationContext(),
-                                        new Intent(getApplicationContext(), MediaService.class)
-                                                .setAction(com.driot.bookplayer.global.Intents.ACTION_PLAY_RADIO)
-                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_STREAM_URL, s.url_resolved)
-                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_TITLE, s.name)
-                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_IMAGE_URL, s.favicon)
-                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_CALLER, "RadioResultsActivity - adapter fallback: .onPlay()")
-                                                .putExtra(com.driot.bookplayer.global.Intents.EXTRA_FOREGROUND, true)
-                                );
+                                myLogI("fallback url_resolved : " + s.url_resolved);
+                                StartPlayHelper.onRadioClick(getApplicationContext(), s, s.url_resolved, "RadioResultsActivity - adapter callback: .onPlay() - fallback url_resolved");
                             } else {
                                 myToastE(getString(R.string.an_error_occurred));
                             }

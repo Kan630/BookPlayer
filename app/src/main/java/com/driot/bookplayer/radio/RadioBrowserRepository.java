@@ -65,6 +65,23 @@ public class RadioBrowserRepository {
         api.byName(name, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
     }
 
+    public void getTopTags(int limit, Callback<List<TagItem>> cb) {
+        api.getTags("stationcount", true, limit)
+                .enqueue(new LoggingCallback<>(cb, "getTopTags"));
+    }
+
+    public void getTopCountries(int limit, Callback<List<TagItem>> cb) {
+        api.getCountries("stationcount", true, limit)
+                .enqueue(new LoggingCallback<>(cb, "getTopCountries"));
+    }
+
+    public void getTopLanguages(int limit, Callback<List<TagItem>> cb) {
+        api.getLanguages("stationcount", true, limit)
+                .enqueue(new LoggingCallback<>(cb, "getTopLanguages"));
+    }
+
+
+
 
     /** Use this when the user taps Play: it increments click stats AND returns a fresh stream URL. */
     public void resolveUrl(String stationUuid, Callback<UrlResolve> cb) {
@@ -87,21 +104,6 @@ public class RadioBrowserRepository {
             myLogW(label + " failed: " + t);
             delegate.onFailure(call, t);
         }
-    }
-
-    public void getTopTags(int limit, Callback<List<TagItem>> cb) {
-        api.getTags("stationcount", true, limit)
-                .enqueue(new LoggingCallback<>(cb, "getTopTags"));
-    }
-
-    public void getTopCountries(int limit, Callback<List<TagItem>> cb) {
-        api.getCountries("stationcount", true, limit)
-                .enqueue(new LoggingCallback<>(cb, "getTopCountries"));
-    }
-
-    public void getTopLanguages(int limit, Callback<List<TagItem>> cb) {
-        api.getLanguages("stationcount", true, limit)
-                .enqueue(new LoggingCallback<>(cb, "getTopLanguages"));
     }
 
 }

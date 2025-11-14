@@ -25,7 +25,7 @@ public class LibrivoxSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_librivox_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_librivox, container, false);
 
 
         boolean showLocalTitle = true;

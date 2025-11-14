@@ -53,7 +53,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-        View root = inflater.inflate(R.layout.fragment_play_behaviour_settings, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_play_behaviour, container, false);
 
         // Optional local header
         boolean showLocalTitle = true;

@@ -160,11 +160,11 @@ public class StartPlayHelper {
         });
     }
 
-    public static void onZikFileClick(Context ctx, ZikFile clickedZikFile, String caller) {
+    public static void onZikFileClick(Context context, ZikFile clickedZikFile, String caller) {
         AppDatabase.databaseReadExecutor.execute(()-> {
             //TTS ?
             final boolean isTTS;
-            Folder folder = AppDatabase.getDatabase(ctx).folderDao().getById(clickedZikFile.getIdFolder());
+            Folder folder = AppDatabase.getDatabase(context).folderDao().getById(clickedZikFile.getIdFolder());
             isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
 
             // was something playing ?
@@ -180,7 +180,7 @@ public class StartPlayHelper {
 
                 // open PlayActivity
                 if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
-                    ctx.startActivity(new Intent(ctx, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                    startActivityBecauseSameTrack(context);
                 }
 
                 // start audio service
@@ -188,18 +188,47 @@ public class StartPlayHelper {
                         || !lastUiState.playing
                         || !sameTrack
                 ) {
-                    ContextCompat.startForegroundService(
-                            ctx.getApplicationContext(),
-                            new Intent(ctx.getApplicationContext(), MediaService.class)
-                                    .setAction(Intents.ACTION_PLAY_FROM_TRACK)
-                                    .putExtra(Intents.EXTRA_TRACK_ID, clickedZikFile.getId())
-                                    .putExtra(Intents.EXTRA_CALLER, caller)
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                    );
+                    playZikFile(context, clickedZikFile.getId(), caller, false, false);
                 }
 
             });
         });
+    }
+
+    public static void onZikFileFromPodcast(Context context, ZikFile zikFile, String caller, boolean sortNewestFirst) {
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            if (MediaService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
+                if (PlaybackUiBus.get().state().getValue().trackId==zikFile.getId()) {
+                    myLog("already playing that track - [" + zikFile.getDisplayName() + "]");
+                    startActivityBecauseSameTrack(context);
+                    return;
+                }
+            }
+
+            try {
+                myLog("onOpenLocalEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
+                playZikFile(context, zikFile.getId(), caller, true, sortNewestFirst);
+            } catch (Exception e) {
+                myLogEE(e, "clickOnEpisode - playThatShit");
+            }
+        });
+    }
+
+    private static void playZikFile(Context context, int zikFileId, String caller, boolean isPodcast, boolean sortNewestFirst) {
+        ContextCompat.startForegroundService(
+                context.getApplicationContext(),
+                new Intent(context.getApplicationContext(), MediaService.class)
+                        .setAction(Intents.ACTION_PLAY_FROM_TRACK)
+                        .putExtra(Intents.EXTRA_TRACK_ID, zikFileId)
+                        .putExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
+                        .putExtra(Intents.EXTRA_IS_PODCAST, isPodcast)
+                        .putExtra(Intents.EXTRA_CALLER, caller)
+                        .putExtra(Intents.EXTRA_FOREGROUND, true)
+        );
+    }
+
+    private static void startActivityBecauseSameTrack(Context context) {
+        context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
 
 
