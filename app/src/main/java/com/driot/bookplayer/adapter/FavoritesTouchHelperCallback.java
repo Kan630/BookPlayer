@@ -59,25 +59,35 @@ public class FavoritesTouchHelperCallback extends ItemTouchHelper.Callback {
         } else if (actionState == ItemTouchHelper.ACTION_STATE_IDLE) {
             dropZone.setVisibility(View.GONE);
             dropZone.setActivated(false);
-            adapter.onItemDropped();
-            draggingUuid = null;
+            //adapter.onItemDropped();
+            //draggingUuid = null;
         }
     }
 
-    @Override public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder vh) {
+    @Override
+    public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder vh) {
         super.clearView(recyclerView, vh);
+
         if (overTrash) {
             // Use the UUID captured at drag start (position can be -1 now)
             if (draggingUuid != null) {
                 adapter.onDroppedInTrashUuid(draggingUuid);
             } else {
-                // fallback to position if we somehow missed the uuid
-                adapter.onDroppedInTrash(vh.getBindingAdapterPosition());
+                // optional: log, but don't try to fallback to position
+                // int pos = vh.getBindingAdapterPosition(); // often -1 here
+                // adapter.onDroppedInTrash(pos);
+
+                //myLogE...
             }
+        } else {
+            // Normal drop (not in trash): just tell adapter drag finished
+            adapter.onItemDropped();
         }
+
         overTrash = false;
         draggingUuid = null;
     }
+
 
     @Override
     public void onChildDraw(@NonNull Canvas c, @NonNull RecyclerView recyclerView,

@@ -27,6 +27,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseBackupHelper;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -133,7 +134,11 @@ public class StatsActivity extends LoggingActivity {
 
         zeText = "Install Date = " + Pref.getFirstOpenDate()
                 + "\n" + "\n" + "Audio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed())
-                + "\n" + "\n" + "(These stats started on 2025-09-30)"
+                + "\n" + "* Book Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK))
+                + "\n" + "* TTS Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS))
+                + "\n" + "* Radio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO))
+                + "\n" + "* Podcast Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST))
+                + "\n" + "\n" + "(These stats started in 2025 (oct-nov)"
         ;
 
         tv_head = findViewById(R.id.tv4_head);

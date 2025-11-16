@@ -24,7 +24,7 @@ public class Pref {
 
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
-    private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_DIVERSE";
+    private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
 
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
 
@@ -38,6 +38,7 @@ public class Pref {
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
+        PrefMigration.run(appContext);
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
         stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
         if (getFirstOpenTimeStamp()==0) setFirstOpen();
@@ -121,10 +122,12 @@ public class Pref {
     public static Long getFirstOpenTimeStamp() {return stats.getLong("FIRST_OPEN_TIMESTAMP", 0);}
     public static String getFirstOpenDate() {return stats.getString("FIRST_OPEN_DATE", "");}
 
-    public static void addToTotalMsPlayed(long ms) {
+    public static void addToTotalMsPlayed(String playMode, long ms) {
         stats.edit().putLong("TOTAL_PLAY_IN_MS", stats.getLong("TOTAL_PLAY_IN_MS",0) + ms).apply();
+        stats.edit().putLong("TOTAL_PLAY_IN_MS_" + playMode, stats.getLong("TOTAL_PLAY_IN_MS_" + playMode,0) + ms).apply();
     }
     public static Long getTotalMsPlayed() {return stats.getLong("TOTAL_PLAY_IN_MS", 0);}
+    public static Long getTotalMsPlayed(String playMode) {return stats.getLong("TOTAL_PLAY_IN_MS_" + playMode, 0);}
 
 
 

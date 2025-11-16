@@ -197,7 +197,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         Bundle extras = new Bundle();
         extras.putInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, lastCustomSleepMinutes);
-        extras.putDouble(Intents.EXTRA_SPEED, getSpeed());
+        extras.putDouble(Intents.EXTRA_SPEED, getSpeed()); //TODO check that getSpeed, looks weird, ask Prefs... (every second since we are updating UI...)
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
 
         if (Var.PLAY_MODE_RADIO.equals(playMode)) {
@@ -254,7 +254,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     trackId, folderId, 0, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
-
     }
 
 
@@ -477,12 +476,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 new SleepTimer.Listener() {
                     @Override
                     public void onTick(int elapsedSeconds) {
-                        Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
-                        myLog("1");
+                        Pref.addToTotalMsPlayed(getPlayMode(), DELAY_CHECK_TIMER_SLEEP);
                         updateZikFileStateInDB(false);
-                        myLog("2");
                         emitUiTick("MediaService.SleepTimer.onTick");
-                        myLog("3");
                     }
 
                     @Override
@@ -708,12 +704,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return;
         }
 
-        PlayList pl = PlayList.getInstance();
-        ZikFile zf = null;
-        if (pl!=null) { zf = pl.getZikFile(); }
-        CharSequence title = zf == null ? "---" : zf.getFolderName();
-        CharSequence text = zf == null ? "---" : zf.getDisplayName();
-
+        CharSequence title="---";
+        CharSequence text="---";
         Notification n = notif.build(
                 media.session(),
                 playing,
@@ -1634,11 +1626,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     public double getSpeed() {
-        PlayList pl = PlayList.getInstance();
-        if (pl!=null) {
-            ZikFile zf = pl.getZikFile();
-            if (zf != null) {
-                speed = Pref.getSpeedFromPref(zf.getIdFolder());
+        if (Var.PLAY_MODE_TTS.equals(getPlayMode()) || Var.PLAY_MODE_BOOK.equals((getPlayMode()))) {
+            PlayList pl = PlayList.getInstance();
+            if (pl!=null) {
+                ZikFile zf = pl.getZikFile();
+                if (zf != null) {
+                    speed = Pref.getSpeedFromPref(zf.getIdFolder());
+                }
             }
         }
         if (speed == 0) speed = 1.0;
