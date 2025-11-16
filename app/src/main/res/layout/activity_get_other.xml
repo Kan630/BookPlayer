@@ -251,14 +251,26 @@
 
     <!-- 2) DIM SCRIM — covers whole activity & consumes touches -->
     <!-- B3 = ~70% black; tune opacity -->
-    <View
+    <FrameLayout
         android:id="@+id/importDimScrim"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#B3000000"
         android:clickable="true"
         android:focusable="true"
-        android:visibility="gone" />
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/importDimMessage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/Import_in_progress"
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="@android:color/white"
+            android:padding="24dp" />
+    </FrameLayout>
 
     <!-- 3) ONGOING BANNER HOST — floats above scrim/content -->
     <FrameLayout

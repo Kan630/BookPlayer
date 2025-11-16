@@ -17,10 +17,12 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.Sql;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -43,6 +45,13 @@ public class AdminActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin);
         InsetHelper.apply(this);
+
+        // Technical log
+        MaterialCheckBox chkTechLog = findViewById(R.id.chk_tech_log_file);
+        LinearLayout llTechLog = findViewById(R.id.ll_tech_log_file);
+        chkTechLog.setChecked(Option.getTechLog());
+        llTechLog.setOnClickListener(v -> chkTechLog.toggle());
+        chkTechLog.setOnCheckedChangeListener((b, checked) -> Option.setTechLog(checked));
 
         findViewById(R.id.bFlushDiskBooks).setOnClickListener(v -> {
             new Thread(() -> {

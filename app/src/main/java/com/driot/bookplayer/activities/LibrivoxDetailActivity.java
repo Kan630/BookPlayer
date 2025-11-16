@@ -32,7 +32,6 @@ import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -70,12 +69,6 @@ public class LibrivoxDetailActivity extends LoggingActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_librivox_detail);
         InsetHelper.apply(this);
-
-        OngoingTaskHost.attach(
-                this,
-                R.id.topOverlayContainer,
-                new Intent(this, AddResourceActivity.class) // tap => open details
-        );
 
         titleView = findViewById(R.id.textDetailTitle);
         idView = findViewById(R.id.textDetailIdentifier);

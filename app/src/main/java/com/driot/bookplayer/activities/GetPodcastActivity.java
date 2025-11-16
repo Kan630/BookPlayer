@@ -33,6 +33,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_podcast; }
     @Override protected int getLayoutResId() { return R.layout.activity_get_podcast; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

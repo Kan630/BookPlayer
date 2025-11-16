@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/rootLayout"
     android:orientation="vertical"
     android:layout_width="match_parent"
@@ -67,7 +68,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:src="@drawable/ic_delete_24"
-                android:tint="?attr/colorOnPrimary" />
+                app:tint="?attr/colorOnPrimary" />
 
             <TextView
                 android:id="@+id/tvTrash"
@@ -79,12 +80,4 @@
                 android:textColor="?attr/colorOnPrimary" />
         </LinearLayout>
     </FrameLayout>
-
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/miniNowPlaying"
-        android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-
 </LinearLayout>

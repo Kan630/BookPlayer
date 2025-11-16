@@ -20,13 +20,11 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.UrlResolve;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 
@@ -45,17 +43,16 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_radio_results);
 
         recyclerView = findViewById(R.id.recyclerView);
         dropZone     = findViewById(R.id.dragDeleteZone);
 
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
-        OngoingTaskHost.attach(this, R.id.topOverlayContainer, new Intent(this, AddResourceActivity.class));
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);

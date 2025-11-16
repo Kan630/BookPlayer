@@ -34,8 +34,6 @@
     import com.driot.bookplayer.global.Var;
     import com.driot.bookplayer.helpers.InsetHelper;
     import com.driot.bookplayer.helpers.ViewHelper;
-    import com.driot.bookplayer.objects.OngoingTaskHost;
-    import com.driot.bookplayer.player.PlayList;
     import com.driot.bookplayer.player.MediaService;
     import com.driot.bookplayer.helpers.InfoHelper;
     import com.driot.bookplayer.player.PlaybackUiState;
@@ -100,6 +98,7 @@
 
         @Override protected int getNavId() { return R.id.nav_library; }
         @Override protected int getLayoutResId() { return R.layout.activity_main; }
+        @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
@@ -111,12 +110,6 @@
                 InfoHelper.printSomeStuffAboutDevice(this);
                 infoAlreadyShown = true;
             }
-
-            //ongoing book load ?
-            OngoingTaskHost.attach(
-                    this,
-                    R.id.topOverlayContainer,
-                    new Intent(this, AddResourceActivity.class)); // tap => open details
 
             //toolbar
             toolbar = findViewById(R.id.toolbar);

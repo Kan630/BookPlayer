@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
@@ -38,7 +39,6 @@ import com.driot.bookplayer.imports.ImportJobRepository;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.imports.LoadBookActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
-import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -56,6 +56,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
     private View importDimScrim;
     private EditText2linesWithPaste etDirectDownload;
     private OngoingTaskViewModel viewModel;
+    private TextView importDimMessage;
 
     private PermissionRequest mPermissionRequest;
 
@@ -127,11 +128,11 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_get_other; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_get_other);
         InsetHelper.apply(this);
 
         Button bOpenFile = findViewById(R.id.bOpenFile);
@@ -149,6 +150,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
         importDimScrim = findViewById(R.id.importDimScrim);
+        importDimMessage = findViewById(R.id.importDimMessage);
 
         // Eat all touches explicitly (belt & suspenders)
         importDimScrim.setOnTouchListener((v, ev) -> true);
@@ -156,14 +158,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         importDimScrim.setContentDescription(getString(R.string.Import_in_progress));
 
-        // ongoing task fragment
-        OngoingTaskHost.attach(
-                this,
-                R.id.topOverlayContainer,
-                new Intent(this, AddResourceActivity.class) // tap banner -> open details
-        );
-
-        // ongoing task view model
         viewModel = new ViewModelProvider(
                 com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
                 ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
@@ -523,14 +517,16 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 })
                 .start();
 
-        // Optional: suppress TalkBack focus on the dimmed content while overlay is up
         View root = findViewById(R.id.rootContainer);
         if (root != null) {
             root.setImportantForAccessibility(
                     show ? View.IMPORTANT_FOR_ACCESSIBILITY_NO_HIDE_DESCENDANTS
                             : View.IMPORTANT_FOR_ACCESSIBILITY_AUTO);
         }
+
+        importDimMessage.setText(getString(R.string.please_wait_another_book_is_being_imported));
     }
+
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");

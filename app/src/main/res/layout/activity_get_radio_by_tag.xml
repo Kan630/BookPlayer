@@ -30,12 +30,4 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Mini Player pinned to bottom -->
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/miniNowPlaying"
-        android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent" />
-
 </androidx.constraintlayout.widget.ConstraintLayout>

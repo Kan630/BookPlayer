@@ -122,9 +122,16 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.title.setText(item.title);
             holder.info.setText(extractYear(item.date));
-            String ratingText = item.num_reviews + " " + vh.itemView.getContext().getString(R.string.reviews) + " - " + vh.itemView.getContext().getString(R.string.reviews) + " : " + item.avg_rating;
-            holder.rating.setText(ratingText);
-            holder.ratingBar.setRating(item.avg_rating);
+            if (item.num_reviews>0) {
+                String ratingText = item.num_reviews + " " + vh.itemView.getContext().getString(R.string.reviews) + " - " + vh.itemView.getContext().getString(R.string.average_rating) + " : " + item.avg_rating;
+                holder.rating.setText(ratingText);
+                holder.ratingBar.setRating(item.avg_rating);
+                holder.rating.setVisibility(View.VISIBLE);
+                holder.ratingBar.setVisibility(View.VISIBLE);
+            } else {
+                holder.rating.setVisibility(View.GONE);
+                holder.ratingBar.setVisibility(View.GONE);
+            }
 
             holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
 

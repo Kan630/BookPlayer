@@ -24,9 +24,7 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
     protected abstract int getLayoutResId();
 
     /** Override to true in activities that should show the ongoing-task overlay */
-    protected boolean enableOngoingTaskOverlay() {
-        return false;
-    }
+    protected abstract boolean enableOngoingTaskOverlay();
 
 
     @Override

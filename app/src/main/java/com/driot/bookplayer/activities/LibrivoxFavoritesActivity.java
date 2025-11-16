@@ -16,7 +16,6 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxItem;
-import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Collections;
@@ -38,12 +37,6 @@ public class LibrivoxFavoritesActivity extends LoggingActivity {
 
         InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
         InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
-
-        //ongoing book load ?
-        OngoingTaskHost.attach(
-                this,
-                R.id.topOverlayContainer,
-                new Intent(this, AddResourceActivity.class)); // tap => open details
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
         recyclerView.setLayoutManager(new GridLayoutManager(this, span));

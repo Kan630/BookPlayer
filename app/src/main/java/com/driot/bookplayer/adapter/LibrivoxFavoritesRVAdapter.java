@@ -68,10 +68,9 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
             h.tvSearch.setText(h.itemView.getContext().getString(R.string.Favorites));
-            h.tvLang.setText("Librivox");
-            h.tvCount.setText(
-                    h.itemView.getContext().getString(R.string.nb_of_audios_found)
-                            + " : " + items.size());
+            h.tvLang.setText(h.itemView.getContext().getString(R.string.Librivox));
+            String tvCountStr = h.itemView.getContext().getString(R.string.nb_of_audios_found) + " : " + items.size();
+            h.tvCount.setText(tvCountStr);
             return;
         }
 
@@ -83,6 +82,7 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
         holder.info.setText("");
         holder.rating.setText("");
         holder.ratingBar.setRating(0f);
+        holder.ratingBar.setVisibility(ViewGroup.GONE);
         holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
 
         // image

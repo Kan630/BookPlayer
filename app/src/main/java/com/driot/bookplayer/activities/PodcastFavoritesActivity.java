@@ -36,16 +36,14 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_podcast; }
     @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_podcast_search_result);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
-        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
-
         progressBar = findViewById(R.id.progressBarPodcast);
         emptyMessage = findViewById(R.id.podcast_error_message);
 
@@ -53,7 +51,6 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
         viewModel.getShouldFinish().observe(this, shouldFinish -> {

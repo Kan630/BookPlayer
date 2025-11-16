@@ -23,8 +23,10 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 public class UtilitiesSettingsFragment extends LoggingFragment {
 
     private Spinner appLanguageSpinner;
-    private MaterialCheckBox chkTechLog, chkMailMethod;
-    private LinearLayout llTechLog, llMailMethod;
+    private MaterialCheckBox chkMailMethod;
+    private LinearLayout llMailMethod;
+
+
 
     @Nullable
     @Override
@@ -38,20 +40,10 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         Bundle args = getArguments();
         if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
         View titleContainer = root.findViewById(R.id.ll_title);
-        if (titleContainer != null)
-            titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
+        if (titleContainer != null) titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
 
-        chkTechLog = root.findViewById(R.id.chk_tech_log_file);
-        llTechLog = root.findViewById(R.id.ll_tech_log_file);
         chkMailMethod = root.findViewById(R.id.chk_mail_method_default);
         llMailMethod = root.findViewById(R.id.ll_mail_method_default);
-
-        // Technical log
-        chkTechLog.setChecked(Option.getTechLog());
-        llTechLog.setOnClickListener(v -> chkTechLog.toggle());
-        chkTechLog.setOnCheckedChangeListener((b, checked) -> Option.setTechLog(checked));
-
-        // Mail method
         chkMailMethod.setChecked(Option.getMailMethod());
         llMailMethod.setOnClickListener(v -> chkMailMethod.toggle());
         chkMailMethod.setOnCheckedChangeListener((b, checked) -> Option.setMailMethod(checked));

@@ -19,11 +19,6 @@
             android:paddingTop="32dp"
             android:paddingBottom="16dp" />
 
-        <androidx.fragment.app.FragmentContainerView
-            android:id="@+id/miniNowPlaying"
-            android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
     </LinearLayout>
 
     <ProgressBar

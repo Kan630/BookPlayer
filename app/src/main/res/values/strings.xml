@@ -13,6 +13,7 @@
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
     <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
+    <string name="Librivox" translatable="false">Librivox</string>
 
 
 
@@ -55,7 +56,7 @@
     <string name="reset_app">Reset App</string>
     <string name="Exit">Exit</string>
     <string name="Finished">Finished</string>
-    <string name="add_book">add book</string>
+    <string name="add_book">add book</string>   //stay below 10/12 chars.
 
 
     <string name="Not_enough_memory">Not enough memory</string>
@@ -1129,6 +1130,7 @@
     <string name="checking_for_best_mirror">checking for best mirror</string>
     <string name="error_radio_renew_url">error getting radio mirror link</string>
     <string name="loading">loading</string>
-
+    <string name="no_review">no review</string>
+    <string name="library">library</string> // stay below 10/12 chars
 
 </resources>

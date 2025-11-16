@@ -19,7 +19,6 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
-import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
@@ -51,12 +50,6 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
         InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
         InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
-
-        OngoingTaskHost.attach(
-                this,
-                R.id.topOverlayContainer,
-                new Intent(this, AddResourceActivity.class)); // tap => open details
-
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);

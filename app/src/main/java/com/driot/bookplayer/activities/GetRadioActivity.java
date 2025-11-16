@@ -14,13 +14,11 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.TagCardAdapter;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 import java.util.List;
@@ -56,18 +54,12 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_get_radio; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_get_radio);
         InsetHelper.apply(this);
-
-        OngoingTaskHost.attach(
-                this,
-                R.id.topOverlayContainer,
-                new Intent(this, AddResourceActivity.class)
-        );
 
         repo = new RadioBrowserRepository(
                 this,

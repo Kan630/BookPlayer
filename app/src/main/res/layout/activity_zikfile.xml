@@ -67,15 +67,6 @@
         android:layout_marginTop="7dp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toTopOf="@id/miniNowPlaying" />
-
-    <androidx.fragment.app.FragmentContainerView
-        android:id="@+id/miniNowPlaying"
-        android:name="com.driot.bookplayer.player.MiniPlayHostFragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
