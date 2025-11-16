@@ -34,6 +34,7 @@ public class Option {
     private static final boolean DEFAULT_START_AT_ZERO_NEXT_TRACK = true;
     private static final boolean DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP = true;
     private static final boolean DEFAULT_OPEN_PLAY_ACTIVITY = true;
+    private static final boolean DEFAULT_RELOAD_PLAYLIST_FROM_STORAGE = true;
     private static final String DEFAULT_THEME_KEY = "purple"; //needs a string as resource ID are not stables between releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
@@ -228,21 +229,22 @@ public class Option {
     }
 
 
-    /////////////////// REWIND AFTER PAUSE option ///////////////////
+    /////////////////// PLAY BEHAVIOUR ///////////////////
     public static void setRewindAfterPause(boolean bool) {prefs.edit().putBoolean("REWIND_AFTER_PAUSE",bool).apply();}
     public static boolean getRewindAfterPause() {return prefs.getBoolean("REWIND_AFTER_PAUSE", DEFAULT_REWIND_AFTER_PAUSE);}
 
-    /////////////////// START AT ZERO NEXT TRACK option ///////////////////
     public static void setStartAtZeroNextTrack(boolean bool) {prefs.edit().putBoolean("START_AT_ZERO_NEXT_TRACK",bool).apply();}
     public static boolean getStartAtZeroNextTrack() {return prefs.getBoolean("START_AT_ZERO_NEXT_TRACK", DEFAULT_START_AT_ZERO_NEXT_TRACK);}
 
-    /////////////////// STOP AUDIO IF USER CLOSES APP option ///////////////////
     public static void setStopAudioIfUserClosesApp(boolean bool) {prefs.edit().putBoolean("STOP_AUDIO_IF_USER_CLOSES_APP",bool).apply();}
     public static boolean getStopAudioIfUserClosesApp() {return prefs.getBoolean("STOP_AUDIO_IF_USER_CLOSES_APP", DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP);}
 
-    /////////////////// OPEN_PLAYER_VIEW option ///////////////////
     public static void setOpenPlayActivity(boolean bool) {prefs.edit().putBoolean("OPEN_PLAY_ACTIVITY",bool).apply();}
     public static boolean getOpenPlayActivity() {return prefs.getBoolean("OPEN_PLAY_ACTIVITY", DEFAULT_OPEN_PLAY_ACTIVITY);}
+
+    public static void setIfPlayListNullInLoadFileThenLoadFromStorage(boolean bool) {prefs.edit().putBoolean("RELOAD_PLAYLIST_FROM_STORAGE",bool).apply();}
+    public static boolean getIfPlayListNullInLoadFileThenLoadFromStorage() {return prefs.getBoolean("RELOAD_PLAYLIST_FROM_STORAGE", DEFAULT_RELOAD_PLAYLIST_FROM_STORAGE);}
+
 
 
     /////////////////// COPY FILES ///////////////////
@@ -354,6 +356,9 @@ public class Option {
     public static int getPodcastIndexOrgApiNbResults() {return prefs.getInt("PODCAST_INDEX_ORG_API_NB_RESULTS", DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS);}
     public static void setRadioApiNbResults(int i) {prefs.edit().putInt("RADIO_API_NB_RESULTS",i).apply();}
     public static int getRadioApiNbResults() {return prefs.getInt("RADIO_API_NB_RESULTS", DEFAULT_RADIO_API_NB_RESULTS);}
+
+
+    /////////////////// RADIO ///////////////////
 
     public static void setRadioRenewUrl(boolean bool) {prefs.edit().putBoolean("RADIO_RENEW_URL",bool).apply();}
     public static boolean getRadioRenewUrl() {return prefs.getBoolean("RADIO_RENEW_URL", DEFAULT_RADIO_RENEW_URL);}

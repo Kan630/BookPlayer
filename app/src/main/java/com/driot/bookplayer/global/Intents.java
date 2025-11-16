@@ -11,8 +11,10 @@ public class Intents {
     public static final String EXTRA_CMD_STOP    = "CMD_STOP";
     public static final String EXTRA_AUTOPLAY    = "extra_autoplay"; // default false
     public static final String ACTION_PLAY_FROM_FOLDER = "com.driot.bookplayer.PLAY_FROM_FOLDER";
+
     public static final String ACTION_PLAY_FROM_TRACK  = "com.driot.bookplayer.PLAY_FROM_TRACK";
     public static final String EXTRA_TRACK_ID  = "com.driot.bookplayer.EXTRA_TRACK_ID";
+    public static final String EXTRA_ZIKFILE  = "com.driot.bookplayer.EXTRA_ZIKFILE";
     public static final String EXTRA_TRACK_ORDER_NEWEST_FIRST = "com.driot.bookplayer.EXTRA_TRACK_ORDER_NEWEST_FIRST";
     public static final String EXTRA_IS_PODCAST = "com.driot.bookplayer.EXTRA_IS_PODCAST";
     public static final String EXTRA_INDEX     = "extra_index"; // optional, default 0

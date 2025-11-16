@@ -44,7 +44,7 @@
     import com.driot.bookplayer.utils.KanMail;
     import com.driot.bookplayer.utils.log.LoggingActivity;
 
-    public class MainActivity extends LoggingActivity {
+    public class MainActivity extends BaseBottomNavActivity {
 
         private RecyclerView recyclerView;
         private FoldersRVAdapter adapter;
@@ -98,11 +98,13 @@
             }
         };
 
+        @Override protected int getNavId() { return R.id.nav_library; }
+        @Override protected int getLayoutResId() { return R.layout.activity_main; }
 
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
+            //setContentView(R.layout.activity_main);
             InsetHelper.apply(this);
 
             if (savedInstanceState == null && !infoAlreadyShown) {
@@ -271,18 +273,6 @@
             } else if (itemId == R.id.menu_open) {
                 myLogI("--- USER clicks MENU : OPEN ---");
                 startActivity(new Intent(getApplicationContext(), GetActivity.class));
-            } else if (itemId == R.id.action_menu_addBook) {
-                myLogI("--- USER clicks MENU : ADD BOOK ---");
-                startActivity(new Intent(getApplicationContext(), GetActivity.class));
-/*
-            } else if (itemId == R.id.action_menu_radio) {
-                myLogI("--- USER clicks MENU : RADIO ---");
-                UiHelper.startRadioActivity();
-
- */
-
-         // } else if (itemId == R.id.menu_synchro) {
-           //     startActivity(new Intent(this, SynchroActivity.class));
             } else {
                 myLogEE(null,"MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
             }

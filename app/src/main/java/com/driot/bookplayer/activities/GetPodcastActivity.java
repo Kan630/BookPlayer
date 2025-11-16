@@ -20,7 +20,7 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
-public class GetPodcastActivity extends LoggingActivity {
+public class GetPodcastActivity extends BaseBottomNavActivity {
 
     String query, lang;
     EditText1lineWithPasteDelete editTextPodcast;
@@ -31,10 +31,12 @@ public class GetPodcastActivity extends LoggingActivity {
     Button buttonPodcastSearch;
     Spinner spinnerLang;
 
+    @Override protected int getNavId() { return R.id.nav_podcast; }
+    @Override protected int getLayoutResId() { return R.layout.activity_get_podcast; }
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_podcast);
+        //setContentView(R.layout.activity_get_podcast);
         InsetHelper.apply(this);
 
         editTextPodcast = findViewById(R.id.etPodcast);

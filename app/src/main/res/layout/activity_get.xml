@@ -93,63 +93,6 @@
                         android:textColor="?attr/colorOnPrimary"
                         style="@style/Widget.MaterialComponents.Button" />
                 </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginVertical="16dp"
-                    android:padding="24dp">
-
-                    <ImageButton
-                        android:id="@+id/bOpenPodcastsIcon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_podcast_24"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:layout_marginEnd="20dp" />
-
-                    <Button
-                        android:id="@+id/bOpenPodcasts"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/open_podcasts"
-                        android:backgroundTint="?attr/colorPrimary"
-                        android:textColor="?attr/colorOnPrimary"
-                        style="@style/Widget.MaterialComponents.Button" />
-                </LinearLayout>
-
-                <TextView
-                    style="@style/GetResourceTextTopOfButton"
-                    android:textColor="@color/orange_700"
-                    android:text="@string/beta_test" />
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginVertical="0dp"
-                    android:padding="24dp">
-
-                    <ImageButton
-                        android:id="@+id/bOpenRadiosIcon"
-                        android:layout_width="48dp"
-                        android:layout_height="48dp"
-                        android:scaleType="fitCenter"
-                        android:src="@drawable/ic_radio_24px"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:layout_marginEnd="20dp" />
-
-                    <Button
-                        android:id="@+id/bOpenRadios"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@string/browse_radios"
-                        android:backgroundTint="?attr/colorPrimary"
-                        android:textColor="?attr/colorOnPrimary"
-                        style="@style/Widget.MaterialComponents.Button" />
-                </LinearLayout>
-
             </LinearLayout>
         </ScrollView>
 

@@ -22,16 +22,19 @@ import java.util.List;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
-public class SettingsActivity extends LoggingActivity {
+public class SettingsActivity extends BaseBottomNavActivity {
 
     ScrollView scrollView;
     private SectionHost currentlyExpanded = null;
     private boolean headerTapLocked = false;
 
+    @Override protected int getNavId() { return R.id.nav_settings; }
+    @Override protected int getLayoutResId() { return R.layout.activity_settings; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
+        //((SettingsActivity) this).setContentView(R.layout.activity_settings); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
         InsetHelper.apply(this);
 
         scrollView = findViewById(R.id.scrollView);

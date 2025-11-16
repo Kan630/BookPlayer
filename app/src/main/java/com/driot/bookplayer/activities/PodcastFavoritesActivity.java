@@ -26,7 +26,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.util.Collections;
 import java.util.List;
 
-public class PodcastFavoritesActivity extends LoggingActivity {
+public class PodcastFavoritesActivity extends BaseBottomNavActivity {
 
     private PodcastSearchResultsViewModel viewModel;
     private RecyclerView recyclerView;
@@ -34,10 +34,13 @@ public class PodcastFavoritesActivity extends LoggingActivity {
     private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
     private PodcastFavoritesRVAdapter adapter;
 
+    @Override protected int getNavId() { return R.id.nav_podcast; }
+    @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_podcast_search_result);
+        //setContentView(R.layout.activity_podcast_search_result);
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);

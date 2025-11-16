@@ -5,12 +5,6 @@
         tools:context=".MainActivity">
 
     <item
-        android:id="@+id/action_menu_addBook"
-        android:icon="@drawable/ic_add_book"
-        android:title="@string/add_book"
-        app:showAsAction="ifRoom"
-        />
-    <item
         android:id="@+id/action_menu_three_dot"
         android:icon="@drawable/ic_baseline_more_vert_24"
         android:title="@string/action_menu_three_dot"

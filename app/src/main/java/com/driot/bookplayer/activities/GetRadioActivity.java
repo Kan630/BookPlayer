@@ -33,7 +33,7 @@ import retrofit2.Response;
  * Entry screen to browse/search internet radios (Radio Browser).
  * Very close to GetAudiobookActivity: favorites, settings, search, trending.
  */
-public class GetRadioActivity extends LoggingActivity {
+public class GetRadioActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_RADIO_STATION_SEARCH_MODE = "EXTRA_RADIO_STATION_SEARCH_MODE";
 
@@ -54,10 +54,13 @@ public class GetRadioActivity extends LoggingActivity {
     TagCardAdapter tagAdapter;
     RadioBrowserRepository repo;
 
+    @Override protected int getNavId() { return R.id.nav_radio; }
+    @Override protected int getLayoutResId() { return R.layout.activity_get_radio; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_radio);
+        //setContentView(R.layout.activity_get_radio);
         InsetHelper.apply(this);
 
         OngoingTaskHost.attach(

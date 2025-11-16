@@ -51,7 +51,7 @@ import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermission
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
-public class GetOtherActivity extends LoggingActivity {
+public class GetOtherActivity extends BaseBottomNavActivity {
 
     private View importDimScrim;
     private EditText2linesWithPaste etDirectDownload;
@@ -125,10 +125,13 @@ public class GetOtherActivity extends LoggingActivity {
         }
     }
 
+    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getLayoutResId() { return R.layout.activity_get_other; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_other);
+        //setContentView(R.layout.activity_get_other);
         InsetHelper.apply(this);
 
         Button bOpenFile = findViewById(R.id.bOpenFile);

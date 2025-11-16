@@ -111,9 +111,10 @@ public final class FirebaseAnalyticsHelper {
     }
 
 
-    public static void tellAnalyticsPlaylistLoadFromStorage(Context context) {
+    public static void tellAnalyticsPlaylistLoadFromStorage(Context context, String playlist) {
         Bundle bundle = new Bundle();
         bundle.putString("context", context.getClass().getSimpleName());
+        bundle.putString("playlist", String.valueOf(playlist));
         logBundleEvent("playlist_load_from_storage", bundle);
     }
 

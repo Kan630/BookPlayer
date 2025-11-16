@@ -25,7 +25,6 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
-import androidx.lifecycle.Observer;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -59,13 +58,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private @NonNull String currentUiPhase = Intents.PHASE_OFF;
     private @Nullable String currentUiPhaseMsg = null;
 
-    private PlayList.MetaState lastPlayListMeta = new PlayList.MetaState(false, null, false);
-    private final Observer<PlayList.MetaState> metaObs = meta -> {
-        lastPlayListMeta = meta;          // cache latest meta
-        //media.setImage(meta.)
-        //broadcastUiState("PlayList.MetaState");       // rebuild + emit unified UI
-    };
-
     private final java.util.concurrent.atomic.AtomicInteger boundClientCount = new java.util.concurrent.atomic.AtomicInteger();
     private final android.os.Handler serviceHandler = new android.os.Handler(android.os.Looper.getMainLooper());
     private static final int STOP_GRACE_MS = 3000; // small delay to avoid reconnect storms
@@ -77,11 +69,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogI("Clients re-bound during grace → keep service alive");
         }
     };
-    private boolean hasBrowserClients() { return boundClientCount.get() > 0; }
+
+    private boolean hasBrowserClients() {
+        return boundClientCount.get() > 0;
+    }
 
     public static volatile boolean isRunning = false;
-    enum ServiceState { RUNNING, SHUTTING_DOWN, STOPPED }
+
+    enum ServiceState {RUNNING, SHUTTING_DOWN, STOPPED}
+
     private final AtomicReference<ServiceState> state = new AtomicReference<>(ServiceState.RUNNING);
+
     private boolean beginShutdown() {
         // Only the first caller wins; others will still be safe to call finalizeShutdown()
         return state.compareAndSet(ServiceState.RUNNING, ServiceState.SHUTTING_DOWN);
@@ -106,25 +104,26 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private Handler pauseCheckHandler;
 
 
-
     private static final boolean LOG_TRACE_ALL = false;
 
     // --- RADIO MODE ---
-    @Nullable private String streamTitle = null;
-    @Nullable private String streamImageUrl = null; // you can display it in notif if you already support URL bitmaps
-    @Nullable private Uri streamUri = null;
+    @Nullable
+    private String streamTitle = null;
+    @Nullable
+    private String streamImageUrl = null; // you can display it in notif if you already support URL bitmaps
+    @Nullable
+    private Uri streamUri = null;
     private int lastCustomSleepMinutes = 0;
     private long podcastFeedId = -2;
 
     // cache for Android Auto Bitmaps
-    public static final android.util.LruCache<String, android.graphics.Bitmap> artCache  = new android.util.LruCache<>(8);
+    public static final android.util.LruCache<String, android.graphics.Bitmap> artCache = new android.util.LruCache<>(8);
     public static final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(24); //(Least Recently Used) cache with a maximum size of 24
 
     //private final IBinder binder = new BackgroundBinder();
     public static final String TRACKNUMBER = "tracknumber";
     public static final String FROM = "from";
     public static final String ERR_MSG = "err_msg";
-    public static final String READY_TO_PLAY = "NOTIFICATION_FILELOADED";
     public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
     public static final String NOTIFICATION_FILENOTFOUND = "NOTIFICATION_FILENOTFOUND";
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
@@ -177,16 +176,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     };
 
-
-    private void sendReadyToPlay(String why) {
-        boolean ok = (engine != null && engine.isReady() && !ErrorLoadingFile);
-        myLogD("sendReadyToPlay? [" + why + "] ok=" + ok + " playMode=" + getPlayMode());
-        if (!ok) return;
-
-        Intent i = new Intent(READY_TO_PLAY);
-        LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-    }
-
     private PlayerEngine engine;
 
     public boolean directPlay;
@@ -199,10 +188,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
 
     private void broadcastUiState(String fromWhere) {
-        final String loadPhase  = getLoadPhase();
-        final boolean ready     = isReadyToPlay();
-        final boolean playing   = isPlaying();
-        final String playMode   = getPlayMode();
+        final String loadPhase = getLoadPhase();
+        final boolean ready = isReadyToPlay();
+        final boolean playing = isPlaying();
+        final String playMode = getPlayMode();
 
         PlaybackUiState s;
 
@@ -211,27 +200,26 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         extras.putDouble(Intents.EXTRA_SPEED, getSpeed());
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
 
-        if (Objects.equals(playMode, "radio")) {
+        if (Var.PLAY_MODE_RADIO.equals(playMode)) {
             String title = (streamTitle != null) ? streamTitle : getString(R.string.live_radio);
             String text = getString(R.string.live_radio);
             String cover = (streamImageUrl != null) ? streamImageUrl : "";
 
-
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
-                    0,0, getSleepLeftMs(),
+                    0, 0, getSleepLeftMs(),
                     title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, null
             );
-        } else if (Objects.equals(playMode, "podcast")) {
+        } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
             String title = (streamTitle != null) ? streamTitle : getString(R.string.live_podcast);
-            String text  = getString(R.string.live_podcast);
+            String text = getString(R.string.live_podcast);
             String cover = (streamImageUrl != null) ? streamImageUrl : "";
-            long   pos   = (engine != null) ? engine.getCurrentPosition() : 0;
-            long   dur   = (engine != null) ? engine.getDuration()        : 0;
+            long pos = (engine != null) ? engine.getCurrentPosition() : 0;
+            long dur = (engine != null) ? engine.getDuration() : 0;
 
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
@@ -446,8 +434,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         isRunning = true;
         super.onCreate();
 
-        PlayList.getMetaLive().observeForever(metaObs);
-
         // Media session (wrapped)
         media = new MediaSessionController(this, callback);
         MediaSessionCompat session = media.session();
@@ -492,8 +478,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     @Override
                     public void onTick(int elapsedSeconds) {
                         Pref.addToTotalMsPlayed(DELAY_CHECK_TIMER_SLEEP);
+                        myLog("1");
                         updateZikFileStateInDB(false);
+                        myLog("2");
                         emitUiTick("MediaService.SleepTimer.onTick");
+                        myLog("3");
                     }
 
                     @Override
@@ -546,6 +535,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         } catch (Throwable ignored) {
                         }
                         if (pausedByFocusLoss) {
+                            myLogW("play audio because paused by focus lost");
                             playAudio();
                             pausedByFocusLoss = false;
                         }
@@ -627,11 +617,35 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     streamTitle != null ? streamTitle : getString(R.string.live_radio),
                     getString(R.string.live_radio),
                     new PlaybackNotificationManager.ActionProvider() {
-                        @NonNull @Override public PendingIntent rewind()      { return null; } // no-op
-                        @NonNull @Override public PendingIntent fastForward() { return null; } // no-op
-                        @NonNull @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
-                        @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                        @NonNull @Override public PendingIntent content() { return NavHelper.navigateToRadioActivity(MediaService.this); }
+                        @NonNull
+                        @Override
+                        public PendingIntent rewind() {
+                            return null;
+                        } // no-op
+
+                        @NonNull
+                        @Override
+                        public PendingIntent fastForward() {
+                            return null;
+                        } // no-op
+
+                        @NonNull
+                        @Override
+                        public PendingIntent play() {
+                            return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY);
+                        }
+
+                        @NonNull
+                        @Override
+                        public PendingIntent pause() {
+                            return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
+                        }
+
+                        @NonNull
+                        @Override
+                        public PendingIntent content() {
+                            return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this);
+                        }
                     }
             );
             startForegroundWithBuildCheck(n);
@@ -642,8 +656,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         .asBitmap()
                         .load(streamImageUrl)
                         .into(new com.bumptech.glide.request.target.CustomTarget<Bitmap>() {
-                            @Override public void onResourceReady(@NonNull Bitmap bmp,
-                                                                  com.bumptech.glide.request.transition.Transition<? super Bitmap> t) {
+                            @Override
+                            public void onResourceReady(@NonNull Bitmap bmp,
+                                                        com.bumptech.glide.request.transition.Transition<? super Bitmap> t) {
                                 media.setMetadataRadio(streamTitle != null ? streamTitle : getString(R.string.live_radio), "", "", bmp);
                                 // rebuild/update the notification so largeIcon shows
                                 Notification updated = notif.build(
@@ -651,22 +666,51 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                         streamTitle != null ? streamTitle : getString(R.string.live_radio),
                                         getString(R.string.live_radio),
                                         /* same ActionProvider */ new PlaybackNotificationManager.ActionProvider() {
-                                            @NonNull @Override public PendingIntent rewind()      { return null; }
-                                            @NonNull @Override public PendingIntent fastForward() { return null; }
-                                            @NonNull @Override public PendingIntent play()  { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
-                                            @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                                            @NonNull @Override public PendingIntent content() { return NavHelper.navigateToRadioActivity(MediaService.this); }
+                                            @NonNull
+                                            @Override
+                                            public PendingIntent rewind() {
+                                                return null;
+                                            }
+
+                                            @NonNull
+                                            @Override
+                                            public PendingIntent fastForward() {
+                                                return null;
+                                            }
+
+                                            @NonNull
+                                            @Override
+                                            public PendingIntent play() {
+                                                return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY);
+                                            }
+
+                                            @NonNull
+                                            @Override
+                                            public PendingIntent pause() {
+                                                return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
+                                            }
+
+                                            @NonNull
+                                            @Override
+                                            public PendingIntent content() {
+                                                return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this);
+                                            }
                                         }
                                 );
                                 startForegroundWithBuildCheck(updated);
                             }
-                            @Override public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {}
+
+                            @Override
+                            public void onLoadCleared(@Nullable android.graphics.drawable.Drawable placeholder) {
+                            }
                         });
             }
             return;
         }
 
-        ZikFile zf = getCurrentZikFile();
+        PlayList pl = PlayList.getInstance();
+        ZikFile zf = null;
+        if (pl!=null) { zf = pl.getZikFile(); }
         CharSequence title = zf == null ? "---" : zf.getFolderName();
         CharSequence text = zf == null ? "---" : zf.getDisplayName();
 
@@ -676,11 +720,35 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 title,
                 text,
                 new com.driot.bookplayer.player.PlaybackNotificationManager.ActionProvider() {
-                    @NonNull @Override public PendingIntent rewind() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_REWIND); }
-                    @NonNull @Override public PendingIntent play() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY); }
-                    @NonNull @Override public PendingIntent pause() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE); }
-                    @NonNull @Override public PendingIntent fastForward() { return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_FAST_FORWARD); }
-                    @NonNull @Override public PendingIntent content() { return NavHelper.navigateToActivity(MediaService.this); }
+                    @NonNull
+                    @Override
+                    public PendingIntent rewind() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_REWIND);
+                    }
+
+                    @NonNull
+                    @Override
+                    public PendingIntent play() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PLAY);
+                    }
+
+                    @NonNull
+                    @Override
+                    public PendingIntent pause() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_PAUSE);
+                    }
+
+                    @NonNull
+                    @Override
+                    public PendingIntent fastForward() {
+                        return MediaButtonReceiver.buildMediaButtonPendingIntent(MediaService.this, PlaybackStateCompat.ACTION_FAST_FORWARD);
+                    }
+
+                    @NonNull
+                    @Override
+                    public PendingIntent content() {
+                        return NavHelper.navigateToActivity(MediaService.this);
+                    }
                 });
         startForegroundWithBuildCheck(n);
     }
@@ -742,7 +810,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (engine != null) {
             try {
                 if (engine instanceof TtsEngine) {
-                    ((TtsEngine) engine).release();
+                    engine.release();
                 }
                 engine.stop();
                 engine.reset();
@@ -765,21 +833,25 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 AppDatabase.getDatabase(this).zikFileDao().update(nextZikFile);
             }
 
-            new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                directPlay = true;
-                loadFile();
-            });
-            alertNewTrack();
+            if (loadAndPlayTrack(nextZikFile)) {
+                alertNewTrack();
+            } else {
+                myLogEE(null, "error loading next track");
+            }
 
         });
     }
 
     private void alertNewTrack() {
         myLog("alertNewTrack()");
-        ZikFile z = getCurrentZikFile();
         PlayList pl = PlayList.getInstance();
+        if (pl == null) {
+            myLogEE(null, "playlist null on newTrack");
+            return;
+        }
         String cover = null;
-        if (pl!=null && pl.getFolder()!=null) cover = pl.getFolder().image;
+        if (pl.getFolder() != null) cover = pl.getFolder().image;
+        ZikFile z = pl.getZikFile();
         if (z != null) {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
             media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
@@ -788,12 +860,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void alertError(String from, String errMsg) {
-        myLogE("sendBroadcast alertError - from [" + from + "] - errMsg=[" + errMsg + "]" );
+        myLogE("sendBroadcast alertError - from [" + from + "] - errMsg=[" + errMsg + "]");
         Intent i = new Intent(NOTIFICATION_ERROR)
                 .putExtra(FROM, from)
                 .putExtra(ERR_MSG, errMsg);
         PlayList pl = PlayList.getInstance();
-        if (pl!=null && pl.getNumZikFile()>0 && !("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
+        if (pl != null && pl.getNumZikFile() > 0 && !("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
             i.putExtra(TRACKNUMBER, pl.getNumZikFile());
         }
         LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
@@ -844,12 +916,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         final String action = intent.getAction();
         if (action == null) {
-            myLogW("MediaService start with no intent.action");
+            myLogW("onStartCommand with no intent.action");
             return START_STICKY;
         }
 
         switch (action) {
-            // -------- High-level “load something and (likely) play” intents --------
             case Intents.ACTION_PLAY_FROM_TRACK: {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
@@ -858,63 +929,32 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
                 final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
                 myLog("trackId : " + trackId + " - isPodcast : " + isPodcast + " - newestFirst : " + newestFirst);
-                if (trackId > 0) {
+
+                ZikFile zikFile = intent.getParcelableExtra(Intents.EXTRA_ZIKFILE);
+                if (zikFile == null) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
-                        ZikFile clicked = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
-                        if (clicked == null) return;
-
-                        int folderId = clicked.getIdFolder();
-                        Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
-                        List<ZikFile> list;
-                        if (isPodcast) {
-                            if (newestFirst) {
-                                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(folderId);
-                            } else {
-                                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(folderId);
-                            }
+                        ZikFile newZikFile = AppDatabase.getDatabase(this).zikFileDao().getById(trackId);
+                        if (newZikFile == null) {
+                            myLogE("zikFile is Null");
                         } else {
-                            list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
+                            loadAndPlayTrack(newZikFile);
                         }
-                        if (list == null || list.isEmpty()) {
-                            myLogE("ZikFile list empty");
-                            return;
-                        }
-
-                        int index = 0;
-                        for (int i = 0; i < list.size(); i++) {
-                            if (list.get(i).getId() == trackId) {
-                                index = i;
-                                break;
-                            }
-                        }
-
-                        PlayList.create(getApplicationContext(), Var.PLAY_MODE_BOOK, folder, list, index);
-                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                            directPlay = true;
-                            loadFile();
-                        });
                     });
                 } else {
-                    myLogE("track id = " + trackId);
+                    loadAndPlayTrack(zikFile);
                 }
                 return START_STICKY;
+
             }
 
             case Intents.ACTION_PLAY_FROM_FOLDER: {
                 goForegroundPreparing("Preparing…", "Loading folder");
 
                 final int folderId = intent.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
-                final int index = Math.max(0, intent.getIntExtra(Intents.EXTRA_INDEX, 0));
                 if (folderId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);
-                        List<ZikFile> list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
-                        if (list == null || list.isEmpty()) return;
-                        PlayList.create(getApplicationContext(), Var.PLAY_MODE_BOOK, folder, list, Math.min(index, list.size() - 1));
-                        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                            directPlay = true;
-                            loadFile();
-                        });
+                        loadAndPlayFolder(folder);
                     });
                 }
                 return START_STICKY;
@@ -963,7 +1003,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intent.ACTION_MEDIA_BUTTON: {
                 KeyEvent ke = intent.hasExtra(Intent.EXTRA_KEY_EVENT) ? intent.getParcelableExtra(Intent.EXTRA_KEY_EVENT) : null;
-                String keyEventString = (ke!=null) ? ke.getCharacters() : "no key event";
+                String keyEventString = (ke != null) ? ke.getCharacters() : "no key event";
                 myLog("onStartCommand() - Intent.ACTION_MEDIA_BUTTON : " + keyEventString);
                 FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand() - ACTION_MEDIA_BUTTON", keyEventString);
 
@@ -989,9 +1029,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 goForegroundPreparing(getString(R.string.loading), null);
 
                 final String playMode = intent.getStringExtra(Intents.EXTRA_PLAY_MODE);
-                final String url   = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
+                final String url = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
                 final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
-                final String img   = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
+                final String img = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
                 this.podcastFeedId = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
 
                 if (url == null || url.isEmpty()) {
@@ -1049,7 +1089,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intents.CMD_UPDATE_SLEEP: {
                 int newSleepValueInMin = intent.getIntExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, -1);
-                if (newSleepValueInMin>0) sleepTimer.reload(newSleepValueInMin);
+                if (newSleepValueInMin > 0) sleepTimer.reload(newSleepValueInMin);
                 return START_STICKY;
             }
 
@@ -1073,11 +1113,31 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             PlaybackNotificationManager.ActionProvider minimal =
                     new PlaybackNotificationManager.ActionProvider() {
-                        @Override public PendingIntent rewind() { return null; }
-                        @Override public PendingIntent play() { return null; }
-                        @Override public PendingIntent pause() { return null; }
-                        @Override public PendingIntent fastForward() { return null; }
-                        @NonNull @Override public PendingIntent content() { return NavHelper.navigateToMain(MediaService.this); }
+                        @Override
+                        public PendingIntent rewind() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent play() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent pause() {
+                            return null;
+                        }
+
+                        @Override
+                        public PendingIntent fastForward() {
+                            return null;
+                        }
+
+                        @NonNull
+                        @Override
+                        public PendingIntent content() {
+                            return NavHelper.navigateToMain(MediaService.this);
+                        }
                     };
 
             Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());
@@ -1141,29 +1201,46 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 media.session().setPlaybackState(s);
                 media.setActive(false);
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         // Always kill the audio path (idempotent)
         hardStopAudio("shutdown");
 
         // Drop focus after we’re silent
-        try { if (focus != null) focus.abandon(); } catch (Throwable ignored) {}
+        try {
+            if (focus != null) focus.abandon();
+        } catch (Throwable ignored) {
+        }
 
         // Remove UI surface *after* silence
-        try { stopForeground(true); } catch (Throwable ignored) {}
-        try { if (notif != null) notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT); } catch (Throwable ignored) {}
+        try {
+            stopForeground(true);
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (notif != null) notif.cancel(ID_NOTIFICATION_PLAY_AUDIO_INT);
+        } catch (Throwable ignored) {
+        }
 
         // Release session last
         //try { if (media != null) media.release(); } catch (Throwable ignored) {} //no or I will get infinite onGetRoot !!
 
         // Clear state (safe to run twice)
-        try { PlayList pl = PlayList.getInstance(); if (pl != null) pl.clear(); } catch (Throwable ignored) {}
-        streamTitle = null; streamImageUrl = null; streamUri = null;
+        try {
+            PlayList pl = PlayList.getInstance();
+            if (pl != null) pl.clear();
+        } catch (Throwable ignored) {
+        }
+        streamTitle = null;
+        streamImageUrl = null;
+        streamUri = null;
         isRunning = false;
 
         state.set(ServiceState.STOPPED);
         if (!fromDestroy) requestGracefulStopIfNoClients(); // safe if already stopping
     }
+
     private void requestGracefulStopIfNoClients() {
         serviceHandler.removeCallbacks(stopRunnable);
         if (!hasBrowserClients()) {
@@ -1172,25 +1249,57 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogI("Browser clients present → do not stop service");
         }
     }
+
     private void stopAsyncWork() {
-        try { if (sleepTimer != null) sleepTimer.stop(); } catch (Throwable ignored) {}
-        try { if (pauseWatcher != null) pauseWatcher.stop(); } catch (Throwable ignored) {}
-        try { PlayList.getMetaLive().removeObserver(metaObs); } catch (Throwable ignored) {}
-        try { main.removeCallbacksAndMessages(null); } catch (Throwable ignored) {}
+        try {
+            if (sleepTimer != null) sleepTimer.stop();
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (pauseWatcher != null) pauseWatcher.stop();
+        } catch (Throwable ignored) {
+        }
+        try {
+            main.removeCallbacksAndMessages(null);
+        } catch (Throwable ignored) {
+        }
     }
+
     private void hardStopAudio(@NonNull String why) {
         myLogI("hardStopAudio: " + why);
         PlayerEngine e = this.engine;
         this.engine = null; // prevent any more calls into it
         if (e != null) {
-            try { e.pause(); }   catch (Throwable ignored) {}
-            try { e.stop(); }    catch (Throwable ignored) {}
-            try { e.release(); } catch (Throwable t) { myLogEE(t, "engine.release failed"); }
-            try { e.reset(); }   catch (Throwable ignored) {} // ok to be a no-op after release
+            try {
+                e.pause();
+            } catch (Throwable ignored) {
+            }
+            try {
+                e.stop();
+            } catch (Throwable ignored) {
+            }
+            try {
+                e.release();
+            } catch (Throwable t) {
+                myLogEE(t, "engine.release failed");
+            }
+            try {
+                e.reset();
+            } catch (Throwable ignored) {
+            } // ok to be a no-op after release
         }
-        try { if (sleepTimer != null) sleepTimer.stop(); } catch (Throwable ignored) {}
-        try { if (pauseWatcher != null) pauseWatcher.stop(); } catch (Throwable ignored) {}
-        try { if (focus != null) focus.abandon(); } catch (Throwable ignored) {}
+        try {
+            if (sleepTimer != null) sleepTimer.stop();
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (pauseWatcher != null) pauseWatcher.stop();
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (focus != null) focus.abandon();
+        } catch (Throwable ignored) {
+        }
     }
 
 
@@ -1205,7 +1314,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Override
     public BrowserRoot onGetRoot(@NonNull String clientPackageName, int clientUid, @Nullable Bundle rootHints) {
         myLogI("------------ onGetRoot ------------  ");
-        myLog("from pkg=" + clientPackageName + " uid=" + clientUid  + "\nhints : " + getBundleString(rootHints).replace(";","\n"));
+        myLog("from pkg=" + clientPackageName + " uid=" + clientUid + "\nhints : " + getBundleString(rootHints).replace(";", "\n"));
 
         var info = MediaCallerHelper.getCallerInfo(MediaService.this);
         String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
@@ -1215,27 +1324,31 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
 
-    @Override public void onLoadChildren(@NonNull String parentId,
-                                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result,
-                                         @NonNull Bundle options) {
+    @Override
+    public void onLoadChildren(@NonNull String parentId,
+                               @NonNull Result<List<MediaBrowserCompat.MediaItem>> result,
+                               @NonNull Bundle options) {
         myLogD("onLoadChildren(+opts) parentId=" + parentId + "  - options=" + getBundleString(options));
         StartPlayHelper.loadChildrenImpl(this, parentId, options, result);
     }
 
-    @Override public void onLoadChildren(@NonNull String parentId,
-                                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+    @Override
+    public void onLoadChildren(@NonNull String parentId,
+                               @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
         myLogD("onLoadChildren parentId=" + parentId + " (no options)");
         StartPlayHelper.loadChildrenImpl(this, parentId, null, result);
     }
 
 
-    @Override public void onSearch(@NonNull String query, Bundle extras,
-                                   @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
+    @Override
+    public void onSearch(@NonNull String query, Bundle extras,
+                         @NonNull Result<List<MediaBrowserCompat.MediaItem>> result) {
         StartPlayHelper.doSearch(this, query, extras, result);
     }
 
 
-    @Override public IBinder onBind(Intent intent) {
+    @Override
+    public IBinder onBind(Intent intent) {
         int c = boundClientCount.incrementAndGet();
         myLogD("onBind() -> boundClientCount=" + c + " intent=" + intent);
         // if a stop was pending, cancel it because a client just bound
@@ -1243,14 +1356,16 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return super.onBind(intent);
     }
 
-    @Override public boolean onUnbind(Intent intent) {
+    @Override
+    public boolean onUnbind(Intent intent) {
         int c = boundClientCount.decrementAndGet();
         myLogD("onUnbind() -> boundClientCount=" + c + " intent=" + intent);
         // allow rebind callbacks if you want to observe them
         return true; // keep onRebind() callbacks
     }
 
-    @Override public void onRebind(Intent intent) {
+    @Override
+    public void onRebind(Intent intent) {
         int c = boundClientCount.incrementAndGet();
         myLogD("onRebind() -> boundClientCount=" + c + " intent=" + intent);
         serviceHandler.removeCallbacks(stopRunnable);
@@ -1260,7 +1375,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     //----------------------------------------------------------------------------------------------
     //----------------------------------------------------------------------------------------------
 
-    @Override public void onTrimMemory(int level) {
+    @Override
+    public void onTrimMemory(int level) {
         super.onTrimMemory(level);
         if (level >= TRIM_MEMORY_THRESHOLD) {
             myLogW("onTrimMemory() - level=[" + level + "] >= " + TRIM_MEMORY_THRESHOLD);
@@ -1300,43 +1416,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     /**
      * Simplified, side-effect-free loader.
      */
-    public void loadFile() {
-        myLogD("loadFile()  directPlay=" + directPlay);
-
-        // Ensure we actually have something to play
-        PlayList pl = PlayList.getInstance();
-        if (pl == null || pl.getZikFile() == null) {
-/*
-            PlayList.createFromScratch(this);
-            pl = PlayList.getInstance();
-            if (pl == null || pl.getZikFile() == null) {
-                loadFileKO(null);
-                return;
-            }
- */
-            loadFileKO("playlist/zikFile null");
-            return;
-        }
-
-        ZikFile zf = pl.getZikFile();
-
-        // Decide engine type from display or path
-        final boolean isText = (zf.getPath() != null && zf.getPath().toLowerCase().endsWith(".txt"));
-
-        // Resolve Uri
-        Uri src = UriHelper.resolvePlayableUri(this, zf);
-        if (src == null) {
-            myLogEE(null, "resolvePlayableUri failed for: " + zf.getPath());
-            loadFileKO(zf.getPath());
-            return;
-        }
+    public void loadFile(String playMode, Uri src, ZikFile zf) {
+        myLogD("loadFile()  directPlay=" + directPlay + " - uri = [" + src + "]");
 
         // New generation (guards async callbacks)
         engineGen++;
         long gen = engineGen;
 
         // Swap engine
-        PlayerEngine fresh = isText
+        PlayerEngine fresh = Var.PLAY_MODE_TTS.equals(playMode)
                 ? new TtsEngine(getApplicationContext(), AppTtsManager.get(getApplicationContext()), engineCb, gen)
                 : new MediaPlayerEngine(engineCb, gen);
         setEngine(fresh);
@@ -1347,13 +1435,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         showForegroundNotification(isPlaying());
 
         // PHASE: LOADING_TEXT (text extraction / paragraphize happens inside setDataSource)
-        if (fresh instanceof TtsEngine) setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
+        if (Var.PLAY_MODE_TTS.equals(playMode))
+            setUiPhase(Intents.PHASE_LOADING_TEXT, "Loading text…");
 
         // Update media session metadata early (title/sub), set BUFFERING, show paused notif
         media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
 
-        String cover = (pl.getFolder()==null) ? null : pl.getFolder().image;
-        media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+        //String cover = (pl.getFolder()==null) ? null : pl.getFolder().image;
+        //media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
 
         showForegroundNotification(isPlaying());
 
@@ -1422,14 +1511,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         broadcastUiState("playAudio");
 
-        if (!("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
-            if (engine == null || needsReloadForPlaylist()) {
-                new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                    directPlay = true;
-                    loadFile();
-                });
-                return;
-            }
+        if (engine == null || needsReloadForPlaylist()) {
+            loadAndPlay();
+            return;
         }
 
         if (engine.isPlaying()) {
@@ -1504,11 +1588,25 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ***       SPEED - POSITION
      ********************************************************************************
      */
-    public long getPosition() { return engine != null ? engine.getCurrentPosition() : 0; }
-    public long getDuration() { return engine != null ? engine.getDuration() : 0; }
-    public boolean isPlaying() { return engine != null && engine.isPlaying(); }
-    public boolean isRunning() { return isRunning; }
-    public int getAudioSessionId() { return engine != null ? engine.getAudioSessionId() : 0; }
+    public long getPosition() {
+        return engine != null ? engine.getCurrentPosition() : 0;
+    }
+
+    public long getDuration() {
+        return engine != null ? engine.getDuration() : 0;
+    }
+
+    public boolean isPlaying() {
+        return engine != null && engine.isPlaying();
+    }
+
+    public boolean isRunning() {
+        return isRunning;
+    }
+
+    public int getAudioSessionId() {
+        return engine != null ? engine.getAudioSessionId() : 0;
+    }
 
     public void setPosition(long position) {
         myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatMmSs(position));
@@ -1528,21 +1626,23 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Exception e) {
             myLogEE(e, "MediaService Error setting Speed");
         }
-        ZikFile zf = getCurrentZikFile();
-        if (zf != null) Pref.saveSpeedToPref(zf.getIdFolder(), speed);
+        PlayList pl = PlayList.getInstance();
+        if (pl!=null && (Var.PLAY_MODE_BOOK.equals(pl.getPlayMode()) || Var.PLAY_MODE_TTS.equals(pl.getPlayMode()))) {
+            ZikFile zf = pl.getZikFile();
+            if (zf != null) Pref.saveSpeedToPref(zf.getIdFolder(), speed);
+        }
     }
 
     public double getSpeed() {
-        ZikFile zf = getCurrentZikFile();
-        if (zf != null) speed = Pref.getSpeedFromPref(zf.getIdFolder());
+        PlayList pl = PlayList.getInstance();
+        if (pl!=null) {
+            ZikFile zf = pl.getZikFile();
+            if (zf != null) {
+                speed = Pref.getSpeedFromPref(zf.getIdFolder());
+            }
+        }
         if (speed == 0) speed = 1.0;
         return speed;
-    }
-
-
-    private @Nullable ZikFile getCurrentZikFile() {
-        PlayList pl = PlayList.getInstance();
-        return (pl != null) ? pl.getZikFile() : null;
     }
 
     public void logPauseTime() {
@@ -1558,10 +1658,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ********************************************************************************
      */
     private void updateZikFileStateInDB(boolean bFinished) {
-        if ("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode())) return;
-        ZikFile zf = getCurrentZikFile();
+        if (Var.PLAY_MODE_RADIO.equals(getPlayMode()) || Var.PLAY_MODE_PODCAST.equals(getPlayMode())) return;
+        PlayList pl = PlayList.getInstance();
+        ZikFile zf = null;
+        if (pl!=null) {
+            zf = pl.getZikFile();
+        }
         if (zf == null) {
-            myLogEE(null, "updateZikFileState : currentZikFile = null");
+            myLogEE(null, "updateZikFileState : ZikFile = null");
             return;
         }
         try {
@@ -1619,7 +1723,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         setUiPhase(Intents.PHASE_READY, null);
 
-        if (!("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
+        if (!(Var.PLAY_MODE_RADIO.equals(getPlayMode()) || Var.PLAY_MODE_PODCAST.equals(getPlayMode()))) {
             setPositionPlayStart();
 
             if (engine != null) {
@@ -1627,19 +1731,18 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 if (pl != null) {
                     ZikFile zf = pl.getZikFile();
                     if (zf != null) {
-                        String cover = (pl.getFolder()==null ? null : pl.getFolder().image);
+                        String cover = (pl.getFolder() == null ? null : pl.getFolder().image);
                         media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(), engine.getDuration(), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
                     }
                 }
             }
         }
 
-        // Only send READY when engine.isReady()==true
-        sendReadyToPlay("onEnginePrepared");
-
         if (directPlay) {
+            myLog("directPlay = " + directPlay);
             startPlayWithEngine();
         } else {
+            myLogE("directPlay = " + directPlay);
             updateSessionState(false);
             showForegroundNotification(false);
         }
@@ -1652,7 +1755,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             updateZikFileStateInDB(true);
             alertTrackFinished();
             PlayList pl = PlayList.getInstance();
-            if (pl!=null && pl.isLastTrack()) {
+            if (pl != null && pl.isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");
                 alertPlaylistFinished();
                 shutdown(false);
@@ -1705,7 +1808,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     public long getSleepLeftMs() {
         //myLog("sleep:" + (sleepTimer!=null ? "" + sleepTimer.getSleepLeftMs() : "sleep timer null"));
-        return (sleepTimer!=null) ? sleepTimer.getSleepLeftMs() : 0;
+        return (sleepTimer != null) ? sleepTimer.getSleepLeftMs() : 0;
     }
 
     public String getPlayMode() {
@@ -1721,7 +1824,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     public String getLoadPhase() {
-        if (engine==null) return Intents.PHASE_OFF;;
+        if (engine == null) return Intents.PHASE_OFF;
+        ;
         if (engine.isPlaying() || engine.isReady()) {
             return Intents.PHASE_READY;
         } else {
@@ -1875,62 +1979,16 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private long currentActions() {
         return "radio".equals(getPlayMode()) ? ACTIONS_RADIO : ACTIONS_FILE;
     }
-    private void playRadioStream(@NonNull String url, @NonNull String title, @Nullable String imageUrl) {
-        myLogD("playRadioStream: " + title + " -> " + url);
 
-        streamTitle = title;
-        streamImageUrl = imageUrl;
-        streamUri = Uri.parse(url);
-        if (streamUri ==null) {
-            myLogEE(null, "playRadioStream : radioUri==null for url=" + url);
-            return;
-        }
-        broadcastUiState("playRadioStream");                  // first snapshot (BUFFERING)
-
-        // Swap engine to Exo for radio
-        engineGen++;
-        long gen = engineGen;
-        PlayerEngine fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
-        setEngine(fresh);
-        ErrorLoadingFile = false;
-
-        // Update MediaSession to BUFFERING with radio meta
-        //media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, playbackStateCompatAction);
-
-        updateSessionState(false);
-
-        media.setMetadataRadio(
-                /* title   */ title,
-                /* artist  */ getString(R.string.live_radio),
-                /* album   */ title,
-                /* artBmp  */ null
-        );
-        showForegroundNotification(false); // shows paused/buffering style
-
-        try {
-            engine.reset();
-            engine.setDataSource(this, streamUri, title);
-            engine.prepareAsync();
-
-            // Broadcast a first UI state (pos/dur 0)
-            broadcastUiState("playRadioStream2");
-            // Auto-play when ready
-            directPlay = true;
-
-        } catch (Exception e) {
-            myLogEE(e, "playRadioStream setDataSource/prepareAsync failed, radioUri=" + streamUri);
-            alertError(null, null);
-        }
-    }
-    private void playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
+    private boolean playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
         myLogI(playMode + ": [" + title + "] -> [" + url + "]");
 
         streamTitle = title;
         streamImageUrl = imageUrl;
         streamUri = Uri.parse(url);
-        if (streamUri ==null) {
+        if (streamUri == null) {
             myLogEE(null, "playPodcastStream : radioUri==null for url=" + url);
-            return;
+            return false;
         }
         broadcastUiState("playStream " + playMode);                  // first snapshot (BUFFERING)
 
@@ -1948,7 +2006,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
         } else {
             myToastEE(null, "unknown playMode " + playMode);
-            return;
+            return false;
         }
 
         setEngine(fresh);
@@ -1986,7 +2044,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Exception e) {
             myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed, radioUri=" + streamUri);
             alertError(null, null);
+            return false;
         }
+        return true;
     }
 
     private void updateSessionState(boolean playing) {
@@ -1998,9 +2058,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             PlaybackStateCompat cur = s.getController().getPlaybackState();
             if (cur == null || cur.getState() == PlaybackStateCompat.STATE_NONE) {
                 long actions = currentActions();
-                long pos     = ("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode())) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
+                long pos = ("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode())) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
                         : (engine != null ? engine.getCurrentPosition() : 0L);
-                float sp     = playing ? (float) getSpeed() : 0f;
+                float sp = playing ? (float) getSpeed() : 0f;
 
                 PlaybackStateCompat init = new PlaybackStateCompat.Builder()
                         .setActions(actions)
@@ -2077,7 +2137,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         // 1) Stop current utterance cleanly (no full reset)
         try {
             tts.pause(); // lighter than stop(); avoids resetting engine state
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         // 2) Move the engine cursor
         try {
@@ -2095,9 +2156,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             int[] w = TtsHelper.findWordBounds(fullText, clamped);
             Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
                     .putExtra(Intents.EXTRA_TTS_START, w[0])
-                    .putExtra(Intents.EXTRA_TTS_END,   w[1]);
+                    .putExtra(Intents.EXTRA_TTS_END, w[1]);
             LocalBroadcastManager.getInstance(this).sendBroadcast(i);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         // 4) If we were speaking, resume from the new cursor; otherwise stay READY
         if (wasPlaying) {
@@ -2125,5 +2187,90 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
         }
     }
+
+    private boolean loadAndPlayTrack(ZikFile zikFile) {
+        // Resolve Uri
+        Uri src = UriHelper.resolvePlayableUri(this, zikFile);
+        String err;
+        if (src == null) {
+            err = "resolvePlayableUri failed for: " + zikFile.getPath();
+            myLogEE(null, err);
+            loadFileKO(err);
+            return false;
+        }
+
+        Folder folder = AppDatabase.getDatabase(this).folderDao().getById(zikFile.getIdFolder());
+        List<ZikFile> list;
+        /*
+        if (isPodcast) {
+            if (newestFirst) {
+                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(folderId);
+            } else {
+                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(folderId);
+            }
+        } else {
+            list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
+        }
+         */
+        list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folder.getId());
+        if (list == null || list.isEmpty()) {
+            err = "ZikFile list empty";
+            myLogEE(null, err);
+            loadFileKO(err);
+            return false;
+        }
+
+        int index = 0;
+        for (int i = 0; i < list.size(); i++) {
+            if (list.get(i).getId() == zikFile.getId()) {
+                index = i;
+                break;
+            }
+        }
+
+        String playMode = folder.playType;
+
+        PlayList.createFromZikFile(getApplicationContext(), playMode, folder, zikFile, list, index);
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            directPlay = true;
+            loadFile(playMode, src, zikFile);
+        });
+        return true;
+    }
+
+    private boolean loadAndPlayFolder(Folder folder) {
+
+        ZikFile zikFile = AppDatabase.getDatabase(this).zikFileDao().getLastListenedZikFileOfFolder(folder.getId());
+        String err;
+        if (zikFile == null) {
+            err = "loadAndPlayFolder: " + folder.getName() + " - could not find zikFile";
+            myLogEE(null, err);
+            loadFileKO(err);
+            return false;
+        }
+        return loadAndPlayTrack(zikFile);
+    }
+
+    private boolean loadAndPlay() {
+        PlayList.createFromStorage(this);
+        PlayList pl = PlayList.getInstance();
+        if (pl == null) {
+            myLogEE(null, "error creating playlist from storage");
+            return false;
+        }
+
+        String playMode = pl.getPlayMode();
+        if (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode)) {
+            return loadAndPlayTrack(pl.getZikFile());
+        } else if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
+            return playStream(playMode, pl.getUrl(), null, null);
+        } else {
+            myLogEE(null, "error wrong playMode = " + playMode);
+            return false;
+        }
+
+    }
+
+
 
 }

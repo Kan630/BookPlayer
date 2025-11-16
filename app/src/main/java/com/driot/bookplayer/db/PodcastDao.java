@@ -28,6 +28,8 @@ public interface PodcastDao {
     @Query("SELECT * FROM Podcast WHERE idFolder = :folderId LIMIT 1")
     Podcast getPodcastByFolderId(long folderId);
 
+    @Query("SELECT count(*) FROM Podcast WHERE isFavorite = 1")
+    int getFavoriteCount();
 
     @Query("SELECT * FROM Podcast WHERE isFavorite = 1 ORDER BY date_added DESC")
     LiveData<List<Podcast>> getFavoritePodcastsLive();

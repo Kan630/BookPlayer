@@ -33,7 +33,7 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 
-public class ZikFileActivity extends LoggingActivity {
+public class ZikFileActivity extends BaseBottomNavActivity {
 
     private RecyclerView recyclerView;
     private ZikFilesViewModel listVm;
@@ -57,10 +57,14 @@ public class ZikFileActivity extends LoggingActivity {
         sendBroadcast(new Intent(Intents.ACTION_PING_UI));
     }
 
+    @Override protected int getNavId() { return R.id.nav_library; }
+    @Override protected int getLayoutResId() { return R.layout.activity_zikfile; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_zikfile);
+        //setContentView(R.layout.activity_zikfile);
         InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerview_zikfiles);

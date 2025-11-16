@@ -352,17 +352,6 @@ public class PlayActivity extends LoggingActivity {
             }
         });
 
-        // Meta observer (cover, podcast click handlers, TTS voice spinner init)
-        PlayList.getMetaLive().observe(this, ms -> {
-            if (ms == null || !ms.loaded) return;
-
-            // Podcast title/sub click → open episodes on double tap
-            if (ms.isPodcast) {
-                tvTitle.setOnClickListener(v -> handlePodcastClick(ms.podcast));
-                tvSubTitle.setOnClickListener(v -> handlePodcastClick(ms.podcast));
-            }
-        });
-
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
@@ -380,7 +369,6 @@ public class PlayActivity extends LoggingActivity {
                 finish();
             }
         });
-
 
         // Register UI-level broadcasts we still use
         LocalBroadcastManager lb = LocalBroadcastManager.getInstance(this);

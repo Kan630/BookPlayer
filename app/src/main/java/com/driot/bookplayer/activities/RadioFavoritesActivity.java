@@ -34,7 +34,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RadioFavoritesActivity extends LoggingActivity {
+public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     private RadioResultsViewModel viewModel;
     private RecyclerView recyclerView;
@@ -43,10 +43,13 @@ public class RadioFavoritesActivity extends LoggingActivity {
     private View dropZone;
     private ItemTouchHelper touchHelper;
 
+    @Override protected int getNavId() { return R.id.nav_radio; }
+    @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_radio_results);
+        //setContentView(R.layout.activity_radio_results);
 
         recyclerView = findViewById(R.id.recyclerView);
         dropZone     = findViewById(R.id.dragDeleteZone);
