@@ -851,6 +851,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
+    // right now used only to close Activity, maybe add something on fragment ?
+    // right now, if not tts, will finish activity and display error ui message
     private void alertError(String from, String errMsg) {
         myLogE("sendBroadcast alertError - from [" + from + "] - errMsg=[" + errMsg + "]");
         Intent i = new Intent(NOTIFICATION_ERROR)
@@ -1409,7 +1411,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      * Simplified, side-effect-free loader.
      */
     public void loadFile(String playMode, Uri src, ZikFile zf) {
-        myLogD("loadFile()  directPlay=" + directPlay + " - uri = [" + src + "]");
+        myLogD("loadFile() - playMode=[" + playMode + "] - directPlay=" + directPlay +
+                "\nuri = [" + src + "]");
 
         // New generation (guards async callbacks)
         engineGen++;
@@ -1708,7 +1711,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogE("loadFileKO");
         FirebaseAnalyticsHelper.tellAnalyticsLoadFileKO(strFilePathError, getPlayMode());
         ErrorLoadingFile = true;
-        ErrorUi.showPlayAudioErrorMessage(this, null);
+        ErrorUi.showPlayAudioErrorMessage(this, null, strFilePathError);
         shutdown(false);
     }
 
@@ -2222,7 +2225,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
         }
 
-        String playMode = folder.playType;
+        String playMode = ("text".equals(folder.playType) ? Var.PLAY_MODE_TTS : Var.PLAY_MODE_BOOK) ;
 
         PlayList.createFromZikFile(getApplicationContext(), playMode, folder, zikFile, list, index);
         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {

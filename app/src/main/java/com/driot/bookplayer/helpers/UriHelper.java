@@ -485,6 +485,37 @@ public class UriHelper {
             return null;
         }
     }
+
+    @Nullable
+    public static Uri resolveUriFromPath(Context context, String path) {
+        if (path==null) return null;
+        try {
+            // Content (SAF)
+            if (path.startsWith("content://")) {
+                Uri u = Uri.parse(path);
+                DocumentFile f = DocumentFile.fromSingleUri(context, u);
+                return (f.exists() && f.isFile()) ? u : null;
+            }
+
+            // file://
+            if (path.startsWith("file://")) {
+                Uri u = Uri.parse(path);
+                String p = u.getPath();
+                if (p == null) return null;
+                File f = new File(p);
+                if (f.exists() && f.isFile()) return u;
+            }
+
+            // Plain filesystem path
+            if (fileExists(path)) return Uri.fromFile(new File(path));
+
+        } catch (Throwable t) {
+            myLogEE(t, "resolvePlayableUri");
+            return null;
+        }
+        return null;
+    }
+
     public static boolean checkLongTermReadable(Context ctx, Uri src) {
         // Try to persist; if it succeeds, just return src.
         try {

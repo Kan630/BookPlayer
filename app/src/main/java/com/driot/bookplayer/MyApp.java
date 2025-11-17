@@ -10,6 +10,7 @@ import android.os.Looper;
 import android.os.StrictMode;
 
 import com.driot.bookplayer.db.AppUpgrade;
+import com.driot.bookplayer.db.DbClean;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
@@ -65,6 +66,8 @@ public class MyApp extends Application {
         InAppMsgManager.schedule(getApplicationContext());
 
         AppUpgrade.runMigrations(getApplicationContext());
+
+        DbClean.doClean(getApplicationContext(), true, false);
 
         myLog("Context has been initialized");
 

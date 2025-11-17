@@ -733,7 +733,7 @@ public class PlayActivity extends LoggingActivity {
 
 
     private void finishAndShowFatalError(String errMessage) {
-        ErrorUi.showPlayAudioErrorMessage(this, errMessage);
+        ErrorUi.showPlayAudioErrorMessage(this, errMessage, null);
         finish();
     }
 
