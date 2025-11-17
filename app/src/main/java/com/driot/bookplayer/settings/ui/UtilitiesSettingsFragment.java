@@ -17,6 +17,8 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.player.MediaService;
+import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -104,6 +106,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             myLogI("--- user clicks RESET APP ---");
             ImportHelper.cancelCurrentImport(requireContext().getApplicationContext());
             ImportHelper.cancelAll_in_DB(requireContext().getApplicationContext());
+            PlaybackCommands.stop(requireContext().getApplicationContext());
             myToast("App Reset Done");
         });
 

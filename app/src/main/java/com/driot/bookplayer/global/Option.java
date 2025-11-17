@@ -55,6 +55,7 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_EPISODES_SORT_NEWEST_TOP = true;
     public static final boolean DEFAULT_PODCAST_EPISODES_DESCRIPTION_EXPAND = false;
     public static final boolean DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW = true;
+    public static final boolean DEFAULT_PODCAST_ADD_DATE_TO_EPISODE_NAME = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
     private static final String DEFAULT_LANGUAGE = "system";
     public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
@@ -311,6 +312,11 @@ public class Option {
 
     public static void setPodcastOpenSpecificView(boolean bool) {prefs.edit().putBoolean("PODCAST_OPEN_SPECIFIC_VIEW",bool).apply();}
     public static boolean getPodcastOpenSpecificView() {return prefs.getBoolean("PODCAST_OPEN_SPECIFIC_VIEW", DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW);}
+
+    public static void setPodcastAddDateToEpisodeName(boolean bool) {prefs.edit().putBoolean("PODCAST_ADD_DATE_TO_EPISODE_NAME",bool).apply();}
+    public static boolean getPodcastAddDateToEpisodeName() {return prefs.getBoolean("PODCAST_ADD_DATE_TO_EPISODE_NAME", DEFAULT_PODCAST_ADD_DATE_TO_EPISODE_NAME);}
+
+
 
 
 

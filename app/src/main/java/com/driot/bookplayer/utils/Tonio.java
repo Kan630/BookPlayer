@@ -234,6 +234,12 @@ public class Tonio {
         return s;
     }
 
+    public static String formatDateForDisplay(long timestamp) {
+        Date date = new Date(timestamp);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US); //any local would work, just digits here
+        return sdf.format(date);
+    }
+
     public static String FormatNameForDisplay_withUnderscore(String s) {
         s = stripExtension(s);
         s = removeLongDuplicates(s,10);

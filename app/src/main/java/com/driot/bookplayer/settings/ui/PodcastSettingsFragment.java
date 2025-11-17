@@ -26,12 +26,15 @@ public class PodcastSettingsFragment extends LoggingFragment {
     private CheckBox chk_podcast_episodes_expand;
     private CheckBox chk_podcast_autodownloaded_at_the_top;
     private CheckBox chk_podcast_open_specific_view;
+    private CheckBox chk_podcast_add_date_to_episode_name;
 
     private LinearLayout ll_podcast_auto_delete;
     private LinearLayout ll_podcast_episodes_sort_order;
     private LinearLayout ll_podcast_episodes_expand;
     private LinearLayout ll_podcast_autodownloaded_at_the_top;
     private LinearLayout ll_podcast_open_specific_view;
+    private LinearLayout ll_podcast_add_date_to_episode_name;
+
 
     // EDIT TEXTS
     private EditText et_podcast_delay_deletion;
@@ -85,6 +88,13 @@ public class PodcastSettingsFragment extends LoggingFragment {
         ll_podcast_auto_delete.setOnClickListener(v -> chk_podcast_auto_delete.toggle());
         chk_podcast_auto_delete.setOnCheckedChangeListener((buttonView, isChecked) ->
                 Option.setPodcastAutoDelete(isChecked));
+
+        chk_podcast_add_date_to_episode_name = root.findViewById(R.id.chk_podcast_add_date_to_episode_name);
+        ll_podcast_add_date_to_episode_name  = root.findViewById(R.id.ll_podcast_add_date_to_episode_name);
+        chk_podcast_add_date_to_episode_name.setChecked(Option.getPodcastAddDateToEpisodeName());
+        ll_podcast_add_date_to_episode_name.setOnClickListener(v -> chk_podcast_add_date_to_episode_name.toggle());
+        chk_podcast_add_date_to_episode_name.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setPodcastAddDateToEpisodeName(isChecked));
 
         // ====== EDIT TEXTS ======
         et_podcast_index_org_api_nb_results = root.findViewById(R.id.et_librivox_api_nb_results);

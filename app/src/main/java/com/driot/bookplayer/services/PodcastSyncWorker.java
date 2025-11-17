@@ -119,7 +119,17 @@ public class PodcastSyncWorker extends LoggingWorker {
                 if (idFile < 1) { // not in DB
                     double zeOrder = zikFileDao.getMaxOrder(idFolder) + 1;
 
-                    String trackTitle = Tonio.formatNameForDisplay(episode.title, false);
+                    String trackTitle = null;
+                    try {
+                        trackTitle = (Option.getPodcastAddDateToEpisodeName()
+                                ? "[" + Tonio.formatDateForDisplay(Long.parseLong(episode.datePublished)*1000) + "]"
+                                : "");
+                        trackTitle = trackTitle + " " + Tonio.formatNameForDisplay(episode.title, false);
+                    } catch (Exception ignored) {}
+                    if (trackTitle==null) {
+                        trackTitle = file.getName();
+                    }
+                    myLogD("trackTitle : << " + trackTitle + " >>");
 
                     myLogD("getting duration for file : [" + file.getAbsolutePath() + ']');
                     long duration = 0;

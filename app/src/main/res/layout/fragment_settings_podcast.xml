@@ -138,6 +138,41 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+    <LinearLayout
+        android:id="@+id/ll_Download"
+        style="@style/LinearLayoutOptionsVertical">
+
+
+        <LinearLayout
+            style="@style/simpleLinearLayout_Horizontal"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="5dp">
+
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/Download"
+                android:layout_marginTop="0dp" />
+        </LinearLayout>
+
+        <LinearLayout
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:id="@+id/ll_podcast_add_date_to_episode_name"
+            android:layout_marginTop="0dp">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_podcast_add_date_to_episode_name"
+                style="@style/OptionCheckBox" />
+
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_podcast_chk_podcast_add_date_to_episode_name" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <LinearLayout
             android:id="@+id/ll_AutoDownload"
             style="@style/LinearLayoutOptionsVertical">

@@ -505,7 +505,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
-        StartPlayHelper.onZikFileFromPodcast(getApplicationContext(), zikFile, this.getClass().getSimpleName() + ".onOpenLocalEpisode()", sortNewestFirst);
+        StartPlayHelper.onZikFileFromPodcast(this, zikFile, this.getClass().getSimpleName() + ".onOpenLocalEpisode()", sortNewestFirst);
     }
 
     @Override

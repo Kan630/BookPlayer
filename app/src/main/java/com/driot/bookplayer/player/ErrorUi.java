@@ -21,7 +21,7 @@ public class ErrorUi {
     public static void showPlayAudioErrorMessage(Context context, String errMessage, String zikFilePath) {
         myLogW("showPlayAudioErrorMessage(" + errMessage + ", " + zikFilePath + ")");
         String pathText = null;
-        String newErrorMessage = "";
+        String newErrorMessage = null;
         try {
             if (zikFilePath==null) {
                 PlayList pl = PlayList.getInstance();
@@ -34,7 +34,14 @@ public class ErrorUi {
                 newErrorMessage = getErrorMessage(context, zikFilePath);
             }
 
-            if (newErrorMessage.equals(context.getString(R.string.permission_not_set))) {
+            if (errMessage==null && newErrorMessage!=null) {
+                errMessage = newErrorMessage;
+            } else if (newErrorMessage!=null) {
+                errMessage = errMessage + "\n\n" + newErrorMessage;
+            }
+
+            if (newErrorMessage!=null && newErrorMessage.equals(context.getString(R.string.permission_not_set))) {
+                //add button
                 Intent appDetails = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
                         .setData(Uri.fromParts("package", context.getPackageName(), null));
                 if (!(context instanceof android.app.Activity)) {
@@ -49,8 +56,10 @@ public class ErrorUi {
                         appDetails
                 );
             } else {
-                MsgBox.alert(context, context.getString(R.string.error_reading_track), errMessage + "\n\n" + newErrorMessage, pathText);
+                MsgBox.alert(context, context.getString(R.string.error_reading_track), errMessage, pathText);
             }
+
+
 
         } catch (Throwable t) {
             myToastEE(t, context.getString(R.string.error_reading_track));
@@ -67,7 +76,7 @@ public class ErrorUi {
             if (!exists) {
                 if (StorageHelper.isInInternalMemory(zikFilePath)) {
                     myLogW("should not happen");
-                    errMessage = context.getString(R.string.source_not_found);
+                    errMessage = context.getString(R.string.source_not_found) + "\n- this should not happen -";
                 } else {
                     errMessage = context.getString(R.string.source_not_found_deleted);
                 }
@@ -76,7 +85,7 @@ public class ErrorUi {
                     errMessage = context.getString(R.string.permission_not_set);
                 } else {
                     myLogW("should not happen");
-                    errMessage = context.getString(R.string.source_not_found);
+                    errMessage = context.getString(R.string.source_not_found) + "\n- this should not happen -";
                 }
             }
         return errMessage;

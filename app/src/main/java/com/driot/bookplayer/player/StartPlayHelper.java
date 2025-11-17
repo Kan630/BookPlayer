@@ -170,19 +170,19 @@ public class StartPlayHelper {
         });
     }
 
-    public static void onZikFileFromPodcast(Context context, ZikFile zikFile, String caller, boolean sortNewestFirst) {
+    public static void onZikFileFromPodcast(Context activityContext, ZikFile zikFile, String caller, boolean sortNewestFirst) {
         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
             if (MediaService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
                 if (PlaybackUiBus.get().state().getValue().trackId==zikFile.getId()) {
                     myLog("already playing that track - [" + zikFile.getDisplayName() + "]");
-                    startActivityBecauseSameTrack(context);
+                    startActivityBecauseSameTrack(activityContext);
                     return;
                 }
             }
 
             try {
                 myLog("onOpenLocalEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
-                playZikFile(context, zikFile.getId(), caller, true, sortNewestFirst);
+                playZikFile(activityContext, zikFile.getId(), caller, true, sortNewestFirst);
             } catch (Exception e) {
                 myLogEE(e, "clickOnEpisode - playThatShit");
             }

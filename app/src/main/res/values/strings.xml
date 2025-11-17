@@ -660,7 +660,7 @@
     <string name="current_position">Current position</string>
     <string name="total_time">Duration</string>
     <string name="file_name">File name</string>
-    <string name="source_not_found">The source file could not be found or read.</string>
+    <string name="source_not_found">The source file could not be found.</string>
     <string name="source_not_found_deleted">The source file could not be found. It may have been deleted.</string>
     <string name="source_file_path">Path of source file</string>
     <string name="permission_not_set">The permission is not set.</string>
@@ -1132,5 +1132,9 @@
     <string name="loading">loading</string>
     <string name="no_review">no review</string>
     <string name="library">library</string> // stay below 10/12 chars
+    <string name="source_not_read">Unable to read the source file.</string>
+    <string name="Download">Download</string>
+    <string name="option_podcast_chk_podcast_add_date_to_episode_name">Add the publication date to the episode name</string>
+
 
 </resources>
