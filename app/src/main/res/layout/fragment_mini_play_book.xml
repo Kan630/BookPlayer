@@ -73,7 +73,7 @@
                 android:contentDescription="@string/forward" />
 
             <ImageButton
-                android:id="@+id/btnStop"
+                android:id="@+id/btnClose"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="@string/stop" />

@@ -29,7 +29,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class GetRadioCardListActivity extends LoggingActivity {
+public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";
     public static final int MODE_TAG      = 0;
@@ -51,9 +51,12 @@ public class GetRadioCardListActivity extends LoggingActivity {
         ctx.startActivity(i);
     }
 
+    @Override protected int getNavId() { return R.id.nav_radio; }
+    @Override protected int getLayoutResId() { return R.layout.activity_get_radio_by_tag; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    
     @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_radio_by_tag);
         InsetHelper.apply(this);
 
         rv = findViewById(R.id.recyclerView);

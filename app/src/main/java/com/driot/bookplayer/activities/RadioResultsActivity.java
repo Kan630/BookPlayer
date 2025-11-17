@@ -31,7 +31,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class RadioResultsActivity extends LoggingActivity {
+public class RadioResultsActivity extends BaseBottomNavActivity {
 
     // --- list ---
     private RecyclerView recyclerView;
@@ -41,14 +41,14 @@ public class RadioResultsActivity extends LoggingActivity {
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
 
+    @Override protected int getNavId() { return R.id.nav_radio; }
+    @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_radio_results);
-
-        // Insets & overlays
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
-        //OngoingTaskHost.attach(this, R.id.topOverlayContainer, new Intent(this, AddResourceActivity.class)); //need to display import when browsing radio ? => option !? haha
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar  = findViewById(R.id.progressBar);

@@ -58,4 +58,11 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:contentDescription="@string/play_pause"
         android:src="@drawable/ic_media_play_24"/>
+    <ImageButton
+        android:id="@+id/bMiniClose"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/Close"
+        android:src="@drawable/ic_media_close_24"/>
 </LinearLayout>

@@ -13,6 +13,7 @@ import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.player.NavHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
 public abstract class BaseBottomNavActivity extends LoggingActivity {
 
@@ -57,7 +58,7 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
     }
 
     private void setupBottomNav() {
-        BottomNavigationView bottom = findViewById(R.id.bottomNav);
+        NavigationBarView bottom = findViewById(R.id.bottomNav);
         myLogI("setupBottomNav() -  navId=" + getNavId());
         bottom.setSelectedItemId(getNavId());
 
@@ -75,7 +76,6 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
                 intent = new Intent(this, MainActivity.class);
 
             } else if (id == R.id.nav_radio) {
-                myLogE("hello");
                 NavHelper.navigateToRadioSection(this, true);
                 return true;
 

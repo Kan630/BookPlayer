@@ -19,7 +19,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     private ProgressBar progressBar;
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle;
-    private ImageButton btnPlayPause;
+    private ImageButton ibPlayPause, ibClose;
 
     PlaybackUiState lastState;
 
@@ -35,7 +35,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
         ivCover = v.findViewById(R.id.ivCover);
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSub);
-        btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
+        ibPlayPause = v.findViewById(R.id.bMiniPlayPause);
+        ibClose = v.findViewById(R.id.bMiniClose);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
@@ -46,7 +47,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             }
             //myLogD(s.toString());
             //myLogI("vm.getState().observe " + s);
-            UiHelper.FillUiBasic(s, progressBar, btnPlayPause, tvTitle, tvSubTitle, null, null, null);
+            UiHelper.FillUiBasic(s, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null);
 
             if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");
@@ -60,7 +61,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             lastState = vm.getState().getValue();
         });
 
-        btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
+        ibPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
+        ibClose.setOnClickListener(_v -> { myLogI("---- user press CLOSE button ----"); vm.stop(); });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user press mini player ----");

@@ -22,7 +22,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
     private ImageView ivCover;
     private TextView tvTitle, tvSubTitle, tvMiniTime;
     private Slider sbMiniSeek;
-    private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+    private ImageButton ibPrev, ibPlayPause, ibNext, ibClose;
 
     private UiHelper.SliderBinding sliderBinding;
 
@@ -38,15 +38,15 @@ public class MiniPlayBookFragment extends LoggingFragment {
         tvSubTitle  = v.findViewById(R.id.tvSubTitle);
         tvMiniTime  = v.findViewById(R.id.tvMiniTime);
         sbMiniSeek  = v.findViewById(R.id.sbMiniSeek);
-        btnPrev     = v.findViewById(R.id.bMiniBackward);
-        btnPlayPause= v.findViewById(R.id.bMiniPlayPause);
-        btnNext     = v.findViewById(R.id.bMiniForward);
-        btnStop     = v.findViewById(R.id.btnStop);
+        ibPrev = v.findViewById(R.id.bMiniBackward);
+        ibPlayPause = v.findViewById(R.id.bMiniPlayPause);
+        ibNext = v.findViewById(R.id.bMiniForward);
+        ibClose = v.findViewById(R.id.btnClose);
         ivCover     = v.findViewById(R.id.ivCover);
 
-        btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
-        btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
-        btnStop.setImageResource(R.drawable.ic_media_close_24);
+        ibPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
+        ibNext.setImageResource(R.drawable.ic_media_fast_forward_24);
+        ibClose.setImageResource(R.drawable.ic_media_close_24);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
@@ -54,7 +54,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
-            UiHelper.FillUiBasic(s, null, btnPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek);
+            UiHelper.FillUiBasic(s, null, ibPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek);
         });
 
         v.setOnClickListener(_x -> {
@@ -62,10 +62,10 @@ public class MiniPlayBookFragment extends LoggingFragment {
             startActivity(new Intent(requireContext(), PlayActivity.class));
         });
 
-        btnPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
-        btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
-        btnNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
-        btnStop.setOnClickListener(_v -> { myLogI("---- user press STOP button ----"); vm.stop(); });
+        ibPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
+        ibPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
+        ibNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
+        ibClose.setOnClickListener(_v -> { myLogI("---- user press CLOSE button ----"); vm.stop(); });
     }
 
     @Override
