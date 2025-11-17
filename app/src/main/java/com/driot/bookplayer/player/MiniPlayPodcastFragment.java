@@ -31,7 +31,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     private TextView tvMiniTime;
     private Slider sbMiniSeek; // <- change type
     private boolean userSeeking;
-    private ImageButton btnPrev, btnPlayPause, btnNext, btnStop;
+    private ImageButton btnPrev, btnPlayPause, btnNext, ibClose;
 
     private UiHelper.SliderBinding sliderBinding;
 
@@ -53,7 +53,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         btnPlayPause = v.findViewById(R.id.bMiniPlayPause);
         btnNext = v.findViewById(R.id.bMiniForward);
         tvMiniTime = v.findViewById(R.id.tvMiniTime);
-        //btnStop = v.findViewById(R.id.btnStop);
+        ibClose = v.findViewById(R.id.ibClose);
         ivCover = v.findViewById(R.id.ivCover);
 
         btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
@@ -98,7 +98,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         btnPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
         btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
         btnNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
-        //btnStop.setOnClickListener(_v -> { myLogI("---- user press STOP button ----"); vm.stop(); });
+        ibClose.setOnClickListener(_v -> { myLogI("---- user press CLOSE button ----"); vm.stop(); });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
