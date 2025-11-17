@@ -272,15 +272,6 @@
             android:padding="24dp" />
     </FrameLayout>
 
-    <!-- 3) ONGOING BANNER HOST — floats above scrim/content -->
-    <FrameLayout
-        android:id="@+id/topOverlayContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top"
-        android:padding="8dp"
-        android:elevation="12dp" />
-
     <!-- 4) Secret tappable area (still on top, below banner if overlapping) -->
     <View
         android:id="@+id/viewSecretEntry"

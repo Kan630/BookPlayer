@@ -23,29 +23,29 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 
-public class PodcastSearchResultsActivity extends LoggingActivity {
+public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
 
     private PodcastSearchResultsViewModel viewModel;
-    private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private TextView errorMessage;
     private PodcastSearchResultsRVAdapter adapter;
     Podcast podcast;
 
-
+    @Override protected int getNavId() { return R.id.nav_podcast; }
+    @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_podcast_search_result);
 
-        recyclerView = findViewById(R.id.recyclerViewPodcast);
+        RecyclerView recyclerView = findViewById(R.id.recyclerViewPodcast);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
-        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
+        //InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
 
         progressBar = findViewById(R.id.progressBarPodcast);
         errorMessage = findViewById(R.id.podcast_error_message);
@@ -100,7 +100,7 @@ public class PodcastSearchResultsActivity extends LoggingActivity {
         if (viewModel.getResults().getValue() != null &&
                 query.equals(viewModel.getLastQuery()) &&
                 lang.equals(viewModel.getLastLang())) {
-            myLogE("ca chie dans la colle");
+            myLogE("ca chie dans la glu");
             return;
         }
 

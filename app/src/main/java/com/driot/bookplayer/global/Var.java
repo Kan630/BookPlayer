@@ -132,7 +132,7 @@ public class Var {
                     "png",
                     "webp",
                     "bmp"
-                    // "gif"  // optional if you allow animated covers
+                    ,"gif"  // optional if you allow animated covers
             )
     );
     public static final Set<String> SUPPORTED_IMAGE_MIMES = new HashSet<>(
@@ -158,8 +158,8 @@ public class Var {
                     "ogg",   // Ogg Vorbis (open alternative to MP3)
                     "oga",   // Ogg Audio (legacy, rarely used)
                     "flac",  // Free Lossless Audio Codec (Android 3.1+)
-                    "opus"  // Opus (Android 5.0+, efficient for voice/streaming)
-/*
+                    "opus",  // Opus (Android 5.0+, efficient for voice/streaming)
+
                     // MIDI/Synthetic Audio
                     "mid",   // Standard MIDI
                     "midi",  // Alternate MIDI extension
@@ -185,8 +185,6 @@ public class Var {
                     "rtttl", // Ring Tone Text Transfer Language
                     "rtx",   // Ringtone Extension
                     "ota"    // Over-the-Air ringtone
-
- */
             )
     );
     public static final Set<String> SUPPORTED_AUDIO_MIMES = new HashSet<>(

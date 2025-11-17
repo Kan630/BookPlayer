@@ -41,23 +41,20 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.player.MediaService;
-import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.objects.PodcastEpisode;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
+public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
     private TextView tvTitle, tvDescription, tvStats, tvToolbarStats;
     private ImageView ivCover, ivMiniCover;
@@ -90,10 +87,13 @@ public class PodcastEpisodeActivity extends LoggingActivity  implements PodcastE
     private com.google.android.material.appbar.AppBarLayout appBar;
     private androidx.appcompat.widget.Toolbar toolbar;
 
+    @Override protected int getNavId() { return R.id.nav_podcast; }
+    @Override protected int getLayoutResId() { return R.layout.activity_podcast_detail; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_podcast_detail);
 
         if (Option.getScreenOrientationLock()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);

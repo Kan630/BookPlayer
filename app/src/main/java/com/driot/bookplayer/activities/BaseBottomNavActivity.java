@@ -69,23 +69,23 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
                 return true;
             }
 
-            if (id == R.id.nav_podcast) {
-                NavHelper.navigateToPodcastSection(this);
-                //overridePendingTransition(0, 0);
-                return true;
-            }
-
             Intent intent = null;
+
             if (id == R.id.nav_library) {
                 intent = new Intent(this, MainActivity.class);
+
             } else if (id == R.id.nav_radio) {
-                intent = NavHelper.getNavToRadioActivityIntent(this);
-                /*
+                myLogE("hello");
+                NavHelper.navigateToRadioSection(this, true);
+                return true;
+
             } else if (id == R.id.nav_podcast) {
-                intent = NavHelper.getNavToPodcastActivityIntent(this);
-                 */
+                NavHelper.navigateToPodcastSection(this, true);
+                return true;
+
             } else if (id == R.id.nav_add) {
                 intent = new Intent(this, GetActivity.class);
+
             } else if (id == R.id.nav_settings) {
                 intent = new Intent(this, SettingsActivity.class);
             }

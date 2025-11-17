@@ -22,13 +22,6 @@
             android:focusable="true"
             android:focusableInTouchMode="true" />
 
-        <!-- Ongoing task banner container -->
-        <FrameLayout
-            android:id="@+id/topOverlayContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp" />
-
         <ScrollView
             android:id="@+id/mainScroll"
             android:layout_width="match_parent"
