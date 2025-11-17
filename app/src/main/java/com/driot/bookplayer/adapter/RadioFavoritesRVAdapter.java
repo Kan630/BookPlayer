@@ -80,9 +80,14 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             ItemVH holder = (ItemVH) vh;
 
             holder.title.setText(nonNull(f.name));
-            holder.info.setText(joinInfo(nonNull(f.country), nonNull(f.language), normalizeTags(f.tags)));
-            holder.codec.setText(nonNull(f.codec));
-            holder.bitrate.setText(f.bitrate > 0 ? (f.bitrate + " kbps") : "");
+
+            holder.info.setText((f.country != null ? f.country : (f.language!=null ? f.language : (f.tags!=null ? normalizeTags(f.tags) : ""))));
+            //holder.info.setText(joinInfo(nonNull(f.country), nonNull(f.language), normalizeTags(f.tags)));
+            //holder.codec.setText(nonNull(f.codec));
+            //holder.bitrate.setText(f.bitrate > 0 ? (f.bitrate + " kbps") : "");
+            holder.codec.setVisibility(View.GONE);
+            holder.bitrate.setVisibility(View.GONE);
+
             holder.ibFavorite.setVisibility(View.GONE);
 
             holder.favicon.setTag(f.stationuuid);
@@ -91,7 +96,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                     .error(R.drawable.ic_radio_24px_deportee)
                     .into(holder.favicon);
 
-            holder.ibPlay.setOnClickListener(v -> listener.onPlay(f));
             holder.itemView.setOnClickListener(v -> listener.onPlay(f));
         }
     }
@@ -194,7 +198,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     static class ItemVH extends RecyclerView.ViewHolder {
         ImageView favicon;
         TextView title, info, codec, bitrate;
-        ImageButton ibPlay, ibFavorite;
+        ImageButton ibFavorite;
         ItemVH(@NonNull View v) {
             super(v);
             favicon = v.findViewById(R.id.radio_favicon);
@@ -202,7 +206,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             info    = v.findViewById(R.id.radio_info);
             codec   = v.findViewById(R.id.radio_codec);
             bitrate = v.findViewById(R.id.radio_bitrate);
-            ibPlay  = v.findViewById(R.id.ibPlay);
             ibFavorite = v.findViewById(R.id.ibFavorite);
         }
     }

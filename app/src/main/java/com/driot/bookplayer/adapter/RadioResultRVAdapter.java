@@ -102,7 +102,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     static class ItemVH extends RecyclerView.ViewHolder {
         ImageView favicon;
         TextView title, info, codec, bitrate;
-        ImageButton ibPlay, ibFavorite;
+        ImageButton ibFavorite;
         ItemVH(@NonNull View itemView) {
             super(itemView);
             favicon  = itemView.findViewById(R.id.radio_favicon);
@@ -110,7 +110,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             info     = itemView.findViewById(R.id.radio_info);     // country • language • tags
             codec    = itemView.findViewById(R.id.radio_codec);
             bitrate  = itemView.findViewById(R.id.radio_bitrate);
-            ibPlay   = itemView.findViewById(R.id.ibPlay);
             ibFavorite = itemView.findViewById(R.id.ibFavorite);
         }
     }
@@ -170,15 +169,22 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             holder.title.setText(nonNull(s.name));
 
             // Sub-info: country • language • tags (single line, ellipsized)
+            /*
             String country = emptyIfNull(s.country);
             String language = emptyIfNull(s.language);
             String tags = normalizeTags(s.tags);
             String info = joinNonEmpty(" • ", country, language, tags);
             holder.info.setText(info);
+             */
+
+            holder.info.setText((s.country != null ? s.country : (s.language!=null ? s.language : (s.tags!=null ? normalizeTags(s.tags) : ""))));
 
             // Codec / bitrate
-            holder.codec.setText(nonNull(s.codec));
-            holder.bitrate.setText(s.bitrate > 0 ? s.bitrate + " kbps" : "");
+            //holder.codec.setText(nonNull(s.codec));
+            //holder.bitrate.setText(s.bitrate > 0 ? s.bitrate + " kbps" : "");
+            holder.codec.setVisibility(View.GONE);
+            holder.bitrate.setVisibility(View.GONE);
+
 
             // Favicon (may be empty)
             holder.favicon.setTag(s.stationuuid); // prevent race
@@ -186,14 +192,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
                     .placeholder(R.drawable.ic_radio_24px_deportee)
                     .error(R.drawable.ic_radio_24px_deportee)
                     .into(holder.favicon);
-
-
-            // Play action: the Activity will call repo.resolveUrl(...) then launch playback
-            holder.ibPlay.setOnClickListener(v -> {
-                int p = holder.getBindingAdapterPosition();
-                if (p == RecyclerView.NO_POSITION) return;
-                listener.onPlay(s);
-            });
 
             // Favorite tint
             boolean isFav = favoriteUuids.contains(s.stationuuid);
