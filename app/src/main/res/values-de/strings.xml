@@ -1061,4 +1061,19 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_split_m4b_subtitle">Wenn nicht aktiviert, werden M4B-Dateien als einzelne Titel importiert.</string>
     <string name="option_split_m4b_subtitle_note">Hinweis: Die Kapitelerkennungsfunktion unterstützt derzeit nur sehr standardisierte M4B-Dateien.</string>
 
+    <string name="Import_Progress_chapter_title">"Titel des Tracks"</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"Der exportierte Dateiname muss mindestens 3 Zeichen enthalten"</string>
+    <string name="option_radio_renew_url_title">beim Abspielen aus Favoriten</string>
+    <string name="option_radio_renew_url">besten Mirror vor dem Abspielen pruefen</string>
+    <string name="option_radio_renew_url_subtitle">Das Pruefen der Mirrors (Radio-Server) sorgt fuer die beste Quelle, kann aber etwas dauern (aktuell 10 Sek.).</string>
+    <string name="checking_for_best_mirror">bester Mirror wird geprueft</string>
+    <string name="error_radio_renew_url">Fehler beim Abrufen des Radio-Mirror-Links</string>
+    <string name="loading">laden</string>
+    <string name="no_review">keine Bewertung</string>
+    <string name="library">bibliothek</string> <!-- stay below 10/12 chars -->
+    <string name="source_not_read">Quelldatei konnte nicht gelesen werden.</string>
+    <string name="Download">Download</string>
+    <string name="option_podcast_chk_podcast_add_date_to_episode_name">Datum der Veroeffentlichung zum Episodennamen hinzufuegen</string>
+
+
 </resources>

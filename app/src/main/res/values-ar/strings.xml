@@ -1056,4 +1056,18 @@
     <string name="option_split_m4b_subtitle">إذا لم يتم التحديد، سيتم استيراد ملفات M4B كمسارات مفردة.</string>
     <string name="option_split_m4b_subtitle_note">ملاحظة: ميزة تقسيم الفصول تدعم حالياً فقط ملفات M4B القياسية جداً.</string>
 
+    <string name="Import_Progress_chapter_title">"عنوان المقطع"</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"يجب ان يحتوي اسم الملف المصدّر على 3 احرف على الاقل"</string>
+    <string name="option_radio_renew_url_title">عند التشغيل من المفضلة</string>
+    <string name="option_radio_renew_url">التحقق من افضل خادم قبل التشغيل</string>
+    <string name="option_radio_renew_url_subtitle">التحقق من خوادم المرايا يضمن افضل مصدر ممكن، لكنه قد يستغرق بعض الوقت (المهلة الحالية 10 ثوان).</string>
+    <string name="checking_for_best_mirror">جار التحقق من افضل خادم</string>
+    <string name="error_radio_renew_url">خطا في الحصول على رابط خادم الراديو</string>
+    <string name="loading">جار التحميل</string>
+    <string name="no_review">لا توجد مراجعات</string>
+    <string name="library">المكتبة</string> <!-- stay below 10/12 chars -->
+    <string name="source_not_read">تعذر قراءة ملف المصدر.</string>
+    <string name="Download">تنزيل</string>
+    <string name="option_podcast_chk_podcast_add_date_to_episode_name">اضافة تاريخ النشر الى اسم الحلقة</string>
+
 </resources>

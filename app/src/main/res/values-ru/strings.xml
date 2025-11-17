@@ -1063,4 +1063,19 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="option_split_m4b_subtitle">Если не отмечено, файлы M4B будут импортированы как отдельные треки.</string>
         <string name="option_split_m4b_subtitle_note">Примечание: функция разделения на главы в настоящее время поддерживает только стандартные файлы M4B.</string>
 
+        <string name="Import_Progress_chapter_title">"Название трека"</string>
+        <string name="Export_Progress_file_name_should_have_at_east_3_chars">"имя экспортируемого файла должно содержать минимум 3 символа"</string>
+        <string name="option_radio_renew_url_title">при воспроизведении из избранного</string>
+        <string name="option_radio_renew_url">проверять лучший сервер перед воспроизведением</string>
+        <string name="option_radio_renew_url_subtitle">Проверка зеркал (радио-серверов) обеспечивает лучшую доступную источник, но может занять время (текущий таймаут 10 сек.).</string>
+        <string name="checking_for_best_mirror">проверка лучшего зеркала</string>
+        <string name="error_radio_renew_url">ошибка получения ссылки радио-зеркала</string>
+        <string name="loading">загрузка</string>
+        <string name="no_review">нет отзывов</string>
+        <string name="library">библиотека</string> <!-- stay below 10/12 chars -->
+        <string name="source_not_read">Не удалось прочитать исходный файл.</string>
+        <string name="Download">Загрузить</string>
+        <string name="option_podcast_chk_podcast_add_date_to_episode_name">Добавить дату публикации к имени эпизода</string>
+
+
 </resources>

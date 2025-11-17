@@ -1057,4 +1057,19 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="option_split_m4b_subtitle">Si décoché, les fichiers M4B seront importés comme des pistes uniques.</string>
     <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>
 
+    <string name="Import_Progress_chapter_title">"Titre de piste"</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"le nom du fichier exporté doit contenir au moins 3 caractères"</string>
+    <string name="option_radio_renew_url_title">à la lecture depuis favoris</string>
+    <string name="option_radio_renew_url">vérifier le meilleur miroir avant lecture</string>
+    <string name="option_radio_renew_url_subtitle">Vérifier les miroirs (serveurs radio) garantit la meilleure source disponible, mais peut prendre du temps (délai actuel 10 sec.).</string>
+    <string name="checking_for_best_mirror">vérification du meilleur miroir</string>
+    <string name="error_radio_renew_url">erreur lors de l\'obtention du lien du miroir radio</string>
+    <string name="loading">chargement</string>
+    <string name="no_review">aucun avis</string>
+    <string name="library">bibliothèque</string> <!-- stay below 10/12 chars -->
+    <string name="source_not_read">Impossible de lire le fichier source.</string>
+    <string name="Download">Télécharger</string>
+    <string name="option_podcast_chk_podcast_add_date_to_episode_name">Ajouter la date de publication au nom de l\'épisode</string>
+
+
 </resources>

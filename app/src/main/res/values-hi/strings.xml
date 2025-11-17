@@ -1111,5 +1111,18 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_split_m4b_subtitle">यदि अनचेक किया गया, तो M4B फ़ाइलें एकल ट्रैक के रूप में आयात की जाएंगी।</string>
     <string name="option_split_m4b_subtitle_note">नोट: अध्याय विभाजन सुविधा वर्तमान में केवल बहुत मानक M4B फ़ाइलों का समर्थन करती है।</string>
 
+    <string name="Import_Progress_chapter_title">"ट्रैक शीर्षक"</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"निर्यात की गई फ़ाइल का नाम कम से कम 3 अक्षरों का होना चाहिए"</string>
+    <string name="option_radio_renew_url_title">पसंदीदा से चलाने पर</string>
+    <string name="option_radio_renew_url">चलाने से पहले सर्वोत्तम मिरर की जाँच करें</string>
+    <string name="option_radio_renew_url_subtitle">मिरर (रेडियो सर्वर) की जांच करने से सर्वोत्तम स्रोत मिलता है, लेकिन समय लग सकता है (वर्तमान टाइमआउट 10 सेकंड)।</string>
+    <string name="checking_for_best_mirror">सर्वोत्तम मिरर की जाँच</string>
+    <string name="error_radio_renew_url">रेडियो मिरर लिंक प्राप्त करने में त्रुटि</string>
+    <string name="loading">लोड हो रहा है</string>
+    <string name="no_review">कोई समीक्षा नहीं</string>
+    <string name="library">लाइब्रेरी</string> <!-- stay below 10/12 chars -->
+    <string name="source_not_read">स्रोत फ़ाइल पढ़ी नहीं जा सकी।</string>
+    <string name="Download">डाउनलोड</string>
+    <string name="option_podcast_chk_podcast_add_date_to_episode_name">एपिसोड नाम में प्रकाशन तिथि जोड़ें</string>
 
 </resources>

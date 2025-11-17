@@ -1075,5 +1075,18 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="option_split_m4b_subtitle">Se non selezionato, i file M4B verranno importati come tracce singole.</string>
     <string name="option_split_m4b_subtitle_note">Nota: la funzione di divisione in capitoli supporta attualmente solo file M4B molto standard.</string>
 
+    <string name="Import_Progress_chapter_title">"Titolo traccia"</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"il nome del file esportato deve avere almeno 3 caratteri"</string>
+    <string name="option_radio_renew_url_title">alla riproduzione dai preferiti</string>
+    <string name="option_radio_renew_url">controlla il miglior mirror prima della riproduzione</string>
+    <string name="option_radio_renew_url_subtitle">Il controllo dei mirror (server radio) garantisce la migliore sorgente disponibile, ma puo richiedere tempo (timeout attuale 10 sec.).</string>
+    <string name="checking_for_best_mirror">controllo del miglior mirror</string>
+    <string name="error_radio_renew_url">errore nel recupero del link del mirror radio</string>
+    <string name="loading">caricamento</string>
+    <string name="no_review">nessuna recensione</string>
+    <string name="library">libreria</string> <!-- stay below 10/12 chars -->
+    <string name="source_not_read">Impossibile leggere il file sorgente.</string>
+    <string name="Download">Scarica</string>
+    <string name="option_podcast_chk_podcast_add_date_to_episode_name">Aggiungi la data di pubblicazione al nome dell\'episodio</string>
 
 </resources>
