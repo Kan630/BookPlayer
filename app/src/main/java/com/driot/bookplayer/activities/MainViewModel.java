@@ -22,12 +22,10 @@ public class MainViewModel extends LoggingAndroidViewModel {
 
     // Exposed to the Activity
     private final MediatorLiveData<List<Folder>> folders = new MediatorLiveData<>();
-    private final MutableLiveData<Boolean> showEmptyPrompt = new MutableLiveData<>(false);
     private final MutableLiveData<Event<NoContent>> scrollToTop = new MutableLiveData<>();
 
     // UI state we keep across config changes
     private final SavedStateHandle state;
-    private static final String K_PROMPTED = "prompted_open_file";
     private static final String K_LAST_SCROLLED_FOLDER_ID = "last_scrolled_folder_id";
 
     private boolean pendingScrollToTop = false;
@@ -39,15 +37,12 @@ public class MainViewModel extends LoggingAndroidViewModel {
         this.repo = new FolderRepository(app);
 
         // Defaults
-        if (!state.contains(K_PROMPTED)) state.set(K_PROMPTED, false);
         if (!state.contains(K_LAST_SCROLLED_FOLDER_ID)) state.set(K_LAST_SCROLLED_FOLDER_ID, -1);
 
         LiveData<List<Folder>> source = repo.observeAll();
         folders.addSource(source, list -> {
             folders.setValue(list);
             boolean empty = (list == null || list.isEmpty());
-            boolean alreadyPrompted = Boolean.TRUE.equals(state.get(K_PROMPTED));
-            showEmptyPrompt.setValue(empty && !alreadyPrompted);
 
             // If we requested a scroll because playback changed, fire it once
             if (pendingScrollToTop && list != null && !list.isEmpty()) {
@@ -62,11 +57,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
     // region Public API for Activity
 
     public LiveData<List<Folder>> getFolders()            { return folders; }
-    public LiveData<Boolean> getShowEmptyPrompt()         { return showEmptyPrompt; }
     public LiveData<Event<NoContent>> getScrollToTopEvent() { return scrollToTop; }
-
-    /** Call once when you actually navigate to GetActivity so we don’t spam the prompt. */
-    public void markEmptyPromptShown() { state.set(K_PROMPTED, true); }
 
     public void requestScrollToTopNow() {
         scrollToTop.setValue(new Event<>(NoContent.INSTANCE));

@@ -11,6 +11,8 @@
     import android.os.Bundle;
     import android.view.Menu;
     import android.view.MenuItem;
+    import android.view.View;
+    import android.widget.Button;
 
     import androidx.activity.OnBackPressedCallback;
     import androidx.annotation.NonNull;
@@ -60,29 +62,6 @@
             super.onRestoreInstanceState(savedInstanceState);
             HasBeenProposedToOpenFile = savedInstanceState.getBoolean("HasBeenProposedToOpenFile", false);
         }
-/*
-        // Just in case we are here while we shouldn't, because isPlaying...
-        MediaService audioService;
-        private final ServiceConnection audioServiceConnection = new ServiceConnection() {
-            @Override
-            public void onServiceConnected(ComponentName className, IBinder service) {
-                MediaService.BackgroundBinder binder = (MediaService.BackgroundBinder) service;
-                audioService = binder.getService();
-                if (audioService.isPlaying()) {
-                    myLogW("AudioService.isPlaying => return to PlayActivity");
-                    if (PlayList.getInstance() == null) {
-                        myLogEE(null,"AudioService.isPlaying => return to PlayActivity.... PlayList.getInstance() == null");
-                    } else {
-                        startActivity(new Intent(MainActivity.this, PlayActivity.class));
-                    }
-                }
-            }
-            @Override
-            public void onServiceDisconnected(ComponentName arg0) {
-            }
-        };
-
- */
 
         private final BroadcastReceiver inAppMsgRx = new BroadcastReceiver() {
             @Override public void onReceive(Context c, Intent i) {
@@ -127,22 +106,31 @@
             adapter = new FoldersRVAdapter(this);
             recyclerView.setAdapter(adapter);
 
+
+
+
+
             PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
             adapter.connectPlayback(this, playbackVm.getState()); // adapter observe playback (highlight)
-            //getFolders();
+
 
             mainVm = new ViewModelProvider(this).get(MainViewModel.class);
             mainVm.getFolders().observe(this, folders -> {
                 if (folders == null) return;
+                boolean isEmpty = folders.isEmpty();
+
+                // WELCOME MESSAGE or Folders
+                View emptyView = findViewById(R.id.emptyView);
+                recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+                emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
+                btnWelcomeAddBook.setOnClickListener(v -> {
+                    startActivity(new Intent(getApplicationContext(), GetActivity.class));
+                });
+
                 adapter.submitList(folders);
             });
-            // Show empty prompt exactly once
-            mainVm.getShowEmptyPrompt().observe(this, show -> {
-                if (Boolean.TRUE.equals(show)) {
-                    startActivity(new Intent(getApplicationContext(), GetActivity.class));
-                    mainVm.markEmptyPromptShown();
-                }
-            });
+
             // One-shot scroll-to-top request
             mainVm.getScrollToTopEvent().observe(this, evt -> {
                 if (evt == null) return;

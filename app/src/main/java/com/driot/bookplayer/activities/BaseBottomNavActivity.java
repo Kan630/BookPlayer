@@ -27,6 +27,7 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
     /** Override to true in activities that should show the ongoing-task overlay */
     protected abstract boolean enableOngoingTaskOverlay();
 
+    private NavigationBarView bottomNav;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,11 +59,11 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
     }
 
     private void setupBottomNav() {
-        NavigationBarView bottom = findViewById(R.id.bottomNav);
-        myLogI("setupBottomNav() -  navId=" + getNavId());
-        bottom.setSelectedItemId(getNavId());
+        bottomNav = findViewById(R.id.bottomNav);
+        myLogD("setupBottomNav() -  navId=" + getNavId());
 
-        bottom.setOnItemSelectedListener(item -> {
+        // Listener first
+        bottomNav.setOnItemSelectedListener(item -> {
             myLogI("--- user click bottom Nav bar ---    itemId=" + item.getItemId() + " - " + item.getTitle());
             int id = item.getItemId();
             if (id == getNavId()) {
@@ -97,7 +98,23 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
             }
             return false;
         });
+
+        // Set initial selection
+        bottomNav.setSelectedItemId(getNavId());
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (bottomNav != null) {
+            int targetId = getNavId();
+            if (bottomNav.getSelectedItemId() != targetId) {
+                myLogD("onResume(): fixing bottom nav selection to " + targetId);
+                bottomNav.setSelectedItemId(targetId);
+            }
+        }
+    }
+
 
     // IMPORTANT: don't call setContentView() in child activities
     @Override

@@ -138,6 +138,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         return new FoldersViewHolder(v);
     }
 
+    // partial bind (bind only what changed)
     @Override
     public void onBindViewHolder(@NonNull FoldersViewHolder h, int position, @NonNull List<Object> payloads) {
         Folder folder = getItem(position);
@@ -181,6 +182,7 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         onBindViewHolder(h, position);
     }
 
+    // full bind
     @Override
     public void onBindViewHolder(@NonNull FoldersViewHolder h, int position) {
         Folder folder = getItem(position);

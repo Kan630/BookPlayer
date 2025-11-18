@@ -11,7 +11,7 @@ import androidx.fragment.app.Fragment;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-public class SettingsHostActivity extends LoggingActivity {
+public class SettingsHostActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_FRAGMENT_CLASS = "extra_fragment_class";
     public static final String EXTRA_FRAGMENT_ARGS  = "extra_fragment_args";
@@ -57,10 +57,13 @@ public class SettingsHostActivity extends LoggingActivity {
         ctx.startActivity(i);
     }
 
+    @Override protected int getNavId() { return R.id.nav_settings; }
+    @Override protected int getLayoutResId() { return R.layout.activity_settings_host; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings_host);
 
         // Title handling (status bar / toolbar title)
         CharSequence titleText = getIntent().getCharSequenceExtra(EXTRA_ACTIVITY_TITLE_TEXT);

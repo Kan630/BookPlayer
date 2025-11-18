@@ -1147,5 +1147,13 @@
 
     <string name="Quit_the_player_to_move_playing_tracks">You may need to close the player to move the tracks.</string>
 
+    <string name="welcome_title">Welcome to BookPlayer</string>
+    <string name="welcome_subtitle">Your offline-friendly audiobook, podcast and radio player.</string>
+    <string name="welcome_item_add_book">Add an existing audiobook from your device, SD card or cloud drive.</string>
+    <string name="welcome_item_librivox">Browse and download free public-domain audiobooks.</string>
+    <string name="welcome_item_podcasts_radio">Discover podcasts and web radios and listen inside BookPlayer.</string>
+    <string name="welcome_button_add">Add your first book</string>
+    <string name="welcome_hint">Tip: you can customize colors and options later in Settings.</string>
+
 
 </resources>

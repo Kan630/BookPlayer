@@ -26,6 +26,14 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="2dp"/>
+
+        <!-- Welcome empty view from separate layout -->
+        <include
+            android:id="@+id/emptyView"
+            layout="@layout/view_main_empty"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="gone" />
     </FrameLayout>
 
 </LinearLayout>
