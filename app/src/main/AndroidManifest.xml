@@ -75,6 +75,11 @@
         <activity android:name=".activities.PodcastFavoritesActivity"/>
         <activity android:name=".activities.SupportedExtensionsActivity"/>
         <activity android:name=".activities.CoverGenerationActivity" />
+        <activity android:name=".activities.VisualizerScreensaverActivity"
+            android:excludeFromRecents="true"
+            android:finishOnTaskLaunch="true"
+            android:screenOrientation="sensor"
+            />
         <activity android:name=".activities.DebugDatabaseActivity"
             android:exported="false"
             android:enabled="true">

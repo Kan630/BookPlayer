@@ -35,6 +35,7 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
+import com.driot.bookplayer.activities.VisualizerScreensaverActivity;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
@@ -86,6 +87,9 @@ public class PlayActivity extends LoggingActivity {
     private int touchSlop;
     private float downY;
     @Nullable private String lastTtsTextString = null;
+
+    private boolean screensaverLaunched = false;
+    @Nullable private Integer lastAudioSessionId = null;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -177,7 +181,7 @@ public class PlayActivity extends LoggingActivity {
             if (!showingTtsText) {
                 myToast(getString(R.string.double_click_image_to_get_back_to_text_view));
             }
-            applyTtsToggleUi(vm.getState().getValue());
+            applyMainContainerToggleUi(vm.getState().getValue());
         });
 
         ImageButton ib_settings = findViewById(R.id.ib_settings);
@@ -195,7 +199,7 @@ public class PlayActivity extends LoggingActivity {
                 PlaybackUiState s = vm.getState().getValue();
                 if (s != null && "tts".equals(s.playMode)) {
                     showingTtsText = !showingTtsText;
-                    applyTtsToggleUi(s);
+                    applyMainContainerToggleUi(s);
                 }
             }
             @Override public void onLongPress() {
@@ -260,7 +264,7 @@ public class PlayActivity extends LoggingActivity {
                 frequencyVisualizerView.setAlpha(1f);
             }
             // TTS vs Audio UI
-            applyTtsToggleUi(s);
+            applyMainContainerToggleUi(s);
 
 
             if (p == null) return;
@@ -461,6 +465,19 @@ public class PlayActivity extends LoggingActivity {
             String timePassedText = tvListeningTimeBaseText + " " + Tonio.formatTime(timePassedMs, true);
             tvListeningTime.setText(timeLeftMs>0 && timePassedMs>0 ? timePassedText : "");
 
+            if (!screensaverLaunched
+                    && timeLeftMs > 0
+                    && timePassedMs > 5000
+                    && lastAudioSessionId != null) {
+
+                screensaverLaunched = true;
+                myLogD("Launching VisualizerScreensaverActivity (timePassedMs=" + timePassedMs + ")");
+
+                Intent ssIntent = new Intent(this, com.driot.bookplayer.activities.VisualizerScreensaverActivity.class);
+                ssIntent.putExtra(VisualizerScreensaverActivity.EXTRA_AUDIO_SESSION_ID, lastAudioSessionId);
+                startActivity(ssIntent);
+            }
+
         } catch (Throwable t) {
             myLogEE(t, "reDrawSleepTextViews(" + customSleepMinutes + ")");
         }
@@ -474,7 +491,7 @@ public class PlayActivity extends LoggingActivity {
         podcastLastClickTime = now;
     }
 
-    private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
+    private void applyMainContainerToggleUi(@Nullable PlaybackUiState s) {
         if (s == null) return;
         final boolean tts = "tts".equals(s.playMode);
 
@@ -492,6 +509,7 @@ public class PlayActivity extends LoggingActivity {
             if (Option.getVisualizerOn() && isRecordAudioPermissionGranted(this) && sessionId != null) {
                 try {
                     myLogD("linking visualizer");
+                    lastAudioSessionId = sessionId;   // ← remember for screensaver
                     frequencyVisualizerView.setMode(Option.getVisualizerType());
                     frequencyVisualizerView.link_toto(sessionId);
                     frequencyVisualizerView.setVisibility(View.VISIBLE);
