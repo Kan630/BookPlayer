@@ -1,5 +1,6 @@
 package com.driot.bookplayer.settings.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -136,80 +137,118 @@ public class PodcastSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
-        // mirror the Librivox fragment style: persist on a background thread
+        // Make sure fragment is attached before touching context / views
+        if (!isAdded()) {
+            return;
+        }
+
+        final Context ctx = requireContext();
+
+        // --- Read & validate on UI thread ---
+
+        final Integer delayDeletion;
+        if (et_podcast_delay_deletion != null) {
+            delayDeletion = Option.clampInt(
+                    ctx,
+                    et_podcast_delay_deletion,
+                    /* min */ 0,
+                    /* max */ 365,
+                    /* def */ Option.DEFAULT_PODCAST_DELAY_AUTO_DELETE,
+                    ctx.getString(R.string.delay_for_auto_deletion)
+            );
+        } else {
+            delayDeletion = null;
+        }
+
+        final Integer completionPercentageDeletion;
+        if (et_podcast_completion_percentage_deletion != null) {
+            completionPercentageDeletion = Option.clampInt(
+                    ctx,
+                    et_podcast_completion_percentage_deletion,
+                    /* min */ 10,
+                    /* max */ 100,
+                    /* def */ Option.DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE,
+                    ctx.getString(R.string.completion_percentage_for_auto_deletion)
+            );
+        } else {
+            completionPercentageDeletion = null;
+        }
+
+        final Integer autoDownloadLastNEpisode;
+        if (et_podcast_auto_download_last_n_episode != null) {
+            autoDownloadLastNEpisode = Option.clampInt(
+                    ctx,
+                    et_podcast_auto_download_last_n_episode,
+                    /* min */ 1,
+                    /* max */ 100,
+                    /* def */ Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES,
+                    ctx.getString(R.string.auto_download_last_n_episode)
+            );
+        } else {
+            autoDownloadLastNEpisode = null;
+        }
+
+        final Integer autoDownloadMaxNPodcast;
+        if (et_auto_download_max_n_podcast != null) {
+            autoDownloadMaxNPodcast = Option.clampInt(
+                    ctx,
+                    et_auto_download_max_n_podcast,
+                    /* min */ 1,
+                    /* max */ 100,
+                    /* def */ Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS,
+                    ctx.getString(R.string.auto_download_max_n_podcast)
+            );
+        } else {
+            autoDownloadMaxNPodcast = null;
+        }
+
+        final Integer autoDownloadDelayBetweenChecks;
+        if (et_auto_download_delay_between_checks_in_min != null) {
+            autoDownloadDelayBetweenChecks = Option.clampInt(
+                    ctx,
+                    et_auto_download_delay_between_checks_in_min,
+                    /* min */ 15,
+                    /* max */ 60 * 24,
+                    /* def */ Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN,
+                    ctx.getString(R.string.auto_download_delay_between_checks_in_min)
+            );
+        } else {
+            autoDownloadDelayBetweenChecks = null;
+        }
+
+        final Integer podcastIndexOrgApiNbResults;
+        if (et_podcast_index_org_api_nb_results != null) {
+            podcastIndexOrgApiNbResults = Option.clampInt(
+                    ctx,
+                    et_podcast_index_org_api_nb_results,
+                    Var.PODCAST_INDEX_ORG_API_MIN_RESULTS_FOR_PODCASTS,
+                    Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_PODCASTS,
+                    Option.DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS,
+                    ctx.getString(R.string.podcasts) // label token for your clamp/toast
+            );
+        } else {
+            podcastIndexOrgApiNbResults = null;
+        }
+
+        // --- Persist off the UI thread ---
         Executors.newSingleThreadExecutor().execute(() -> {
-            if (getContext() == null) return;
-
-            if (et_podcast_delay_deletion != null) {
-                int v = Option.clampInt(
-                        getContext(),
-                        et_podcast_delay_deletion,
-                        /* min */ 0,
-                        /* max */ 365,
-                        /* def */ Option.DEFAULT_PODCAST_DELAY_AUTO_DELETE,
-                        getString(R.string.delay_for_auto_deletion)
-                );
-                Option.setPodcastAutoDeleteDelay(v);
+            if (delayDeletion != null) {
+                Option.setPodcastAutoDeleteDelay(delayDeletion);
             }
-
-            if (et_podcast_completion_percentage_deletion != null) {
-                int v = Option.clampInt(
-                        getContext(),
-                        et_podcast_completion_percentage_deletion,
-                        /* min */ 10,
-                        /* max */ 100,
-                        /* def */ Option.DEFAULT_PODCAST_COMPLETION_PERCENTAGE_AUTO_DELETE,
-                        getString(R.string.completion_percentage_for_auto_deletion)
-                );
-                Option.setPodcastAutoDeleteCompletionPercentage(v);
+            if (completionPercentageDeletion != null) {
+                Option.setPodcastAutoDeleteCompletionPercentage(completionPercentageDeletion);
             }
-
-            if (et_podcast_auto_download_last_n_episode != null) {
-                int v = Option.clampInt(
-                        getContext(),
-                        et_podcast_auto_download_last_n_episode,
-                        /* min */ 1,
-                        /* max */ 100,
-                        /* def */ Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_LAST_N_EPISODES,
-                        getString(R.string.auto_download_last_n_episode)
-                );
-                Option.setPodcastAutoDownloadLastNbEpisode(v);
+            if (autoDownloadLastNEpisode != null) {
+                Option.setPodcastAutoDownloadLastNbEpisode(autoDownloadLastNEpisode);
             }
-
-            if (et_auto_download_max_n_podcast != null) {
-                int v = Option.clampInt(
-                        getContext(),
-                        et_auto_download_max_n_podcast,
-                        /* min */ 1,
-                        /* max */ 100,
-                        /* def */ Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_MAX_N_PODCASTS,
-                        getString(R.string.auto_download_max_n_podcast)
-                );
-                Option.setPodcastAutoDownloadMaxNbPodcast(v);
+            if (autoDownloadMaxNPodcast != null) {
+                Option.setPodcastAutoDownloadMaxNbPodcast(autoDownloadMaxNPodcast);
             }
-
-            if (et_auto_download_delay_between_checks_in_min != null) {
-                int v = Option.clampInt(
-                        getContext(),
-                        et_auto_download_delay_between_checks_in_min,
-                        /* min */ 15,
-                        /* max */ 60 * 24,
-                        /* def */ Option.DEFAULT_PODCAST_AUTO_DOWNLOAD_DELAY_BETWEEN_CHECKS_IN_MIN,
-                        getString(R.string.auto_download_delay_between_checks_in_min)
-                );
-                Option.setPodcastAutoDownloadDelayBetweenChecks(v);
+            if (autoDownloadDelayBetweenChecks != null) {
+                Option.setPodcastAutoDownloadDelayBetweenChecks(autoDownloadDelayBetweenChecks);
             }
-
-            if (et_podcast_index_org_api_nb_results != null) {
-                int v = Option.clampInt(
-                        getContext(),
-                        et_podcast_index_org_api_nb_results,
-                        Var.PODCAST_INDEX_ORG_API_MIN_RESULTS_FOR_PODCASTS,
-                        Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_PODCASTS,
-                        Option.DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS,
-                        getString(R.string.podcasts) // label token for your clamp/toast
-                );
-                Option.setPodcastIndexOrgApiNbResults(v);
+            if (podcastIndexOrgApiNbResults != null) {
+                Option.setPodcastIndexOrgApiNbResults(podcastIndexOrgApiNbResults);
             }
         });
     }

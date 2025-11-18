@@ -1,5 +1,6 @@
 package com.driot.bookplayer.settings.ui;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -85,31 +86,47 @@ public class TtsSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
-        // Keep disk I/O off main for StrictMode
+        if (!isAdded()) return; // fragment still attached
+
+        final Context ctx = requireContext();
+
+        // --- Read & validate on UI thread ---
+
+        final Integer highlightDelay;
+        if (etTtsHighlightDelay != null) {
+            highlightDelay = Option.clampInt(
+                    ctx,
+                    etTtsHighlightDelay,
+                    0, 400,
+                    Option.DEFAULT_TTS_HIGHLIGHT_DELAY_MS,
+                    ctx.getString(R.string.option_tts_highlight_delay_outOfBounds)
+            );
+        } else {
+            highlightDelay = null;
+        }
+
+        final Integer chunkSize;
+        if (etTtsChunkSize != null) {
+            chunkSize = Option.clampInt(
+                    ctx,
+                    etTtsChunkSize,
+                    1200, 7000,
+                    Option.DEFAULT_TTS_CHUNK_SIZE,
+                    ctx.getString(R.string.tts_chunk_size)
+            );
+        } else {
+            chunkSize = null;
+        }
+
+        // --- Persist off the main thread ---
         Executors.newSingleThreadExecutor().execute(() -> {
-            if (getContext() == null) return;
-
-            if (etTtsHighlightDelay != null) {
-                int v1 = Option.clampInt(
-                        getContext(),
-                        etTtsHighlightDelay,
-                        0, 400,
-                        Option.DEFAULT_TTS_HIGHLIGHT_DELAY_MS,
-                        getString(R.string.option_tts_highlight_delay_outOfBounds)
-                );
-                Option.setTtsHighlightDelayMs(v1);
+            if (highlightDelay != null) {
+                Option.setTtsHighlightDelayMs(highlightDelay);
             }
-
-            if (etTtsChunkSize != null) {
-                int v2 = Option.clampInt(
-                        getContext(),
-                        etTtsChunkSize,
-                        1200, 7000,
-                        Option.DEFAULT_TTS_CHUNK_SIZE,
-                        getString(R.string.tts_chunk_size)
-                );
-                Option.setTtsChunkSize(v2);
+            if (chunkSize != null) {
+                Option.setTtsChunkSize(chunkSize);
             }
         });
     }
+
 }

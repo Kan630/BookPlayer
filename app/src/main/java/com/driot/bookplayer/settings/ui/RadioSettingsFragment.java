@@ -59,17 +59,18 @@ public class RadioSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            if (etRadioNbResults != null) {
-                int value = Option.clampInt(this.getContext(),
-                        etRadioNbResults,
-                        Var.LIBRIVOX_API_MIN_RESULTS,
-                        Var.LIBRIVOX_API_MAX_RESULTS,
-                        Option.DEFAULT_LIBRIVOX_API_NB_RESULTS,
-                        getString(R.string.radio)
-                );
+        if (etRadioNbResults != null) {
+            final int value = Option.clampInt(this.getContext(),
+                    etRadioNbResults,
+                    Var.LIBRIVOX_API_MIN_RESULTS,
+                    Var.LIBRIVOX_API_MAX_RESULTS,
+                    Option.DEFAULT_LIBRIVOX_API_NB_RESULTS,
+                    getString(R.string.radio)
+            );
+            Executors.newSingleThreadExecutor().execute(() -> {
                 Option.setRadioApiNbResults(value);
-            }
-        });
+            });
+        }
     }
+
 }

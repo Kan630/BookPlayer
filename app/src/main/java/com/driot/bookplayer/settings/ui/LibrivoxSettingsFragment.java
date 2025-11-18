@@ -49,17 +49,17 @@ public class LibrivoxSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            if (etLibrivoxNbResults != null) {
-                int value = Option.clampInt(this.getContext(),
-                        etLibrivoxNbResults,
-                        Var.LIBRIVOX_API_MIN_RESULTS,
-                        Var.LIBRIVOX_API_MAX_RESULTS,
-                        Option.DEFAULT_LIBRIVOX_API_NB_RESULTS,
-                        getString(R.string.librivox)
-                );
+        if (etLibrivoxNbResults != null) {
+            final int value = Option.clampInt(this.getContext(),
+                    etLibrivoxNbResults,
+                    Var.LIBRIVOX_API_MIN_RESULTS,
+                    Var.LIBRIVOX_API_MAX_RESULTS,
+                    Option.DEFAULT_LIBRIVOX_API_NB_RESULTS,
+                    getString(R.string.librivox)
+            );
+            Executors.newSingleThreadExecutor().execute(() -> {
                 Option.setLibrivoxApiNbResults(value);
-            }
-        });
+            });
+        }
     }
 }
