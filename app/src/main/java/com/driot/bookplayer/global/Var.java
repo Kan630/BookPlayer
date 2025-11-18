@@ -89,10 +89,14 @@ public class Var {
 
     public static final String  PATH_AUTOTEST_URL = "https://bookplayer.driot.com/autotest/";
 
-    public static final String  AUTOTEST_FILE_01 = PATH_AUTOTEST_URL + "file_01.zip";
-    public static final String  AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "മലയാളം+عربى+Русский+हिन्दी.zip";
-    public static final String  AUTOTEST_FILE_03 = PATH_AUTOTEST_URL + "FrostTonight_librivox.m4b";
-    public static final String  AUTOTEST_FILE_04 = PATH_AUTOTEST_URL + "whitefang2_1010_librivox.zip";
+    public static final String AUTOTEST_FILE_01 = PATH_AUTOTEST_URL + "file_01.zip";
+    public static final String AUTOTEST_FILE_02 = PATH_AUTOTEST_URL + "മലയാളം+عربى+Русский+हिन्दी.zip";
+    public static final String AUTOTEST_FILE_03 = PATH_AUTOTEST_URL + "FrostTonight_librivox.m4b";
+    public static final String AUTOTEST_FILE_04 = PATH_AUTOTEST_URL + "whitefang2_1010_librivox.zip";
+
+    public static final String VISUALIZER_TYPE_LEGACY = "LEGACY";
+    public static final String VISUALIZER_TYPE_BARS = "BARS";
+    public static final String VISUALIZER_TYPE_RADIAL = "RADIAL";
 
     public static final String  WEBSITE_URL = "https://bookplayer.driot.com/";
 

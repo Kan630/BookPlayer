@@ -428,7 +428,7 @@
     <string name="option_tts_highlight_delay_text">विलंब :</string>
 
     <string name="option_text_preview_label">पूर्वावलोकन</string>
-    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_automotive_title">ऑटोमोटिव</string>
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
     <string name="option_automotive_auto_resume_on_car_connect">कार से कनेक्ट होने पर प्लेबैक स्वतः पुनः आरंभ करें।</string>

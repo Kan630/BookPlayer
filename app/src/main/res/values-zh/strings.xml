@@ -787,7 +787,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_font_family">字体</string>
     <string name="option_text_size">大小</string>
     <string name="option_text_preview_label">预览</string>
-    <string name="option_text_preview_sample">敏捷的棕色狐狸跳过懒狗 - 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">敏捷的棕色狐狸跳过懒狗 - 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
     <string name="option_podcast_open_specific_view">打开特定视图</string>
 

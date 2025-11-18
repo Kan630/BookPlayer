@@ -422,14 +422,14 @@
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
     <string name="option_automotive_let_car_autoplay">Allow Auto Play.</string>
-    <string name="option_open_play_activity">Open Play View.</string>
+    <string name="option_open_play_activity">Open Play View when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
     <string name="option_tts_highlight_delay_text">delay :</string>
 
     <string name="option_text_preview_label">Preview</string>
-    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_automotive_title">Automotive</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
@@ -1136,5 +1136,9 @@
     <string name="Download">Download</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Add the publication date to the episode name</string>
 
+    <string name="visualizer_mode_legacy">legacy</string>
+    <string name="visualizer_mode_bars">bars</string>
+    <string name="visualizer_mode_radial">radial</string>
+    <string name="option_play_view_explain">The play view is the detailed playing view, aka the screen with a big cover picture in the middle, big buttons at the bottom, and commands like -Speed- and -Sleep Timer-</string>
 
 </resources>

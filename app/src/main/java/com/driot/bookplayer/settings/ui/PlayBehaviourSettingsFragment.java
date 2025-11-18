@@ -13,6 +13,8 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.global.Var;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
@@ -29,8 +31,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private EditText etTimeBeforeSleep;
     private EditText etForwardSeconds;
 
-    private LinearLayout llVisualizerOn, llVisualizerPlayPause;
-    private MaterialCheckBox chkVisualizerOn, chkClickVisualizerPlayPause;
+    private LinearLayout llVisualizerOn, llClickMainContainerPlayPause;
+    private MaterialCheckBox chkVisualizerOn, chkClickMainContainerPlayPause;
     private TextView txVisualizerOn;
 
     private LinearLayout llRewindAfterPause, llStartNextTrackAtZero, llStopAudioOnClose, llOpenPlayActivity;
@@ -73,8 +75,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         llVisualizerOn              = root.findViewById(R.id.ll_visualizer_on);
         chkVisualizerOn             = root.findViewById(R.id.chk_visualizer_on);
         txVisualizerOn              = root.findViewById(R.id.tx_Visualizer_on);
-        llVisualizerPlayPause       = root.findViewById(R.id.ll_visualizer_playpause);
-        chkClickVisualizerPlayPause = root.findViewById(R.id.chk_click_visualizer_playpause);
+        llClickMainContainerPlayPause = root.findViewById(R.id.ll_visualizer_playpause);
+        chkClickMainContainerPlayPause = root.findViewById(R.id.chk_click_visualizer_playpause);
 
         chkVisualizerOn.setChecked(Option.getVisualizerOn());
         llVisualizerOn.setOnClickListener(v -> chkVisualizerOn.toggle());
@@ -84,11 +86,36 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                 requestRecordAudioPermission(root);
             }
             setVisualizerPermissionText();
+            root.findViewById(R.id.groupVisualizerMode).setVisibility((isChecked ? View.VISIBLE : View.GONE));
         });
 
-        chkClickVisualizerPlayPause.setChecked(Option.getClickVisualizerPlayPause());
-        llVisualizerPlayPause.setOnClickListener(v -> chkClickVisualizerPlayPause.toggle());
-        chkClickVisualizerPlayPause.setOnCheckedChangeListener((button, isChecked) ->
+        MaterialButtonToggleGroup group = root.findViewById(R.id.groupVisualizerMode);
+
+        boolean visualizerOn = Option.getVisualizerOn();
+        group.setVisibility(visualizerOn ? View.VISIBLE : View.GONE);
+
+        String type = Option.getVisualizerType();
+        int checkedId = switch (type) {
+            case Var.VISUALIZER_TYPE_BARS -> R.id.btnVisualizerBars;
+            case Var.VISUALIZER_TYPE_RADIAL -> R.id.btnVisualizerRadial;
+            default -> R.id.btnVisualizerLegacy;
+        };
+        group.check(checkedId);   // ← this actually makes one button look "pressed"
+
+        group.addOnButtonCheckedListener((g, checkedId2, isChecked) -> {
+            if (!isChecked) return;
+            if (checkedId2 == R.id.btnVisualizerBars) {
+                Option.setVisualizerType(Var.VISUALIZER_TYPE_BARS);
+            } else if (checkedId2 == R.id.btnVisualizerRadial) {
+                Option.setVisualizerType(Var.VISUALIZER_TYPE_RADIAL);
+            } else {
+                Option.setVisualizerType(Var.VISUALIZER_TYPE_LEGACY);
+            }
+        });
+
+        chkClickMainContainerPlayPause.setChecked(Option.getClickMainContainerPlayPause());
+        llClickMainContainerPlayPause.setOnClickListener(v -> chkClickMainContainerPlayPause.toggle());
+        chkClickMainContainerPlayPause.setOnCheckedChangeListener((button, isChecked) ->
                 Option.setClickVisualizerPlayPause(isChecked));
 
         setVisualizerPermissionText();

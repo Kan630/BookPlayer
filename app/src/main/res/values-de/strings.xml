@@ -800,7 +800,7 @@ Sind Sie sicher?"</string>
     <string name="option_font_family">Schriftart</string>
     <string name="option_text_size">Größe</string>
     <string name="option_text_preview_label">Vorschau</string>
-    <string name="option_text_preview_sample">Der schnelle braune Fuchs springt über den faulen Hund - 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">Der schnelle braune Fuchs springt über den faulen Hund - 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">Beim Klicken auf ein Buch vom Typ \'Podcast\', soll die Podcast-Ansicht mit allen Episoden oder die Buchansicht nur mit den heruntergeladenen geöffnet werden?</string>
     <string name="option_podcast_open_specific_view">Spezifische Ansicht öffnen</string>
 

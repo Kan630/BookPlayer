@@ -779,7 +779,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="option_font_family">Fuente</string>
     <string name="option_text_size">Tamaño</string>
     <string name="option_text_preview_label">Vista previa</string>
-    <string name="option_text_preview_sample">El rápido zorro marrón salta sobre el perro perezoso - 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">El rápido zorro marrón salta sobre el perro perezoso - 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">Al hacer clic en un libro de tipo \'podcast\', ¿debe abrirse la vista de podcast con todos los episodios o la vista del libro solo con los descargados?</string>
     <string name="option_podcast_open_specific_view">Abrir vista específica</string>
 

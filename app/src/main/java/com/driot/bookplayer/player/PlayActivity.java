@@ -189,7 +189,7 @@ public class PlayActivity extends LoggingActivity {
         ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
         container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
             @Override public void onSingleTap() {
-                if (Option.getClickVisualizerPlayPause()) vm.playPause();
+                if (Option.getClickMainContainerPlayPause()) vm.playPause();
             }
             @Override public void onDoubleTap() {
                 PlaybackUiState s = vm.getState().getValue();
@@ -491,6 +491,8 @@ public class PlayActivity extends LoggingActivity {
             }
             if (Option.getVisualizerOn() && isRecordAudioPermissionGranted(this) && sessionId != null) {
                 try {
+                    myLogD("linking visualizer");
+                    frequencyVisualizerView.setMode(Option.getVisualizerType());
                     frequencyVisualizerView.link_toto(sessionId);
                     frequencyVisualizerView.setVisibility(View.VISIBLE);
                 } catch (Throwable ignored) {}

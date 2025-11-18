@@ -11,6 +11,7 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 /**
@@ -98,10 +99,18 @@ public class FrequencyVisualizerView extends View {
     // ───────────────────────────────────────────
     //                 MODE
     // ───────────────────────────────────────────
-    public enum Mode { BARS, RADIAL }
-    private Mode mode = Mode.BARS;
+    public enum Mode { LEGACY, BARS, RADIAL }
+    private Mode mode = Mode.LEGACY;
     public void setMode(Mode m) { mode = m; invalidate(); }
-
+    public void setMode(String m) {
+        if (Var.VISUALIZER_TYPE_RADIAL.equals(m)) {
+            setMode(Mode.RADIAL);
+        } else if (Var.VISUALIZER_TYPE_BARS.equals(m)) {
+            setMode(Mode.BARS);
+        } else {
+            setMode(Mode.LEGACY);
+        }
+    }
     // ───────────────────────────────────────────
     //              RUNTIME STATE
     // ───────────────────────────────────────────

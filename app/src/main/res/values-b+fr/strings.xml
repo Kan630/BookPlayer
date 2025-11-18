@@ -786,7 +786,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="option_font_family">Police</string>
     <string name="option_text_size">Taille</string>
     <string name="option_text_preview_label">Aperçu</string>
-    <string name="option_text_preview_sample">Le rapide renard brun saute par-dessus le chien paresseux - 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">Le rapide renard brun saute par-dessus le chien paresseux - 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
     <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
 

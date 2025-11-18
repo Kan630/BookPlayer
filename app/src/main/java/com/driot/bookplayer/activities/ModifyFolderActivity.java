@@ -27,6 +27,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -36,6 +37,8 @@ import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.views.FrequencyVisualizerView;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.io.File;
 

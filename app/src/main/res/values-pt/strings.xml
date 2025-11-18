@@ -814,7 +814,7 @@
     <string name="option_font_family">Fonte</string>
     <string name="option_text_size">Tamanho</string>
     <string name="option_text_preview_label">Pré-visualização</string>
-    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">Ao tocar em um livro \'podcast\', deve abrir a visualização do podcast com todos os episódios ou a visualização do livro com apenas os baixados?</string>
     <string name="option_podcast_open_specific_view">Abrir visualização específica</string>
 

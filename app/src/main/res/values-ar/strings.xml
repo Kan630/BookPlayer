@@ -785,7 +785,7 @@
     <string name="option_font_family">الخط</string>
     <string name="option_text_size">الحجم</string>
     <string name="option_text_preview_label">معاينة</string>
-    <string name="option_text_preview_sample">الثعلب البني السريع يقفز فوق الكلب الكسول - 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">الثعلب البني السريع يقفز فوق الكلب الكسول - 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
     <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
 

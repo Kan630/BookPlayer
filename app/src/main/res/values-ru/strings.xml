@@ -792,7 +792,7 @@
     <string name="option_font_family">Шрифт</string>
     <string name="option_text_size">Размер</string>
     <string name="option_text_preview_label">Предпросмотр</string>
-    <string name="option_text_preview_sample">Быстрая коричневая лиса перепрыгивает через ленивую собаку - 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">Быстрая коричневая лиса перепрыгивает через ленивую собаку - 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
     <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
 

@@ -814,7 +814,7 @@
     <string name="option_font_family">Font</string>
     <string name="option_text_size">Dimensione</string>
     <string name="option_text_preview_label">Anteprima</string>
-    <string name="option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
+    <string name="deprecated_option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_podcast_open_specific_view_subtitle">Quando tocchi un libro \'podcast\', deve aprire la vista podcast con tutti gli episodi o la vista libro con solo quelli scaricati?</string>
     <string name="option_podcast_open_specific_view">Apri vista specifica</string>
 

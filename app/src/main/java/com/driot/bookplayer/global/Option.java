@@ -35,6 +35,7 @@ public class Option {
     private static final boolean DEFAULT_STOP_AUDIO_IF_USER_CLOSES_APP = true;
     private static final boolean DEFAULT_OPEN_PLAY_ACTIVITY = true;
     private static final boolean DEFAULT_RELOAD_PLAYLIST_FROM_STORAGE = true;
+    private static final String DEFAULT_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_LEGACY;
     private static final String DEFAULT_THEME_KEY = "purple"; //needs a string as resource ID are not stables between releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
@@ -174,7 +175,7 @@ public class Option {
     public static boolean getVisualizerOn() {return prefs.getBoolean("VISUALIZER_ON", DEFAULT_VISUALIZER_ON);}
 
     public static void setClickVisualizerPlayPause(boolean bool) {prefs.edit().putBoolean("CLICK_VISUALIZER_PLAYPAUSE",bool).apply();}
-    public static boolean getClickVisualizerPlayPause() {return prefs.getBoolean("CLICK_VISUALIZER_PLAYPAUSE", DEFAULT_CLICK_VISUALIZER_PLAYPAUSE);}
+    public static boolean getClickMainContainerPlayPause() {return prefs.getBoolean("CLICK_VISUALIZER_PLAYPAUSE", DEFAULT_CLICK_VISUALIZER_PLAYPAUSE);}
 
     /////////////////// THEME ///////////////////
     public static void setThemeColor(String themeColor) {
@@ -245,6 +246,10 @@ public class Option {
 
     public static void setIfPlayListNullInLoadFileThenLoadFromStorage(boolean bool) {prefs.edit().putBoolean("RELOAD_PLAYLIST_FROM_STORAGE",bool).apply();}
     public static boolean getIfPlayListNullInLoadFileThenLoadFromStorage() {return prefs.getBoolean("RELOAD_PLAYLIST_FROM_STORAGE", DEFAULT_RELOAD_PLAYLIST_FROM_STORAGE);}
+
+    public static void setVisualizerType(String str) {prefs.edit().putString("VISUALIZER_TYPE",str).apply();}
+    public static String getVisualizerType() {return prefs.getString("VISUALIZER_TYPE", DEFAULT_VISUALIZER_TYPE);}
+
 
 
 
