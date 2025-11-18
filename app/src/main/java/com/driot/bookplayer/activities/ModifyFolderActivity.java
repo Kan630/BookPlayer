@@ -22,6 +22,7 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -157,6 +158,20 @@ public class ModifyFolderActivity extends LoggingActivity {
                     if (fresh.image != null) {
                         myLogD("observe folderDAO => display new fresh image : " + fresh.image);
                         folder.image = fresh.image;
+                        String img = fresh.image;
+
+                        if (img == null || img.isEmpty()) {
+                            Glide.with(this)
+                                    .load(R.drawable.no_image_icon)
+                                    .into(ivCoverPreview);
+                            return;
+                        }
+
+                        Glide.with(this)
+                                .load(img) // can be content://, file://, or plain path string
+                                .error(R.drawable.no_image_icon)
+                                .placeholder(R.drawable.no_image_icon)
+                                .into(ivCoverPreview);
                         ivCoverPreview.setImageURI(Uri.parse(fresh.image));
                     }
                 });
