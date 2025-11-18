@@ -98,6 +98,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         int checkedId = switch (type) {
             case Var.VISUALIZER_TYPE_BARS -> R.id.btnVisualizerBars;
             case Var.VISUALIZER_TYPE_RADIAL -> R.id.btnVisualizerRadial;
+            case Var.VISUALIZER_TYPE_WAVE -> R.id.btnVisualizerWave;
             default -> R.id.btnVisualizerLegacy;
         };
         group.check(checkedId);   // ← this actually makes one button look "pressed"
@@ -108,6 +109,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                 Option.setVisualizerType(Var.VISUALIZER_TYPE_BARS);
             } else if (checkedId2 == R.id.btnVisualizerRadial) {
                 Option.setVisualizerType(Var.VISUALIZER_TYPE_RADIAL);
+            } else if (checkedId2 == R.id.btnVisualizerWave) {
+                Option.setVisualizerType(Var.VISUALIZER_TYPE_WAVE);
             } else {
                 Option.setVisualizerType(Var.VISUALIZER_TYPE_LEGACY);
             }

@@ -97,6 +97,7 @@ public class Var {
     public static final String VISUALIZER_TYPE_LEGACY = "LEGACY";
     public static final String VISUALIZER_TYPE_BARS = "BARS";
     public static final String VISUALIZER_TYPE_RADIAL = "RADIAL";
+    public static final String VISUALIZER_TYPE_WAVE = "WAVE";
 
     public static final String  WEBSITE_URL = "https://bookplayer.driot.com/";
 

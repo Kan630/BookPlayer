@@ -1,4 +1,4 @@
-    package com.driot.bookplayer.views;
+package com.driot.bookplayer.views;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -16,17 +16,15 @@ import com.driot.bookplayer.utils.log.KanLogger;
 
 /**
  * FrequencyVisualizerView
- *
+ * -
  * - Fixes "left busy / right dead" by using only POSITIVE frequency bins (first half of FFT).
  * - Proper magnitude = sqrt(re^2 + im^2).
  * - Even or log-ish bin grouping that fully covers the spectrum.
  * - Noise gate + light auto-gain + EMA smoothing.
- * - Two modes:
+ * - Modes:
+ *      LEGACY -> simple waveform-based visualizer (more tolerant)
  *      BARS   -> classic vertical bars, evenly spread across width
  *      RADIAL -> a single CLOSED PATH (circle) whose radius deforms with the spectrum (no spokes)
- * - Two paints for the radial mode:
- *      ringPaint     -> the thin/normal deforming circle (stroke)
- *      outlinePaint  -> a thicker “outer” line you can tune independently
  */
 public class FrequencyVisualizerView extends View {
 
@@ -99,23 +97,34 @@ public class FrequencyVisualizerView extends View {
     // ───────────────────────────────────────────
     //                 MODE
     // ───────────────────────────────────────────
-    public enum Mode { LEGACY, BARS, RADIAL }
+    public enum Mode { LEGACY, WAVE, BARS, RADIAL }
+
     private Mode mode = Mode.LEGACY;
-    public void setMode(Mode m) { mode = m; invalidate(); }
+
+    public void setMode(Mode m) {
+        mode = m;
+        invalidate();
+    }
+
+    /** Helper to plug your string prefs (Var.VISUALIZER_TYPE_*) */
     public void setMode(String m) {
         if (Var.VISUALIZER_TYPE_RADIAL.equals(m)) {
             setMode(Mode.RADIAL);
         } else if (Var.VISUALIZER_TYPE_BARS.equals(m)) {
             setMode(Mode.BARS);
+        } else if (Var.VISUALIZER_TYPE_WAVE.equals(m)) {
+            setMode(Mode.WAVE);
         } else {
             setMode(Mode.LEGACY);
         }
     }
+
     // ───────────────────────────────────────────
     //              RUNTIME STATE
     // ───────────────────────────────────────────
     private Visualizer visualizer;
     private byte[] fftBytes;              // raw [re0, im0, re1, im1, ...]
+    private byte[] waveformBytes;         // raw waveform (legacy mode)
     private final float[] bars = new float[NB_BARS];  // smoothed 0..1 values
 
     // ───────────────────────────────────────────
@@ -136,7 +145,7 @@ public class FrequencyVisualizerView extends View {
         getContext().getTheme().resolveAttribute(android.R.attr.colorPrimary, tv, true);
         int primary = tv.data;
 
-        // Bars
+        // Bars / legacy
         barPaint.setColor(primary);
         barPaint.setStyle(Paint.Style.STROKE);
         barPaint.setStrokeWidth(5f);
@@ -162,9 +171,12 @@ public class FrequencyVisualizerView extends View {
         if (VISUALIZER_DISABLED) {
             myLog("Visualizer disabled (test mode)");
             // Make sure we don’t hold any native resources
-            if (visualizer != null) { try { visualizer.release(); } catch (Throwable ignored) {} }
+            if (visualizer != null) {
+                try { visualizer.release(); } catch (Throwable ignored) {}
+            }
             visualizer = null;
             fftBytes = null;
+            waveformBytes = null;
             invalidate();
             return;
         }
@@ -185,14 +197,24 @@ public class FrequencyVisualizerView extends View {
             } catch (Throwable ignore) {}
 
             visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
-                @Override public void onWaveFormDataCapture(Visualizer v, byte[] wf, int sr) { /* unused */ }
+                @Override
+                public void onWaveFormDataCapture(Visualizer v, byte[] wf, int samplingRate) {
+                    // Used by LEGACY mode
+                    waveformBytes = wf;
+                    if (mode == Mode.LEGACY) {
+                        postInvalidateOnAnimation();
+                    }
+                }
 
                 @Override
                 public void onFftDataCapture(Visualizer v, byte[] fft, int samplingRate) {
+                    // Used by BARS / RADIAL modes
                     fftBytes = fft; // interleaved complex bins
-                    postInvalidateOnAnimation();
+                    if (mode != Mode.LEGACY) {
+                        postInvalidateOnAnimation();
+                    }
                 }
-            }, Visualizer.getMaxCaptureRate(), false, true);
+            }, Visualizer.getMaxCaptureRate(), /*waveform*/ true, /*fft*/ true);
 
             visualizer.setEnabled(true);
         } catch (Throwable t) {
@@ -203,18 +225,48 @@ public class FrequencyVisualizerView extends View {
     @Override
     protected void onDraw(@NonNull Canvas canvas) {
         super.onDraw(canvas);
-        if (VISUALIZER_DISABLED || fftBytes == null) {
+
+        if (VISUALIZER_DISABLED || visualizer == null) {
             drawIdle(canvas);
             return;
         }
 
-        // Compute smoothed 0..1 bar values from POSITIVE freqs only
-        computeBarsFromPositiveSpectrum(fftBytes, bars);
+        switch (mode) {
+            case LEGACY:
+                if (waveformBytes != null) {
+                    computeLegacyBarsFromWaveform(waveformBytes, bars);
+                    drawBars(canvas, bars);   // ← histogrammes
+                } else {
+                    drawIdle(canvas);
+                }
+                break;
 
-        if (mode == Mode.RADIAL) {
-            drawRadialDeformingCircle(canvas, bars);
-        } else {
-            drawBars(canvas, bars);
+            case WAVE:
+                if (waveformBytes != null) {
+                    drawLegacyWaveform(canvas, waveformBytes);
+                } else {
+                    drawIdle(canvas);
+                }
+                break;
+
+            case RADIAL:
+                if (fftBytes != null) {
+                    computeBarsFromPositiveSpectrum(fftBytes, bars);
+                    drawRadialDeformingCircle(canvas, bars);
+                } else {
+                    drawIdle(canvas);
+                }
+                break;
+
+            case BARS:
+            default:
+                if (fftBytes != null) {
+                    computeBarsFromPositiveSpectrum(fftBytes, bars);
+                    drawBars(canvas, bars);
+                } else {
+                    drawIdle(canvas);
+                }
+                break;
         }
     }
 
@@ -312,6 +364,41 @@ public class FrequencyVisualizerView extends View {
     }
 
     /**
+     * Legacy waveform visualizer:
+     * simple "oscilloscope" style using time-domain samples.
+     * This is typically more tolerant across devices.
+     */
+    private void drawLegacyWaveform(Canvas canvas, byte[] wf) {
+        if (wf == null || wf.length == 0) {
+            drawIdle(canvas);
+            return;
+        }
+
+        float w = getWidth();
+        float h = getHeight();
+        float centerY = h * 0.5f;
+
+        // We map each sample to a point along X
+        float stepX = w / (float) (wf.length - 1);
+
+        float prevX = 0;
+        float prevY = centerY;
+
+        for (int i = 0; i < wf.length; i++) {
+            // waveform samples are 0..255, center at 128
+            float normalized = ((wf[i] & 0xFF) - 128f) / 128f; // -1..1 approx
+            float x = i * stepX;
+            float y = centerY + normalized * (h * 0.4f);      // 0.4 = margin
+
+            if (i > 0) {
+                canvas.drawLine(prevX, prevY, x, y, barPaint);
+            }
+            prevX = x;
+            prevY = y;
+        }
+    }
+
+    /**
      * Draw a CLOSED PATH whose radius varies with angle.
      * - Base radius = RADIAL_BASE_RADIUS * min(w, h)/2.
      * - Added radius = vals[i] * (baseRadius * RADIAL_DEFORM_SCALE).
@@ -373,7 +460,46 @@ public class FrequencyVisualizerView extends View {
             try { visualizer.release(); } catch (Throwable ignored) {}
             visualizer = null;
         }
+        fftBytes = null;
+        waveformBytes = null;
     }
+    /**
+     * LEGACY: construit des barres à partir de la waveform (time-domain).
+     * Histograms simples, très tolérants entre devices.
+     */
+    private void computeLegacyBarsFromWaveform(byte[] wf, float[] out) {
+        if (wf == null || wf.length == 0) {
+            // petite décroissance si jamais on perd le signal
+            for (int i = 0; i < out.length; i++) out[i] *= 0.9f;
+            return;
+        }
+
+        final int len = wf.length;
+
+        for (int b = 0; b < NB_BARS; b++) {
+            int start = b * len / NB_BARS;
+            int end   = (b + 1) * len / NB_BARS;
+
+            float sum = 0f;
+            int count = 0;
+
+            for (int i = start; i < end && i < len; i++) {
+                // waveform: 0..255, centre ~128
+                float v = ((wf[i] & 0xFF) - 128f); // -128..+127
+                sum += Math.abs(v);
+                count++;
+            }
+
+            float avg = (count > 0) ? (sum / count) : 0f;
+
+            // map ~0..128 -> 0..1 (ajuste le 64f si tu veux plus/moins de hauteur)
+            float value = Math.max(0f, Math.min(1f, avg / 64f));
+
+            // léger smoothing pour éviter le flicker
+            out[b] = 0.6f * out[b] + 0.4f * value;
+        }
+    }
+
 
     // ───────────────────────────────────────────
     //               LOGGING HELPERS

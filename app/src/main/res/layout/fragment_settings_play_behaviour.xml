@@ -169,32 +169,32 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerLegacy"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/MaterialButtonForToggleGroup"
                     android:text="@string/visualizer_mode_legacy"
                     app:cornerRadius="16dp"
                     app:checkedIcon="@drawable/ic_check_24px"
-                    android:checkable="true" />
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVisualizerWave"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/visualizer_mode_wave"
+                    app:cornerRadius="16dp"
+                    />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerBars"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/MaterialButtonForToggleGroup"
                     android:text="@string/visualizer_mode_bars"
                     app:cornerRadius="16dp"
-                    app:checkedIcon="@drawable/ic_check_24px"
-                    android:checkable="true"
-                    android:layout_marginHorizontal="8dp"
                     />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerRadial"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    style="@style/MaterialButtonForToggleGroup"
                     android:text="@string/visualizer_mode_radial"
                     app:cornerRadius="16dp"
-                    app:checkedIcon="@drawable/ic_check_24px"
-                    android:checkable="true" />
+                    />
 
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
