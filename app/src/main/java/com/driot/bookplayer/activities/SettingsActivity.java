@@ -35,7 +35,6 @@ public class SettingsActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //((SettingsActivity) this).setContentView(R.layout.activity_settings); //trigers AutofillManager notifyValueChanged  ignoring on state UNKNOWN  (pollute log in Android 12)
         InsetHelper.apply(this);
 
         scrollView = findViewById(R.id.scrollView);

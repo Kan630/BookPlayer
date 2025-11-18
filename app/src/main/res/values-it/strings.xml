@@ -1066,7 +1066,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="please_wait_another_book">Attendi — un altro libro è ancora in fase di download o caricamento.\nSe non è così, usa il pulsante Ripristina app in [Impostazioni &gt; Utilità &gt; Annulla operazione in corso].</string>
     <string name="Podcast_source_error">Errore sorgente podcast</string>
     <string name="Streaming_Podcast">Podcast in streaming</string>
-    <string name="Stop_the_player_to_move_playing_tracks">Devi interrompere la riproduzione per spostare la traccia in corso</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">Devi interrompere la riproduzione per spostare la traccia in corso</string>
 
     <string name="bOpenMassImport_warning">Per ora sono supportate solo le sottocartelle che contengono file audio</string>
     <string name="librivox_search_edittext_title">Cerca per autore o titolo...\nSuggerimento: una sola parola spesso dà risultati migliori</string>

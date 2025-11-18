@@ -1047,7 +1047,7 @@
     <string name="please_wait_another_book">يرجى الانتظار — لا يزال كتاب آخر قيد التنزيل أو التحميل.\nإذا لم يكن كذلك، استخدم زر إعادة تعيين التطبيق في [الإعدادات &gt; الأدوات &gt; إلغاء العملية الجارية].</string>
     <string name="Podcast_source_error">خطأ في مصدر البودكاست</string>
     <string name="Streaming_Podcast">بودكاست مباشر</string>
-    <string name="Stop_the_player_to_move_playing_tracks">يجب إيقاف التشغيل لنقل المقطع الجاري تشغيله</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">يجب إيقاف التشغيل لنقل المقطع الجاري تشغيله</string>
 
     <string name="bOpenMassImport_warning">يتم دعم المجلدات الفرعية التي تحتوي على ملفات صوتية فقط حالياً</string>
     <string name="librivox_search_edittext_title">ابحث حسب المؤلف أو العنوان...\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>

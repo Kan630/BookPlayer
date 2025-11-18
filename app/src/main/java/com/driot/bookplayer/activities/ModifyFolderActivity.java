@@ -27,7 +27,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -35,10 +34,9 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.services.DeleteFolderWorker;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.FrequencyVisualizerView;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.io.File;
 
@@ -93,13 +91,15 @@ public class ModifyFolderActivity extends LoggingActivity {
         etRename.setText(folder.getName());
 
         findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
-            if ( PlaybackUiBus.get().state().getValue() != null ) {
-                myToast(getString(R.string.Stop_the_player_to_move_playing_tracks));
-            }
             startActivity(new Intent(this, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER, folder)
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
             );
+            String warning = null;
+            if ( PlaybackUiBus.get().state().getValue() != null) {
+                warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
+            }
+            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text), warning);
         });
 
         String memoryLocationText = getString(R.string.AudioLocation) + " : " + folder.getMemoryLocationText(this);

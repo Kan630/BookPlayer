@@ -18,9 +18,8 @@ import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.imports.TaskUiState;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.services.DownloadControl;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
-public class AddResourceActivity extends LoggingActivity {
+public class AddResourceActivity extends BaseBottomNavActivity {
 
     private static final int DELAY_END_WAIT_WARNINGS = 5*60_000;
     private static final int DELAY_END_WAIT_NO_ERROR = 2_000;
@@ -40,10 +39,13 @@ public class AddResourceActivity extends LoggingActivity {
     private OngoingTaskViewModel viewModel;   // keep reference
     private boolean didClose = false;
 
+    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getLayoutResId() { return R.layout.activity_add_resource; }
+    @Override protected boolean enableOngoingTaskOverlay() { return false; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_resource);
         InsetHelper.apply(this);
 
         tvTitle = findViewById(R.id.tvTitle);

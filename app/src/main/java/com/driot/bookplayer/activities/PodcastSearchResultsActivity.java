@@ -41,7 +41,6 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_podcast_search_result);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewPodcast);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);

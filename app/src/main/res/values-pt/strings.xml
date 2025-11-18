@@ -1064,7 +1064,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="please_wait_another_book">Por favor aguarde — outro livro ainda está sendo baixado ou carregado.\nSe não for o caso, use o botão Redefinir app em [Configurações &gt; Utilitários &gt; Cancelar operação em andamento].</string>
     <string name="Podcast_source_error">Erro de fonte do podcast</string>
     <string name="Streaming_Podcast">Podcast em streaming</string>
-    <string name="Stop_the_player_to_move_playing_tracks">Você deve parar a reprodução para mover a faixa em reprodução</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">Você deve parar a reprodução para mover a faixa em reprodução</string>
 
     <string name="bOpenMassImport_warning">Apenas subpastas contendo arquivos de áudio são suportadas por enquanto</string>
     <string name="librivox_search_edittext_title">Pesquisar por autor ou título...\nDica: uma única palavra geralmente dá melhores resultados</string>

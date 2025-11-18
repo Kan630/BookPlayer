@@ -1113,7 +1113,7 @@
     <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.\nIf that is not the case, you can use the Reset App button in [Settings &gt; Utilities &gt; Cancel ongoing operation] (at the very bottom).</string>
     <string name="Podcast_source_error">"Podcast source error"</string>
     <string name="Streaming_Podcast">Streaming Podcast</string>
-    <string name="Stop_the_player_to_move_playing_tracks">You must stop playback to move the track that is currently playing</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">You must stop playback to move the track that is currently playing</string>
 
     <string name="bOpenMassImport_warning">Only subfolders containing audio files are supported for now</string>
     <string name="librivox_search_edittext_title">Search by author or title...\nTip: a single word often gives better results</string>
@@ -1140,6 +1140,12 @@
     <string name="visualizer_mode_wave">wave</string>
     <string name="visualizer_mode_bars">bars</string>
     <string name="visualizer_mode_radial">radial</string>
-    <string name="option_play_view_explain">The play view is the detailed playing view, aka the screen with a big cover picture in the middle, big buttons at the bottom, and commands like -Speed- and -Sleep Timer-</string>
+    <string name="option_play_view_explain">The play view is the detailed playback screen — the one with the large cover image in the middle, big buttons at the bottom, and controls like Speed and Sleep Timer.</string>
+    <string name="ChangeTrackOrder_Title">Instructions for the next screen</string>
+    <string name="ChangeTrackOrder_Text">Drag and drop the boxes.
+\n\nLong-press one of the boxes on the left to select it, then drag and drop it to the desired position.</string>
+
+    <string name="Quit_the_player_to_move_playing_tracks">You may need to close the player to move the tracks.</string>
+
 
 </resources>

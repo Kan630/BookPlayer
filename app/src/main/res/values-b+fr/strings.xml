@@ -1048,7 +1048,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres &gt; Utilitaires &gt; Annuler l\'opération en cours] (tout en bas).</string>
     <string name="Podcast_source_error">Erreur de source du podcast</string>
     <string name="Streaming_Podcast">Podcast en streaming</string>
-    <string name="Stop_the_player_to_move_playing_tracks">Vous devez arrêter la lecture pour déplacer la piste en cours</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">Vous devez arrêter la lecture pour déplacer la piste en cours</string>
 
     <string name="bOpenMassImport_warning">Seuls les sous-dossiers contenant des fichiers audio sont pris en charge pour l\'instant</string>
     <string name="librivox_search_edittext_title">Recherche par auteur ou titre...\nAstuce : un seul mot donne souvent de meilleurs résultats</string>

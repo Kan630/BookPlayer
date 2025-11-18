@@ -33,7 +33,6 @@ import com.driot.bookplayer.objects.ItemMetadata;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 import java.net.HttpURLConnection;
@@ -48,7 +47,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LibrivoxDetailActivity extends LoggingActivity {
+public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
     private static final double COVER_UPGRADE_THRESHOLD = 1.10;
 
@@ -64,10 +63,14 @@ public class LibrivoxDetailActivity extends LoggingActivity {
     private long cachedPicSizeBytes;
     private String futureCoverPic; // path of the file we plan to use/show
 
+
+    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getLayoutResId() { return R.layout.activity_librivox_detail; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_librivox_detail);
         InsetHelper.apply(this);
 
         titleView = findViewById(R.id.textDetailTitle);

@@ -1049,7 +1049,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="please_wait_another_book">请稍候 — 另一本书仍在下载或加载中。\n如果不是这种情况，请使用 [设置 &gt; 工具 &gt; 取消正在进行的操作] 中的重置应用按钮。</string>
     <string name="Podcast_source_error">播客源错误</string>
     <string name="Streaming_Podcast">流媒体播客</string>
-    <string name="Stop_the_player_to_move_playing_tracks">必须停止播放才能移动当前正在播放的曲目</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">必须停止播放才能移动当前正在播放的曲目</string>
 
     <string name="bOpenMassImport_warning">目前仅支持包含音频文件的子文件夹</string>
     <string name="librivox_search_edittext_title">按作者或标题搜索...\n提示：单个词通常能获得更好的结果</string>

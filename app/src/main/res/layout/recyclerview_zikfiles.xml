@@ -18,7 +18,7 @@
         >
         <TextView
             android:id="@+id/ib_drag_sort"
-            android:layout_width="48dp"
+            android:layout_width="100dp"
             android:layout_height="48dp"
             android:layout_gravity="center_vertical"
             android:gravity="center"

@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -19,11 +18,10 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
 
-public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
+public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
     private CleanMemoryRVAdapter cacheFilesAdapter;
     private CleanMemoryViewModel cacheFilesViewModel;
     private RadioGroup storageSelector;
@@ -31,15 +29,16 @@ public class CleanMemoryActivity extends LoggingActivity implements CleanMemoryR
     private ProgressBar progressBar;
     private TextView statsTextView;
 
+    @Override protected int getNavId() { return R.id.nav_settings; } //TODO change to correct one after migrating menu items
+    @Override protected int getLayoutResId() { return R.layout.activity_clean_memory; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_clean_memory);
+        InsetHelper.apply(this);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
-        LinearLayout mainContent = findViewById(R.id.main_content);
-        //InsetHelper.applyInsetsForContentWithScrollableBottom(this, mainContent, recyclerView);
-        InsetHelper.apply(this);
 
         statsTextView = findViewById(R.id.cachefiles_stats_text);
 

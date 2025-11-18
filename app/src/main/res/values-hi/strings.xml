@@ -1102,7 +1102,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="please_wait_another_book">कृपया प्रतीक्षा करें — एक और पुस्तक डाउनलोड या लोड हो रही है।\nयदि नहीं, तो [सेटिंग्स &gt; उपयोगिताएँ &gt; चल रही प्रक्रिया रद्द करें] में रीसेट ऐप बटन का उपयोग करें।</string>
     <string name="Podcast_source_error">पॉडकास्ट स्रोत त्रुटि</string>
     <string name="Streaming_Podcast">स्ट्रीमिंग पॉडकास्ट</string>
-    <string name="Stop_the_player_to_move_playing_tracks">चल रहे ट्रैक को स्थानांतरित करने के लिए आपको प्लेबैक रोकना होगा</string>
+    <string name="deprecated_Stop_the_player_to_move_playing_tracks">चल रहे ट्रैक को स्थानांतरित करने के लिए आपको प्लेबैक रोकना होगा</string>
 
     <string name="bOpenMassImport_warning">अभी केवल उपफ़ोल्डर जिनमें ऑडियो फ़ाइलें हैं, समर्थित हैं</string>
     <string name="librivox_search_edittext_title">लेखक या शीर्षक से खोजें...\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>

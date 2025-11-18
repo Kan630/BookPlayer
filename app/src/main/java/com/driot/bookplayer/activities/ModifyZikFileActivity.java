@@ -24,6 +24,7 @@ import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
@@ -86,13 +87,15 @@ public class ModifyZikFileActivity extends LoggingActivity {
         }
 
         findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
-            if ( PlaybackUiBus.get().state().getValue() != null) {
-                myToast(getString(R.string.Stop_the_player_to_move_playing_tracks));
-            }
             startActivity(new Intent(this, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
             );
+            String warning = null;
+            if ( PlaybackUiBus.get().state().getValue() != null) {
+                warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
+            }
+            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text), warning);
         });
 
         bReset.setOnClickListener(view -> bResetClick(zikFile));

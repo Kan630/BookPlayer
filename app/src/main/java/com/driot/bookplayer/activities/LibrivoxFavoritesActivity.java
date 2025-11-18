@@ -16,21 +16,23 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxItem;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Collections;
 
-public class LibrivoxFavoritesActivity extends LoggingActivity {
+public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
 
     private LibrivoxResultsViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
     private LibrivoxFavoritesRVAdapter adapter;
 
+    @Override protected int getNavId() { return R.id.nav_library; }
+    @Override protected int getLayoutResId() { return R.layout.activity_librivox_results; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_librivox_results);
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);

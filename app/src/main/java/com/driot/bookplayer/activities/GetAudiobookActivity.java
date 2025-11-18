@@ -16,10 +16,9 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
-public class GetAudiobookActivity extends LoggingActivity {
+public class GetAudiobookActivity extends BaseBottomNavActivity {
 
     Spinner spinnerLibrivox;
     EditText1lineWithPasteDelete editTextLibrivox;
@@ -30,10 +29,14 @@ public class GetAudiobookActivity extends LoggingActivity {
 
     String query, lang;
 
+
+    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getLayoutResId() { return R.layout.activity_get_audiobook; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_get_audiobook);
         InsetHelper.apply(this);
 
         buttonTrending = findViewById(R.id.bLibrivoxTrending);

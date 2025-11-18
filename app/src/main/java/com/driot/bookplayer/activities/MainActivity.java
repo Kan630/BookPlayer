@@ -3,15 +3,12 @@
     import android.annotation.SuppressLint;
     import android.app.Activity;
     import android.content.BroadcastReceiver;
-    import android.content.ComponentName;
     import android.content.Context;
     import android.content.Intent;
 
     import android.content.IntentFilter;
-    import android.content.ServiceConnection;
     import android.net.Uri;
     import android.os.Bundle;
-    import android.os.IBinder;
     import android.view.Menu;
     import android.view.MenuItem;
 
@@ -28,7 +25,6 @@
     import com.driot.bookplayer.MyApp;
     import com.driot.bookplayer.R;
     import com.driot.bookplayer.adapter.FoldersRVAdapter;
-    import com.driot.bookplayer.db.AppDatabase;
     import com.driot.bookplayer.global.Intents;
     import com.driot.bookplayer.global.Option;
     import com.driot.bookplayer.global.Var;
@@ -40,7 +36,6 @@
     import com.driot.bookplayer.player.PlaybackViewModel;
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;
-    import com.driot.bookplayer.utils.log.LoggingActivity;
 
     public class MainActivity extends BaseBottomNavActivity {
 
@@ -103,7 +98,6 @@
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            //setContentView(R.layout.activity_main);
             InsetHelper.apply(this);
 
             if (savedInstanceState == null && !infoAlreadyShown) {
