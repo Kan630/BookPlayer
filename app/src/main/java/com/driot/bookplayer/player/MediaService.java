@@ -1524,17 +1524,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
-
-    public void pauseAudioNoSave() {
-        if (engine != null && engine.isPlaying()) {
-            enginePause();
-            focus.abandon();
-            sleepTimer.stop();
-            showForegroundNotification(false);
-            broadcastUiState("pauseAudioNoSave");
-        }
-    }
-
     public void pauseAudio() {
         if (engine != null && engine.isPlaying()) {
             enginePause();
@@ -1809,15 +1798,18 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     public String getPlayMode() {
-        //String playMode = "book", "tts", "radio", "podcast", "book"
         if (engine instanceof TtsEngine) {
-            return "tts";
+            return Var.PLAY_MODE_TTS;
         } else if (engine instanceof ExoRadioPlayerEngine) {
-            return "radio";
+            return Var.PLAY_MODE_RADIO;
         } else if (engine instanceof ExoStreamPlayerEngine) {
-            return "podcast";
+            return Var.PLAY_MODE_PODCAST;
+        } else if (engine instanceof MediaPlayerEngine) {
+            return Var.PLAY_MODE_BOOK;
+        } else {
+            myLogE("getPlayMode() => no play mode => null");
+            return null;
         }
-        return "book";
     }
 
     public String getLoadPhase() {
@@ -2248,24 +2240,32 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return loadAndPlayTrack(zikFile);
     }
 
-    private boolean loadAndPlay() {
-        PlayList.createFromStorage(this);
-        PlayList pl = PlayList.getInstance();
-        if (pl == null) {
-            myLogEE(null, "error creating playlist from storage");
-            return false;
-        }
+    private void loadAndPlay() {
+        PlayList.createFromStorage(this, true, pl -> {
+            if (pl == null) {
+                myLogEE(null, "error creating playlist from storage (pl == null)");
+                // optionally stop service or update notification
+                alertError("create playlist from storage","could not recreate playlist");
+                return;
+            }
 
-        String playMode = pl.getPlayMode();
-        if (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode)) {
-            return loadAndPlayTrack(pl.getZikFile());
-        } else if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
-            return playStream(playMode, pl.getUrl(), null, null);
-        } else {
-            myLogEE(null, "error wrong playMode = " + playMode);
-            return false;
-        }
+            String playMode = pl.getPlayMode();
 
+            boolean ok;
+            if (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode)) {
+                ok = loadAndPlayTrack(pl.getZikFile());
+            } else if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
+                ok = playStream(playMode, pl.getUrl(), null, null);
+            } else {
+                myLogEE(null, "error wrong playMode = " + playMode);
+                ok = false;
+            }
+
+            if (!ok) {
+                myLogEE(null, "loadAndPlayFromStorage(): playback failed");
+                // handle error: maybe stopSelf() or show error notification
+            }
+        });
     }
 
 
