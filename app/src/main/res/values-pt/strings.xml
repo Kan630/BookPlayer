@@ -1087,5 +1087,28 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="Download">Baixar</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Adicionar a data de publicacao ao nome do episodio</string>
 
+    <string name="visualizer_mode_legacy">antigo</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">onda</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">barras</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">radial</string> <!-- <8 -->
+    <string name="option_play_view_explain">A vista de reprodução é a tela detalhada — com a capa grande no centro, botões grandes embaixo e controles como Velocidade e Temporizador.</string>
+    <string name="ChangeTrackOrder_Title">Instruções para a próxima tela</string>
+    <string name="ChangeTrackOrder_Text">Arraste e solte as caixas.
+\n\nPressione e segure uma caixa à esquerda, depois arraste para a posição desejada.</string>
+    <string name="Quit_the_player_to_move_playing_tracks">Talvez seja preciso fechar o player para mover as faixas.</string>
+    <string name="welcome_title">Bem-vindo ao BookPlayer</string>
+    <string name="welcome_subtitle">Seu leitor de áudio versátil e offline.</string>
+    <string name="welcome_item_add_book">Adicione um audiolivro do dispositivo, SD ou drive.</string>
+    <string name="welcome_item_librivox">Explore audiolivros gratuitos de domínio público.</string>
+    <string name="welcome_item_podcasts_radio">Descubra rádios web e podcasts.</string>
+    <string name="welcome_button_add">Adicione seu primeiro livro</string>
+    <string name="welcome_hint">Dica: personalize cores e opções nas Configurações.</string>
+    <string name="btn_get_local_book_title">Está no meu dispositivo (ou SD ou Drive).</string>
+    <string name="btn_direct_link_title">Tenho um link de download direto.</string>
+    <string name="btn_browse_audiobooks_title">Quero explorar um registro público gratuito.</string>
+    <string name="direct_link">http direto</string>
+    <string name="load_one_book">carregar 1 livro</string>
+    <string name="load_multiple_book">carregar vários</string>
+
 
 </resources>

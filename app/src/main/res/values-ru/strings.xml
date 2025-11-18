@@ -1077,5 +1077,28 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Download">Загрузить</string>
         <string name="option_podcast_chk_podcast_add_date_to_episode_name">Добавить дату публикации к имени эпизода</string>
 
+        <string name="visualizer_mode_legacy">старый</string> <!-- <8 -->
+        <string name="visualizer_mode_wave">волна</string> <!-- <8 -->
+        <string name="visualizer_mode_bars">полосы</string> <!-- <8 -->
+        <string name="visualizer_mode_radial">радиал</string> <!-- <8 -->
+        <string name="option_play_view_explain">Экран воспроизведения — это детальный экран с большой обложкой в центре, крупными кнопками снизу и такими элементами, как Скорость и Таймер сна.</string>
+        <string name="ChangeTrackOrder_Title">Инструкции для следующего экрана</string>
+        <string name="ChangeTrackOrder_Text">Перетащите коробки.
+\n\nДолго нажмите на левую коробку, затем перетащите её на нужное место.</string>
+        <string name="Quit_the_player_to_move_playing_tracks">Возможно, нужно закрыть плеер, чтобы переместить треки.</string>
+        <string name="welcome_title">Добро пожаловать в BookPlayer</string>
+        <string name="welcome_subtitle">Ваш многофункциональный офлайн-аудиоплеер.</string>
+        <string name="welcome_item_add_book">Добавьте аудиокнигу с устройства, SD или диска.</string>
+        <string name="welcome_item_librivox">Просматривайте бесплатные аудиокниги из общественного достояния.</string>
+        <string name="welcome_item_podcasts_radio">Откройте веб-радио и подкасты.</string>
+        <string name="welcome_button_add">Добавить первую книгу</string>
+        <string name="welcome_hint">Совет: настройте цвета и опции в Настройках.</string>
+        <string name="btn_get_local_book_title">Она на моём устройстве (или SD, или диске).</string>
+        <string name="btn_direct_link_title">У меня есть прямая ссылка.</string>
+        <string name="btn_browse_audiobooks_title">Хочу просмотреть бесплатный публичный каталог.</string>
+        <string name="direct_link">http прямой</string>
+        <string name="load_one_book">загрузить 1</string>
+        <string name="load_multiple_book">загрузить несколько</string>
+
 
 </resources>

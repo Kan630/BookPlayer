@@ -1089,4 +1089,27 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="Download">Scarica</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Aggiungi la data di pubblicazione al nome dell\'episodio</string>
 
+    <string name="visualizer_mode_legacy">vecchio</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">onda</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">barre</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">radiale</string> <!-- <8 -->
+    <string name="option_play_view_explain">La vista di riproduzione è la schermata dettagliata — quella con la grande copertina al centro, i pulsanti grandi in basso e controlli come Velocità e Timer.</string>
+    <string name="ChangeTrackOrder_Title">Istruzioni per la schermata successiva</string>
+    <string name="ChangeTrackOrder_Text">Trascina e rilascia le caselle.
+\n\nTieni premuta una casella a sinistra, poi trascinala nella posizione desiderata.</string>
+    <string name="Quit_the_player_to_move_playing_tracks">Potresti dover chiudere il lettore per spostare le tracce.</string>
+    <string name="welcome_title">Benvenuto in BookPlayer</string>
+    <string name="welcome_subtitle">Il tuo lettore audio multifunzione offline.</string>
+    <string name="welcome_item_add_book">Aggiungi un audiolibro dal dispositivo, SD o drive.</string>
+    <string name="welcome_item_librivox">Sfoglia audiolibri gratuiti di pubblico dominio.</string>
+    <string name="welcome_item_podcasts_radio">Scopri web radio e podcast.</string>
+    <string name="welcome_button_add">Aggiungi il tuo primo libro</string>
+    <string name="welcome_hint">Suggerimento: personalizza colori e opzioni nelle Impostazioni.</string>
+    <string name="btn_get_local_book_title">È sul mio dispositivo (o SD o Drive).</string>
+    <string name="btn_direct_link_title">Ho un link di download diretto.</string>
+    <string name="btn_browse_audiobooks_title">Voglio sfogliare un registro pubblico gratuito.</string>
+    <string name="direct_link">http diretto</string>
+    <string name="load_one_book">carica 1 libro</string>
+    <string name="load_multiple_book">carica libri</string>
+
 </resources>

@@ -1070,4 +1070,28 @@
     <string name="Download">تنزيل</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">اضافة تاريخ النشر الى اسم الحلقة</string>
 
+    <string name="visualizer_mode_legacy">قديم</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">موجة</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">أعمدة</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">دائري</string> <!-- <8 -->
+    <string name="option_play_view_explain">عرض التشغيل هو الشاشة التفصيلية — التي تحتوي على الغلاف الكبير في الوسط، الأزرار الكبيرة في الأسفل، وتحكمات مثل السرعة والمؤقت.</string>
+    <string name="ChangeTrackOrder_Title">إرشادات للشاشة التالية</string>
+    <string name="ChangeTrackOrder_Text">اسحب وافلت الصناديق.
+\n\nاضغط مطولاً على صندوق في اليسار لاختياره، ثم اسحبه إلى المكان المطلوب.</string>
+    <string name="Quit_the_player_to_move_playing_tracks">قد تحتاج إلى إغلاق المشغل لنقل المقاطع.</string>
+    <string name="welcome_title">مرحباً في BookPlayer</string>
+    <string name="welcome_subtitle">مشغل صوتي متعدد الاستخدامات يعمل دون اتصال.</string>
+    <string name="welcome_item_add_book">أضف كتاباً صوتياً من جهازك أو بطاقة SD أو درايف.</string>
+    <string name="welcome_item_librivox">تصفح واحصل على كتب صوتية مجانية من الملكية العامة.</string>
+    <string name="welcome_item_podcasts_radio">اكتشف إذاعات الويب والبودكاست.</string>
+    <string name="welcome_button_add">أضف كتابك الأول</string>
+    <string name="welcome_hint">نصيحة: يمكنك تخصيص الألوان والخيارات في الإعدادات.</string>
+    <string name="btn_get_local_book_title">إنه على جهازي (أو بطاقة SD أو درايف).</string>
+    <string name="btn_direct_link_title">لدي رابط تحميل مباشر.</string>
+    <string name="btn_browse_audiobooks_title">أريد تصفح سجل عام مجاني.</string>
+    <string name="direct_link">رابط مباشر</string>
+    <string name="load_one_book">تحميل كتاب</string>
+    <string name="load_multiple_book">تحميل كتب</string>
+
+
 </resources>

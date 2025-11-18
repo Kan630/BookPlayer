@@ -1075,5 +1075,28 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="Download">Download</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Datum der Veroeffentlichung zum Episodennamen hinzufuegen</string>
 
+    <string name="visualizer_mode_legacy">alt</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">welle</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">balken</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">radial</string> <!-- <8 -->
+    <string name="option_play_view_explain">Die Wiedergabeansicht ist der detaillierte Bildschirm — der mit dem großen Cover in der Mitte, großen Tasten unten und Steuerelementen wie Geschwindigkeit und Sleep-Timer.</string>
+    <string name="ChangeTrackOrder_Title">Anweisungen für den nächsten Bildschirm</string>
+    <string name="ChangeTrackOrder_Text">Ziehe die Kästen per Drag &amp; Drop.
+\n\nLange auf einen linken Kasten drücken, dann an die gewünschte Position ziehen.</string>
+    <string name="Quit_the_player_to_move_playing_tracks">Möglicherweise musst du den Player schließen, um Titel zu verschieben.</string>
+    <string name="welcome_title">Willkommen bei BookPlayer</string>
+    <string name="welcome_subtitle">Dein vielseitiger Offline-Audioplayer.</string>
+    <string name="welcome_item_add_book">Füge ein Hörbuch von Gerät, SD-Karte oder Laufwerk hinzu.</string>
+    <string name="welcome_item_librivox">Durchsuche kostenlose Hörbücher aus der Public Domain.</string>
+    <string name="welcome_item_podcasts_radio">Entdecke Webradios und Podcasts.</string>
+    <string name="welcome_button_add">Füge dein erstes Buch hinzu</string>
+    <string name="welcome_hint">Tipp: Farben und Optionen in den Einstellungen anpassen.</string>
+    <string name="btn_get_local_book_title">Es ist auf meinem Gerät (oder SD-Karte oder Drive).</string>
+    <string name="btn_direct_link_title">Ich habe einen direkten Downloadlink.</string>
+    <string name="btn_browse_audiobooks_title">Ich möchte ein kostenloses öffentliches Verzeichnis durchsuchen.</string>
+    <string name="direct_link">http direkt</string>
+    <string name="load_one_book">1 Buch laden</string>
+    <string name="load_multiple_book">mehrere laden</string>
+
 
 </resources>

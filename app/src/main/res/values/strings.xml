@@ -1136,10 +1136,10 @@
     <string name="Download">Download</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Add the publication date to the episode name</string>
 
-    <string name="visualizer_mode_legacy">legacy</string>
-    <string name="visualizer_mode_wave">wave</string>
-    <string name="visualizer_mode_bars">bars</string>
-    <string name="visualizer_mode_radial">radial</string>
+    <string name="visualizer_mode_legacy">legacy</string> // stay below 8 chars
+    <string name="visualizer_mode_wave">wave</string>// stay below 8 chars
+    <string name="visualizer_mode_bars">bars</string>// stay below 8 chars
+    <string name="visualizer_mode_radial">radial</string>// stay below 8 chars
     <string name="option_play_view_explain">The play view is the detailed playback screen — the one with the large cover image in the middle, big buttons at the bottom, and controls like Speed and Sleep Timer.</string>
     <string name="ChangeTrackOrder_Title">Instructions for the next screen</string>
     <string name="ChangeTrackOrder_Text">Drag and drop the boxes.

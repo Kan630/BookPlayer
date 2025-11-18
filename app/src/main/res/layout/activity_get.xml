@@ -21,7 +21,6 @@
             android:layout_marginBottom="20dp"
             >
             <TextView
-                android:id="@+id/bOpenFile_desc"
                 style="@style/simpleTextWrap"
                 android:text="@string/btn_get_local_book_title"
                 android:layout_marginStart="20dp"
@@ -61,7 +60,6 @@
             android:layout_marginBottom="20dp"
             >
             <TextView
-                android:id="@+id/bDirectLink_desc"
                 style="@style/simpleTextWrap"
                 android:text="@string/btn_direct_link_title"
                 android:layout_marginStart="20dp"
@@ -102,7 +100,6 @@
             android:layout_marginBottom="20dp"
             >
             <TextView
-                android:id="@+id/bOpenFile_desc"
                 style="@style/simpleTextWrap"
                 android:text="@string/btn_browse_audiobooks_title"
                 android:layout_marginStart="20dp"

@@ -1072,4 +1072,27 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Download">下载</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">将发布日期添加到剧集名称中</string>
 
+    <string name="visualizer_mode_legacy">旧式</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">波形</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">柱形</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">径向</string> <!-- <8 -->
+    <string name="option_play_view_explain">播放视图是详细界面——中间有大封面，底部有大按钮，还有速度和睡眠定时等控制。</string>
+    <string name="ChangeTrackOrder_Title">下一屏说明</string>
+    <string name="ChangeTrackOrder_Text">拖放这些方框。
+\n\n长按左侧方框以选择，然后拖动到所需位置。</string>
+    <string name="Quit_the_player_to_move_playing_tracks">移动曲目时可能需要关闭播放器。</string>
+    <string name="welcome_title">欢迎使用 BookPlayer</string>
+    <string name="welcome_subtitle">适合离线使用的多功能音频播放器。</string>
+    <string name="welcome_item_add_book">从设备、SD 卡或云盘添加有声书。</string>
+    <string name="welcome_item_librivox">浏览并获取免费公有领域有声书。</string>
+    <string name="welcome_item_podcasts_radio">发现网络电台与播客。</string>
+    <string name="welcome_button_add">添加你的第一本书</string>
+    <string name="welcome_hint">提示：可在设置中自定义颜色和选项。</string>
+    <string name="btn_get_local_book_title">它在我的设备上（或 SD 卡、云盘）。</string>
+    <string name="btn_direct_link_title">我有一个直接下载链接。</string>
+    <string name="btn_browse_audiobooks_title">我要浏览一个公共免费目录。</string>
+    <string name="direct_link">直链</string>
+    <string name="load_one_book">加载 1 本</string>
+    <string name="load_multiple_book">加载多本</string>
+
 </resources>

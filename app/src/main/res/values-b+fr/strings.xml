@@ -1071,5 +1071,29 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="Download">Télécharger</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Ajouter la date de publication au nom de l\'épisode</string>
 
+    <string name="visualizer_mode_legacy">ancien</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">onde</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">barres</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">radial</string> <!-- <8 -->
+    <string name="option_play_view_explain">La vue lecture est l\'écran détaillé — celui avec la grande couverture au centre, les gros boutons en bas et des commandes comme Vitesse et Minuteur.</string>
+    <string name="ChangeTrackOrder_Title">Instructions pour l\'écran suivant</string>
+    <string name="ChangeTrackOrder_Text">Faites glisser les boîtes.
+\n\nMaintenez une boîte à gauche pour la sélectionner, puis faites-la glisser à la position voulue.</string>
+    <string name="Quit_the_player_to_move_playing_tracks">Vous devrez peut-être fermer le lecteur pour déplacer les pistes.</string>
+    <string name="welcome_title">Bienvenue dans BookPlayer</string>
+    <string name="welcome_subtitle">Votre lecteur audio polyvalent, utilisable hors ligne.</string>
+    <string name="welcome_item_add_book">Ajoutez un livre audio depuis votre appareil, carte SD ou drive.</string>
+    <string name="welcome_item_librivox">Parcourez et obtenez des livres audio du domaine public.</string>
+    <string name="welcome_item_podcasts_radio">Découvrez radios web et podcasts.</string>
+    <string name="welcome_button_add">Ajoutez votre premier livre</string>
+    <string name="welcome_hint">Astuce : personnalisez couleurs et options dans les Paramètres.</string>
+    <string name="btn_get_local_book_title">Il est sur mon appareil (ou carte SD, ou Drive).</string>
+    <string name="btn_direct_link_title">J\'ai un lien de téléchargement direct.</string>
+    <string name="btn_browse_audiobooks_title">Je veux parcourir un registre public gratuit.</string>
+    <string name="direct_link">http direct</string>
+    <string name="load_one_book">charger 1 livre</string>
+    <string name="load_multiple_book">charger plusieurs livres</string>
+
+
 
 </resources>

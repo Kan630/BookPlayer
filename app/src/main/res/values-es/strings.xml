@@ -1064,4 +1064,28 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="Download">Descargar</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Agregar la fecha de publicacion al nombre del episodio</string>
 
+    <string name="visualizer_mode_legacy">antiguo</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">onda</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">barras</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">radial</string> <!-- <8 -->
+    <string name="option_play_view_explain">La vista de reproducción es la pantalla detallada — con la carátula grande en el centro, botones grandes abajo y controles como Velocidad y Temporizador.</string>
+    <string name="ChangeTrackOrder_Title">Instrucciones para la siguiente pantalla</string>
+    <string name="ChangeTrackOrder_Text">Arrastra y suelta las cajas.
+\n\nMantén pulsada una caja de la izquierda para seleccionarla y luego muévela a la posición deseada.</string>
+    <string name="Quit_the_player_to_move_playing_tracks">Quizás debas cerrar el reproductor para mover las pistas.</string>
+    <string name="welcome_title">Bienvenido a BookPlayer</string>
+    <string name="welcome_subtitle">Tu reproductor de audio versátil y sin conexión.</string>
+    <string name="welcome_item_add_book">Añade un audiolibro desde tu dispositivo, SD o drive.</string>
+    <string name="welcome_item_librivox">Explora audiolibros gratuitos de dominio público.</string>
+    <string name="welcome_item_podcasts_radio">Descubre radios web y podcasts.</string>
+    <string name="welcome_button_add">Añade tu primer libro</string>
+    <string name="welcome_hint">Consejo: personaliza colores y opciones en Ajustes.</string>
+    <string name="btn_get_local_book_title">Está en mi dispositivo (o SD o Drive).</string>
+    <string name="btn_direct_link_title">Tengo un enlace de descarga directo.</string>
+    <string name="btn_browse_audiobooks_title">Quiero explorar un registro público gratuito.</string>
+    <string name="direct_link">http directo</string>
+    <string name="load_one_book">cargar 1 libro</string>
+    <string name="load_multiple_book">cargar varios</string>
+
+
 </resources>

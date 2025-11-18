@@ -1125,4 +1125,28 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="Download">डाउनलोड</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">एपिसोड नाम में प्रकाशन तिथि जोड़ें</string>
 
+    <string name="visualizer_mode_legacy">पुराना</string> <!-- <8 -->
+    <string name="visualizer_mode_wave">वेव</string> <!-- <8 -->
+    <string name="visualizer_mode_bars">बार्स</string> <!-- <8 -->
+    <string name="visualizer_mode_radial">रेडियल</string> <!-- <8 -->
+    <string name="option_play_view_explain">प्ले व्यू वह विस्तृत स्क्रीन है — जिसमें बीच में बड़ा कवर, नीचे बड़े बटन और स्पीड व स्लीप टाइमर जैसे नियंत्रण होते हैं।</string>
+    <string name="ChangeTrackOrder_Title">अगली स्क्रीन के निर्देश</string>
+    <string name="ChangeTrackOrder_Text">बॉक्स को ड्रैग और ड्रॉप करें।
+\n\nबाएँ वाले बॉक्स को लंबा दबाएँ और फिर इच्छित जगह खींचें।</string>
+    <string name="Quit_the_player_to_move_playing_tracks">ट्रैक्स को स्थानांतरित करने के लिए आपको प्लेयर बंद करना पड़ सकता है।</string>
+    <string name="welcome_title">BookPlayer में आपका स्वागत है</string>
+    <string name="welcome_subtitle">आपका ऑफ़लाइन-फ्रेंडली मल्टी-पर्पस ऑडियो प्लेयर।</string>
+    <string name="welcome_item_add_book">डिवाइस, SD कार्ड या ड्राइव से ऑडियोबुक जोड़ें।</string>
+    <string name="welcome_item_librivox">नि:शुल्क सार्वजनिक डोमेन ऑडियोबुक ब्राउज़ करें।</string>
+    <string name="welcome_item_podcasts_radio">वेब रेडियो और पॉडकास्ट खोजें।</string>
+    <string name="welcome_button_add">अपनी पहली किताब जोड़ें</string>
+    <string name="welcome_hint">टिप: सेटिंग्स में रंग और विकल्प बदल सकते हैं।</string>
+    <string name="btn_get_local_book_title">यह मेरे डिवाइस पर है (या SD कार्ड या ड्राइव)।</string>
+    <string name="btn_direct_link_title">मेरे पास सीधा डाउनलोड लिंक है।</string>
+    <string name="btn_browse_audiobooks_title">मैं निशुल्क सार्वजनिक रजिस्टर ब्राउज़ करना चाहता हूँ।</string>
+    <string name="direct_link">प्रत्यक्ष लिंक</string>
+    <string name="load_one_book">1 किताब लोड</string>
+    <string name="load_multiple_book">किताबें लोड</string>
+
+
 </resources>
