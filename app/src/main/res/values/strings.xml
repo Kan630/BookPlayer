@@ -1154,6 +1154,11 @@
     <string name="welcome_item_podcasts_radio">Discover web radios and podcasts.</string>
     <string name="welcome_button_add">Add your first book</string>
     <string name="welcome_hint">Tip: you can customize colors and options in Settings.</string>
-
+    <string name="btn_get_local_book_title">It’s on my device (or SD card, or Drive).</string>
+    <string name="btn_direct_link_title">I have a direct download link.</string>
+    <string name="btn_browse_audiobooks_title">I want to browse a free public registry.</string>
+    <string name="direct_link">http direct</string>
+    <string name="load_one_book">load 1 book</string>
+    <string name="load_multiple_book">load multiple books</string>
 
 </resources>

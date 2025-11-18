@@ -238,7 +238,7 @@
             } else if (itemId == R.id.menu_sendmail) {
                 myLogI("--- USER clicks MENU : SEND MAIL ---");
                 KanMail.sendDaMail(this, "bookplayer@driot.com", "**Bookplayer**", "Dear developer...\n\n");
-            } else if (itemId == R.id.menu_cacheFiles) {
+            } else if (itemId == R.id.menu_cleanMemory) {
                 myLogI("--- USER clicks MENU : CLEAN ---");
                 startActivity(new Intent(this, CleanMemoryActivity.class));
             } else if (itemId == R.id.menu_website) {

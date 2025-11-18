@@ -49,6 +49,7 @@
             android:parentActivityName=".activities.MainActivity"/>
         <activity android:name=".activities.GetActivity" />
         <activity android:name=".activities.GetOtherActivity" />
+        <activity android:name=".activities.GetDirectLinkActivity" />
         <activity android:name=".activities.GetAudiobookActivity" />
         <activity android:name=".activities.GetPodcastActivity" />
         <activity android:name=".activities.GetRadioActivity" />

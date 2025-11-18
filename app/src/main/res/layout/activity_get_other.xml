@@ -97,6 +97,15 @@
                         android:layout_marginEnd="20dp" />
                 </LinearLayout>
 
+
+
+                <View style="@style/myStyleViewSimpleHorizontalBar" />
+                <TextView
+                    style="@style/GetResourceTextTopOfButton"
+                    android:layout_marginStart="20dp"
+                    android:textSize="24dp"
+                    android:text="@string/load_one_book" />
+
                 <TextView
                     android:id="@+id/bOpenFile_desc"
                     style="@style/GetResourceTextTopOfButton"
@@ -172,7 +181,12 @@
                     android:textColor="?attr/colorOnPrimary"
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
-                <View style="@style/GetResourceHorizontalBar"/>
+                <View style="@style/myStyleViewSimpleHorizontalBar" />
+                <TextView
+                    style="@style/GetResourceTextTopOfButton"
+                    android:layout_marginStart="20dp"
+                    android:textSize="24dp"
+                    android:text="@string/load_multiple_book" />
 
                 <TextView
                     android:id="@+id/bMassImport_desc"
@@ -193,55 +207,6 @@
                     android:text="@string/bMassImport"
                     style="@style/GetResourceButton"
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
-                <View style="@style/GetResourceHorizontalBar"/>
-
-
-                <TextView
-                    android:id="@+id/txtDirectDownload_title"
-                    android:text="@string/DirectDownload_title"
-                    style="@style/GetResourceTextSectionTitle" />
-
-
-                <TextView
-                    android:id="@+id/txtDirectDownload_desc"
-                    android:text="@string/DirectDownload_desc"
-                    style="@style/GetResourceTextTopOfButton" />
-
-                <com.driot.bookplayer.views.EditText2linesWithPaste
-                    android:id="@+id/etDirectDownload"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:scrollOnFocus="true"
-                    />
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_horizontal"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp">
-
-                    <Button
-                        android:id="@+id/bDirectDownload"
-                        android:text="@string/DirectDownload_button"
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"/>
-
-                    <Button
-                        style="@style/GetResourceButton"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:visibility="invisible"
-                        />
-                </LinearLayout>
-
 
                 <View style="@style/GetResourceHorizontalBar"/>
 

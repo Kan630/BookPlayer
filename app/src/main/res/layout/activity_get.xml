@@ -17,53 +17,121 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginVertical="16dp"
-            android:padding="24dp">
-
-            <ImageButton
-                android:id="@+id/bOpenOtherIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:src="@drawable/ic_memory_general_smartphone"
-                android:scaleType="centerInside"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginEnd="20dp" />
-
-            <Button
-                android:id="@+id/bOpenOther"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+            >
+            <TextView
+                android:id="@+id/bOpenFile_desc"
+                style="@style/simpleTextWrap"
+                android:text="@string/btn_get_local_book_title"
+                android:layout_marginStart="20dp"
+                />
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/open_other"
-                android:backgroundTint="?attr/colorPrimary"
-                android:textColor="?attr/colorOnPrimary"
-                style="@style/Widget.MaterialComponents.Button" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:padding="24dp">
+
+                <ImageButton
+                    android:id="@+id/bOpenOtherIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_memory_general_smartphone"
+                    android:scaleType="centerInside"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="20dp" />
+
+                <Button
+                    android:id="@+id/bOpenOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/open_other"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
+                    style="@style/Widget.MaterialComponents.Button" />
+            </LinearLayout>
         </LinearLayout>
+
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginVertical="16dp"
-            android:padding="24dp">
-
-            <ImageButton
-                android:id="@+id/bOpenAudiobooksIcon"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_librivox_24"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginEnd="20dp" />
-
-            <Button
-                android:id="@+id/bOpenAudiobooks"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+            >
+            <TextView
+                android:id="@+id/bDirectLink_desc"
+                style="@style/simpleTextWrap"
+                android:text="@string/btn_direct_link_title"
+                android:layout_marginStart="20dp"
+                />
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/open_audiobooks"
-                android:backgroundTint="?attr/colorPrimary"
-                android:textColor="?attr/colorOnPrimary"
-                style="@style/Widget.MaterialComponents.Button" />
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:padding="24dp">
+
+                <ImageButton
+                    android:id="@+id/bDirectLinkIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:src="@drawable/ic_link_24px"
+                    android:scaleType="fitCenter"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="20dp" />
+
+                <Button
+                    android:id="@+id/bDirectLink"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/direct_link"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
+                    style="@style/Widget.MaterialComponents.Button" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+            >
+            <TextView
+                android:id="@+id/bOpenFile_desc"
+                style="@style/simpleTextWrap"
+                android:text="@string/btn_browse_audiobooks_title"
+                android:layout_marginStart="20dp"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="16dp"
+                android:padding="24dp">
+
+                <ImageButton
+                    android:id="@+id/bOpenAudiobooksIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_librivox_24"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="20dp" />
+
+                <Button
+                    android:id="@+id/bOpenAudiobooks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/open_audiobooks"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
+                    style="@style/Widget.MaterialComponents.Button" />
+            </LinearLayout>
         </LinearLayout>
 
     </LinearLayout>

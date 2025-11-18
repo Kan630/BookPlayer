@@ -30,7 +30,6 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -42,9 +41,6 @@ import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
-import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.driot.bookplayer.views.EditText2linesWithPaste;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
 
@@ -54,7 +50,6 @@ import java.util.concurrent.Executors;
 public class GetOtherActivity extends BaseBottomNavActivity {
 
     private View importDimScrim;
-    private EditText2linesWithPaste etDirectDownload;
     private OngoingTaskViewModel viewModel;
     private TextView importDimMessage;
 
@@ -144,8 +139,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         Button bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         Button bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         Button bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
-        Button bDirectDownload = findViewById(R.id.bDirectDownload);
-        etDirectDownload = findViewById(R.id.etDirectDownload);
 
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
@@ -277,47 +270,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             }
         });
 
-// JUST GET IT
-
-        bDirectDownload.setOnClickListener(view -> {
-            myLogI("Button click : JUST GET IT");
-            String justGetItUrl = Tonio.cleanSearchString(etDirectDownload.getText());
-            if (justGetItUrl.isEmpty()) {
-                myToast(getString(R.string.Please_enter_a_URL));
-                return;
-            }
-            if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.download_warning_title_unmetered)
-                        .setMessage(R.string.download_warning_message_unmetered)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            runOnUiThread(() -> {
-                                checkWWW(canReach -> {
-                                    if (canReach) {
-                                        Intent intent = new Intent(this, LoadBookActivity.class);
-                                        intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                                        loadBookActivityResultLauncher.launch(intent);
-                                    }
-                                });
-                            });
-                        })
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                            myLogD("User cancelled download (Network state popup)");
-                        })
-                        .show();
-            } else {
-                checkWWW(canReach -> {
-                    if (canReach) {
-                        Intent intent = new Intent(this, LoadBookActivity.class);
-                        intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                        loadBookActivityResultLauncher.launch(intent);
-                        FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
-                    }
-                });
-            }
-        });
 
 // RESULT LAUNCHER
 
@@ -339,6 +291,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             System.arraycopy(taps, 1, taps, 0, taps.length - 1);
             taps[taps.length - 1] = System.currentTimeMillis();
             if (taps[0] >= System.currentTimeMillis() - 1000) {
+                myLogI("click on secret");
                 LinearLayout llsecretDev = findViewById(R.id.llsecretDev);
                 llsecretDev.setVisibility(View.VISIBLE);
             }
