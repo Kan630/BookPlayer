@@ -28,6 +28,8 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -54,6 +56,8 @@ public class GetOtherActivity extends BaseBottomNavActivity {
     private TextView importDimMessage;
 
     private PermissionRequest mPermissionRequest;
+
+    private Folder folderToAddTo;
 
     private ActivityResultLauncher<Intent> bOpenFileActivityResultLauncher,
             bOpenFolderActivityResultLauncher,
@@ -108,6 +112,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                         Intent intent = new Intent(this, LoadBookActivity.class);
                         intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
                         intent.putExtra(LoadBookActivity.EXTRA_TYPE, type);
+                        if (folderToAddTo!=null) intent.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folderToAddTo);
                         loadBookActivityResultLauncher.launch(intent);
                     }
                 } else {
@@ -139,6 +144,12 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         Button bAutoTest_b2 = findViewById(R.id.bAutoTest_b2);
         Button bAutoTest_b3 = findViewById(R.id.bAutoTest_b3);
         Button bAutoTest_b4 = findViewById(R.id.bAutoTest_b4);
+
+        folderToAddTo = null;
+        folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
+        if (folderToAddTo != null) {
+            myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
+        }
 
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 

@@ -17,6 +17,9 @@ import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
 
+import com.driot.bookplayer.objects.AudioFileInfo;
+
+import java.util.Collections;
 import java.util.List;
 
 
@@ -189,6 +192,40 @@ public interface ZikFileDao {
         for (ZikFile z : inOrder) {
             updateZeorderById(z.getId(), i++);
         }
+    }
+
+    // NEW: reset order of one folder using the same SMART_CHAPTER comparator
+    @Transaction
+    default void resetSmartChapterOrderForFolder(int folderId) {
+        // Load current tracks
+        List<ZikFile> files = getZikFiles(folderId);
+        if (files == null || files.size() <= 1) return;
+
+        // Sort using the *same* logic as when importing (SMART_CHAPTER_COMPARATOR)
+        Collections.sort(files, (z1, z2) -> {
+            String p1 = buildDisplayPathKey(z1);
+            String p2 = buildDisplayPathKey(z2);
+
+            // We only care about displayPath for the comparator, so duration/contentUri/meta can be dummy
+            AudioFileInfo a1 = new AudioFileInfo(p1, 0L, "", null);
+            AudioFileInfo a2 = new AudioFileInfo(p2, 0L, "", null);
+
+            return AudioFileInfo.SMART_CHAPTER_COMPARATOR.compare(a1, a2);
+        });
+
+        // Persist new zeorder (1,2,3,...)
+        persistOrder(files);
+    }
+
+    // helper used inside the default method (kept package-private to avoid visibility issues)
+    static String buildDisplayPathKey(ZikFile z) {
+        if (z.getDisplayName() != null && !z.getDisplayName().isEmpty()) {
+            return z.getDisplayName();
+        }
+        if (z.getName() != null && !z.getName().isEmpty()) {
+            return z.getName();
+        }
+        return (z.getPath() != null) ? z.getPath() : "";
     }
 
 }

@@ -1160,5 +1160,9 @@
     <string name="direct_link">http direct</string>
     <string name="load_one_book">load 1 book</string>
     <string name="load_multiple_book">load multiple books</string>
+    <string name="reset_track_order">reset track order</string>
+    <string name="tracks_order_has_been_reset">tracks order has been reset</string>
+    <string name="add_new_tracks">add new tracks</string>
+    <string name="APPEND_MODE">APPEND MODE</string>
 
 </resources>

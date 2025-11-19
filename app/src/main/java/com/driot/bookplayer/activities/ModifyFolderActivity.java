@@ -90,7 +90,21 @@ public class ModifyFolderActivity extends LoggingActivity {
         etRename = findViewById(R.id.etRename);
         etRename.setText(folder.getName());
 
-        findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
+        findViewById(R.id.bAddNewTracks).setOnClickListener(view -> {
+            Intent i = new Intent(this, GetOtherActivity.class);
+            i.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folder);
+            startActivity(i);
+        });
+
+        findViewById(R.id.bResetTracksOrder).setOnClickListener(view -> {
+            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                db.zikFileDao().resetSmartChapterOrderForFolder(folder.getId());
+                runOnUiThread(() -> myToast(getString(R.string.tracks_order_has_been_reset)));
+            });
+        });
+
+        findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
             startActivity(new Intent(this, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER, folder)
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)

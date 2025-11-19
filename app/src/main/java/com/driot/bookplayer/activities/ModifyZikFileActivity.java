@@ -86,7 +86,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
             ll_metadata.setVisibility(View.GONE);
         }
 
-        findViewById(R.id.bchangeTracksOrder).setOnClickListener(view -> {
+        findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
             startActivity(new Intent(this, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)

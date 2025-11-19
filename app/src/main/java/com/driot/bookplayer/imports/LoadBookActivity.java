@@ -31,6 +31,8 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -67,6 +69,8 @@ public class LoadBookActivity extends LoggingActivity {
     private boolean isKO = false;
     private boolean boolAlso = false;
 
+    Folder folderToAddTo = null;
+
     private PermissionRequest mPermissionRequest;
 
     @Override
@@ -78,6 +82,13 @@ public class LoadBookActivity extends LoggingActivity {
         uri = getIntent().getParcelableExtra(EXTRA_URI);
         String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
         forceCopy =  getIntent().getBooleanExtra(EXTRA_FORCE_COPY,false);
+
+        folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
+        if (folderToAddTo != null) {
+            myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
+        }
+        TextView tvAppendMode = findViewById(R.id.tvAppendMode);
+        tvAppendMode.setVisibility(folderToAddTo != null ? View.VISIBLE : View.GONE);
 
         if (!(
                 gotten_type.equals("File")
@@ -228,27 +239,34 @@ public class LoadBookActivity extends LoggingActivity {
             btnConfirm.setEnabled(false);
 
             AppDatabase.databaseReadExecutor.execute(() -> {
-
-                String futureFolderPath;
-                long lCheck;
-                if (!cbCopy.isChecked()) {
-                    lCheck = 0;
-                    futureFolderPath = uri.toString();
-                } else {
-                    futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
-                    myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
-                    lCheck = AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
-                }
-                String finalFutureFolderPath = futureFolderPath;
-                //btnConfirm.setEnabled(true);
                 String futureFolderName;
-                if (lCheck > 0) {
-                    futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
-                    myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath + "]");
-                    myLog("filesystem folder name changed to [" + futureFolderName + "]");
+                String finalFutureFolderPath;
+
+                if (folderToAddTo==null) {
+                    String futureFolderPath;
+                    long lCheck;
+                    if (!cbCopy.isChecked()) {
+                        lCheck = 0;
+                        futureFolderPath = uri.toString();
+                    } else {
+                        futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
+                        myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
+                        lCheck = AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
+                    }
+                    finalFutureFolderPath = futureFolderPath;
+                    //btnConfirm.setEnabled(true);
+                    if (lCheck > 0) {
+                        futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
+                        myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath + "]");
+                        myLog("filesystem folder name changed to [" + futureFolderName + "]");
+                    } else {
+                        futureFolderName = audioBookTitle;
+                        myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
+                    }
                 } else {
-                    futureFolderName = audioBookTitle;
-                    myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
+                    audioBookTitle = folderToAddTo.getName();
+                    futureFolderName = folderToAddTo.getName();
+                    finalFutureFolderPath = folderToAddTo.getPath();
                 }
 
                 final boolean anotherRunning = ImportHelper.isAnyImportActiveSync(this.getApplicationContext());

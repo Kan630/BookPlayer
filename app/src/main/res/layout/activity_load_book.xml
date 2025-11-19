@@ -20,6 +20,14 @@
             android:layout_marginBottom="12dp" />
 
         <TextView
+            android:id="@+id/tvAppendMode"
+            style="@style/simpleTextWrap"
+            android:text="@string/APPEND_MODE"
+            android:layout_marginBottom="12dp"
+            android:textColor="@color/pastel_blue_500"
+            />
+
+        <TextView
             android:id="@+id/waitTextView"
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/green_500"
