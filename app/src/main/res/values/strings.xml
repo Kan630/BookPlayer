@@ -1186,4 +1186,7 @@
 
                         For now, BookPlayer will import the original M4B as a single audio file."""</string>
 
+    <string name="destination">destination</string>
+    <string name="play_mode">play mode</string>
+    <string name="count">count</string>
 </resources>

@@ -15,9 +15,11 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -30,6 +32,7 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
+import com.driot.bookplayer.adapter.FolderSpinnerAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
@@ -44,6 +47,7 @@ import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -87,8 +91,67 @@ public class LoadBookActivity extends LoggingActivity {
         if (folderToAddTo != null) {
             myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
         }
+
         TextView tvAppendMode = findViewById(R.id.tvAppendMode);
         tvAppendMode.setVisibility(folderToAddTo != null ? View.VISIBLE : View.GONE);
+
+        Spinner destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
+
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
+
+            // Create the neutral first item
+            Folder neutral = new Folder();
+            neutral.setId(-1);              // special fake ID
+            neutral.setName("New book");    // the label
+
+            // Insert at index 0
+            items.add(0, neutral);
+
+            // Compute preselection
+            int selectedPosition = 0;
+            if (folderToAddTo != null) {
+                for (int i = 1; i < items.size(); i++) { // start at 1 because 0 = neutral
+                    if (Objects.equals(folderToAddTo.getId(), items.get(i).getId())) {
+                        selectedPosition = i;
+                        break;
+                    }
+                }
+            }
+
+            // Switch to UI thread
+            final int finalSelectedPosition = selectedPosition;
+            runOnUiThread(() -> {
+                FolderSpinnerAdapter adapter = new FolderSpinnerAdapter(this, items);
+                destinationFolderSpinner.setAdapter(adapter);
+                destinationFolderSpinner.setSelection(finalSelectedPosition);
+
+                destinationFolderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Folder selected = (Folder) parent.getItemAtPosition(position);
+
+                        boolean isNeutral = selected.getId() == -1;  // check fake item
+                        tvAppendMode.setVisibility(!isNeutral ? View.VISIBLE : View.GONE);
+                    }
+
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {}
+                });
+            });
+        });
+
+
+
+
+
+
+
+
+
+
+
+
 
         if (!(
                 gotten_type.equals("File")

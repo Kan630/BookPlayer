@@ -6,9 +6,7 @@
     >
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
+        style="@style/wideLinearLayout_Vertical"
         android:padding="16dp"
         >
 
@@ -20,27 +18,22 @@
             android:layout_marginBottom="12dp" />
 
         <TextView
-            android:id="@+id/tvAppendMode"
-            style="@style/simpleTextWrap"
-            android:text="@string/APPEND_MODE"
-            android:layout_marginBottom="12dp"
-            android:textColor="@color/pastel_blue_500"
-            />
-
-        <TextView
             android:id="@+id/waitTextView"
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/green_500"
+            android:text="@string/init_please_wait"
             />
         <TextView
             android:id="@+id/errorTextView"
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/red_500"
+            android:text="@string/error_generic"
             />
         <TextView
             android:id="@+id/warningTextView"
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/orange"
+            android:text="@string/Warning"
             />
         <!-- Horizontal divider -->
         <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -63,6 +56,37 @@
                 android:text="[mime] - .toto"
                 />
         </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical">
+            <TextView
+                android:id="@+id/tvAppendMode"
+                style="@style/simpleTextWrap"
+                android:text="@string/APPEND_MODE"
+                android:layout_marginBottom="12dp"
+                android:textSize="20dp"
+                android:textStyle="bold"
+                android:textColor="@color/pastel_blue_500"
+                android:layout_gravity="center_horizontal"
+                />
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="@string/destination"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="0dp" />
+            <LinearLayout
+                style="@style/simpleLinearLayout_Horizontal">
+                <Spinner
+                    android:id="@+id/spinner_destination_folder"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    />
+            </LinearLayout>
+        </LinearLayout>
+
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <!-- Options group -->
