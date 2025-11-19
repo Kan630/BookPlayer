@@ -11,17 +11,10 @@
         android:layout_marginTop="0dp"
         android:padding="8dp">
 
-        <LinearLayout
-            android:id="@+id/ll_title"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:layout_marginTop="30dp"
-            >
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/librivox_settings" />
-
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/librivox_settings" style="@style/OptionMasterTitle"/>
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 

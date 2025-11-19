@@ -867,7 +867,7 @@
     <string name="autodownload">स्वतः डाउनलोड</string>
     <string name="language_flag">भाषा फ़्लैग</string>
     <string name="voice_flag">वॉइस फ़्लैग</string>
-    <string name="podcast_settings">पॉडकास्ट सेटिंग्स</string>
+    <string name="Podcast_Settings">पॉडकास्ट सेटिंग्स</string>
     <string name="option_podcast_episodes_expand">विवरण दिखाएँ</string>
     <string name="option_create_cover">कवर बनाएँ</string>
     <string name="option_create_cover_text">यदि पुस्तक लोड करते समय कोई कवर छवि नहीं मिली, तो पुस्तक शीर्षक के आद्याक्षरों के साथ एक पेस्टल छवि बनाई जाएगी।</string>

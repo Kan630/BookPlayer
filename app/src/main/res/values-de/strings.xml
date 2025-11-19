@@ -748,7 +748,7 @@ Sind Sie sicher?"</string>
     <string name="language_flag">Sprachflagge</string>
     <string name="voice_flag">Stimmflagge</string>
     <string name="settings">Einstellungen</string>
-    <string name="podcast_settings">Podcast-Einstellungen</string>
+    <string name="Podcast_Settings">Podcast-Einstellungen</string>
     <string name="option_podcast_episodes_expand">Beschreibungen anzeigen</string>
     <string name="option_create_cover">Cover erstellen</string>
     <string name="option_create_cover_text">Wenn beim Laden des Buches kein Coverbild gefunden wird, wird ein Pastellbild mit den Initialen des Buchtitels erstellt.</string>

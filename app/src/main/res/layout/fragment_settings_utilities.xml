@@ -9,16 +9,10 @@
         style="@style/LinearLayoutOptionsVertical"
         android:padding="8dp">
 
-        <!-- Optional local title -->
-        <LinearLayout
-            android:id="@+id/ll_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/Utilities" />
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/Utilities" style="@style/OptionMasterTitle"/>
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 

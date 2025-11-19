@@ -741,7 +741,7 @@
     <string name="language_flag">флаг языка</string>
     <string name="voice_flag">флаг голоса</string>
     <string name="settings">настройки</string>
-    <string name="podcast_settings">настройки подкаста</string>
+    <string name="Podcast_Settings">настройки подкаста</string>
     <string name="option_podcast_episodes_expand">показать описания</string>
     <string name="option_create_cover">Создать обложки</string>
     <string name="option_create_cover_text">Если при загрузке книги не найдено изображение обложки, будет создано пастельное изображение с инициалами названия книги.</string>

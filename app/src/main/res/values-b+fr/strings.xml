@@ -735,7 +735,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="language_flag">drapeau de langue</string>
     <string name="voice_flag">drapeau de voix</string>
     <string name="settings">paramètres</string>
-    <string name="podcast_settings">paramètres podcast</string>
+    <string name="Podcast_Settings">paramètres podcast</string>
     <string name="option_podcast_episodes_expand">afficher les descriptions</string>
     <string name="option_create_cover">Créer des couvertures</string>
     <string name="option_create_cover_text">Si aucune image de couverture n\'est trouvée lors du chargement du livre, une image pastel avec les initiales du titre sera créée.</string>

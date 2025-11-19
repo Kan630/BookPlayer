@@ -10,16 +10,9 @@
         android:padding="8dp"
         android:layout_marginTop="0dp">
 
-        <!-- Optional local title (hidden when embedded inline) -->
-        <LinearLayout
-            android:id="@+id/ll_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone">
-            <TextView
-                style="@style/OptionMasterTitle"
-                android:text="@string/Text_To_Speech" />
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/Text_To_Speech" style="@style/OptionMasterTitle"/>
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 

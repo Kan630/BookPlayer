@@ -17,7 +17,6 @@ import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 public class GetPodcastActivity extends BaseBottomNavActivity {
@@ -112,7 +111,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        SettingsHostActivity.start(this, PodcastSettingsFragment.class, true, R.string.podcast_settings);
+        SettingsHostActivity.start(this, PodcastSettingsFragment.class, true, R.string.Podcast_Settings);
     }
 
     private void doSearch() {

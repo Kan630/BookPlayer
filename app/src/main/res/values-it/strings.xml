@@ -763,7 +763,7 @@
     <string name="language_flag">bandiera lingua</string>
     <string name="voice_flag">bandiera voce</string>
     <string name="settings">impostazioni</string>
-    <string name="podcast_settings">impostazioni podcast</string>
+    <string name="Podcast_Settings">impostazioni podcast</string>
     <string name="option_podcast_episodes_expand">mostra descrizioni</string>
     <string name="option_create_cover">Crea copertine</string>
     <string name="option_create_cover_text">Se al caricamento del libro non viene trovata una copertina, verrà creata un\'immagine pastello con le iniziali del titolo.</string>

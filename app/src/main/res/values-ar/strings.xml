@@ -734,7 +734,7 @@
     <string name="language_flag">علم اللغة</string>
     <string name="voice_flag">علم الصوت</string>
     <string name="settings">الإعدادات</string>
-    <string name="podcast_settings">إعدادات البودكاست</string>
+    <string name="Podcast_Settings">إعدادات البودكاست</string>
     <string name="option_podcast_episodes_expand">عرض الأوصاف</string>
     <string name="option_create_cover">إنشاء أغلفة</string>
     <string name="option_create_cover_text">إذا لم يتم العثور على صورة غلاف عند تحميل الكتاب، سيتم إنشاء صورة باستيل مع الأحرف الأولى لعنوان الكتاب.</string>

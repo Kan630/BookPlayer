@@ -728,7 +728,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="language_flag">bandera de idioma</string>
     <string name="voice_flag">bandera de voz</string>
     <string name="settings">ajustes</string>
-    <string name="podcast_settings">ajustes de pódcast</string>
+    <string name="Podcast_Settings">ajustes de pódcast</string>
     <string name="option_podcast_episodes_expand">mostrar descripciones</string>
     <string name="option_create_cover">Crear portadas</string>
     <string name="option_create_cover_text">Si no se encuentra una imagen de portada al cargar el libro, se creará una imagen en tonos pastel con las iniciales del título.</string>

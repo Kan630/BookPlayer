@@ -11,17 +11,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Title row (hidden when embedded inline) -->
-        <LinearLayout
-            android:id="@+id/ll_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:visibility="gone"
-            >
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_text_appearance_title" />
+        <!-- Optional local title (hidden when embedded inline) -->
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/Design" style="@style/OptionMasterTitle"/>
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 

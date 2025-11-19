@@ -10,17 +10,10 @@
         android:padding="8dp">
 
         <!-- Optional local title (hidden when embedded inline) -->
-        <LinearLayout
-            android:id="@+id/ll_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_marginVertical="20dp"
-            android:visibility="gone">
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/import_settings" />
-            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/import_settings" style="@style/OptionMasterTitle"/>
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
         <!-- SD Card -->

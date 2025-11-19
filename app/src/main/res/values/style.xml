@@ -122,6 +122,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
     </style>
+    <style name="wideLinearLayout_Vertical">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">vertical</item>
+    </style>
 
     <style name="LayoutWrapContentMargin20horizontal">
         <item name="android:layout_width">wrap_content</item>
@@ -162,6 +167,7 @@
     <style name="OptionMasterTitle" parent="OptionTitle">
         <item name="android:textSize">26sp</item>
         <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginBottom">10dp</item>
         <item name="android:layout_gravity">center</item>
     </style>
 

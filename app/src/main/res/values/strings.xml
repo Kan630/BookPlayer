@@ -868,7 +868,7 @@
     <string name="autodownload">auto-download</string>
     <string name="language_flag">language flag</string>
     <string name="voice_flag">voice flag</string>
-    <string name="podcast_settings">podcast settings</string>
+    <string name="Podcast_Settings">Podcast Settings</string>
     <string name="option_podcast_episodes_expand">show descriptions</string>
     <string name="option_create_cover">Create covers</string>
     <string name="option_create_cover_text">If no cover image is found upon book loading, a pastel image with book title initials will be created.</string>
@@ -1124,7 +1124,7 @@
 
     <string name="Import_Progress_chapter_title">"Track title"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"exported file name should have at least 3 characters"</string>
-    <string name="option_radio_renew_url_title">on Play from favorites</string>
+    <string name="option_radio_renew_url_title">Play from favorites</string>
     <string name="option_radio_renew_url">check for best mirror before playing</string>
     <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensure you are playing from the best source available, but can take some time (current timeout is 10sec.)</string>
     <string name="checking_for_best_mirror">checking for best mirror</string>
@@ -1160,6 +1160,9 @@
     <string name="direct_link">http direct</string>
     <string name="load_one_book">load 1 book</string>
     <string name="load_multiple_book">load multiple books</string>
+
+
+
     <string name="reset_track_order">reset track order</string>
     <string name="tracks_order_has_been_reset">tracks order has been reset</string>
     <string name="add_new_tracks">add new tracks</string>
@@ -1169,8 +1172,8 @@
                         This M4B file uses a non-standard chapter format.
                         BookPlayer can only split M4B files that use embedded text chapters.
 
-                        For now, BookPlayer will import the original M4B as a single file."""</string>
-    <string name="m4b_error_will_import_as_single_file">BookPlayer will import the original M4B as a single file.</string>
+                        For now, BookPlayer will import the original M4B as a single audio file."""</string>
+    <string name="m4b_error_will_import_as_single_file">BookPlayer will import the original M4B as a single audio file.</string>
     <string name="m4b_error_too_large_or_incompatible_structure">"""
                         This M4B file is too large or uses a structure that is incompatible
                         with Android's memory system.
@@ -1181,6 +1184,6 @@
                         - Try converting the M4B with an external tool (ffmpeg, mp4box...),
                         - Or split it on a computer and import the chapters separately.
 
-                        For now, BookPlayer will import the original M4B as a single file."""</string>
+                        For now, BookPlayer will import the original M4B as a single audio file."""</string>
 
 </resources>
