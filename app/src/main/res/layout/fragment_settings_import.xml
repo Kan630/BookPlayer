@@ -20,12 +20,13 @@
         <LinearLayout
             android:id="@+id/ll_container_sd_card"
             style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
+            >
 
             <TextView
                 style="@style/OptionTitle"
+                android:text="@string/option_sdcard_title"
                 android:layout_marginTop="0dp"
-                android:text="@string/option_sdcard_title" />
+                />
 
             <LinearLayout
                 android:id="@+id/ll_use_sd_card"
