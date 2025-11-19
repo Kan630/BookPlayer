@@ -228,4 +228,19 @@ public interface ZikFileDao {
         return (z.getPath() != null) ? z.getPath() : "";
     }
 
+    /**
+     * Insert only if no ZikFile with the same name exists.
+     * @return existing id if found, or new id if inserted.
+     */
+    @Query("SELECT id FROM ZikFile WHERE name = :name LIMIT 1")
+    Long findIdByName(String name);
+    @Transaction
+    default long insertIfNameNotExists(ZikFile zikFile) {
+        Long existingId = findIdByName(zikFile.getName());
+        if (existingId != null) {
+            return existingId; // or return -1 if you prefer "no insert done"
+        }
+        return insert(zikFile);
+    }
+
 }

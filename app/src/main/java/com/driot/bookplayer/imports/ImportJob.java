@@ -68,6 +68,8 @@ public class ImportJob {
     public String downloadWorkId;
     public String uniqueChainName;
 
+    public int addToExistingFolderId;
+
     // --- Control / lifecycle ---
     public String status;// QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED/PAUSED
     public boolean showToUser;
@@ -129,6 +131,7 @@ public class ImportJob {
                 ", playType='" + playType + '\'' +
                 ", downloadWorkId='" + downloadWorkId + '\'' +
                 ", uniqueChainName='" + uniqueChainName + '\'' +
+                ", addToExistingFolderId=" + addToExistingFolderId +
                 ", status='" + status + '\'' +
                 ", showToUser=" + showToUser +
                 ", createdAt=" + createdAt +

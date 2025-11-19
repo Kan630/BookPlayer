@@ -47,6 +47,7 @@ public class LoadBookTaskState implements Parcelable {
     public String playType;
     public String downloadWorkId;
     public String uniqueChainName;
+    public int addToExistingFolderId;
 
 
 
@@ -92,6 +93,7 @@ public class LoadBookTaskState implements Parcelable {
         playType = in.readString();
         downloadWorkId = in.readString();
         uniqueChainName = in.readString();
+        addToExistingFolderId = in.readInt();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -145,6 +147,7 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(playType);
         dest.writeString(downloadWorkId);
         dest.writeString(uniqueChainName);
+        dest.writeInt(addToExistingFolderId);
     }
 
     @Override
@@ -193,6 +196,7 @@ public class LoadBookTaskState implements Parcelable {
                 ", playType='" + playType + "'" +
                 ", downloadWorkId='" + downloadWorkId + '\'' +
                 ", uniqueChainName='" + uniqueChainName + '\'' +
+                ", addToExistingFolderId=" + addToExistingFolderId +
                 '}';
     }
     public String toStringN() {

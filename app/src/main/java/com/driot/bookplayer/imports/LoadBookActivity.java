@@ -99,15 +99,12 @@ public class LoadBookActivity extends LoggingActivity {
 
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
-
             // Create the neutral first item
             Folder neutral = new Folder();
             neutral.setId(-1);              // special fake ID
             neutral.setName("New book");    // the label
-
             // Insert at index 0
             items.add(0, neutral);
-
             // Compute preselection
             int selectedPosition = 0;
             if (folderToAddTo != null) {
@@ -118,7 +115,6 @@ public class LoadBookActivity extends LoggingActivity {
                     }
                 }
             }
-
             // Switch to UI thread
             final int finalSelectedPosition = selectedPosition;
             runOnUiThread(() -> {
@@ -132,24 +128,19 @@ public class LoadBookActivity extends LoggingActivity {
                         Folder selected = (Folder) parent.getItemAtPosition(position);
 
                         boolean isNeutral = selected.getId() == -1;  // check fake item
-                        tvAppendMode.setVisibility(!isNeutral ? View.VISIBLE : View.GONE);
+                        if (isNeutral) {
+                            tvAppendMode.setVisibility(View.GONE);
+                            folderToAddTo = null;
+                        } else {
+                            tvAppendMode.setVisibility(View.VISIBLE);
+                            folderToAddTo = selected;
+                        }
                     }
-
                     @Override
                     public void onNothingSelected(AdapterView<?> parent) {}
                 });
             });
         });
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -352,6 +343,7 @@ public class LoadBookActivity extends LoggingActivity {
                 state.fileExtension = bookToAdd.getFileExtension();
                 state.mimeType = bookToAdd.getMimeType();
                 state.playType = bookToAdd.getPlayType();
+                state.addToExistingFolderId = (folderToAddTo==null ? -1 : folderToAddTo.getId());
 
                 runOnUiThread(() -> {
                     if (anotherRunning) {

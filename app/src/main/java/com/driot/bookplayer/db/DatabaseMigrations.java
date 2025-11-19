@@ -302,4 +302,13 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_16_17 = new Migration(16, 17) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 16 => 17"); // 2025-11-19
+
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN addToExistingFolderId INTEGER NOT NULL DEFAULT 0");
+        };
+    };
+
 }

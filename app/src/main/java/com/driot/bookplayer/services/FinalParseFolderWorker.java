@@ -54,14 +54,6 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     ImportJob importJob;
 
-    public static final String K_DYNAMIC_URI   = "dynamic_uri";
-    public static final String K_DYNAMIC_TYPE  = "dynamic_type"; // "Folder" | "File" | "ZIP"
-    public static final String K_TITLE         = "title";
-    public static final String K_FUTURE_PATH   = "future_folder_path";
-    public static final String K_SOURCE_LOC    = "source_location"; // your enum/int/string
-    public static final String K_ORIGINAL_HASH = "original_hash";   // optional
-    public static final String K_IMAGE_URI     = "image_uri";       // optional
-
     private final Context context;
 
     public FinalParseFolderWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
@@ -91,6 +83,7 @@ public class FinalParseFolderWorker extends ImportWorker {
             myLogD("original Type : " + importJob.originalType);
             myLogD("dynamic Type : " + importJob.dynamicType + "   <--- we check that");
             myLogD("dynamic Uri : " + importJob.dynamicUri);
+            myLogW("addToExistingFolderId : " + importJob.addToExistingFolderId);
 
 
             if (importJob.dynamicType.equals("Folder")) {
@@ -424,29 +417,35 @@ public class FinalParseFolderWorker extends ImportWorker {
     private void saveFolder() {
         emitStepProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
 
-        Folder folder = new Folder();
-        folder.setName(importJob.title);
-        folder.setPath(importJob.futureFolderPath);
-        folder.setUri(importJob.futureFolderPath); //2023-10-22 deprecated
-        folder.setHash("0"); //2023-10-22 deprecated
-        folder.setPercentdone(0.0);
-        folder.setFinished(false);
-        folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
-        folder.setOriginalHash(importJob.originalHash);
-        folder.setOriginalFile(importJob.originalFile);
-        folder.setOriginalType(importJob.originalType);
-        folder.setSourceLocation(importJob.sourceLocation);
-        folder.playType = importJob.playType;
-        folder.date_added = System.currentTimeMillis();
-        folder.image = importJob.imagePath;
-        folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
+        if (importJob.addToExistingFolderId>0) {
+            myLog("saving in existing folder : " + importJob.addToExistingFolderId);
+            saveFiles(importJob.addToExistingFolderId);
+        } else {
+            myLogD("creating folder");
+            Folder folder = new Folder();
+            folder.setName(importJob.title);
+            folder.setPath(importJob.futureFolderPath);
+            folder.setUri(importJob.futureFolderPath); //2023-10-22 deprecated
+            folder.setHash("0"); //2023-10-22 deprecated
+            folder.setPercentdone(0.0);
+            folder.setFinished(false);
+            folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
+            folder.setOriginalHash(importJob.originalHash);
+            folder.setOriginalFile(importJob.originalFile);
+            folder.setOriginalType(importJob.originalType);
+            folder.setSourceLocation(importJob.sourceLocation);
+            folder.playType = importJob.playType;
+            folder.date_added = System.currentTimeMillis();
+            folder.image = importJob.imagePath;
+            folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
 
-        int insertedFolderId = (int) DatabaseClient.getInstance(context)
-                .getAppDatabase().folderDao().insert(folder);
-        myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + importJob.title + "]");
-        ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
-        emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
-        saveFiles(insertedFolderId); // this blocks until all tracks are saved and emitSuccess() is called
+            int insertedFolderId = (int) DatabaseClient.getInstance(context)
+                    .getAppDatabase().folderDao().insert(folder);
+            myLog("Folder Saved in DB, ID=[" + insertedFolderId + "] - [" + importJob.title + "]");
+            ImageHelper.finalizeTempFolderImage(context, insertedFolderId);
+            emitStepProgress(TASK_NAME, 83, context.getString(R.string.saving_folder));
+            saveFiles(insertedFolderId); // this blocks until all tracks are saved and emitSuccess() is called
+        }
     }
 
     private void saveFiles(int insertedFolderId) {
@@ -562,7 +561,14 @@ public class FinalParseFolderWorker extends ImportWorker {
             return SaveResultEnum.SKIPPED;
         }
 
-        long id = AppDatabase.getDatabase(context).zikFileDao().insert(file);
+        long id = -1;
+        //verify it does not exist
+        if (importJob.addToExistingFolderId>0) {
+            id = AppDatabase.getDatabase(context).zikFileDao().insertIfNameNotExists(file);
+        } else {
+            id = AppDatabase.getDatabase(context).zikFileDao().insert(file);
+        }
+
         if (id > 0) {
             //myLog("✔️ ZikFile inserted: id = " + id);
             return SaveResultEnum.SUCCESS;

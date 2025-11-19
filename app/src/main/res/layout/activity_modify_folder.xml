@@ -242,9 +242,7 @@
                 android:layout_marginBottom="20dp"
                 android:text="@string/reset_track_order" />
 
-            <View style="@style/myStyleViewSimpleHorizontalBar"
-                android:visibility="gone"
-                />
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
 
             <TextView
                 android:layout_width="wrap_content"
@@ -254,7 +252,6 @@
                 android:layout_gravity="end"
                 android:layout_marginEnd="100dp"
                 android:layout_marginTop="10dp"
-                android:visibility="gone"
                 />
             <Button
                 android:id="@+id/bAddNewTracks"
@@ -263,7 +260,6 @@
                 android:layout_marginTop="0dp"
                 android:layout_marginBottom="20dp"
                 android:text="@string/add_new_tracks"
-                android:visibility="gone"
                 />
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />

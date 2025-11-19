@@ -52,6 +52,7 @@ public class BookLoadingWorkLauncher {
             myLog("*********************************************************************************************************");
             myLog("** title =            " + s.title + " **");
             myLog("---------------------------------------------------------------------------------------------------------");
+            if (s.addToExistingFolderId>0) myLog("** ADD TO EXISTING BOOK - ID : [" + s.addToExistingFolderId + "] **");
             myLog("** futureFolderName = " + s.futureFolderName + " **");
             myLog("** futureFolderPath = " + s.futureFolderPath + " **");
             myLog("---------------------------------------------------------------------------------------------------------");
@@ -122,6 +123,8 @@ public class BookLoadingWorkLauncher {
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doUnzip", String.valueOf(doUncompress));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doSplitM4b", String.valueOf(doSplitM4b));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doSplitEbook", String.valueOf(doSplitEbook));
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_addToExistingFolderId", String.valueOf(s.addToExistingFolderId));
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_futureFolderName", String.valueOf(s.futureFolderName));
 
             // Create job row
             ImportJob j = new ImportJob();
@@ -152,6 +155,8 @@ public class BookLoadingWorkLauncher {
             j.doSplitEbook = doSplitEbook;
             j.doUnzip = doUncompress;
             j.doCopy = doCopy;
+
+            j.addToExistingFolderId = s.addToExistingFolderId;
 
             j.status = ImportJob.S_RUNNING; //.S_QUEUED;
             j.createdAt = j.updatedAt = System.currentTimeMillis();
