@@ -79,7 +79,7 @@
         <item name="android:textColorHighlight">?colorOnSecondary</item>
     </style>
 
-    <style name="MaterialButtonForToggleGroup">
+    <style name="MaterialButtonForToggleGroup" parent="Widget.MaterialComponents.Button.OutlinedButton">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:minWidth">0dp</item>
