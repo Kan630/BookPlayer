@@ -565,4 +565,10 @@ public class SupportedFilesHelper {
                 || SPECIAL_TYPE_ODT.equals(specialType)
                 || SPECIAL_TYPE_TXT.equals(specialType);
     }
+
+    public static boolean isM4bSpecial(String specialType) {
+        return SPECIAL_TYPE_M4B.equals(specialType);
+    }
+
+
 }

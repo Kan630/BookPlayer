@@ -264,6 +264,7 @@ public class LoadBookActivity extends LoggingActivity {
                         myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
                     }
                 } else {
+                    myLogD("adding to existing book => overwriting folder values");
                     audioBookTitle = folderToAddTo.getName();
                     futureFolderName = folderToAddTo.getName();
                     finalFutureFolderPath = folderToAddTo.getPath();
@@ -365,7 +366,7 @@ public class LoadBookActivity extends LoggingActivity {
         internalCheckBoxStateCalculationInProgress = true;
         myLogD("calculateCheckboxState");
 
-        if ("M4B".equals(bookToAdd.getType())) {
+        if (SupportedFilesHelper.isM4bSpecial(bookToAdd.getSpecialType())) {
             llSplit.setVisibility(View.VISIBLE);
             if (cbSplit.isChecked()) {
                 cbCopy.setChecked(true);
