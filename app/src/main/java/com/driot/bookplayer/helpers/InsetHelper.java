@@ -139,7 +139,7 @@ public final class InsetHelper {
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
         myLogD("applyInsetsForScrollableBehindNavBar()");
         if (scrollableView == null) { //can be null at runtime, just a compiler check
-            myLogEE(null,"applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root.");
+            myLogE("applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root.");
             View root = activity.findViewById(android.R.id.content);
             if (root == null) {
                 myLogEE(null,"applyInsetsForScrollableBehindNavBar(): root also NULL; aborting insets setup.");
