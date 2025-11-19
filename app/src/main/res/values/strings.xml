@@ -1165,4 +1165,22 @@
     <string name="add_new_tracks">add new tracks</string>
     <string name="APPEND_MODE">APPEND MODE</string>
 
+    <string name="m4b_error_non_standard_chapter_format">"""
+                        This M4B file uses a non-standard chapter format.
+                        BookPlayer can only split M4B files that use embedded text chapters.
+
+                        For now, BookPlayer will import the original M4B as a single file."""</string>
+    <string name="m4b_error_will_import_as_single_file">BookPlayer will import the original M4B as a single file.</string>
+    <string name="m4b_error_too_large_or_incompatible_structure">"""
+                        This M4B file is too large or uses a structure that is incompatible
+                        with Android's memory system.
+
+                        BookPlayer currently supports only standard M4B files.
+
+                        Tips:
+                        - Try converting the M4B with an external tool (ffmpeg, mp4box...),
+                        - Or split it on a computer and import the chapters separately.
+
+                        For now, BookPlayer will import the original M4B as a single file."""</string>
+
 </resources>

@@ -30,6 +30,7 @@ import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -91,10 +92,17 @@ public class M4bSplitWorker extends ImportWorker {
             myLogEE(e, "Error Parsing Metadata");
         }
 
-        // --- CHAPTERS ---
         DataSource dataSource = null;
+
+        // NEW: track created chapter files and whether the folder existed before
+        File outputFolder = null;                          // NEW
+        boolean outputFolderExistedBefore = false;         // NEW
+        List<File> createdChapterFiles = new ArrayList<>();// NEW
+
         try {
-            File outputFolder = new File(destinationFolderPath);
+            outputFolder = new File(destinationFolderPath);           // NEW (moved out of inner scope)
+            outputFolderExistedBefore = outputFolder.exists();        // NEW
+
             // pas grave si false, on tente quand même
             //noinspection ResultOfMethodCallIgnored
             outputFolder.mkdirs();
@@ -174,7 +182,10 @@ public class M4bSplitWorker extends ImportWorker {
                 emitStepProgress(TASK_NAME, (int) progress, text);
                 myLogD((int) progress + "% - " + text.replace("\n", " - "));
 
-                FileOutputStream fos = new FileOutputStream(new File(outputFolder, filename));
+                File outFile = new File(outputFolder, filename);   // NEW: explicit variable
+                createdChapterFiles.add(outFile);                  // NEW: remember we created this chapter
+
+                FileOutputStream fos = new FileOutputStream(outFile);
                 try {
                     for (int i = startSample; i < endSample && i < audioSamples.size(); i++) {
                         if (isStopped()) {
@@ -198,6 +209,7 @@ public class M4bSplitWorker extends ImportWorker {
                 }
             }
 
+            // SUCCESS → now it is safe to delete the source M4B
             if (!m4bFile.delete()) {
                 myLogE("Error Deleting source M4B file after split.");
                 emitWarning("Error Deleting source M4B file after split.");
@@ -209,7 +221,6 @@ public class M4bSplitWorker extends ImportWorker {
             return true;
 
         } catch (Exception e) {
-            // On enrichit le catch pour distinguer les cas
             String raw = (e.getMessage() != null ? e.getMessage() : "");
             String causeMsg = (e.getCause() != null && e.getCause().getMessage() != null)
                     ? e.getCause().getMessage()
@@ -217,22 +228,21 @@ public class M4bSplitWorker extends ImportWorker {
 
             String msg = (raw + " " + causeMsg).toLowerCase(Locale.ROOT);
 
-            // --- Case 1 : Disk full (ENOSPC) ---
             boolean noSpace = msg.contains("enospc")
                     || msg.contains("no space left")
                     || msg.contains("not enough space");
 
             if (noSpace) {
+                // Disk full: we really can't continue
                 myLogEE(e, "splitM4bLocal - disk full (ENOSPC)");
                 String userMsg = context.getString(R.string.error_no_space_left)
                         + "\n\n" + context.getString(R.string.solution_free_space);
                 emitWarning(userMsg);
                 emitFailed(TASK_NAME, "No space left on device",
                         context.getString(R.string.error_no_space_left));
-                return false;
+                return false; // hard failure
             }
 
-            // --- Case 2 : Fichier trop gros / mmap impossible / mémoire ---
             boolean tooLarge =
                     msg.contains("map failed")
                             || msg.contains("mmap")
@@ -247,20 +257,17 @@ public class M4bSplitWorker extends ImportWorker {
                             || msg.contains("too large");
 
             if (tooLarge) {
-                myLogEE(e, "splitM4bLocal - file too large or mmap/memory issue");
-                String userMsg = ""
-                        + "This M4B file is too large or uses a structure that is incompatible "
-                        + "with Android's memory system.\n\n"
-                        + "BookPlayer currently supports only standard M4B files.\n\n"
-                        + "Tips:\n"
-                        + "- Try converting the M4B with an external tool (ffmpeg, mp4box...),\n"
-                        + "- Or split it on a computer and import the chapters separately.";
-                emitWarning(userMsg);
-                emitFailed(TASK_NAME, "Cannot split large M4B", userMsg);
-                return false;
+                String userMsg = context.getString(R.string.m4b_error_too_large_or_incompatible_structure);
+                return fallbackToSingleM4b(
+                        context,
+                        m4bFile,
+                        outputFolder,
+                        outputFolderExistedBefore,
+                        createdChapterFiles,
+                        userMsg,
+                        "splitM4bLocal - file too large or mmap/memory issue");
             }
 
-            // --- Case 3 : Structure M4B non standard ---
             boolean structure =
                     msg.contains("no suitable")
                             || msg.contains("required audio or chapter")
@@ -269,23 +276,32 @@ public class M4bSplitWorker extends ImportWorker {
                             || msg.contains("corrupt");
 
             if (structure) {
-                myLogEE(e, "splitM4bLocal - non-standard M4B structure");
-                String userMsg = "This M4B file uses a non-standard chapter format.\n"
-                        + "BookPlayer can only split M4B files that use embedded text chapters.\n\n"
-                        + "Tip: try importing the file as a single track instead.";
-                emitWarning(userMsg);
-                emitFailed(TASK_NAME, "Unsupported M4B structure", userMsg);
-                return false;
+                String userMsg = context.getString(R.string.m4b_error_non_standard_chapter_format);
+                return fallbackToSingleM4b(
+                        context,
+                        m4bFile,
+                        outputFolder,
+                        outputFolderExistedBefore,
+                        createdChapterFiles,
+                        userMsg,
+                        "splitM4bLocal - non-standard M4B structure");
             }
 
-            // --- Generic fallback ---
-            myLogEE(e, "splitM4bLocal - generic error");
-            emitWarning(context.getString(R.string.Import_Experimental_M4B_warning)
+            // Generic fallback
+            String userMsg = context.getString(R.string.Import_Experimental_M4B_warning)
                     + "\n\n" + context.getString(R.string.Import_Experimental_M4B_iferror)
                     + ", " + context.getString(R.string.Import_Experimental_M4B_solution_1)
-                    + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2));
-            emitFailed(TASK_NAME, e.getMessage(), null);
-            return false;
+                    + "\n" + context.getString(R.string.Import_Experimental_M4B_solution_2)
+                    + "\n\n"
+                    + context.getString(R.string.m4b_error_will_import_as_single_file);
+            return fallbackToSingleM4b(
+                    context,
+                    m4bFile,
+                    outputFolder,
+                    outputFolderExistedBefore,
+                    createdChapterFiles,
+                    userMsg,
+                    "splitM4bLocal - generic error");
 
         } finally {
             if (dataSource != null) {
@@ -296,6 +312,7 @@ public class M4bSplitWorker extends ImportWorker {
             }
         }
     }
+
 
     private static int findSampleIndexForTime(long[] durations, long timescale, double timeInSec) {
         long target = (long) (timeInSec * timescale);
@@ -340,6 +357,89 @@ public class M4bSplitWorker extends ImportWorker {
             e.printStackTrace();
             return null;
         }
+    }
+
+
+    // NEW: remove partial chapter files if something went wrong
+    private void cleanupPartialOutputs(List<File> createdFiles,
+                                       File outputFolder,
+                                       boolean folderExistedBefore) {
+        if (createdFiles != null) {
+            for (File f : createdFiles) {
+                if (f != null && f.exists() && f.isFile() && f.getName().endsWith(".aac")) {
+                    if (!f.delete()) {
+                        myLogE("Could not delete partial chapter file: " + f.getAbsolutePath());
+                    }
+                }
+            }
+        }
+
+        // If we created the folder just for this import and it is now empty, try to remove it
+        if (!folderExistedBefore && outputFolder != null && outputFolder.isDirectory()) {
+            File[] remaining = outputFolder.listFiles();
+            if (remaining == null || remaining.length == 0) {
+                //noinspection ResultOfMethodCallIgnored
+                outputFolder.delete();
+            }
+        }
+    }
+    // Fallback: keep single M4B, remove partial .aac, still mark task as completed
+    private boolean fallbackToSingleM4b(Context context,
+                                        File m4bFile,
+                                        File outputFolder,
+                                        boolean outputFolderExistedBefore,
+                                        List<File> createdChapterFiles,
+                                        String warningMessageForUser,
+                                        String logTag) {
+
+        // 1) Log + warn
+        myLogE(logTag + " - falling back to single M4B import");
+        if (warningMessageForUser != null && !warningMessageForUser.isEmpty()) {
+            emitWarning(warningMessageForUser);
+        } else {
+            emitWarning("Error while splitting M4B. Importing original file instead.");
+        }
+
+        // 2) Cleanup any partial .aac files
+        cleanupPartialOutputs(createdChapterFiles, outputFolder, outputFolderExistedBefore);
+
+        // 3) Make sure M4B is inside the output folder, so the next step sees it
+        try {
+            if (outputFolder == null) {
+                outputFolder = m4bFile.getParentFile();
+            }
+
+            if (outputFolder != null && !outputFolder.equals(m4bFile.getParentFile())) {
+                File destM4b = new File(outputFolder, m4bFile.getName());
+                if (!destM4b.equals(m4bFile)) {
+                    // Try to move; if it fails, stay in original folder
+                    if (!m4bFile.renameTo(destM4b)) {
+                        myLogE("Could not move M4B to output folder, keeping original location: "
+                                + m4bFile.getAbsolutePath());
+                        // fall back: use the M4B parent as task path
+                        outputFolder = m4bFile.getParentFile();
+                    } else {
+                        m4bFile = destM4b;
+                    }
+                }
+            }
+        } catch (Exception moveEx) {
+            myLogEE(moveEx, "fallbackToSingleM4b - error while moving M4B");
+            // If move fails, we still have the original file somewhere; import code
+            // will just see it where it is.
+        }
+
+        // 4) Mark task as "completed with fallback" so the pipeline continues
+        String completedMsg =
+                context.getString(R.string.import_task_m4b_split) + " - "
+                        + context.getString(R.string.Import_Experimental_M4B_iferror);
+        String pathForNextStep =
+                (outputFolder != null ? outputFolder.getAbsolutePath() : m4bFile.getParent());
+
+        emitTaskCompleted(TASK_NAME, pathForNextStep, completedMsg);
+
+        // We return true so doWorkBody() returns Result.success()
+        return true;
     }
 
 }
