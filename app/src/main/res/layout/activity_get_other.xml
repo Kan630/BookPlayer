@@ -116,7 +116,21 @@
                         />
                 </LinearLayout>
 
-
+                <LinearLayout style="@style/wideLinearLayout_Vertical"
+                    android:id="@+id/ll_append_mode">
+                    <View style="@style/myStyleViewSimpleHorizontalBar" />
+                    <TextView
+                        android:id="@+id/tvAppendMode"
+                        style="@style/simpleTextWrap"
+                        android:text="@string/APPEND_MODE"
+                        android:layout_marginBottom="12dp"
+                        android:layout_marginTop="20dp"
+                        android:textSize="20dp"
+                        android:textStyle="bold"
+                        android:textColor="@color/pastel_blue_500"
+                        android:layout_gravity="center_horizontal"
+                        />
+                </LinearLayout>
 
                 <View style="@style/myStyleViewSimpleHorizontalBar" />
                 <TextView
@@ -185,33 +199,36 @@
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
                 <View style="@style/myStyleViewSimpleHorizontalBar" />
-                <TextView
-                    style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginStart="20dp"
-                    android:textSize="24dp"
-                    android:text="@string/load_multiple_book" />
 
-                <TextView
-                    android:id="@+id/bMassImport_desc"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:text="@string/bOpenMassImport_desc" />
+                <LinearLayout style="@style/wideLinearLayout_Vertical"
+                    android:id="@+id/ll_massive_import">
+                    <TextView
+                        style="@style/GetResourceTextTopOfButton"
+                        android:layout_marginStart="20dp"
+                        android:textSize="24dp"
+                        android:text="@string/load_multiple_book" />
 
-                <TextView
-                    style="@style/warningTextView"
-                    android:layout_marginStart="30dp"
-                    android:text="@string/beta_test" />
-                <TextView
-                    style="@style/warningTextView"
-                    android:layout_marginStart="30dp"
-                    android:text="@string/bOpenMassImport_warning" />
+                    <TextView
+                        android:id="@+id/bMassImport_desc"
+                        style="@style/GetResourceTextTopOfButton"
+                        android:text="@string/bOpenMassImport_desc" />
 
-                <Button
-                    android:id="@+id/bMassImport"
-                    android:text="@string/bMassImport"
-                    style="@style/GetResourceButton"
-                    android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+                    <TextView
+                        style="@style/warningTextView"
+                        android:layout_marginStart="30dp"
+                        android:text="@string/beta_test" />
+                    <TextView
+                        style="@style/warningTextView"
+                        android:layout_marginStart="30dp"
+                        android:text="@string/bOpenMassImport_warning" />
 
-                <View style="@style/GetResourceHorizontalBar"/>
+                    <Button
+                        android:id="@+id/bMassImport"
+                        android:text="@string/bMassImport"
+                        style="@style/GetResourceButton"
+                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+                        <View style="@style/GetResourceHorizontalBar"/>
+                </LinearLayout>
 
             </LinearLayout>
         </ScrollView>

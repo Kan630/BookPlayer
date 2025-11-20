@@ -16,6 +16,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.StartPlayHelper;
@@ -41,6 +42,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
 
+    private NetworkStatusRowController networkStatusController;
+
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
@@ -49,6 +52,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
+
+        View networkRow = findViewById(R.id.includeNetworkStatus);
+        networkStatusController = new NetworkStatusRowController(this, networkRow);
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar  = findViewById(R.id.progressBar);
@@ -274,5 +280,20 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 viewModel.requestFinish();
             }
         };
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (networkStatusController != null) {
+            networkStatusController.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusController != null) {
+            networkStatusController.stop();
+        }
     }
 }

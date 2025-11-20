@@ -96,13 +96,7 @@ public class ModifyFolderActivity extends LoggingActivity {
             startActivity(i);
         });
 
-        findViewById(R.id.bResetTracksOrder).setOnClickListener(view -> {
-            AppDatabase db = AppDatabase.getInstance(getApplicationContext());
-            AppDatabase.databaseWriteExecutor.execute(() -> {
-                db.zikFileDao().resetSmartChapterOrderForFolder(folder.getId());
-                runOnUiThread(() -> myToast(getString(R.string.tracks_order_has_been_reset)));
-            });
-        });
+        findViewById(R.id.bResetTracksOrder).setOnClickListener(view -> { clickResetTracksOrder(); });
 
         findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
             startActivity(new Intent(this, ZikFileActivity.class)
@@ -594,6 +588,24 @@ public class ModifyFolderActivity extends LoggingActivity {
                     myLogEE(null, "Worker Delete folder : " + err);
                     break;
             }
+        });
+    }
+
+    private void clickResetTracksOrder() {
+        myLogI("user clicks - RESET tracks ORDER");
+        new AlertDialog.Builder(ModifyFolderActivity.this)
+                .setTitle(getString(R.string.AskReset_popupTitle))
+                .setMessage(getString(R.string.AskReset_popupText_order))
+                .setCancelable(false)
+                .setPositiveButton("ok", (dialog, which) -> resetTrackOrder())
+                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .show();
+    }
+    private void resetTrackOrder() {
+        AppDatabase db = AppDatabase.getInstance(getApplicationContext());
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            db.zikFileDao().resetSmartChapterOrderForFolder(folder.getId());
+            runOnUiThread(() -> myToast(getString(R.string.tracks_order_has_been_reset)));
         });
     }
 

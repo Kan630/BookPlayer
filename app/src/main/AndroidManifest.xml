@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />  <!-- Needed for Android >= 13 if no mediaSession -->
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--Visualizer-->
     <uses-permission android:name="android.permission.INTERNET"/> <!-- to test internet access -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- to monitor online status -->
     <!-- <uses-permission android:name="android.permission.BIND_MEDIA_BROWSER_SERVICE"/>Car stuff -->
 
     <!-- <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />  for books download -->

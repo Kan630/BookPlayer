@@ -259,27 +259,34 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             }
         });
 
-        // MASS IMPORT (folder)
-        bMassImportActivityResultLauncher = registerForActivityResult(
-                new ActivityResultContracts.StartActivityForResult(),
-                result -> launchAddResource(result, "MassImport"));
-        bMassImport.setOnClickListener(view -> {
-            myLogI("------------ USER CLICKS : button MASS IMPORT");
-            if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
-                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
-                intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
-                        | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                        | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
-                        | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
-                try {
-                    bMassImportActivityResultLauncher.launch(intent);
-                } catch (Exception e) {
-                    myToastEE(e, "could not open android folder explorer");
+        if (folderToAddTo==null) {
+            findViewById(R.id.ll_massive_import).setVisibility(View.VISIBLE);
+            findViewById(R.id.ll_append_mode).setVisibility(View.GONE);
+            // MASS IMPORT (folder)
+            bMassImportActivityResultLauncher = registerForActivityResult(
+                    new ActivityResultContracts.StartActivityForResult(),
+                    result -> launchAddResource(result, "MassImport"));
+            bMassImport.setOnClickListener(view -> {
+                myLogI("------------ USER CLICKS : button MASS IMPORT");
+                if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
+                    Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+                    intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                            | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+                    try {
+                        bMassImportActivityResultLauncher.launch(intent);
+                    } catch (Exception e) {
+                        myToastEE(e, "could not open android folder explorer");
+                    }
+                } else {
+                    askForPermission();
                 }
-            } else {
-                askForPermission();
-            }
-        });
+            });
+        } else {
+            findViewById(R.id.ll_append_mode).setVisibility(View.VISIBLE);
+            findViewById(R.id.ll_massive_import).setVisibility(View.GONE);
+        }
 
 
 // RESULT LAUNCHER

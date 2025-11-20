@@ -38,6 +38,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.player.MediaService;
@@ -80,7 +81,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
     private final java.util.Map<String, androidx.lifecycle.Observer<ZikFile>> pendingSwitchObservers = new java.util.HashMap<>();
     private final java.util.Set<Long> enqueuedEpisodeIds = new java.util.HashSet<>();
-
 
     private boolean isExpanded;
 
@@ -496,6 +496,11 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
     private void playEpisode(DisplayableEpisode ep) {
         if (ep == null) return;
+        boolean online = NetworkHelper.isConnected(this);
+        if (!online) {
+            myToast(getString(R.string.no_internet_connection));
+            return;
+        }
         StartPlayHelper.onPodcastClick(getApplicationContext(), ep, podcast, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
 
         isPlaying = true;

@@ -21,7 +21,6 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.PodcastHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Collections;
 import java.util.List;

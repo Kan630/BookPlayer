@@ -7,6 +7,10 @@
     android:layout_height="match_parent"
     style="@style/MainContainer">
 
+    <include
+        android:id="@+id/includeNetworkStatus"
+        layout="@layout/view_network_status_row" />
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"

@@ -20,6 +20,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.PodcastFeed;
 import com.driot.bookplayer.helpers.PodcastHelper;
@@ -34,6 +35,8 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
     private PodcastSearchResultsRVAdapter adapter;
     Podcast podcast;
 
+    private NetworkStatusRowController networkStatusController;
+
     @Override protected int getNavId() { return R.id.nav_podcast; }
     @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
@@ -45,6 +48,9 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
         RecyclerView recyclerView = findViewById(R.id.recyclerViewPodcast);
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
         //InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
+
+        View networkRow = findViewById(R.id.includeNetworkStatus);
+        networkStatusController = new NetworkStatusRowController(this, networkRow);
 
         progressBar = findViewById(R.id.progressBarPodcast);
         errorMessage = findViewById(R.id.podcast_error_message);
@@ -158,6 +164,21 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
         } else {
             myLogEE(e, "performSearch - handleError");
             errorMessage.setText("Error : \n" + e.getMessage());
+        }
+    }
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (networkStatusController != null) {
+            networkStatusController.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusController != null) {
+            networkStatusController.stop();
         }
     }
 }

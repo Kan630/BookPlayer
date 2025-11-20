@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/networkStatusRow"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:paddingStart="12dp"
+    android:paddingEnd="12dp"
+    android:paddingTop="4dp"
+    android:paddingBottom="4dp"
+    android:gravity="center_vertical"
+    android:background="?attr/colorSurface">
+
+    <!-- Online/offline dot -->
+    <ImageView
+        android:id="@+id/ivNetworkDot"
+        android:layout_width="10dp"
+        android:layout_height="10dp"
+        android:layout_marginEnd="8dp"
+        android:contentDescription="@string/internet_status"
+        android:src="@drawable/ic_dot_red" />
+
+    <!-- "Online for Xs" / "Offline for Xs" -->
+    <TextView
+        android:id="@+id/tvNetworkStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/net_status_initial"
+        android:textSize="12sp" />
+
+    <!-- Spacer to push icons to the right -->
+    <View
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <!-- Unmetered icon (can be GONE until used) -->
+    <ImageView
+        android:id="@+id/ivUnmetered"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:layout_marginEnd="8dp"
+        android:visibility="gone"
+        android:contentDescription="@string/net_status_unmetered"
+        android:src="@drawable/ic_android_wifi_4_bar_24px" />
+
+    <!-- Roaming icon -->
+    <ImageView
+        android:id="@+id/ivRoaming"
+        android:layout_width="18dp"
+        android:layout_height="18dp"
+        android:visibility="gone"
+        android:contentDescription="@string/net_status_roaming"
+        android:src="@drawable/ic_travel_24px" />
+
+</LinearLayout>

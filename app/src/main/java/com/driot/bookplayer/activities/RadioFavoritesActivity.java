@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
@@ -19,6 +18,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
@@ -41,6 +41,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     private View dropZone;
     private ItemTouchHelper touchHelper;
 
+    private NetworkStatusRowController networkStatusController;
+
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
@@ -51,6 +53,9 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         dropZone     = findViewById(R.id.dragDeleteZone);
+
+        View networkRow = findViewById(R.id.includeNetworkStatus);
+        networkStatusController = new NetworkStatusRowController(this, networkRow);
 
         InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
 
@@ -73,6 +78,12 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override public void onPlay(RadioFavoriteItem f) {
                 myLogI("--- user clicks radio item --- : " + f.name);
+
+                boolean online = networkStatusController != null && networkStatusController.hasInternet();
+                if (!online) {
+                    myToast(getString(R.string.no_internet_connection));
+                    return;
+                }
 
                 if (Option.getRadioRenewUrl() || f.last_url==null || f.last_url.isEmpty()) {
                     myLog("Option renew Url = " + Option.getRadioRenewUrl() + ", lastUrl = [" + f.last_url + "]... => repo.resolveUrl(" + f.stationuuid + ") - " + f.name);
@@ -171,4 +182,19 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         }
     }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if (networkStatusController != null) {
+            networkStatusController.start();
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (networkStatusController != null) {
+            networkStatusController.stop();
+        }
+    }
 }

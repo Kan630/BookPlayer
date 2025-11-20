@@ -1166,7 +1166,6 @@
     <string name="reset_track_order">reset track order</string>
     <string name="tracks_order_has_been_reset">tracks order has been reset</string>
     <string name="add_new_tracks">add new tracks</string>
-    <string name="APPEND_MODE">APPEND MODE</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
                         This M4B file uses a non-standard chapter format.
@@ -1189,4 +1188,16 @@
     <string name="destination">destination</string>
     <string name="play_mode">play mode</string>
     <string name="count">count</string>
+
+    <string name="APPEND_MODE">APPEND TO EXISTING BOOK</string>
+    <string name="internet_status">Internet status</string>
+    <string name="net_status_initial">Checking network…</string>
+    <string name="net_status_online_for">Online for %1$ds</string>
+    <string name="net_status_offline_for">Offline for %1$ds</string>
+    <string name="net_status_unmetered">Unmetered connection</string>
+    <string name="net_status_roaming">Roaming</string>
+    <string name="net_status_online_for_percent">Online for %1$ds · %2$d%%</string>
+    <string name="net_status_offline_for_percent">Offline for %1$ds · %2$d%%</string>
+    <string name="AskReset_popupText_order">You are about to reset tracks order.\nAre you sure ?</string>
+
 </resources>

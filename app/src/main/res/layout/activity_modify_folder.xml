@@ -215,13 +215,25 @@
                 android:layout_marginEnd="100dp"
                 android:layout_marginTop="10dp"
                 />
-            <Button
-                android:id="@+id/bChangeTracksOrder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_gravity="start"
+                android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:text="@string/changeTracksOrder" />
+                >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_reorder_24px"
+                    />
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:id="@+id/bChangeTracksOrder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:text="@string/changeTracksOrder" />
+            </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -234,13 +246,24 @@
                 android:layout_marginEnd="100dp"
                 android:layout_marginTop="10dp"
                 />
-            <Button
-                android:id="@+id/bResetTracksOrder"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_gravity="start"
+                android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:text="@string/reset_track_order" />
+                >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_sort_24px"
+                    />
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:id="@+id/bResetTracksOrder"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/reset_track_order" />
+            </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
@@ -253,44 +276,95 @@
                 android:layout_marginEnd="100dp"
                 android:layout_marginTop="10dp"
                 />
-            <Button
-                android:id="@+id/bAddNewTracks"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="0dp"
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_gravity="start"
+                android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:text="@string/add_new_tracks"
-                />
+                >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_add_24px"
+                    />
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:id="@+id/bAddNewTracks"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/add_new_tracks"
+                    />
+            </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <Button
-                android:id="@+id/bReset"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_gravity="start"
+                android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:text="@string/bReset" />
+                android:layout_marginTop="20dp"
+                >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_replay_24px"
+                    />
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:id="@+id/bReset"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bReset"
+                    />
+            </LinearLayout>
+
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <Button
-                android:id="@+id/bExport"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_gravity="start"
+                android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:text="@string/Export" />
+                android:layout_marginTop="20dp"
+                >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_file_export_24px"
+                    />
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:id="@+id/bExport"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/Export"
+                    />
+            </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <Button
-                android:id="@+id/bDelete"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
+            <LinearLayout style="@style/simpleLinearLayout_Horizontal"
+                android:layout_gravity="start"
+                android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:text="@string/bDelete" />
+                android:layout_marginTop="20dp"
+                >
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:src="@drawable/ic_delete_24"
+                    />
+                <Button
+                    android:layout_marginStart="30dp"
+                    android:id="@+id/bDelete"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/bDelete"
+                    />
+            </LinearLayout>
 
             <View
                 style="@style/myStyleViewSimpleHorizontalBar"
