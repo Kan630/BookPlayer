@@ -79,7 +79,7 @@ public class DbClean {
                             nbStillBad = nbStillBad + 1;
                             fullError = fullError
                                     + "\n--> rewrite FAILED, still invalid"
-                                    + "\nnewPath = [" + newPath + "]";
+                                    + "\ndid try this path = [" + newPath + "]";
                         } else {
                             nbRewritten = nbRewritten + 1;
                             if (DO_REWRITE_AUDIO_PATH) {
