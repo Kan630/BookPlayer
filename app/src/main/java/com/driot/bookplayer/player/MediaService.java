@@ -922,7 +922,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
                 final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
-                myLog("trackId : " + trackId + " - isPodcast : " + isPodcast + " - newestFirst : " + newestFirst);
+                myLog("ACTION_PLAY_FROM_TRACK => trackId : [" + trackId + "] - isPodcast : [" + isPodcast + "] - newestFirst : [" + newestFirst + "]");
 
                 ZikFile zikFile = intent.getParcelableExtra(Intents.EXTRA_ZIKFILE);
                 if (zikFile == null) {
@@ -931,11 +931,19 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         if (newZikFile == null) {
                             myLogE("zikFile is Null");
                         } else {
-                            loadAndPlayTrack(newZikFile);
+                            boolean ok = loadAndPlayTrack(newZikFile, isPodcast, newestFirst);
+                            if (!ok) {
+                                myLogEE(null, "ACTION_PLAY_FROM_TRACK: playback failed [newZikFile]");
+                            }
                         }
                     });
                 } else {
-                    loadAndPlayTrack(zikFile);
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        boolean ok = loadAndPlayTrack(zikFile, isPodcast, newestFirst);
+                        if (!ok) {
+                            myLogEE(null, "ACTION_PLAY_FROM_TRACK: playback failed [ZikFile]");
+                        }
+                    });
                 }
                 return START_STICKY;
 
@@ -2178,6 +2186,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private boolean loadAndPlayTrack(ZikFile zikFile) {
+        return loadAndPlayTrack(zikFile, false, false);
+    }
+    private boolean loadAndPlayTrack(ZikFile zikFile, boolean isPodcast, boolean newestFirst) { //Always call me from a Background Thread !
         // Resolve Uri
         Uri src = UriHelper.resolvePlayableUri(this, zikFile);
         String err;
@@ -2190,18 +2201,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         Folder folder = AppDatabase.getDatabase(this).folderDao().getById(zikFile.getIdFolder());
         List<ZikFile> list;
-        /*
         if (isPodcast) {
             if (newestFirst) {
-                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(folderId);
+                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(folder.getId());
             } else {
-                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(folderId);
+                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(folder.getId());
             }
         } else {
-            list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folderId);
+            list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folder.getId());
         }
-         */
-        list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folder.getId());
         if (list == null || list.isEmpty()) {
             err = "ZikFile list empty";
             myLogEE(null, err);
@@ -2248,22 +2256,27 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 alertError("create playlist from storage","could not recreate playlist");
                 return;
             }
-
             String playMode = pl.getPlayMode();
 
-            boolean ok;
+            // call on background thread = Important
             if (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode)) {
-                ok = loadAndPlayTrack(pl.getZikFile());
+                AppDatabase.databaseReadExecutor.execute(() -> {
+                    boolean ok = loadAndPlayTrack(pl.getZikFile());
+                    if (!ok) {
+                        myLogEE(null, "loadAndPlayFromStorage(): playback failed");
+                    }
+                });
+
+                // no DB access inside playStream(), so main thread is fine
             } else if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
-                ok = playStream(playMode, pl.getUrl(), null, null);
+
+                boolean ok = playStream(playMode, pl.getUrl(), null, null);
+                if (!ok) {
+                    myLogEE(null, "loadAndPlayFromStorage(): playback failed");
+                }
+
             } else {
                 myLogEE(null, "error wrong playMode = " + playMode);
-                ok = false;
-            }
-
-            if (!ok) {
-                myLogEE(null, "loadAndPlayFromStorage(): playback failed");
-                // handle error: maybe stopSelf() or show error notification
             }
         });
     }
