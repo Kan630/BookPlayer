@@ -67,7 +67,7 @@ public class MyApp extends Application {
 
         AppUpgrade.runMigrations(getApplicationContext());
 
-        DbClean.doClean(getApplicationContext(), true, false);
+        DbClean.doClean(getApplicationContext(), true, true);
 
         myLog("Context has been initialized");
 

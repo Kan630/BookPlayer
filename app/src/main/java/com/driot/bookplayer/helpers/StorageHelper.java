@@ -291,6 +291,16 @@ public class StorageHelper {
             return imagePath; //let glide deals with it for now, it shall be downloaded later
         }
 
+        if (imagePath.startsWith("content://")) {
+            Uri uri = Uri.parse(imagePath);
+            if (isContentUriReachable(context, uri)) {
+                return imagePath; // Glide can load it
+            } else {
+                myLogEE(null, "checkAndCleanImagePath : content uri not reachable - [" + imagePath + "]");
+                return null;
+            }
+        }
+
         if (imagePath.startsWith("file://")) {
             imagePath = Uri.parse(imagePath).getPath();
             if (imagePath == null) {
@@ -324,5 +334,20 @@ public class StorageHelper {
         // use processPendingImage, or run it
         myLogEE(null, "checkAndCleanImagePath : no valid image file - [" + fileName + "]");
         return null;
+    }
+
+    private static boolean isContentUriReachable(Context context, Uri uri) {
+        try (java.io.InputStream is = context.getContentResolver().openInputStream(uri)) {
+            return is != null;
+        } catch (java.io.FileNotFoundException e) {
+            myLogW("Content URI not found: " + uri);
+            return false;
+        } catch (SecurityException e) {
+            myLogW("No permission to read content URI: " + uri + " (" + e + ")");
+            return false;
+        } catch (Exception e) {
+            myLogW("Error checking content URI: " + uri + " (" + e + ")");
+            return false;
+        }
     }
 }

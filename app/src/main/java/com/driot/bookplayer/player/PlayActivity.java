@@ -491,7 +491,7 @@ public class PlayActivity extends LoggingActivity {
             }
             if (Option.getVisualizerOn() && isRecordAudioPermissionGranted(this) && sessionId != null) {
                 try {
-                    myLogD("linking visualizer");
+                    //myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
                     frequencyVisualizerView.setMode(Option.getVisualizerType());
                     frequencyVisualizerView.link_toto(sessionId);
                     frequencyVisualizerView.setVisibility(View.VISIBLE);

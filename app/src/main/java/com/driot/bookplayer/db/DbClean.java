@@ -17,7 +17,8 @@ import java.util.List;
 
 public class DbClean {
 
-    private static final boolean DO_REWRITE = false;
+    private static final boolean DO_REWRITE_AUDIO_PATH = false;
+    private static final boolean DO_REWRITE_IMAGE_PATH = false;
     private static final int DEBUG_LOG_SKIP_LOOP = 20;
     private static final int INTERVAL_BETWEEN_CHECKS_IN_MIN = 60*24;
 
@@ -27,7 +28,7 @@ public class DbClean {
         long now = System.currentTimeMillis();
         boolean doClean = (now - lastDbClean > INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000);
         myLog("doClean = [" + doClean +  "].. - last Clean was " + Tonio.formatTime(now - lastDbClean) + " ago. -  Interval = " + Tonio.formatTime(INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000));
-        if (!doClean) return;
+        //if (!doClean) return;
         Pref.setLastDbClean();
 
 // CLEAN ZIKFILE PATHS
@@ -49,7 +50,7 @@ public class DbClean {
 
                 for (ZikFile zikFile : list) {
                     i = i + 1;
-                    if (i % DEBUG_LOG_SKIP_LOOP == 0) {
+                    if (i % DEBUG_LOG_SKIP_LOOP == 1) {
                         myLogD("checking zikFiles paths : " + i + "/" + nbZikFiles + " zikfiles");
                     }
 
@@ -78,14 +79,14 @@ public class DbClean {
                                     + "\nnewPath = [" + newPath + "]";
                         } else {
                             nbRewritten = nbRewritten + 1;
-                            if (DO_REWRITE) {
+                            if (DO_REWRITE_AUDIO_PATH) {
                                 zikFile.setPath(newPath);
                                 AppDatabase.getDatabase(ctx).zikFileDao().update(zikFile);
                             }
                             fullError = fullError
                                     + "\n****************************************************************************************"
                                     + "\n****************************************************************************************"
-                                    + "\n--> path REWRITTEN" + (DO_REWRITE ? "" : "--- FAKE REWRITE (debug DO_REWRITE=false) ---")
+                                    + "\n--> path REWRITTEN" + (DO_REWRITE_AUDIO_PATH ? "" : "--- FAKE REWRITE (debug DO_REWRITE=false) ---")
                                     + "\n****************************************************************************************"
                                     + "\nnewPath = [" + newPath + "]"
                                     + "\n****************************************************************************************"
@@ -99,7 +100,7 @@ public class DbClean {
                 }
 
                 if (nbInvalid == 0) {
-                    myLogI("CLEAN ZIKFILE PATHS : all " + nbZikFiles + " zikFiles have valid paths.");
+                    myLog("CLEAN ZIKFILE PATHS : all " + nbZikFiles + " zikFiles have valid paths.");
                 } else {
                     String header = "CLEAN ZIKFILE PATHS : "
                             + "\n" + nbInvalid + "/" + nbZikFiles + " invalid paths; "
@@ -133,9 +134,9 @@ public class DbClean {
 
                 for (Folder folder : list) {
                     i = i + 1;
-                    //if (i % DEBUG_LOG_SKIP_LOOP == 0) {
+                    if (i % DEBUG_LOG_SKIP_LOOP == 1) {
                         myLogD("checking image paths : " + i + "/" + nbFolders + " folders");
-                    //}
+                    }
 
                     path = folder.image;
                     if (path == null || path.isEmpty()) {
@@ -155,12 +156,14 @@ public class DbClean {
                         // original path invalid and no fixed path found
                         nbInvalid = nbInvalid + 1;
                         nbStillBad = nbStillBad + 1;
+                        nbFatalError = nbFatalError + 1;
 
                         String fullError = logStrPrefix
-                                + "\ncould not find image"
+                                + "\nFATAL : could not find image for folder [" + folder.getName() + "]"
                                 + "\npath = [" + pathType + path + "]";
 
                         masterMsg = masterMsg + "\n\n" + fullError;
+
                     } else if (!newPath.equals(path)) {
                         // original path invalid but we found a replacement
                         nbInvalid = nbInvalid + 1;
@@ -169,7 +172,7 @@ public class DbClean {
                         String fullError = logStrPrefix
                                 + "\n****************************************************************************************"
                                 + "\n****************************************************************************************"
-                                + "\n--> path REWRITTEN" + (DO_REWRITE ? "" : "--- FAKE REWRITE (debug DO_REWRITE=false) ---")
+                                + "\n--> path REWRITTEN" + (DO_REWRITE_IMAGE_PATH ? "" : "--- FAKE REWRITE (debug DO_REWRITE=false) ---")
                                 + "\n****************************************************************************************"
                                 + "\nfrom [" + pathType + path + "]"
                                 + "\nto [" + newPath + "]"
@@ -178,23 +181,21 @@ public class DbClean {
 
                         masterMsg = masterMsg + "\n\n" + fullError;
 
-                        if (DO_REWRITE) {
+                        if (DO_REWRITE_IMAGE_PATH) {
                             folder.image = newPath;
                             AppDatabase.getDatabase(ctx).folderDao().update(folder);
                         }
                     }
-
-                    // count "should not happen" occurrences in the accumulated message
-                    nbFatalError = masterMsg.split(Var.SHOULD_NOT_HAPPEN, -1).length - 1;
                 }
 
                 if (nbInvalid == 0) {
-                    myLogI("CLEAN IMAGE PATHS : all " + nbWithImage
+                    myLog("CLEAN IMAGE PATHS : all " + nbWithImage
                             + " image paths are valid (" + nbFolders + " folders total).");
                 } else {
                     String header = "CLEAN IMAGE PATHS : "
+                            + "\n" + nbFolders + " folders."
                             + "\n" + nbInvalid + "/" + nbWithImage + " invalid image paths; "
-                            + "\n" + nbFatalError + " - " + Var.SHOULD_NOT_HAPPEN + " -"
+                            + "\n" + nbFatalError + " - fatal : no fallback/rewrite possible -"
                             + "\n" + nbRewritten + " rewritten; "
                             + "\n" + nbStillBad + " still invalid.";
 
