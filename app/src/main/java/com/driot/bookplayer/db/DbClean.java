@@ -17,8 +17,8 @@ import java.util.List;
 
 public class DbClean {
 
-    private static final boolean DO_REWRITE_AUDIO_PATH = false;
-    private static final boolean DO_REWRITE_IMAGE_PATH = false;
+    private static final boolean DO_REWRITE_AUDIO_PATH = true;
+    private static final boolean DO_REWRITE_IMAGE_PATH = true;
     private static final int DEBUG_LOG_SKIP_LOOP = 20;
     private static final int INTERVAL_BETWEEN_CHECKS_IN_MIN = 60*24;
 
@@ -67,6 +67,9 @@ public class DbClean {
                         String fullError = logStrPrefix
                                 + "\n" + errMessage
                                 + "\npath = [" + pathType + path + "]";
+                        if (fullError.contains(Var.SHOULD_NOT_HAPPEN)) {
+                            fullError = fullError + "\nFATAL = " + Var.SHOULD_NOT_HAPPEN + " ?";
+                        }
 
                         // Try fallback path
                         String newPath = zikFile.getPath() + "/" + zikFile.getName();
