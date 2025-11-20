@@ -1103,7 +1103,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="reset_track_order">сбросить порядок треков</string>
         <string name="tracks_order_has_been_reset">порядок треков сброшен</string>
         <string name="add_new_tracks">добавить новые треки</string>
-        <string name="APPEND_MODE">РЕЖИМ ДОБ.</string>
 
         <string name="m4b_error_non_standard_chapter_format">"""
                         Этот файл M4B использует нестандартный формат глав.
@@ -1126,5 +1125,19 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="destination">папка</string>
         <string name="play_mode">режим воспроизведения</string>
         <string name="count">количество</string>
+
+        <string name="APPEND_MODE">ДОБАВИТЬ К СУЩЕСТВУЮЩЕЙ КНИГЕ</string>
+        <string name="internet_status">Статус Интернета</string>
+        <string name="net_status_initial">Проверка сети…</string>
+        <string name="net_status_online_for">Онлайн %1$ds</string>
+        <string name="net_status_offline_for">Офлайн %1$ds</string>
+        <string name="net_status_unmetered">Безлимитное соединение</string>
+        <string name="net_status_roaming">Роуминг</string>
+        <string name="net_status_online_for_percent">Онлайн %1$ds · %2$d%%</string>
+        <string name="net_status_offline_for_percent">Офлайн %1$ds · %2$d%%</string>
+        <string name="AskReset_popupText_order">Вы собираетесь сбросить порядок дорожек.\nВы уверены?</string>
+        <string name="zikFiles_not_readable">некоторые дорожки содержат ошибки и не воспроизводятся:</string>
+        <string name="All_zikFiles_not_readable">Книга повреждена. Ни одна дорожка не воспроизводится.</string>
+
 
 </resources>

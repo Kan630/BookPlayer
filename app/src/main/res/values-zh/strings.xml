@@ -1098,7 +1098,6 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="reset_track_order">重置曲目顺序</string>
     <string name="tracks_order_has_been_reset">曲目顺序已重置</string>
     <string name="add_new_tracks">添加新曲目</string>
-    <string name="APPEND_MODE">追加模式</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
                         该 M4B 文件使用了非标准章节格式。
@@ -1120,4 +1119,18 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="destination">目标位置</string>
     <string name="play_mode">播放模式</string>
     <string name="count">计数</string>
+
+    <string name="APPEND_MODE">追加到现有书籍</string>
+    <string name="internet_status">网络状态</string>
+    <string name="net_status_initial">正在检查网络…</string>
+    <string name="net_status_online_for">在线 %1$ds</string>
+    <string name="net_status_offline_for">离线 %1$ds</string>
+    <string name="net_status_unmetered">不限量连接</string>
+    <string name="net_status_roaming">漫游</string>
+    <string name="net_status_online_for_percent">在线 %1$ds · %2$d%%</string>
+    <string name="net_status_offline_for_percent">离线 %1$ds · %2$d%%</string>
+    <string name="AskReset_popupText_order">您即将重置曲目顺序。\n确定吗？</string>
+    <string name="zikFiles_not_readable">部分音轨有错误，无法播放：</string>
+    <string name="All_zikFiles_not_readable">本书已损坏。无法播放任何音轨。</string>
+
 </resources>

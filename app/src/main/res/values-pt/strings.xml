@@ -1113,7 +1113,6 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="reset_track_order">redefinir ordem</string>
     <string name="tracks_order_has_been_reset">a ordem das faixas foi redefinida</string>
     <string name="add_new_tracks">adicionar novas faixas</string>
-    <string name="APPEND_MODE">MODO ACRESC.</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
                         Este arquivo M4B usa um formato de capítulos não padrão.
@@ -1136,6 +1135,19 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="destination">destino</string>
     <string name="play_mode">modo de reprodução</string>
     <string name="count">contagem</string>
+
+    <string name="APPEND_MODE">ADICIONAR AO LIVRO EXISTENTE</string>
+    <string name="internet_status">Status da Internet</string>
+    <string name="net_status_initial">Verificando rede…</string>
+    <string name="net_status_online_for">Online por %1$ds</string>
+    <string name="net_status_offline_for">Offline por %1$ds</string>
+    <string name="net_status_unmetered">Conexão ilimitada</string>
+    <string name="net_status_roaming">Roaming</string>
+    <string name="net_status_online_for_percent">Online por %1$ds · %2$d%%</string>
+    <string name="net_status_offline_for_percent">Offline por %1$ds · %2$d%%</string>
+    <string name="AskReset_popupText_order">Você está prestes a redefinir a ordem das faixas.\nTem certeza?</string>
+    <string name="zikFiles_not_readable">algumas faixas têm erros e não podem ser reproduzidas:</string>
+    <string name="All_zikFiles_not_readable">Este livro está com problema. Nenhuma faixa pode ser reproduzida.</string>
 
 
 </resources>

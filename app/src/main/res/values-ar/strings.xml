@@ -1096,7 +1096,6 @@
     <string name="reset_track_order">إعادة ترتيب المقاطع</string>
     <string name="tracks_order_has_been_reset">تمت إعادة ترتيب المقاطع</string>
     <string name="add_new_tracks">إضافة مقاطع جديدة</string>
-    <string name="APPEND_MODE">وضع الإلحاق</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
                         يستخدم ملف M4B هذا تنسيق فصول غير قياسي.
@@ -1119,5 +1118,18 @@
     <string name="destination">الوجهة</string>
     <string name="play_mode">وضع التشغيل</string>
     <string name="count">العدد</string>
+
+    <string name="APPEND_MODE">إضافة إلى كتاب موجود</string>
+    <string name="internet_status">حالة الإنترنت</string>
+    <string name="net_status_initial">جارٍ فحص الشبكة…</string>
+    <string name="net_status_online_for">متصل منذ %1$ds</string>
+    <string name="net_status_offline_for">غير متصل منذ %1$ds</string>
+    <string name="net_status_unmetered">اتصال غير محدود</string>
+    <string name="net_status_roaming">تجوال</string>
+    <string name="net_status_online_for_percent">متصل منذ %1$ds · %2$d%%</string>
+    <string name="net_status_offline_for_percent">غير متصل منذ %1$ds · %2$d%%</string>
+    <string name="AskReset_popupText_order">أنت على وشك إعادة تعيين ترتيب المقاطع.\nهل أنت متأكد؟</string>
+    <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
+    <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
 
 </resources>

@@ -1115,7 +1115,6 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="reset_track_order">reimposta ordine tracce</string>
     <string name="tracks_order_has_been_reset">l\'ordine delle tracce è stato reimpostato</string>
     <string name="add_new_tracks">aggiungi nuove tracce</string>
-    <string name="APPEND_MODE">MODALITÀ AGGIUNTA</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
                         Questo file M4B usa un formato capitoli non standard.
@@ -1138,4 +1137,19 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="destination">destinazione</string>
     <string name="play_mode">modalità di riproduzione</string>
     <string name="count">conteggio</string>
+
+    <string name="APPEND_MODE">AGGIUNGI AL LIBRO ESISTENTE</string>
+    <string name="internet_status">Stato Internet</string>
+    <string name="net_status_initial">Verifica rete…</string>
+    <string name="net_status_online_for">Online da %1$ds</string>
+    <string name="net_status_offline_for">Offline da %1$ds</string>
+    <string name="net_status_unmetered">Connessione illimitata</string>
+    <string name="net_status_roaming">Roaming</string>
+    <string name="net_status_online_for_percent">Online da %1$ds · %2$d%%</string>
+    <string name="net_status_offline_for_percent">Offline da %1$ds · %2$d%%</string>
+    <string name="AskReset_popupText_order">Stai per reimpostare l\'ordine delle tracce.\nSei sicuro?</string>
+    <string name="zikFiles_not_readable">alcune tracce hanno errori e non sono riproducibili:</string>
+    <string name="All_zikFiles_not_readable">Questo libro è danneggiato. Nessuna traccia può essere riprodotta.</string>
+
+
 </resources>

@@ -17,8 +17,8 @@ import java.util.List;
 
 public class DbClean {
 
-    private static final boolean DO_REWRITE_AUDIO_PATH = true;
-    private static final boolean DO_REWRITE_IMAGE_PATH = true;
+    private static final boolean DO_REWRITE_AUDIO_PATH = false; //testing phase started 2025-11-20 - 21h
+    private static final boolean DO_REWRITE_IMAGE_PATH = false;
     private static final int DEBUG_LOG_SKIP_LOOP = 20;
     private static final int INTERVAL_BETWEEN_CHECKS_IN_MIN = 60*24;
 

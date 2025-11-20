@@ -1148,30 +1148,43 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="load_one_book">1 किताब लोड</string>
     <string name="load_multiple_book">किताबें लोड</string>
 
-        <string name="reset_track_order">ट्रैक क्रम रीसेट</string>
-        <string name="tracks_order_has_been_reset">ट्रैक क्रम रीसेट किया गया</string>
-        <string name="add_new_tracks">नए ट्रैक जोड़ें</string>
-        <string name="APPEND_MODE">जोड़ने का मोड</string>
+    <string name="reset_track_order">ट्रैक क्रम रीसेट</string>
+    <string name="tracks_order_has_been_reset">ट्रैक क्रम रीसेट किया गया</string>
+    <string name="add_new_tracks">नए ट्रैक जोड़ें</string>
 
-        <string name="m4b_error_non_standard_chapter_format">"""
-                        यह M4B फ़ाइल गैर-मानक अध्याय प्रारूप का उपयोग करती है।
-                        BookPlayer केवल उन्हीं M4B फ़ाइलों को विभाजित कर सकता है जिनमें एम्बेडेड टेक्स्ट अध्याय होते हैं।
+    <string name="m4b_error_non_standard_chapter_format">"""
+                    यह M4B फ़ाइल गैर-मानक अध्याय प्रारूप का उपयोग करती है।
+                    BookPlayer केवल उन्हीं M4B फ़ाइलों को विभाजित कर सकता है जिनमें एम्बेडेड टेक्स्ट अध्याय होते हैं।
 
-                        अभी के लिए, BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।"""</string>
-        <string name="m4b_error_will_import_as_single_file">BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।</string>
-        <string name="m4b_error_too_large_or_incompatible_structure">"""
-                        यह M4B फ़ाइल बहुत बड़ी है या ऐसी संरचना का उपयोग करती है
-                        जो Android की मेमोरी प्रणाली के साथ असंगत है।
+                    अभी के लिए, BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।"""</string>
+    <string name="m4b_error_will_import_as_single_file">BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।</string>
+    <string name="m4b_error_too_large_or_incompatible_structure">"""
+                    यह M4B फ़ाइल बहुत बड़ी है या ऐसी संरचना का उपयोग करती है
+                    जो Android की मेमोरी प्रणाली के साथ असंगत है।
 
-                        BookPlayer वर्तमान में केवल मानक M4B फ़ाइलों का समर्थन करता है।
+                    BookPlayer वर्तमान में केवल मानक M4B फ़ाइलों का समर्थन करता है।
 
-                        सुझाव:
-                        - M4B को किसी बाहरी टूल (ffmpeg, mp4box...) से कनवर्ट करें,
-                        - या इसे कंप्यूटर पर विभाजित करें और अध्याय अलग-अलग आयात करें।
+                    सुझाव:
+                    - M4B को किसी बाहरी टूल (ffmpeg, mp4box...) से कनवर्ट करें,
+                    - या इसे कंप्यूटर पर विभाजित करें और अध्याय अलग-अलग आयात करें।
 
-                        अभी के लिए, BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।"""</string>
+                    अभी के लिए, BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।"""</string>
 
-        <string name="destination">गंतव्य</string>
-        <string name="play_mode">प्ले मोड</string>
-        <string name="count">गिनती</string>
+    <string name="destination">गंतव्य</string>
+    <string name="play_mode">प्ले मोड</string>
+    <string name="count">गिनती</string>
+
+    <string name="APPEND_MODE">मौजूदा पुस्तक में जोड़ें</string>
+    <string name="internet_status">इंटरनेट स्थिति</string>
+    <string name="net_status_initial">नेटवर्क की जाँच…</string>
+    <string name="net_status_online_for">%1$ds से ऑनलाइन</string>
+    <string name="net_status_offline_for">%1$ds से ऑफ़लाइन</string>
+    <string name="net_status_unmetered">अनलिमिटेड कनेक्शन</string>
+    <string name="net_status_roaming">रोमिंग</string>
+    <string name="net_status_online_for_percent">%1$ds से ऑनलाइन · %2$d%%</string>
+    <string name="net_status_offline_for_percent">%1$ds से ऑफ़लाइन · %2$d%%</string>
+    <string name="AskReset_popupText_order">आप ट्रैक क्रम रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?</string>
+    <string name="zikFiles_not_readable">कुछ ट्रैकों में त्रुटियाँ हैं और चल नहीं सकतीं:</string>
+    <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>
+
 </resources>
