@@ -28,7 +28,7 @@ public class DbClean {
         long now = System.currentTimeMillis();
         boolean doClean = (now - lastDbClean > INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000);
         myLog("doClean = [" + doClean +  "].. - last Clean was " + Tonio.formatTime(now - lastDbClean) + " ago. -  Interval = " + Tonio.formatTime(INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000));
-        //if (!doClean) return;
+        if (!doClean) return;
         Pref.setLastDbClean();
 
 // CLEAN ZIKFILE PATHS
