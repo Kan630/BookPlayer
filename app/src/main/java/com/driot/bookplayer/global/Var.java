@@ -10,6 +10,13 @@ import okhttp3.logging.HttpLoggingInterceptor;
  * created by Antoine Driot -- antoine.driot.com -- on 15/09/21
  */
 public class Var {
+    public static final String IMPORT_STATUS_IDLE      = "IDLE";
+    public static final String IMPORT_STATUS_QUEUED    = "QUEUED";
+    public static final String IMPORT_STATUS_RUNNING   = "RUNNING";
+    public static final String IMPORT_STATUS_PAUSED    = "PAUSED";
+    public static final String IMPORT_STATUS_SUCCEEDED = "SUCCEEDED";
+    public static final String IMPORT_STATUS_FAILED    = "FAILED";
+    public static final String IMPORT_STATUS_CANCELLED = "CANCELLED";
 
     public static final String WORKER_TASK_LABEL_DOWNLOAD = "Download";
     public static final String WORKER_TASK_LABEL_DECOMPRESS = "Decompress";

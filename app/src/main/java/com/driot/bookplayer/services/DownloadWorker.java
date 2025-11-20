@@ -1,7 +1,6 @@
 package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.utils.Tonio.formatSizeMB;
-import static com.driot.bookplayer.utils.Tonio.getFileNameFromUrl;
 
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -23,12 +22,10 @@ import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.BufferedInputStream;
@@ -57,12 +54,6 @@ public class DownloadWorker extends ImportWorker {
     public static final int HTTP_REQUESTED_RANGE_NOT_SATISFIABLE = 416;
     public static final String TAG_DOWNLOAD = "DOWNLOAD_WORK";
 
-    // === Input keys ===
-    public static final String KEY_URL = "url";
-    public static final String KEY_DEST_FOLDER = "dest_folder";
-    public static final String KEY_TITLE = "title";
-    public static final String KEY_IS_MANUAL = "is_manual"; // optional: if you still apply manual policy
-
     // === Progress keys ===
     public static final String PROG_PERCENT = "progress_percent";
     public static final String PROG_TEXT = "progress_text";
@@ -80,9 +71,6 @@ public class DownloadWorker extends ImportWorker {
     private static final long MIN_UPDATE_INTERVAL_MS = 250;
     private static final int CONNECT_TIMEOUT_MS = 30_000;
     private static final int READ_TIMEOUT_MS = 30_000;
-
-    // Optional legacy policy window (if you still want it)
-    private static final long MANUAL_POLICY_WINDOW_MS = 30 * 60 * 1000L;
 
     private FileLock downloadLock;
     private FileChannel lockChannel;
@@ -102,6 +90,7 @@ public class DownloadWorker extends ImportWorker {
         super(context, params);
         this.context = context.getApplicationContext();
     }
+
     @NonNull
     @Override
     public Result doWorkBody() {
@@ -182,12 +171,6 @@ public class DownloadWorker extends ImportWorker {
                 return Result.retry();
             }
 
-            // Optional: apply your manual vs auto policy (constraints should make most of this unnecessary)
-            if (!isPolicyAllowed(ctx, isManual)) {
-                emitDownloadPause(ctx.getString(R.string.Download_paused_due_to_network_policy));
-                return Result.retry();
-            }
-
             final String fileName = Tonio.getFileNameFromUrl(urlStr);
             final File outFile = new File(destFolder, fileName);
 
@@ -210,6 +193,9 @@ public class DownloadWorker extends ImportWorker {
             // Range resume
             long already = outFile.exists() ? outFile.length() : 0L;
             myLog("already downloaded : " + Tonio.formatSizeMB(already) + " for " + outFile.getName());
+            if (already > 0L) {
+                emitDownloadResuming();
+            }
 
             HttpURLConnection conn = null;
             InputStream in = null;
@@ -240,13 +226,6 @@ public class DownloadWorker extends ImportWorker {
                     return Result.failure();
                 }
 
-                /*
-                LoadBookTaskState s = Pref.getLoadBookTaskState();
-                if (s != null && s.isLoadingPaused) {
-                    emitDownloadResuming();
-                }
-                 */
-
                 long contentLen = getContentLengthLongCompat(conn); // may be -1
                 long totalLen = (contentLen > 0 ? contentLen : -1L);
                 long fileLenIfKnown = (totalLen > 0 ? (already + totalLen) : -1L);
@@ -261,15 +240,15 @@ public class DownloadWorker extends ImportWorker {
                 byte[] buf = new byte[16 * 1024];
                 long written = already;
                 for (;;) {
+                    if (cancelRequested.get()) {
+                        myLogW("Cancel acknowledged in loop");
+                        pauseRequested.set(false);
+                        resumeRequested.set(false);
+                        safeDelete(outFile);
+                        emitCancelled(TASK_NAME);
+                        return Result.failure();
+                    }
                     if (isStopped()) {
-                        /*
-                        LoadBookTaskState state = Pref.getLoadBookTaskState();
-                        if (state == null) {
-                            myLogW("Stopped after cancelled");
-                            emitCancelled(TASK_NAME);
-                            return Result.failure();
-                        }
-                         */
                         myLogW("Stopped by WM/constraints — keeping partial and retrying");
                         emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
@@ -278,14 +257,6 @@ public class DownloadWorker extends ImportWorker {
                         myLogW("Stop requested");
                         emitDownloadPause(getApplicationContext().getString(R.string.download_stop_requested));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
-                    }
-                    if (cancelRequested.get()) {
-                        myLogW("Cancel acknowledged in loop");
-                        pauseRequested.set(false);
-                        resumeRequested.set(false);
-                        safeDelete(outFile);
-                        emitCancelled(TASK_NAME);
-                        return Result.failure();
                     }
                     if (pauseRequested.get()) {
                         myLogI("Pause acknowledged in loop — entering paused state");
@@ -298,10 +269,6 @@ public class DownloadWorker extends ImportWorker {
 
                         // Wait here until resume or cancel or stop
                         while (true) {
-                            //LoadBookTaskState state = Pref.getLoadBookTaskState();
-                            //if (state == null) {
-                            //    return Result.failure();
-                            //}
                             if (isStopped()) {
                                 myLogW("Paused → stopped");
                                 emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
@@ -456,28 +423,7 @@ public class DownloadWorker extends ImportWorker {
         resumeRequested.set(false);
         emitDownloadPause(whyPause);
     }
-    // === Helpers ===
 
-    private boolean isPolicyAllowed(Context ctx, boolean isManual) {
-        // If you rely solely on Constraints, you can return true here.
-        // If you still want your existing Option/NetworkUtils policy logic:
-/*
-        if (isManual) {
-            Option.NetworkPolicyManual p = Option.getNetworkPolicyManualDownload();
-            if (p == Option.NetworkPolicyManual.NEVER_ASK) return true;
-            if (p == Option.NetworkPolicyManual.ASK_IF_NOT_WIFI) return NetworkUtils.isWifiConnected(ctx);
-            if (p == Option.NetworkPolicyManual.ASK_IF_NOT_UNMETERED) return NetworkUtils.isUnmeteredConnected(ctx);
-            return true;
-        } else {
-            Option.NetworkPolicyAuto p = Option.getNetworkPolicyAutoDownload();
-            if (p == Option.NetworkPolicyAuto.ANY) return NetworkUtils.isNetworkAvailable(ctx);
-            if (p == Option.NetworkPolicyAuto.WIFI) return NetworkUtils.isWifiConnected(ctx);
-            if (p == Option.NetworkPolicyAuto.UNMETERED) return NetworkUtils.isUnmeteredConnected(ctx);
-            return NetworkUtils.isNetworkAvailable(ctx);
-        }
- */
-        return NetworkHelper.isNetworkAvailable(ctx);
-    }
 
     private void maybeUpdateProgress(Context ctx, int notifId, long written, long fileLenIfKnown, String title) {
         long now = System.currentTimeMillis();

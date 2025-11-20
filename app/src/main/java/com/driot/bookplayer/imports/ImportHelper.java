@@ -23,25 +23,6 @@ import java.util.concurrent.Executors;
 
 public class ImportHelper {
 
-    public static void checkImportJobsAtStartUp(Context context) {
-        AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
-        Executors.newSingleThreadExecutor().execute(() -> {
-            ImportJobDao dao = db.importJobDao();
-            ImportJob job = dao.getUniqueJob();
-            if (job != null) {
-                if (!job.isFinished()) {
-                    if (!job.showToUser) {
-                        myLogEE(null, "Import Job was not visible, resetting job, id=[" + job.importId + "]");
-                        dao.setShowToUser(job.importId, true, System.currentTimeMillis());
-                    } else {
-                        myLogD("ongoing import job, id=[" + job.importId + "]");
-                    }
-                }
-            } else {
-                myLogD("no ongoing job");
-            }
-        });
-    }
 
     public static String getSourceFilePathForWorker(ImportJob j) {
         myLog(j.importId + " - getSourceFilePathForWorker");
@@ -98,9 +79,13 @@ public class ImportHelper {
 
     public static void cancelAll_in_DB(Context ctx) {
         Executors.newSingleThreadExecutor().execute(() -> {
-            AppDatabase.getInstance(ctx.getApplicationContext()).importJobDao().cancelAll(System.currentTimeMillis(), ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+            AppDatabase
+                    .getInstance(ctx.getApplicationContext())
+                    .importJobDao()
+                    .cancelAll(System.currentTimeMillis());
         });
     }
+
 
 
 
@@ -123,21 +108,24 @@ public class ImportHelper {
 
     public static boolean isAnyImportActiveSync(Context ctx) {
         AppDatabase db = AppDatabase.getInstance(ctx.getApplicationContext());
-        int nbActive = db.importJobDao().countActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
-                if (nbActive > 0) {
-                    myLogI("isAnyImportActiveSync : [" + nbActive + "]");
-                    myLog(db.importJobDao().getActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED).toString());
-                }
+        ImportJobDao dao = db.importJobDao();
+        int nbActive = dao.countActive();
+        if (nbActive > 0) {
+            myLogI("isAnyImportActiveSync : [" + nbActive + "]");
+            myLog(dao.getActive().toString());
+        }
         return nbActive > 0;
     }
+
 
     public static LiveData<Boolean> observeAnyImportActive(Context ctx) {
         AppDatabase db = AppDatabase.getInstance(ctx.getApplicationContext());
         return Transformations.map(
-                db.importJobDao().observeActiveCount(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED),
+                db.importJobDao().observeActiveCount(),
                 c -> c != null && c > 0
         );
     }
+
 
     public static void cleanUp(Context context, boolean deleteBook, String futureFolderPath) {
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
@@ -199,7 +187,7 @@ public class ImportHelper {
         //try { Pref.clearLoadBookTaskState(context); } catch (Exception e) { myLogEE(e, "cleanup - clearLoadBookTaskState (bg)"); }
 
         try { AppViewModelStoreOwner.clear(); } catch (Exception e) { myLogEE(e, "cleanup - clear AppViewModelStoreOwner"); }
-
+/*
         myLogI("Cleanup finished (bg), sending signal to UI (ShowUser=False in DB) in 3sec.");
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             try {
@@ -215,6 +203,8 @@ public class ImportHelper {
                 myLogEE(e, "showToUser set false ko");
             }
         }, 3000);
+
+ */
 
 
     }

@@ -12,6 +12,7 @@ import androidx.core.widget.NestedScrollView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
@@ -37,7 +38,7 @@ public class AddResourceActivity extends BaseBottomNavActivity {
     private Runnable delayedFinishRunnable;
 
     private OngoingTaskViewModel viewModel;   // keep reference
-    private boolean didClose = false;
+    private boolean didEnterExitMode = false;
 
     @Override protected int getNavId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_add_resource; }
@@ -79,15 +80,14 @@ public class AddResourceActivity extends BaseBottomNavActivity {
             tvWarning.setText(ui.warningText);
             warningScroll.post(() -> warningScroll.fullScroll(View.FOCUS_DOWN));
 
-            bPauseResume.setVisibility(ui.pauseAvailable ? View.VISIBLE : View.GONE);
+            bPauseResume.setVisibility(!didEnterExitMode && ui.pauseAvailable ? View.VISIBLE : View.GONE);
             if (ui.pauseAvailable) {
                 bPauseResume.setText(getString(ui.paused ? R.string.Resume : R.string.Pause));
             }
 
             // When no longer running (FAILED / SUCCEEDED / CANCELLED), close flow once
-            if (!didClose && ui.isFinished()) {
+            if (!didEnterExitMode && ui.isFinished()) {
                 myLog("observing UI state => closing [" + ui.title + "] - showToUser=[" + ui.showToUser + "]");
-                didClose = true;
                 // Defer to end-of-frame to avoid re-entrancy with other observers
                 getWindow().getDecorView().post(() -> checkAndClose(ui));
             }
@@ -109,42 +109,38 @@ public class AddResourceActivity extends BaseBottomNavActivity {
 
     private void performCancel() {
         myLogI("------ USER CLICKS btn CANCEL ----");
+        DownloadControl.sendCancel(this);
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
         enterExitMode();
     }
 
     private void checkAndClose(TaskUiState ui) {
-        myLog("checkAndClose(result=" + ui.result + ")");
+        myLog("checkAndClose(result=" + ui.status + ")");
 
         enterExitMode(); // buttons → Exit mode
 
         // Failure => keep activity visible until user exits (or you can auto-close later)
-        if (ui.result == TaskUiState.Result.FAILED) {
-            //myToast(getString(R.string.Import_failed));
+        if (Var.IMPORT_STATUS_FAILED.equals(ui.status)) {
             return;
         }
 
         // Finished with meaningful warnings => short display then close
         boolean hasWarn = ui.warningText != null && !ui.warningText.trim().isEmpty();
-        if (hasWarn && ui.result != TaskUiState.Result.CANCELLED) {
+        if (hasWarn && !Var.IMPORT_STATUS_CANCELLED.equals(ui.status)) {
             bCancel.setText(getString(R.string.Exit));
-            ImportHelper.setShowToUser(this, true); // keep banner briefly
-            //myToast(getString(R.string.Import_finished_with_errors));
             scheduleFinish(DELAY_END_WAIT_WARNINGS);
             return;
         }
 
-        // Success or Cancelled:
-        if (ui.result == TaskUiState.Result.SUCCEEDED) {
-            //myToast(getString(R.string.Import_Success) + "\n" + tvTitle.getText());
-        } else if (ui.result == TaskUiState.Result.CANCELLED) {
+        // Cancelled:
+        if (Var.IMPORT_STATUS_CANCELLED.equals(ui.status)) {
             ImportHelper.setShowToUser(this, false);
             scheduleFinish(0);
             return;
         }
-        // Briefly show, then hide banner + return to Main (ask scroll)
-        ImportHelper.setShowToUser(this, true);
+
+        // Other Cases (should only be SUCCESS) Briefly show, then hide banner + return to Main (ask scroll)
         scheduleFinish(DELAY_END_WAIT_NO_ERROR);
     }
 
@@ -164,6 +160,7 @@ public class AddResourceActivity extends BaseBottomNavActivity {
 
     private void enterExitMode() {
         myLog("enterExitMode");
+        didEnterExitMode = true;
         bPauseResume.setVisibility(View.GONE);
         bCancel.setText(getString(R.string.Exit));
         bCancel.setOnClickListener(v -> {

@@ -15,6 +15,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
@@ -84,8 +85,8 @@ public class OngoingTaskFragment extends LoggingFragment {
             progressBar.setProgress(ui.progressPercent);
 
             boolean hasWarnings = ui.warningText != null && !ui.warningText.trim().isEmpty();
-            boolean finishedSuccess = ui.result == TaskUiState.Result.SUCCEEDED;
-            boolean finishedFailed  = ui.result == TaskUiState.Result.FAILED;
+            boolean finishedSuccess = Var.IMPORT_STATUS_SUCCEEDED.equals(ui.status);
+            boolean finishedFailed  = Var.IMPORT_STATUS_FAILED.equals(ui.status);
             if (ui.showToUser) {
                 tvProgressText.setTextColor(
                         com.google.android.material.color.MaterialColors.getColor(tvProgressText,

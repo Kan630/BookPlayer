@@ -158,9 +158,9 @@ public class BookLoadingWorkLauncher {
 
             j.addToExistingFolderId = s.addToExistingFolderId;
 
-            j.status = ImportJob.S_RUNNING; //.S_QUEUED;
+            j.status = Var.IMPORT_STATUS_RUNNING; //_QUEUED;
             j.createdAt = j.updatedAt = System.currentTimeMillis();
-            j.showToUser = true;
+            //j.showToUser = true;
 
             Data common = new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build();
             List<OneTimeWorkRequest> steps = new ArrayList<>();

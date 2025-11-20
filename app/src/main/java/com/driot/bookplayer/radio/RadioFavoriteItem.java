@@ -16,6 +16,12 @@ public class RadioFavoriteItem implements Serializable {
     @SerializedName("language")    public String language;
     @SerializedName("tags")        public String tags;
     @SerializedName("last_url")    public String last_url;
+    @SerializedName("url")         public String url;           // original (may redirect)
+    @SerializedName("url_resolved")public String url_resolved;  // best direct URL known
+    @SerializedName("hls")         public int hls;              // 1 if HLS
+    @SerializedName("countrycode") public String countrycode;
+    @SerializedName("clickcount")  public int clickcount;
+    @SerializedName("lastcheckok") public int lastcheckok;      // 1 if last check OK
 
     public static RadioFavoriteItem fromStation(@NonNull Station s) {
         RadioFavoriteItem f = new RadioFavoriteItem();
@@ -27,6 +33,12 @@ public class RadioFavoriteItem implements Serializable {
         f.country     = s.country;
         f.language    = s.language;
         f.tags        = s.tags;
+        f.countrycode = s.countrycode;
+        f.clickcount  = s.clickcount;
+        f.lastcheckok = s.lastcheckok;
+        f.url         = s.url;
+        f.url_resolved= s.url_resolved;
+
         f.last_url    = (s.url_resolved != null && !s.url_resolved.isEmpty()) ? s.url_resolved : s.url;
         return f;
     }

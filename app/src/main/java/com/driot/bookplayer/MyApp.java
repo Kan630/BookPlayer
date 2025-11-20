@@ -84,8 +84,6 @@ public class MyApp extends Application {
         }
         myLog("Proxy setup: openWith=" + openWithEnabled + " / all=" + openWithEnabledAll);
 
-        ImportHelper.checkImportJobsAtStartUp(getApplicationContext());
-
         MediaControllerHolder.ensureConnected(getApplicationContext());
 
     }

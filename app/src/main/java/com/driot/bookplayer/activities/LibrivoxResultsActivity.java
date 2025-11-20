@@ -32,7 +32,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
-public class LibrivoxResultsActivity extends LoggingActivity {
+public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
     RecyclerView recyclerView;
     LibrivoxResultRVAdapter adapter;
@@ -43,13 +43,16 @@ public class LibrivoxResultsActivity extends LoggingActivity {
 
     private LibrivoxResultsViewModel viewModel; // ✅ ADDED
 
+    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getLayoutResId() { return R.layout.activity_librivox_results; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_librivox_results);
-
-        InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
-        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
+        //InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
+        //InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
+        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);

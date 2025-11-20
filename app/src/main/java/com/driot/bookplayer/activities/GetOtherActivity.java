@@ -84,10 +84,10 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                                 String importId = "mass_import_" + UUID.randomUUID();
                                 ImportJob j = new ImportJob();
                                 j.importId = importId;
-                                j.status = ImportJob.S_RUNNING;
+                                j.status = Var.IMPORT_STATUS_RUNNING;
                                 j.createdAt = j.updatedAt = System.currentTimeMillis();
                                 j.sourceLocation = Var.WORKER_MASS_IMPORT;
-                                j.showToUser = true;
+                                //j.showToUser = true;
                                 j.title = getString(R.string.Mass_Import);
                                 ImportJobRepository repo = new ImportJobRepository(this.getApplicationContext());
                                 repo.upsert(j);

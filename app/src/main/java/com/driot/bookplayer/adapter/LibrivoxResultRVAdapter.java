@@ -111,19 +111,26 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             h.tvSearch.setText(headerSearch);
             h.tvLang.setText(headerLang);
             h.tvCount.setText(headerCount);
-            // If you still want the overlay badge here, attach into this container
-            // from the Activity AFTER setting the adapter.
         } else {
 
             int idx = position - 1;
             LibrivoxItem item = items.get(idx);
             ItemVH holder = (ItemVH) vh;
-            Context context = holder.image.getContext();
+
+            // View context (for resources, colors, etc.)
+            Context viewContext = holder.image.getContext();
+            // Application context (for Glide / background work, not tied to Activity lifecycle)
+            Context appContext = viewContext.getApplicationContext();
 
             holder.title.setText(item.title);
             holder.info.setText(extractYear(item.date));
-            if (item.num_reviews>0) {
-                String ratingText = item.num_reviews + " " + vh.itemView.getContext().getString(R.string.reviews) + " - " + vh.itemView.getContext().getString(R.string.average_rating) + " : " + item.avg_rating;
+
+            if (item.num_reviews > 0) {
+                String ratingText = item.num_reviews + " " +
+                        vh.itemView.getContext().getString(R.string.reviews) +
+                        " - " +
+                        vh.itemView.getContext().getString(R.string.average_rating) +
+                        " : " + item.avg_rating;
                 holder.rating.setText(ratingText);
                 holder.ratingBar.setRating(item.avg_rating);
                 holder.rating.setVisibility(View.VISIBLE);
@@ -135,14 +142,15 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
 
-
             // 🏷️ Tag the imageView with the identifier to prevent race conditions
             holder.image.setTag(item.identifier);
 
-            File imageFile = ImageHelper.getLibrivoxImageFile(context, item.identifier);
+            // Use appContext so we are not tied to a destroyed Activity
+            File imageFile = ImageHelper.getLibrivoxImageFile(appContext, item.identifier);
 
             if (imageFile.exists()) {
-                Glide.with(context)
+                // ✅ No Activity lifecycle issue here
+                Glide.with(appContext)
                         .load(imageFile)
                         .placeholder(R.drawable.placeholder_cover)
                         .into(holder.image);
@@ -153,20 +161,24 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 // 🚀 Run actual download in background
                 new Thread(() -> {
                     String imageUrl = "https://archive.org/services/img/" + item.identifier;
-                    String localPath = ImageHelper.getOrDownloadLibrivoxImage(context, item.identifier, imageUrl, false);
+                    String localPath = ImageHelper.getOrDownloadLibrivoxImage(
+                            appContext,
+                            item.identifier,
+                            imageUrl,
+                            false
+                    );
 
                     if (localPath != null) {
-                        ((android.app.Activity) context).runOnUiThread(() -> {
+                        // Use the View to go back to the UI thread, not Activity.runOnUiThread
+                        holder.image.post(() -> {
                             Object tag = holder.image.getTag();
                             if (tag instanceof String && tag.equals(item.identifier)) {
                                 try {
-                                    holder.image.post(() -> {
-                                        Glide.with(holder.image)
-                                                .load(new File(localPath))
-                                                .placeholder(R.drawable.placeholder_cover)
-                                                .error(R.drawable.placeholder_cover)
-                                                .into(holder.image);
-                                    });
+                                    Glide.with(appContext)
+                                            .load(new File(localPath))
+                                            .placeholder(R.drawable.placeholder_cover)
+                                            .error(R.drawable.placeholder_cover)
+                                            .into(holder.image);
                                 } catch (Exception e) {
                                     myLogEE(e, "glide error...");
                                 }
@@ -176,19 +188,19 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 }).start();
             }
 
-            int tint = ContextCompat.getColor(context, item.is_favorite ? R.color.red : android.R.color.white);
+            int tint = ContextCompat.getColor(
+                    viewContext,
+                    item.is_favorite ? R.color.red : android.R.color.white
+            );
             holder.ibFavorite.setColorFilter(tint);
             holder.ibFavorite.setOnClickListener(v -> {
                 int p = holder.getBindingAdapterPosition();
                 if (p == RecyclerView.NO_POSITION) return;
-                listener.onFavoriteClick(item);  // delegate to VM
+                listener.onFavoriteClick(item);
             });
+
             ImageView ivImported = holder.itemView.findViewById(R.id.ivImported);
-            if (item.isImported()) {
-                ivImported.setVisibility(View.VISIBLE);
-            } else {
-                ivImported.setVisibility(View.GONE);
-            }
+            ivImported.setVisibility(item.isImported() ? View.VISIBLE : View.GONE);
         }
     }
 

@@ -5,6 +5,8 @@ import androidx.room.Entity;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.driot.bookplayer.global.Var;
+
 import java.util.Objects;
 
 @Entity(
@@ -71,7 +73,7 @@ public class ImportJob {
     public int addToExistingFolderId;
 
     // --- Control / lifecycle ---
-    public String status;// QUEUED/RUNNING/SUCCEEDED/FAILED/CANCELLED/PAUSED
+    public String status = Var.IMPORT_STATUS_QUEUED;
     public boolean showToUser;
     public long createdAt;
     public long updatedAt;
@@ -79,15 +81,17 @@ public class ImportJob {
     public String errorTextDev;
     public String errorTextUser;
 
+    public boolean isFinished() {
+        return Var.IMPORT_STATUS_SUCCEEDED.equals(status)
+                || Var.IMPORT_STATUS_FAILED.equals(status)
+                || Var.IMPORT_STATUS_CANCELLED.equals(status);
+    }
 
-    public static final String S_QUEUED    = "QUEUED";
-    public static final String S_RUNNING   = "RUNNING";
-    public static final String S_SUCCEEDED = "SUCCEEDED";
-    public static final String S_FAILED    = "FAILED";
-    public static final String S_CANCELLED = "CANCELLED";
-    public static final String S_PAUSED    = "PAUSED";
-
-    public boolean isFinished() { return Objects.equals(status, S_SUCCEEDED) || Objects.equals(status, S_FAILED) || Objects.equals(status, S_CANCELLED); }
+    public boolean isRunningLike() {
+        return Var.IMPORT_STATUS_RUNNING.equals(status)
+                || Var.IMPORT_STATUS_QUEUED.equals(status)
+                || Var.IMPORT_STATUS_PAUSED.equals(status);
+    }
 
     @Override
     public String toString() {

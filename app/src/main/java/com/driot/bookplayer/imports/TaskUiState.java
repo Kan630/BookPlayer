@@ -9,9 +9,7 @@ import java.util.Objects;
 
 public final class TaskUiState {
 
-    public enum Result { IDLE, RUNNING, PAUSED, QUEUED, SUCCEEDED, FAILED, CANCELLED }
-
-    @NonNull public final Result result;
+    @NonNull public final String status;
     public final boolean showToUser;
     public final boolean pauseAvailable;
     public final boolean paused;
@@ -28,7 +26,7 @@ public final class TaskUiState {
     @Nullable public final String currentOperation;
     public final boolean doDownload;
 
-    private TaskUiState(@NonNull Result result,
+    private TaskUiState(@NonNull String status,
                         boolean showToUser,
                         boolean pauseAvailable,
                         boolean paused,
@@ -43,7 +41,7 @@ public final class TaskUiState {
                         @Nullable String currentOperation,
                         boolean doDownload
     ) {
-        this.result = result;
+        this.status = status;
         this.showToUser = showToUser;
         this.pauseAvailable = pauseAvailable;
         this.paused = paused;
@@ -60,48 +58,43 @@ public final class TaskUiState {
     }
 
     public static TaskUiState idle() {
-        return new TaskUiState(Result.IDLE, false, false, false, "", "", 0, null, null, null, null, null, false);
+        return new TaskUiState(Var.IMPORT_STATUS_IDLE, false, false, false, "", "", 0, null, null, null, null, null, false);
     }
 
     public static TaskUiState from(@NonNull ImportJob j) {
-        Result r;
-        switch (j.status) {
-            case ImportJob.S_RUNNING:   r = Result.RUNNING; break;
-            case ImportJob.S_PAUSED:    r = Result.PAUSED;  break;
-            case ImportJob.S_QUEUED:    r = Result.QUEUED;  break;
-            case ImportJob.S_SUCCEEDED: r = Result.SUCCEEDED; break;
-            case ImportJob.S_FAILED:    r = Result.FAILED;    break;
-            case ImportJob.S_CANCELLED: r = Result.CANCELLED; break;
-            default:                    r = Result.IDLE;
-        }
 
-        String title = j.title != null ? j.title : "";
+        String status = j.status;
+        boolean finished =
+                Var.IMPORT_STATUS_SUCCEEDED.equals(status) ||
+                        Var.IMPORT_STATUS_FAILED.equals(status) ||
+                        Var.IMPORT_STATUS_CANCELLED.equals(status);
+
+        boolean pauseAvail =
+                (Var.IMPORT_STATUS_RUNNING.equals(status) ||
+                        Var.IMPORT_STATUS_PAUSED.equals(status))
+                        && j.isPauseAvailable
+                        && Var.WORKER_TASK_LABEL_DOWNLOAD.equals(j.currentOperation);
+
+        boolean showToUser = j.showToUser || !finished;
+
         String pText = j.progressText != null ? j.progressText
                 : (j.currentOperation != null ? j.currentOperation : "");
-        int pct = Math.max(0, Math.min(100, j.progressPercent));
 
-        String err = (r == Result.FAILED)
-                ? (j.errorTextUser != null && !j.errorTextUser.isEmpty() ? j.errorTextUser : j.errorTextDev)
+        String err = Var.IMPORT_STATUS_FAILED.equals(status)
+                ? ((j.errorTextUser != null && !j.errorTextUser.isEmpty())
+                ? j.errorTextUser : j.errorTextDev)
                 : null;
 
-        final boolean pauseAvailNow =
-                (r == Result.RUNNING || r == Result.PAUSED)           // chain is alive
-                        && j.isPauseAvailable                                 // DB says download step is active
-                        && Var.WORKER_TASK_LABEL_DOWNLOAD.equals(j.currentOperation);   // we are actually in the download step
-
-        final boolean finished = (r == Result.SUCCEEDED || r == Result.FAILED || r == Result.CANCELLED);
-
         return new TaskUiState(
-                r,
-                j.showToUser,              // DB is authority
-                finished ? false : pauseAvailNow,
-                finished ? false : j.isLoadingPaused,
-                title,
+                status,
+                showToUser,
+                !finished && pauseAvail,
+                !finished && j.isLoadingPaused,
+                j.title != null ? j.title : "",
                 pText,
-                pct,
+                Math.max(0, Math.min(100, j.progressPercent)),
                 j.warningText,
                 err,
-                //tech
                 j.fileExtension,
                 j.originalUri,
                 j.currentOperation,
@@ -109,25 +102,32 @@ public final class TaskUiState {
         );
     }
 
-    // helpful booleans
-    public boolean isFinished() { return result == Result.SUCCEEDED || result == Result.FAILED || result == Result.CANCELLED; }
-    public boolean isRunningLike() { return result == Result.RUNNING || result == Result.QUEUED || result == Result.PAUSED; }
+    public boolean isFinished() {
+        return Var.IMPORT_STATUS_SUCCEEDED.equals(status)
+                || Var.IMPORT_STATUS_FAILED.equals(status)
+                || Var.IMPORT_STATUS_CANCELLED.equals(status);
+    }
+
+    public boolean isRunningLike() {
+        return Var.IMPORT_STATUS_RUNNING.equals(status)
+                || Var.IMPORT_STATUS_QUEUED.equals(status)
+                || Var.IMPORT_STATUS_PAUSED.equals(status);
+    }
 
     @Override public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof TaskUiState)) return false;
-        TaskUiState that = (TaskUiState) o;
+        if (!(o instanceof TaskUiState that)) return false;
         return showToUser == that.showToUser &&
                 pauseAvailable == that.pauseAvailable &&
                 paused == that.paused &&
                 progressPercent == that.progressPercent &&
-                result == that.result &&
+                status.equals(that.status) &&
                 title.equals(that.title) &&
                 progressText.equals(that.progressText) &&
                 Objects.equals(warningText, that.warningText) &&
                 Objects.equals(errorText, that.errorText);
     }
     @Override public int hashCode() {
-        return Objects.hash(result, showToUser, pauseAvailable, paused, title, progressText, progressPercent, warningText, errorText);
+        return Objects.hash(status, showToUser, pauseAvailable, paused, title, progressText, progressPercent, warningText, errorText);
     }
 }
