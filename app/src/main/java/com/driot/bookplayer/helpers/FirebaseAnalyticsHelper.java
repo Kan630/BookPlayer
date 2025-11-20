@@ -5,15 +5,21 @@ import android.os.Bundle;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 public final class FirebaseAnalyticsHelper {
+
+    private static final int MAX_FA_PARAM = 100;
+
     private static Context appContext;
+    private static String appVersion;
 
     public static void init(Context context) {
+        appVersion = BuildConfig.VERSION_NAME;
         appContext = context.getApplicationContext();
     }
 
@@ -49,6 +55,17 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent( playMode + "_for_1min", bundle);
         bundle.putString("play_mode", String.valueOf(playMode));
         logBundleEvent("play_for_1min", bundle);
+    }
+
+    public static void tellDbKo(String err_type, int nbFatalError, int nbInvalid, int nbZikFiles, int nbRewritten, int nbStillBad, String masterMsg) {
+        Bundle bundle = new Bundle();
+        bundle.putString("err_type", String.valueOf(err_type));
+        bundle.putString("ei_invalid", nbInvalid + "/" + nbZikFiles);
+        bundle.putString("ei_fatal", nbFatalError + "/" + nbZikFiles);
+        bundle.putString("ei_rewritten_inv", nbRewritten + "/" + nbInvalid + "/" + nbZikFiles);
+        bundle.putString("ei_still_bad_inv", nbStillBad + "/" + nbInvalid + "/" + nbZikFiles);
+        bundle.putString("err_master_msg", trimFA(String.valueOf(masterMsg)));
+        logBundleEvent( "db_ko_" + err_type, bundle);
     }
 
     // IMPORT JOB
@@ -256,10 +273,16 @@ public final class FirebaseAnalyticsHelper {
         try {
             myLogD("Analytics logging - " + logName + " - " + bundle.toString());
             FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
+            bundle.putString("app_version", appVersion);
             firebaseAnalytics.logEvent(logName, bundle);
         } catch (Exception e) {
             myLogEE(e, "Analytics logging - " + logName);
         }
     }
 
+    static String trimFA(String s) {
+        if (s == null) return null;
+        if (s.length() <= MAX_FA_PARAM) return s;
+        return s.substring(0, MAX_FA_PARAM - 1) + "…";
+    }
 }

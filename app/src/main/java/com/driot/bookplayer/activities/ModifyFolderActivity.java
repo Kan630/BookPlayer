@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.content.ActivityNotFoundException;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +11,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
@@ -26,12 +28,15 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
@@ -39,6 +44,7 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
+import java.util.List;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
@@ -49,6 +55,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     private View blockingOverlay;
     private Button bDelete, bReset, bExport;
     private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch;
+    private LinearLayout ll_zikfile_resolve_error;
 
     EditText etIntroCut;
     EditText etRename;
@@ -71,6 +78,9 @@ public class ModifyFolderActivity extends LoggingActivity {
         bGenerateCover = findViewById(R.id.bGenerateCover);
         bChangeCover = findViewById(R.id.bChangeCover);
         bWebSearch = findViewById(R.id.bWebSearch);
+        ll_zikfile_resolve_error = findViewById(R.id.ll_zikfile_resolve_error);
+
+        ll_zikfile_resolve_error.setVisibility(View.GONE);
 
         TextView tvTitle = findViewById(R.id.title);
         TextView tvInfo = findViewById(R.id.tvInfo);
@@ -117,6 +127,53 @@ public class ModifyFolderActivity extends LoggingActivity {
         ivStorageIcon.setOnClickListener(view -> {
             myLogI("user clicks - storage icon");
             openFolderInFileExplorer(folder.getUri());
+        });
+
+        // CHECK zikFiles are readable
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            Context context = getApplicationContext();
+            String path;
+            String masterMsg = "";
+            Uri src;
+            int i = 0;
+            int nbKO = 0;
+            List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
+            final int nbZikFiles = list.size();
+            for (ZikFile zikFile : list) {
+                i = i + 1;
+                path = zikFile.getPath();
+                String pathType = (path.startsWith("content://") ? "[CONTENT] " : "");
+                String logStrPrefix = getString(R.string.track) + " " + i + "/" + nbZikFiles + " : [" + zikFile.getDisplayName() + "]";
+                src = UriHelper.resolveUriFromPath(context, path);
+                if (src == null) {
+                    nbKO = nbKO + 1;
+                    String errMessage = ErrorUi.getErrorMessage(context, path);
+                    String fullError = logStrPrefix
+                            + "\n" + errMessage
+                            + "\npath = [" + pathType + path + "]";
+                    masterMsg = masterMsg + "\n\n" + fullError;
+                }
+            }
+            final String finalMasterMsg = masterMsg;
+            final int finalNbKO = nbKO;
+            if (nbKO > 0) {
+                runOnUiThread(() -> {
+                    String errMsg="";
+                    if (finalNbKO==nbZikFiles) {
+                        errMsg = getString(R.string.All_zikFiles_not_readable) + "\n\n" + finalMasterMsg;
+                    } else {
+                        errMsg = finalNbKO + "/" + nbZikFiles + " " + getString(R.string.zikFiles_not_readable) + "\n\n" + finalMasterMsg;
+                    }
+                    TextView tv_zikfile_resolve_error = findViewById(R.id.tv_zikfile_resolve_error);
+                    tv_zikfile_resolve_error.setText(errMsg);
+                    ll_zikfile_resolve_error.setVisibility(View.VISIBLE);
+                });
+                //TODO next
+                //propose to pick the folder where those tracks may be
+                //then update the paths in Folder and ZikFile
+                //then recreate activity
+
+            }
         });
 
         String percentDone = folder.getPercentdone()>0 ? "  .  " + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened) : "";

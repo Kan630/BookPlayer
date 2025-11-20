@@ -34,6 +34,11 @@
               <option name="versions">
                 <list>
                   <VersionSetting>
+                    <option name="buildVersion" value="200" />
+                    <option name="displayName" value="200 - Placid Beaver (200)" />
+                    <option name="displayVersion" value="200 - Placid Beaver" />
+                  </VersionSetting>
+                  <VersionSetting>
                     <option name="buildVersion" value="199" />
                     <option name="displayName" value="199 - Placid Beaver (199)" />
                     <option name="displayVersion" value="199 - Placid Beaver" />

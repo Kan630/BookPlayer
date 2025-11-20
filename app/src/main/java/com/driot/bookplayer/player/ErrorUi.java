@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.provider.Settings;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
@@ -75,8 +76,8 @@ public class ErrorUi {
 
             if (!exists) {
                 if (StorageHelper.isInInternalMemory(zikFilePath)) {
-                    myLogW("should not happen");
-                    errMessage = context.getString(R.string.source_not_found) + "\n- this should not happen -";
+                    myLogW(Var.SHOULD_NOT_HAPPEN);
+                    errMessage = context.getString(R.string.source_not_found) + "\n- this " + Var.SHOULD_NOT_HAPPEN + " -";
                 } else {
                     errMessage = context.getString(R.string.source_not_found_deleted);
                 }
@@ -84,8 +85,8 @@ public class ErrorUi {
                 if (!isReadAudioPermissionGranted(context)) {
                     errMessage = context.getString(R.string.permission_not_set);
                 } else {
-                    myLogW("should not happen");
-                    errMessage = context.getString(R.string.source_not_found) + "\n- this should not happen -";
+                    myLogW(Var.SHOULD_NOT_HAPPEN);
+                    errMessage = context.getString(R.string.source_not_found) + "\n- this " + Var.SHOULD_NOT_HAPPEN + " -";
                 }
             }
         return errMessage;

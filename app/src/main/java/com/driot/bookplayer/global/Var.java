@@ -18,6 +18,8 @@ public class Var {
     public static final String IMPORT_STATUS_FAILED    = "FAILED";
     public static final String IMPORT_STATUS_CANCELLED = "CANCELLED";
 
+    public static final String SHOULD_NOT_HAPPEN = "should not happen";
+
     public static final String WORKER_TASK_LABEL_DOWNLOAD = "Download";
     public static final String WORKER_TASK_LABEL_DECOMPRESS = "Decompress";
     public static final String WORKER_TASK_LABEL_SPLIT_M4B = "SplitM4b";

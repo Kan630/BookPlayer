@@ -10,13 +10,9 @@ import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.os.Parcel;
-import android.util.Base64;
 
 import androidx.annotation.Nullable;
 
-import com.driot.bookplayer.objects.LoadBookTaskState;
-import com.driot.bookplayer.objects.MyAudioMetadata;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -25,25 +21,26 @@ public class Pref {
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
     private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
-
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
-
-    private static final String SHARED_PREFERENCES_DOWNLOAD = "SHARED_PREFERENCES_DOWNLOAD";
-    private static final String KEY_LOAD_BOOK_TASK_STATE = "loadBookTaskState";
+    private static final String SHARED_PREFERENCE_TIMESTAMP = "SHARED_PREFERENCE_TIMESTAMP";
 
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
     private static android.content.SharedPreferences stats;
+    private static android.content.SharedPreferences timeStamp;
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         PrefMigration.run(appContext);
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
         stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
+        timeStamp = appContext.getSharedPreferences(SHARED_PREFERENCE_TIMESTAMP, MODE_PRIVATE);
         if (getFirstOpenTimeStamp()==0) setFirstOpen();
     }
 
+    public static long getLastDbClean() {return timeStamp.getLong("DB_CLEAN", 0);}
+    public static void setLastDbClean() {timeStamp.edit().putLong("DB_CLEAN", System.currentTimeMillis()).apply();}
 
 
     /////////////////// HAS BEEN PAUSED FOR  ///////////////////

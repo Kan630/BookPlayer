@@ -193,6 +193,9 @@ public class NetworkStatusRowController {
     private void applyToViews() {
         if (root == null) return;
 
+        // Hide row when online, show only when offline
+        root.setVisibility(hasInternet ? View.GONE : View.VISIBLE);
+
         if (ivDot != null) {
             ivDot.setImageResource(
                     hasInternet ? R.drawable.ic_dot_green : R.drawable.ic_dot_red
