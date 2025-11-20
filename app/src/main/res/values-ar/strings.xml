@@ -1093,5 +1093,31 @@
     <string name="load_one_book">تحميل كتاب</string>
     <string name="load_multiple_book">تحميل كتب</string>
 
+    <string name="reset_track_order">إعادة ترتيب المقاطع</string>
+    <string name="tracks_order_has_been_reset">تمت إعادة ترتيب المقاطع</string>
+    <string name="add_new_tracks">إضافة مقاطع جديدة</string>
+    <string name="APPEND_MODE">وضع الإلحاق</string>
+
+    <string name="m4b_error_non_standard_chapter_format">"""
+                        يستخدم ملف M4B هذا تنسيق فصول غير قياسي.
+                        يمكن لـBookPlayer تقسيم ملفات M4B التي تحتوي على فصول نصية مضمنة فقط.
+
+                        حالياً، سيقوم BookPlayer باستيراد ملف الـM4B الأصلي كملف صوتي واحد."""</string>
+    <string name="m4b_error_will_import_as_single_file">سيقوم BookPlayer باستيراد ملف الـM4B الأصلي كملف صوتي واحد.</string>
+    <string name="m4b_error_too_large_or_incompatible_structure">"""
+                        ملف M4B هذا كبير جداً أو يستخدم بنية غير متوافقة
+                        مع نظام الذاكرة في أندرويد.
+
+                        يدعم BookPlayer حالياً ملفات M4B القياسية فقط.
+
+                        نصائح:
+                        - حاول تحويل ملف M4B باستخدام أداة خارجية (ffmpeg، mp4box...),
+                        - أو قم بتقسيمه على الكمبيوتر ثم استيراد الفصول بشكل منفصل.
+
+                        حالياً، سيقوم BookPlayer باستيراد ملف الـM4B الأصلي كملف صوتي واحد."""</string>
+
+    <string name="destination">الوجهة</string>
+    <string name="play_mode">وضع التشغيل</string>
+    <string name="count">العدد</string>
 
 </resources>

@@ -1095,4 +1095,29 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="load_one_book">加载 1 本</string>
     <string name="load_multiple_book">加载多本</string>
 
+    <string name="reset_track_order">重置曲目顺序</string>
+    <string name="tracks_order_has_been_reset">曲目顺序已重置</string>
+    <string name="add_new_tracks">添加新曲目</string>
+    <string name="APPEND_MODE">追加模式</string>
+
+    <string name="m4b_error_non_standard_chapter_format">"""
+                        该 M4B 文件使用了非标准章节格式。
+                        BookPlayer 只能分割包含嵌入式文本章节的 M4B 文件。
+
+                        目前，BookPlayer 会将原始 M4B 作为单个音频文件导入。"""</string>
+    <string name="m4b_error_will_import_as_single_file">BookPlayer 会将原始 M4B 作为单个音频文件导入。</string>
+    <string name="m4b_error_too_large_or_incompatible_structure">"""
+                        该 M4B 文件过大，或其结构与 Android 内存系统不兼容。
+
+                        BookPlayer 当前仅支持标准的 M4B 文件。
+
+                        提示：
+                        - 请尝试使用外部工具（ffmpeg、mp4box...）转换该 M4B，
+                        - 或在电脑上拆分后分别导入章节。
+
+                        目前，BookPlayer 会将原始 M4B 作为单个音频文件导入。"""</string>
+
+    <string name="destination">目标位置</string>
+    <string name="play_mode">播放模式</string>
+    <string name="count">计数</string>
 </resources>

@@ -1094,6 +1094,33 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="load_one_book">charger 1 livre</string>
     <string name="load_multiple_book">charger plusieurs livres</string>
 
+    <string name="reset_track_order">réinitialiser l\'ordre des pistes</string>
+    <string name="tracks_order_has_been_reset">l\'ordre des pistes a été réinitialisé</string>
+    <string name="add_new_tracks">ajouter de nouvelles pistes</string>
+    <string name="APPEND_MODE">MODE AJOUT</string>
+
+    <string name="m4b_error_non_standard_chapter_format">"""
+                        Ce fichier M4B utilise un format de chapitres non standard.
+                        BookPlayer ne peut découper que les fichiers M4B qui possèdent des chapitres texte intégrés.
+
+                        Pour l\'instant, BookPlayer importera le M4B original comme un seul fichier audio."""</string>
+    <string name="m4b_error_will_import_as_single_file">BookPlayer importera le M4B original comme un seul fichier audio.</string>
+    <string name="m4b_error_too_large_or_incompatible_structure">"""
+                        Ce fichier M4B est trop volumineux ou utilise une structure incompatible
+                        avec le système de mémoire d\'Android.
+
+                        BookPlayer prend actuellement en charge uniquement les fichiers M4B standards.
+
+                        Astuces :
+                        - Essayez de convertir le M4B avec un outil externe (ffmpeg, mp4box...),
+                        - Ou séparez-le sur un ordinateur et importez les chapitres individuellement.
+
+                        Pour l\'instant, BookPlayer importera le M4B original comme un seul fichier audio."""</string>
+
+    <string name="destination">destination</string>
+    <string name="play_mode">mode de lecture</string>
+    <string name="count">compteur</string>
+
 
 
 </resources>

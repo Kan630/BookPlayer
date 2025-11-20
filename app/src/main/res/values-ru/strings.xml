@@ -1100,5 +1100,31 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="load_one_book">загрузить 1</string>
         <string name="load_multiple_book">загрузить несколько</string>
 
+        <string name="reset_track_order">сбросить порядок треков</string>
+        <string name="tracks_order_has_been_reset">порядок треков сброшен</string>
+        <string name="add_new_tracks">добавить новые треки</string>
+        <string name="APPEND_MODE">РЕЖИМ ДОБ.</string>
+
+        <string name="m4b_error_non_standard_chapter_format">"""
+                        Этот файл M4B использует нестандартный формат глав.
+                        BookPlayer может разделять только те M4B, которые содержат встроенные текстовые главы.
+
+                        Сейчас BookPlayer импортирует оригинальный M4B как один аудиофайл."""</string>
+        <string name="m4b_error_will_import_as_single_file">BookPlayer импортирует оригинальный M4B как один аудиофайл.</string>
+        <string name="m4b_error_too_large_or_incompatible_structure">"""
+                        Этот файл M4B слишком большой или использует структуру,
+                        несовместимую с системой памяти Android.
+
+                        BookPlayer поддерживает только стандартные M4B-файлы.
+
+                        Советы:
+                        - Попробуйте конвертировать файл через внешние инструменты (ffmpeg, mp4box...),
+                        - Или разделите его на компьютере и импортируйте главы отдельно.
+
+                        Сейчас BookPlayer импортирует оригинальный M4B как один аудиофайл."""</string>
+
+        <string name="destination">папка</string>
+        <string name="play_mode">режим воспроизведения</string>
+        <string name="count">количество</string>
 
 </resources>
