@@ -40,7 +40,7 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
+        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerViewPodcast);
         progressBar = findViewById(R.id.progressBarPodcast);

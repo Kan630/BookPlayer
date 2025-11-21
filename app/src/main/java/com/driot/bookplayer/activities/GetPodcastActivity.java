@@ -36,7 +36,6 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //setContentView(R.layout.activity_get_podcast);
         InsetHelper.apply(this);
 
         editTextPodcast = findViewById(R.id.etPodcast);

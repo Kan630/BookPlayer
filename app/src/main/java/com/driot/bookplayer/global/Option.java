@@ -24,7 +24,7 @@ public class Option {
     public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;
     private static final boolean DEFAULT_UNZIP_LOCAL  = true;
     private static final boolean DEFAULT_COPY_ZIP_LOCAL  = true;
-    private static final boolean DEFAULT_SCREEN_ORIENTATION_LOCK  = true;
+    private static final boolean DEFAULT_SCREEN_ORIENTATION_LOCK  = false;
     private static final boolean DEFAULT_BEEP_CHAPTER = true;
     private static final boolean DEFAULT_BEEP_BOOKEND = true;
     private static final boolean DEFAULT_BEEP_AUTOSTOP = true;

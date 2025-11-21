@@ -44,10 +44,9 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetHelper.apply(this);
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewPodcast);
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
-        //InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.miniNowPlaying));
 
         View networkRow = findViewById(R.id.includeNetworkStatus);
         networkStatusController = new NetworkStatusRowController(this, networkRow);

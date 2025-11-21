@@ -198,7 +198,7 @@
                     android:id="@+id/etIntroCut"
                     style="@style/EditText"
                     android:layout_width="50dp"
-                    android:layout_height="30dp"
+                    android:layout_height="wrap_content"
                     android:padding="5dp"
                     android:inputType="number"
                     android:textSize="20sp" />

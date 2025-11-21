@@ -20,7 +20,7 @@ import android.widget.TextView;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -38,8 +38,8 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
@@ -94,12 +94,11 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetHelper.apply(this);
 
         if (Option.getScreenOrientationLock()) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
-
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
 
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
@@ -158,7 +157,12 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
             }
         });
 
-        recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
+        //recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
+        int span = getResources().getInteger(R.integer.classic_grid_span);
+        GridLayoutManager glm = new GridLayoutManager(this, span);
+        recyclerEpisodes.setLayoutManager(glm);
+        recyclerEpisodes.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
+
         adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel, this);
         recyclerEpisodes.setAdapter(adapter);
 

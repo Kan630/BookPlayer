@@ -233,6 +233,11 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 }
                 holder.icon_download.setOnClickListener(v -> {
                     myLogI("---- USER CLICKS - Downloading single episode -----  " + episode.title);
+                    boolean online = NetworkHelper.isConnected(this.context);
+                    if (!online) {
+                        myToast(this.context.getString(R.string.no_internet_connection));
+                        return;
+                    }
                     AppDatabase.databaseWriteExecutor.execute(() -> {
                         PodcastHelper.addPodcastToDB(this.context, podcastFeed);
                     });
