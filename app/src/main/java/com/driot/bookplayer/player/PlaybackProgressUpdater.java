@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.PlayTick;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.db.Sql;
@@ -61,6 +62,14 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
             } catch (Throwable t) {
                 myLogEE(t, "update exception");
             }
+            try {
+                PlayTick tick = new PlayTick(System.currentTimeMillis(), zf.getId(), pos);
+                AppDatabase db = AppDatabase.getDatabase(app);
+                db.playTickDao().insert(tick);
+            } catch (Exception e) {
+                myLogEE(e, "updatePlayTick");
+            }
+
         });
     }
     /** Temporarily suspend DB updates for a few milliseconds (e.g., after a seek). */

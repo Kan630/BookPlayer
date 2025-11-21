@@ -1202,4 +1202,8 @@
     <string name="zikFiles_not_readable">tracks have errors and are not playable:</string>
     <string name="All_zikFiles_not_readable">This Book is KO. No track can be read.</string>
 
+    <string name="Progress_Heatmap">Progress Heatmap</string>
+    <string name="option_progress_heatmap_subtitle">Progress bars for tracks will show exactly which parts have been listened to, and the color deepens the more a section has been played.</string>
+    <string name="option_progress_heatmap">show heat maps</string>
+
 </resources>

@@ -134,6 +134,7 @@
 
                 <View style="@style/myStyleViewSimpleHorizontalBar" />
                 <TextView
+                    android:id="@+id/tv_load_one_book"
                     style="@style/GetResourceTextTopOfButton"
                     android:layout_marginStart="20dp"
                     android:textSize="24dp"

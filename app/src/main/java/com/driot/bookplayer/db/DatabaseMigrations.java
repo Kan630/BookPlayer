@@ -289,8 +289,6 @@ public class DatabaseMigrations {
                             " `showToUser` INTEGER NOT NULL DEFAULT 0," +
 
                             " PRIMARY KEY(`importId`)" +
-
-
                             ")"
             );
 
@@ -308,6 +306,22 @@ public class DatabaseMigrations {
             myLogI("Migration -> executing step 16 => 17"); // 2025-11-19
 
             db.execSQL("ALTER TABLE ImportJob ADD COLUMN addToExistingFolderId INTEGER NOT NULL DEFAULT 0");
+        };
+    };
+
+    static final Migration MIGRATION_17_18 = new Migration(17, 18) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 17 => 18"); // 2025-11-21
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `PlayTick` (" +
+                            " `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            " `timestamp` INTEGER NOT NULL," +
+                            " `zikFileId` INTEGER NOT NULL," +
+                            " `position` INTEGER NOT NULL DEFAULT 0," +
+                            " FOREIGN KEY(zikFileId) REFERENCES ZikFile(id) ON DELETE CASCADE" +
+                            ")"
+            );
         };
     };
 

@@ -10,7 +10,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -30,6 +32,9 @@ public class DesignSettingsFragment extends LoggingFragment {
 
     private Spinner spFontFamily;
     private Button btnNightMode;
+
+    private CheckBox chk_progress_heatmap;
+    private LinearLayout ll_progress_heatmap;
 
     // local helper identical to your Activity’s inner class
     private static class FontChoice {
@@ -59,6 +64,14 @@ public class DesignSettingsFragment extends LoggingFragment {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
 
+        //HEAT MAPS
+        chk_progress_heatmap = root.findViewById(R.id.chk_progress_heatmap);
+        ll_progress_heatmap  = root.findViewById(R.id.ll_progress_heatmap);
+        chk_progress_heatmap.setChecked(Option.getProgressHeatMap());
+        ll_progress_heatmap.setOnClickListener(v -> chk_progress_heatmap.toggle());
+        chk_progress_heatmap.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setProgressHeatMap(isChecked));
+        
         // ===== Font family spinner =====
         spFontFamily = root.findViewById(R.id.sp_font_family);
 

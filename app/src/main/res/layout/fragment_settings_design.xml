@@ -147,5 +147,50 @@
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/new_"
+            android:textColor="@color/orange"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="100dp"
+            />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/beta_test"
+            android:textColor="@color/orange"
+            android:layout_gravity="end"
+            android:layout_marginTop="10dp"
+            android:layout_marginEnd="100dp"
+            />
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/Progress_Heatmap" />
+
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_progress_heatmap_subtitle"
+            android:layout_marginBottom="5dp" />
+
+        <LinearLayout
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:id="@+id/ll_progress_heatmap"
+            android:layout_marginTop="0dp">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_progress_heatmap"
+                style="@style/OptionCheckBox" />
+
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_progress_heatmap" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+
     </LinearLayout>
 </ScrollView>

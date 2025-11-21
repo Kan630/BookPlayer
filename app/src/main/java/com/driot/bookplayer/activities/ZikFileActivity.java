@@ -26,10 +26,8 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 
@@ -55,6 +53,9 @@ public class ZikFileActivity extends BaseBottomNavActivity {
     protected void onResume() {
         super.onResume();
         sendBroadcast(new Intent(Intents.ACTION_PING_UI));
+        if (adapter != null) {
+            adapter.refreshDisplayHeatMaps(); //useful if user change option in settings
+        }
     }
 
     @Override protected int getNavId() { return R.id.nav_library; }

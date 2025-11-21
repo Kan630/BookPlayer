@@ -67,19 +67,38 @@
             android:orientation="vertical"
             app:layout_constraintGuide_percent="0.75" />
 
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="@android:style/Widget.ProgressBar.Horizontal"
-            android:progress="20"
+        <FrameLayout
+            android:id="@+id/heatMapContainer"
             android:layout_width="0dp"
             android:layout_height="20dp"
             android:layout_marginTop="@dimen/recyclerview_elements_bottom"
             android:layout_marginLeft="@dimen/recyclerview_elements_sides"
             android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            android:progressDrawable="@drawable/progress_bar_theme"
             app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/guideline"/>
+            app:layout_constraintRight_toLeftOf="@+id/guideline">
+
+            <!-- Heatmap as background -->
+            <com.driot.bookplayer.views.PlayHeatMapView
+                android:id="@+id/heatMapView"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:heatmapColor="?attr/colorPrimary"
+                android:background="@drawable/progress_bar_theme"
+                />
+
+            <!-- Classic progress bar on top -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="@android:style/Widget.ProgressBar.Horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:progress="20"
+                android:progressDrawable="@drawable/progress_bar_theme"
+                />
+
+        </FrameLayout>
+
 
         <TextView
             android:id="@+id/textViewFilePercent"

@@ -21,4 +21,8 @@
         <attr name="scrollOnFocus" format="boolean" />
     </declare-styleable>
 
+    <declare-styleable name="PlayHeatMapView">
+        <attr name="heatmapColor" format="color" />
+    </declare-styleable>
+
 </resources>

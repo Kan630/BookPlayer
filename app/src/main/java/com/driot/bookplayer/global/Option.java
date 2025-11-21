@@ -73,6 +73,8 @@ public class Option {
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final boolean DEFAULT_RADIO_RENEW_URL = true;
+    public static final boolean DEFAULT_PROGRESS_HEAT_MAP = false;
+
 
 
     private static Context appContext;
@@ -133,6 +135,11 @@ public class Option {
 
  */
     }
+
+
+
+    public static boolean getProgressHeatMap() {return prefs.getBoolean("PROGRESS_HEAT_MAP", DEFAULT_PROGRESS_HEAT_MAP);}
+    public static void setProgressHeatMap(boolean bool) {prefs.edit().putBoolean("PROGRESS_HEAT_MAP",bool).apply();}
 
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////

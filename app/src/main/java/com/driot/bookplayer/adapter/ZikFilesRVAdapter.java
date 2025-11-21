@@ -24,6 +24,12 @@ import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
 
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.PlayTickDao;
+import com.driot.bookplayer.helpers.PlayTickHeatMapHelper;
+import com.driot.bookplayer.objects.PlayTickBucket;
+import com.driot.bookplayer.views.PlayHeatMapView;
+
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
 
@@ -33,6 +39,8 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
     private final OnStartDragListener dragStart;
     private final boolean activateReOrder;
+    private boolean displayHeatMaps = Option.getProgressHeatMap();
+
 
     public ZikFilesRVAdapter(@NonNull LifecycleOwner owner,
                              @NonNull LiveData<PlaybackUiState> playbackState,
@@ -139,6 +147,14 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 case "progress":
                     h.textViewFilePercent.setText(Tonio.formatPercentString(t.getPercentdone()));
                     h.mProgressBar.setProgress(Tonio.formatPercentForProgressBar(t.getPercentdone()));
+                    if (displayHeatMaps) {
+                        h.updateHeatMap(t);
+                        h.mProgressBar.setVisibility(View.GONE);
+                        h.heatMapView.setVisibility(View.VISIBLE);
+                    } else {
+                        h.mProgressBar.setVisibility(View.VISIBLE);
+                        h.heatMapView.setVisibility(View.GONE);
+                    }
                     return;
                 case "lastAccess":
                     h.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
@@ -172,6 +188,15 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
 
         holder.itemView.setActivated(t.getId() == highlightedTrackId);
+
+        if (displayHeatMaps) {
+            holder.updateHeatMap(t);
+            holder.mProgressBar.setVisibility(View.GONE);
+            holder.heatMapView.setVisibility(View.VISIBLE);
+        } else {
+            holder.mProgressBar.setVisibility(View.VISIBLE);
+            holder.heatMapView.setVisibility(View.GONE);
+        }
     }
 
     class ZikFilesViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener, View.OnLongClickListener {
@@ -179,6 +204,45 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         TextView textViewFileName, textViewFileLastAccess, textViewFilePercent, textViewDuration;
         ProgressBar mProgressBar;
         TextView ibSort;
+        PlayHeatMapView heatMapView;
+
+        void updateHeatMap(ZikFile t) {
+            if (heatMapView == null) return;
+
+            final long zikFileId = t.getId();
+            final long durationMs = (long) t.getDuration() ;
+
+            if (durationMs <= 0) {
+                heatMapView.setIntensities(new float[0]);
+                return;
+            }
+
+            final Context appCtx = itemView.getContext().getApplicationContext();
+            final int nbBuckets = 400; // you can tune that later
+
+            AppDatabase.databaseReadExecutor.execute(() -> {
+                PlayTickDao dao = AppDatabase.getInstance(appCtx).playTickDao();
+                long bucketSizeMs = Math.max(1L, durationMs / nbBuckets);
+
+                java.util.List<PlayTickBucket> buckets =
+                        dao.getBucketCounts(zikFileId, bucketSizeMs);
+
+                final float[] intensities =
+                        PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
+
+                // Come back on UI thread and check that this ViewHolder still represents the same item
+                itemView.post(() -> {
+                    int pos = getBindingAdapterPosition();
+                    if (pos == RecyclerView.NO_POSITION) return;
+
+                    ZikFile current = ZikFilesRVAdapter.this.getItem(pos);
+                    if (current == null || current.getId() != zikFileId) return;
+
+                    heatMapView.setIntensities(intensities);
+                });
+            });
+        }
+
 
         ZikFilesViewHolder(View itemView) {
             super(itemView);
@@ -187,6 +251,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             textViewFileLastAccess = itemView.findViewById(R.id.textViewFileLastAccess);
             textViewDuration = itemView.findViewById(R.id.textViewDuration);
             mProgressBar = itemView.findViewById(R.id.progressBar);
+            heatMapView = itemView.findViewById(R.id.heatMapView);
             ibSort = itemView.findViewById(R.id.ib_drag_sort);
             if (ibSort != null) {
                 if (activateReOrder) {
@@ -242,4 +307,12 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         }
         return -1;
     }
+
+    public void refreshDisplayHeatMaps() {
+        boolean newValue = Option.getProgressHeatMap();
+        if (newValue == displayHeatMaps) return; // nothing to do
+        displayHeatMaps = newValue;
+        notifyDataSetChanged(); // rebind all rows so visibility + heatmaps update
+    }
+
 }

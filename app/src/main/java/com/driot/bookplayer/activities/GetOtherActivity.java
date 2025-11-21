@@ -286,6 +286,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         } else {
             findViewById(R.id.ll_append_mode).setVisibility(View.VISIBLE);
             findViewById(R.id.ll_massive_import).setVisibility(View.GONE);
+            findViewById(R.id.tv_load_one_book).setVisibility(View.GONE);
         }
 
 

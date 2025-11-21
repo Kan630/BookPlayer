@@ -21,11 +21,12 @@ import java.util.concurrent.Executors;
         ,BookSource.class
         ,Episode.class
         ,ImportJob.class
+        ,PlayTick.class
         }, version = APP_DATABASE_VERSION
         )
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APP_DATABASE_VERSION = 17;
+    public static final int APP_DATABASE_VERSION = 18;
 
     public abstract FolderDao folderDao();
     public abstract ZikFileDao zikFileDao();
@@ -33,6 +34,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract BookSourceDao bookSourceDao();
     public abstract EpisodeDao episodeDao();
     public abstract ImportJobDao importJobDao();
+    public abstract PlayTickDao playTickDao();
 
     private static final int NUMBER_OF_WRITE_THREADS = 4;
     private static final int NUMBER_OF_READ_THREADS = 4;
