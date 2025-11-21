@@ -20,6 +20,7 @@ import androidx.work.WorkManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapters.CoverResultAdapter;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.net.CoverSearchRepository;
 import com.driot.bookplayer.objects.CoverResult;
 import com.driot.bookplayer.services.DownloadCoverWorker;
@@ -109,12 +110,16 @@ public class CoverWebSearchActivity extends LoggingActivity {
         adapter.submit(java.util.Collections.emptyList());
 
         Executors.newSingleThreadExecutor().execute(() -> {
-            List<CoverResult> list;
-            try {
-                list = repo.search(this, q, MAX_NB_COVER_SEARCH_RESULT);
-            } catch (Throwable t) {
-                myLogEE(t, "cover web search failed");
-                list = java.util.Collections.emptyList();
+            List<CoverResult> list = null;
+            boolean online = NetworkHelper.isConnected(this);
+            if (!online) {
+                tvEmpty.setText(R.string.no_internet_connection);
+            } else {
+                try {
+                    list = repo.search(this, q, MAX_NB_COVER_SEARCH_RESULT);
+                } catch (Throwable t) {
+                    myLogEE(t, "cover web search failed");
+                }
             }
             List<CoverResult> finalList = list;
             runOnUiThread(() -> {
