@@ -33,7 +33,6 @@ public class PlayHeatMapView extends View {
     }
 
     private void init(Context context, @Nullable AttributeSet attrs) {
-        // Couleur par défaut : colorPrimary (tu peux changer)
         int defaultColor = 0xFF4CAF50; // vert, fallback
         if (attrs != null) {
             TypedArray a = context.obtainStyledAttributes(attrs, R.styleable.PlayHeatMapView);

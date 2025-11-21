@@ -6,13 +6,70 @@ import java.util.List;
 
 public class PlayTickHeatMapHelper {
 
-    /**
-     * - Builds base intensities from tickCounts using an absolute mapping:
-     *   1 pass -> fixed intensity, 2 passes -> darker, etc.
-     * - Fills small gaps of zeros between non-zero buckets (<= maxGapBuckets)
-     * - Applies local smoothing inside listened segments
-     * - Never renormalizes based on max; 1-pass color is stable
-     */
+
+    public static float[] computeIntensities2(List<PlayTickBucket> buckets,
+                                             long durationMs,
+                                             int nbBuckets) {
+        float[] result = new float[nbBuckets];
+        if (nbBuckets <= 0 || durationMs <= 0) {
+            return result;
+        }
+        long[] tickCounts = new long[nbBuckets];
+
+        // 1) Populate tickCounts from SQL buckets
+        if (buckets != null) {
+            for (PlayTickBucket b : buckets) {
+                int idx = (int) b.bucket;
+                if (idx < 0 || idx >= nbBuckets) continue;
+                tickCounts[idx] = b.ticks;
+            }
+        }
+
+        // 2) Compute base intensities from "number of passes", with an absolute mapping
+        float[] base = new float[nbBuckets];
+
+        // duration per bucket in ms and seconds
+        double bucketDurationMs = (double) durationMs / (double) nbBuckets;
+        if (bucketDurationMs <= 0.0) {
+            bucketDurationMs = 1.0;
+        }
+        double bucketDurationSec = bucketDurationMs / 1000.0;
+
+        for (int i = 0; i < nbBuckets; i++) {
+            long ticks = tickCounts[i];
+            if (ticks <= 0) {
+                base[i] = 0f;
+            } else {
+                // passes = how many times, on average, this segment was fully listened
+                /*
+                double passes = ticks / bucketDurationSec; // ~1 for one full pass
+                double intensity = passes / passesForFullColor; // 3 passes -> 1.0
+                if (intensity > 1.0) intensity = 1.0;
+                if (intensity < 0.0) intensity = 0.0;
+                base[i] = (float) intensity;
+                 */
+                base[i] = 1;
+            }
+        }
+
+        System.arraycopy(base, 0, result, 0, nbBuckets);
+        return result;
+
+    }
+
+
+
+
+
+
+
+        /**
+         * - Builds base intensities from tickCounts using an absolute mapping:
+         *   1 pass -> fixed intensity, 2 passes -> darker, etc.
+         * - Fills small gaps of zeros between non-zero buckets (<= maxGapBuckets)
+         * - Applies local smoothing inside listened segments
+         * - Never renormalizes based on max; 1-pass color is stable
+         */
     public static float[] computeIntensities(List<PlayTickBucket> buckets,
                                              long durationMs,
                                              int nbBuckets) {

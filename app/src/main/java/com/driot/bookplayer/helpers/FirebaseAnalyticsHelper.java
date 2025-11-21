@@ -50,9 +50,10 @@ public final class FirebaseAnalyticsHelper {
 
     // PLAY 1min
 
-    public static void tellPlayFor1min(String elapsed_category, String playMode) {
+    public static void tellPlayFor1min(String elapsed_category, String playMode, String extension) {
         Bundle bundle = new Bundle();
         bundle.putString("elapsed_category", String.valueOf(elapsed_category));
+        bundle.putString("extension", String.valueOf(extension));
         logBundleEvent( playMode + "_for_1min", bundle);
         bundle.putString("play_mode", String.valueOf(playMode));
         logBundleEvent("play_for_1min", bundle);

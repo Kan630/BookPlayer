@@ -483,7 +483,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                     @Override
                     public void onEveryMinute(@NonNull String elapsedCategory) {
-                        FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory, getPlayMode());
+                        FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory, getPlayMode(), getExtension());
                     }
 
                     @Override
@@ -1818,6 +1818,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogE("getPlayMode() => no play mode => null");
             return null;
         }
+    }
+
+    public String getExtension() {
+        PlayList pl = PlayList.getInstance();
+        if (pl != null && pl.getZikFile() != null) {
+            return Tonio.getExtension(pl.getZikFile().getPath());
+        }
+        return null;
     }
 
     public String getLoadPhase() {

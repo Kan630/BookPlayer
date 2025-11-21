@@ -19,6 +19,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -218,17 +219,17 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
             }
 
             final Context appCtx = itemView.getContext().getApplicationContext();
-            final int nbBuckets = 400; // you can tune that later
+            int nbBuckets = Math.max(1, Math.min((int) durationMs /1000, Var.HEATMAP_PROGRESSBAR_BUCKET_SIZE));
 
             AppDatabase.databaseReadExecutor.execute(() -> {
                 PlayTickDao dao = AppDatabase.getInstance(appCtx).playTickDao();
                 long bucketSizeMs = Math.max(1L, durationMs / nbBuckets);
 
-                java.util.List<PlayTickBucket> buckets =
-                        dao.getBucketCounts(zikFileId, bucketSizeMs);
+                java.util.List<PlayTickBucket> buckets = dao.getBucketCounts(zikFileId, bucketSizeMs);
 
-                final float[] intensities =
-                        PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
+                myLogD(t.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
+
+                final float[] intensities = PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
 
                 // Come back on UI thread and check that this ViewHolder still represents the same item
                 itemView.post(() -> {

@@ -10,6 +10,9 @@ import okhttp3.logging.HttpLoggingInterceptor;
  * created by Antoine Driot -- antoine.driot.com -- on 15/09/21
  */
 public class Var {
+
+    public static final int HEATMAP_PROGRESSBAR_BUCKET_SIZE = 400;
+
     public static final String IMPORT_STATUS_IDLE      = "IDLE";
     public static final String IMPORT_STATUS_QUEUED    = "QUEUED";
     public static final String IMPORT_STATUS_RUNNING   = "RUNNING";
