@@ -50,14 +50,13 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView);
         dropZone     = findViewById(R.id.dragDeleteZone);
 
         View networkRow = findViewById(R.id.includeNetworkStatus);
         networkStatusController = new NetworkStatusRowController(this, networkRow);
-
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);

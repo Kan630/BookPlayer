@@ -191,7 +191,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         final String loadPhase = getLoadPhase();
         final boolean ready = isReadyToPlay();
         final boolean playing = isPlaying();
-        final String playMode = getPlayMode();
+        final String playMode = (engine != null) ? getPlayMode() : null;
 
         PlaybackUiState s;
 
@@ -200,7 +200,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         extras.putDouble(Intents.EXTRA_SPEED, getSpeed()); //TODO check that getSpeed, looks weird, ask Prefs... (every second since we are updating UI...)
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
 
-        if (Var.PLAY_MODE_RADIO.equals(playMode)) {
+        if (isRadio()) {
             String title = (streamTitle != null) ? streamTitle : getString(R.string.live_radio);
             String text = getString(R.string.live_radio);
             String cover = (streamImageUrl != null) ? streamImageUrl : "";
@@ -1500,13 +1500,29 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ********************************************************************************
      */
     private boolean needsReloadForPlaylist() {
+
         PlayList pl = PlayList.getInstance();
-        ZikFile cur = (pl != null) ? pl.getZikFile() : null;
-        int wantId = (cur != null) ? cur.getId() : 0;
+        if (pl==null) {
+            myLogW("needsReloadForPlaylist() - Playlist null");
+            return true;
+        }
+        if (pl.isStream()) return false;
+
+        ZikFile zikFile = (pl != null) ? pl.getZikFile() : null;
+        int wantId = (zikFile != null) ? zikFile.getId() : 0;
 
         // If we have no last snapshot or ids differ, we need to load.
-        if (PlaybackUiBus.get().state().getValue() == null) return true;
-        return PlaybackUiBus.get().state().getValue().trackId != wantId;
+        if (PlaybackUiBus.get().state().getValue() == null) {
+            myLogW("needsReloadForPlaylist() - PlaybackUiBus null");
+            return true;
+        }
+        if (PlaybackUiBus.get().state().getValue().trackId != wantId) {
+            myLogW("needsReloadForPlaylist() - PlaybackUiBus, id diff");
+            return true;
+        } else {
+            return false;
+        }
+
     }
 
     public void playAudio() {
@@ -1619,14 +1635,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogEE(e, "MediaService Error setting Speed");
         }
         PlayList pl = PlayList.getInstance();
-        if (pl!=null && (Var.PLAY_MODE_BOOK.equals(pl.getPlayMode()) || Var.PLAY_MODE_TTS.equals(pl.getPlayMode()))) {
+        if (pl!=null && pl.isZikFile()) {
             ZikFile zf = pl.getZikFile();
             if (zf != null) Pref.saveSpeedToPref(zf.getIdFolder(), speed);
         }
     }
 
     public double getSpeed() {
-        if (Var.PLAY_MODE_TTS.equals(getPlayMode()) || Var.PLAY_MODE_BOOK.equals((getPlayMode()))) {
+        if (isZikFile()) {
             PlayList pl = PlayList.getInstance();
             if (pl!=null) {
                 ZikFile zf = pl.getZikFile();
@@ -1652,7 +1668,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ********************************************************************************
      */
     private void updateZikFileStateInDB(boolean bFinished) {
-        if (Var.PLAY_MODE_RADIO.equals(getPlayMode()) || Var.PLAY_MODE_PODCAST.equals(getPlayMode())) return;
+        if (isStream()) return;
         PlayList pl = PlayList.getInstance();
         ZikFile zf = null;
         if (pl!=null) {
@@ -1717,7 +1733,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         setUiPhase(Intents.PHASE_READY, null);
 
-        if (!(Var.PLAY_MODE_RADIO.equals(getPlayMode()) || Var.PLAY_MODE_PODCAST.equals(getPlayMode()))) {
+        if (!isStream()) {
             setPositionPlayStart();
 
             if (engine != null) {
@@ -1727,6 +1743,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     if (zf != null) {
                         String cover = (pl.getFolder() == null ? null : pl.getFolder().image);
                         media.setMetadata(zf.getDisplayName(), zf.getFolderName(), zf.getFolderName(), engine.getDuration(), ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
+                    } else {
+                        myLogE("onEnginePrepared zikFile null");
                     }
                 }
             }
@@ -1819,10 +1837,24 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return null;
         }
     }
+    public boolean isStream() {
+        if (engine == null) return false;
+        String playMode = getPlayMode();
+        return (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode));
+    }
+    public boolean isZikFile() {
+        if (engine == null) return false;
+        String playMode = getPlayMode();
+        return (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode));
+    }
+    public boolean isRadio() {
+        return (engine!=null) && Var.PLAY_MODE_RADIO.equals(getPlayMode());
+    }
+
 
     public String getExtension() {
         PlayList pl = PlayList.getInstance();
-        if (pl != null && pl.getZikFile() != null) {
+        if (pl != null && pl.isZikFile() && pl.getZikFile() != null) {
             return Tonio.getExtension(pl.getZikFile().getPath());
         }
         return null;
@@ -1860,7 +1892,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void updatePlaybackStateForPosition() {
         if (engine == null) return;
-        if (getPlayMode().equals("radio") || getPlayMode().equals("podcast")) return;
+        if (isStream()) return;
         boolean playing = engine.isPlaying();
         int state = playing ? PlaybackStateCompat.STATE_PLAYING : PlaybackStateCompat.STATE_PAUSED;
         media.updateState(state,
@@ -1982,7 +2014,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     | PlaybackStateCompat.ACTION_PAUSE;
 
     private long currentActions() {
-        return "radio".equals(getPlayMode()) ? ACTIONS_RADIO : ACTIONS_FILE;
+        if (engine == null) {
+            return ACTIONS_RADIO; //minimal actions if no engine
+        } else {
+            return isRadio() ? ACTIONS_RADIO : ACTIONS_FILE;
+        }
     }
 
     private boolean playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
@@ -2063,7 +2099,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             PlaybackStateCompat cur = s.getController().getPlaybackState();
             if (cur == null || cur.getState() == PlaybackStateCompat.STATE_NONE) {
                 long actions = currentActions();
-                long pos = ("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode())) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
+                long pos = (isStream()) ? PlaybackStateCompat.PLAYBACK_POSITION_UNKNOWN
                         : (engine != null ? engine.getCurrentPosition() : 0L);
                 float sp = playing ? (float) getSpeed() : 0f;
 
@@ -2081,7 +2117,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     + " actions=" + Long.toHexString(cur.getActions()));
 
             // Then set the *actual* state you want (radio vs file/tts)
-            if ("radio".equals(getPlayMode())) {
+            if (isRadio()) {
                 long actions = playing ? PlaybackStateCompat.ACTION_PAUSE : PlaybackStateCompat.ACTION_PLAY;
                 PlaybackStateCompat st = new PlaybackStateCompat.Builder()
                         .setActions(actions)
@@ -2264,10 +2300,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 alertError("create playlist from storage","could not recreate playlist");
                 return;
             }
-            String playMode = pl.getPlayMode();
 
             // call on background thread = Important
-            if (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode)) {
+            if (pl.isZikFile()) {
                 AppDatabase.databaseReadExecutor.execute(() -> {
                     boolean ok = loadAndPlayTrack(pl.getZikFile());
                     if (!ok) {
@@ -2276,15 +2311,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 });
 
                 // no DB access inside playStream(), so main thread is fine
-            } else if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
+            } else if (pl.isStream()) {
 
-                boolean ok = playStream(playMode, pl.getUrl(), null, null);
+                boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), null, null);
                 if (!ok) {
                     myLogEE(null, "loadAndPlayFromStorage(): playback failed");
                 }
 
             } else {
-                myLogEE(null, "error wrong playMode = " + playMode);
+                myLogEE(null, "error wrong playMode = " + pl.getPlayMode());
             }
         });
     }

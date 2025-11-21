@@ -34,6 +34,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
             return;
         }
         io.submit(() -> {
+            // Legacy zikFile position
             try {
                 if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {
                     zf.lFirstAccess = System.currentTimeMillis();
@@ -62,6 +63,8 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
             } catch (Throwable t) {
                 myLogEE(t, "update exception");
             }
+
+            // new Heatmap tick save
             try {
                 PlayTick tick = new PlayTick(System.currentTimeMillis(), zf.getId(), pos);
                 AppDatabase db = AppDatabase.getDatabase(app);

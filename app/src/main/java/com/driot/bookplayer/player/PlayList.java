@@ -258,6 +258,17 @@ public final class PlayList {
             return playMode;
         }
     }
+    public boolean isStream() {
+        synchronized (lock) {
+            return (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode));
+        }
+    }
+    public boolean isZikFile() {
+        synchronized (lock) {
+            return (Var.PLAY_MODE_BOOK.equals(playMode) || Var.PLAY_MODE_TTS.equals(playMode));
+        }
+    }
+
     public @NonNull String getUrl() {
         synchronized (lock) {
             return url;

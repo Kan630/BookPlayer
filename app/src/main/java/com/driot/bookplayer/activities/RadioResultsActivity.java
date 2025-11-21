@@ -51,7 +51,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.applyInsetsForScrollableBehindNavBar(this, findViewById(R.id.coordinator_layout));
+        InsetHelper.apply(this);
 
         View networkRow = findViewById(R.id.includeNetworkStatus);
         networkStatusController = new NetworkStatusRowController(this, networkRow);
