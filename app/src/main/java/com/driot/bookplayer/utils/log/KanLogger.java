@@ -192,7 +192,7 @@ public class KanLogger {
                 strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
             }
             FirebaseCrashlytics.getInstance().log(strFirebaseLog);
-            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage);
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "myLogEE");
         } catch (Throwable ignored) {} // Never let Crashlytics reporting crash the app
     }
 
@@ -277,7 +277,7 @@ public class KanLogger {
                 FirebaseCrashlytics.getInstance().log(prefix + " " + msg);
             }
             FirebaseCrashlytics.getInstance().log(strFirebaseLog);
-            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage);
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "myToastEE");
         } catch (Throwable ignored) {} // Never let Crashlytics reporting crash the app
     }
 

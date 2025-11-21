@@ -257,7 +257,6 @@ public final class FirebaseAnalyticsHelper {
     }
     public static void tellAnalyticsRadioBy(String byWhat) {
         Bundle bundle = new Bundle();
-        bundle.putString(byWhat, String.valueOf(byWhat));
         logBundleEvent("radio_by_" + byWhat, bundle);
     }
 
@@ -270,8 +269,9 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("radio_search", bundle);
     }
 
-    public static void tellAnalyticsLogee(String customErrorTxt, String androidErrorText) {
+    public static void tellAnalyticsLogee(String customErrorTxt, String androidErrorText, String from) {
         Bundle bundle = new Bundle();
+        bundle.putString("from", String.valueOf(from));
         bundle.putString("customErrorTxt", String.valueOf(customErrorTxt));
         bundle.putString("androidErrorText", String.valueOf(androidErrorText));
         logBundleEvent("log_ee", bundle);
@@ -284,7 +284,7 @@ public final class FirebaseAnalyticsHelper {
             bundle.putString("app_version", appVersion);
             firebaseAnalytics.logEvent(logName, bundle);
         } catch (Exception e) {
-            myLogEE(e, "Analytics logging - " + logName);
+            myLogE("Analytics logging - " + logName);
         }
     }
 
