@@ -101,6 +101,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                                         intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
                                         intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
                                         loadBookActivityResultLauncher.launch(intent);
+                                        FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
                                     }
                                 });
                             });

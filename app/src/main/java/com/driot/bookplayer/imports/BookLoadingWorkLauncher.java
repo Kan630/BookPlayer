@@ -112,7 +112,7 @@ public class BookLoadingWorkLauncher {
                 }
             }
 
-            FirebaseAnalyticsHelper.tellAnalyticsWork(String.valueOf(s.originalUri), s.fileExtension, doDownload);
+            FirebaseAnalyticsHelper.tellAnalyticsWork(s, doDownload);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalType", s.originalType);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", s.fileExtension);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", s.sourceLocation);

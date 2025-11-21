@@ -7,6 +7,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -136,10 +137,16 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("playlist_load_from_storage", bundle);
     }
 
-    public static void tellAnalyticsWork(String originalUri, String extension, boolean doDownload) {
+    public static void tellAnalyticsWork(LoadBookTaskState s, boolean doDownload) {
         Bundle bundle = new Bundle();
-        bundle.putString("originalUri", originalUri);
-        bundle.putString("extension", String.valueOf(extension));
+        bundle.putString("originalUri", String.valueOf(s.originalUri));
+        bundle.putString("originalFile", String.valueOf(s.originalFile));
+        bundle.putString("extension", String.valueOf(s.fileExtension));
+        bundle.putString("addToExistingFolder", String.valueOf (s.addToExistingFolderId>0));
+        bundle.putString("folderName", String.valueOf (s.futureFolderName));
+        bundle.putString("playType", String.valueOf (s.playType));
+        bundle.putString("sourceLocation", String.valueOf(s.sourceLocation));
+        bundle.putString("title", String.valueOf(s.title));
         bundle.putBoolean("doDownload", doDownload);
         logBundleEvent("worker_start", bundle);
     }
