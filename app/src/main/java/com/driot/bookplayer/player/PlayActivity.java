@@ -21,7 +21,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.SeekBar;
+import com.google.android.material.slider.Slider;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -60,8 +60,9 @@ public class PlayActivity extends LoggingActivity {
 
     private ImageButton bPlayPause, bRewind, bForward;
     private Button bSpeedUp, bSpeedDown, bSetSleep;
-    private SeekBar seekbar;
-    private TextView tvSeekBar, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
+    private Slider sbSeek;
+    private UiHelper.SliderBinding sliderBinding;
+    private TextView tvCurTime, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
 
     private ImageView ivCover;
@@ -142,7 +143,7 @@ public class PlayActivity extends LoggingActivity {
         bSpeedDown = findViewById(R.id.bSpeedDown);
         bSetSleep  = findViewById(R.id.bSetSleep);
 
-        tvSeekBar   = findViewById(R.id.textViewSeekBar);
+        tvCurTime = findViewById(R.id.textViewSeekBar);
         tvTotalTime = findViewById(R.id.textViewTempsTotal);
         tvTitle     = findViewById(R.id.textviewTitle);
         tvSubTitle  = findViewById(R.id.textViewSubTitle);
@@ -151,10 +152,12 @@ public class PlayActivity extends LoggingActivity {
         tvTimeLeft      = findViewById(R.id.tv_TimeLeft);
         tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
 
-        seekbar = findViewById(R.id.seekBar);
+        sbSeek = findViewById(R.id.sbSeek);
         ivCover = findViewById(R.id.folderImage);
         ivCover.setImageURI(null);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
+
+        sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
 
         ttsContainer   = findViewById(R.id.ttsContainer);
         tvTtsText      = findViewById(R.id.tvTtsText);
@@ -222,12 +225,10 @@ public class PlayActivity extends LoggingActivity {
             reDrawSleepTextViews(vm.sleepCustomMinutes);
 
             // Title/sub
-            UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, null);
+            UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, sbSeek);
 
-            // Seek/progress
-            seekbar.setMax((int) Math.max(1L, s.durationMs));
-            seekbar.setProgress((int) Math.min(s.positionMs, s.durationMs));
-            tvSeekBar.setText(Tonio.formatTime((int) s.positionMs, true));
+            // Seek/progress: sliderBinding handles slider + current time label
+            tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
 
             String p = (vm.getState().getValue() == null ? null : vm.getState().getValue().loadPhase);
@@ -340,18 +341,6 @@ public class PlayActivity extends LoggingActivity {
             }
         });
 
-        // Seekbar → VM.seekTo (only acts if VM is bound; otherwise ignored safely)
-        seekbar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-            boolean userSeeking;
-            @Override public void onProgressChanged(SeekBar sb, int p, boolean fromUser) {}
-            @Override public void onStartTrackingTouch(SeekBar sb) { userSeeking = true; }
-            @Override public void onStopTrackingTouch(SeekBar sb) {
-                myLogI("---- user moved SEEK BAR ---");
-                userSeeking = false;
-                vm.seekTo(sb.getProgress());
-            }
-        });
-
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
@@ -379,6 +368,10 @@ public class PlayActivity extends LoggingActivity {
 
     @Override protected void onDestroy() {
         try { LocalBroadcastManager.getInstance(this).unregisterReceiver(uiReceiver); } catch (Throwable ignored) {}
+        if (sbSeek != null) {
+            UiHelper.unbindSeekBar(sbSeek);
+            sliderBinding = null;
+        }
         super.onDestroy();
     }
 

@@ -6,6 +6,7 @@ import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -166,6 +167,12 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkOpenPlayActivity.setChecked(Option.getOpenPlayActivity());
         llOpenPlayActivity.setOnClickListener(v -> chkOpenPlayActivity.toggle());
         chkOpenPlayActivity.setOnCheckedChangeListener((b, isChecked) -> Option.setOpenPlayActivity(isChecked));
+
+        LinearLayout ll_lock_orientation_play_activity = root.findViewById(R.id.ll_lock_orientation_play_activity);
+        CheckBox chk_lock_orientation_play_activity = root.findViewById(R.id.chk_lock_orientation_play_activity);
+        chk_lock_orientation_play_activity.setChecked(Option.getScreenOrientationLock());
+        ll_lock_orientation_play_activity.setOnClickListener(v -> chk_lock_orientation_play_activity.toggle());
+        chk_lock_orientation_play_activity.setOnCheckedChangeListener((b, isChecked) -> Option.setScreenOrientationLock(isChecked));
 
         return root;
     }

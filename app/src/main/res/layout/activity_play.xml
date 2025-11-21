@@ -102,15 +102,16 @@
         android:layout_above="@+id/llCommandButtons"
         />
 
-    <SeekBar
-        android:id="@+id/seekBar"
+    <com.google.android.material.slider.Slider
+        android:id="@+id/sbSeek"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_above="@+id/llCommandButtons"
-        android:layout_marginBottom="10sp"
-        android:progressDrawable="@drawable/seek_bar"
-        android:thumb="@drawable/seek_thumb"
-        />
+        android:layout_marginBottom="10dp"
+        app:trackHeight="2dp"
+        app:trackColor="?attr/colorSecondary"
+        app:thumbColor="?attr/colorSecondary"
+         />
 
     <TextView
         android:id="@+id/textViewSeekBar"
@@ -118,7 +119,7 @@
         style="@style/textColor"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/seekBar"
+        android:layout_above="@+id/sbSeek"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
@@ -129,7 +130,7 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
         android:layout_marginStart="30dp"
-        android:layout_above="@+id/seekBar"
+        android:layout_above="@+id/sbSeek"
         android:layout_alignParentEnd="true"
         />
 

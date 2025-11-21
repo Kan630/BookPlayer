@@ -1027,7 +1027,7 @@
     <string name="Export_done_Excl">"Export done !"</string>
 
     <string name="option_play_view">"Play View"</string>
-    <string name="option_click_container_playpause_text">A click on the image will pause/resume the audio</string>
+    <string name="option_click_container_playpause_text">A click on the image/visualizer will pause/resume the audio</string>
     <string name="double_click_image_to_get_back_to_text_view">Double-click on the image to get back to text view</string>
     <string name="option_app_language_subtitle">May not work on some devices (some devices may prevent using a language different from the system default).</string>
 
@@ -1205,5 +1205,6 @@
     <string name="Progress_Heatmap">Progress Heatmap</string>
     <string name="option_progress_heatmap_subtitle">Progress bars for tracks will show exactly which parts have been listened to, and the color deepens the more a section has been played.</string>
     <string name="option_progress_heatmap">show heat maps</string>
+    <string name="option_lock_orientation_play_activity">Lock screen orientation</string>
 
 </resources>

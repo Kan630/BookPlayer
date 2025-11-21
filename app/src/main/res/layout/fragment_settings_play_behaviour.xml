@@ -126,6 +126,17 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/ll_lock_orientation_play_activity"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_lock_orientation_play_activity"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_lock_orientation_play_activity" />
+            </LinearLayout>
+
+            <LinearLayout
                 android:id="@+id/ll_visualizer_playpause"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
                 <com.google.android.material.checkbox.MaterialCheckBox

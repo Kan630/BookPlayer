@@ -311,14 +311,15 @@
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:layout_marginStart="16dp" />
                 </LinearLayout>
-                <SeekBar
-                    android:id="@+id/seekBar"
+                <com.google.android.material.slider.Slider
+                    android:id="@+id/sbSeek"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="3dp"
-                    android:progressDrawable="@drawable/seek_bar"
-                    android:layout_marginBottom="8dp"
-                    android:thumb="@drawable/seek_thumb" />
+                    android:layout_above="@+id/llCommandButtons"
+                    app:trackHeight="2dp"
+                    app:trackColor="?attr/colorSecondary"
+                    app:thumbColor="?attr/colorSecondary"
+                    />
             </LinearLayout>
 
 
