@@ -1077,7 +1077,7 @@
 
     <string name="option_reset_app_explain_text">
     Sometimes the app can get stuck, for example after a crash during a book import, preventing further imports or cancellations.
-    In that case, tap this button to cancel and reset any ongoing imports.
+    In such case, tap this button to reset all processes. - No data will be lost, it\'s just a system reset.
     </string>
 
     <string name="option_tts_chunk_size_explain_text">

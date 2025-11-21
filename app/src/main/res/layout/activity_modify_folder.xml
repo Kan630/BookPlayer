@@ -224,18 +224,10 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/new_"
-                android:textColor="@color/orange"
-                android:layout_gravity="end"
-                android:layout_marginEnd="100dp"
-                android:layout_marginTop="10dp"
-                />
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
                 >
                 <ImageView
@@ -255,18 +247,10 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/beta_test"
-                android:textColor="@color/orange"
-                android:layout_gravity="end"
-                android:layout_marginEnd="100dp"
-                android:layout_marginTop="10dp"
-                />
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
                 >
                 <ImageView
