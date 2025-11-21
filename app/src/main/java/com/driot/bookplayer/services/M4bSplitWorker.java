@@ -392,6 +392,8 @@ public class M4bSplitWorker extends ImportWorker {
                                         String warningMessageForUser,
                                         String logTag) {
 
+        FirebaseAnalyticsHelper.logEvent("m4b_fallback");
+
         // 1) Log + warn
         myLogE(logTag + " - falling back to single M4B import");
         if (warningMessageForUser != null && !warningMessageForUser.isEmpty()) {
@@ -428,6 +430,7 @@ public class M4bSplitWorker extends ImportWorker {
             // If move fails, we still have the original file somewhere; import code
             // will just see it where it is.
         }
+
 
         // 4) Mark task as "completed with fallback" so the pipeline continues
         String completedMsg =
