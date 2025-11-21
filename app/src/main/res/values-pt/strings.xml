@@ -1149,5 +1149,9 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="zikFiles_not_readable">algumas faixas têm erros e não podem ser reproduzidas:</string>
     <string name="All_zikFiles_not_readable">Este livro está com problema. Nenhuma faixa pode ser reproduzida.</string>
 
+    <string name="Progress_Heatmap">Mapa de progresso</string>
+    <string name="option_progress_heatmap_subtitle">As barras de progresso das faixas mostrarão exatamente quais partes foram ouvidas, e a cor se intensifica quanto mais uma seção é reproduzida.</string>
+    <string name="option_progress_heatmap">mostrar mapas de calor</string>
+    <string name="option_lock_orientation_play_activity">bloquear orientação da tela</string>
 
 </resources>

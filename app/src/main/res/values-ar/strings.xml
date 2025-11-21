@@ -1132,4 +1132,9 @@
     <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
 
+    <string name="Progress_Heatmap">خريطة التقدّم</string>
+    <string name="option_progress_heatmap_subtitle">ستُظهر أشرطة التقدّم في المقاطع الأجزاء التي تم الاستماع إليها بالضبط، ويتعمّق اللون كلما تكرّر التشغيل.</string>
+    <string name="option_progress_heatmap">عرض خرائط الحرارة</string>
+    <string name="option_lock_orientation_play_activity">قفل اتجاه الشاشة</string>
+
 </resources>

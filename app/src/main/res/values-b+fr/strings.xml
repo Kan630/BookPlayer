@@ -1133,4 +1133,9 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="zikFiles_not_readable">des pistes ont des erreurs et ne sont pas lisibles:</string>
     <string name="All_zikFiles_not_readable">Ce livre est KO. Aucune piste ne peut être lue.</string>
 
+    <string name="Progress_Heatmap">Carte de progression</string>
+    <string name="option_progress_heatmap_subtitle">Les barres de progression des pistes montreront exactement quelles parties ont été écoutées, et la couleur s\'intensifie plus une section a été lue.</string>
+    <string name="option_progress_heatmap">afficher les cartes thermiques</string>
+    <string name="option_lock_orientation_play_activity">Verrouiller l\'orientation de l\'écran</string>
+
 </resources>

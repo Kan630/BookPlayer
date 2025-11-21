@@ -1137,5 +1137,9 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="zikFiles_not_readable">einige Titel haben Fehler und sind nicht abspielbar:</string>
     <string name="All_zikFiles_not_readable">Dieses Buch ist fehlerhaft. Kein Titel kann abgespielt werden.</string>
 
+    <string name="Progress_Heatmap">Fortschritts-Heatmap</string>
+    <string name="option_progress_heatmap_subtitle">Fortschrittsbalken der Tracks zeigen genau, welche Teile angehört wurden, und die Farbe wird dunkler, je öfter ein Abschnitt gespielt wurde.</string>
+    <string name="option_progress_heatmap">Heatmaps anzeigen</string>
+    <string name="option_lock_orientation_play_activity">Bildschirmausrichtung sperren</string>
 
 </resources>

@@ -1139,5 +1139,9 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="zikFiles_not_readable">некоторые дорожки содержат ошибки и не воспроизводятся:</string>
         <string name="All_zikFiles_not_readable">Книга повреждена. Ни одна дорожка не воспроизводится.</string>
 
+        <string name="Progress_Heatmap">Карта прогресса</string>
+        <string name="option_progress_heatmap_subtitle">Полосы прогресса треков показывают, какие части были прослушаны, а цвет становится насыщеннее, чем чаще воспроизводится участок.</string>
+        <string name="option_progress_heatmap">показывать тепловые карты</string>
+        <string name="option_lock_orientation_play_activity">блокировать ориентацию экрана</string>
 
 </resources>
