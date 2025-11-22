@@ -66,7 +66,7 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("ei_fatal", nbFatalError + "/" + nbZikFiles);
         bundle.putString("ei_rewritten_inv", nbRewritten + "/" + nbInvalid + "/" + nbZikFiles);
         bundle.putString("ei_still_bad_inv", nbStillBad + "/" + nbInvalid + "/" + nbZikFiles);
-        bundle.putString("err_master_msg", trimFA(String.valueOf(masterMsg)));
+        bundle.putString("err_master_msg", trimFA(masterMsg));
         logBundleEvent( "db_ko_" + err_type, bundle);
     }
 
@@ -272,8 +272,8 @@ public final class FirebaseAnalyticsHelper {
     public static void tellAnalyticsLogee(String customErrorTxt, String androidErrorText, String from) {
         Bundle bundle = new Bundle();
         bundle.putString("from", String.valueOf(from));
-        bundle.putString("customErrorTxt", String.valueOf(customErrorTxt));
-        bundle.putString("androidErrorText", String.valueOf(androidErrorText));
+        bundle.putString("customErrorTxt", trimFA(customErrorTxt));
+        bundle.putString("androidErrorText", trimFA(androidErrorText));
         logBundleEvent("log_ee", bundle);
     }
 
@@ -289,7 +289,7 @@ public final class FirebaseAnalyticsHelper {
     }
 
     static String trimFA(String s) {
-        if (s == null) return null;
+        s = String.valueOf(s);
         if (s.length() <= MAX_FA_PARAM) return s;
         return s.substring(0, MAX_FA_PARAM - 1) + "…";
     }
