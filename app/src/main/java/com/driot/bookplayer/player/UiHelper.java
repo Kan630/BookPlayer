@@ -39,7 +39,7 @@ public class UiHelper {
             this.vm = vm;
 
             // Bubble formatter (mm:ss) while dragging
-            slider.setLabelFormatter(value -> Tonio.formatMmSs((long) value * 1000L));
+            slider.setLabelFormatter(value -> Tonio.formatHhMmSs((long) value * 1000L));
 
             // Change listener for live preview while scrubbing
             this.changeListener = (s, value, fromUser) -> {
@@ -47,7 +47,7 @@ public class UiHelper {
                 long previewMs = (long) value * 1000L;
                 PlaybackUiState st = vm.getState().getValue();
                 long dur = (st != null) ? st.durationMs : 0L;
-                tvTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
+                tvTime.setText(Tonio.formatHhMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
             };
             slider.addOnChangeListener(changeListener);
 
@@ -153,7 +153,7 @@ public class UiHelper {
                 if (sbSeek!=null) if (sbSeek.getValueTo() != durSec) sbSeek.setValueTo(durSec);
                 if (sbSeek!=null) if (sbSeek.getValue() != posSec) sbSeek.setValue(posSec);
 
-                if (tvTime!=null) tvTime.setText(Tonio.formatMmSs(pos) + " / " + Tonio.formatMmSs(dur));
+                if (tvTime!=null) tvTime.setText(Tonio.formatHhMmSs(pos) + " / " + Tonio.formatHhMmSs(dur));
             } else {
                 // Unknown duration
                 if (sbSeek!=null) if (sbSeek.getValueTo() != 1000f) sbSeek.setValueTo(1000f);

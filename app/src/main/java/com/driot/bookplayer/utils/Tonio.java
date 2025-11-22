@@ -487,6 +487,19 @@ public class Tonio {
         return String.format(java.util.Locale.US, "%d:%02d", m, sec);
     }
 
+    public static String formatHhMmSs(long ms) {
+        long totalSeconds = ms / 1000;
+        long hours   = totalSeconds / 3600;
+        long minutes = (totalSeconds % 3600) / 60;
+        long seconds = totalSeconds % 60;
+
+        if (hours > 0) {
+            return String.format(java.util.Locale.US, "%02d:%02d:%02d", hours, minutes, seconds);
+        } else {
+            return String.format(java.util.Locale.US, "%02d:%02d", minutes, seconds);
+        }
+    }
+
     public static String formatMS(long ms) {
         double seconds = ms / 1000.0;
         return String.format(java.util.Locale.US, "%.3f ms", seconds);
