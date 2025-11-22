@@ -6,6 +6,8 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.driot.bookplayer.db.AppDatabase;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -16,6 +18,11 @@ public class RadioResultsViewModel extends ViewModel {
 
     private final MutableLiveData<List<Station>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
+
+    private final MutableLiveData<Boolean> showingHistory = new MutableLiveData<>(false);
+    private boolean historyMode = false;
+
+    public LiveData<Boolean> getShowingHistory() { return showingHistory; }
 
     private String lastQuery = "";
     private String lastLang = "";
@@ -40,68 +47,162 @@ public class RadioResultsViewModel extends ViewModel {
         lastTag = tag == null ? "" : tag;
     }
 
-    // fields:
-    private final MutableLiveData<Set<String>> favoriteUuids = new MutableLiveData<>(new HashSet<>());
-    private final MutableLiveData<List<RadioFavoriteItem>> favoriteItems = new MutableLiveData<>(Collections.emptyList());
-    private final MutableLiveData<Boolean> hasFavorites = new MutableLiveData<>(false);
+    // ---- Favorites state exposed to UI ----
 
-    // expose:
+    private final MutableLiveData<Set<String>> favoriteUuids =
+            new MutableLiveData<>(new HashSet<>());
+    private final MutableLiveData<List<RadioFavoriteItem>> favoriteItems =
+            new MutableLiveData<>(Collections.emptyList());
+    private final MutableLiveData<Boolean> hasFavorites =
+            new MutableLiveData<>(false);
+
     public LiveData<Set<String>> getFavoriteUuids() { return favoriteUuids; }
     public LiveData<List<RadioFavoriteItem>> getFavoriteItems() { return favoriteItems; }
-    public LiveData<Boolean> getHasFavorites() { return hasFavorites; }
 
-    // init/load favorites:
+    // ---- Helpers ----
+
+    private RadioStationDao dao(Context ctx) {
+        return AppDatabase.getInstance(ctx.getApplicationContext()).radioStationDao();
+    }
+
+    private void copyFromStationToRadioStation(RadioStation r, Station s) {
+        r.stationuuid  = s.stationuuid;
+        r.name         = s.name;
+        r.url          = s.url;
+        r.url_resolved = s.url_resolved;
+        r.codec        = s.codec;
+        r.bitrate      = s.bitrate;
+        r.hls          = s.hls;
+        r.favicon      = s.favicon;
+        r.country      = s.country;
+        r.countrycode  = s.countrycode;
+        r.language     = s.language;
+        r.tags         = s.tags;
+        r.clickcount   = s.clickcount;
+        r.lastcheckok  = s.lastcheckok;
+        // do not touch date_added / date_last_played / display_order here
+    }
+
+
+    public void initMode(Context ctx) {
+        Context appCtx = ctx.getApplicationContext();
+        new Thread(() -> {
+            RadioStationDao d = dao(appCtx);
+
+            int favCount  = d.countFavorites();
+            int histCount = d.countHistory();
+
+            if (favCount > 0) {
+                loadFavorites(appCtx);
+            } else if (histCount > 0) {
+                loadHistory(appCtx);
+            } else {
+                loadFavorites(appCtx);
+            }
+        }).start();
+    }
+
+    // ---- Load favorites from Room ----
+
     public void loadFavorites(Context ctx) {
-        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
-        favoriteUuids.postValue(store.getAllUuids());
-        favoriteItems.postValue(store.getAll());
+        historyMode = false;                 // <--- update field
+        showingHistory.postValue(false);     // notify UI
+        refreshFromDb(ctx);
     }
 
-    public void updateFavorite(Context ctx, RadioFavoriteItem item) {
-        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
-        store.update(item);
-        refreshFromStore(ctx);
+    public void loadHistory(Context ctx) {
+        historyMode = true;                  // <--- update field
+        showingHistory.postValue(true);      // notify UI
+        refreshFromDb(ctx);
     }
 
-    // toggle favorite from a Station
+    // toggle favorite from a Station (used from search results)
     public void toggleFavorite(Context ctx, Station s) {
-        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
-        if (store.isFavorite(s.stationuuid)) {
-            store.remove(s.stationuuid);
-        } else {
-            store.add(RadioFavoriteItem.fromStation(s));
-        }
-        favoriteUuids.postValue(store.getAllUuids());
-        favoriteItems.postValue(store.getAll());
-    }
+        Context appCtx = ctx.getApplicationContext();
+        new Thread(() -> {
+            RadioStationDao dao = dao(appCtx);
+            long now = System.currentTimeMillis();
 
+            RadioStation existing = dao.findByUuid(s.stationuuid);
+            if (existing != null) {
+                if (existing.isFavorite) {
+                    // remove from favorites, keep row for history
+                    existing.isFavorite = false;
+                    existing.date_maj   = now;
+                    dao.update(existing);
+                } else {
+                    // re-favorite an existing station
+                    copyFromStationToRadioStation(existing, s);
+                    existing.isFavorite = true;
+                    existing.date_maj   = now;
+                    dao.update(existing);
+                }
+            } else {
+                // brand new favorite
+                RadioStation r = new RadioStation();
+                r.stationuuid      = s.stationuuid;
+                copyFromStationToRadioStation(r, s);
+                r.isFavorite       = true;
+                r.display_order    = 0; // new favorites at top; you can tweak this
+                r.date_added       = now;
+                r.date_maj         = now;
+                r.date_last_played = null;
+
+                dao.insert(r);
+            }
+
+            refreshFromDb(appCtx);
+        }).start();
+    }
 
     public void reorderFavorites(Context ctx, List<RadioFavoriteItem> newOrder) {
-        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
-        List<String> uuids = new ArrayList<>(newOrder.size());
-        for (RadioFavoriteItem it : newOrder) uuids.add(it.stationuuid);
-        store.reorderByUuidList(uuids);
-        // refresh Livedata from store
-        favoriteUuids.postValue(store.getAllUuids());
-        favoriteItems.postValue(store.getAll());
+        Context appCtx = ctx.getApplicationContext();
+        new Thread(() -> {
+            RadioStationDao dao = dao(appCtx);
+            int idx = 0;
+            for (RadioFavoriteItem it : newOrder) {
+                dao.updateDisplayOrder(it.stationuuid, idx++);
+            }
+            refreshFromDb(appCtx);
+        }).start();
     }
 
     public void removeFavoriteUuid(Context ctx, String uuid) {
-        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
-        store.removeUuid(uuid);
-        favoriteUuids.postValue(store.getAllUuids());
-        favoriteItems.postValue(store.getAll());
+        Context appCtx = ctx.getApplicationContext();
+        new Thread(() -> {
+            RadioStationDao dao = dao(appCtx);
+            RadioStation existing = dao.findByUuid(uuid);
+            if (existing != null && existing.isFavorite) {
+                existing.isFavorite = false;
+                existing.date_maj   = System.currentTimeMillis();
+                dao.update(existing);
+            }
+            refreshFromDb(appCtx);
+        }).start();
     }
 
-    private void refreshFromStore(Context ctx) {
-        RadioFavoritesStore store = new RadioFavoritesStore(ctx.getApplicationContext());
-        Set<String> uuids = store.getAllUuids();
-        List<RadioFavoriteItem> items = store.getAll();
+    private void refreshFromDb(Context ctx) {
+        Context appCtx = ctx.getApplicationContext();
+        new Thread(() -> {
+            RadioStationDao dao = dao(appCtx);
 
-        favoriteUuids.postValue(uuids);
-        favoriteItems.postValue(items);
-        hasFavorites.postValue(store.anyFavoriteExists());
-        // or: hasFavorites.postValue(!uuids.isEmpty());
+            boolean history = historyMode;
+            List<RadioStation> rows = history
+                    ? dao.getAlreadyPlayed()
+                    : dao.getFavorites();
+
+            Set<String> uuids = new HashSet<>();
+            List<RadioFavoriteItem> items = new ArrayList<>(rows.size());
+
+            for (RadioStation r : rows) {
+                uuids.add(r.stationuuid);
+                items.add(RadioFavoriteItem.fromRadioStation(r));
+            }
+
+            favoriteUuids.postValue(uuids);
+            favoriteItems.postValue(items);
+            hasFavorites.postValue(!items.isEmpty());
+        }).start();
     }
 
 

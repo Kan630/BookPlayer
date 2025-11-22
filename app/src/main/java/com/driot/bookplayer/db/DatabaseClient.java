@@ -9,9 +9,12 @@ import static com.driot.bookplayer.db.DatabaseBackupHelper.getSQLiteVersion;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Room;
+import androidx.room.RoomDatabase;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
+import com.driot.bookplayer.radio.RadioMigrationHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.io.File;
@@ -70,7 +73,16 @@ public class DatabaseClient {
                             , DatabaseMigrations.MIGRATION_15_16
                             , DatabaseMigrations.MIGRATION_16_17
                             , DatabaseMigrations.MIGRATION_17_18
-                    ).build();
+                            , DatabaseMigrations.MIGRATION_18_19
+                    )
+                    .addCallback(new RoomDatabase.Callback() {
+                        @Override
+                        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+                            super.onOpen(db);
+                            RadioMigrationHelper.migrateFavoritesFromPrefsToRoomOnce(mCtx.getApplicationContext(), db);
+                        }
+                    })
+                    .build();
 
             // Force early access to trigger DB open and migrations (and also check SQL version)
             SupportSQLiteDatabase db = appDatabase.getOpenHelper().getWritableDatabase();
@@ -96,6 +108,7 @@ public class DatabaseClient {
         }
         return appDatabase;
     }
+
 
 
     // ----------------------- LOG -----------------------

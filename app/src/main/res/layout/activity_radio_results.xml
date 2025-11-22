@@ -11,6 +11,36 @@
         android:id="@+id/includeNetworkStatus"
         layout="@layout/view_network_status_row" />
 
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/groupFavoriteVsHistory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:paddingHorizontal="8dp"
+        app:singleSelection="true"
+        app:selectionRequired="true"
+        android:orientation="horizontal">
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/MaterialButtonForToggleGroup"
+            android:id="@+id/btnRadioFavorites"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
+            android:text="@string/Favorites" />
+
+        <com.google.android.material.button.MaterialButton
+            style="@style/MaterialButtonForToggleGroup"
+            android:id="@+id/btnRadioHistory"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginHorizontal="8dp"
+            android:text="@string/History" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleLarge"

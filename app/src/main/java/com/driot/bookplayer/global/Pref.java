@@ -23,6 +23,7 @@ public class Pref {
     private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
     private static final String SHARED_PREFERENCE_TIMESTAMP = "SHARED_PREFERENCE_TIMESTAMP";
+    public static final String SHARED_PREFERENCE_MIGRATION = "SHARED_PREFERENCE_MIGRATION";
 
 
     private static Context appContext;

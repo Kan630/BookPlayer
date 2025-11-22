@@ -72,7 +72,7 @@ public class Var {
     public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
     public static final boolean FORCE_AUTO_DOWNLOAD_NO_DELAY = false; // for
 
-    public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.NONE;
+    public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.BODY;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 1000;
     public static final int LIBRIVOX_API_MIN_RESULTS = 20;

@@ -22,6 +22,7 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -61,11 +62,13 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        repo = new RadioBrowserRepository(
-                this,
-                /* discoverMirrors */ false,
-                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+        Executors.newSingleThreadExecutor().execute(() -> {
+                    repo = new RadioBrowserRepository(
+                            this,
+                            /* discoverMirrors */ true,
+                            /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+                    );
+                });
 
         // ---- find views ----
         buttonTrending = findViewById(R.id.bRadioTrending);

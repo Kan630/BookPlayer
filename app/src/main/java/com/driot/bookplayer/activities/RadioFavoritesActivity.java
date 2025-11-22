@@ -25,6 +25,8 @@ import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.UrlResolve;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.List;
 
@@ -72,7 +74,25 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         );
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
-        viewModel.loadFavorites(this);
+        viewModel.initMode(this);
+
+        MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);
+        MaterialButton btnFavorites     = findViewById(R.id.btnRadioFavorites);
+        MaterialButton btnHistory       = findViewById(R.id.btnRadioHistory);
+
+// Handle user clicks (toggle changes)
+        group.addOnButtonCheckedListener((g, checkedId, isChecked) -> {
+            if (!isChecked) return; // ignore un-check events
+
+            if (checkedId == R.id.btnRadioFavorites) {
+                myLogI("--- user clicks favorites ---");
+                viewModel.loadFavorites(RadioFavoritesActivity.this);
+            } else if (checkedId == R.id.btnRadioHistory) {
+                myLogI("--- user clicks history ---");
+                viewModel.loadHistory(RadioFavoritesActivity.this);
+            }
+        });
+
 
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override public void onPlay(RadioFavoriteItem f) {
@@ -155,6 +175,18 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 /* discoverMirrors */ false, // keep async discovery for later if you want
                 /* log level */ com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
         );
+
+        viewModel.getShowingHistory().observe(this, isHistory -> {
+            boolean history = Boolean.TRUE.equals(isHistory);
+
+            // Select correct toggle button without triggering clicks
+            group.check(history ? R.id.btnRadioHistory : R.id.btnRadioFavorites);
+
+            // maybe useless (as some other code should deal with that) : Hide dragging when in history mode
+            if (history) dropZone.setVisibility(View.GONE);
+
+            adapter.setHistoryMode(history);
+        });
 
         setProgressVisible(true, getString(R.string.loading));
         viewModel.getFavoriteItems().observe(this, favorites -> {

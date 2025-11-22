@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AppInsightsSettings">
-    <option name="selectedTabId" value="Android Vitals" />
+    <option name="selectedTabId" value="Firebase Crashlytics" />
     <option name="tabSettings">
       <map>
         <entry key="Android Vitals">
@@ -53,42 +53,14 @@
                   <option name="projectNumber" value="793974976163" />
                 </ConnectionSetting>
               </option>
-              <option name="signal" value="SIGNAL_UNSPECIFIED" />
-              <option name="timeIntervalDays" value="SEVEN_DAYS" />
-              <option name="versions">
+              <option name="failureTypes">
                 <list>
-                  <VersionSetting>
-                    <option name="buildVersion" value="206" />
-                    <option name="displayName" value="206 - Placid Beaver (206)" />
-                    <option name="displayVersion" value="206 - Placid Beaver" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="202" />
-                    <option name="displayName" value="202 - Placid Beaver (202)" />
-                    <option name="displayVersion" value="202 - Placid Beaver" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="201" />
-                    <option name="displayName" value="201 - Placid Beaver (201)" />
-                    <option name="displayVersion" value="201 - Placid Beaver" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="200" />
-                    <option name="displayName" value="200 - Placid Beaver (200)" />
-                    <option name="displayVersion" value="200 - Placid Beaver" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="199" />
-                    <option name="displayName" value="199 - Placid Beaver (199)" />
-                    <option name="displayVersion" value="199 - Placid Beaver" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="198" />
-                    <option name="displayName" value="198 - Placid Beaver (198)" />
-                    <option name="displayVersion" value="198 - Placid Beaver" />
-                  </VersionSetting>
+                  <option value="FATAL" />
+                  <option value="ANR" />
                 </list>
               </option>
+              <option name="signal" value="SIGNAL_UNSPECIFIED" />
+              <option name="timeIntervalDays" value="SEVEN_DAYS" />
               <option name="visibilityType" value="ALL" />
             </InsightsFilterSettings>
           </value>

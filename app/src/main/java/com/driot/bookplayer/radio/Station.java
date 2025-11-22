@@ -2,6 +2,10 @@ package com.driot.bookplayer.radio;
 
 import com.google.gson.annotations.SerializedName;
 
+
+// Retrofit / RadioBrowser API JSON
+// Raw live data returned by search/topvote/etc
+
 public class Station {
     @SerializedName("stationuuid") public String stationuuid;
     @SerializedName("name")        public String name;

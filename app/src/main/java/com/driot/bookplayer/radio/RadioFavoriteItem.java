@@ -42,4 +42,24 @@ public class RadioFavoriteItem implements Serializable {
         f.last_url    = (s.url_resolved != null && !s.url_resolved.isEmpty()) ? s.url_resolved : s.url;
         return f;
     }
+
+    public static RadioFavoriteItem fromRadioStation(@NonNull RadioStation r) {
+        RadioFavoriteItem f = new RadioFavoriteItem();
+        f.stationuuid = r.stationuuid;
+        f.name        = r.name;
+        f.favicon     = r.favicon;
+        f.codec       = r.codec;
+        f.bitrate     = r.bitrate;
+        f.country     = r.country;
+        f.language    = r.language;
+        f.tags        = r.tags;
+        f.countrycode = r.countrycode;
+        f.clickcount  = r.clickcount;
+        f.lastcheckok = r.lastcheckok;
+        f.url         = r.url;
+        f.url_resolved= r.url_resolved;
+
+        f.last_url    = (r.url_resolved != null && !r.url_resolved.isEmpty()) ? r.url_resolved : r.url;
+        return f;
+    }
 }

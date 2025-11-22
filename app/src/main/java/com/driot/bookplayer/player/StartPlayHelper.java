@@ -28,6 +28,8 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.objects.DisplayableEpisode;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
+import com.driot.bookplayer.radio.RadioStation;
+import com.driot.bookplayer.radio.RadioStationDao;
 import com.driot.bookplayer.radio.Station;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -52,12 +54,42 @@ public class StartPlayHelper {
         playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, ep.title, cover, caller);
     }
 
-    public static void onRadioClick(Context context, Station f, String streamUrl, String caller) {
-        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.name, f.favicon, caller);
+    public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
+        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.name, s.favicon, caller);
+        //update DB
+        final Station station = s;
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
+            RadioStation radioStation = dao.findByUuid(station.stationuuid);
+            if (radioStation==null) {
+                radioStation = RadioStation.fromStation(station, streamUrl);
+                radioStation.date_last_played = System.currentTimeMillis();
+                dao.insert(radioStation);
+            } else {
+                radioStation.url_resolved = streamUrl;
+                radioStation.date_maj = System.currentTimeMillis();
+                radioStation.date_last_played = System.currentTimeMillis();
+            }
+            AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(radioStation);
+        });
     }
 
-    public static void  onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
+    public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
         playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.name, f.favicon, caller);
+        //update DB
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
+            RadioStation radioStation = dao.findByUuid(f.stationuuid);
+            if (radioStation==null) {
+                myLogE("this should not happens, radio station should already been in Favorites");
+                //dao.insert(f)...
+            } else {
+                radioStation.url_resolved = streamUrl;
+                radioStation.date_maj = System.currentTimeMillis();
+                radioStation.date_last_played = System.currentTimeMillis();
+            }
+            AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(radioStation);
+        });
     }
 
 

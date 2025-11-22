@@ -1207,4 +1207,6 @@
     <string name="option_progress_heatmap">show heat maps</string>
     <string name="option_lock_orientation_play_activity">Lock screen orientation</string>
 
+    <string name="History">History</string>
+
 </resources>

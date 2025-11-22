@@ -4,7 +4,6 @@ import android.content.Context;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import okhttp3.Interceptor;
@@ -17,6 +16,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.global.Var;
+
 
 public class RadioBrowserServiceFactory {
 
@@ -26,7 +27,9 @@ public class RadioBrowserServiceFactory {
             "https://fr1.api.radio-browser.info/",
             "https://de1.api.radio-browser.info/",
             "https://nl1.api.radio-browser.info/",
-            "https://at1.api.radio-browser.info/"
+            "https://at1.api.radio-browser.info/",
+            "https://fi1.api.radio-browser.info/",
+            "https://de2.api.radio-browser.info/"
     };
 
     public static Retrofit createRetrofit(Context ctx, boolean tryDiscoverMirrors, HttpLoggingInterceptor.Level logLevel) {
@@ -36,6 +39,8 @@ public class RadioBrowserServiceFactory {
                 .build();
 
         String base = DEFAULT_BASE;
+
+        myLogD("tryDiscoverMirrors = " + tryDiscoverMirrors);
 
         if (tryDiscoverMirrors) {
             String discovered = discoverBestMirror(client);
@@ -52,7 +57,7 @@ public class RadioBrowserServiceFactory {
             }
         }
 
-        myLog("RadioBrowser base = " + base);
+        myLogD("RadioBrowser base = " + base);
 
         return new Retrofit.Builder()
                 .baseUrl(base)
@@ -65,7 +70,7 @@ public class RadioBrowserServiceFactory {
         return chain -> {
             Request req = chain.request().newBuilder()
                     // Be descriptive: your app + contact or site
-                    .header("User-Agent", "BookPlayer/1.0 (com.driot.bookplayer) Android")
+                    .header("User-Agent", Var.USER_AGENT_BOOKPLAYER)
                     .build();
             return chain.proceed(req);
         };
@@ -81,34 +86,51 @@ public class RadioBrowserServiceFactory {
         static void log(String s) { myLog(s); }
     }
 
-    /** Ask the root endpoint for servers and pick a good one (https + lowest load). */
+    /** Discover a good mirror via /json/servers + probing. */
     private static String discoverBestMirror(OkHttpClient client) {
+        myLogD("discoverBestMirror");
+
         try {
+            // Use a known working server as bootstrap, not api.radio-browser.info
             Retrofit rootRetrofit = new Retrofit.Builder()
-                    .baseUrl("https://api.radio-browser.info/") // aggregator
+                    .baseUrl(DEFAULT_BASE)
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
 
             RadioBrowserApi root = rootRetrofit.create(RadioBrowserApi.class);
             Response<List<ServerInfo>> resp = root.getServers().execute();
-            if (!resp.isSuccessful() || resp.body() == null || resp.body().isEmpty()) return null;
+
+            if (!resp.isSuccessful() || resp.body() == null || resp.body().isEmpty()) {
+                myLogW("discoverBestMirror: /json/servers failed: " + resp.code());
+                return null;
+            }
 
             List<ServerInfo> servers = new ArrayList<>(resp.body());
-            servers.removeIf(s -> s == null || s.url == null || s.status == null || !"ok".equalsIgnoreCase(s.status));
-            servers.sort(Comparator.comparingDouble(s -> s.load)); // ascending load
+            // Keep only entries with a hostname
+            servers.removeIf(s -> s == null || s.name == null || s.name.isEmpty());
+
+            if (servers.isEmpty()) {
+                myLogW("discoverBestMirror: servers list empty after filtering");
+                return null;
+            }
+            myLogD(servers.size() + " servers returned.");
+
+            // Shuffle to distribute load randomly
+            java.util.Collections.shuffle(servers);
 
             for (ServerInfo s : servers) {
-                // prefer https, OK status, and reachable
-                if (s.ssl == 1 && probeMirror(client, s.url)) {
-                    return s.url.endsWith("/") ? s.url : (s.url + "/");
+                String base = "https://" + s.name + "/";
+                myLogD("server discovery candidate: name=" + s.name
+                        + " ip=" + s.ip + " base=" + base);
+
+                if (probeMirror(client, base)) {
+                    myLog("discoverBestMirror: selected " + base);
+                    return base;
                 }
             }
-            // fallback to first OK server if no https passes probe
-            if (!servers.isEmpty()) {
-                String url = servers.get(0).url;
-                if (probeMirror(client, url)) return url.endsWith("/") ? url : (url + "/");
-            }
+
+            myLogW("discoverBestMirror: no candidate server passed probe");
         } catch (Exception e) {
             myLogW("Mirror discovery failed: " + e);
         }
@@ -117,6 +139,7 @@ public class RadioBrowserServiceFactory {
 
     /** Make a tiny blocking call to check the mirror is alive. */
     private static boolean probeMirror(OkHttpClient client, String base) {
+        myLog("probeMirror : " + base);
         try {
             Retrofit r = new Retrofit.Builder()
                     .baseUrl(base)

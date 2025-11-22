@@ -36,6 +36,8 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     private final List<RadioFavoriteItem> items = new ArrayList<>();
     private Context appContext;
 
+    private boolean historyMode = false;
+
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView rv) {
         super.onAttachedToRecyclerView(rv);
@@ -208,5 +210,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             bitrate = v.findViewById(R.id.radio_bitrate);
             ibFavorite = v.findViewById(R.id.ibFavorite);
         }
+    }
+
+    public void setHistoryMode(boolean history) {
+        this.historyMode = history;
+        notifyDataSetChanged();
     }
 }

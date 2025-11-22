@@ -325,4 +325,36 @@ public class DatabaseMigrations {
         };
     };
 
+    static final Migration MIGRATION_18_19 = new Migration(18, 19) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 18 => 19"); // 2025-11-22
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `RadioStation` (" +
+                            " `id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            " `stationuuid` TEXT NOT NULL, " +
+                            " `name` TEXT, " +
+                            " `url` TEXT, " +
+                            " `url_resolved` TEXT, " +
+                            " `codec` TEXT, " +
+                            " `bitrate` INTEGER NOT NULL DEFAULT 0, " +
+                            " `hls` INTEGER NOT NULL DEFAULT 0, " +
+                            " `favicon` TEXT, " +
+                            " `country` TEXT, " +
+                            " `countrycode` TEXT, " +
+                            " `language` TEXT, " +
+                            " `tags` TEXT, " +
+                            " `clickcount` INTEGER NOT NULL DEFAULT 0, " +
+                            " `lastcheckok` INTEGER NOT NULL DEFAULT 0, " +
+                            " `display_order` INTEGER NOT NULL DEFAULT 0, " +
+                            " `isFavorite` INTEGER NOT NULL DEFAULT 0, " +
+                            " `date_last_played` INTEGER," +
+                            " `date_added` INTEGER NOT NULL DEFAULT 0," +
+                            " `date_maj` INTEGER NOT NULL DEFAULT 0" +
+                            ")"
+            );
+        }
+    };
+
+
 }

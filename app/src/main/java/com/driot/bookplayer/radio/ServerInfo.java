@@ -5,6 +5,8 @@ import com.google.gson.annotations.SerializedName;
 public class ServerInfo {
     @SerializedName("name")     public String name;     // e.g. "fr1.api.radio-browser.info"
     @SerializedName("ip")       public String ip;
+
+    // optional legacy/extra fields – harmless if not present
     @SerializedName("country")  public String country;
     @SerializedName("url")      public String url;      // e.g. "https://fr1.api.radio-browser.info/"
     @SerializedName("status")   public String status;   // "ok"
