@@ -11,7 +11,7 @@ import com.google.gson.reflect.TypeToken;
 import java.lang.reflect.Type;
 import java.util.*;
 
-/** Simple, robust favorites store (uuid → snapshot) backed by SharedPreferences. */
+/** DEPRECATED -- only there to ensure migration from Prefs => Room */
 public class RadioFavoritesStore {
 
     private static final String PREF = "radio_favorites_store";
@@ -72,11 +72,6 @@ public class RadioFavoritesStore {
         return out;
     }
 
-    @NonNull
-    public synchronized Set<String> getAllUuids() {
-        return new HashSet<>(loadMap().keySet());
-    }
-
     private Map<String, RadioFavoriteItem> loadMap() {
         String json = sp.getString(KEY_MAP, null);
         if (json == null || json.isEmpty()) return new HashMap<>();
@@ -96,35 +91,6 @@ public class RadioFavoritesStore {
                 .putString(KEY_MAP, GSON.toJson(map, TYPE_MAP))
                 .putString(KEY_ORDER, GSON.toJson(order, TYPE_ORDER))
                 .apply();
-    }
-
-    public synchronized void reorderByUuidList(@NonNull List<String> uuids) {
-        Map<String, RadioFavoriteItem> map = loadMap();
-        // Keep only known ids, keep given order
-        List<String> newOrder = new ArrayList<>(uuids.size());
-        for (String u : uuids) {
-            if (map.containsKey(u)) newOrder.add(u);
-        }
-        // Append any items that exist but weren’t in uuids (safety)
-        for (String existing : loadOrder()) {
-            if (!newOrder.contains(existing) && map.containsKey(existing)) {
-                newOrder.add(existing);
-            }
-        }
-        save(map, newOrder);
-    }
-
-    public synchronized void removeUuid(@NonNull String uuid) {
-        Map<String, RadioFavoriteItem> map = loadMap();
-        List<String> order = loadOrder();
-        map.remove(uuid);
-        order.remove(uuid);
-        save(map, order);
-    }
-
-    public synchronized boolean anyFavoriteExists() {
-        Map<String, RadioFavoriteItem> map = loadMap();
-        return !map.isEmpty();
     }
 
      //Update an existing favorite item while keeping its position in the order list.

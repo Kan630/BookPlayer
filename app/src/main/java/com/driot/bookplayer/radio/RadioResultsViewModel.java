@@ -2,11 +2,12 @@ package com.driot.bookplayer.radio;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.ViewModel;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -14,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class RadioResultsViewModel extends ViewModel {
+public class RadioResultsViewModel extends LoggingViewModel {
 
     private final MutableLiveData<List<Station>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
@@ -91,6 +92,7 @@ public class RadioResultsViewModel extends ViewModel {
 
             int favCount  = d.countFavorites();
             int histCount = d.countHistory();
+            myLogD("init - favorites : " + favCount + " - history : " + histCount);
 
             if (favCount > 0) {
                 loadFavorites(appCtx);
@@ -187,6 +189,8 @@ public class RadioResultsViewModel extends ViewModel {
             RadioStationDao dao = dao(appCtx);
 
             boolean history = historyMode;
+            myLogD("refresh from DB, history mode=" + history);
+
             List<RadioStation> rows = history
                     ? dao.getAlreadyPlayed()
                     : dao.getFavorites();
@@ -205,5 +209,13 @@ public class RadioResultsViewModel extends ViewModel {
         }).start();
     }
 
-
+    public void updateFavoriteLastUrl(@NonNull Context ctx,
+                                      @NonNull String stationuuid,
+                                      @NonNull String newUrl) {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            AppDatabase.getDatabase(ctx)
+                    .radioStationDao()          // or radioFavoriteDao(), adapt to your naming
+                    .updateLastUrl(stationuuid, newUrl);
+        });
+    }
 }

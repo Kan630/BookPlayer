@@ -56,6 +56,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         View networkRow = findViewById(R.id.includeNetworkStatus);
         networkStatusController = new NetworkStatusRowController(this, networkRow);
 
+        findViewById(R.id.groupFavoriteVsHistory).setVisibility(View.GONE);
+
         recyclerView = findViewById(R.id.recyclerView);
         progressBar  = findViewById(R.id.progressBar);
 
@@ -72,51 +74,143 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
         );
 
-        // ---- adapter with play + favorite ----
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
             @Override public void onPlay(Station s) {
                 myLogI("-------- USER CLICK radio item -------- : " + s.name);
-                progressBar.setVisibility(View.VISIBLE);
-                myLog("main progressbar true, api call resolve url from stationuuid");
 
-                // Resolve (counts a click on RadioBrowser) then play; fallback to url_resolved
+                boolean online = networkStatusController != null && networkStatusController.hasInternet();
+                if (!online) {
+                    myToast(getString(R.string.no_internet_connection));
+                    return;
+                }
+
+                final boolean renewOnClick = Option.getRadioRenewUrl();
+                final boolean hasCachedUrl = s.url_resolved != null && !s.url_resolved.isEmpty();
+
+                // ---------------------------------------------------------------------
+                // FAST PATH:
+                //   - We already have url_resolved
+                //   - AND user did NOT ask "renew URL on click"
+                //
+                // → Play immediately, then background-renew without blocking the user.
+                // ---------------------------------------------------------------------
+                if (hasCachedUrl && !renewOnClick) {
+                    myLogD("RadioResults: using cached url_resolved, scheduling background renew. url_resolved = [" + s.url_resolved + "]");
+
+                    // 1) Immediate playback
+                    StartPlayHelper.onRadioClick(
+                            getApplicationContext(),
+                            s,
+                            s.url_resolved,
+                            "RadioResultsActivity - onPlay() - using cached url_resolved"
+                    );
+
+                    // 2) Background renewal (no spinner / no toast)
+                    repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
+                        @Override
+                        public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
+                            if (!rsp.isSuccessful() ||
+                                    rsp.body() == null ||
+                                    rsp.body().url == null ||
+                                    rsp.body().url.isEmpty()) {
+                                myLogW("RadioResults background resolveUrl: no usable url for " + s.name);
+                                return;
+                            }
+
+                            String newUrl = rsp.body().url;
+                            if (newUrl.equals(s.url_resolved)) {
+                                myLogD("RadioResults background resolveUrl: url unchanged for " + s.name + " -> " + newUrl);
+                                return;
+                            }
+
+                            myLogI("RadioResults background resolveUrl success for " + s.name + " -> " + newUrl);
+                            s.url_resolved = newUrl; // update in-memory
+
+                            // Optional: persist in Room if you track stations there.
+                            // For example, if you add this to your ViewModel:
+                            // viewModel.updateResolvedUrl(getApplicationContext(), s.stationuuid, newUrl);
+                        }
+
+                        @Override
+                        public void onFailure(Call<UrlResolve> call, Throwable t) {
+                            myLogW("RadioResults background resolveUrl failed for " + s.name + " : " + t);
+                            // Silent failure, cached url still works.
+                        }
+                    });
+
+                    return;
+                }
+
+                // ---------------------------------------------------------------------
+                // STRICT PATH:
+                //   - No cached url_resolved (first click)
+                //   - OR "always renew URL" option enabled
+                //
+                // → Show spinner, wait for resolveUrl, then play.
+                // ---------------------------------------------------------------------
+                myLog("RadioResults: Option renew Url = " + renewOnClick
+                        + ", url_resolved = [" + s.url_resolved + "]"
+                        + " => repo.resolveUrl(" + s.stationuuid + ") - " + s.name);
+
+                progressBar.setVisibility(View.VISIBLE);
                 final long topStart = System.currentTimeMillis();
-                repo.resolveUrl(s.stationuuid, new Callback<>() {
-                    @Override public void onResponse(
-                            Call<UrlResolve> call,
-                            Response<UrlResolve> rsp
-                    ) {
-                        myLog("main progressbar false, api call onResponse in " + (System.currentTimeMillis()-topStart) + "ms.");
+
+                repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
+                    @Override
+                    public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         progressBar.setVisibility(View.GONE);
+                        myLog("radio resolveUrl onResponse in " + (System.currentTimeMillis() - topStart) + "ms.");
 
                         String stream = null;
-                        if (rsp.isSuccessful() && rsp.body() != null && rsp.body().url != null && !rsp.body().url.isEmpty()) {
-                            myLogI("resolveUrl success : " + rsp.body().url);
+                        if (rsp.isSuccessful() &&
+                                rsp.body() != null &&
+                                rsp.body().url != null &&
+                                !rsp.body().url.isEmpty()) {
+
                             stream = rsp.body().url;
+                            myLogI("resolveUrl success : " + stream);
+
+                            // cache it in the Station object
+                            s.url_resolved = stream;
+
+                            // Optional: persist in Room via VM
+                            // viewModel.updateResolvedUrl(getApplicationContext(), s.stationuuid, stream);
+
                         } else if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
+                            // fallback to previous cached/known resolved URL
                             myLogI("fallback url_resolved : " + s.url_resolved);
                             stream = s.url_resolved;
                         }
 
                         if (stream != null) {
-                            StartPlayHelper.onRadioClick(getApplicationContext(), s, stream, "RadioResultsActivity - adapter callback: .onPlay()");
+                            StartPlayHelper.onRadioClick(
+                                    getApplicationContext(),
+                                    s,
+                                    stream,
+                                    "RadioResultsActivity - onPlay() - after url renewed"
+                            );
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
                         }
                     }
 
-                    @Override public void onFailure(
-                            Call<UrlResolve> call, Throwable t
-                    ) {
+                    @Override
+                    public void onFailure(Call<UrlResolve> call, Throwable t) {
                         progressBar.setVisibility(View.GONE);
+
                         if (NetworkHelper.isUnknownHost(t)) {
                             myToastE(getString(R.string.no_internet_connection));
                         } else {
                             myLogEE(t, "resolveUrl failed");
+                            // Fallback to cached url_resolved if we have one
                             if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
-                                // Fallback to stored resolved URL
-                                myLogI("fallback url_resolved : " + s.url_resolved);
-                                StartPlayHelper.onRadioClick(getApplicationContext(), s, s.url_resolved, "RadioResultsActivity - adapter callback: .onPlay() - fallback url_resolved");
+                                myLogI("fallback url_resolved (failure) : " + s.url_resolved);
+                                StartPlayHelper.onRadioClick(
+                                        getApplicationContext(),
+                                        s,
+                                        s.url_resolved,
+                                        "RadioResultsActivity - onPlay() - fallback url_resolved after failure"
+                                );
                             } else {
                                 myToastE(getString(R.string.an_error_occurred));
                             }
@@ -130,6 +224,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 viewModel.toggleFavorite(RadioResultsActivity.this, s);
             }
         });
+
         recyclerView.setAdapter(adapter);
 
         // ---- VM + favorites ----

@@ -20,6 +20,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.radio.RadioStation;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -39,6 +40,7 @@ public class ImageHelper {
     public static final int MAX_IMAGE_HEIGHT = 1280;
 
     public static final String IMAGE_PREFIX_FOR_PODCAST_COVERS = "podcast_feed_";
+    public static final String IMAGE_PREFIX_FOR_RADIO_COVERS = "radio_station_";
     public static final String IMAGE_PREFIX_FOR_LIBRIVOX_COVERS = "librivox_img_";
     public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
@@ -121,7 +123,7 @@ public class ImageHelper {
                     }
                 }
 
-    // --- Handle Folder images ---
+                // --- Handle Folder images ---
                 List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
                 for (Folder folder : pendingFolders) {
                     String url = folder.image;
@@ -142,6 +144,31 @@ public class ImageHelper {
                         db.folderDao().update(folder);
                     }
                 }
+
+                // --- Handle Radio images ---
+                List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImages();
+                for (RadioStation radioStation : radioStations) {
+                    String url = radioStation.favicon;
+                    String imagePath = IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
+                    String localPath = null;
+                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
+                    if (localPath != null) {
+                        File f = new File(localPath);
+                        if (f.exists() && f.length() > 0L) {
+                            // OK, non-empty file → persist local path
+                            radioStation.favicon = localPath;
+                            db.radioStationDao().update(radioStation);
+                        } else {
+                            // 0 KB or missing → treat as failure, clean up
+                            myLogW("Radio favicon download failed or empty (" + f.length() + " bytes) for " + url);
+                            if (f.exists() && f.length() == 0L) {
+                                try {myLog("deleting bad file, success=" + f.delete());} catch (Exception ignored) {}
+                            }
+                            // keep old favicon URL in DB so Glide can still try remote
+                        }
+                    }
+                }
+
             });
         }
 

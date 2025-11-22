@@ -17,7 +17,9 @@ import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.radio.RadioFavoritesStore;
+import com.driot.bookplayer.radio.RadioStationDao;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class NavHelper {
     public static PendingIntent navigateToMain(Context context) {
@@ -57,14 +59,31 @@ public class NavHelper {
 
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        RadioFavoritesStore store = new RadioFavoritesStore(context);
-        if (store.anyFavoriteExists()) {
+
+        Context appCtx = context.getApplicationContext();
+
+        boolean hasFavOrHistory = false;
+        try {
+            // Run the Room query on the DB executor, not on the main thread
+            hasFavOrHistory = AppDatabase.databaseReadExecutor
+                    .submit(() -> {
+                        RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
+                        return dao.anyFavoriteOrHistoryExists();
+                    })
+                    .get(); // wait for result (fast)
+        } catch (Exception e) {
+            myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
+        }
+
+        if (hasFavOrHistory) {
+            // Build back stack: Main -> GetRadio -> RadioFavorites
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
             tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
             tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class));
             return tsb.getPendingIntent(0, flags);
         } else {
+            // No favorites/history → go straight to radio search
             return PendingIntent.getActivity(
                     context,
                     0,
@@ -74,44 +93,42 @@ public class NavHelper {
             );
         }
     }
-    public static Intent getNavToRadioActivityIntent(Context context) {
-        RadioFavoritesStore store = new RadioFavoritesStore(context);
-        if (store.anyFavoriteExists()) {
-            // Directly go to favorites when user taps the Radio tab
-            return new Intent(context, RadioFavoritesActivity.class);
-        } else {
-            // No favorites yet: go to search
-            return new Intent(context, GetRadioActivity.class);
-        }
-    }
 
     public static void navigateToRadioSection(Activity activity, boolean removeTransitions) {
-        RadioFavoritesStore store = new RadioFavoritesStore(activity.getApplicationContext());
+        Context appCtx = activity.getApplicationContext();
 
-        if (store.anyFavoriteExists()) {
-            // 1) Base screen in stack: radio search/list
-            Intent listIntent = new Intent(
-                    activity,
-                    GetRadioActivity.class
-            );
-            // Optional: reuse existing if already on top
-            //listIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
+            boolean hasFavOrHistory = dao.anyFavoriteOrHistoryExists();
 
-            // 2) Top screen shown to the user: favorites
-            Intent favIntent = new Intent(
-                    activity,
-                    RadioFavoritesActivity.class
-            );
+            activity.runOnUiThread(() -> {
+                if (hasFavOrHistory) {
+                    // 1) Base screen in stack: radio search/list
+                    Intent listIntent = new Intent(
+                            activity,
+                            GetRadioActivity.class
+                    );
 
-            // Build back stack: GetRadio -> RadioFavorites
-            activity.startActivities(new Intent[]{ listIntent, favIntent });
+                    // 2) Top screen shown to the user: favorites/history screen
+                    Intent favIntent = new Intent(
+                            activity,
+                            RadioFavoritesActivity.class
+                    );
 
-        } else {
-            // No favorites yet: go to radio search
-            Intent intent = new Intent(activity, GetRadioActivity.class);
-            activity.startActivity(intent);
-        }
-        if (removeTransitions) activity.overridePendingTransition(0, 0);
+                    // Build back stack: GetRadio -> RadioFavorites
+                    activity.startActivities(new Intent[]{ listIntent, favIntent });
+
+                } else {
+                    // No favorites and no history yet: go to radio search
+                    Intent intent = new Intent(activity, GetRadioActivity.class);
+                    activity.startActivity(intent);
+                }
+
+                if (removeTransitions) {
+                    activity.overridePendingTransition(0, 0);
+                }
+            });
+        });
     }
 
 

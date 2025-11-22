@@ -1,5 +1,6 @@
 package com.driot.bookplayer.radio;
 
+import androidx.annotation.NonNull;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -26,6 +27,9 @@ public interface RadioStationDao {
 
     @Query("SELECT * FROM RadioStation ORDER BY display_order ASC, name COLLATE NOCASE ASC")
     List<RadioStation> getAll();
+
+    @Query("SELECT * FROM RadioStation WHERE favicon IS NOT NULL AND favicon LIKE 'http%'")
+    List<RadioStation> getAllWithExternalImages();
 
     @Query("SELECT * FROM RadioStation WHERE stationuuid = :uuid LIMIT 1")
     RadioStation findByUuid(String uuid);
@@ -62,4 +66,9 @@ public interface RadioStationDao {
     @Query("SELECT COUNT(*) FROM RadioStation WHERE date_last_played IS NOT NULL")
     int countHistory();
 
+    @Query("SELECT EXISTS(SELECT 1 FROM RadioStation WHERE isFavorite = 1 OR date_last_played IS NOT NULL)")
+    boolean anyFavoriteOrHistoryExists();
+
+    @Query("UPDATE RadioStation SET url_resolved = :newUrl WHERE stationuuid = :uuid")
+    void updateLastUrl(@NonNull String uuid, @NonNull String newUrl);
 }

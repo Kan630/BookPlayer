@@ -25,7 +25,6 @@ import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.UrlResolve;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.List;
@@ -42,8 +41,11 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     private RadioBrowserRepository repo; // for resolveUrl on play()
     private View dropZone;
     private ItemTouchHelper touchHelper;
+    private boolean isHistoryMode = false;
 
     private NetworkStatusRowController networkStatusController;
+
+    private boolean updatingToggleFromVm = false;
 
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
@@ -74,15 +76,17 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         );
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
-        viewModel.initMode(this);
 
+// Favorites vs History Toggle
         MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);
-        MaterialButton btnFavorites     = findViewById(R.id.btnRadioFavorites);
-        MaterialButton btnHistory       = findViewById(R.id.btnRadioHistory);
-
-// Handle user clicks (toggle changes)
         group.addOnButtonCheckedListener((g, checkedId, isChecked) -> {
             if (!isChecked) return; // ignore un-check events
+
+            // IGNORE changes coming from VM/UI syncing
+            if (updatingToggleFromVm) {
+                myLogD("Toggle change from ViewModel sync, ignoring as user click.");
+                return;
+            }
 
             if (checkedId == R.id.btnRadioFavorites) {
                 myLogI("--- user clicks favorites ---");
@@ -92,11 +96,12 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 viewModel.loadHistory(RadioFavoritesActivity.this);
             }
         });
+        viewModel.initMode(this);
 
 
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override public void onPlay(RadioFavoriteItem f) {
-                myLogI("--- user clicks radio item --- : " + f.name);
+                myLogI("--- user clicks 'favorite/history' radio item --- : " + f.name);
 
                 boolean online = networkStatusController != null && networkStatusController.hasInternet();
                 if (!online) {
@@ -104,50 +109,131 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     return;
                 }
 
-                if (Option.getRadioRenewUrl() || f.last_url==null || f.last_url.isEmpty()) {
-                    myLog("Option renew Url = " + Option.getRadioRenewUrl() + ", lastUrl = [" + f.last_url + "]... => repo.resolveUrl(" + f.stationuuid + ") - " + f.name);
-                    setProgressVisible(true, getString(R.string.checking_for_best_mirror));
+                final boolean renewOnClick = Option.getRadioRenewUrl();
+                final boolean hasCachedUrl = f.last_url != null && !f.last_url.isEmpty();
 
-                    // Resolve (counts a click on RadioBrowser) then play; fallback to stored url_resolved if you add it later
-                    repo.resolveUrl(f.stationuuid, new Callback<>() {
-                        @Override public void onResponse(
-                                Call<UrlResolve> call,
-                                Response<UrlResolve> rsp
-                        ) {
-                            setProgressVisible(false, null);
-                            String stream = null;
-                            if (rsp.isSuccessful() && rsp.body() != null && rsp.body().url != null && !rsp.body().url.isEmpty()) {
-                                stream = rsp.body().url;
-                                myLogI("resolveUrl success : " + stream);
-                                f.last_url = stream;
+                // -------------------------------------------------------------------------
+                // FAST PATH:
+                //   - We already have a cached URL
+                //   - AND user did NOT request "renew on click"
+                //
+                // → Play immediately (no spinner), then refresh URL in background.
+                // -------------------------------------------------------------------------
+                if (hasCachedUrl && !renewOnClick) {
+                    myLogD("Radio: using cached URL, scheduling background renew. last_url = [" + f.last_url + "]");
+
+                    // 1) Immediate playback with cached URL
+                    StartPlayHelper.onRadioFavoriteClick(
+                            getApplicationContext(),
+                            f,
+                            f.last_url,
+                            "RadioFavoritesActivity - onPlay() - using cached last_url"
+                    );
+
+                    // 2) Background best-effort renew (no UI spinner/toasts)
+                    repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() {
+                        @Override
+                        public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
+                            if (!rsp.isSuccessful() || rsp.body() == null ||
+                                    rsp.body().url == null || rsp.body().url.isEmpty()) {
+                                myLogW("background resolveUrl: no usable url for " + f.name);
+                                return;
+                            }
+                            String newUrl = rsp.body().url;
+                            if (newUrl.equals(f.last_url)) {
+                                myLogD("background resolveUrl: url unchanged for " + f.name + " -> " + newUrl);
+                                return;
                             }
 
-                            if (stream != null) {
-                                StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, stream, "RadioFavoritesActivity - adapter callback: .onPlay() - after url renewed");
-                            } else {
-                                myToastE(getString(R.string.an_error_occurred));
-                            }
+                            myLogI("background resolveUrl success for " + f.name + " -> " + newUrl);
+                            f.last_url = newUrl; // update in-memory item
+
+                            // Persist in Room (see section 2)
+                            viewModel.updateFavoriteLastUrl(
+                                    getApplicationContext(),
+                                    f.stationuuid,
+                                    newUrl
+                            );
                         }
 
-                        @Override public void onFailure(
-                                Call<UrlResolve> call, Throwable t
-                        ) {
-                            setProgressVisible(false, null);
-                            if (NetworkHelper.isUnknownHost(t)) {
-                                myToastE(getString(R.string.no_internet_connection));
-                            } else {
-                                myLogEE(t, "resolveUrl failed");
-                                myToastE(getString(R.string.error_radio_renew_url));
-                                if (!(f.last_url==null || f.last_url.isEmpty())) {
-                                    StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, f.last_url,"RadioFavoritesActivity - adapter callback: .onPlay() - url NOT renewed");
-                                }
-                            }
+                        @Override
+                        public void onFailure(Call<UrlResolve> call, Throwable t) {
+                            myLogW("background resolveUrl failed for " + f.name + " : " + t);
+                            // no UI feedback, cached url still works
                         }
                     });
-                } else {
-                    myLogD("Option renew Url = False");
-                    StartPlayHelper.onRadioFavoriteClick(getApplicationContext(), f, f.last_url,"RadioFavoritesActivity - adapter callback: .onPlay() - url NOT renewed");
+
+                    return;
                 }
+
+
+                // -------------------------------------------------------------------------
+                // SLOW / STRICT PATH:
+                //   - No cached URL (first time or old data)
+                //   - OR user option = "always renew URL before play"
+                //
+                // → Show spinner, wait for resolveUrl, then play.
+                // -------------------------------------------------------------------------
+                myLog("Option renew Url = " + renewOnClick + ", lastUrl = [" + f.last_url + "]"
+                        + " => resolveUrl(" + f.stationuuid + ") - " + f.name);
+                setProgressVisible(true, getString(R.string.checking_for_best_mirror));
+
+                repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() {
+                    @Override
+                    public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
+                        setProgressVisible(false, null);
+                        String stream = null;
+                        if (rsp.isSuccessful() && rsp.body() != null &&
+                                rsp.body().url != null && !rsp.body().url.isEmpty()) {
+                            stream = rsp.body().url;
+                            myLogI("resolveUrl success : " + stream);
+                            f.last_url = stream;
+
+                            // Persist in Room
+                            viewModel.updateFavoriteLastUrl(
+                                    getApplicationContext(),
+                                    f.stationuuid,
+                                    stream
+                            );
+                        } else if (hasCachedUrl) {
+                            // fallback to previous last_url if we had it
+                            stream = f.last_url;
+                            myLogI("resolveUrl empty, fallback to last_url : " + stream);
+                        }
+
+                        if (stream != null) {
+                            StartPlayHelper.onRadioFavoriteClick(
+                                    getApplicationContext(),
+                                    f,
+                                    stream,
+                                    "RadioFavoritesActivity - onPlay() - after url renewed"
+                            );
+                        } else {
+                            myToastE(getString(R.string.radio_could_not_resolve_url));
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(Call<UrlResolve> call, Throwable t) {
+                        setProgressVisible(false, null);
+                        if (NetworkHelper.isUnknownHost(t)) {
+                            myToastE(getString(R.string.no_internet_connection));
+                        } else {
+                            myLogEE(t, "resolveUrl failed");
+                            myToastE(getString(R.string.error_radio_renew_url));
+
+                            // Fallback to cached URL if any
+                            if (f.last_url != null && !f.last_url.isEmpty()) {
+                                StartPlayHelper.onRadioFavoriteClick(
+                                        getApplicationContext(),
+                                        f,
+                                        f.last_url,
+                                        "RadioFavoritesActivity - onPlay() - url NOT renewed (fallback)"
+                                );
+                            }
+                        }
+                    }
+                });
             }
 
             @Override public void onUnfavorite(RadioFavoriteItem f) {
@@ -167,7 +253,13 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         FavoritesTouchHelperCallback cb = new FavoritesTouchHelperCallback(recyclerView, dropZone, adapter);
         touchHelper = new ItemTouchHelper(cb);
         touchHelper.attachToRecyclerView(recyclerView);
-        adapter.setOnStartDragListener(vh -> touchHelper.startDrag(vh));
+        adapter.setOnStartDragListener(vh -> {
+            // Only allow drag when in favorites (not history)
+            if (!isHistoryMode && touchHelper != null) {
+                touchHelper.startDrag(vh);
+            }
+        });
+
 
         // repo for resolveUrl
         repo = new RadioBrowserRepository(
@@ -178,15 +270,28 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
         viewModel.getShowingHistory().observe(this, isHistory -> {
             boolean history = Boolean.TRUE.equals(isHistory);
+            isHistoryMode = history;
 
             // Select correct toggle button without triggering clicks
+            updatingToggleFromVm = true;
             group.check(history ? R.id.btnRadioHistory : R.id.btnRadioFavorites);
+            updatingToggleFromVm = false;
 
-            // maybe useless (as some other code should deal with that) : Hide dragging when in history mode
-            if (history) dropZone.setVisibility(View.GONE);
+            // Drag & drop only in favorites
+            if (history) {
+                dropZone.setVisibility(View.GONE);
+                if (touchHelper != null) {
+                    touchHelper.attachToRecyclerView(null);   // disable drag
+                }
+            } else {
+                if (touchHelper != null) {
+                    touchHelper.attachToRecyclerView(recyclerView);  // enable drag
+                }
+            }
 
             adapter.setHistoryMode(history);
         });
+
 
         setProgressVisible(true, getString(R.string.loading));
         viewModel.getFavoriteItems().observe(this, favorites -> {

@@ -62,13 +62,11 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-                    repo = new RadioBrowserRepository(
-                            this,
-                            /* discoverMirrors */ true,
-                            /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-                    );
-                });
+        repo = new RadioBrowserRepository(
+                this,
+                /* discoverMirrors */ false,
+                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+        );
 
         // ---- find views ----
         buttonTrending = findViewById(R.id.bRadioTrending);

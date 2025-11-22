@@ -72,7 +72,7 @@ public class Var {
     public static final int PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES = 15;
     public static final boolean FORCE_AUTO_DOWNLOAD_NO_DELAY = false; // for
 
-    public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.BODY;
+    public static final HttpLoggingInterceptor.Level HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL = HttpLoggingInterceptor.Level.NONE;
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 1000;
     public static final int LIBRIVOX_API_MIN_RESULTS = 20;
@@ -83,6 +83,7 @@ public class Var {
     public static final int PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
 
     public static final String PODCAST_SOURCE = "podcastindex.org";
+    public static final String DEFAULT_RADIO_MIRROR = "https://de1.api.radio-browser.info/";  //https://fi1.api.radio-browser.info";
 
     //public static final int PODCAST_INDEX_ORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
     public static final int PODCAST_INDEX_ORG_SINCE = 0 ; //5 juillet, 2025

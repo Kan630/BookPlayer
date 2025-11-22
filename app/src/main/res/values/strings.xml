@@ -1208,5 +1208,7 @@
     <string name="option_lock_orientation_play_activity">Lock screen orientation</string>
 
     <string name="History">History</string>
+    <string name="in_history">in history</string>
+    <string name="radio_could_not_resolve_url">This station link seems broken.</string>
 
 </resources>

@@ -74,7 +74,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             h.tvSearch.setVisibility(View.GONE);
             h.tvLang.setVisibility(View.GONE);
             h.tvCountryTag.setVisibility(View.GONE);
-            String resultsCount = items.size() + " " + vh.itemView.getContext().getString(R.string.favorites);
+            String resultsCount = items.size() + " " + (historyMode ? vh.itemView.getContext().getString(R.string.in_history) : vh.itemView.getContext().getString(R.string.favorites));
             h.tvCount.setText(resultsCount);
         } else {
             int idx = position - 1;

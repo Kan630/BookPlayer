@@ -43,6 +43,9 @@ public class Pref {
     public static long getLastDbClean() {return timeStamp.getLong("DB_CLEAN", 0);}
     public static void setLastDbClean() {timeStamp.edit().putLong("DB_CLEAN", System.currentTimeMillis()).apply();}
 
+    public static String get_radio_mirror() {return prefs.getString("RADIO_MIRROR", Var.DEFAULT_RADIO_MIRROR);}
+    public static void set_radio_mirror(String strValue) {prefs.edit().putString("RADIO_MIRROR", strValue).apply();}
+
 
     /////////////////// HAS BEEN PAUSED FOR  ///////////////////
     public static void setPauseTime(long value) {prefs.edit().putLong("PAUSE_TIME", value).apply();}

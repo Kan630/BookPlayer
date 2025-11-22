@@ -5,6 +5,8 @@ import android.content.Context;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Executors;
 
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
@@ -16,21 +18,30 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 
 
 public class RadioBrowserServiceFactory {
 
-    private static final String DEFAULT_BASE = "https://de1.api.radio-browser.info/";
     // Fallback list (can be expanded later)
     private static final String[] FALLBACKS = new String[]{
-            "https://fr1.api.radio-browser.info/",
-            "https://de1.api.radio-browser.info/",
-            "https://nl1.api.radio-browser.info/",
-            "https://at1.api.radio-browser.info/",
-            "https://fi1.api.radio-browser.info/",
-            "https://de2.api.radio-browser.info/"
+            "https://fi1.api.radio-browser.info/"
+            ,"https://de2.api.radio-browser.info/"
+            ,"https://de1.api.radio-browser.info/"
+            ,"https://fr1.api.radio-browser.info/"
+            ,"https://nl1.api.radio-browser.info/"
     };
+
+    public static void init(Context context) {
+        Executors.newSingleThreadExecutor().execute(() -> {
+            RadioBrowserServiceFactory.createRetrofit(
+                    context,
+                    /* tryDiscoverMirrors = */ true,
+                    Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+            );
+        });
+    }
 
     public static Retrofit createRetrofit(Context ctx, boolean tryDiscoverMirrors, HttpLoggingInterceptor.Level logLevel) {
         OkHttpClient client = new OkHttpClient.Builder()
@@ -38,20 +49,29 @@ public class RadioBrowserServiceFactory {
                 .addInterceptor(httpLogging(logLevel))
                 .build();
 
-        String base = DEFAULT_BASE;
+        String base = Pref.get_radio_mirror();
 
         myLogD("tryDiscoverMirrors = " + tryDiscoverMirrors);
 
         if (tryDiscoverMirrors) {
-            String discovered = discoverBestMirror(client);
+            Set<String> failedBases = new java.util.HashSet<>();
+            String discovered = discoverBestMirror(client, failedBases);
             if (discovered != null) {
                 base = discovered;
+                Pref.set_radio_mirror(base);
             } else {
                 // try fallbacks quickly (first one that responds)
                 for (String fb : FALLBACKS) {
+                    if (failedBases.contains(fb)) {
+                        myLogD("Skipping fallback (already failed): " + fb);
+                        continue;
+                    }
                     if (probeMirror(client, fb)) {
                         base = fb;
+                        Pref.set_radio_mirror(base);
                         break;
+                    } else {
+                        failedBases.add(fb);
                     }
                 }
             }
@@ -87,13 +107,12 @@ public class RadioBrowserServiceFactory {
     }
 
     /** Discover a good mirror via /json/servers + probing. */
-    private static String discoverBestMirror(OkHttpClient client) {
+    private static String discoverBestMirror(OkHttpClient client, Set<String> failedBases) {
         myLogD("discoverBestMirror");
 
         try {
-            // Use a known working server as bootstrap, not api.radio-browser.info
             Retrofit rootRetrofit = new Retrofit.Builder()
-                    .baseUrl(DEFAULT_BASE)
+                    .baseUrl(Pref.get_radio_mirror())
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
@@ -124,6 +143,10 @@ public class RadioBrowserServiceFactory {
                 myLogD("server discovery candidate: name=" + s.name
                         + " ip=" + s.ip + " base=" + base);
 
+                if (failedBases.contains(base)) {
+                    myLogD("Skipping candidate (already failed): " + base);
+                    continue;
+                }
                 if (probeMirror(client, base)) {
                     myLog("discoverBestMirror: selected " + base);
                     return base;
@@ -149,7 +172,14 @@ public class RadioBrowserServiceFactory {
             RadioBrowserApi api = r.create(RadioBrowserApi.class);
             retrofit2.Response<List<Station>> resp = api.topVoted(1, false).execute();
             return resp.isSuccessful();
+        } catch (javax.net.ssl.SSLHandshakeException e) {
+            myLogW("probeMirror SSLHandshakeException for " + base + " : " + e);
+            return false;
         } catch (IOException e) {
+            myLogW("probeMirror IOException for " + base + " : " + e);
+            return false;
+        } catch (Exception e) {
+            myLogW("probeMirror generic error for " + base + " : " + e);
             return false;
         }
     }
