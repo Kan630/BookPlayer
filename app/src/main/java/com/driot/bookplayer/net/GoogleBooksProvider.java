@@ -6,6 +6,7 @@ import android.content.Context;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.CoverResult;
 
 import java.io.InputStream;
@@ -29,7 +30,7 @@ public class GoogleBooksProvider implements CoverSearchProvider {
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(8000);
             conn.setInstanceFollowRedirects(true);
-            conn.setRequestProperty("User-Agent", "BookPlayer/1.0 (+https://example.invalid)");
+            conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
 
             try (InputStream in = conn.getInputStream()) {
                 String json = NetUtils.readUtf8(in);

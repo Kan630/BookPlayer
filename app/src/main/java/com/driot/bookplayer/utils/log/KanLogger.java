@@ -16,7 +16,6 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
@@ -37,7 +36,9 @@ public class KanLogger {
 
 
     private static final boolean LOG_DEBUG = true;
-    public static final boolean LOG_LIFECYCLE_TRACE = true;
+    public static final boolean LOG_LIFECYCLE_TRACE = false;
+    public static final boolean LOG_FRAGMENT_LIFECYCLE_TRACE = false;
+    public static final boolean LOG_INSETS = false;
 
 
     private static final String PREFIX_DELETE = "com.driot.bookplayer.";

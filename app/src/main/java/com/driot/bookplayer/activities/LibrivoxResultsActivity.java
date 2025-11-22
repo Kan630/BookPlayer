@@ -19,7 +19,6 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.objects.LibrivoxApiResponse;
 import com.driot.bookplayer.objects.LibrivoxApi;
 import com.driot.bookplayer.objects.LibrivoxItem;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.Arrays;
 import java.util.List;
@@ -50,8 +49,6 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
-        //InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
         InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView);

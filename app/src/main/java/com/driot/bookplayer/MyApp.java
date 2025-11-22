@@ -15,7 +15,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
@@ -47,7 +46,7 @@ public class MyApp extends Application {
         BookToAdd.init(getApplicationContext());
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
-        FirebaseAnalyticsHelper.init(getApplicationContext());
+        FirebaseAnalyticsHelper.init(getApplicationContext()); //after pref
 
         myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
         myLog("ooooooooooooooooooo      BOOKPLAYER      ooooooooooooooooooooo");

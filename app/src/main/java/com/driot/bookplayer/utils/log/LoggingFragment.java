@@ -8,7 +8,7 @@ import androidx.fragment.app.Fragment;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 
-import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
+import static com.driot.bookplayer.utils.log.KanLogger.LOG_FRAGMENT_LIFECYCLE_TRACE;
 
 public abstract class LoggingFragment extends Fragment {
 
@@ -80,27 +80,27 @@ public abstract class LoggingFragment extends Fragment {
     //////////////////////////////////////////////////////////////////////////////////////////
 
     private void myInsideLog(String str) {
-        if (LOG_LIFECYCLE_TRACE)
+        if (LOG_FRAGMENT_LIFECYCLE_TRACE)
             KanLogger.myLog("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
     private void myInsideLogD(String str) {
-        if (LOG_LIFECYCLE_TRACE)
+        if (LOG_FRAGMENT_LIFECYCLE_TRACE)
             KanLogger.myLogD("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
     private void myInsideLogDW(String str) {
-        if (LOG_LIFECYCLE_TRACE)
+        if (LOG_FRAGMENT_LIFECYCLE_TRACE)
             KanLogger.myLogW("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
     private void myInsideLogDE(String str) {
-        if (LOG_LIFECYCLE_TRACE)
+        if (LOG_FRAGMENT_LIFECYCLE_TRACE)
             KanLogger.myLogE("Lifecycle", TAG_FROM_BRACKET + str);
     }
 
     private void myInsideLogDEE(Throwable t, String str) {
-        if (LOG_LIFECYCLE_TRACE)
+        if (LOG_FRAGMENT_LIFECYCLE_TRACE)
             KanLogger.myLogEE(t, "Lifecycle", TAG_FROM_BRACKET + str);
     }
 

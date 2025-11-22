@@ -64,7 +64,7 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
 
         // Listener first
         bottomNav.setOnItemSelectedListener(item -> {
-            myLogI("--- user click bottom Nav bar ---    itemId=" + item.getItemId() + " - " + item.getTitle());
+            myLogI("--- user click bottom Nav bar ---    item = " + item.getItemId() + " - " + item.getTitle());
             int id = item.getItemId();
             if (id == getNavId()) {
                 myLogD("already here");

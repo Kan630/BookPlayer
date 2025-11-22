@@ -2,6 +2,7 @@ package com.driot.bookplayer.net;
 
 import android.content.Context;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.objects.CoverResult;
 
 import java.util.ArrayList;
@@ -27,7 +28,7 @@ public class PixabayProxyProvider implements CoverSearchProvider {
             java.net.HttpURLConnection conn = (java.net.HttpURLConnection) new java.net.URL(urlStr).openConnection();
             conn.setConnectTimeout(8000);
             conn.setReadTimeout(8000);
-            conn.setRequestProperty("User-Agent", "BookPlayer/1.0 (+android)");
+            conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
             if (appToken != null && !appToken.isEmpty()) conn.setRequestProperty("x-app-auth", appToken);
 
             int code = conn.getResponseCode();

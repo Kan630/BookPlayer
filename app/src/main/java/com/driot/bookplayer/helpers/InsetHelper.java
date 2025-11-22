@@ -19,6 +19,8 @@ import androidx.core.view.WindowInsetsControllerCompat;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.utils.log.KanLogger;
+
 /**
  * Edge-to-edge + insets helper (API 26+).
  * - Global logging toggle
@@ -120,7 +122,7 @@ public final class InsetHelper {
             myLogEE(null,"apply(): root content view is NULL, aborting insets setup.");
             return;
         }
-        myLogD("apply() on root");
+        if (KanLogger.LOG_INSETS) myLogD("apply() on root");
         applyInsets(activity, root,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -137,7 +139,7 @@ public final class InsetHelper {
 
     /** Scrollable view draws behind nav bar with proper bottom padding. */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
-        myLogD("applyInsetsForScrollableBehindNavBar()");
+        if (KanLogger.LOG_INSETS) myLogD("applyInsetsForScrollableBehindNavBar()");
         if (scrollableView == null) { //can be null at runtime, just a compiler check
             myLogE("applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root. for " + (activity!=null ? activity.getLocalClassName() : "null activity"));
             View root = activity.findViewById(android.R.id.content);
@@ -165,7 +167,7 @@ public final class InsetHelper {
     // 1) Ensure a view starts *below* the status bar / cutout.
 //    Keeps edge-to-edge on, but adds only TOP padding (and left/right if you wish).
     public static void applyTopInsetsTo(@NonNull Activity activity, @NonNull View targetView) {
-        myLogD("applyTopInsetsTo()");
+        if (KanLogger.LOG_INSETS) myLogD("applyTopInsetsTo()");
         applyInsets(activity, targetView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -183,7 +185,7 @@ public final class InsetHelper {
     // 2) Scrollable list behind nav bar, with IME lift.
 //    Only bottom padding + optional side padding. No top padding here.
     public static void applyBottomInsetsForScrollable(@NonNull Activity activity, @NonNull View scrollableView) {
-        myLogD("applyBottomInsetsForScrollable()");
+        if (KanLogger.LOG_INSETS) myLogD("applyBottomInsetsForScrollable()");
         applyInsets(activity, scrollableView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -230,7 +232,7 @@ public final class InsetHelper {
                 window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
 
-            myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
+            if (KanLogger.LOG_INSETS) myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
                     + ", statusBarColor=" + colorHex(actualStatus)
                     + " (requested=" + colorHex(windowCfg.statusBarColor) + ")"
                     + ", navBarColor=" + colorHex(windowCfg.navigationBarColor)
@@ -261,7 +263,7 @@ public final class InsetHelper {
                     v.setPadding(left, top, right, bottom);
                 }
 
-                myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
+                if (KanLogger.LOG_INSETS) myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
                         + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
                         + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
                         + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom
@@ -362,9 +364,9 @@ public final class InsetHelper {
     private static void requestApplyInsetsSafely(@NonNull View v) {
         try {
             ViewCompat.requestApplyInsets(v);
-            myLogD("requestApplyInsets() posted for view=" + v.getClass().getSimpleName());
+            myLogD("requestApplyInsetsSafely() posted for view=" + v.getClass().getSimpleName());
         } catch (Throwable t) {
-            myLogEE(t, "requestApplyInsets() failed");
+            myLogEE(t, "requestApplyInsetsSafely() failed");
         }
     }
 

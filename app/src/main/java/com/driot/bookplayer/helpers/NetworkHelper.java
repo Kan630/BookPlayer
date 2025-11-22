@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -293,7 +294,7 @@ public class NetworkHelper {
                 conn.setConnectTimeout(GET_IMAGE_CONNECT_TIMEOUT_MS);
                 conn.setReadTimeout(GET_IMAGE_READ_TIMEOUT_MS);
                 conn.setUseCaches(false);
-                conn.setRequestProperty("User-Agent", "BookPlayer/1.0 (Android)");
+                conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
                 conn.setRequestProperty("Accept-Encoding", "identity");
 
                 int code = conn.getResponseCode();

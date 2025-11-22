@@ -6,6 +6,7 @@ import android.os.Bundle;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.BuildConfig;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
@@ -20,8 +21,15 @@ public final class FirebaseAnalyticsHelper {
     private static String appVersion;
 
     public static void init(Context context) {
-        appVersion = BuildConfig.VERSION_NAME;
-        appContext = context.getApplicationContext();
+        try {
+            appVersion = BuildConfig.VERSION_NAME;
+            appContext = context.getApplicationContext();
+            setCustomKeyCrashlytics("app_version", appVersion);
+            setCustomKeyCrashlytics("first_open_date", Pref.getFirstOpenDate());
+            setCustomKeyCrashlytics("total_ms_played", Tonio.formatTime(Pref.getTotalMsPlayed(), false));
+        } catch (Exception e) {
+            myLogE("FirebaseAnalyticsHelper init crash : " + e.getMessage());
+        }
     }
 
 //CRASHLYTICS

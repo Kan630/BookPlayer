@@ -330,7 +330,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                     HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
                     conn.setRequestMethod("GET");
                     conn.setRequestProperty("Range", "bytes=0-0");
-                    conn.setRequestProperty("User-Agent", "Mozilla/5.0 (Android)");
+                    conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
                     conn.connect();
 
                     int responseCode = conn.getResponseCode();
