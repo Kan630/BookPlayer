@@ -1,6 +1,7 @@
 package com.driot.bookplayer.radio;
 
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
@@ -27,6 +28,9 @@ public interface RadioStationDao {
 
     @Query("SELECT * FROM RadioStation ORDER BY display_order ASC, name COLLATE NOCASE ASC")
     List<RadioStation> getAll();
+
+    @Query("SELECT * FROM RadioStation WHERE stationuuid = :uuid LIMIT 1")
+    LiveData<RadioStation> getLiveDataByUuid(String uuid);
 
     @Query("SELECT * FROM RadioStation WHERE favicon IS NOT NULL AND favicon LIKE 'http%'")
     List<RadioStation> getAllWithExternalImages();

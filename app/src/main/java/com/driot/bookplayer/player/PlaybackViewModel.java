@@ -177,7 +177,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 phaseId, cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
-                cur.trackId, cur.folderId, cur.podcastFeedId,
+                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1
                 , cur.extras
         );

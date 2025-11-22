@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetRadioActivity;
+import com.driot.bookplayer.activities.RadioStationActivity;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 
@@ -66,7 +67,19 @@ public class MiniPlayRadioFragment extends LoggingFragment {
 
         v.setOnClickListener(_x -> {
             myLogI("---- user press mini player ----");
-            startActivity(new Intent(requireContext(), GetRadioActivity.class));
+            if (vm.getState() != null && vm.getState().getValue() != null) {
+                String radioStationUuid = vm.getState().getValue().radioStationUuid;
+                myLogD("radioStationUuid = " + radioStationUuid);
+                if (radioStationUuid!=null) {
+                    Intent intent = new Intent(requireContext(), RadioStationActivity.class);
+                    intent.putExtra(RadioStationActivity.EXTRA_STATION_UUID, radioStationUuid);
+                    startActivity(intent);
+                } else {
+                    startActivity(new Intent(requireContext(), GetRadioActivity.class));
+                }
+            } else {
+                startActivity(new Intent(requireContext(), GetRadioActivity.class));
+            }
         });
     }
 

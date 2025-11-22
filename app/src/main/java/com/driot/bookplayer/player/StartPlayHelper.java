@@ -51,11 +51,11 @@ public class StartPlayHelper {
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
         String cover = ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image;
-        playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, ep.title, cover, caller);
+        playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title, cover, caller);
     }
 
     public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
-        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.name, s.favicon, caller);
+        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon, caller);
         //update DB
         final Station station = s;
         AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -75,7 +75,7 @@ public class StartPlayHelper {
     }
 
     public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
-        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.name, f.favicon, caller);
+        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name, f.favicon, caller);
         //update DB
         AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
@@ -277,7 +277,7 @@ public class StartPlayHelper {
             String playMode = pl.getPlayMode();
             if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
                 myLog("Car onPlay, resuming... send play stream");
-                playStream(context, playMode, pl.getUrl(), -1, null, null, "carOnPlay()");
+                playStream(context, playMode, pl.getUrl(), -1, null, null, null, "carOnPlay()");
             } else {
                 ZikFile zikFile = pl.getZikFile();
                 myLog("Car onPlay, resuming... send CMD play");
@@ -555,7 +555,7 @@ public class StartPlayHelper {
         );
     }
 
-    private static void playStream(Context context, String playMode, String streamUrl, long id, String title, String cover, String caller) {
+    private static void playStream(Context context, String playMode, String streamUrl, long id, String uuid, String title, String cover, String caller) {
         PlayList.createFromStream(context, playMode, streamUrl);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
         androidx.core.content.ContextCompat.startForegroundService(
@@ -565,6 +565,7 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_PLAY_MODE, playMode)
                         .putExtra(Intents.EXTRA_STREAM_URL, streamUrl)
                         .putExtra(Intents.EXTRA_PODCAST_FEED_ID, id)
+                        .putExtra(Intents.EXTRA_RADIO_STATION_UUID, uuid)
                         .putExtra(Intents.EXTRA_TITLE, title)
                         .putExtra(Intents.EXTRA_IMAGE_URL, cover)
                         .putExtra(Intents.EXTRA_CALLER, caller)

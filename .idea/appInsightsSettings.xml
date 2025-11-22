@@ -14,30 +14,6 @@
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="SEVEN_DAYS" />
-              <option name="versions">
-                <list>
-                  <VersionSetting>
-                    <option name="buildVersion" value="199" />
-                    <option name="displayName" value="199" />
-                    <option name="displayVersion" value="199" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="198" />
-                    <option name="displayName" value="198" />
-                    <option name="displayVersion" value="198" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="193" />
-                    <option name="displayName" value="193" />
-                    <option name="displayVersion" value="193" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="191" />
-                    <option name="displayName" value="191" />
-                    <option name="displayVersion" value="191" />
-                  </VersionSetting>
-                </list>
-              </option>
               <option name="visibilityType" value="ALL" />
             </InsightsFilterSettings>
           </value>

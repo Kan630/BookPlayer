@@ -71,6 +71,7 @@
         <activity android:name=".activities.LibrivoxResultsActivity" />
         <activity android:name=".activities.RadioResultsActivity" />
         <activity android:name=".activities.RadioFavoritesActivity" />
+        <activity android:name=".activities.RadioStationActivity" />
         <activity android:name=".activities.LibrivoxDetailActivity" />
         <activity android:name=".activities.PodcastSearchResultsActivity"/>
         <activity android:name=".activities.PodcastEpisodeActivity"/>

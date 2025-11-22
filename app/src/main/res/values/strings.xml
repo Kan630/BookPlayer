@@ -1210,5 +1210,9 @@
     <string name="History">History</string>
     <string name="in_history">in history</string>
     <string name="radio_could_not_resolve_url">This station link seems broken.</string>
+    <string name="clicks_2pt">Clicks: %1$d</string>
+    <string name="tags">tags</string>
+    <string name="url">url</string>
+    <string name="homepage">homepage</string>
 
 </resources>

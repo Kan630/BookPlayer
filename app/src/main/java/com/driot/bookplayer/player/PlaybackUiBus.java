@@ -26,7 +26,7 @@ public final class PlaybackUiBus {
         emit(new PlaybackUiState(
                 Intents.PHASE_OFF, false, false, null,
                 0, 0, 0, "", "", "",
-                0, 0, 0,
+                0, 0, 0, null,
                 "PlaybackUiBus.clear()", 0, null
         ));
     }
@@ -41,7 +41,7 @@ public final class PlaybackUiBus {
                 cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
-                cur.trackId, cur.folderId, cur.podcastFeedId,
+                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
                 cur.calledFrom, cur.callCounter + 1, cur.extras
         ));
     }
@@ -54,7 +54,7 @@ public final class PlaybackUiBus {
                 playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
-                cur.trackId, cur.folderId, cur.podcastFeedId,
+                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
                 cur.calledFrom, cur.callCounter + 1, cur.extras
         ));
     }

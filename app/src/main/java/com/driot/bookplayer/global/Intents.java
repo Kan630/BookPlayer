@@ -47,6 +47,7 @@ public class Intents {
     public static final String EXTRA_TITLE       = "EXTRA_TITLE";
     public static final String EXTRA_IMAGE_URL   = "EXTRA_IMAGE_URL";
     public static final String EXTRA_PODCAST_FEED_ID = "EXTRA_PODCAST_ID";
+    public static final String EXTRA_RADIO_STATION_UUID = "EXTRA_RADIO_STATION_UUID";
 
 
     public static final String EXTRA_AUDIO_SESSION_ID = "EXTRA_AUDIO_SESSION_ID";

@@ -115,6 +115,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private Uri streamUri = null;
     private int lastCustomSleepMinutes = 0;
     private long podcastFeedId = -2;
+    private String radioStationUuid = null;
 
     // cache for Android Auto Bitmaps
     public static final android.util.LruCache<String, android.graphics.Bitmap> artCache = new android.util.LruCache<>(8);
@@ -212,6 +213,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
+                    radioStationUuid,
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, null
             );
         } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
@@ -228,6 +230,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     /* trackId */ 0,
                     /* folderId */ 0,
                     podcastFeedId,
+                    null,
                     "MediaService.broadcastUiState() - podcast " + fromWhere, -10, extras
             );
         } else {
@@ -251,7 +254,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             //extras.putInt(Intents.EXTRA_TTS_START_OFFSET, currentStartChars);
 
             s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, getSleepLeftMs(), title, subTitle, cover,
-                    trackId, folderId, 0, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
+                    trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
     }
@@ -1035,6 +1038,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
                 final String img = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
                 this.podcastFeedId = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
+                this.radioStationUuid = intent.getStringExtra(Intents.EXTRA_RADIO_STATION_UUID);
 
                 if (url == null || url.isEmpty()) {
                     myLogE("ACTION_PLAY_STREAM without url");
@@ -2140,20 +2144,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     //TODO replace all this shot by MediaSession controller
     private void emitUiTick(String calledFrom) {
         broadcastUiState(calledFrom);
-        // TODO for later, just a light snapshot :
-        /*
-        public void setPositionAndPlaying(long pos, long dur, boolean playing, String calledFrom) {
-            PlaybackUiState cur = _state.getValue();
-            if (cur == null) return;
-            emit(new PlaybackUiState(
-                    cur.loadPhase, playing, cur.ready, cur.playMode,
-                    pos, dur, cur.title, cur.subTitle, cur.cover,
-                    cur.trackId, cur.folderId, cur.podcastFeedId,
-                    calledFrom, cur.callCounter + 1
-            ));
-
-        }
-         */
     }
 
 
