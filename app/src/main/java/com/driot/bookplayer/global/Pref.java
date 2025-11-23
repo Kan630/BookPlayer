@@ -1,8 +1,5 @@
 package com.driot.bookplayer.global;
-
-/**
- * created by Antoine Driot -- antoine.driot.com -- on 06/06/2025
- */
+// created by Antoine Driot -- antoine.driot.com -- on 06/06/2025
 
 import static android.content.Context.MODE_PRIVATE;
 
@@ -153,10 +150,10 @@ public class Pref {
 
 
     /////////////////// LAST PODCAST API CHECK  ///////////////////
-    ///
+
     public static void setLastCheck(long value) {prefs.edit().putLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", value).apply();}
     public static long getLastCheck() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", Option.getPodcastAutoDownloadDelayBetweenChecks());}
-    public static boolean shouldCheckApiForAutoDownload() {
+    public static boolean doCheckForPodcastAutoDownload() {
         long lastCheck = getLastCheck();
         long now = System.currentTimeMillis();
         long diffInMinutes = (now - lastCheck) / (60 * 1000);
@@ -171,7 +168,7 @@ public class Pref {
         }
     }
 
-
+    /////////////////// BOOK COVER CREATION  ///////////////////
 
     // Keys
     private static String kCoverInitials(long folderId) { return "BOOK_COVER_INITIALS_" + folderId; }

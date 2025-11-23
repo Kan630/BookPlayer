@@ -227,7 +227,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
                 java.util.List<PlayTickBucket> buckets = dao.getBucketCounts(zikFileId, bucketSizeMs);
 
-                myLogD(t.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
+                //myLogD(t.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
 
                 final float[] intensities = PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
 

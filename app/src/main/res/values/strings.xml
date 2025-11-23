@@ -1214,5 +1214,24 @@
     <string name="tags">tags</string>
     <string name="url">url</string>
     <string name="homepage">homepage</string>
+    <string name="audio_files">audio files</string>
+
+    <plurals name="audio_files_count"> //ex : 15 audio files
+        <item quantity="one">%d audio file</item>
+        <item quantity="other">%d audio files</item>
+    </plurals>
+    <plurals name="subfolders_count"> //ex : 3 folders
+        <item quantity="one">%d subfolder</item>
+        <item quantity="other">%d subfolders</item>
+    </plurals>
+    <plurals name="folders_count"> //ex : 3 folders
+        <item quantity="one">%d folder</item>
+        <item quantity="other">%d folders</item>
+    </plurals>
+    <string name="count_status">%1$s (%2$s)</string> //15 audio files (3 subfolders)
+
+    <string name="import_warning_lot_of_file_and_subfolders">It looks like there are a lot of audio files in that folder and its subfolders. Are you sure you want to import all of them into a single book?</string>
+    <string name="done">done</string>
+
 
 </resources>

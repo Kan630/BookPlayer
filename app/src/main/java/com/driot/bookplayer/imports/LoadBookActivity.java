@@ -9,9 +9,12 @@ import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 import android.Manifest;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +34,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.adapter.FolderSpinnerAdapter;
 import com.driot.bookplayer.db.AppDatabase;
@@ -38,6 +42,8 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.CountCallback;
+import com.driot.bookplayer.helpers.FileCounterHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
@@ -45,13 +51,20 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import java.util.concurrent.Executors;
 
-public class LoadBookActivity extends LoggingActivity {
+public class LoadBookActivity extends BaseBottomNavActivity {
+
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private volatile boolean cancelScan = false;
+    private boolean warningTooManyFilesHasBeenShown = false;
+
+    private boolean hashJobRunning = false;
+    private boolean countJobRunning = false;
 
     public static final String EXTRA_URI = "EXTRA_URI";
     public static final String EXTRA_TYPE = "EXTRA_TYPE";  // File or Folder
@@ -66,6 +79,7 @@ public class LoadBookActivity extends LoggingActivity {
     private String originalHash;
 
     private TextView waitTextView, warningTextView, errorTextView;
+    private TextView tvAppendMode;
     private CheckBox cbSplit, cbCopy, cbDelete, cbUseSdCard;
     private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
     Button btnConfirm;
@@ -77,72 +91,19 @@ public class LoadBookActivity extends LoggingActivity {
 
     private PermissionRequest mPermissionRequest;
 
+    @Override protected int getNavId() { return R.id.nav_add; }
+    @Override protected int getLayoutResId() { return R.layout.activity_load_book; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_load_book);
         InsetHelper.apply(this);
 
         uri = getIntent().getParcelableExtra(EXTRA_URI);
         String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
         forceCopy =  getIntent().getBooleanExtra(EXTRA_FORCE_COPY,false);
-
         folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
-        if (folderToAddTo != null) {
-            myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
-        }
-
-        TextView tvAppendMode = findViewById(R.id.tvAppendMode);
-        tvAppendMode.setVisibility(folderToAddTo != null ? View.VISIBLE : View.GONE);
-
-        Spinner destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
-
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
-            // Create the neutral first item
-            Folder neutral = new Folder();
-            neutral.setId(-1);              // special fake ID
-            neutral.setName("New book");    // the label
-            // Insert at index 0
-            items.add(0, neutral);
-            // Compute preselection
-            int selectedPosition = 0;
-            if (folderToAddTo != null) {
-                for (int i = 1; i < items.size(); i++) { // start at 1 because 0 = neutral
-                    if (Objects.equals(folderToAddTo.getId(), items.get(i).getId())) {
-                        selectedPosition = i;
-                        break;
-                    }
-                }
-            }
-            // Switch to UI thread
-            final int finalSelectedPosition = selectedPosition;
-            runOnUiThread(() -> {
-                FolderSpinnerAdapter adapter = new FolderSpinnerAdapter(this, items);
-                destinationFolderSpinner.setAdapter(adapter);
-                destinationFolderSpinner.setSelection(finalSelectedPosition);
-
-                destinationFolderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                    @Override
-                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                        Folder selected = (Folder) parent.getItemAtPosition(position);
-
-                        boolean isNeutral = selected.getId() == -1;  // check fake item
-                        if (isNeutral) {
-                            tvAppendMode.setVisibility(View.GONE);
-                            folderToAddTo = null;
-                        } else {
-                            tvAppendMode.setVisibility(View.VISIBLE);
-                            folderToAddTo = selected;
-                        }
-                    }
-                    @Override
-                    public void onNothingSelected(AdapterView<?> parent) {}
-                });
-            });
-        });
-
-
 
         if (!(
                 gotten_type.equals("File")
@@ -153,7 +114,6 @@ public class LoadBookActivity extends LoggingActivity {
             finish();
             return;
         }
-
         if (Objects.isNull(uri)) {
             myToastEE(null,"Error picking audio : [uri is null]");
             finish();
@@ -173,6 +133,8 @@ public class LoadBookActivity extends LoggingActivity {
         errorTextView = findViewById(R.id.errorTextView);
         errorTextView.setVisibility(View.GONE);
 
+        tvAppendMode = findViewById(R.id.tvAppendMode);
+
         cbSplit = findViewById(R.id.cbSplitM4B);
         cbCopy = findViewById(R.id.cbCopyInternal);
         cbUseSdCard = findViewById(R.id.cbUseSdCard);
@@ -182,15 +144,16 @@ public class LoadBookActivity extends LoggingActivity {
         llUseSdCard = findViewById(R.id.ll_use_sdcard);
         llDelete = findViewById(R.id.ll_delete_source);
 
-        if (gotten_type.equals("Podcast") ) { gotten_type = "File";}
-        bookToAdd = new BookToAdd(uri, gotten_type);
+        displayAppendWarning();
+        buildDestinationFolderSpinner();
+
+        bookToAdd = new BookToAdd(uri, "Podcast".equals(gotten_type) ? "File" : gotten_type );
 
         if (!bookToAdd.isMimeSupported()) {
             startActivity(SupportedExtensionsActivity.newIntent(this, bookToAdd.getInfoMimeExtensionSmall()));
             finish();
             return;
         }
-
         if (bookToAdd.isBroken()) {
             myToastEE(null,getString(R.string.could_not_read_resource));
             finish();
@@ -200,26 +163,21 @@ public class LoadBookActivity extends LoggingActivity {
         audioBookTitle = bookToAdd.getAudioBookName();
 
         myLogD(bookToAdd.toString());
-/*
-        // FORCING SPECIAL TYPE
-        if (bookToAdd.getType().equalsIgnoreCase("m4b")) {
-            type = "M4B";
-        } else if (bookToAdd.getType().equalsIgnoreCase("zip")) {
-            type = "ZIP";
-        } else if (bookToAdd.getType().equalsIgnoreCase("epub")) {
-            type = "EPUB";
-        }
-
- */
 
         tvFileName.setText(audioBookTitle);
         tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
-        tvMimeExtension.setText(bookToAdd.getInfoMimeExtension());
+
+        if ("Folder".equals(gotten_type)) {
+            startCounting(uri, 10, tvMimeExtension, bookToAdd.getInfoMimeExtension());
+        } else {
+            tvMimeExtension.setText(bookToAdd.getInfoMimeExtension());
+        }
 
         checkHashDoesNotAlreadyExist();
 
         btnCancel.setOnClickListener(v -> {
             myLogI("------ USER CLICKS btn CANCEL....   ");
+            cancelScan = true;
             finish();
         });
 
@@ -374,10 +332,9 @@ public class LoadBookActivity extends LoggingActivity {
 
     }
 
-
     private void desactivateInteractive() {
         myLog("desactivate Interactive()");
-        waitTextView.setVisibility(View.VISIBLE);
+        //waitTextView.setVisibility(View.VISIBLE);
         warningTextView.setText("");
         errorTextView.setText("");
         cbSplit.setEnabled(false);
@@ -396,7 +353,7 @@ public class LoadBookActivity extends LoggingActivity {
     }
     private void activateInteractive() {
         myLog("Activate Interactive()");
-        waitTextView.setVisibility(View.GONE);
+        //waitTextView.setVisibility(View.GONE);
         cbSplit.setEnabled(true);
         llSplit.setEnabled(true);
         cbCopy.setEnabled(true);
@@ -602,6 +559,10 @@ public class LoadBookActivity extends LoggingActivity {
     private void checkHashDoesNotAlreadyExist() {
         myLog("Checking if hash already exists in DB for [" + uri + "]");
 
+        hashJobRunning = true;
+        waitTextView.setText(getString(R.string.init_check_already_imported_please_wait));
+        updateLoadingUi();
+
         final String TAG = WORKER_TAG_COMPUTE_HASH;
 
         // Cancel any ongoing hash computation to avoid overlap
@@ -652,8 +613,9 @@ public class LoadBookActivity extends LoggingActivity {
                                     } else {
                                         myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
                                         showError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
-                                        waitTextView.setVisibility(View.GONE);
                                         isKO = true;
+                                        hashJobRunning = false;
+                                        updateLoadingUi();
                                     }
                                 } else {
                                     myLogD("Hash OK: not found in DB.");
@@ -695,8 +657,9 @@ public class LoadBookActivity extends LoggingActivity {
                     if (audioBookAlreadyThere != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
                         showError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
-                        waitTextView.setVisibility(View.GONE);
                         isKO = true;
+                        hashJobRunning = false;
+                        updateLoadingUi();
                     } else {
                         myLogD("OK, folder path doesn't already exist in DB");
                         checkNameDoesNotAlreadyExist();
@@ -714,7 +677,8 @@ public class LoadBookActivity extends LoggingActivity {
         new Thread(() -> {
             long lCheck = AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
             runOnUiThread(() -> {
-                activateInteractive();
+                hashJobRunning = false;
+                updateLoadingUi();
                 if (lCheck>0) {
                     myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                     audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
@@ -734,4 +698,134 @@ public class LoadBookActivity extends LoggingActivity {
     }
 
 
+    private void displayAppendWarning() {
+        if (folderToAddTo != null) { myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]"); }
+        tvAppendMode.setVisibility(folderToAddTo != null ? View.VISIBLE : View.GONE);
+    }
+
+    private void buildDestinationFolderSpinner() {
+        Spinner destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
+
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
+            // Create the neutral first item
+            Folder neutral = new Folder();
+            neutral.setId(-1);              // special fake ID
+            neutral.setName("New book");    // the label
+            // Insert at index 0
+            items.add(0, neutral);
+            // Compute preselection
+            int selectedPosition = 0;
+            if (folderToAddTo != null) {
+                for (int i = 1; i < items.size(); i++) { // start at 1 because 0 = neutral
+                    if (Objects.equals(folderToAddTo.getId(), items.get(i).getId())) {
+                        selectedPosition = i;
+                        break;
+                    }
+                }
+            }
+            // Switch to UI thread
+            final int finalSelectedPosition = selectedPosition;
+            runOnUiThread(() -> {
+                FolderSpinnerAdapter adapter = new FolderSpinnerAdapter(this, items);
+                destinationFolderSpinner.setAdapter(adapter);
+                destinationFolderSpinner.setSelection(finalSelectedPosition);
+
+                destinationFolderSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+                    @Override
+                    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                        Folder selected = (Folder) parent.getItemAtPosition(position);
+
+                        boolean isNeutral = selected.getId() == -1;  // check fake item
+                        if (isNeutral) {
+                            tvAppendMode.setVisibility(View.GONE);
+                            folderToAddTo = null;
+                        } else {
+                            tvAppendMode.setVisibility(View.VISIBLE);
+                            folderToAddTo = selected;
+                        }
+                    }
+                    @Override
+                    public void onNothingSelected(AdapterView<?> parent) {}
+                });
+            });
+        });
+
+    }
+    private void startCounting(Uri folderTreeUri, int depth, TextView tvCountFolder, String prefix) {
+        cancelScan = false;
+        countJobRunning = true;
+        updateLoadingUi();
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            FileCounterHelper.countFilesFromTreeUriRealtime(
+                    this,
+                    folderTreeUri,
+                    depth,
+                    new CountCallback() {
+                        @Override
+                        public void onCountUpdated(int fileCount, String currentPath, int subFolderCount) {
+                            mainHandler.post(() -> {
+                                Resources res = getResources();
+                                String filesPart = res.getQuantityString(R.plurals.audio_files_count, fileCount, fileCount);
+                                String txt;
+                                if (subFolderCount >0) {
+                                    String foldersPart = res.getQuantityString(R.plurals.subfolders_count, subFolderCount, subFolderCount);
+                                     txt = prefix + " : " + getString(
+                                            R.string.count_status,
+                                            filesPart,
+                                            foldersPart
+                                    );
+                                } else {
+                                    txt = prefix + " " + filesPart;
+                                }
+                                tvCountFolder.setText(txt);
+                                waitTextView.setText(getString(R.string.scanning_tracks) + " " + currentPath);
+
+                                if (subFolderCount > 10 || fileCount > 100) {
+                                    if (!warningTooManyFilesHasBeenShown) {
+                                        showWarning(getString(R.string.import_warning_lot_of_file_and_subfolders));
+                                    }
+                                    warningTooManyFilesHasBeenShown = true;
+                                }
+                            });
+                        }
+
+                        @Override
+                        public boolean isCancelled() {
+                            return cancelScan;
+                        }
+
+                        @Override
+                        public void onFinished(int fileCount, int folderCount) {
+                            mainHandler.post(() -> {
+                                myLog("FINISHED COUNT: files=" + fileCount + " folders=" + folderCount);
+                                //tvCountFolder.setText(getString(R.string.done) + ": " + tvCountFolder.getText());
+
+                                countJobRunning = false;
+                                updateLoadingUi();
+                            });
+                        }
+                    }
+            );
+        });
+    }
+
+    private void updateLoadingUi() {
+        boolean anyRunning = hashJobRunning || countJobRunning;
+
+        if (anyRunning) {
+            // "init" mode
+            waitTextView.setVisibility(View.VISIBLE);
+            // you can also keep desactivateInteractive() here if you want
+            // but then remove the call from onCreate to avoid double-clearing texts
+            // desactivateInteractive();
+        } else {
+            waitTextView.setVisibility(View.GONE);
+            if (!isKO) {
+                // only enable controls if we are not in an error state
+                activateInteractive();
+            }
+        }
+    }
 }

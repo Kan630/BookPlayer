@@ -36,8 +36,6 @@ public class BookToAdd extends LoggerHelper {
     private String infoSourceLocation = "init...";
     private String extractedfileName = "...";
 
-    private String workerType;
-
     public static void init(Context context) {
         appContext = context.getApplicationContext();
     }

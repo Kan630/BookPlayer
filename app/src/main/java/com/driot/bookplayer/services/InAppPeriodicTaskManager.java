@@ -32,7 +32,7 @@ public class InAppPeriodicTaskManager {
                 //myLogD("InAppPeriodicTask - Running task at " + new Date());
 
 ///  Pocasts
-                if (Pref.shouldCheckApiForAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
+                if (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
                     PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCAST_INDEX_ORG_SINCE);
                     PodcastHelper.checkForEpisodesToAutoDelete(context);
                 }

@@ -22,6 +22,7 @@
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/green_500"
             android:text="@string/init_please_wait"
+            android:minLines="3"
             />
         <TextView
             android:id="@+id/errorTextView"
