@@ -1138,4 +1138,31 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="option_progress_heatmap">afficher les cartes thermiques</string>
     <string name="option_lock_orientation_play_activity">Verrouiller l\'orientation de l\'écran</string>
 
+    <string name="History">Histoire</string>
+    <string name="in_history">dans l\'historique</string>
+    <string name="radio_could_not_resolve_url">Ce lien de station semble cassé.</string>
+    <string name="clicks_2pt">Clics : %1$d</string>
+    <string name="tags">tags</string>
+    <string name="url">url</string>
+    <string name="homepage">page d\'accueil</string>
+    <string name="audio_files">fichiers audio</string>
+
+    <plurals name="audio_files_count"> <!-- ex : 15 audio files -->
+        <item quantity="one">%d fichier audio</item>
+        <item quantity="other">%d fichiers audio</item>
+    </plurals>
+    <plurals name="subfolders_count"> <!-- ex : 3 subfolders -->
+        <item quantity="one">%d sous-dossier</item>
+        <item quantity="other">%d sous-dossiers</item>
+    </plurals>
+    <plurals name="folders_count"> <!-- ex : 3 folders -->
+        <item quantity="one">%d dossier</item>
+        <item quantity="other">%d dossiers</item>
+    </plurals>
+    <string name="count_status">%1$s (%2$s)</string> <!-- 15 audio files (3 subfolders) -->
+
+    <string name="import_warning_lot_of_file_and_subfolders">Il semble y avoir beaucoup de fichiers audio dans ce dossier et ses sous-dossiers. Voulez-vous vraiment tout importer dans un seul livre ?</string>
+    <string name="done">terminé</string>
+
+
 </resources>

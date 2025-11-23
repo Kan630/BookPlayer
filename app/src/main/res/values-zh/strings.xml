@@ -1138,4 +1138,31 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="option_progress_heatmap">显示热力图</string>
     <string name="option_lock_orientation_play_activity">锁定屏幕方向</string>
 
+    <string name="History">历史</string>
+    <string name="in_history">在历史记录中</string>
+    <string name="radio_could_not_resolve_url">该电台链接似乎已失效。</string>
+    <string name="clicks_2pt">点击：%1$d</string>
+    <string name="tags">标签</string>
+    <string name="url">url</string>
+    <string name="homepage">主页</string>
+    <string name="audio_files">音频文件</string>
+
+    <plurals name="audio_files_count">
+        <item quantity="one">%d 个音频文件</item>
+        <item quantity="other">%d 个音频文件</item>
+    </plurals>
+    <plurals name="subfolders_count">
+        <item quantity="one">%d 个子文件夹</item>
+        <item quantity="other">%d 个子文件夹</item>
+    </plurals>
+    <plurals name="folders_count">
+        <item quantity="one">%d 个文件夹</item>
+        <item quantity="other">%d 个文件夹</item>
+    </plurals>
+    <string name="count_status">%1$s (%2$s)</string>
+
+    <string name="import_warning_lot_of_file_and_subfolders">此文件夹及其子文件夹中似乎有很多音频文件。你确定要将它们全部导入到一本书中吗？</string>
+    <string name="done">完成</string>
+
+
 </resources>

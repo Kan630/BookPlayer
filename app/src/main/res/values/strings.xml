@@ -1220,7 +1220,7 @@
         <item quantity="one">%d audio file</item>
         <item quantity="other">%d audio files</item>
     </plurals>
-    <plurals name="subfolders_count"> //ex : 3 folders
+    <plurals name="subfolders_count"> //ex : 3 subfolders
         <item quantity="one">%d subfolder</item>
         <item quantity="other">%d subfolders</item>
     </plurals>

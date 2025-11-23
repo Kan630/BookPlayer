@@ -1192,4 +1192,30 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_progress_heatmap">हीटमैप दिखाएँ</string>
     <string name="option_lock_orientation_play_activity">स्क्रीन ओरिएंटेशन लॉक करें</string>
 
+        <string name="History">इतिहास</string>
+        <string name="in_history">इतिहास में</string>
+        <string name="radio_could_not_resolve_url">यह स्टेशन लिंक टूटा हुआ लगता है।</string>
+        <string name="clicks_2pt">क्लिक: %1$d</string>
+        <string name="tags">टैग</string>
+        <string name="url">url</string>
+        <string name="homepage">मुखपृष्ठ</string>
+        <string name="audio_files">ऑडियो फ़ाइलें</string>
+
+        <plurals name="audio_files_count">
+            <item quantity="one">%d ऑडियो फ़ाइल</item>
+            <item quantity="other">%d ऑडियो फ़ाइलें</item>
+        </plurals>
+        <plurals name="subfolders_count">
+            <item quantity="one">%d उप-फ़ोल्डर</item>
+            <item quantity="other">%d उप-फ़ोल्डर</item>
+        </plurals>
+        <plurals name="folders_count">
+            <item quantity="one">%d फ़ोल्डर</item>
+            <item quantity="other">%d फ़ोल्डर</item>
+        </plurals>
+        <string name="count_status">%1$s (%2$s)</string>
+
+        <string name="import_warning_lot_of_file_and_subfolders">ऐसा लगता है कि इस फ़ोल्डर और इसकी उप-फ़ोल्डरों में बहुत सी ऑडियो फ़ाइलें हैं। क्या आप वास्तव में सभी को एक ही पुस्तक में आयात करना चाहते हैं?</string>
+        <string name="done">पूर्ण</string>
+
 </resources>
