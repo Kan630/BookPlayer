@@ -240,7 +240,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                                 .error(R.drawable.no_image_icon)
                                 .placeholder(R.drawable.no_image_icon)
                                 .into(ivCoverPreview);
-                        ivCoverPreview.setImageURI(Uri.parse(fresh.image));
+                        //ivCoverPreview.setImageURI(Uri.parse(fresh.image));
                     }
                 });
     }

@@ -2220,9 +2220,18 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private boolean loadAndPlayTrack(ZikFile zikFile) {
+        if (zikFile==null) {
+            myLogEE(null, "loadAndPlayTrack(ZikFile zikFile) => zikFile=null");
+            return false;
+        }
         return loadAndPlayTrack(zikFile, false, false);
     }
+
     private boolean loadAndPlayTrack(ZikFile zikFile, boolean isPodcast, boolean newestFirst) { //Always call me from a Background Thread !
+        if (zikFile==null) {
+            myLogEE(null, "loadAndPlayTrack(zikFile, isPodcast, newestFirst) => zikFile=null");
+            return false;
+        }
         // Resolve Uri
         Uri src = UriHelper.resolvePlayableUri(this, zikFile);
         String err;
