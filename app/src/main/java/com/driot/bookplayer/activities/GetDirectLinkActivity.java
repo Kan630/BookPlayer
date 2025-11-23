@@ -46,6 +46,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
 
         Button bDirectDownload = findViewById(R.id.bDirectDownload);
         etDirectDownload = findViewById(R.id.etDirectDownload);
+        etDirectDownload.getEditText().setHint("https://...");
 
         importDimScrim = findViewById(R.id.importDimScrim);
         importDimMessage = findViewById(R.id.importDimMessage);
