@@ -64,6 +64,7 @@ public class Var {
 
     public static final int FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS = 512;
     public static final int GRID_LAYOUT_SPACER = 4; //dp between cards
+    public static final int GRID_LAYOUT_SPACER_RADIO = 2;
 
     public static final int TTS_WPM_IMPORT = 180;
 

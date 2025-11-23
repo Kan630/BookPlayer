@@ -38,6 +38,8 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     private boolean historyMode = false;
 
+    @Nullable private String playingRadioStationUuid = null;
+
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView rv) {
         super.onAttachedToRecyclerView(rv);
@@ -81,6 +83,9 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             RadioFavoriteItem f = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
+            boolean activated = playingRadioStationUuid != null && playingRadioStationUuid.equals(f.stationuuid);
+            holder.itemView.setActivated(activated); // to get bg_radio.xml in layout => activated
+
             holder.title.setText(nonNull(f.name));
 
             holder.info.setText((f.country != null ? f.country : (f.language!=null ? f.language : (f.tags!=null ? normalizeTags(f.tags) : ""))));
@@ -98,7 +103,9 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                     .error(R.drawable.ic_radio_24px_deportee)
                     .into(holder.favicon);
 
-            holder.itemView.setOnClickListener(v -> listener.onPlay(f));
+            holder.itemView.setOnClickListener(v -> {
+                listener.onPlay(f);
+            });
         }
     }
 
@@ -215,5 +222,12 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     public void setHistoryMode(boolean history) {
         this.historyMode = history;
         notifyDataSetChanged();
+    }
+    public void setPlayingRadioStationUuid(@Nullable String uuid) {
+        if ((uuid == null) && (this.playingRadioStationUuid == null)) return;
+        if (uuid==null || !uuid.equals(this.playingRadioStationUuid)) {
+            notifyDataSetChanged(); // small list, OK; can be optimized later, we would need to store the lastUuid and newUuid...
+        }
+        this.playingRadioStationUuid = uuid;
     }
 }

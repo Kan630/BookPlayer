@@ -20,6 +20,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
@@ -72,10 +73,15 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         });
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO))
         );
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
+
+        PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+        playbackVm.getState().observe(this, state -> {
+            if (state!=null) adapter.setPlayingRadioStationUuid(state.radioStationUuid);
+        });
 
 // Favorites vs History Toggle
         MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);

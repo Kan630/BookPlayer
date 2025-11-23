@@ -35,7 +35,7 @@ public class PlaybackUiState extends LoggerHelper {
     public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
                            long pos, long dur, long sleepLeftMS,
                            String title, String subTitle, String cover,
-                           int trackId, int folderId, long podcastId, String radioStationId,
+                           int trackId, int folderId, long podcastId, String radioStationUuid,
                            String calledFrom, long callCounter,
                            @Nullable Bundle extras) {
 
@@ -57,7 +57,7 @@ public class PlaybackUiState extends LoggerHelper {
         this.trackId = trackId;
         this.folderId = folderId;
         this.podcastFeedId = podcastId;
-        this.radioStationUuid = radioStationId;
+        this.radioStationUuid = radioStationUuid;
 
         this.calledFrom = calledFrom;
         this.callCounter = callCounter;
