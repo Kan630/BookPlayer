@@ -1239,6 +1239,6 @@
     <string name="GutendexSearch_desc">"Browse Project Gutenberg’s public-domain ebooks. Thousands of free classic works available in EPUB format."</string>
     <string name="Ebooks">Ebooks</string>
     <string name="Ebooks_special">This ebook will then be read aloud by your device\'s built-in text-to-speech engine.</string>
-
+    <string name="full_screen_mode">full screen mode</string>
 
 </resources>

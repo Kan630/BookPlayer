@@ -37,9 +37,9 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:src="@android:drawable/ic_menu_gallery"
+            android:src="@drawable/ic_content_expand_24"
             android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="@string/toggle_text_image"
+            android:contentDescription="@string/full_screen_mode"
              />
     </LinearLayout>
 

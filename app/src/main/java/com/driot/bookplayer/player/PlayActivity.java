@@ -21,6 +21,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+
+import com.driot.bookplayer.activities.TtsReaderActivity;
 import com.google.android.material.slider.Slider;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -72,8 +74,6 @@ public class PlayActivity extends LoggingActivity {
 
     private View ttsContainer;
     private TextView tvTtsText;
-    private ImageButton btnToggleTtsView;
-    private boolean showingTtsText = true;
     private Spannable spannableText;
     private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
     private final ForegroundColorSpan ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
@@ -161,7 +161,6 @@ public class PlayActivity extends LoggingActivity {
 
         ttsContainer   = findViewById(R.id.ttsContainer);
         tvTtsText      = findViewById(R.id.tvTtsText);
-        btnToggleTtsView = findViewById(R.id.btnToggleTtsView);
 
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
@@ -175,12 +174,9 @@ public class PlayActivity extends LoggingActivity {
         bSpeedDown.setOnClickListener(v -> {myLogI("--- user press SPEED- ---"); setSpeedViaVm(-Var.PLAY_SPEED_STEP); });
         bSetSleep .setOnClickListener(v -> {myLogI("--- user press SLEEP- ---"); showSleepDialog(); });
 
-        btnToggleTtsView.setOnClickListener(v -> {
-            showingTtsText = !showingTtsText;
-            if (!showingTtsText) {
-                myToast(getString(R.string.double_click_image_to_get_back_to_text_view));
-            }
-            applyTtsToggleUi(vm.getState().getValue());
+        ImageButton btnToggleTtsViewFullScreen = findViewById(R.id.btnToggleTtsView);
+        btnToggleTtsViewFullScreen.setOnClickListener(v -> {
+            TtsReaderActivity.start(PlayActivity.this);
         });
 
         ImageButton ib_settings = findViewById(R.id.ib_settings);
@@ -197,7 +193,6 @@ public class PlayActivity extends LoggingActivity {
             @Override public void onDoubleTap() {
                 PlaybackUiState s = vm.getState().getValue();
                 if (s != null && "tts".equals(s.playMode)) {
-                    showingTtsText = !showingTtsText;
                     applyTtsToggleUi(s);
                 }
             }
@@ -471,8 +466,6 @@ public class PlayActivity extends LoggingActivity {
         if (s == null) return;
         final boolean tts = "tts".equals(s.playMode);
 
-        btnToggleTtsView.setVisibility(tts ? View.VISIBLE : View.GONE);
-
         if (!tts) {
             // AUDIO MODE
             ttsContainer.setVisibility(View.GONE);
@@ -492,87 +485,82 @@ public class PlayActivity extends LoggingActivity {
             } else {
                 frequencyVisualizerView.setVisibility(View.GONE);
             }
+            ivCover.setVisibility(View.VISIBLE);
+
         } else {
             // TTS MODE
             frequencyVisualizerView.setVisibility(View.GONE);
-            if (showingTtsText) {
-                ttsContainer.setVisibility(View.VISIBLE);
-                ivCover.setVisibility(View.GONE);
+            ttsContainer.setVisibility(View.VISIBLE);
+            ivCover.setVisibility(View.GONE);
 
-                if (lastTtsTextString == null || lastTtsTextString.isEmpty()) {
-                    vm.requestTtsTextOnce();
-                }
-
-                // Tap-to-seek within text
-                final android.view.GestureDetector tapDetector =
-                        new android.view.GestureDetector(tvTtsText.getContext(),
-                                new android.view.GestureDetector.SimpleOnGestureListener() {
-                                    @Override public boolean onDown(@NonNull MotionEvent e) {
-                                        // must return true so we keep receiving events
-                                        return true;
-                                    }
-                                    @Override public boolean onSingleTapUp(@NonNull MotionEvent e) {
-                                        // Only on real tap, not on scroll/fling
-                                        Layout layout = tvTtsText.getLayout();
-                                        if (layout == null || spannableText == null) return false;
-
-                                        int x = (int)e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
-                                        int y = (int)e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
-                                        int line = layout.getLineForVertical(y);
-                                        int off  = layout.getOffsetForHorizontal(line, x);
-                                        off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
-
-                                        int[] word = TtsHelper.findWordBounds(spannableText, off);
-                                        try {
-                                            spannableText.removeSpan(ttsBgSpan);
-                                            spannableText.removeSpan(ttsFgSpan);
-                                            spannableText.setSpan(ttsBgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                            spannableText.setSpan(ttsFgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                        } catch (Throwable ignored) {}
-
-                                        vm.setTtsStartOffsetChars(word[0]);
-                                        return true; // we handled the tap
-                                    }
-                                });
-                tvTtsText.setOnTouchListener((v, ev) -> {
-                    switch (ev.getActionMasked()) {
-                        case MotionEvent.ACTION_DOWN:
-                            downY = ev.getY();
-                            v.getParent().requestDisallowInterceptTouchEvent(true);
-                            tapDetector.onTouchEvent(ev);
-                            return false; // let TextView handle scroll
-                        case MotionEvent.ACTION_MOVE:
-                            // If user dragged enough, disable auto-scroll
-                            if (!suppressAutoScroll && Math.abs(ev.getY() - downY) > touchSlop) {
-                                suppressAutoScroll = true;
-                            }
-                            tapDetector.onTouchEvent(ev);
-                            return false;
-                        case MotionEvent.ACTION_UP: {
-                            boolean tapped = tapDetector.onTouchEvent(ev);
-                            v.getParent().requestDisallowInterceptTouchEvent(false);
-                            if (tapped) {
-                                // Re-enable auto-scroll only when the user *taps* a word
-                                suppressAutoScroll = false;
-                                // Satisfy accessibility/lint:
-                                v.performClick();
-                            }
-                            return tapped; // consume only real taps
-                        }
-                        case MotionEvent.ACTION_CANCEL:
-                            v.getParent().requestDisallowInterceptTouchEvent(false);
-                            return false;
-                        default:
-                            return false;
-                    }
-                });
-
-                btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_gallery); // next → image
-            } else {
-                ttsContainer.setVisibility(View.GONE);
-                ivCover.setVisibility(View.VISIBLE);
-                btnToggleTtsView.setImageResource(android.R.drawable.ic_menu_edit); // next → text
+            if (lastTtsTextString == null || lastTtsTextString.isEmpty()) {
+                vm.requestTtsTextOnce();
             }
+
+            // Tap-to-seek within text
+            final android.view.GestureDetector tapDetector =
+                    new android.view.GestureDetector(tvTtsText.getContext(),
+                            new android.view.GestureDetector.SimpleOnGestureListener() {
+                                @Override public boolean onDown(@NonNull MotionEvent e) {
+                                    // must return true so we keep receiving events
+                                    return true;
+                                }
+                                @Override public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                                    // Only on real tap, not on scroll/fling
+                                    Layout layout = tvTtsText.getLayout();
+                                    if (layout == null || spannableText == null) return false;
+
+                                    int x = (int)e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
+                                    int y = (int)e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
+                                    int line = layout.getLineForVertical(y);
+                                    int off  = layout.getOffsetForHorizontal(line, x);
+                                    off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
+
+                                    int[] word = TtsHelper.findWordBounds(spannableText, off);
+                                    try {
+                                        spannableText.removeSpan(ttsBgSpan);
+                                        spannableText.removeSpan(ttsFgSpan);
+                                        spannableText.setSpan(ttsBgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                        spannableText.setSpan(ttsFgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    } catch (Throwable ignored) {}
+
+                                    vm.setTtsStartOffsetChars(word[0]);
+                                    return true; // we handled the tap
+                                }
+                            });
+            // Scroll
+            tvTtsText.setOnTouchListener((v, ev) -> {
+                switch (ev.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        downY = ev.getY();
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        tapDetector.onTouchEvent(ev);
+                        return false; // let TextView handle scroll
+                    case MotionEvent.ACTION_MOVE:
+                        // If user dragged enough, disable auto-scroll
+                        if (!suppressAutoScroll && Math.abs(ev.getY() - downY) > touchSlop) {
+                            suppressAutoScroll = true;
+                        }
+                        tapDetector.onTouchEvent(ev);
+                        return false;
+                    case MotionEvent.ACTION_UP: {
+                        boolean tapped = tapDetector.onTouchEvent(ev);
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        if (tapped) {
+                            // Re-enable auto-scroll only when the user *taps* a word
+                            suppressAutoScroll = false;
+                            // Satisfy accessibility/lint:
+                            v.performClick();
+                        }
+                        return tapped; // consume only real taps
+                    }
+                    case MotionEvent.ACTION_CANCEL:
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        return false;
+                    default:
+                        return false;
+                }
+            });
         }
     }
 
@@ -673,7 +661,8 @@ public class PlayActivity extends LoggingActivity {
                     final boolean wasPlayingFinal = wasPlaying;
                     final String prevGood = currentVoiceName[0];
                     try {
-                        if (vm != null && vm.getState().getValue() != null && "tts".equals(vm.getState().getValue().playMode)) {
+                        if (vm != null) {
+                            // ✅ Always warm up the voice, independent of current playMode/state
                             vm.warmUpTtsVoice(picked, (ready, reason) -> runOnUiThread(() -> {
                                 spinnerTtsVoice.setEnabled(true);
                                 myLogD("spinnerTtsVoice enabled");
@@ -682,8 +671,6 @@ public class PlayActivity extends LoggingActivity {
                                     currentVoiceName[0] = picked; // commit
                                     if (wasPlayingFinal) {
                                         myLogD("...play");
-                                        // If your TtsEngine resumes automatically after warm-up,
-                                        // you can omit the toggles below. If not, re-kick play:
                                         vm.playPause(); // pause
                                         vm.playPause(); // play
                                     }
@@ -695,13 +682,16 @@ public class PlayActivity extends LoggingActivity {
                                     myToast(getString(mapWarmupReasonToMsg(reason)));
                                 }
                             }));
+                        } else {
+                            // Very defensive: VM somehow null → just re-enable spinner
+                            myLogW("setupTtsVoiceSpinner: vm is null, re-enabling spinner");
+                            spinnerTtsVoice.setEnabled(true);
                         }
                     } catch (Throwable t) {
                         myLogEE(t, "setupTtsVoiceSpinner");
                         myLogD("spinnerTtsVoice enabled");
                         spinnerTtsVoice.setEnabled(true);
                     }
-
                 }
         );
     }

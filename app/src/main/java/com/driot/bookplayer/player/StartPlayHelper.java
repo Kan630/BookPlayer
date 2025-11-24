@@ -185,17 +185,17 @@ public class StartPlayHelper {
 
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
 
-                // open PlayActivity
-                if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
-                    startActivityBecauseSameTrack(context);
-                }
-
                 // start audio service
                 if (lastUiState==null
                         || !lastUiState.playing
                         || !sameTrack
                 ) {
                     playZikFile(context, clickedZikFile.getId(), caller, false, false);
+                }
+
+                // open PlayActivity
+                if (sameTrack || Option.getOpenPlayActivity() || isTTS) {
+                    startActivityBecauseSameTrack(context);
                 }
 
             });
