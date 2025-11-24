@@ -27,6 +27,9 @@ public class GetActivity extends BaseBottomNavActivity {
 
         findViewById(R.id.bDirectLink).setOnClickListener(v -> clickDirectLink());
         findViewById(R.id.bDirectLinkIcon).setOnClickListener(v -> clickDirectLink());
+
+        findViewById(R.id.bOpenEbooks).setOnClickListener(v -> clickEbooks());
+        findViewById(R.id.bOpenEbooksIcon).setOnClickListener(v -> clickEbooks());
     }
 
     private void clickAudiobooks() {
@@ -41,6 +44,11 @@ public class GetActivity extends BaseBottomNavActivity {
     private void clickDirectLink() {
         myLogI("--- user clicks DIRECT LINK ----");
         startActivity(new Intent(this, GetDirectLinkActivity.class));
+    }
+
+    private void clickEbooks() {
+        myLogI("--- user clicks EBOOKS ----");
+        startActivity(new Intent(this, GetEbookActivity.class));
     }
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AppInsightsSettings">
-    <option name="selectedTabId" value="Android Vitals" />
+    <option name="selectedTabId" value="Firebase Crashlytics" />
     <option name="tabSettings">
       <map>
         <entry key="Android Vitals">
@@ -16,6 +16,11 @@
               <option name="timeIntervalDays" value="SEVEN_DAYS" />
               <option name="versions">
                 <list>
+                  <VersionSetting>
+                    <option name="buildVersion" value="209" />
+                    <option name="displayName" value="209" />
+                    <option name="displayVersion" value="209" />
+                  </VersionSetting>
                   <VersionSetting>
                     <option name="buildVersion" value="202" />
                     <option name="displayName" value="202" />
@@ -38,16 +43,15 @@
                   <option name="projectNumber" value="793974976163" />
                 </ConnectionSetting>
               </option>
-              <option name="failureTypes">
-                <list>
-                  <option value="FATAL" />
-                  <option value="ANR" />
-                </list>
-              </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="SEVEN_DAYS" />
               <option name="versions">
                 <list>
+                  <VersionSetting>
+                    <option name="buildVersion" value="212" />
+                    <option name="displayName" value="212 - Placid Beaver (212)" />
+                    <option name="displayVersion" value="212 - Placid Beaver" />
+                  </VersionSetting>
                   <VersionSetting>
                     <option name="buildVersion" value="209" />
                     <option name="displayName" value="209 - Placid Beaver (209)" />

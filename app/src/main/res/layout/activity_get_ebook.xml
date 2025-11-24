@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    style="@style/MainContainer">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:descendantFocusability="beforeDescendants"
+        android:focusable="true"
+        android:focusableInTouchMode="true">
+
+        <View
+            android:id="@+id/focusGuard"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:focusable="true"
+            android:focusableInTouchMode="true" />
+
+        <ScrollView
+            android:id="@+id/mainScroll"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            tools:context=".activities.MainActivity">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+                    <TextView
+                        android:id="@+id/txtLibrivoxSearch_title"
+                        android:text="@string/Ebooks"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
+                        style="@style/GetResourceTextSectionTitle" />
+                    <ImageButton
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:src="@drawable/ic_tts_24"
+                        android:scaleType="centerInside"
+                        android:background="@android:color/transparent"
+                        app:tint="?attr/colorOnSurface"
+                        android:layout_marginEnd="20dp" />
+
+                </LinearLayout>
+
+                <View style="@style/GetResourceHorizontalBar" />
+
+
+                <TextView
+                    android:layout_marginTop="20dp"
+                    android:text="@string/GutendexSearch_desc"
+                    style="@style/GetResourceTextTopOfButton"
+                    android:layout_marginBottom="10dp"
+                    />
+
+                <TextView
+                    android:layout_marginTop="20dp"
+                    android:text="@string/Ebooks_special"
+                    style="@style/GetResourceTextTopOfButton"
+                    android:layout_marginBottom="20dp"
+                    />
+
+                <View style="@style/GetResourceHorizontalBar" />
+
+
+                <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:padding="16dp">
+
+                    <Spinner
+                        android:id="@+id/spinnerEbookLang"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+
+                    <com.driot.bookplayer.views.EditText1lineWithPasteDelete
+                        android:id="@+id/etEbook"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="12dp" />
+
+                    <Button
+                        android:id="@+id/bEbookSearch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="16dp"
+                        android:text="@string/Search" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+        </ScrollView>
+    </LinearLayout>
+</FrameLayout>

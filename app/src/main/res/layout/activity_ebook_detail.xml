@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="16dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/imageDetailCover"
+            android:layout_width="160dp"
+            android:layout_height="220dp"
+            android:layout_gravity="center_horizontal"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/cover_preview"
+            android:src="@drawable/placeholder_cover" />
+
+        <TextView
+            android:id="@+id/textDetailTitle"
+            style="@style/myStyleTitle"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Title" />
+
+        <TextView
+            android:id="@+id/textDetailAuthors"
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Authors" />
+
+        <TextView
+            android:id="@+id/textDetailInfo"
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="en · 24486 downloads" />
+
+        <TextView
+            android:id="@+id/tvGutenbergLink"
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="https://www.gutenberg.org/ebooks/2600" />
+
+        <TextView
+            android:id="@+id/tvStatus"
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text=""
+            android:textColor="@android:color/holo_red_light" />
+
+        <Button
+            android:id="@+id/bGet"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="@string/get" />
+
+    </LinearLayout>
+</ScrollView>

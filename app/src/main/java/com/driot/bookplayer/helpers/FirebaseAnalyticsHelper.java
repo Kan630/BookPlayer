@@ -182,6 +182,12 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("just_get_it", bundle);
     }
 
+    public static void tellEbookDownloadFromGutendex(String title) {
+        Bundle bundle = new Bundle();
+        bundle.putString("title", String.valueOf(title));
+        logBundleEvent("Gutendex_download", bundle);
+    }
+
     public static void tellLibrivoxDownload(String title) {
         Bundle bundle = new Bundle();
         bundle.putString("title", String.valueOf(title));

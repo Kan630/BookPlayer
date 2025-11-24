@@ -97,7 +97,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginBottom="20dp"
             >
             <TextView
                 style="@style/simpleTextWrap"
@@ -108,7 +107,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginBottom="16dp"
                 android:padding="24dp">
 
                 <ImageButton
@@ -125,6 +123,46 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/open_audiobooks"
+                    android:backgroundTint="?attr/colorPrimary"
+                    android:textColor="?attr/colorOnPrimary"
+                    style="@style/Widget.MaterialComponents.Button" />
+            </LinearLayout>
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/beta_test"
+                android:textColor="@color/orange"
+                android:layout_gravity="end"
+                android:layout_marginEnd="100dp"
+                />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingHorizontal="24dp">
+
+                <ImageButton
+                    android:id="@+id/bOpenEbooksIcon"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_tts_24"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:layout_marginEnd="20dp" />
+
+                <Button
+                    android:id="@+id/bOpenEbooks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/browse_ebooks"
                     android:backgroundTint="?attr/colorPrimary"
                     android:textColor="?attr/colorOnPrimary"
                     style="@style/Widget.MaterialComponents.Button" />

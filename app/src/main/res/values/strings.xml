@@ -1233,5 +1233,12 @@
     <string name="import_warning_lot_of_file_and_subfolders">It looks like there are a lot of audio files in that folder and its subfolders. Are you sure you want to import all of them into a single book?</string>
     <string name="done">done</string>
 
+    <string name="downloads">downloads</string>
+    <string name="get">get</string>
+    <string name="browse_ebooks">Browse Ebooks</string>
+    <string name="GutendexSearch_desc">"Browse Project Gutenberg’s public-domain ebooks. Thousands of free classic works available in EPUB format."</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="Ebooks_special">This ebook will then be read aloud by your device\'s built-in text-to-speech engine.</string>
+
 
 </resources>

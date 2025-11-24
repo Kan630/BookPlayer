@@ -49,6 +49,7 @@ public class Var {
 
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";
+    public static final String SOURCE_LOCATION_EBOOK_GUTENDEX = "ebook_gutendex";
 
     public static final String PLAY_TYPE_TEXT = "text";
     public static final String PLAY_TYPE_AUDIO = "audio";

@@ -36,6 +36,9 @@
         >
 
 
+        <activity android:name=".activities.GetEbookActivity" />
+        <activity android:name=".activities.EbookResultsActivity" />
+        <activity android:name=".activities.EbookDetailActivity" />
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    card_view:cardElevation="2dp"
+    card_view:cardCornerRadius="8dp"
+    card_view:cardBackgroundColor="@color/cardBackground"
+    android:layout_margin="2dp"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="80dp"
+        android:padding="5dp">
+
+        <ImageView
+            android:id="@+id/ebook_image"
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:scaleType="centerCrop"
+            android:layout_alignParentStart="true"
+            android:contentDescription="@string/cover_preview"
+            android:layout_marginEnd="10dp" />
+
+        <LinearLayout
+            android:id="@+id/text_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/ebook_image"
+            android:orientation="vertical"
+            android:layout_alignTop="@id/ebook_image"
+            android:layout_marginEnd="8dp">
+
+            <TextView
+                android:id="@+id/ebook_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OptionMiniText"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="@android:color/white"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:text="War and Peace" />
+
+            <TextView
+                android:id="@+id/ebook_authors"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OptionMiniText"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="2dp"
+                android:text="Leo Tolstoy" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginTop="2dp">
+
+                <TextView
+                    android:id="@+id/ebook_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    style="@style/OptionMiniText"
+                    android:textColor="@android:color/darker_gray"
+                    android:text="en · 24 486 downloads" />
+
+                <ImageView
+                    android:id="@+id/ivImported"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginEnd="8dp"
+                    android:src="@drawable/ic_download_done_24"
+                    android:contentDescription="@string/downloaded"
+                    app:tint="@color/green_500"
+                    android:visibility="gone" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
