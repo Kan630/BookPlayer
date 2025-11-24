@@ -1163,4 +1163,13 @@
     <string name="import_warning_lot_of_file_and_subfolders">يبدو أنّ هناك الكثير من الملفات الصوتية في هذا المجلد ومجلداته الفرعية. هل أنت متأكد أنّك تريد استيرادها جميعًا في كتاب واحد؟</string>
     <string name="done">تم</string>
 
+    <string name="downloads">التنزيلات</string>
+    <string name="get">احصل</string>
+    <string name="browse_ebooks">تصفح الكتب الإلكترونية</string>
+    <string name="GutendexSearch_desc">"تصفح كتب مشروع غوتنبرغ في الملكية العامة. آلاف الأعمال الكلاسيكية المجانية بتنسيق EPUB."</string>
+    <string name="Ebooks">كتب إلكترونية</string>
+    <string name="Ebooks_special">سيتم بعد ذلك قراءة هذا الكتاب بصوت عالٍ بواسطة محرك تحويل النص إلى كلام المدمج في جهازك.</string>
+    <string name="full_screen_mode">وضع ملء الشاشة</string>
+
+
 </resources>

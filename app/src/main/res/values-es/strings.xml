@@ -1157,5 +1157,13 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="import_warning_lot_of_file_and_subfolders">Parece que hay muchos archivos de audio en esta carpeta y sus subcarpetas. ¿Seguro que quieres importarlos todos en un solo libro?</string>
     <string name="done">listo</string>
 
+    <string name="downloads">descargas</string>
+    <string name="get">obtener</string>
+    <string name="browse_ebooks">Explorar ebooks</string>
+    <string name="GutendexSearch_desc">"Explora los ebooks de dominio público de Project Gutenberg. Miles de clásicos gratuitos disponibles en EPUB."</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="Ebooks_special">Este ebook será leído en voz alta por el motor de texto a voz integrado de tu dispositivo.</string>
+    <string name="full_screen_mode">modo de pantalla completa</string>
+
 
 </resources>

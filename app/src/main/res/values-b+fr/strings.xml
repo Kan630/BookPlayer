@@ -1164,5 +1164,13 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="import_warning_lot_of_file_and_subfolders">Il semble y avoir beaucoup de fichiers audio dans ce dossier et ses sous-dossiers. Voulez-vous vraiment tout importer dans un seul livre ?</string>
     <string name="done">terminé</string>
 
+    <string name="downloads">téléchargements</string>
+    <string name="get">obtenir</string>
+    <string name="browse_ebooks">Parcourir les ebooks</string>
+    <string name="GutendexSearch_desc">"Parcourez les ebooks du domaine public de Project Gutenberg. Des milliers de classiques gratuits disponibles en EPUB."</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="Ebooks_special">Cet ebook sera ensuite lu à voix haute par le moteur de synthèse vocale intégré de votre appareil.</string>
+    <string name="full_screen_mode">mode plein écran</string>
+
 
 </resources>

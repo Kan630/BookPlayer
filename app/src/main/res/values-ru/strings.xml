@@ -1170,5 +1170,14 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="import_warning_lot_of_file_and_subfolders">Похоже, в этой папке и её подпапках очень много аудиофайлов. Вы действительно хотите импортировать всё в одну книгу?</string>
         <string name="done">готово</string>
 
+        <string name="downloads">загрузки</string>
+        <string name="get">получить</string>
+        <string name="browse_ebooks">Просмотр электронных книг</string>
+        <string name="GutendexSearch_desc">"Просматривайте книги общественного достояния Project Gutenberg. Тысячи бесплатных классических произведений в формате EPUB."</string>
+        <string name="Ebooks">Электронные книги</string>
+        <string name="Ebooks_special">Эта электронная книга будет прочитана вслух встроенным синтезатором речи вашего устройства.</string>
+        <string name="full_screen_mode">полноэкранный режим</string>
+
+
 
 </resources>

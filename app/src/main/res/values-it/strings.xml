@@ -1182,4 +1182,13 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="import_warning_lot_of_file_and_subfolders">Sembra che ci siano molti file audio in questa cartella e nelle sue sottocartelle. Vuoi davvero importarli tutti in un unico libro?</string>
     <string name="done">fatto</string>
 
+    <string name="downloads">download</string>
+    <string name="get">ottieni</string>
+    <string name="browse_ebooks">Sfoglia gli ebook</string>
+    <string name="GutendexSearch_desc">"Sfoglia gli ebook di pubblico dominio di Project Gutenberg. Migliaia di classici gratuiti in formato EPUB."</string>
+    <string name="Ebooks">Ebook</string>
+    <string name="Ebooks_special">Questo ebook verrà poi letto ad alta voce dal motore di sintesi vocale integrato del tuo dispositivo.</string>
+    <string name="full_screen_mode">modalità a schermo intero</string>
+
+
 </resources>

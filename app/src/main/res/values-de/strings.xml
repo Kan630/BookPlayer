@@ -1168,4 +1168,13 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="import_warning_lot_of_file_and_subfolders">Es scheint viele Audiodateien in diesem Ordner und seinen Unterordnern zu geben. Möchtest du wirklich alle in ein einziges Buch importieren?</string>
     <string name="done">fertig</string>
 
+    <string name="downloads">Downloads</string>
+    <string name="get">holen</string>
+    <string name="browse_ebooks">Ebooks durchsuchen</string>
+    <string name="GutendexSearch_desc">"Durchsuchen Sie die gemeinfreien Ebooks von Project Gutenberg. Tausende kostenlose Klassiker im EPUB-Format."</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="Ebooks_special">Dieses Ebook wird anschließend von der integrierten Text-zu-Sprache-Engine Ihres Geräts vorgelesen.</string>
+    <string name="full_screen_mode">Vollbildmodus</string>
+
+
 </resources>

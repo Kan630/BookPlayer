@@ -1218,4 +1218,13 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="import_warning_lot_of_file_and_subfolders">ऐसा लगता है कि इस फ़ोल्डर और इसकी उप-फ़ोल्डरों में बहुत सी ऑडियो फ़ाइलें हैं। क्या आप वास्तव में सभी को एक ही पुस्तक में आयात करना चाहते हैं?</string>
         <string name="done">पूर्ण</string>
 
+        <string name="downloads">डाउनलोड</string>
+        <string name="get">प्राप्त करें</string>
+        <string name="browse_ebooks">ईबुक ब्राउज़ करें</string>
+        <string name="GutendexSearch_desc">"प्रोजेक्ट गुटेनबर्ग की सार्वजनिक-डोमेन ईबुक्स ब्राउज़ करें। EPUB प्रारूप में हजारों निःशुल्क क्लासिक उपलब्ध हैं।"</string>
+        <string name="Ebooks">ईबुक्स</string>
+        <string name="Ebooks_special">यह ईबुक फिर आपके डिवाइस के बिल्ट-इन टेक्स्ट-टू-स्पीच इंजन द्वारा ज़ोर से पढ़ी जाएगी।</string>
+        <string name="full_screen_mode">फुल स्क्रीन मोड</string>
+
+
 </resources>
