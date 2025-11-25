@@ -43,7 +43,6 @@ import com.driot.bookplayer.global.Pref;
 
 import java.text.DecimalFormat;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -125,8 +124,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final String TRACKNUMBER = "tracknumber";
     public static final String FROM = "from";
     public static final String ERR_MSG = "err_msg";
-    public static final String NOTIFICATION_TRACKFINISHED = "NOTIFICATION_TRACKFINISHED";
-    public static final String NOTIFICATION_FILENOTFOUND = "NOTIFICATION_FILENOTFOUND";
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
@@ -866,11 +863,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             i.putExtra(TRACKNUMBER, pl.getNumZikFile());
         }
         LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
-    }
-
-    private void alertTrackFinished() {
-        myLog("--------------------------------------------------------------------------------- sendBroadcast alertTrackFinished --------------------------------------------------------------------------------");
-        LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(new Intent(NOTIFICATION_TRACKFINISHED));
     }
 
     private void alertPlaylistFinished() {
@@ -1769,7 +1761,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogD("onEngineCompletion()");
         if (!ErrorLoadingFile) {
             updateZikFileStateInDB(true);
-            alertTrackFinished();
             PlayList pl = PlayList.getInstance();
             if (pl != null && pl.isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");

@@ -86,7 +86,12 @@ public class PlayActivity extends LoggingActivity {
     private boolean suppressAutoScroll = false;
     private int touchSlop;
     private float downY;
+
     @Nullable private String lastTtsTextString = null;
+    private int lastTtsTrackId = -1;
+    @Nullable private String lastTtsPlayMode = null;
+    @Nullable private String lastTtsPhase = null;
+
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -158,6 +163,19 @@ public class PlayActivity extends LoggingActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
+// Re-enable TTS auto-follow when user finishes a seek
+        sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+            @Override
+            public void onStartTrackingTouch(@NonNull Slider slider) {
+                // (optional) while user drags, you can temporarily stop auto-scroll if you want
+                // suppressAutoScroll = true;
+            }
+            @Override
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                // User picked a new position → let TTS word tracking resume
+                suppressAutoScroll = false;
+            }
+        });
 
         ttsContainer   = findViewById(R.id.ttsContainer);
         tvTtsText      = findViewById(R.id.tvTtsText);
@@ -226,8 +244,25 @@ public class PlayActivity extends LoggingActivity {
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
 
-            String p = (vm.getState().getValue() == null ? null : vm.getState().getValue().loadPhase);
+            String p = s.loadPhase;
             boolean isStarting = (Intents.PHASE_STARTING.equals(p));
+
+            // TTS
+            boolean isTts = "tts".equals(s.playMode);
+            boolean trackChanged = isTts && (s.trackId != lastTtsTrackId);
+            boolean becameReady  = isTts
+                    && !Intents.PHASE_READY.equals(lastTtsPhase)
+                    && Intents.PHASE_READY.equals(p);
+
+            if (isTts && (trackChanged || becameReady)) {
+                suppressAutoScroll = false;
+                lastTtsTextString = null;
+                vm.requestTtsTextOnce();
+            }
+
+            lastTtsTrackId  = s.trackId;
+            lastTtsPlayMode = s.playMode;
+            lastTtsPhase    = p;
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -237,6 +272,7 @@ public class PlayActivity extends LoggingActivity {
                 bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
             }
 
+            // cover
             if (s.cover != null && !s.cover.isEmpty()) {
                 if (!s.cover.equals(lastCoverUri)) {
                     lastCoverUri = s.cover;
@@ -255,9 +291,9 @@ public class PlayActivity extends LoggingActivity {
                 ivCover.setVisibility(View.GONE);
                 frequencyVisualizerView.setAlpha(1f);
             }
+
             // TTS vs Audio UI
             applyTtsToggleUi(s);
-
 
             if (p == null) return;
             //myLog("Phase observer : " + p);

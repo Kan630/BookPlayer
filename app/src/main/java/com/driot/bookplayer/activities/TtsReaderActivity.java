@@ -16,7 +16,9 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -26,6 +28,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     @Override protected int getNavId() { return R.id.nav_library; } // or whatever your "play" tab id is
     @Override protected int getLayoutResId() { return R.layout.activity_tts_reader; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override protected boolean displayBottomNavBar() { return false; }
 
     private PlaybackViewModel vm;
     private TextView tvTtsFull;
@@ -40,6 +43,11 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     private int pendingStart = -1, pendingEnd = -1;
     private boolean highlightScheduled = false;
     private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
+
+    private int lastTtsTrackId = -1;
+    @Nullable private String lastPlayMode = null;
+    @Nullable private String lastPhase = null;
+    private boolean lastPlaying = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -66,6 +74,40 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         vm.getTtsRange().observe(this, p -> {
             if (p != null) scheduleTtsHighlight(p.first, p.second);
         });
+
+        vm.getState().observe(this, s -> {
+            if (s == null) return;
+
+            boolean isTts = Var.PLAY_MODE_TTS.equals(s.playMode);
+            int trackId   = s.trackId;
+            String phase  = s.loadPhase;   // field of PlaybackUiState
+
+            boolean trackChanged = isTts && (trackId != lastTtsTrackId);
+            boolean becameReady  = isTts
+                    && !Intents.PHASE_READY.equals(lastPhase)
+                    && Intents.PHASE_READY.equals(phase);
+
+            // 🔹 Detect play/pause toggle (used instead of PlayActivity's click listener)
+            boolean playPauseToggled = isTts && (s.playing != lastPlaying);
+
+            // 1) When user presses play/pause in the fragment (state toggles) → restore auto-follow
+            if (playPauseToggled) {
+                suppressAutoScroll = false;
+            }
+
+            // 2) When chapter changes OR TTS becomes READY for a new chapter → refresh text + auto-follow
+            if (isTts && (trackChanged || becameReady)) {
+                suppressAutoScroll = false;
+                vm.requestTtsTextOnce();
+            }
+
+            lastTtsTrackId = trackId;
+            lastPlayMode   = s.playMode;
+            lastPhase      = phase;
+            lastPlaying    = s.playing;
+        });
+
+
 
         // Tap-to-seek
         final android.view.GestureDetector tapDetector =

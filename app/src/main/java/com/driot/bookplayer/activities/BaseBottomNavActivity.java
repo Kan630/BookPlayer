@@ -1,6 +1,5 @@
 package com.driot.bookplayer.activities;
 
-import android.app.appsearch.GetSchemaResponse;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -12,7 +11,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.objects.OngoingTaskHost;
 import com.driot.bookplayer.player.NavHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.navigation.NavigationBarView;
 
 public abstract class BaseBottomNavActivity extends LoggingActivity {
@@ -26,6 +24,9 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
 
     /** Override to true in activities that should show the ongoing-task overlay */
     protected abstract boolean enableOngoingTaskOverlay();
+
+    /** Override to false in activities that should NOT show the bottom nav bar */
+    protected boolean displayBottomNavBar() { return true; }
 
     private NavigationBarView bottomNav;
 
@@ -56,6 +57,11 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
 
         // 4) Setup bottom nav once for all activities
         setupBottomNav();
+
+        // 5) Optional: hide the bottom nav completely
+        if (!displayBottomNavBar()) {
+            if (bottomNav != null) bottomNav.setVisibility(View.GONE);
+        }
     }
 
     private void setupBottomNav() {
