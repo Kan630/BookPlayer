@@ -94,10 +94,10 @@ public class VoiceItem {
             Voice def = tts.getVoice();
             if (def != null)  {
                 loc = def.getLocale();
-                myLogI("tts.getVoice(): " + def.getName());
+                myLogD("tts.getVoice(): " + def.getName());
             } else {
                 loc = tts.getLanguage();
-                myLogI("tts.getLanguage(): " + loc.getCountry());
+                myLogW("tts.getLanguage(): " + loc.getCountry());
             }
 
             String lang = (loc != null && !loc.getLanguage().isEmpty()) ? loc.getLanguage() : "und";
@@ -106,7 +106,7 @@ public class VoiceItem {
             String display = prettyLoc.isEmpty()
                     ? "System (default)"
                     : "System (default: " + prettyLoc + ")";
-            myLogI(display);
+            myLogD("makeSystemDefault (spinner entry) : [" + display + "]");
 
             int flagLang = com.driot.bookplayer.helpers.FlagHelper.getFlagResIdForLanguage(lang);
             int flagCountry = 0;

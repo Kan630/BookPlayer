@@ -209,21 +209,103 @@ public class TtsHelper {
         void onSelected(@Nullable VoiceItem voice);
     }
 
-    /**
-     * Wires the spinner, builds voice list, preselects from savedCode ("system" or engine voice name),
-     * applies the TTS voice internally, and invokes the callback. Returns a handle you should close() in onDestroy.
-     */
+    public static void setupTtsVoiceSpinnerNoEngine(
+            @NonNull Context ui_context,
+            @NonNull Spinner spinner,
+            @Nullable String savedCode,          // "system" or exact engine voice name
+            @NonNull OnVoiceSelected callback
+    ) {
+        myLog("setupTtsVoiceSpinnerNoEngine - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
+        final Context ui  = ui_context;                       // themed
+        final Context app = ui_context.getApplicationContext();
+        final Handler main = new Handler(Looper.getMainLooper());
+/*
+        myLogD("setting up a spinner temp load state with singleton -loading voices...-");
+        // 1) Temporary loading state
+        final ArrayAdapter<String> loadingAdapter = new ArrayAdapter<>(
+                ui, android.R.layout.simple_spinner_item,
+                java.util.Collections.singletonList("Loading voices…"));
+        loadingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(loadingAdapter);
+        spinner.setEnabled(false);
+*/
+        final List<VoiceItem> voices = buildVoiceItems(app, AppTtsManager.get(app).raw());
+        if (voices == null || voices.isEmpty()) {
+            myLogE("no voices");
+            ArrayAdapter<String> empty = new ArrayAdapter<>(
+                    ui, android.R.layout.simple_spinner_item,
+                    java.util.Collections.singletonList("No voices"));
+            empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(empty);
+            spinner.setEnabled(false);
+            callback.onSelected(null);
+        }
+        myLog(voices.size() + " voices");
+
+        // Prepend "system default" option (null voice)
+        final ArrayList<VoiceItem> all = new ArrayList<>();
+        VoiceItem system = VoiceItem.makeSystemDefault(AppTtsManager.get(app).raw());
+        if (system != null) {
+            //myLog("setupTtsVoiceSpinner.onTtsReady => system default = " + system);
+            all.add(system);
+        } else {
+            myLogE("setupTtsVoiceSpinner.onTtsReady => no system default");
+        }
+        all.addAll(voices);
+        myLog("001");
+
+        int currentSelected = -1;
+        int i = 0;
+        for (VoiceItem voiceItem : all) {
+            if (voiceItem.name.equals(savedCode)) {
+                currentSelected = i;
+                break;
+            }
+            i=i+1;
+        }
+
+        final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
+        spinner.setAdapter(adapter);
+        if (currentSelected>0) {
+            spinner.setSelection(currentSelected);
+        }
+        spinner.setEnabled(true);
+        myLog("002");
+
+        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                myLog("spinner : on item selected " + position + " - " + id);
+                VoiceItem selected = (VoiceItem) parent.getItemAtPosition(position);
+                myLog("callback : " + selected.name);
+                callback.onSelected(selected);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                myLog("spinner : on nothing selected");
+            }
+        });
+
+    }
+
+
+        /**
+         * Wires the spinner, builds voice list, preselects from savedCode ("system" or engine voice name),
+         * applies the TTS voice internally, and invokes the callback. Returns a handle you should close() in onDestroy.
+         */
     public static @NonNull AutoCloseable setupTtsVoiceSpinner(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
             @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
-        myLog("setupTtsVoiceSpinner - called from " + getCaller());
+        myLog("setupTtsVoiceSpinner - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
         final Context ui  = ui_context;                       // themed
         final Context app = ui_context.getApplicationContext();
         final Handler main = new Handler(Looper.getMainLooper());
 
+        myLogD("setting up a spinner temp load state with singleton -loading voices...-");
         // 1) Temporary loading state
         final ArrayAdapter<String> loadingAdapter = new ArrayAdapter<>(
                 ui, android.R.layout.simple_spinner_item,
@@ -232,12 +314,14 @@ public class TtsHelper {
         spinner.setAdapter(loadingAdapter);
         spinner.setEnabled(false);
 
+        myLogD("setting a prefered voice name in AppTtsManager");
         final AppTtsManager mgr = AppTtsManager.get(app);
         mgr.setPreferredVoiceName(savedCode);
 
         final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(false);
         final boolean[] suppressSelection = new boolean[]{true}; // suppress spurious onItemSelected during/just-after init
 
+        myLogD("recreating a final AppTts manager ????");
         // 2) Listener to (re)populate once TTS is ready
         final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
             @Override public void onTtsReady(TextToSpeech tts) {

@@ -17,6 +17,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.radio.RadioBrowserServiceFactory;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.imports.BookToAdd;
@@ -87,6 +88,8 @@ public class MyApp extends Application {
         MediaControllerHolder.ensureConnected(getApplicationContext());
 
         RadioBrowserServiceFactory.init(getApplicationContext());
+
+        AppTtsManager.get(getApplicationContext());
     }
 /// STRICT MODE
 

@@ -20,9 +20,9 @@ import java.util.concurrent.Executors;
 
 public class TtsSettingsFragment extends LoggingFragment {
 
-    private AutoCloseable ttsHandle;
     private String lastSavedTtsVoice;
     private EditText etTtsHighlightDelay, etTtsChunkSize;
+    private boolean hasBeenInitialized = false;
 
     @Nullable
     @Override
@@ -46,18 +46,24 @@ public class TtsSettingsFragment extends LoggingFragment {
         lastSavedTtsVoice = Option.getTtsVoice();
         myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
 
-        ttsHandle = TtsHelper.setupTtsVoiceSpinner(
+        TtsHelper.setupTtsVoiceSpinnerNoEngine(
                 /* if it needs Activity: */ requireActivity(),
                 /* otherwise use requireContext() */ ttsVoiceSpinner,
                 lastSavedTtsVoice,
                 voiceItem -> {
-                    String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                            ? "system"
-                            : voiceItem.name;
-                    if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
-                        Option.setTtsVoice(sel);
-                        lastSavedTtsVoice = sel;
-                        myLog("TTS default base voice set to: " + sel);
+                    myLogD("TtsHelper.setupTtsVoiceSpinner callback with voiceItem = " + (voiceItem == null ? "null" : voiceItem.name));
+                    if (hasBeenInitialized) {
+                        String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
+                                ? "system"
+                                : voiceItem.name;
+                        if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
+                            Option.setTtsVoice(sel);
+                            lastSavedTtsVoice = sel;
+                            myLogI("TTS default base voice set to: " + sel);
+                        }
+                    } else {
+                        hasBeenInitialized = true;
+                        myLogD("ignoring callback on init");
                     }
                 }
         );
@@ -76,13 +82,6 @@ public class TtsSettingsFragment extends LoggingFragment {
     public void onPause() {
         super.onPause();
         saveEditTextValues();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        try { if (ttsHandle != null) ttsHandle.close(); } catch (Exception ignored) {}
-        ttsHandle = null;
     }
 
     private void saveEditTextValues() {
