@@ -12,6 +12,19 @@ public class AudioFileInfo {
     private final String contentUri;
     private final Map<String,String> meta;
 
+    private static final java.util.Set<String> PREFACE_SINGLE = new java.util.HashSet<>();
+    static {
+        // normalized, accent-stripped, lowercase versions
+        PREFACE_SINGLE.add("preface");      // "préface", "preface"
+        PREFACE_SINGLE.add("prologue");     // "prologue", "prologue"
+        PREFACE_SINGLE.add("prolog");
+        PREFACE_SINGLE.add("introduction");
+        PREFACE_SINGLE.add("intro");
+        PREFACE_SINGLE.add("prefazione");   // it
+        PREFACE_SINGLE.add("prefacio");     // es/pt
+        PREFACE_SINGLE.add("prologo");      // "prólogo"
+    }
+
     public AudioFileInfo(String displayPath,
                          long duration,
                          String contentUri,
@@ -136,6 +149,12 @@ public class AudioFileInfo {
 
     // Confident chapter detection, in a STRICT order to avoid breaking classic sorting.
     private static Integer detectChapterIndex(String norm, String rawBase) {
+        // 0) Preface / introduction etc. → index 0
+        //    This makes "PRÉFACE" come right before "Chapter I".
+        if (isPrefaceLike(norm)) {
+            return 0;
+        }
+
         // A) Context-aware: “chapter/chapitre/chap/ch” + token(s)
         Integer byContext = detectAfterChapterKeyword(norm);
         if (byContext != null) return byContext;
@@ -359,6 +378,50 @@ public class AudioFileInfo {
         if (FR_ORD.containsKey(s)) return FR_ORD.get(s);
         if (FR_CARD.containsKey(s)) return FR_CARD.get(s);
         return null;
+    }
+
+    /**
+     * Return true if this looks like a preface/introduction type track,
+     * e.g. "PRÉFACE", "01 preface", "Prologue", "Avant-propos", etc.
+     * The input is the normalized name (lowercase, accents stripped, separators -> spaces).
+     */
+    private static boolean isPrefaceLike(String norm) {
+        if (norm == null) return false;
+        String n = norm.trim();
+        if (n.isEmpty()) return false;
+
+        // Drop leading digits: "01 preface", "1 - preface", etc.
+        n = n.replaceFirst("^\\d+\\s+", "");
+
+        // Also strip a few generic words that might appear before:
+        // e.g. "track 01 preface", "disc 1 preface"
+        n = n.replaceFirst("^(track|trk|disc|disque)\\s+\\d+\\s*", "").trim();
+
+        if (n.isEmpty()) return false;
+
+        String[] toks = n.split("\\s+");
+        if (toks.length == 0) return false;
+
+        String first = toks[0];
+
+        // Single-word cases: "preface", "prologue", "intro", ...
+        if (PREFACE_SINGLE.contains(first)) return true;
+
+        // "avant propos", "avant-propos" -> normalized to "avant propos"
+        if (toks.length >= 2 && "avant".equals(toks[0]) && "propos".equals(toks[1])) {
+            return true;
+        }
+
+        // Safety: also accept when preface word appears at the beginning of the title
+        // like "preface to second edition"
+        for (String kw : PREFACE_SINGLE) {
+            if (n.startsWith(kw + " ") || n.equals(kw)) {
+                return true;
+            }
+        }
+        if (n.startsWith("avant propos")) return true;
+
+        return false;
     }
 
 }

@@ -205,6 +205,13 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("language", trimFA(lang));
         logBundleEvent("librivox_search", bundle);
     }
+    public static void tellAnalyticsGutendexSearch(String query, String lang) {
+        Bundle bundle = new Bundle();
+        bundle.putString("query", trimFA(query));
+        bundle.putString("language", trimFA(lang));
+        logBundleEvent("Gutendex_search", bundle);
+    }
+
     public static void  tellAnalyticsLibrivoxTrending(String query, String lang) {
         Bundle bundle = new Bundle();
         bundle.putString("query", trimFA(query));
@@ -248,9 +255,10 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("folderName", trimFA(folderName));
         logBundleEvent("play_action", bundle);
     }
-    public static void tellAnalyticsEbookWorker(String extension) {
+    public static void tellAnalyticsEbookWorker(String extension, String sourceLocation) {
         Bundle bundle = new Bundle();
         bundle.putString("extension", trimFA(extension));
+        bundle.putString("sourceLocation", trimFA(sourceLocation));
         logBundleEvent("ebook_worker", bundle);
     }
     public static void tellAnalyticsStartStreaming(String podcastName, String stream_url, String play_mode) {

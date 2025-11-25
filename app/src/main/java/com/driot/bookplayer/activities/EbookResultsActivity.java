@@ -61,7 +61,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         );
 
         adapter = new EbookResultRVAdapter(item -> {
-            myLogI("User clicks ebook item id=" + item.gutendexId + " title=" + item.title);
+            myLogI("User clicks ebook item id=[" + item.gutendexId + "] - title=[" + item.title + "]\nurl=[" + item.epubUrl + "]");
 
             Intent intent = new Intent(EbookResultsActivity.this, EbookDetailActivity.class);
             intent.putExtra("gutendex_id", item.gutendexId);
@@ -93,7 +93,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         adapter.setHeader(searchLine, langLine);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
-        myLogI("EbookResultsActivity - query=[" + query + "], lang=[" + lang + "]");
+        myLogD("EbookResultsActivity - query=[" + query + "], lang=[" + lang + "]");
 
         callGutendex(query, lang);
     }
@@ -145,12 +145,15 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 List<GutendexBook> books = resp.results;
 
                 if (books == null || books.isEmpty()) {
-                    myLogI("Gutendex: no books found for [" + query + "] lang [" + lang + "]");
+                    myLog("Gutendex: no books found for [" + query + "] lang [" + lang + "]");
                     tvEmptyMessage.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                     adapter.setHeaderCount(getString(R.string.Results_2pt) + " 0");
                     return;
                 }
+
+                // LOG ALL BOOKS FOUND :
+                //for (GutendexBook b : books) { myLogE(b.toString()); }
 
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
@@ -175,14 +178,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 }
 
                 if (mapped.isEmpty()) {
-                    myLogI("Gutendex: all results filtered out (no EPUB).");
+                    myLogW("Gutendex: all results filtered out (no EPUB).");
                     tvEmptyMessage.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                     adapter.setHeaderCount(getString(R.string.Results_2pt) + " 0");
                     return;
                 }
 
-                myLogI("Gutendex: " + mapped.size() + " ebooks with EPUB found (total=" + resp.count + ")");
+                myLog("Gutendex: " + mapped.size() + " ebooks with EPUB found (total=" + resp.count + ")");
                 adapter.setItems(mapped);
 
                 String countText = getString(R.string.nb_of_audios_found) + " : " + mapped.size();

@@ -19,4 +19,21 @@ public class GutendexBook {
 
     // key = MIME type, value = URL
     public Map<String, String> formats;
+
+    @Override
+    public String toString() {
+        return "GutendexBook{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", authors=" + authors +
+                ", translators=" + translators +
+                ", subjects=" + subjects +
+                ", bookshelves=" + bookshelves +
+                ", languages=" + languages +
+                ", copyright=" + copyright +
+                ", media_type='" + media_type + '\'' +
+                ", download_count=" + download_count +
+                ", formats=" + formats +
+                '}';
+    }
 }

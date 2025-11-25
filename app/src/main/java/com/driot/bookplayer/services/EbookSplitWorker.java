@@ -9,6 +9,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.EpubGutenbergHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -48,6 +49,7 @@ public class EbookSplitWorker extends ImportWorker {
 
         final String ebookPath = ImportHelper.getSourceFilePathForWorker(j);
         final String destinationFolderPath = j.futureFolderPath;
+        final String sourceLocation = j.sourceLocation;
 
         myLogD("--------------------------------------------------------------------------");
         myLog("ebookPath = " + ebookPath);
@@ -55,6 +57,7 @@ public class EbookSplitWorker extends ImportWorker {
         myLog("-------------------------------------");
         final String ebookType = guessTypeFromPath(ebookPath); //keep that line here to get some log if null => throw...
         myLog("computed ebookType = " + ebookType);
+        myLog("source Location = " + sourceLocation);
         myLogD("--------------------------------------------------------------------------");
 
         // Optionally enter foreground:
@@ -66,13 +69,13 @@ public class EbookSplitWorker extends ImportWorker {
             return Result.failure();
         }
 
-        FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType);
+        FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType, sourceLocation);
 
-        boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType);
+        boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType, sourceLocation);
         return ok ? Result.success() : Result.failure();
     }
 
-    private boolean splitEbook(String ebookPath, String destinationFolderPath, String ebookType) {
+    private boolean splitEbook(String ebookPath, String destinationFolderPath, String ebookType, String sourceLocation) {
         Context ctx = getApplicationContext();
         try {
             File outFolder = new File(destinationFolderPath);
@@ -99,9 +102,15 @@ public class EbookSplitWorker extends ImportWorker {
                 chapters = result.chapterFiles;
             } else if ("epub".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
-                EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
-                cover    = result.coverBitmap;
-                chapters = result.chapterFiles;
+                if (Var.SOURCE_LOCATION_EBOOK_GUTENDEX.equals(sourceLocation)) {
+                    EpubGutenbergHelper.ExtractResult result = EpubGutenbergHelper.extractAll(ctx, uri);
+                    cover    = result.coverBitmap;
+                    chapters = result.chapterFiles;
+                } else {
+                    EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
+                    cover    = result.coverBitmap;
+                    chapters = result.chapterFiles;
+                }
             } else if ("odt".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing ODT…");
                 OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);

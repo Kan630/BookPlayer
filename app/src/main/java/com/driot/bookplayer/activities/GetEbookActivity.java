@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.LanguageItem;
@@ -85,6 +86,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
             myToast("selected language error");
             return;
         }
+        FirebaseAnalyticsHelper.tellAnalyticsGutendexSearch(query, lang);
 
         openEbookResultsActivity();
     }
