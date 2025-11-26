@@ -209,31 +209,20 @@ public class TtsHelper {
         void onSelected(@Nullable VoiceItem voice);
     }
 
-    public static void setupTtsVoiceSpinnerNoEngine(
+    public static void setupTtsVoiceSpinnerForSettings(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
             @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
         myLog("setupTtsVoiceSpinnerNoEngine - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
-        final Context ui  = ui_context;                       // themed
         final Context app = ui_context.getApplicationContext();
-        final Handler main = new Handler(Looper.getMainLooper());
-/*
-        myLogD("setting up a spinner temp load state with singleton -loading voices...-");
-        // 1) Temporary loading state
-        final ArrayAdapter<String> loadingAdapter = new ArrayAdapter<>(
-                ui, android.R.layout.simple_spinner_item,
-                java.util.Collections.singletonList("Loading voices…"));
-        loadingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(loadingAdapter);
-        spinner.setEnabled(false);
-*/
+
         final List<VoiceItem> voices = buildVoiceItems(app, AppTtsManager.get(app).raw());
         if (voices == null || voices.isEmpty()) {
             myLogE("no voices");
             ArrayAdapter<String> empty = new ArrayAdapter<>(
-                    ui, android.R.layout.simple_spinner_item,
+                    ui_context, android.R.layout.simple_spinner_item,
                     java.util.Collections.singletonList("No voices"));
             empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
             spinner.setAdapter(empty);
@@ -264,7 +253,7 @@ public class TtsHelper {
             i=i+1;
         }
 
-        final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
+        final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui_context, all);
         spinner.setAdapter(adapter);
         if (currentSelected>0) {
             spinner.setSelection(currentSelected);

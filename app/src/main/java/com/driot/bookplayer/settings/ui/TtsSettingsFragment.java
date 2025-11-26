@@ -46,7 +46,7 @@ public class TtsSettingsFragment extends LoggingFragment {
         lastSavedTtsVoice = Option.getTtsVoice();
         myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
 
-        TtsHelper.setupTtsVoiceSpinnerNoEngine(
+        TtsHelper.setupTtsVoiceSpinnerForSettings(
                 /* if it needs Activity: */ requireActivity(),
                 /* otherwise use requireContext() */ ttsVoiceSpinner,
                 lastSavedTtsVoice,
