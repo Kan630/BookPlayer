@@ -339,9 +339,11 @@ public class PlayActivity extends LoggingActivity {
             // Error message overlay (non-blocking)
             if (Intents.PHASE_ERROR.equals(p)) {
                 //progressMessage.setText(p.message != null ? p.message : getString(R.string.tts_phase_error));
-                messageOverlay.setVisibility(View.VISIBLE);
+                //messageOverlay.setVisibility(View.VISIBLE);
+                myLogW("TTS is in PHASE_ERROR – keeping spinner and controls usable");
+                myToast(getString(R.string.tts_phase_error));
             } else {
-                messageOverlay.setVisibility(View.GONE);
+                //messageOverlay.setVisibility(View.GONE);
             }
 
             // Optionally soften main controls during busy phases

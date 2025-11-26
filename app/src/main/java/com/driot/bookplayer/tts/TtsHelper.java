@@ -21,14 +21,12 @@ import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
-import java.io.File;
 import java.text.BreakIterator;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class TtsHelper {
-    private final Context context;
     private TextToSpeech tts;
 
     public static final int READY=0, SET_VOICE_FAILED=1, MISSING_DATA=2, SYNTH_FAIL=3, ERROR=4, TIMEOUT=5;
@@ -38,12 +36,7 @@ public class TtsHelper {
     // optional raw access
     public TextToSpeech raw() { return tts; }
 
-    public int synthesizeToFile(CharSequence text, Bundle params, File file, String utteranceId) {
-        return tts.synthesizeToFile(text, params, file, utteranceId);
-    }
-
     public TtsHelper(@NonNull Context ctx, @NonNull TextToSpeech sharedTts) {
-        this.context = ctx.getApplicationContext();
         this.tts = sharedTts;   // do NOT new TextToSpeech here
     }
 
@@ -95,7 +88,7 @@ public class TtsHelper {
 
         // 1) First utterance: either slice mid-chunk, or speak the whole chunk
         final Chunk first = chunks.get(idx);
-        int firstStart = (safeOffset > first.start) ? safeOffset : first.start;
+        int firstStart = Math.max(safeOffset, first.start);
 
         if (first.end - firstStart < MIN_FIRST_UTT_CHARS && idx + 1 < chunks.size()) {
             // Too small → skip to next full chunk instead
@@ -158,7 +151,7 @@ public class TtsHelper {
         if (buf.length() > 0) {
             out.add(new Chunk(chunkStart, chunkStart + buf.length(), buf.toString()));
         }
-        if (out.isEmpty() && text.length() > 0) {
+        if (out.isEmpty() && !text.isEmpty()) {
             for (int i = 0; i < text.length(); i += maxLen) {
                 int end = Math.min(text.length(), i + maxLen);
                 out.add(new Chunk(i, end, text.substring(i, end)));
@@ -185,6 +178,7 @@ public class TtsHelper {
         return ans;
     }
 
+    /** Very small, allocation-free-ish word-bound finder used to snap the highlight immediately. */
     /** Returns [wordStart, wordEnd] for a given offset. */
     public static int[] findWordBounds(CharSequence text, int off) {
         int n = text.length();
@@ -203,6 +197,10 @@ public class TtsHelper {
         if (e < s) e = s;
         return new int[]{s, e};
     }
+    public static int[] findWordBounds(@NonNull String s, int off) {
+        return findWordBounds((CharSequence) s, off);
+    }
+
 
 
     public interface OnVoiceSelected {
@@ -215,12 +213,13 @@ public class TtsHelper {
             @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
-        myLog("setupTtsVoiceSpinnerNoEngine - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
+        myLog("setupTtsVoiceSpinnerForSettings - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
         final Context app = ui_context.getApplicationContext();
 
-        final List<VoiceItem> voices = buildVoiceItems(app, AppTtsManager.get(app).raw());
-        if (voices == null || voices.isEmpty()) {
-            myLogE("no voices");
+        final AppTtsManager mgr = AppTtsManager.get(app);
+        TextToSpeech tts = mgr.raw();
+        if (tts == null) {
+            myLogE("setupTtsVoiceSpinnerForSettings: TTS not ready (raw() == null)");
             ArrayAdapter<String> empty = new ArrayAdapter<>(
                     ui_context, android.R.layout.simple_spinner_item,
                     java.util.Collections.singletonList("No voices"));
@@ -228,17 +227,31 @@ public class TtsHelper {
             spinner.setAdapter(empty);
             spinner.setEnabled(false);
             callback.onSelected(null);
+            return;
+        }
+
+        final List<VoiceItem> voices = buildVoiceItems(tts);
+        if (voices == null || voices.isEmpty()) {
+            myLogE("setupTtsVoiceSpinnerForSettings - no voices");
+            ArrayAdapter<String> empty = new ArrayAdapter<>(
+                    ui_context, android.R.layout.simple_spinner_item,
+                    java.util.Collections.singletonList("No voices"));
+            empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinner.setAdapter(empty);
+            spinner.setEnabled(false);
+            callback.onSelected(null);
+            return;
         }
         myLog(voices.size() + " voices");
 
         // Prepend "system default" option (null voice)
         final ArrayList<VoiceItem> all = new ArrayList<>();
-        VoiceItem system = VoiceItem.makeSystemDefault(AppTtsManager.get(app).raw());
+        VoiceItem system = VoiceItem.makeSystemDefault(tts);
         if (system != null) {
-            //myLog("setupTtsVoiceSpinner.onTtsReady => system default = " + system);
+            //myLog("setupTtsVoiceSpinnerForSettings => system default = " + system);
             all.add(system);
         } else {
-            myLogE("setupTtsVoiceSpinner.onTtsReady => no system default");
+            myLogE("setupTtsVoiceSpinnerForSettings => no system default");
         }
         all.addAll(voices);
         myLog("001");
@@ -322,7 +335,7 @@ public class TtsHelper {
                 main.post(() -> {
                     myLog("setupTtsVoiceSpinner.onTtsReady => populating spinner");
                     // Build catalog
-                    final List<VoiceItem> voices = buildVoiceItems(app, tts); // your helper
+                    final List<VoiceItem> voices = buildVoiceItems(tts); // your helper
                     if (voices == null || voices.isEmpty()) {
                         myLog("setupTtsVoiceSpinner.onTtsReady => no voices");
                         ArrayAdapter<String> empty = new ArrayAdapter<>(
@@ -388,8 +401,8 @@ public class TtsHelper {
             }
         };
 
-        // 3) Acquire a handle (ref-counted) and register listener
-        final AutoCloseable acquireHandle = mgr.acquire(spinner /*owner*/, mgrListener);
+        // register
+        mgr.addListener(mgrListener);
 
         // 4) If already ready, populate immediately
         if (mgr.isReady() && mgr.raw() != null) {
@@ -401,7 +414,7 @@ public class TtsHelper {
             main.post(() -> {
                 try { spinner.setOnItemSelectedListener(null); } catch (Throwable ignored) {}
             });
-            try { acquireHandle.close(); } catch (Exception ignored) {}
+            mgr.removeListener(mgrListener);
         };
     }
 
@@ -409,7 +422,7 @@ public class TtsHelper {
     // ---- INTERNALS ----
 
     /** Build & sort list of VoiceItem, with flags and nice labels. */
-    private static List<VoiceItem> buildVoiceItems(Context ctx, TextToSpeech tts) {
+    private static List<VoiceItem> buildVoiceItems(TextToSpeech tts) {
         List<VoiceItem> out = new ArrayList<>();
         try {
             for (Voice v : tts.getVoices()) {
@@ -464,29 +477,4 @@ public class TtsHelper {
         }
     }
 
-    /** Very small, allocation-free-ish word-bound finder used to snap the highlight immediately. */
-    public static int[] findWordBounds(@NonNull String s, int off) {
-        final int n = s.length();
-        if (n == 0) return new int[]{0, 0};
-        int i = Math.max(0, Math.min(off, n - 1));
-
-        // If tap lands on whitespace, prefer the next non-space char (if any)
-        while (i < n && Character.isWhitespace(s.charAt(i))) i++;
-        if (i >= n) i = n - 1;
-
-        // Allowed "word" chars: letters/digits plus a few intra-word symbols (’'_-)
-        java.util.function.IntPredicate isWord = c ->
-                Character.isLetterOrDigit(c) || c == '\'' || c == '’' || c == '_' || c == '-';
-
-        int start = i;
-        while (start > 0 && isWord.test(s.charAt(start - 1))) start--;
-        int end = i;
-        while (end < n && isWord.test(s.charAt(end))) end++;
-
-        if (end <= start) { // fallback: highlight at least one char
-            start = Math.max(0, i);
-            end = Math.min(n, i + 1);
-        }
-        return new int[]{start, end};
-    }
 }

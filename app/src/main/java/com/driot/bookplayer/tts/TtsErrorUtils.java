@@ -7,9 +7,17 @@ import android.util.Log;
 
 import java.util.Locale;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 public final class TtsErrorUtils {
     private static final String TAG = "TtsErrorUtils";
     private TtsErrorUtils() {}
+
+
+    // Categories so caller can decide how to react
+    public static final int CATEGORY_TRANSIENT = 1;   // network / audio / engine hiccup
+    public static final int CATEGORY_CONFIG    = 2;   // bad voice / missing data / unsupported
+    public static final int CATEGORY_UNKNOWN   = 3;   // we don't know
 
     // ---------- Public helpers ----------
 
@@ -59,14 +67,40 @@ public final class TtsErrorUtils {
         }
     }
 
+    /** Categorize the error so caller can decide if it's likely transient or config-related. */
+    public static int classifyOnErrorCode(int errorCode) {
+        switch (errorCode) {
+            // Bad parameters / not supported → configuration problem
+            case -4:  // invalid request
+            case -10: // unsupported feature
+                return CATEGORY_CONFIG;
+
+            // Network / audio / engine / synthesis → typically transient
+            case -5:  // network error
+            case -6:  // network timeout
+            case -7:  // audio output
+            case -8:  // service error
+            case -9:  // synthesis error
+                return CATEGORY_TRANSIENT;
+
+            // 0 and generic ERROR: we don't know → treat as transient-ish
+            case 0:
+            case TextToSpeech.ERROR:
+                return CATEGORY_UNKNOWN;
+
+            default:
+                return CATEGORY_UNKNOWN;
+        }
+    }
+
     /** One-liner to log setLanguage() outcome. */
     public static void logSetLanguageResult(String tag, int result, Locale locale) {
-        Log.i(tag, describeSetLanguageResult(result, locale));
+        myLogI(describeSetLanguageResult(result, locale));
     }
 
     /** One-liner to log speak/synthesize outcome. */
     public static void logOperationResult(String tag, String opName, int result) {
-        Log.i(tag, describeOperationResult(opName, result));
+        myLogI(describeOperationResult(opName, result));
     }
 
     // ---------- Suggested mitigations ----------
@@ -121,5 +155,32 @@ public final class TtsErrorUtils {
         String bcp47 = l.toLanguageTag();
         return bcp47 + " (" + l.toString() + ")";
     }
+
+    public static boolean isProbablyTransient(int errorCode) {
+        // network / timeout / audio route / service hiccup → could recover
+        switch (errorCode) {
+            case -5: // network error
+            case -6: // network timeout
+            case -7: // audio output error
+            case -8: // service error
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public static boolean isProbablyConfigProblem(int errorCode) {
+        // "this voice/text combination is probably never going to work"
+        switch (errorCode) {
+            case -4:                  // invalid request
+            case -9:                  // synthesis error
+            case -10:                 // unsupported feature
+            case TextToSpeech.ERROR:  // generic error (legacy path)
+                return true;
+            default:
+                return false;
+        }
+    }
+
 }
 

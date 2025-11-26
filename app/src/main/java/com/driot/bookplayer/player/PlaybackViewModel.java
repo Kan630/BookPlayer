@@ -44,9 +44,18 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final androidx.lifecycle.MutableLiveData<String> _ttsText = new androidx.lifecycle.MutableLiveData<>("");
     public androidx.lifecycle.LiveData<String> getTtsText() { return _ttsText; }
 
+    private final java.util.concurrent.atomic.AtomicBoolean ttsTextRequested =
+            new java.util.concurrent.atomic.AtomicBoolean(false);
+
     public int sleepCustomMinutes = Option.getTimeBeforeSleep();
 
     public void requestTtsTextOnce() {
+        // Only one request per VM/session by default
+        if (!ttsTextRequested.compareAndSet(false, true)) {
+            myLog("requestTtsTextOnce: already requested, ignoring");
+            return;
+        }
+
         android.os.ResultReceiver rr = new android.os.ResultReceiver(
                 new android.os.Handler(android.os.Looper.getMainLooper())) {
             @Override protected void onReceiveResult(int resultCode, android.os.Bundle resultData) {

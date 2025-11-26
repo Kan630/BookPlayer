@@ -34,6 +34,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
+import com.driot.bookplayer.tts.TtsErrorUtils;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
@@ -56,6 +57,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     // ---- Load phase tracking ----
     private @NonNull String currentUiPhase = Intents.PHASE_OFF;
     private @Nullable String currentUiPhaseMsg = null;
+
+    private int ttsErrorCountForGen = 0;
+    private long lastTtsErrorGen = -1;
 
     private final java.util.concurrent.atomic.AtomicInteger boundClientCount = new java.util.concurrent.atomic.AtomicInteger();
     private final android.os.Handler serviceHandler = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -394,21 +398,32 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     break;
                 }
                 case Intents.CMD_TTS_GET_TEXT: {
-                    // Optional: support queries with a ResultReceiver
-                    android.os.ResultReceiver rr = extras != null
-                            ? extras.getParcelable(Intents.EXTRA_RESULT_RECEIVER) : null;
+                    myLog("MediaSessionCompat.Callback - onCustomAction : CMD_TTS_GET_TEXT");
 
-                    // You can ask MediaService to produce the value and reply into rr
-                    ContextCompat.startForegroundService(
-                            MediaService.this,
-                            new Intent(MediaService.this, MediaService.class)
-                                    .setAction(Intents.CMD_TTS_GET_TEXT)
-                                    .putExtra(Intents.EXTRA_RESULT_RECEIVER, rr)
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction")
-                    );
+                    android.os.ResultReceiver rr = (extras != null)
+                            ? extras.getParcelable(Intents.EXTRA_RESULT_RECEIVER)
+                            : null;
+
+                    String txt = "";
+                    if (engine instanceof TtsEngine) {
+                        try {
+                            String t = ((TtsEngine) engine).getText();
+                            if (t != null) txt = t;
+                        } catch (Throwable t) {
+                            myLogEE(t, "CMD_TTS_GET_TEXT - failed to get text");
+                        }
+                    } else {
+                        myLogE("CMD_TTS_GET_TEXT ignored: engine is not TTS");
+                    }
+
+                    if (rr != null) {
+                        Bundle out = new Bundle();
+                        out.putString(Intents.EXTRA_TTS_TEXT, txt);
+                        rr.send(0, out);
+                    }
                     break;
                 }
+
 
                 default:
                     super.onCustomAction(action, extras);
@@ -1072,16 +1087,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             case Intents.CMD_TTS_SET_START: {
                 int ch = intent.getIntExtra(Intents.EXTRA_TTS_START_OFFSET, -1);
                 if (ch >= 0) handleTtsSeekChars(ch);
-                return START_STICKY;
-            }
-
-            case Intents.CMD_TTS_GET_TEXT: {
-                android.os.ResultReceiver rr =
-                        intent.getParcelableExtra(Intents.EXTRA_RESULT_RECEIVER);
-                String txt = getTtsText(); // returns engine text if TTS, else null
-                Bundle out = new Bundle();
-                out.putString(Intents.EXTRA_TTS_TEXT, (txt != null) ? txt : "");
-                if (rr != null) rr.send(0, out);
                 return START_STICKY;
             }
 
@@ -1778,18 +1783,60 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         ErrorLoadingFile = true;
         sleepTimer.stop();
 
-        // TTS errors are recoverable → do NOT send NOTIFICATION_ERROR
         if (msg != null && msg.startsWith("TTS")) {
-            setUiPhase(Intents.PHASE_ERROR, "Speech engine error (" + what + ")");
-            // Keep UI alive; do not broadcast NOTIFICATION_ERROR.
+            // --- Track how many TTS errors for the current engine generation ---
+            if (engineGen != lastTtsErrorGen) {
+                lastTtsErrorGen = engineGen;
+                ttsErrorCountForGen = 0;
+            }
+            ttsErrorCountForGen++;
+
+            boolean transientErr   = TtsErrorUtils.isProbablyTransient(what);
+            boolean configProblem  = TtsErrorUtils.isProbablyConfigProblem(what);
+
+            // 1) Always show some error state in UI
+            setUiPhase(Intents.PHASE_ERROR,
+                    "Speech engine error (" + what + ")");
+
+            // 2) If it's probably transient (network, route, etc.) → do *not* touch voice
+            if (transientErr) {
+                myLogW("TTS error considered transient, keeping current voice/text.");
+                // You could optionally retry once after a delay, but not auto.
+                return;
+            }
+
+            // 3) If it's probably a config problem and we've seen it twice for this gen,
+            //    tell the user clearly that this voice looks incompatible.
+            if (configProblem && ttsErrorCountForGen >= 2) {
+                myToastEE(null,
+                        getString(R.string.tts_voice_seems_incompatible)); // create a nice string
+                myLogE("TTS voice seems incompatible for this text (code=" + what + ")");
+
+                // Optional: mark this voice as "bad for this book" so you can avoid it next time.
+                // Example (adapt to your real API):
+                try {
+                    PlayList pl = PlayList.getInstance();
+                    if (pl != null && pl.isZikFile()) {
+                        Folder f = pl.getFolder();
+                        if (f != null) {
+                            String badVoice = getCurrentTtsVoiceName();
+                            myLogW("Marking bad TTS voice for this book: " + badVoice);
+                            // e.g. Pref.setBadTtsVoiceForBook(f.getId(), badVoice);
+                        }
+                    }
+                } catch (Throwable ignored) {}
+
+                // But we *do not* kill the service or auto-change the voice.
+                // The user remains free to pick a new voice in the spinner.
+            }
+
+            // For a single config error, we just stay in ERROR phase and show the UI.
             return;
         }
 
         // Non-TTS = real fatal
         alertError(null, null);
-        //broadcastUiState();
     }
-
 
     private void onEngineFatal(String msg, int what, int extra) {
         ErrorLoadingFile = true;

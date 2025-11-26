@@ -10,15 +10,20 @@ import android.speech.tts.Voice;
 
 import androidx.annotation.Nullable;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
-
 import com.driot.bookplayer.db.AppDatabase;
 
 import java.lang.ref.WeakReference;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Set;
+import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public final class AppTtsManager implements TextToSpeech.OnInitListener {
+
     public interface Listener {
         default void onTtsReady(TextToSpeech tts) {}
         default void onStart(String uttId) {}
@@ -29,22 +34,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     }
 
     private static volatile AppTtsManager sInstance;
-    private volatile boolean ready = false;
-
-    private final Context app;
-    private final Handler main = new Handler(Looper.getMainLooper());
-    private final Object lock = new Object();
-    private final Map<Object, WeakReference<Listener>> listeners = new ConcurrentHashMap<>();
-
-    private TextToSpeech tts;
-    private int refCount = 0;
-    private Runnable delayedShutdown;
-
-    private AppTtsManager(Context app) {
-        this.app = app.getApplicationContext();
-        myLogD("AppTtsManager: constructor - new TextToSpeech");
-        main.post(() -> tts = new TextToSpeech(app, this)); // main thread
-    }
 
     public static void init(Context context) {
         AppDatabase.databaseReadExecutor.execute(() -> {
@@ -57,59 +46,73 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     public static AppTtsManager get(Context ctx) {
         if (sInstance == null) {
             synchronized (AppTtsManager.class) {
-                if (sInstance == null) sInstance = new AppTtsManager(ctx.getApplicationContext());
+                if (sInstance == null) {
+                    sInstance = new AppTtsManager(ctx.getApplicationContext());
+                }
             }
         }
         return sInstance;
     }
 
-    @Nullable private volatile String preferredVoiceName = null;
-    /** Set before acquire() or anytime prior to onInit completing. */
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private volatile boolean ready = false;
+    private TextToSpeech tts;
+
+    // Weak listener list (no owner concept anymore)
+    private final List<WeakReference<Listener>> listeners = new CopyOnWriteArrayList<>();
+
+    @Nullable
+    private volatile String preferredVoiceName = null;
+
+    private AppTtsManager(Context app) {
+        myLogD("AppTtsManager: constructor - new TextToSpeech");
+        main.post(() -> tts = new TextToSpeech(app, this)); // main thread
+    }
+
+    /** Set before init or anytime prior to onInit completing. */
     public void setPreferredVoiceName(@Nullable String name) {
-        preferredVoiceName = (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) ? null : name;
+        preferredVoiceName = (name == null || name.isEmpty() || "system".equalsIgnoreCase(name))
+                ? null : name;
     }
 
+    // --- Listener registration ---
 
-    // --- lifecycle for consumers ---
-    public AutoCloseable acquire(Object owner, Listener l) {
-        synchronized (lock) {
-            refCount++;
-            if (l != null && owner != null) listeners.put(owner, new WeakReference<>(l));
-            // Ensure engine exists even after a previous shutdown
-            if (tts == null) {
-                main.post(() -> {
-                    if (tts == null) tts = new TextToSpeech(app, this);
-                });
-            }
-        }
-        if (ready && l != null) l.onTtsReady(tts);
-        return () -> release(owner);
-    }
-
-    public void release(Object owner) {
-        synchronized (lock) {
-            if (owner != null) listeners.remove(owner);
-            if (--refCount <= 0) scheduleShutdown();
+    public void addListener(@Nullable Listener l) {
+        if (l == null) return;
+        listeners.add(new WeakReference<>(l));
+        // if already ready, notify immediately
+        if (ready && tts != null) {
+            try { l.onTtsReady(tts); } catch (Throwable ignored) {}
         }
     }
 
-    private void scheduleShutdown() {
-        if (delayedShutdown != null) main.removeCallbacks(delayedShutdown);
-        delayedShutdown = () -> {
-            synchronized (lock) {
-                if (refCount == 0 && tts != null) {
-                    try { tts.stop(); tts.shutdown(); } catch (Throwable ignored) {}
-                    tts = null; ready = false;
-                    // Lazy re-create on next use
-                    //main.post(() -> tts = new TextToSpeech(app, this));
-                }
+    public void removeListener(@Nullable Listener l) {
+        if (l == null) return;
+        for (WeakReference<Listener> ref : listeners) {
+            Listener cur = (ref != null) ? ref.get() : null;
+            if (cur == null || cur == l) {
+                listeners.remove(ref);
             }
-        };
-        main.postDelayed(delayedShutdown, 20_000); // 20s idle grace
+        }
+    }
+
+    private void forEachListener(java.util.function.Consumer<Listener> block) {
+        for (WeakReference<Listener> ref : listeners) {
+            Listener l = (ref != null) ? ref.get() : null;
+            if (l == null) {
+                listeners.remove(ref); // cleanup GC'ed listeners
+            } else {
+                try {
+                    block.accept(l);
+                } catch (Throwable ignored) {}
+            }
+        }
     }
 
     // --- TextToSpeech.OnInitListener ---
-    @Override public void onInit(int status) {
+
+    @Override
+    public void onInit(int status) {
         ready = (status == TextToSpeech.SUCCESS) && (tts != null);
         if (!ready) return;
 
@@ -126,52 +129,49 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String utteranceId) {
                     myLogD("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
-                    // this is for a reactive highlight, but I dont like it : log not nice
                     int[] se = TtsIds.parseUtt(utteranceId);
                     if (se != null) {
                         final int s = se[0];
                         // notify a zero-length range at start (start,start)
-                        listeners.values().forEach(w -> opt(w).onUtteranceRange(s, s));
+                        forEachListener(l -> l.onUtteranceRange(s, s));
                     }
-                    listeners.values().forEach(w -> opt(w).onStart(utteranceId));
+                    forEachListener(l -> l.onStart(utteranceId));
                 }
+
                 @Override public void onDone(String utteranceId) {
                     myLogD("setOnUtteranceProgressListener.onDone - utteranceId=" + utteranceId);
-                    listeners.values().forEach(w -> opt(w).onDone(utteranceId));
+                    forEachListener(l -> l.onDone(utteranceId));
                 }
+
                 @Override public void onError(String utteranceId) {
                     myLogE("onError (legacy) for " + utteranceId);
-                    listeners.values().forEach(w -> opt(w).onError(utteranceId, 0));
+                    forEachListener(l -> l.onError(utteranceId, 0));
                 }
+
                 @Override public void onError(String utteranceId, int errorCode) {
                     myLogE("onError " + utteranceId + " -> " + TtsErrorUtils.describeOnErrorCode(errorCode));
-                    listeners.values().forEach(w -> opt(w).onError(utteranceId, errorCode));
+                    forEachListener(l -> l.onError(utteranceId, errorCode));
                 }
-                // used for words highlighting
+
                 @Override public void onRangeStart(String uttId, int start, int end, int frame) {
-                    //myLogD("setOnUtteranceProgressListener.onRangeStart, uttId=" + uttId + " - " + start + "=>" + end + " - frame=" + frame);
-                    // Convert to absolute using the uttId "utt_<absStart>_<absEnd>"
                     int[] se = TtsIds.parseUtt(uttId);
                     if (se != null) {
                         int absStart = se[0] + Math.max(0, start);
                         int absEnd   = se[0] + Math.max(0, end);
-                        listeners.values().forEach(w -> opt(w).onWordRange(absStart, absEnd));
+                        forEachListener(l -> l.onWordRange(absStart, absEnd));
                     } else {
                         // Fallback: pass relative range
-                        listeners.values().forEach(w -> opt(w).onWordRange(start, end));
+                        forEachListener(l -> l.onWordRange(start, end));
                     }
                 }
             });
 
-// --- Voice selection policy ---
-// Goal: never clobber a user preference. Only apply a voice if explicitly asked,
-// or (optionally) when we truly have no preference and no engine voice set.
-
+            // --- Voice selection policy ---
             boolean voiceSet = false;
             try {
                 Voice current = (tts != null) ? tts.getVoice() : null;
 
-                // 1) If a preferred voice name was provided, honor it.
+                // 1) Preferred voice name
                 String prefName = preferredVoiceName;
                 if (prefName != null && tts != null) {
                     Set<Voice> all = tts.getVoices();
@@ -181,32 +181,28 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                                 int sr = tts.setVoice(v);
                                 myLog("setting tts voice (preferred) : " + v.getName());
                                 voiceSet = (sr == TextToSpeech.SUCCESS);
-                                if (!voiceSet) myLogE("could not set preferred voice : " + v.getName());
+                                if (!voiceSet) {
+                                    myLogE("could not set preferred voice : " + v.getName());
+                                }
                                 break;
                             }
                         }
                     }
                 }
 
-                // 2) If no preferred voice and engine already has a voice, keep it (do NOT override).
+                // 2) Keep engine's current voice if present
                 if (!voiceSet && current != null) {
                     myLog("keeping engine's current voice: " + current.getName());
-                    voiceSet = true; // treat as “we have a voice”
+                    voiceSet = true;
                 }
 
-                // 3) Optional: If still no voice and you want a graceful default,
-                //    set language to device locale OR pickBestVoice *only* when no preference.
+                // 3) Fallback: set language to Locale.getDefault()
                 if (!voiceSet) {
-                    // Light-touch fallback: set language; avoid forcing a specific named voice.
                     Locale locale = Locale.getDefault();
                     int langSetResult = tts.setLanguage(locale);
                     TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
                     ready = (langSetResult != TextToSpeech.LANG_MISSING_DATA
                             && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
-
-                    // If you DO want pickBestVoice, gate it carefully, e.g.:
-                    // Voice best = pickBestVoice(locale, null);
-                    // if (best != null) { int sr = tts.setVoice(best); if (sr == SUCCESS) { voiceSet = true; } }
                 }
             } catch (Exception e) {
                 myLogEE(e, "AppTtsManager.onInit - setting Voice");
@@ -216,17 +212,13 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             myLogEE(e, "AppTtsManager.onInit");
             ready = false;
         }
-        // Notify everybody that TTS is ready (or not)
+
         if (ready) {
-            for (WeakReference<Listener> w : listeners.values()) opt(w).onTtsReady(tts);
+            forEachListener(l -> l.onTtsReady(tts));
         }
     }
 
-
-    private static Listener opt(WeakReference<Listener> w) {
-        Listener l = (w == null) ? null : w.get();
-        return (l == null) ? new Listener() {} : l;
-    }
+    // --- optional best-voice helper ---
 
     @Nullable
     public Voice pickBestVoice(Locale locale, @Nullable String preferredNamePart) {
@@ -238,7 +230,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             for (Voice v : voices) {
                 Locale vl = v.getLocale();
                 if (vl == null) continue;
-                if (!lang.equals(vl.getLanguage())) continue; // accept any region in same language
+                if (!lang.equals(vl.getLanguage())) continue;
                 candidates.add(v);
             }
             if (candidates.isEmpty()) return null;
@@ -251,6 +243,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             return candidates.get(0);
         } catch (Throwable ignored) { return null; }
     }
+
     private static int score(Voice v, @Nullable String pref) {
         int s = 0;
         Set<String> f = v.getFeatures();
@@ -264,15 +257,24 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         return s;
     }
 
-    // --- public API (thread-safe wrappers) ---
+    // --- public API ---
+
     public boolean isReady() { return ready && tts != null; }
 
-    public void stop() { TextToSpeech t = tts; if (t != null) t.stop(); }
+    public void stop() {
+        TextToSpeech t = tts;
+        if (t != null) t.stop();
+    }
 
-    public int setVoice(Voice v) { TextToSpeech t = tts; return (t == null) ? TextToSpeech.ERROR : t.setVoice(v); }
-    public Set<Voice> getVoices() { TextToSpeech t = tts; return (t == null) ? Collections.emptySet() : t.getVoices(); }
-    public TextToSpeech raw() { return tts; } // if you need low-level access
+    public int setVoice(Voice v) {
+        TextToSpeech t = tts;
+        return (t == null) ? TextToSpeech.ERROR : t.setVoice(v);
+    }
 
+    public Set<Voice> getVoices() {
+        TextToSpeech t = tts;
+        return (t == null) ? Collections.emptySet() : t.getVoices();
+    }
 
-
+    public TextToSpeech raw() { return tts; }
 }

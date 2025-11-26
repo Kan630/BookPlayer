@@ -42,8 +42,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private final AppTtsManager mgr;
     private final Handler main = new Handler(Looper.getMainLooper());
 
-    private @Nullable AutoCloseable ttsHandle; // to release AppTtsManager listener
-    private @Nullable TtsHelper tts;
+    // No more AutoCloseable handle; we just add/remove this as listener
+    @Nullable private TtsHelper tts;
 
     // State
     private volatile boolean disposed = false;
@@ -60,6 +60,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     private float volume = 1f;
 
+    private boolean registeredWithMgr = false;
+
     public TtsEngine(@NonNull Context appContext,
                      @NonNull AppTtsManager appTtsManager,
                      @NonNull EngineListener listener,
@@ -70,9 +72,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         this.listener = listener;
         this.gen = generationToken;
 
-        // Acquire shared TTS and receive lifecycle callbacks
-        this.ttsHandle = appTtsManager.acquire(this /*owner*/, this /*listener*/);
-        //this.tts = new TtsHelper(app, appTtsManager.raw());
+        // Register as listener to shared TTS manager
+        mgr.addListener(this);
+        registeredWithMgr = true;
+
+        // If engine is already ready, we can create our helper now
+        if (mgr.isReady() && mgr.raw() != null) {
+            this.tts = new TtsHelper(app, mgr.raw());
+        }
     }
 
     // --------------------- PlayerEngine ---------------------
@@ -218,11 +225,18 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     }
 
     @Override
-    public void onError(String utteranceId, int code) {
-        myLogD("onError " + utteranceId + ", code = " + code);
+    public void onError(String utteranceId, int errorCode) {
+        String desc = TtsErrorUtils.describeOnErrorCode(errorCode);
+        myLogD("onError " + utteranceId + ", code = " + errorCode + " -> " + desc);
         if (disposed) return;
         playing = false;
-        listener.onError(gen, "TTS error", code, 0);
+        if (listener != null) {
+            // msg starts with "TTS" so MediaService knows it's a TTS error
+            listener.onError(gen,
+                    "TTS " + desc,
+                    errorCode,
+                    0 /* extra, if you have one */);
+        }
     }
 
     @Override
@@ -267,12 +281,17 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     /** Call when replacing engine to stop callbacks. */
     public void release() {
         disposed = true;
-        try { if (ttsHandle != null) ttsHandle.close(); } catch (Exception ignored) {}
-        ttsHandle = null;
+        if (registeredWithMgr) {
+            mgr.removeListener(this);
+            registeredWithMgr = false;
+        }
         if (tts != null) tts.stop();
         tts = null;
-        lastCharSpoken = 0; resumeOffsetChars = 0; estPositionMs = 0;
+        lastCharSpoken = 0;
+        resumeOffsetChars = 0;
+        estPositionMs = 0;
     }
+
 
     // --------------------- Internals ---------------------
 
@@ -317,7 +336,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             return null;
         }
     }
-
 
     @Override public void setVolume(float v) {
         volume = Math.max(0f, Math.min(1f, v));
