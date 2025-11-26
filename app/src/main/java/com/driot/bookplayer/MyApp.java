@@ -89,7 +89,7 @@ public class MyApp extends Application {
 
         RadioBrowserServiceFactory.init(getApplicationContext());
 
-        AppTtsManager.get(getApplicationContext());
+        AppTtsManager.init(getApplicationContext());
     }
 /// STRICT MODE
 

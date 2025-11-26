@@ -20,6 +20,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.NetworkHelper;
 
 
 public class RadioBrowserServiceFactory {
@@ -34,13 +35,17 @@ public class RadioBrowserServiceFactory {
     };
 
     public static void init(Context context) {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            RadioBrowserServiceFactory.createRetrofit(
-                    context,
-                    /* tryDiscoverMirrors = */ true,
-                    Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-            );
-        });
+        if (NetworkHelper.isNetworkAvailable(context)) {
+            Executors.newSingleThreadExecutor().execute(() -> {
+                RadioBrowserServiceFactory.createRetrofit(
+                        context,
+                        /* tryDiscoverMirrors = */ true,
+                        Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+                );
+            });
+        } else {
+            myLogD("no internet => no radio init");
+        }
     }
 
     public static Retrofit createRetrofit(Context ctx, boolean tryDiscoverMirrors, HttpLoggingInterceptor.Level logLevel) {

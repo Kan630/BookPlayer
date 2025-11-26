@@ -112,5 +112,9 @@ public interface FolderDao {
 
     @Query("SELECT * FROM Folder WHERE id = :id")
     LiveData<Folder> observeById(long id);
+
+    @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE playType = 'text')")
+    boolean hasSomeTtsBook();
+
 }
 

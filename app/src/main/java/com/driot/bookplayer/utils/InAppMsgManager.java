@@ -27,6 +27,8 @@ import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -87,7 +89,13 @@ public final class InAppMsgManager {
     // ------------------------------------------------------------------------
 
     /** Planifie un fetch immédiat + un périodique (réseau requis). */
-    public static void schedule(Context ctx) {
+    public static void schedule(Context context) {
+        /*
+        if (!NetworkHelper.isNetworkAvailable(context)) {
+            myLogD("no internet => no in-app msg check schedule");
+            return;
+        }
+         */
         myLogD("schedule(): enqueue one-shot + periodic fetch");
         Constraints net = new Constraints.Builder()
                 .setRequiredNetworkType(NetworkType.CONNECTED)
@@ -100,7 +108,7 @@ public final class InAppMsgManager {
                         IN_APP_MESSAGES_RETRY_DELAY_IN_SEC, TimeUnit.SECONDS
                 )
                 .build();
-        WorkManager.getInstance(ctx).enqueueUniqueWork(
+        WorkManager.getInstance(context).enqueueUniqueWork(
                 "InAppMsgOneShot", ExistingWorkPolicy.REPLACE, now);
         myLogD("schedule(): one-shot enqueued");
 
@@ -112,7 +120,7 @@ public final class InAppMsgManager {
                         IN_APP_MESSAGES_RETRY_DELAY_IN_SEC, TimeUnit.SECONDS
                 )
                 .build();
-        WorkManager.getInstance(ctx).enqueueUniquePeriodicWork(
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 PERIODIC_WORK_NAME, ExistingPeriodicWorkPolicy.UPDATE, periodic);
         myLogD("schedule(): periodic enqueued every " + PERIODIC_HOURS + "h");
     }

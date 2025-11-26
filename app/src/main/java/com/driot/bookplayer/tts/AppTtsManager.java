@@ -12,6 +12,8 @@ import androidx.annotation.Nullable;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.db.AppDatabase;
+
 import java.lang.ref.WeakReference;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -27,6 +29,31 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     }
 
     private static volatile AppTtsManager sInstance;
+    private volatile boolean ready = false;
+
+    private final Context app;
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private final Object lock = new Object();
+    private final Map<Object, WeakReference<Listener>> listeners = new ConcurrentHashMap<>();
+
+    private TextToSpeech tts;
+    private int refCount = 0;
+    private Runnable delayedShutdown;
+
+    private AppTtsManager(Context app) {
+        this.app = app.getApplicationContext();
+        myLogD("AppTtsManager: constructor - new TextToSpeech");
+        main.post(() -> tts = new TextToSpeech(app, this)); // main thread
+    }
+
+    public static void init(Context context) {
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            if (AppDatabase.getDatabase(context).folderDao().hasSomeTtsBook()) {
+                get(context);
+            }
+        });
+    }
+
     public static AppTtsManager get(Context ctx) {
         if (sInstance == null) {
             synchronized (AppTtsManager.class) {
@@ -42,21 +69,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         preferredVoiceName = (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) ? null : name;
     }
 
-    private final Context app;
-    private final Handler main = new Handler(Looper.getMainLooper());
-    private final Object lock = new Object();
-    private final Map<Object, WeakReference<Listener>> listeners = new ConcurrentHashMap<>();
-
-    private TextToSpeech tts;
-    private boolean ready = false;
-    private int refCount = 0;
-    private Runnable delayedShutdown;
-
-    private AppTtsManager(Context app) {
-        this.app = app;
-        myLogD("AppTtsManager: constructor - new TextToSpeech");
-        main.post(() -> tts = new TextToSpeech(app, this)); // main thread
-    }
 
     // --- lifecycle for consumers ---
     public AutoCloseable acquire(Object owner, Listener l) {
@@ -89,7 +101,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     try { tts.stop(); tts.shutdown(); } catch (Throwable ignored) {}
                     tts = null; ready = false;
                     // Lazy re-create on next use
-                    main.post(() -> tts = new TextToSpeech(app, this));
+                    //main.post(() -> tts = new TextToSpeech(app, this));
                 }
             }
         };
