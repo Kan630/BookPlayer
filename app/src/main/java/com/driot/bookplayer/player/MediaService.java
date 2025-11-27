@@ -1609,7 +1609,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     public void setPosition(long position) {
-        myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatMmSs(position));
+        myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatHhMmSs(position));
         if (engine != null) {
             progress.suspendOnce(300); //avoid races from progressUpdater => UI
             engine.seekTo(position);
@@ -1999,7 +1999,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         else break;
                     }
                     if (rewindMs > 0) {
-                        myLogD("Rewind " + (rewindMs / 1000) + "sec. after a " + Tonio.formatTime(minutes*60*1000)  + "min. pause.");
+                        myLogD("Rewind " + (rewindMs / 1000) + "sec. after a [" + Tonio.formatTime(minutes*60*1000)  + "] pause.");
                         backwardAudio(rewindMs);
                     }
                 }

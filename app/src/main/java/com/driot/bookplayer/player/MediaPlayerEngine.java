@@ -124,7 +124,7 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
                 //mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
                 //myLogD("seekTo CLOSEST " + ms);
                 mp.seekTo((int) ms);
-                myLogD("seekTo NORMAL " + Tonio.formatMmSsMs(ms));
+                myLogD("seekTo NORMAL " + Tonio.formatHhMmSsMs(ms));
         } catch (Throwable t) {
             myLogEE(null, "seekTo failed: " + t.getMessage());
         }

@@ -87,26 +87,41 @@ public class Tonio {
 
     public static String formatTime(double doubleTimeMS, boolean doDisplaySec, boolean doDisplayMin) {
         String s;
-        long sec,min,hou;
-        if (doubleTimeMS >0) {
+        long sec, min, hou, day, year;
 
-            hou = TimeUnit.MILLISECONDS.toHours((long) doubleTimeMS);
-            min = TimeUnit.MILLISECONDS.toMinutes((long) doubleTimeMS)-TimeUnit.HOURS.toMinutes(hou);
-            sec = TimeUnit.MILLISECONDS.toSeconds((long) doubleTimeMS)-TimeUnit.HOURS.toSeconds(hou)-TimeUnit.MINUTES.toSeconds(min);
-            if (hou !=0) {
+        if (doubleTimeMS > 0) {
+
+            long ms = (long) doubleTimeMS;
+
+            year = ms / (365L * 24L * 3600L * 1000L);
+            ms -= year * (365L * 24L * 3600L * 1000L);
+
+            day = TimeUnit.MILLISECONDS.toDays(ms);
+            ms -= TimeUnit.DAYS.toMillis(day);
+
+            hou = TimeUnit.MILLISECONDS.toHours(ms);
+            min = TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(hou);
+            sec = TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.HOURS.toSeconds(hou) - TimeUnit.MINUTES.toSeconds(min);
+
+            if (year != 0) {
+                // Example: "1y 23d"
+                s = String.format(Locale.getDefault(), "%dy %dd", year, day);
+            } else if (day != 0) {
+                // Example: "3d 4h"
+                s = String.format(Locale.getDefault(), "%dd %dh", day, hou);
+            } else if (hou != 0) {
                 if (!doDisplayMin) {
-                    s = String.format(Locale.getDefault(),"%dh", hou);
+                    s = String.format(Locale.getDefault(), "%dh", hou);
                 } else if (!doDisplaySec) {
-                    s = String.format(Locale.getDefault(),"%dh %dm", hou, min);
+                    s = String.format(Locale.getDefault(), "%dh %dm", hou, min);
                 } else {
-                    s = String.format(Locale.getDefault(),"%dh %dm %ds", hou, min, sec);
+                    s = String.format(Locale.getDefault(), "%dh %dm %ds", hou, min, sec);
                 }
-            } else if (min !=0) {
+            } else if (min != 0) {
                 s = String.format(Locale.getDefault(), "%dm %ds", min, sec);
             } else {
                 s = String.format(Locale.getDefault(), "%ds", sec);
             }
-
         } else {
             s = "";
         }
@@ -511,6 +526,20 @@ public class Tonio {
         long sec = s % 60;
         long millis = ms % 1000;
         return String.format(java.util.Locale.US, "%d:%02d.%03d", m, sec, millis);
+    }
+    public static String formatHhMmSsMs(long ms) {
+        long s = ms / 1000;
+        long m = s / 60;
+        long h = m / 60;
+        long sec = s % 60;
+        long millis = ms % 1000;
+
+        if (h > 0) {
+            m = m % 60; // keep minutes 0–59
+            return String.format(java.util.Locale.US, "%d:%02d:%02d.%03d", h, m, sec, millis);
+        } else {
+            return String.format(java.util.Locale.US, "%d:%02d.%03d", m, sec, millis);
+        }
     }
 
     public static String removeLongDuplicates(String input, int duplicate_min_length) {
