@@ -251,7 +251,7 @@ public final class PlaybackCommands {
                         .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.requestTtsText"));
     }
 
-    private static String stateToString(int s){
+    public static String stateToString(int s){
         switch(s){
             case PlaybackStateCompat.STATE_NONE: return "NONE";
             case PlaybackStateCompat.STATE_STOPPED: return "STOPPED";
@@ -265,4 +265,41 @@ public final class PlaybackCommands {
             default: return "?" + s;
         }
     }
+
+    public static String decodeActions(long actions) {
+        StringBuilder sb = new StringBuilder();
+
+        add(sb, actions, PlaybackStateCompat.ACTION_STOP, "STOP");
+        add(sb, actions, PlaybackStateCompat.ACTION_PAUSE, "PAUSE");
+        add(sb, actions, PlaybackStateCompat.ACTION_PLAY, "PLAY");
+        add(sb, actions, PlaybackStateCompat.ACTION_REWIND, "REWIND");
+        add(sb, actions, PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS, "SKIP_PREV");
+        add(sb, actions, PlaybackStateCompat.ACTION_SKIP_TO_NEXT, "SKIP_NEXT");
+        add(sb, actions, PlaybackStateCompat.ACTION_FAST_FORWARD, "FAST_FWD");
+        add(sb, actions, PlaybackStateCompat.ACTION_SEEK_TO, "SEEK_TO");
+        add(sb, actions, PlaybackStateCompat.ACTION_PLAY_PAUSE, "PLAY_PAUSE");
+        add(sb, actions, PlaybackStateCompat.ACTION_PLAY_FROM_MEDIA_ID, "PLAY_FROM_MEDIA_ID");
+        add(sb, actions, PlaybackStateCompat.ACTION_PLAY_FROM_SEARCH, "PLAY_FROM_SEARCH");
+        add(sb, actions, PlaybackStateCompat.ACTION_SKIP_TO_QUEUE_ITEM, "SKIP_QUEUE_ITEM");
+        add(sb, actions, PlaybackStateCompat.ACTION_PLAY_FROM_URI, "PLAY_FROM_URI");
+        add(sb, actions, PlaybackStateCompat.ACTION_PREPARE, "PREPARE");
+        add(sb, actions, PlaybackStateCompat.ACTION_PREPARE_FROM_MEDIA_ID, "PREPARE_FROM_MEDIA_ID");
+        add(sb, actions, PlaybackStateCompat.ACTION_PREPARE_FROM_SEARCH, "PREPARE_FROM_SEARCH");
+        add(sb, actions, PlaybackStateCompat.ACTION_PREPARE_FROM_URI, "PREPARE_FROM_URI");
+        add(sb, actions, PlaybackStateCompat.ACTION_SET_REPEAT_MODE, "SET_REPEAT_MODE");
+        add(sb, actions, PlaybackStateCompat.ACTION_SET_SHUFFLE_MODE, "SET_SHUFFLE_MODE");
+        add(sb, actions, PlaybackStateCompat.ACTION_SET_RATING, "SET_RATING");
+
+        if (sb.length() == 0) return "NONE";
+        return sb.toString();
+    }
+
+    private static void add(StringBuilder sb, long actions, long flag, String label) {
+        if ((actions & flag) != 0) {
+            if (sb.length() > 0) sb.append(", ");
+            sb.append(label);
+        }
+    }
+
+
 }

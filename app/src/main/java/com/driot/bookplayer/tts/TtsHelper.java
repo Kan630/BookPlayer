@@ -16,6 +16,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -213,7 +214,7 @@ public class TtsHelper {
             @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
-        myLog("setupTtsVoiceSpinnerForSettings - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
+        myLog("setupTtsVoiceSpinnerForSettings - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode + "]");
         final Context app = ui_context.getApplicationContext();
 
         final AppTtsManager mgr = AppTtsManager.get(app);
@@ -302,7 +303,7 @@ public class TtsHelper {
             @Nullable String savedCode,          // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback
     ) {
-        myLog("setupTtsVoiceSpinner - called from " + getCaller() + " - savedCode=[" + savedCode + "]");
+        myLog("setupTtsVoiceSpinner - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode + "]");
         final Context ui  = ui_context;                       // themed
         final Context app = ui_context.getApplicationContext();
         final Handler main = new Handler(Looper.getMainLooper());
@@ -464,17 +465,6 @@ public class TtsHelper {
         t = t.replaceAll("(?<=[.!?…])[ ]+(?=[\"“‘'(\\[]?[A-ZÀ-ÖØ-Þ0-9])", "\n\n");
 
         return t;
-    }
-
-    private static String getCaller() {
-        StackTraceElement[] stack = Thread.currentThread().getStackTrace();
-        // 0=getStackTrace, 1=getCaller, 2=this method, 3=the real caller
-        if (stack.length > 4) {
-            StackTraceElement caller = stack[4];
-            return caller.getClassName() + "." + caller.getMethodName() + " (line " + caller.getLineNumber() + ")";
-        } else {
-            return "unknown";
-        }
     }
 
 }

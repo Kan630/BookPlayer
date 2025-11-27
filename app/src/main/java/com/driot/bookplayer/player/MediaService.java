@@ -30,6 +30,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
@@ -447,6 +448,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public void onCreate() {
         isRunning = true;
         super.onCreate();
+        myLogD("mediaService onCreate,  - called from " + CallerHelper.getCaller(3));
 
         // Media session (wrapped)
         media = new MediaSessionController(this, callback);
@@ -454,19 +456,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         setSessionToken(session.getSessionToken());
         session.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS
                 | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-        myLogI("SERVICE session token=" + session.getSessionToken()
+        myLogD("SERVICE session token=" + session.getSessionToken()
                 + " token@=" + System.identityHashCode(session.getSessionToken()));
-
-
-/*
-        media.session().setPlaybackState(
-                new PlaybackStateCompat.Builder()
-                        .setState(PlaybackStateCompat.STATE_PAUSED, 0L, 0f, System.currentTimeMillis())
-                        .setActions(currentActions())
-                        .build()
-        );
-
- */
 
         updateSessionState(false);
 
@@ -1995,7 +1986,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             //max reach ?, reset to 0
             //if (zikFile.getPosition() >= zikFile.getDuration()) {
-            myLogD("setPositionPlayStart() : " + (engine == null ? "engine is null" : "pos=" + Tonio.formatMmSsMs(engine.getCurrentPosition()) + " - dur=" + Tonio.formatMmSsMs(engine.getDuration())));
+            myLogD("setPositionPlayStart() : " + (engine == null ? "engine is null" : "pos = [" + Tonio.formatTime(engine.getCurrentPosition(),true) + "] - dur = [" + Tonio.formatTime(engine.getDuration(),true) + "]"));
             if (engine != null && engine.getCurrentPosition() >= (engine.getDuration() - Var.START_AT_ZERO_IF_TRACK_AT_END_BUFFER_DELAY_IN_MS)) { // because sometime, nearly at end but not at end !
                 myLogE("failsafe - at end or near end, reset position to 0");
                 engine.seekTo(0);
@@ -2008,7 +1999,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         else break;
                     }
                     if (rewindMs > 0) {
-                        myLogD("Rewind " + (rewindMs / 1000) + "sec. after a " + minutes + "min. pause.");
+                        myLogD("Rewind " + (rewindMs / 1000) + "sec. after a " + Tonio.formatTime(minutes*60*1000)  + "min. pause.");
                         backwardAudio(rewindMs);
                     }
                 }
@@ -2154,10 +2145,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 cur = init; // so the debug log below never sees null
             }
 
-            myLogD("updateSessionState(): active=" + s.isActive()
-                    + " prev=" + cur.getState()
-                    + " actions=" + Long.toHexString(cur.getActions()));
-
+            myLogD("updateSessionState(): active=[" + s.isActive() + "]"
+                    + " prev=[" + PlaybackCommands.stateToString(cur.getState()) + "]"
+                    + " actions=[" + PlaybackCommands.decodeActions(cur.getActions()) + "]"
+            );
             // Then set the *actual* state you want (radio vs file/tts)
             if (isRadio()) {
                 long actions = playing ? PlaybackStateCompat.ACTION_PAUSE : PlaybackStateCompat.ACTION_PLAY;

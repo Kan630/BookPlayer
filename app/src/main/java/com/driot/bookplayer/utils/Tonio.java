@@ -77,22 +77,22 @@ public class Tonio {
     }
 
 
-    public static String formatTime(double doubleTime) {
-        return formatTime(doubleTime,false, true);
+    public static String formatTime(double doubleTimeMS) {
+        return formatTime(doubleTimeMS,false, true);
     }
 
-    public static String formatTime(double doubleTime, boolean doDisplaySec) {
-        return formatTime(doubleTime, doDisplaySec, true);
+    public static String formatTime(double doubleTimeMS, boolean doDisplaySec) {
+        return formatTime(doubleTimeMS, doDisplaySec, true);
     }
 
-    public static String formatTime(double doubleTime, boolean doDisplaySec, boolean doDisplayMin) {
+    public static String formatTime(double doubleTimeMS, boolean doDisplaySec, boolean doDisplayMin) {
         String s;
         long sec,min,hou;
-        if (doubleTime>0) {
+        if (doubleTimeMS >0) {
 
-            hou = TimeUnit.MILLISECONDS.toHours((long) doubleTime);
-            min = TimeUnit.MILLISECONDS.toMinutes((long) doubleTime)-TimeUnit.HOURS.toMinutes(hou);
-            sec = TimeUnit.MILLISECONDS.toSeconds((long) doubleTime)-TimeUnit.HOURS.toSeconds(hou)-TimeUnit.MINUTES.toSeconds(min);
+            hou = TimeUnit.MILLISECONDS.toHours((long) doubleTimeMS);
+            min = TimeUnit.MILLISECONDS.toMinutes((long) doubleTimeMS)-TimeUnit.HOURS.toMinutes(hou);
+            sec = TimeUnit.MILLISECONDS.toSeconds((long) doubleTimeMS)-TimeUnit.HOURS.toSeconds(hou)-TimeUnit.MINUTES.toSeconds(min);
             if (hou !=0) {
                 if (!doDisplayMin) {
                     s = String.format(Locale.getDefault(),"%dh", hou);

@@ -47,7 +47,8 @@ public class UiHelper {
                 long previewMs = (long) value * 1000L;
                 PlaybackUiState st = vm.getState().getValue();
                 long dur = (st != null) ? st.durationMs : 0L;
-                tvTime.setText(Tonio.formatHhMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
+                String timeDisplay = Tonio.formatHhMmSs(previewMs) + " / " + Tonio.formatHhMmSs(dur);
+                tvTime.setText(timeDisplay);
             };
             slider.addOnChangeListener(changeListener);
 
