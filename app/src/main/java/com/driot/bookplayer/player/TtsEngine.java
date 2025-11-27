@@ -42,7 +42,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private final AppTtsManager mgr;
     private final Handler main = new Handler(Looper.getMainLooper());
 
-    // No more AutoCloseable handle; we just add/remove this as listener
     @Nullable private TtsHelper tts;
 
     // State
@@ -324,19 +323,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         return (int) Math.round((words / wpm) * 60_000.0);
     }
 
-    @Nullable
-    private String desiredVoiceName() {
-        // Keep this generic—service can still override or persist per-folder in Pref/Option.
-        try {
-            // Prefer app-wide option; return null to use system default.
-            String name = Option.getTtsVoice();
-            if (name == null || name.isEmpty() || "system".equalsIgnoreCase(name)) return null;
-            return name;
-        } catch (Throwable ignored) {
-            return null;
-        }
-    }
-
     @Override public void setVolume(float v) {
         volume = Math.max(0f, Math.min(1f, v));
     }
@@ -366,7 +352,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed) return false;
 
         // "system" or empty -> revert to engine default (language-based)
-        if (voiceName == null || voiceName.isEmpty() || "system".equalsIgnoreCase(voiceName)) {
+        if (voiceName == null || voiceName.isEmpty() || Option.DEFAULT_VOICE.equalsIgnoreCase(voiceName)) {
             try {
                 TextToSpeech raw = mgr.raw();
                 if (raw == null) return false;

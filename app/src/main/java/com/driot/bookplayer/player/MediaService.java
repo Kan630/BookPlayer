@@ -1451,13 +1451,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                 // 1) Per-book voice (never override this later)
                 String perBook = Pref.getBookTtsVoiceName(this, zf.getIdFolder());
-                if (perBook != null && !perBook.isEmpty() && !"system".equalsIgnoreCase(perBook)) {
+                if (perBook != null && !perBook.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(perBook)) {
                     picked = perBook;
                     pickedSource = "book";
                 } else {
                     // 2) App-wide fallback (only if no per-book)
                     String appWide = Option.getTtsVoice();
-                    if (appWide != null && !appWide.isEmpty() && !"system".equalsIgnoreCase(appWide)) {
+                    if (appWide != null && !appWide.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(appWide)) {
                         picked = appWide;
                         pickedSource = "global";
                     }

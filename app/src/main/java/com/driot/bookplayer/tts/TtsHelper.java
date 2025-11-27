@@ -368,7 +368,7 @@ public class TtsHelper {
                     // Preselect saved value
                     myLog("setupTtsVoiceSpinner.onTtsReady => Preselect saved value : " + savedCode);
                     int pre = 0; // default to "system"
-                    if (savedCode != null && !"system".equalsIgnoreCase(savedCode)) {
+                    if (savedCode != null && !Option.DEFAULT_VOICE.equalsIgnoreCase(savedCode)) {
                         for (int i = 1; i < all.size(); i++) {
                             if (savedCode.equals(all.get(i).name)) {
                                 myLog("setupTtsVoiceSpinner.onTtsReady => Preselect saved value OK");

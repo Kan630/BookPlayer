@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 import android.speech.tts.TextToSpeech;
 import android.speech.tts.Voice;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FlagHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -115,7 +116,7 @@ public class VoiceItem {
             }
 
             return new VoiceItem(
-                    "system",           // <- stable key
+                    Option.DEFAULT_VOICE,           // <- stable key
                     null,               // <- NO underlying Voice (that’s the point)
                     loc,                // hint for UI
                     0,                  // quality
@@ -132,7 +133,7 @@ public class VoiceItem {
         } catch (Throwable t) {
             // Fallback minimal item
             return new VoiceItem(
-                    "system",
+                    Option.DEFAULT_VOICE,
                     null,
                     null,
                     0, 0, false, false,

@@ -58,7 +58,8 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW = true;
     public static final boolean DEFAULT_PODCAST_ADD_DATE_TO_EPISODE_NAME = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
-    private static final String DEFAULT_LANGUAGE = "system";
+    public static final String DEFAULT_LANGUAGE = "system";
+    public static final String DEFAULT_VOICE = "system";
     public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
     public static final float  DEFAULT_TEXT_SIZE_SP = 18f;
     public static final float  MIN_TEXT_SIZE_SP = 12f;
@@ -343,7 +344,7 @@ public class Option {
 
     /////////////////// TTS ///////////////////
     public static void setTtsVoice(String voice) {prefs.edit().putString("TTS_VOICE",voice).apply();}
-    public static String getTtsVoice() {return prefs.getString("TTS_VOICE", DEFAULT_LANGUAGE);}
+    public static String getTtsVoice() {return prefs.getString("TTS_VOICE", DEFAULT_VOICE);}
 
     public static void setTtsHighlightDelayMs(int delayMs) {prefs.edit().putInt("TTS_HIGHLIGHT_DELAY_MS", delayMs).apply();}
     public static int getTtsHighlightDelayMs() {return prefs.getInt("TTS_HIGHLIGHT_DELAY_MS", DEFAULT_TTS_HIGHLIGHT_DELAY_MS);}

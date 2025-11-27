@@ -23,6 +23,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.objects.VoiceItem;
 import com.google.android.material.slider.Slider;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -680,7 +681,7 @@ public class PlayActivity extends LoggingActivity {
                     if (!touched[0]) return;
                     if (suppressSelect[0]) return;
 
-                    final String picked = (voice==null || voice.name==null || voice.name.isEmpty()) ? "system" : voice.name;
+                    final String picked = (voice==null || voice.name==null || voice.name.isEmpty()) ? Option.DEFAULT_VOICE : voice.name;
                     myLogI("--- user picks a VOICE in SPINNER ---     [" + picked + "]");
 
                     if (picked.equalsIgnoreCase(currentVoiceName[0])) {
@@ -743,8 +744,8 @@ public class PlayActivity extends LoggingActivity {
 
             int target = 0; // 0 = "system"
             for (int i = 0; i < va.getCount(); i++) {
-                com.driot.bookplayer.objects.VoiceItem vi = va.getItem(i);
-                String n = (vi == null || vi.name == null || vi.name.isEmpty()) ? "system" : vi.name;
+                VoiceItem vi = va.getItem(i);
+                String n = (vi == null || vi.name == null || vi.name.isEmpty()) ? Option.DEFAULT_VOICE : vi.name;
                 if (n.equalsIgnoreCase(name)) { target = i; break; }
             }
             suppressFlag[0] = true;

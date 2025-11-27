@@ -54,7 +54,7 @@ public class TtsSettingsFragment extends LoggingFragment {
                     myLogD("TtsHelper.setupTtsVoiceSpinner callback with voiceItem = " + (voiceItem == null ? "null" : voiceItem.name));
                     if (hasBeenInitialized) {
                         String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                                ? "system"
+                                ? Option.DEFAULT_VOICE
                                 : voiceItem.name;
                         if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
                             Option.setTtsVoice(sel);

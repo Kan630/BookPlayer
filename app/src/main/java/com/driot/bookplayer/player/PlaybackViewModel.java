@@ -89,7 +89,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     public void seekTo(long ms) {
-        myLog("seekTo " + Tonio.formatMmSs(ms));
+        myLog("seekTo " + Tonio.formatHhMmSs(ms));
         PlaybackCommands.seekTo(getApplication(), ms);
     }
 
@@ -149,7 +149,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             if (first.getAndSet(false)) return; // skip programmatic preselect
 
             final String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                    ? "system" : voiceItem.name;
+                    ? Option.DEFAULT_VOICE : voiceItem.name;
 
             // If you expose currentVoice in PlaybackUiState.extras, you can compare here:
             String currentVoice = null;

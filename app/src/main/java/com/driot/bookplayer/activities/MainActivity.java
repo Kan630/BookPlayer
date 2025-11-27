@@ -165,8 +165,6 @@
             //InAppMsgManager.deleteInAppMsgCache(this);
             MyApp.getPeriodicTaskManager(this).start(); // safe
             InAppMsgManager.maybeShowBestMessage(this, "message");
-
-            //Option.setTtsVoice("system"); //reset
         }
 
         @Override protected void onNewIntent(Intent intent) {

@@ -11,6 +11,7 @@ import android.speech.tts.Voice;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Option;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     /** Set before init or anytime prior to onInit completing. */
     public void setPreferredVoiceName(@Nullable String name) {
-        preferredVoiceName = (name == null || name.isEmpty() || "system".equalsIgnoreCase(name))
+        preferredVoiceName = (name == null || name.isEmpty() || Option.DEFAULT_VOICE.equalsIgnoreCase(name))
                 ? null : name;
     }
 
