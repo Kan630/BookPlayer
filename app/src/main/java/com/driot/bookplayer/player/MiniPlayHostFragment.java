@@ -1,5 +1,6 @@
 package com.driot.bookplayer.player;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -22,7 +23,6 @@ public class MiniPlayHostFragment extends LoggingFragment {
 
     private String lastPlayType;
     private PlaybackViewModel vm;
-    private boolean buffering;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -51,9 +51,15 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 if (current == null) {
                     myLogD("same playType, no fragment attached, re-attaching");
                     attachFirstChild(newPlayType);
-                } else{
-                    if (!Objects.equals(newPlayType, current.getTag())) {
-                        myLogE("should not happen, wrong saved play type : [" + current.getTag() + "], swapping");
+                } else {
+                    boolean ok =
+                            ("radio".equals(newPlayType)   && current instanceof MiniPlayRadioFragment) ||
+                                    ("podcast".equals(newPlayType) && current instanceof MiniPlayPodcastFragment) ||
+                                    (("book".equals(newPlayType) || "tts".equals(newPlayType))
+                                            && current instanceof MiniPlayBookFragment);
+
+                    if (!ok) {
+                        myLogE("playType=[" + newPlayType + "] but fragment=[" + current.getClass().getSimpleName() + "], swapping");
                         swapChild(newPlayType);
                     }
                 }
@@ -85,16 +91,18 @@ public class MiniPlayHostFragment extends LoggingFragment {
             return;
         }
         getChildFragmentManager().beginTransaction()
-                .replace(R.id.mini_host_container, child, playType)
+                .replace(R.id.mini_host_container, child)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
                 .commitNowAllowingStateLoss();
         setVisible();
     }
 
     private void swapChild(String playType) {
-        myLog("swapChild, playType: " + playType + "   on activity " + getActivity().getOpPackageName());
-        Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
-        //if (current != null && !Objects.equals(playType, current.getTag())) return;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q && getActivity()!=null) {
+            myLog("swapChild, playType: " + playType + "   on activity " + getActivity().getOpPackageName());
+        } else {
+            myLog("swapChild, playType: " + playType);
+        }
 
         Fragment child;
         if ("radio".equals(playType)) {
@@ -111,7 +119,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
         getChildFragmentManager().beginTransaction()
                 .setReorderingAllowed(true)
                 .setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE)
-                .replace(R.id.mini_host_container, child, playType)
+                .replace(R.id.mini_host_container, child)
                 .commitAllowingStateLoss();
         setVisible();
     }
