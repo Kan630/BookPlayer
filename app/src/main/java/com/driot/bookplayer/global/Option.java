@@ -20,8 +20,12 @@ public class Option {
 
     public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
 
+    public static final int MIN_TIME_BEFORE_SLEEP = 1;
+    public static final int MAX_TIME_BEFORE_SLEEP = 60 * 24; // 1440
+
     public static final int DEFAULT_FORWARD_SECONDS = 5;
     public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;
+    public static final int DEFAULT_TIME_BEFORE_SLEEP_RADIO = 300;
     private static final boolean DEFAULT_UNZIP_LOCAL  = true;
     private static final boolean DEFAULT_COPY_ZIP_LOCAL  = true;
     private static final boolean DEFAULT_SCREEN_ORIENTATION_LOCK  = false;
@@ -75,6 +79,9 @@ public class Option {
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_PROGRESS_HEAT_MAP = false;
+    public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
+
+
 
 
 
@@ -138,6 +145,8 @@ public class Option {
     }
 
 
+    public static boolean getRadioSleepCopy() {return prefs.getBoolean("RADIO_SLEEP_COPY", DEFAULT_RADIO_SLEEP_COPY);}
+    public static void setRadioSleepCopy(boolean bool) {prefs.edit().putBoolean("RADIO_SLEEP_COPY",bool).apply();}
 
     public static boolean getProgressHeatMap() {return prefs.getBoolean("PROGRESS_HEAT_MAP", DEFAULT_PROGRESS_HEAT_MAP);}
     public static void setProgressHeatMap(boolean bool) {prefs.edit().putBoolean("PROGRESS_HEAT_MAP",bool).apply();}
@@ -146,6 +155,10 @@ public class Option {
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
     public static void setTimeBeforeSleep(int i) {prefs.edit().putInt("TIME_BEFORE_SLEEP",i).apply();}
     public static int getTimeBeforeSleep() {return prefs.getInt("TIME_BEFORE_SLEEP", DEFAULT_TIME_BEFORE_SLEEP);}
+
+    public static void setTimeBeforeSleepRadio(int i) {prefs.edit().putInt("TIME_BEFORE_SLEEP_RADIO",i).apply();}
+    public static int getTimeBeforeSleepRadio() {return prefs.getInt("TIME_BEFORE_SLEEP_RADIO", DEFAULT_TIME_BEFORE_SLEEP_RADIO);}
+
 
     /////////////////// FORWARD-BACKWARD DURATION ///////////////////
     public static void set_ForwardSeconds(int i) {prefs.edit().putInt("FORWARD_SECONDS",i).apply();}
@@ -337,7 +350,6 @@ public class Option {
     public static boolean getCreateCover() {return prefs.getBoolean("CREATE_COVER", DEFAULT_CREATE_COVER);}
 
 
-
     /////////////////// APP LANGUAGE ///////////////////
     public static void setAppLanguage(String language) {prefs.edit().putString("APP_LANGUAGE",language).apply();}
     public static String getAppLanguage() {return prefs.getString("APP_LANGUAGE", DEFAULT_LANGUAGE);}
@@ -351,7 +363,6 @@ public class Option {
 
     public static void setTtsChunkSize(int chunkSize) {prefs.edit().putInt("TTS_CHUNK_SIZE", chunkSize).apply();}
     public static int getTtsChunkSize() {return prefs.getInt("TTS_CHUNK_SIZE", DEFAULT_TTS_CHUNK_SIZE);}
-
 
 
     /////////////////// AUTOMOTIVE ///////////////////

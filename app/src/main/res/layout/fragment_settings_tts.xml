@@ -53,10 +53,12 @@
         <!-- Engine: chunk size -->
         <TextView
             style="@style/OptionTitle"
-            android:text="@string/Engine" />
+            android:text="@string/Technical" />
+
         <TextView
-            style="@style/OptionSubTitle"
-            android:text="@string/option_tts_chunk_size_explain_text"
+            style="@style/OptionTitle"
+            android:text="@string/Engine_buffer"
+            android:textStyle="italic"
             />
 
         <LinearLayout
@@ -80,25 +82,22 @@
                 android:paddingEnd="4sp"
                 android:textAlignment="textEnd"
                 android:textSize="24sp" />
-
-            <TextView
-                style="@style/simpleTextWrap"
-                android:text="@string/chars"
-                android:textSize="24sp" />
         </LinearLayout>
 
         <TextView android:text="Min = 1200" style="@style/OptionMiniText" />
         <TextView android:text="Max = 7000" style="@style/OptionMiniText" />
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_tts_chunk_size_explain_text"
+            />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <!-- Highlight delay -->
         <TextView
             style="@style/OptionTitle"
-            android:text="@string/option_tts_highlight_delay_title" />
-        <TextView
-            style="@style/OptionSubTitle"
-            android:text="@string/option_tts_highlight_delay_explain_text"
+            android:text="@string/option_tts_highlight_delay_title"
+            android:textStyle="italic"
             />
 
         <LinearLayout
@@ -131,6 +130,10 @@
 
         <TextView android:text="Min = 0" style="@style/OptionMiniText" />
         <TextView android:text="Max = 400" style="@style/OptionMiniText" />
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_tts_highlight_delay_explain_text"
+            />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

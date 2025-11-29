@@ -236,7 +236,7 @@ public class PlayActivity extends LoggingActivity {
             if (speed != null) {
                 tvSpeed.setText(Tonio.formatPercentStringForSpeed(speed * 100.0));
             }
-            reDrawSleepTextViews(vm.sleepCustomMinutes);
+            reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
             // Title/sub
             UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, sbSeek);
@@ -464,7 +464,8 @@ public class PlayActivity extends LoggingActivity {
 
         for (int i=0;i<SLEEP_PRESET_VALUES.length;i++) {
             final int m = SLEEP_PRESET_VALUES[i];
-            presets[i].setText(m + " min");
+            String presetButtonText = m + " " + getString(R.string.min_);
+            presets[i].setText(presetButtonText);
             presets[i].setOnClickListener(v -> {
                 inputMinutes.setText(String.valueOf(m));
                 setSleepAction.onClick(dialog, DialogInterface.BUTTON_POSITIVE);

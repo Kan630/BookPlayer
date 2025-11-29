@@ -146,7 +146,7 @@ public class ImageHelper {
                 }
 
                 // --- Handle Radio images ---
-                if (NetworkHelper.isNetworkAvailable(context)) {
+                if (NetworkHelper.hasInternet(context)) {
                     List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImages();
                     for (RadioStation radioStation : radioStations) {
                         String url = radioStation.favicon;

@@ -54,6 +54,61 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <!-- Time before sleep -->
+        <LinearLayout style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginTop="0dp"
+            >
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="0dp"
+                android:text="@string/option_timeBeforeSleep" />
+
+            <LinearLayout
+                android:id="@+id/ll_option_radio_sleep_copy"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_option_radio_sleep_copy"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_radio_sleep_copy" />
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_option_radio_sleep_value"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:gravity="center"
+                android:layout_width="match_parent">
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:layout_marginStart="50sp"
+                    android:text="@string/option_timeBeforeSleep_text"
+                    android:textSize="24sp" />
+
+                <EditText
+                    android:id="@+id/et_option_radio_sleep_value"
+                    style="@style/EditText"
+                    android:layout_height="wrap_content"
+                    android:layout_width="70sp"
+                    android:inputType="number"
+                    android:paddingStart="4sp"
+                    android:paddingEnd="4sp"
+                    android:textAlignment="textEnd"
+                    android:textSize="24sp" />
+
+                <TextView
+                    style="@style/simpleTextWrap"
+                    android:text="@string/option_timeBeforeSleep_min"
+                    android:textSize="24sp" />
+            </LinearLayout>
+
+            <TextView android:text="Min = 1" style="@style/OptionMiniText" />
+            <TextView android:text="Max = 1440 (24h)" style="@style/OptionMiniText" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <TextView
             style="@style/OptionTitle"
             android:text="@string/option_radio_renew_url_title"/>

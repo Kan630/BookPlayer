@@ -36,7 +36,7 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
 
 ///  Pocasts
                 if (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
-                    if (NetworkHelper.isNetworkAvailable(context)) {
+                    if (NetworkHelper.hasInternet(context)) {
                         PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCAST_INDEX_ORG_SINCE);
                     } else {
                         myLogD("no internet => bypassing podcast auto-download");

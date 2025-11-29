@@ -777,7 +777,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (!media.session().isActive()) media.setActive(true);
 
         if (!sleepTimer.isRunning()) {
-            int minutes = (customSleepTime == 0) ? Option.getTimeBeforeSleep() : customSleepTime;
+            int defaultSleep = isRadio() ? Option.getTimeBeforeSleepRadio() : Option.getTimeBeforeSleep();
+            int minutes = (customSleepTime == 0) ? defaultSleep : customSleepTime;
             sleepTimer.start(minutes);
         }
 

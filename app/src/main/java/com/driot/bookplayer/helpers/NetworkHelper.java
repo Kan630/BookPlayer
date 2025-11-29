@@ -31,6 +31,18 @@ import java.util.Set;
 
 public class NetworkHelper {
 
+    public static boolean hasInternet(Context context) {
+        try {
+            ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+            Network active = cm.getActiveNetwork();
+            NetworkCapabilities caps = cm.getNetworkCapabilities(active);
+            return (caps != null && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET));
+        } catch (Exception e) {
+            myLogEE(e, "hasInternet() crashes");
+            return false;
+        }
+    }
+
     public static void logCurrentNetworkState(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         if (cm == null) {

@@ -21,6 +21,9 @@ import java.util.concurrent.Executors;
 public class RadioSettingsFragment extends LoggingFragment {
 
     private EditText etRadioNbResults;
+    private EditText et_option_radio_sleep_value;
+    private CheckBox chk_option_radio_sleep_copy;
+    private LinearLayout ll_option_radio_sleep_value;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -46,10 +49,33 @@ public class RadioSettingsFragment extends LoggingFragment {
         ll_radio_renew_url.setOnClickListener(v -> chk_radio_renew_url.toggle());
         chk_radio_renew_url.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRenewUrl(isChecked));
 
+        chk_option_radio_sleep_copy = root.findViewById(R.id.chk_option_radio_sleep_copy);
+        LinearLayout ll_option_radio_sleep_copy = root.findViewById(R.id.ll_option_radio_sleep_copy);
+        chk_option_radio_sleep_copy.setChecked(Option.getRadioSleepCopy());
+        ll_option_radio_sleep_copy.setOnClickListener(v -> chk_option_radio_sleep_copy.toggle());
+        chk_option_radio_sleep_copy.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Option.setRadioSleepCopy(isChecked);
+            rebuildOptionDisplay();
+        });
 
-
-
+        ll_option_radio_sleep_value = root.findViewById(R.id.ll_option_radio_sleep_value);
+        et_option_radio_sleep_value = root.findViewById(R.id.et_option_radio_sleep_value);
+        rebuildOptionDisplay();
         return root;
+    }
+
+    private void rebuildOptionDisplay() {
+        if (chk_option_radio_sleep_copy.isChecked()) {
+            et_option_radio_sleep_value.setText(String.valueOf(Option.getTimeBeforeSleep()));
+            et_option_radio_sleep_value.setEnabled(false);
+            ll_option_radio_sleep_value.setAlpha(0.5f);
+            myLogD("rebuildOptionDisplay : enabled false");
+        } else {
+            et_option_radio_sleep_value.setText(String.valueOf(Option.getTimeBeforeSleepRadio()));
+            et_option_radio_sleep_value.setEnabled(true);
+            ll_option_radio_sleep_value.setAlpha(1f);
+            myLogD("rebuildOptionDisplay : enabled true");
+        }
     }
 
     @Override
@@ -67,8 +93,16 @@ public class RadioSettingsFragment extends LoggingFragment {
                     Option.DEFAULT_LIBRIVOX_API_NB_RESULTS,
                     getString(R.string.radio)
             );
+            final int sleep_value = Option.clampInt(this.getContext(),
+                    et_option_radio_sleep_value,
+                    Option.MIN_TIME_BEFORE_SLEEP,
+                    Option.MAX_TIME_BEFORE_SLEEP,
+                    Option.DEFAULT_TIME_BEFORE_SLEEP,
+                    getString(R.string.radio)
+            );
             Executors.newSingleThreadExecutor().execute(() -> {
                 Option.setRadioApiNbResults(value);
+                Option.setTimeBeforeSleepRadio(sleep_value);
             });
         }
     }

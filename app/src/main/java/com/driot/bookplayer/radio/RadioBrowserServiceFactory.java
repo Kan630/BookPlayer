@@ -35,10 +35,10 @@ public class RadioBrowserServiceFactory {
     };
 
     public static void init(Context context) {
-        if (NetworkHelper.isNetworkAvailable(context)) {
+        if (NetworkHelper.hasInternet(context)) {
             Executors.newSingleThreadExecutor().execute(() -> {
                 RadioBrowserServiceFactory.createRetrofit(
-                        context,
+         context,
                         /* tryDiscoverMirrors = */ true,
                         Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
                 );

@@ -46,8 +46,6 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private PermissionRequest mPermissionRequest;
 
     // Ranges (kept here to mirror existing Activity behavior)
-    private static final int MIN_TIME_BEFORE_SLEEP = 1;
-    private static final int MAX_TIME_BEFORE_SLEEP = 60 * 24; // 1440
 
     private static final int MIN_FORWARD_SECONDS = 1;
     private static final int MAX_FORWARD_SECONDS = 300;
@@ -191,7 +189,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
 
     private void saveEditTextValues() {
         // Read & validate on UI thread
-        final int tbs = Option.clampInt(requireContext(), etTimeBeforeSleep, MIN_TIME_BEFORE_SLEEP, MAX_TIME_BEFORE_SLEEP, Option.DEFAULT_TIME_BEFORE_SLEEP, getString(R.string.option_timeBeforeSleep));
+        final int tbs = Option.clampInt(requireContext(), etTimeBeforeSleep, Option.MIN_TIME_BEFORE_SLEEP, Option.MAX_TIME_BEFORE_SLEEP, Option.DEFAULT_TIME_BEFORE_SLEEP, getString(R.string.option_timeBeforeSleep));
         final int fwd = Option.clampInt(requireContext(), etForwardSeconds, MIN_FORWARD_SECONDS, MAX_FORWARD_SECONDS, Option.DEFAULT_FORWARD_SECONDS, getString(R.string.option_backward_forward_title));
 
         // Persist off the UI thread

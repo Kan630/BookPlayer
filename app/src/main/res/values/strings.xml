@@ -1005,20 +1005,42 @@
     <string name="voice_name">voice name</string>
     <string name="Clipboard_is_empty">Clipboard is empty</string>
 
+    <string name="new_">new</string>
+
     <string name="chars">chars</string> //means : word character //indication :  try to find a short translation (less than 5/6 letters)
     <string name="reorder">reorder</string>
-    <string name="new_">new</string>
     <string name="icon">icon</string>
     <string name="Engine">Engine</string>
     <string name="delay">delay</string>
     <string name="Design">Design</string>
     <string name="Import">Import</string>
     <string name="Utilities">Utilities</string>
+    <string name="candidates">candidates</string>
+    <string name="found">found</string>
+    <string name="from">from</string>
+    <string name="in">in</string>
+    <string name="items">items</string>
+    <string name="folder">folder</string>
+    <string name="loading">loading</string>
+    <string name="library">library</string> // stay below 10/12 chars
+    <string name="Download">Download</string>
+    <string name="destination">destination</string>
+    <string name="count">count</string>
+    <string name="tags">tags</string>
+    <string name="url">url</string>
+    <string name="homepage">homepage</string>
+    <string name="History">History</string>
+    <string name="downloads">downloads</string>
+    <string name="get">get</string>
+    <string name="done">done</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="radio">radio</string>
+    <string name="stations">stations</string>
 
 
     <string name="option_tts_highlight_delay_outOfBounds">Highlight delay</string>"
 
-    <string name="option_tts_chunk_size_text">Chunk size :</string>
+    <string name="option_tts_chunk_size_text">Chunk size (in chars) :</string>
     <string name="tts_chunk_size">Chunk size</string>
     <string name="changeTracksOrder">change tracks order</string>
     <string name="Please_first_stop_the_player">Please first stop the player</string>
@@ -1037,16 +1059,12 @@
     <string name="Radio_Settings">Radio Settings</string>
     <string name="live_radio">live radio</string>
     <string name="live_podcast">live podcast</string>
-    <string name="stations">stations</string>
-    <string name="radio">radio</string>
     <string name="no_result">no result</string>
     <string name="radio_cover_desc">radio cover desc</string>
     <string name="RadioSearch_title">Web Radios</string>
     <string name="RadioSearch_desc">Browse by language, country or tag, or search by station name.</string>
     <string name="trending_radios">Trending</string>
     <string name="selected_language_error">Selected language error</string>
-
-
 
 
     <string name="media_button_action">media button action</string>
@@ -1103,12 +1121,7 @@
 
     <string name="Mass_Import">Massive Import</string>
     <string name="scanning_folder">scanning folder</string>
-    <string name="candidates">candidates</string>
-    <string name="found">found</string>
-    <string name="from">from</string>
-    <string name="in">in</string>
-    <string name="items">items</string>
-    <string name="folder">folder</string>
+
     <string name="Nothing_to_re_import_among">Nothing to re-import among</string>
     <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.\nIf that is not the case, you can use the Reset App button in [Settings &gt; Utilities &gt; Cancel ongoing operation] (at the very bottom).</string>
     <string name="Podcast_source_error">"Podcast source error"</string>
@@ -1129,11 +1142,8 @@
     <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensure you are playing from the best source available, but can take some time (current timeout is 10sec.)</string>
     <string name="checking_for_best_mirror">checking for best mirror</string>
     <string name="error_radio_renew_url">error getting radio mirror link</string>
-    <string name="loading">loading</string>
     <string name="no_review">no review</string>
-    <string name="library">library</string> // stay below 10/12 chars
     <string name="source_not_read">Unable to read the source file.</string>
-    <string name="Download">Download</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Add the publication date to the episode name</string>
 
     <string name="visualizer_mode_legacy">legacy</string> // stay below 8 chars
@@ -1185,9 +1195,7 @@
 
                         For now, BookPlayer will import the original M4B as a single audio file."""</string>
 
-    <string name="destination">destination</string>
     <string name="play_mode">play mode</string>
-    <string name="count">count</string>
 
     <string name="APPEND_MODE">APPEND TO EXISTING BOOK</string>
     <string name="internet_status">Internet status</string>
@@ -1207,13 +1215,10 @@
     <string name="option_progress_heatmap">show heat maps</string>
     <string name="option_lock_orientation_play_activity">Lock screen orientation</string>
 
-    <string name="History">History</string>
     <string name="in_history">in history</string>
     <string name="radio_could_not_resolve_url">This station link seems broken.</string>
     <string name="clicks_2pt">Clicks: %1$d</string>
-    <string name="tags">tags</string>
-    <string name="url">url</string>
-    <string name="homepage">homepage</string>
+
     <string name="audio_files">audio files</string>
 
     <plurals name="audio_files_count"> //ex : 15 audio files
@@ -1231,16 +1236,14 @@
     <string name="count_status">%1$s (%2$s)</string> //15 audio files (3 subfolders)
 
     <string name="import_warning_lot_of_file_and_subfolders">It looks like there are a lot of audio files in that folder and its subfolders. Are you sure you want to import all of them into a single book?</string>
-    <string name="done">done</string>
-
-    <string name="downloads">downloads</string>
-    <string name="get">get</string>
     <string name="browse_ebooks">Browse Ebooks</string>
     <string name="GutendexSearch_desc">"Browse Project Gutenberg’s public-domain ebooks. Thousands of free classic works available in EPUB format."</string>
-    <string name="Ebooks">Ebooks</string>
     <string name="Ebooks_special">This ebook will then be read aloud by your device\'s built-in text-to-speech engine.</string>
     <string name="full_screen_mode">full screen mode</string>
 
     <string name="tts_voice_seems_incompatible">voice seems incompatible</string>
+    <string name="Technical">Technical</string>
+    <string name="Engine_buffer">Engine buffer</string>
+    <string name="option_radio_sleep_copy">copy general settings value</string>
 
 </resources>

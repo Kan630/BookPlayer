@@ -23,6 +23,7 @@ import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -158,7 +159,7 @@ public class KanLogger {
     public static void myLogD(String str)  { myLogD("",str); }
     public static void myLogD(String prefix, String str) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
-        if (LOG_DEBUG && writeTechLogs()) {
+        if (LOG_DEBUG && writeTechLogs() || BuildConfig.DEBUG) {
             writeToLogFile(str);
             Log.d(newPrefix, str);
         }

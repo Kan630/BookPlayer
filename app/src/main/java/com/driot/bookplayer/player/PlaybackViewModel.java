@@ -21,6 +21,7 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
@@ -47,7 +48,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final java.util.concurrent.atomic.AtomicBoolean ttsTextRequested =
             new java.util.concurrent.atomic.AtomicBoolean(false);
 
-    public int sleepCustomMinutes = Option.getTimeBeforeSleep();
+    private int sleepCustomMinutes = -1;
+    public int getSleepCustomMinutes(String playMode) {
+        int baseSleep = (Var.PLAY_MODE_RADIO.equals(playMode) ? Option.getTimeBeforeSleepRadio() : Option.getTimeBeforeSleep());
+        return (sleepCustomMinutes>0 ? sleepCustomMinutes : baseSleep);
+    }
 
     public void requestTtsTextOnce() {
         // Only one request per VM/session by default

@@ -9,12 +9,14 @@ import android.os.Build;
 import android.os.Looper;
 import android.os.StrictMode;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.AppUpgrade;
 import com.driot.bookplayer.db.DbClean;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.radio.RadioBrowserServiceFactory;
 import com.driot.bookplayer.tts.AppTtsManager;
@@ -28,6 +30,8 @@ import com.driot.bookplayer.utils.log.KanLogger;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.annotation.RequiresApi;
+
+import java.util.concurrent.Executors;
 
 public class MyApp extends Application {
 
@@ -88,6 +92,18 @@ public class MyApp extends Application {
         MediaControllerHolder.ensureConnected(getApplicationContext());
 
         RadioBrowserServiceFactory.init(getApplicationContext());
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            myLog("isNetworkAvailable : " + NetworkHelper.isNetworkAvailable(getApplicationContext()));
+            myLog("isConnected : " + NetworkHelper.isConnected(getApplicationContext()));
+            boolean hasInternet = NetworkHelper.hasInternet(getApplicationContext());
+            boolean canPingBookPlayerWebSite = NetworkHelper.canReachUrl(Var.WEBSITE_URL);
+            myLog("hasInternet : " + hasInternet);
+            myLog("ping [" + Var.WEBSITE_URL + "] : " + canPingBookPlayerWebSite);
+            if (hasInternet && !canPingBookPlayerWebSite) {
+                myLogEE(null, "bookplayer website down");
+            }
+        });
 
         AppTtsManager.init(getApplicationContext());
     }
