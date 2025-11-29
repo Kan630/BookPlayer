@@ -67,7 +67,10 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     private AppTtsManager(Context app) {
         myLogD("AppTtsManager: constructor - new TextToSpeech");
-        main.post(() -> tts = new TextToSpeech(app, this)); // main thread
+        main.post(() -> {
+            tts = new TextToSpeech(app, this);
+            describeTts(tts);
+        }); // main thread
     }
 
     /** Set before init or anytime prior to onInit completing. */
@@ -278,4 +281,28 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     }
 
     public TextToSpeech raw() { return tts; }
+
+    private static void describeTts(TextToSpeech tts) {
+        List<TextToSpeech.EngineInfo> listTtsEngine = tts.getEngines();
+        if (listTtsEngine==null || listTtsEngine.isEmpty()) {
+            myLogE("no tts engine");
+        } else {
+            int nbEngine = listTtsEngine.size();
+            int i = 0;
+            for (TextToSpeech.EngineInfo ei : listTtsEngine) {
+                i = i + 1;
+                myLog("TTS engine n°" + i + "/" + nbEngine + " : "+ ei.label + " ["  + ei.name + "]");
+            }
+        }
+        String defaultEngineStr = tts.getDefaultEngine();
+        if (defaultEngineStr==null) {
+            myLogE("no default engine");
+            return;
+        }
+        myLog("default engine = [" + defaultEngineStr + "]");
+        myLog("max input (limited by device, not specific tts engine) = [" + TextToSpeech.getMaxSpeechInputLength() + "]");
+
+
+    }
+
 }
