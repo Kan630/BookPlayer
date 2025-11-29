@@ -255,7 +255,6 @@ public class TtsHelper {
             myLogE("setupTtsVoiceSpinnerForSettings => no system default");
         }
         all.addAll(voices);
-        myLog("001");
 
         int currentSelected = -1;
         int i = 0;
@@ -273,7 +272,6 @@ public class TtsHelper {
             spinner.setSelection(currentSelected);
         }
         spinner.setEnabled(true);
-        myLog("002");
 
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
