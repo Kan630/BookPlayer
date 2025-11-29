@@ -34,6 +34,7 @@
     import com.driot.bookplayer.helpers.ViewHelper;
     import com.driot.bookplayer.player.MediaService;
     import com.driot.bookplayer.helpers.InfoHelper;
+    import com.driot.bookplayer.player.NavHelper;
     import com.driot.bookplayer.player.PlaybackUiState;
     import com.driot.bookplayer.player.PlaybackViewModel;
     import com.driot.bookplayer.utils.InAppMsgManager;
@@ -47,6 +48,8 @@
 
         Toolbar toolbar;
         private static final int REQUEST_CODE_OPTION = 34343;
+
+        public static final String EXTRA_REQUESTED_NAV_ID = "EXTRA_REQUESTED_NAV_ID";
 
         private boolean HasBeenProposedToOpenFile;
         private static boolean infoAlreadyShown = false;
@@ -170,6 +173,7 @@
         @Override protected void onNewIntent(Intent intent) {
             super.onNewIntent(intent);
             setIntent(intent);
+            handleRequestedNavFromIntent(intent); // just routing/navigation, cheap
             if (intent.getBooleanExtra("forceRefresh", false) && mainVm != null) {
                 myLog("forceRefresh");
                 mainVm.forceRefresh();
@@ -183,6 +187,7 @@
         @Override
         protected void onResume() {
             super.onResume();
+            handleRequestedNavFromIntent(getIntent());
             sendBroadcast(new Intent(Intents.ACTION_PING_UI));
             LocalBroadcastManager.getInstance(this).registerReceiver(inAppMsgRx, new IntentFilter(InAppMsgManager.ACTION_CACHE_UPDATED));        // Et tente immédiatement avec le cache courant
             InAppMsgManager.maybeShowBestMessage(this, getString(R.string.app_name));
@@ -264,5 +269,26 @@
             }
         }
 
+        private void handleRequestedNavFromIntent(Intent intent) {
+            if (intent == null) return;
 
+            int requestedNavId = intent.getIntExtra(EXTRA_REQUESTED_NAV_ID, 0);
+            if (requestedNavId == 0) return; // nothing requested
+
+            // Consume the extra so it won't re-trigger next time
+            intent.removeExtra(EXTRA_REQUESTED_NAV_ID);
+
+            if (requestedNavId == R.id.nav_library) {
+                // Already on the Library tab, nothing else to do
+                return;
+            } else if (requestedNavId == R.id.nav_radio) {
+                NavHelper.navigateToRadioSection(this, true);
+            } else if (requestedNavId == R.id.nav_podcast) {
+                NavHelper.navigateToPodcastSection(this, true);
+            } else if (requestedNavId == R.id.nav_add) {
+                startActivity(new Intent(this, GetActivity.class));
+            } else if (requestedNavId == R.id.nav_settings) {
+                startActivity(new Intent(this, SettingsActivity.class));
+            }
+        }
     }

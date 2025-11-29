@@ -1,5 +1,8 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.activities.MainActivity.EXTRA_REQUESTED_NAV_ID;
+
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -29,6 +32,8 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
     protected boolean displayBottomNavBar() { return true; }
 
     private NavigationBarView bottomNav;
+
+    private boolean navSelectionFromCode = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,45 +73,31 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
         bottomNav = findViewById(R.id.bottomNav);
         myLogD("setupBottomNav() -  navId=" + getNavId());
 
-        // Listener first
         bottomNav.setOnItemSelectedListener(item -> {
-            myLogI("--- user click bottom Nav bar ---    item = " + item.getItemId() + " - " + item.getTitle());
+            boolean fromCode = navSelectionFromCode;
+            navSelectionFromCode = false;   // reset for next time
+
+            if (fromCode) {
+                myLogD("BottomNav selection changed programmatically: item="
+                        + item.getItemId() + " - " + item.getTitle());
+                return true; // keep the item checked, but don't treat as user click
+            }
+
+            myLogI("--- user click bottom Nav bar ---    item = "
+                    + item.getItemId() + " - " + item.getTitle());
+
             int id = item.getItemId();
             if (id == getNavId()) {
                 myLogD("already here");
                 return true;
             }
 
-            Intent intent = null;
-
-            if (id == R.id.nav_library) {
-                intent = new Intent(this, MainActivity.class);
-
-            } else if (id == R.id.nav_radio) {
-                NavHelper.navigateToRadioSection(this, true);
-                return true;
-
-            } else if (id == R.id.nav_podcast) {
-                NavHelper.navigateToPodcastSection(this, true);
-                return true;
-
-            } else if (id == R.id.nav_add) {
-                intent = new Intent(this, GetActivity.class);
-
-            } else if (id == R.id.nav_settings) {
-                intent = new Intent(this, SettingsActivity.class);
-            }
-
-            if (intent != null) {
-                startActivity(intent);
-                overridePendingTransition(0, 0);
-                return true;
-            }
-            return false;
+            MainActivity.startAsRoot(this, id);
+            return true;
         });
 
-        // Set initial selection
-        bottomNav.setSelectedItemId(getNavId());
+        // Set initial selection (programmatic)
+        selectBottomNavItemFromCode(getNavId());
     }
 
     @Override
@@ -142,6 +133,19 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
         throw new UnsupportedOperationException(
                 "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()"
         );
+    }
+
+    private void selectBottomNavItemFromCode(int itemId) {
+        if (bottomNav == null) return;
+        navSelectionFromCode = true;
+        bottomNav.setSelectedItemId(itemId);
+    }
+
+    public static void startAsRoot(Context ctx, int requestedNavId) {
+        Intent intent = new Intent(ctx, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        intent.putExtra(EXTRA_REQUESTED_NAV_ID, requestedNavId);
+        ctx.startActivity(intent);
     }
 }
 
