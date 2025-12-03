@@ -80,6 +80,8 @@ public class Option {
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_PROGRESS_HEAT_MAP = false;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
+    public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = true;
+
 
 
 
@@ -144,6 +146,8 @@ public class Option {
  */
     }
 
+    public static void setRadioUseCloudflare(boolean bool) {prefs.edit().putBoolean("RADIO_USE_CLOUDFARE",bool).apply();}
+    public static boolean getRadioUseCloudflare() {return prefs.getBoolean("RADIO_USE_CLOUDFARE", DEFAULT_RADIO_USE_CLOUDFARE);}
 
     public static boolean getRadioSleepCopy() {return prefs.getBoolean("RADIO_SLEEP_COPY", DEFAULT_RADIO_SLEEP_COPY);}
     public static void setRadioSleepCopy(boolean bool) {prefs.edit().putBoolean("RADIO_SLEEP_COPY",bool).apply();}

@@ -10,7 +10,7 @@ import androidx.room.Update;
 import androidx.room.Delete;
 import androidx.room.Upsert;
 
-import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.librivox.ArchiveItem;
 
 import java.util.List;
 
@@ -78,7 +78,7 @@ public interface BookSourceDao {
           AND (is_favorite = 1 OR idFolder IS NOT NULL)
         ORDER BY date_maj DESC
     """)
-    LiveData<List<LibrivoxItem>> getFavoriteLibrivoxItems(String repoType, String repoName);
+    LiveData<List<ArchiveItem>> getFavoriteLibrivoxItems(String repoType, String repoName);
 
 
 

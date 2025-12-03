@@ -24,7 +24,7 @@ import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.UrlResolve;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.List;
 
@@ -96,6 +96,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 // ---------------------------------------------------------------------
                 if (hasCachedUrl && !renewOnClick) {
                     myLogD("RadioResults: using cached url_resolved, scheduling background renew. url_resolved = [" + s.url_resolved + "]");
+                    final long startTime = System.currentTimeMillis();
 
                     // 1) Immediate playback
                     StartPlayHelper.onRadioClick(
@@ -113,17 +114,17 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                                     rsp.body() == null ||
                                     rsp.body().url == null ||
                                     rsp.body().url.isEmpty()) {
-                                myLogW("RadioResults background resolveUrl: no usable url for " + s.name);
+                                myLogW("RadioResults background resolveUrl: no usable url for [" + s.name + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
                                 return;
                             }
 
                             String newUrl = rsp.body().url;
                             if (newUrl.equals(s.url_resolved)) {
-                                myLogD("RadioResults background resolveUrl: url unchanged for " + s.name + " -> " + newUrl);
+                                myLogD("RadioResults background resolveUrl: url unchanged for [" + s.name + "] -> [" + newUrl + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
                                 return;
                             }
 
-                            myLogI("RadioResults background resolveUrl success for " + s.name + " -> " + newUrl);
+                            myLogI("RadioResults background resolveUrl success for [" + s.name + "] -> [" + newUrl + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
                             s.url_resolved = newUrl; // update in-memory
 
                             // Optional: persist in Room if you track stations there.
@@ -133,7 +134,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                         @Override
                         public void onFailure(Call<UrlResolve> call, Throwable t) {
-                            myLogW("RadioResults background resolveUrl failed for " + s.name + " : " + t);
+                            myLogW("RadioResults background resolveUrl failed for [" + s.name + "] : [" + t + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
                             // Silent failure, cached url still works.
                         }
                     });

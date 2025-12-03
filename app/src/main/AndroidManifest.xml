@@ -40,6 +40,8 @@
         <activity android:name=".activities.EbookResultsActivity" />
         <activity android:name=".activities.EbookDetailActivity" />
         <activity android:name=".activities.TtsReaderActivity" />
+        <activity android:name=".librivox.GetLibrivoxFacetListActivity" />
+
         <activity
             android:name=".activities.MainActivity"
             android:exported="true">
@@ -55,7 +57,7 @@
         <activity android:name=".activities.GetActivity" />
         <activity android:name=".activities.GetOtherActivity" />
         <activity android:name=".activities.GetDirectLinkActivity" />
-        <activity android:name=".activities.GetAudiobookActivity" />
+        <activity android:name=".activities.GetLibrivoxActivity" />
         <activity android:name=".activities.GetPodcastActivity" />
         <activity android:name=".activities.GetRadioActivity" />
         <activity android:name=".activities.GetRadioCardListActivity" />

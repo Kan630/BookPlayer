@@ -212,11 +212,19 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("Gutendex_search", bundle);
     }
 
-    public static void  tellAnalyticsLibrivoxTrending(String query, String lang) {
+    public static void tellAnalyticsLibrivoxQuickList(String query, String lang, String type) {
         Bundle bundle = new Bundle();
         bundle.putString("query", trimFA(query));
         bundle.putString("language", trimFA(lang));
-        logBundleEvent("librivox_trending", bundle);
+        bundle.putString("type", trimFA(type));
+        logBundleEvent("librivox_quick_list", bundle);
+    }
+
+    public static void tellAnalyticsLibrivoxBy(String byWhat, String lang) {
+        Bundle bundle = new Bundle();
+        bundle.putString("by", trimFA(byWhat));
+        bundle.putString("language", trimFA(lang));
+        logBundleEvent("librivox_by_" + byWhat, bundle);
     }
 
     public static void tellAnalyticsPodcastSearch(String query, String lang) {

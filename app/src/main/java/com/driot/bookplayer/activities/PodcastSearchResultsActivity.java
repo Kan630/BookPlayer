@@ -122,9 +122,14 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
             @Override
             public void onSuccess(List<PodcastFeed> feeds) {
                 runOnUiThread(() -> {
-                    adapter.setHeaderInfo(query, lang, feeds.size());
-                    adapter.setItems(feeds);
-                    handleSuccess(feeds);
+                    if (feeds!=null) {
+                        adapter.setHeaderInfo(query, lang, feeds.size());
+                        adapter.setItems(feeds);
+                        handleSuccess(feeds);
+                    } else {
+                        adapter.setHeaderInfo(query, lang, 0);
+                        handleError(new Exception("no podcast found for query: [" + query + "] and lang: [" + lang + "]"));
+                    }
                 });
             }
 

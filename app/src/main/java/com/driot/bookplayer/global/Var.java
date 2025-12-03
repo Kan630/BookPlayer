@@ -62,6 +62,7 @@ public class Var {
     public static final String REPO_TYPE_AUDIOBOOK = "audiobook";
     public static final String REPO_NAME_LIBRIVOX = "librivox";
     public static final int RADIO_LIST_MAX_CARD_ITEM = 500;
+    public static final int LIBRIVOX_LIST_MAX_CARD_ITEM = 400;
 
     public static final int FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS = 512;
     public static final int GRID_LAYOUT_SPACER = 4; //dp between cards
@@ -85,7 +86,7 @@ public class Var {
     public static final int PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
 
     public static final String PODCAST_SOURCE = "podcastindex.org";
-    public static final String DEFAULT_RADIO_MIRROR = "https://de1.api.radio-browser.info/";  //https://fi1.api.radio-browser.info";
+    public static final String DEFAULT_RADIO_MIRROR = "https://de1.api.radio-browser.info/";  //https://fi1.api.radio-browser.info";  //"https://radio.driot.com";
 
     //public static final int PODCAST_INDEX_ORG_SINCE_DEBUG = 1751716800 ; //5 juillet, 2025
     public static final int PODCAST_INDEX_ORG_SINCE = 0 ; //5 juillet, 2025

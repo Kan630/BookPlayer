@@ -7,7 +7,7 @@ import android.content.Intent;
 
 import androidx.core.app.TaskStackBuilder;
 
-import com.driot.bookplayer.activities.GetAudiobookActivity;
+import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.activities.GetPodcastActivity;
 import com.driot.bookplayer.activities.GetRadioActivity;
 import com.driot.bookplayer.activities.MainActivity;
@@ -185,7 +185,7 @@ public class NavHelper {
         return PendingIntent.getActivity(
                 context,
                 0,
-                new Intent(context, GetAudiobookActivity.class)
+                new Intent(context, GetLibrivoxActivity.class)
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 flags
         );

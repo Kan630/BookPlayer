@@ -34,7 +34,7 @@ public class GetActivity extends BaseBottomNavActivity {
 
     private void clickAudiobooks() {
         myLogI("--- user clicks AUDIOBOOKS ----");
-        startActivity(new Intent(this, GetAudiobookActivity.class));
+        startActivity(new Intent(this, GetLibrivoxActivity.class));
     }
     private void clickOther() {
         myLogI("--- user clicks OTHER ----");

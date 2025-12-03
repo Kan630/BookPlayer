@@ -18,6 +18,8 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.BuildConfig;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -35,6 +37,11 @@ public class RadioBrowserServiceFactory {
     };
 
     public static void init(Context context) {
+        myLogD("radio init, discover best mirror");
+        if (Option.getRadioUseCloudflare()) {
+            myLogD("radio use cloudflare => no radio init");
+            return;
+        }
         if (NetworkHelper.hasInternet(context)) {
             Executors.newSingleThreadExecutor().execute(() -> {
                 RadioBrowserServiceFactory.createRetrofit(
@@ -56,7 +63,7 @@ public class RadioBrowserServiceFactory {
 
         String base = Pref.get_radio_mirror();
 
-        myLogD("tryDiscoverMirrors = " + tryDiscoverMirrors);
+        //myLogD("tryDiscoverMirrors = " + tryDiscoverMirrors + " - base in prefs : " + base);
 
         if (tryDiscoverMirrors) {
             Set<String> failedBases = new java.util.HashSet<>();
@@ -82,7 +89,28 @@ public class RadioBrowserServiceFactory {
             }
         }
 
-        myLogD("RadioBrowser base = " + base);
+        myLogD("RadioBrowser (direct) base = " + base);
+
+        return new Retrofit.Builder()
+                .baseUrl(base)
+                .client(client)
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+    }
+
+    /**
+     * Retrofit qui passe par Cloudflare (cache) pour les listes.
+     * Pas de découverte de miroirs côté app : c'est géré côté Cloudflare.
+     */
+    public static Retrofit createCloudflareRetrofit(HttpLoggingInterceptor.Level logLevel) {
+        OkHttpClient client = new OkHttpClient.Builder()
+                .addInterceptor(userAgentInterceptor())
+                .addInterceptor(httpLogging(logLevel))
+                .build();
+
+        //String base = Var.DEFAULT_RADIO_MIRROR;
+        String base = BuildConfig.RADIO_PROXY_BASE_URL;
+        myLogD("RadioBrowser (Cloudflare) base = " + base);
 
         return new Retrofit.Builder()
                 .baseUrl(base)

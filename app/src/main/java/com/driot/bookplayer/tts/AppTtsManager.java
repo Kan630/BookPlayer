@@ -117,8 +117,9 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     @Override
     public void onInit(int status) {
+        if (TextToSpeech.SUCCESS!=status) myLogE("TTS init FAILED");
         ready = (status == TextToSpeech.SUCCESS) && (tts != null);
-        if (!ready) return;
+        if (!ready || tts==null) return;
 
         try {
             // Engine defaults

@@ -29,7 +29,7 @@ public class CoverSearchRepository {
         providers.add(new GoogleBooksProvider());
 
         // Cloudflare Worker
-        String base = BuildConfig.PROXY_BASE_URL;    // e.g., https://steep-hat-11ff.adriot.workers.dev
+        String base = BuildConfig.PIXABAY_BASE_URL;    // e.g., https://steep-hat-11ff.adriot.workers.dev
         String tok  = BuildConfig.APP_TOKEN;         // optional, can be ""
         if (base != null && !base.isEmpty()) {
             providers.add(new PixabayProxyProvider(base + "/pixabay", tok));

@@ -97,11 +97,11 @@ public class MyApp extends Application {
             myLog("isNetworkAvailable : " + NetworkHelper.isNetworkAvailable(getApplicationContext()));
             myLog("isConnected : " + NetworkHelper.isConnected(getApplicationContext()));
             boolean hasInternet = NetworkHelper.hasInternet(getApplicationContext());
-            boolean canPingBookPlayerWebSite = NetworkHelper.canReachUrl(Var.WEBSITE_URL);
             myLog("hasInternet : " + hasInternet);
+            boolean canPingBookPlayerWebSite = NetworkHelper.canReachUrl(Var.WEBSITE_URL);
             myLog("ping [" + Var.WEBSITE_URL + "] : " + canPingBookPlayerWebSite);
             if (hasInternet && !canPingBookPlayerWebSite) {
-                myLogEE(null, "bookplayer website down");
+                myLogD("bookplayer website not reachable");
             }
         });
 

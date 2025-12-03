@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.ebooks.EbookItem;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
@@ -122,7 +123,7 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             }
             if (item.downloadCount > 0) {
                 if (!infoText.isEmpty()) infoText += " · ";
-                infoText += item.downloadCount + " " +
+                infoText += Tonio.addThousandSeparator(item.downloadCount) + " " +
                         viewContext.getString(R.string.downloads); // you may need this string
             }
             holder.info.setText(infoText);

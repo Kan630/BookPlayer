@@ -20,12 +20,11 @@ public final class LoggerStaticHelper {
     // Cache to avoid repeated stack walking for the same caller class
     private static final Map<String, String> TAG_CACHE = new ConcurrentHashMap<>();
     private static final String LIFECYCLE_LOG_TAG = "Lifecycle";
-    private static final boolean LOG_DEBUG = false;
 
     // ---------------- Public logging wrappers (same names/signatures) ----------------
 
     public static void myLog(String str)           { KanLogger.myLog(getCallerTag(), str); }
-    public static void myLogD(String str)          { if (LOG_DEBUG) KanLogger.myLogD(getCallerTag(), str); }
+    public static void myLogD(String str)          { KanLogger.myLogD(getCallerTag(), str); }
     public static void myLogI(String str)          { KanLogger.myLogI(getCallerTag(), str); }
     public static void myLogW(String str)          { KanLogger.myLogW(getCallerTag(), str); }
     public static void myLogE(String str)          { KanLogger.myLogE(getCallerTag(), str); }

@@ -1,0 +1,48 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+android:orientation="horizontal"
+android:padding="8dp"
+android:layout_width="match_parent"
+android:layout_height="wrap_content">
+
+<ImageView
+    android:id="@+id/ivFlag"
+    android:layout_width="32dp"
+    android:layout_height="20dp"
+    android:layout_marginEnd="8dp"
+    android:src="@drawable/no_flag"
+    android:scaleType="centerCrop" />
+
+<LinearLayout
+    android:orientation="vertical"
+    android:layout_width="0dp"
+    android:layout_weight="1"
+    android:layout_height="wrap_content">
+
+    <TextView
+        android:id="@+id/tvLanguageName"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/language"
+        />
+    <TextView
+        android:id="@+id/tvLanguageNative"
+        android:textSize="12sp"
+        android:textColor="#888"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/language"
+        />
+</LinearLayout>
+
+<TextView
+    android:id="@+id/tvLanguageCount"
+    android:textSize="14sp"
+    android:textColor="#444"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    android:gravity="end"
+    android:text="@string/count"
+    />
+</LinearLayout>

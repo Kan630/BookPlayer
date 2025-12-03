@@ -1,4 +1,6 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.librivox;
+
+import com.driot.bookplayer.objects.ItemMetadata;
 
 import java.util.List;
 

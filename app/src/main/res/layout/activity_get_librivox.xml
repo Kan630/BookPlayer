@@ -116,14 +116,55 @@
 
                 <View style="@style/GetResourceHorizontalBar"/>
 
+                <TextView
+                    android:text="@string/quick_lists"
+                    style="@style/GetResourceTextTopOfButton" />
                 <Button
                     android:id="@+id/bLibrivoxTrending"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:layout_marginBottom="10dp"
                     android:text="@string/most_downloaded"
                     style="@style/GetResourceButton" />
+                <Button
+                    android:id="@+id/bLibrivoxLastAdded"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:text="@string/last_added"
+                    style="@style/GetResourceButton" />
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="12dp"
+                    android:baselineAligned="false"
+                    android:gravity="top"
+                    >
+
+                    <Button
+                        android:id="@+id/bByGenre"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/by_genre_all_languages"
+                        />
+
+                    <Button
+                        android:id="@+id/bByAuthor"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="48dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/by_author"
+                        android:visibility="gone"
+                        />
+                </LinearLayout>
+
 
                 <View style="@style/GetResourceHorizontalBar" />
 

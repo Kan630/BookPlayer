@@ -57,6 +57,10 @@
 
                 <View style="@style/GetResourceHorizontalBar" />
 
+                <TextView
+                    style="@style/GetResourceTextTopOfButton"
+                    android:textColor="@color/orange_700"
+                    android:text="@string/beta_test" />
 
                 <TextView
                     android:layout_marginTop="20dp"

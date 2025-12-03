@@ -14,13 +14,30 @@ import retrofit2.Retrofit;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.global.Option;
+
 public class RadioBrowserRepository {
 
-    private final RadioBrowserApi api;
-
-    public RadioBrowserRepository(Context ctx, boolean discoverMirrors, HttpLoggingInterceptor.Level logLevel) {
+    private final RadioBrowserApi api;          // direct → RadioBrowser (miroirs)
+    @Nullable private final RadioBrowserApi cachedApi;
+    
+    public RadioBrowserRepository(
+            Context ctx
+            , boolean discoverMirrors
+            , HttpLoggingInterceptor.Level logLevel
+    ) {
         Retrofit retrofit = RadioBrowserServiceFactory.createRetrofit(ctx, discoverMirrors, logLevel);
         this.api = retrofit.create(RadioBrowserApi.class);
+
+        if (Option.getRadioUseCloudflare()) {
+            Retrofit cfRetrofit = RadioBrowserServiceFactory.createCloudflareRetrofit(logLevel);
+            this.cachedApi = cfRetrofit.create(RadioBrowserApi.class);
+        } else {
+            this.cachedApi = null;
+        }        
+    }
+    private RadioBrowserApi listsApi() {
+        return (cachedApi != null) ? cachedApi : api;
     }
 
     public void search(
@@ -46,7 +63,7 @@ public class RadioBrowserRepository {
 
 
     public void topVoted(int limit, Callback<List<Station>> cb) {
-        api.topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
+        listsApi().topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
     }
 
     public void byTag(String tag, int limit, Callback<List<Station>> cb) {
@@ -65,18 +82,23 @@ public class RadioBrowserRepository {
         api.byName(name, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
     }
 
+    // ---- LISTES (pays / tags / langues) → passent par Cloudflare si dispo ----
+
     public void getTopTags(int limit, Callback<List<TagItem>> cb) {
-        api.getTags("stationcount", true, limit)
+        listsApi()
+                .getTags("stationcount", true, limit)
                 .enqueue(new LoggingCallback<>(cb, "getTopTags"));
     }
 
     public void getTopCountries(int limit, Callback<List<TagItem>> cb) {
-        api.getCountries("stationcount", true, limit)
+        listsApi()
+                .getCountries("stationcount", true, limit)
                 .enqueue(new LoggingCallback<>(cb, "getTopCountries"));
     }
 
     public void getTopLanguages(int limit, Callback<List<TagItem>> cb) {
-        api.getLanguages("stationcount", true, limit)
+        listsApi()
+                .getLanguages("stationcount", true, limit)
                 .enqueue(new LoggingCallback<>(cb, "getTopLanguages"));
     }
 

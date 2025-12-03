@@ -362,6 +362,10 @@ public class Tonio {
         return "xxx";
     }
 
+    public static String addThousandSeparator(int n) {
+        return String.format("%,d", n).replace(',', '.');
+    }
+
     public static String getMimeType(Context context, Uri uri) {
         // Try content resolver first
         String mime = null;

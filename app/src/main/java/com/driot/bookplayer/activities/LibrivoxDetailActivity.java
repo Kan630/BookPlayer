@@ -6,7 +6,6 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import android.app.AlertDialog;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
@@ -30,7 +30,7 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.objects.ItemMetadata;
-import com.driot.bookplayer.objects.LibrivoxApi;
+import com.driot.bookplayer.librivox.LibrivoxApi;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 
@@ -124,7 +124,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         OkHttpClient client = new OkHttpClient.Builder().addInterceptor(logging).build();
 
         api = new Retrofit.Builder()
-                .baseUrl("https://archive.org/")
+                .baseUrl(BuildConfig.LIBRIVOX_PROXY_BASE_URL)
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()

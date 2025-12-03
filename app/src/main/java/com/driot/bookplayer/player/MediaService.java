@@ -189,12 +189,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         PlaybackUiBus.get().clear();
     }
 
-
-    private void broadcastUiState(String fromWhere) {
+    private void broadcastUiState(String fromWhere, String playMode) {
         final String loadPhase = getLoadPhase();
         final boolean ready = isReadyToPlay();
         final boolean playing = isPlaying();
-        final String playMode = (engine != null) ? getPlayMode() : null;
 
         PlaybackUiState s;
 
@@ -203,7 +201,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         extras.putDouble(Intents.EXTRA_SPEED, getSpeed()); //TODO check that getSpeed, looks weird, ask Prefs... (every second since we are updating UI...)
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
 
-        if (isRadio()) {
+        if (Var.PLAY_MODE_RADIO.equals(playMode) || isRadio()) {
             String title = (streamTitle != null) ? streamTitle : getString(R.string.live_radio);
             String text = getString(R.string.live_radio);
             String cover = (streamImageUrl != null) ? streamImageUrl : "";
@@ -259,6 +257,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
+    }
+
+
+    private void broadcastUiState(String fromWhere) {
+        final String playMode = (engine != null) ? getPlayMode() : null;
+        broadcastUiState(fromWhere, playMode);
     }
 
 
@@ -2056,7 +2060,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private boolean playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
-        myLogI(playMode + ": [" + title + "] -> [" + url + "]");
+        myLogI("playStream " + playMode + ": [" + title + "] -> [" + url + "]");
 
         streamTitle = title;
         streamImageUrl = imageUrl;
@@ -2065,7 +2069,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             myLogEE(null, "playPodcastStream : radioUri==null for url=" + url);
             return false;
         }
-        broadcastUiState("playStream " + playMode);                  // first snapshot (BUFFERING)
+
+        PlayList.createFromStream(this, playMode, url);
+
+        broadcastUiState("playStream " + playMode, playMode);                  // first snapshot (BUFFERING)
 
         // Swap engine to Exo for radio
         engineGen++;

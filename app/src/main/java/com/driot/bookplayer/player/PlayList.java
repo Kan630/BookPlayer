@@ -13,6 +13,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
 
@@ -242,7 +243,7 @@ public final class PlayList {
     public @Nullable ZikFile getZikFile() {
         synchronized (lock) {
             if (zikFilesList.isEmpty() || index < 0 || index >= zikFilesList.size()) {
-                myLogEE(null, "getZikFile(): out of bounds index=" + index + " size=" + zikFilesList.size());
+                myLogEE(null, "getZikFile(): out of bounds index=" + index + " size=" + zikFilesList.size() + " - caller : " + CallerHelper.getCaller(5));
                 return null;
             }
             return zikFilesList.get(index);

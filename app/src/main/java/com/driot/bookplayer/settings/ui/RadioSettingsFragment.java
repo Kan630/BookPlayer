@@ -49,6 +49,12 @@ public class RadioSettingsFragment extends LoggingFragment {
         ll_radio_renew_url.setOnClickListener(v -> chk_radio_renew_url.toggle());
         chk_radio_renew_url.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRenewUrl(isChecked));
 
+        CheckBox chk_radio_use_cloudfare = root.findViewById(R.id.chk_radio_use_cloudfare);
+        LinearLayout ll_radio_use_cloudfare = root.findViewById(R.id.ll_radio_use_cloudfare);
+        chk_radio_use_cloudfare.setChecked(Option.getRadioUseCloudflare());
+        ll_radio_use_cloudfare.setOnClickListener(v -> chk_radio_use_cloudfare.toggle());
+        chk_radio_use_cloudfare.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioUseCloudflare(isChecked));
+
         chk_option_radio_sleep_copy = root.findViewById(R.id.chk_option_radio_sleep_copy);
         LinearLayout ll_option_radio_sleep_copy = root.findViewById(R.id.ll_option_radio_sleep_copy);
         chk_option_radio_sleep_copy.setChecked(Option.getRadioSleepCopy());

@@ -1,10 +1,10 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.librivox;
 
 import java.util.List;
 
 public class LibrivoxApiResponse {
     public ResponseData response;
     public static class ResponseData {
-        public List<LibrivoxItem> docs;
+        public List<ArchiveItem> docs;
     }
 }

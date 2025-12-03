@@ -10,7 +10,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.db.BookSourceDao;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.ArrayList;
@@ -19,17 +19,17 @@ import java.util.List;
 
 public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
-    private final MutableLiveData<List<LibrivoxItem>> results = new MutableLiveData<>();
+    private final MutableLiveData<List<ArchiveItem>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
 
-    private LiveData<List<LibrivoxItem>> favoritesLive;
+    private LiveData<List<ArchiveItem>> favoritesLive;
 
     private String lastQuery = null;
     private String lastLang = null;
 
     public LibrivoxResultsViewModel(@NonNull Application application) { super(application); }
 
-    public LiveData<List<LibrivoxItem>> getResults() { return results; }
+    public LiveData<List<ArchiveItem>> getResults() { return results; }
     public LiveData<Boolean> getShouldFinish() { return shouldFinish; }
     public void requestFinish() { shouldFinish.setValue(true); }
     public String getLastQuery() { return lastQuery; }
@@ -37,7 +37,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     public String getLastLang() { return lastLang; }
     public void setLastLang(String lastLang) { this.lastLang = lastLang; }
 
-    public LiveData<List<LibrivoxItem>> getFavoriteLibrivoxsLive() {
+    public LiveData<List<ArchiveItem>> getFavoriteLibrivoxsLive() {
         if (favoritesLive == null) {
             AppDatabase db = AppDatabase.getDatabase(getApplication());
             favoritesLive = db.bookSourceDao()
@@ -46,20 +46,20 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         return favoritesLive;
     }
 
-    public void enrichWithLocalState(List<LibrivoxItem> apiItems) {
+    public void enrichWithLocalState(List<ArchiveItem> apiItems) {
         if (apiItems == null || apiItems.isEmpty()) { results.setValue(apiItems); return; }
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             BookSourceDao dao = AppDatabase.getDatabase(getApplication()).bookSourceDao();
             List<String> ids = new ArrayList<>(apiItems.size());
-            for (LibrivoxItem it : apiItems) ids.add(it.identifier);
+            for (ArchiveItem it : apiItems) ids.add(it.identifier);
 
             //TODO fix android.database.sqlite.SQLiteException: too many SQL variables (code 1 SQLITE_ERROR): , while compiling: SELECT repoId, is_favorite, idFolder  => ids can be huge...>999
             List<BookSourceDao.RepoStateRow> rows = dao.getStateFor(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX, ids);
             HashMap<String, BookSourceDao.RepoStateRow> map = new HashMap<>();
             for (BookSourceDao.RepoStateRow r : rows) map.put(r.repoId, r);
 
-            for (LibrivoxItem it : apiItems) {
+            for (ArchiveItem it : apiItems) {
                 BookSourceDao.RepoStateRow st = map.get(it.identifier);
                 if (st != null) {
                     it.is_favorite = st.is_favorite;
@@ -75,7 +75,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
 
     // --- Toggle favorite ---
-    public void toggleFavorite(LibrivoxItem item) {
+    public void toggleFavorite(ArchiveItem item) {
         if (item == null) return;
         boolean newFav = !item.is_favorite;
         AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -101,9 +101,9 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             }
 
             // update current list for snappy UI
-            List<LibrivoxItem> cur = results.getValue();
+            List<ArchiveItem> cur = results.getValue();
             if (cur != null) {
-                for (LibrivoxItem it : cur) {
+                for (ArchiveItem it : cur) {
                     if (it.identifier.equals(item.identifier)) {
                         it.is_favorite = newFav;
                         break;

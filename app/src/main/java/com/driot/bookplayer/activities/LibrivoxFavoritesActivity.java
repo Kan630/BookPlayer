@@ -15,7 +15,7 @@ import com.driot.bookplayer.adapter.LibrivoxFavoritesRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.librivox.ArchiveItem;
 
 import java.util.Collections;
 
@@ -49,14 +49,14 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
         viewModel = new ViewModelProvider(this).get(LibrivoxResultsViewModel.class);
 
         adapter = new LibrivoxFavoritesRVAdapter(new LibrivoxFavoritesRVAdapter.OnItemClickListener() {
-            @Override public void onItemClick(LibrivoxItem item) {
+            @Override public void onItemClick(ArchiveItem item) {
                 Intent intent = new Intent(LibrivoxFavoritesActivity.this, LibrivoxDetailActivity.class);
                 intent.putExtra("identifier", item.identifier);
                 intent.putExtra("title", item.title);
                 startActivity(intent);
             }
 
-            @Override public void onFavoriteClick(LibrivoxItem item) {
+            @Override public void onFavoriteClick(ArchiveItem item) {
                 myLogI("------- user clicks favorite ------   for [" + item.identifier + "]");
                 viewModel.toggleFavorite(item);
             }

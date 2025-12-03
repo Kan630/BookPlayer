@@ -15,7 +15,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.objects.LibrivoxItem;
+import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -25,15 +25,15 @@ import java.util.List;
 
 public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
     public interface OnItemClickListener {
-        void onItemClick(LibrivoxItem item);
-        void onFavoriteClick(LibrivoxItem item);
+        void onItemClick(ArchiveItem item);
+        void onFavoriteClick(ArchiveItem item);
     }
     private final OnItemClickListener listener;
 
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM   = 1;
 
-    private List<LibrivoxItem> items = new ArrayList<>();
+    private List<ArchiveItem> items = new ArrayList<>();
 
     // Header data
     private CharSequence headerSearch = "";
@@ -57,7 +57,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     // --- Items API ---
-    public void setItems(List<LibrivoxItem> newItems) {
+    public void setItems(List<ArchiveItem> newItems) {
         items = newItems != null ? newItems : new ArrayList<>();
         notifyDataSetChanged();
     }
@@ -114,7 +114,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         } else {
 
             int idx = position - 1;
-            LibrivoxItem item = items.get(idx);
+            ArchiveItem item = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
             // View context (for resources, colors, etc.)

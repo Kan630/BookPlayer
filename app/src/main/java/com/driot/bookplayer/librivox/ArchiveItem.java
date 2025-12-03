@@ -1,6 +1,6 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.librivox;
 
-public class LibrivoxItem {
+public class ArchiveItem {
     public String identifier;
     public String title;
     public String date;

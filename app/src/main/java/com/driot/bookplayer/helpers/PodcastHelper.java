@@ -41,7 +41,7 @@ import android.content.Context;
 
 public class PodcastHelper {
 
-    private static final String BASE_URL = BuildConfig.PROXY_BASE_URL + "/podcastindex/";
+    private static final String BASE_URL = BuildConfig.PODCASTINDEX_BASE_URL;
 
     public interface Callback {
         void onSuccess(List<PodcastFeed> feeds);
