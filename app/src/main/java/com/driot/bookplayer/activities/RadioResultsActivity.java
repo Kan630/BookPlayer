@@ -1,11 +1,9 @@
 package com.driot.bookplayer.activities;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 
-import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -18,7 +16,6 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
@@ -26,7 +23,12 @@ import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.Tonio;
 
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -344,12 +346,6 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         }
 
     }
-    private static @Nullable String nullIfBlank(String s) {
-        return (s == null || s.trim().isEmpty()) ? null : s.trim();
-    }
-
-
-    private String safe(String s) { return s == null ? "" : s.trim(); }
 
     private Callback<List<Station>> resultsCb(String source) {
         return new Callback<>() {
@@ -357,8 +353,56 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 progressBar.setVisibility(View.GONE);
                 List<Station> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
+
+                    String headerTxt = "";
+                    if (Option.getRadioRemoveSpamStations()) {
+                        int nbRemoved = 0;
+                        Set<String> removedNames = new HashSet<>();
+                        Map<String, Integer> countMap = new HashMap<>();
+
+                        Iterator<Station> iterator = body.iterator();
+                        while (iterator.hasNext()) {
+                            Station s = iterator.next();
+                            if (s.name == null) continue;
+
+                            // Clean name: trim only for logging & blacklist
+                            String trimmedName = s.name.trim();
+
+                            // Skip blacklisted stations  --> WORKING but not used right now, so commented for speed
+                            /*
+                            if (Var.RADIO_STATION_BLACKLIST.contains(trimmedName)) {
+                                iterator.remove();
+                                nbRemoved++;
+                                removedNames.add(trimmedName);
+                                continue;
+                            }
+                             */
+
+                            // Normalize name for duplicate detection: keep only alphanumeric, lowercase
+                            String normalizedName = trimmedName.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+
+                            // Safe unboxing
+                            Integer countObj = countMap.get(normalizedName);
+                            int count = countObj != null ? countObj : 0;
+
+                            if (count >= Var.RADIO_STATION_MAX_DUPLICATES) {
+                                iterator.remove();
+                                nbRemoved++;
+                                removedNames.add(trimmedName); // log original trimmed name
+                            } else {
+                                countMap.put(normalizedName, count + 1);
+                            }
+                        }
+
+                        if (nbRemoved > 0) {
+                            headerTxt = "    (" + nbRemoved + " " + getString(R.string.spam_fake_stations_removed) + " : " + removedNames + ")";
+                            myLog(nbRemoved + " stations removed");
+                            myLog("Removed station names: " + removedNames);
+                        }
+                    }
+
                     viewModel.setResults(body);
-                    adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size());
+                    adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
                     myLog("radio results (" + source + ") = " + body.size());
                 } else {
                     myToast(getString(R.string.no_result));

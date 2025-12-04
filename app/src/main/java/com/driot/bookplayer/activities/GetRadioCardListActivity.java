@@ -77,6 +77,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         );
 
         adapter = new TagCardAdapter(tagItem -> {
+            myLogI("---- user clicks facet item: " + tagItem.name);
             // Route by current facet mode:
             @FacetMode int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
             Intent i = new Intent(this, RadioResultsActivity.class);

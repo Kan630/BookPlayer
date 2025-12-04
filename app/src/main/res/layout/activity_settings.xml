@@ -57,18 +57,25 @@
             app:sectionIcon="@drawable/ic_librivox_24" />
 
         <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_podcast"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Podcasts"
-            app:sectionIcon="@drawable/ic_podcast_24" />
-
-        <com.driot.bookplayer.views.SettingsSectionView
             android:id="@+id/section_tts"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:sectionTitle="@string/Text_To_Speech"
             app:sectionIcon="@drawable/ic_tts_24" />
+
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_radio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Radio"
+            app:sectionIcon="@drawable/ic_radio_24px" />
+
+        <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_podcast"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Podcasts"
+            app:sectionIcon="@drawable/ic_podcast_24" />
 
         <com.driot.bookplayer.views.SettingsSectionView
             android:id="@+id/section_automotive"

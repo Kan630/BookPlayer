@@ -79,6 +79,14 @@ public class SettingsActivity extends BaseBottomNavActivity {
                 savedInstanceState
         );
 
+        SettingsSectionView sectionRadio = findViewById(R.id.section_radio);
+        registerSection(
+                sectionRadio,
+                "expand_radio",
+                () -> new com.driot.bookplayer.settings.ui.RadioSettingsFragment(),
+                savedInstanceState
+        );
+
         SettingsSectionView sectionPodcast = findViewById(R.id.section_podcast);
         registerSection(
                 sectionPodcast,

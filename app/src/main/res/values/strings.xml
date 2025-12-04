@@ -1258,5 +1258,12 @@
     <string name="links">links</string>
     <string name="Duration">Duration</string>
     <string name="Language">Language</string>
+    <string name="spam_fake_stations_removed">stations removed (spam?)</string>
+    <string name="Spam">Spam</string>
+    <string name="option_radio_remove_duplicates">remove duplicates</string>
+    <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>
+    <string name="option_radio_sleep_copy_subtitle">Here you can specify a custom value for the radio auto-sleep, since we don’t save progress for radio and it doesn’t matter if you fall asleep!</string>
+    <string name="Radio">Radio</string>
+
 
 </resources>

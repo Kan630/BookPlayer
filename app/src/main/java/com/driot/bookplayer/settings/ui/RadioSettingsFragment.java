@@ -23,7 +23,10 @@ public class RadioSettingsFragment extends LoggingFragment {
     private EditText etRadioNbResults;
     private EditText et_option_radio_sleep_value;
     private CheckBox chk_option_radio_sleep_copy;
+    private CheckBox chk_option_radio_remove_duplicates;
     private LinearLayout ll_option_radio_sleep_value;
+    private LinearLayout ll_option_radio_remove_duplicates;
+
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -55,6 +58,12 @@ public class RadioSettingsFragment extends LoggingFragment {
         ll_radio_use_cloudfare.setOnClickListener(v -> chk_radio_use_cloudfare.toggle());
         chk_radio_use_cloudfare.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioUseCloudflare(isChecked));
 
+        ll_option_radio_remove_duplicates = root.findViewById(R.id.ll_option_radio_remove_duplicates);
+        chk_option_radio_remove_duplicates = root.findViewById(R.id.chk_option_radio_remove_duplicates);
+        chk_option_radio_remove_duplicates.setChecked(Option.getRadioRemoveSpamStations());
+        ll_option_radio_remove_duplicates.setOnClickListener(v -> chk_option_radio_remove_duplicates.toggle());
+        chk_option_radio_remove_duplicates.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRemoveSpamStations(isChecked));
+
         chk_option_radio_sleep_copy = root.findViewById(R.id.chk_option_radio_sleep_copy);
         LinearLayout ll_option_radio_sleep_copy = root.findViewById(R.id.ll_option_radio_sleep_copy);
         chk_option_radio_sleep_copy.setChecked(Option.getRadioSleepCopy());
@@ -66,6 +75,7 @@ public class RadioSettingsFragment extends LoggingFragment {
 
         ll_option_radio_sleep_value = root.findViewById(R.id.ll_option_radio_sleep_value);
         et_option_radio_sleep_value = root.findViewById(R.id.et_option_radio_sleep_value);
+
         rebuildOptionDisplay();
         return root;
     }

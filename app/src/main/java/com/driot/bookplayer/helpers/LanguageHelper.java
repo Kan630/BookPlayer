@@ -137,4 +137,62 @@ public class LanguageHelper {
         return null;
     }
 
+    /**
+     * Returns a representative ISO 3166-1 alpha-2 country code
+     * for a given ISO 639-1 language code.
+     * Returns null if no mapping exists.
+     */
+    public static String getCountryForLanguage(String languageCode) {
+        if (languageCode == null) return null;
+        switch (languageCode.toLowerCase()) {
+            case "en": return "US";  // English
+            case "fr": return "FR";  // French
+            case "es": return "ES";  // Spanish
+            case "de": return "DE";  // German
+            case "it": return "IT";  // Italian
+            case "pt": return "PT";  // Portuguese
+            case "ru": return "RU";  // Russian
+            case "zh": return "CN";  // Chinese
+            case "ja": return "JP";  // Japanese
+            case "ko": return "KR";  // Korean
+            case "ar": return "SA";  // Arabic
+            case "hi": return "IN";  // Hindi
+            case "bn": return "BD";  // Bengali
+            case "pa": return "PK";  // Punjabi
+            case "ur": return "PK";  // Urdu
+            case "vi": return "VN";  // Vietnamese
+            case "th": return "TH";  // Thai
+            case "tr": return "TR";  // Turkish
+            case "nl": return "NL";  // Dutch
+            case "sv": return "SE";  // Swedish
+            case "no": return "NO";  // Norwegian
+            case "da": return "DK";  // Danish
+            case "fi": return "FI";  // Finnish
+            case "he": return "IL";  // Hebrew
+            case "el": return "GR";  // Greek
+            case "pl": return "PL";  // Polish
+            case "cs": return "CZ";  // Czech
+            case "hu": return "HU";  // Hungarian
+            case "ro": return "RO";  // Romanian
+            case "sk": return "SK";  // Slovak
+            case "sl": return "SI";  // Slovene
+            case "bg": return "BG";  // Bulgarian
+            case "sr": return "RS";  // Serbian
+            case "hr": return "HR";  // Croatian
+            case "id": return "ID";  // Indonesian
+            case "ms": return "MY";  // Malay
+            case "tl": return "PH";  // Tagalog/Filipino
+            case "sw": return "KE";  // Swahili
+            case "fa": return "IR";  // Persian/Farsi
+            case "uk": return "UA";  // Ukrainian
+            case "mr": return "IN";  // Marathi
+            case "ta": return "IN";  // Tamil
+            case "te": return "IN";  // Telugu
+            case "ml": return "IN";  // Malayalam
+            case "kn": return "IN";  // Kannada
+            // ... add more languages here
+            default: return null;    // no mapping available
+        }
+    }
+
 }

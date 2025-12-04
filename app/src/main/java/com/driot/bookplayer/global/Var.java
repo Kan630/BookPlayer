@@ -13,6 +13,14 @@ public class Var {
 
     public static final int HEATMAP_PROGRESSBAR_BUCKET_SIZE = 400;
 
+    public static final int RADIO_STATION_MAX_DUPLICATES = 3; // change value in strings...
+    // Example blacklist
+    public static final Set<String> RADIO_STATION_BLACKLIST = new HashSet<>(Arrays.asList(
+            //"Abdulbasit Abdulsamad",
+            "Spam Station 1",
+            "Fake Radio"
+    ));
+
     public static final String IMPORT_STATUS_IDLE      = "IDLE";
     public static final String IMPORT_STATUS_QUEUED    = "QUEUED";
     public static final String IMPORT_STATUS_RUNNING   = "RUNNING";
