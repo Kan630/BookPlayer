@@ -45,6 +45,13 @@ public abstract class LoggingActivity extends AppCompatActivity {
     //protected final LoggerHelper logger = new LoggerHelper(getClass());
 
 
+    @Override
+    public void onBackPressed() {
+        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onBackPressed() - user pressed BACK");
+        myLogI("--- user pressed BACK ---     on " + TAG_FROM_BRACKET);
+        super.onBackPressed(); // keep default behaviour (finish / navigate back)
+    }
+
     /**
      * Hook method called when a new instance of Activity is created. One time
      * initialization code should go here e.g. UI layout, some class scope
