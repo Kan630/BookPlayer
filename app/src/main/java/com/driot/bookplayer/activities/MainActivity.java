@@ -154,7 +154,7 @@
             getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
                 @Override
                 public void handleOnBackPressed() {
-                    myLogI("--- USER CLICK BACK from MAIN --- (system button)");
+                    myLogI("--- USER CLICK BACK from MAIN --- (system button) -- EXIT APP --");
                     if (Option.getStopAudioIfUserClosesApp()) {
                         startService(
                                 new Intent(MainActivity.this, MediaService.class)

@@ -378,7 +378,6 @@ public class PlayActivity extends LoggingActivity {
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
-                myLogI("--- user press BACK ---");
                 PlaybackUiState s = vm.getState().getValue();
                 if (s == null ) {
                     myLog("s == null");

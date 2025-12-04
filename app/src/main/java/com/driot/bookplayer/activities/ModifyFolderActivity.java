@@ -199,7 +199,6 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override public void handleOnBackPressed() {
-                myLogI("User pressed back");
                 if (isDeleting || (blockingOverlay != null && blockingOverlay.getVisibility() == View.VISIBLE)) {
                     // Don’t cancel the Work; just finish this Activity
                     setResult(RESULT_OK, new Intent().putExtra("deleteInProgressFolderId", folder.getId()));
