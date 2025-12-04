@@ -1171,5 +1171,22 @@
     <string name="Ebooks_special">سيتم بعد ذلك قراءة هذا الكتاب بصوت عالٍ بواسطة محرك تحويل النص إلى كلام المدمج في جهازك.</string>
     <string name="full_screen_mode">وضع ملء الشاشة</string>
 
+    <string name="tts_voice_seems_incompatible">الصوت يبدو غير متوافق</string>
+    <string name="Technical">تقني</string>
+    <string name="Engine_buffer">ذاكرة المحرك المؤقتة</string>
+    <string name="option_radio_sleep_copy">نسخ قيمة الإعدادات العامة</string>
+    <string name="option_radio_use_cloudfare">استخدام التخزين المؤقت ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">استخدام التخزين المؤقت يجب أن يحسن السرعة</string>
+    <string name="Performance">الأداء</string>
+    <string name="by_genre">حسب النوع</string>
+    <string name="by_author">حسب المؤلف</string>
+    <string name="librivox_no_audiobook_found_in_genre">لم يتم العثور على كتاب صوتي في</string>
+    <string name="last_added">آخر الإضافات</string>
+    <string name="by_genre_all_languages">حسب النوع (جميع اللغات)</string>
+    <string name="unsupported_language">لغة غير مدعومة</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">روابط</string>
+    <string name="Duration">المدة</string>
+    <string name="Language">اللغة</string>
 
 </resources>

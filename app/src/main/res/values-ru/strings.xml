@@ -1178,6 +1178,23 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Ebooks_special">Эта электронная книга будет прочитана вслух встроенным синтезатором речи вашего устройства.</string>
         <string name="full_screen_mode">полноэкранный режим</string>
 
+        <string name="tts_voice_seems_incompatible">голос кажется несовместимым</string>
+        <string name="Technical">Технический</string>
+        <string name="Engine_buffer">Буфер движка</string>
+        <string name="option_radio_sleep_copy">скопировать значение общих настроек</string>
+        <string name="option_radio_use_cloudfare">использовать кэш ( cloudfare )</string>
+        <string name="option_radio_use_cloudfare_subtitle">использование кэша должно ускорить работу</string>
+        <string name="Performance">Производительность</string>
+        <string name="by_genre">по жанру</string>
+        <string name="by_author">по автору</string>
+        <string name="librivox_no_audiobook_found_in_genre">Аудиокнига не найдена в</string>
+        <string name="last_added">последние добавленные</string>
+        <string name="by_genre_all_languages">по жанру (все языки)</string>
+        <string name="unsupported_language">неподдерживаемый язык</string>
+        <string name="Internet_Archive" translatable="false">Internet Archive</string>
+        <string name="links">ссылки</string>
+        <string name="Duration">Длительность</string>
+        <string name="Language">Язык</string>
 
 
 </resources>

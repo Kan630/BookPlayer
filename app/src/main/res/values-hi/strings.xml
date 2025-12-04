@@ -1226,5 +1226,22 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="Ebooks_special">यह ईबुक फिर आपके डिवाइस के बिल्ट-इन टेक्स्ट-टू-स्पीच इंजन द्वारा ज़ोर से पढ़ी जाएगी।</string>
         <string name="full_screen_mode">फुल स्क्रीन मोड</string>
 
+        <string name="tts_voice_seems_incompatible">वॉइस असंगत प्रतीत होती है</string>
+        <string name="Technical">तकनीकी</string>
+        <string name="Engine_buffer">इंजन बफर</string>
+        <string name="option_radio_sleep_copy">सामान्य सेटिंग मान कॉपी करें</string>
+        <string name="option_radio_use_cloudfare">कैशिंग का उपयोग करें ( cloudfare )</string>
+        <string name="option_radio_use_cloudfare_subtitle">कैशिंग गति में सुधार करनी चाहिए</string>
+        <string name="Performance">प्रदर्शन</string>
+        <string name="by_genre">शैली के अनुसार</string>
+        <string name="by_author">लेखक के अनुसार</string>
+        <string name="librivox_no_audiobook_found_in_genre">इसमें कोई ऑडियोबुक नहीं मिली</string>
+        <string name="last_added">हाल ही में जोड़ा गया</string>
+        <string name="by_genre_all_languages">शैली के अनुसार (सभी भाषाएँ)</string>
+        <string name="unsupported_language">असमर्थित भाषा</string>
+        <string name="Internet_Archive" translatable="false">Internet Archive</string>
+        <string name="links">लिंक</string>
+        <string name="Duration">अवधि</string>
+        <string name="Language">भाषा</string>
 
 </resources>

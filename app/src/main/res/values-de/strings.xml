@@ -1176,5 +1176,22 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="Ebooks_special">Dieses Ebook wird anschließend von der integrierten Text-zu-Sprache-Engine Ihres Geräts vorgelesen.</string>
     <string name="full_screen_mode">Vollbildmodus</string>
 
+    <string name="tts_voice_seems_incompatible">Stimme scheint inkompatibel</string>
+    <string name="Technical">Technisch</string>
+    <string name="Engine_buffer">Engine-Puffer</string>
+    <string name="option_radio_sleep_copy">allgemeine Einstellung kopieren</string>
+    <string name="option_radio_use_cloudfare">Cache verwenden ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">Caching sollte Geschwindigkeit verbessern</string>
+    <string name="Performance">Leistung</string>
+    <string name="by_genre">nach Genre</string>
+    <string name="by_author">nach Autor</string>
+    <string name="librivox_no_audiobook_found_in_genre">Kein Hörbuch gefunden in</string>
+    <string name="last_added">zuletzt hinzugefügt</string>
+    <string name="by_genre_all_languages">nach Genre (alle Sprachen)</string>
+    <string name="unsupported_language">nicht unterstützte Sprache</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">Links</string>
+    <string name="Duration">Dauer</string>
+    <string name="Language">Sprache</string>
 
 </resources>

@@ -1172,5 +1172,22 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="Ebooks_special">Cet ebook sera ensuite lu à voix haute par le moteur de synthèse vocale intégré de votre appareil.</string>
     <string name="full_screen_mode">mode plein écran</string>
 
+    <string name="tts_voice_seems_incompatible">la voix semble incompatible</string>
+    <string name="Technical">Technique</string>
+    <string name="Engine_buffer">Tampon moteur</string>
+    <string name="option_radio_sleep_copy">copier valeur param. généraux</string>
+    <string name="option_radio_use_cloudfare">utiliser cache ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">le cache devrait améliorer la vitesse</string>
+    <string name="Performance">Performance</string>
+    <string name="by_genre">par genre</string>
+    <string name="by_author">par auteur</string>
+    <string name="librivox_no_audiobook_found_in_genre">Aucun livre audio trouvé dans</string>
+    <string name="last_added">derniers ajouts</string>
+    <string name="by_genre_all_languages">par genre (toutes langues)</string>
+    <string name="unsupported_language">langue non supportée</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">liens</string>
+    <string name="Duration">Durée</string>
+    <string name="Language">Langue</string>
 
 </resources>

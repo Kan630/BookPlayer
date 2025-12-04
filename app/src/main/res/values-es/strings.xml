@@ -1165,5 +1165,22 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="Ebooks_special">Este ebook será leído en voz alta por el motor de texto a voz integrado de tu dispositivo.</string>
     <string name="full_screen_mode">modo de pantalla completa</string>
 
+    <string name="tts_voice_seems_incompatible">voz parece incompatible</string>
+    <string name="Technical">Técnico</string>
+    <string name="Engine_buffer">Buffer del motor</string>
+    <string name="option_radio_sleep_copy">copiar valor de ajustes generales</string>
+    <string name="option_radio_use_cloudfare">usar caché ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">usar caché debería mejorar la velocidad</string>
+    <string name="Performance">Rendimiento</string>
+    <string name="by_genre">por género</string>
+    <string name="by_author">por autor</string>
+    <string name="librivox_no_audiobook_found_in_genre">No se encontró libro de audio en</string>
+    <string name="last_added">últimos añadidos</string>
+    <string name="by_genre_all_languages">por género (todas las lenguas)</string>
+    <string name="unsupported_language">idioma no soportado</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">enlaces</string>
+    <string name="Duration">Duración</string>
+    <string name="Language">Idioma</string>
 
 </resources>

@@ -1190,5 +1190,22 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="Ebooks_special">Questo ebook verrà poi letto ad alta voce dal motore di sintesi vocale integrato del tuo dispositivo.</string>
     <string name="full_screen_mode">modalità a schermo intero</string>
 
+    <string name="tts_voice_seems_incompatible">voce sembra incompatibile</string>
+    <string name="Technical">Tecnico</string>
+    <string name="Engine_buffer">Buffer motore</string>
+    <string name="option_radio_sleep_copy">copia valore impostazioni generali</string>
+    <string name="option_radio_use_cloudfare">usa cache ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">l\'uso della cache dovrebbe migliorare la velocità</string>
+    <string name="Performance">Prestazioni</string>
+    <string name="by_genre">per genere</string>
+    <string name="by_author">per autore</string>
+    <string name="librivox_no_audiobook_found_in_genre">Nessun audiolibro trovato in</string>
+    <string name="last_added">ultimi aggiunti</string>
+    <string name="by_genre_all_languages">per genere (tutte le lingue)</string>
+    <string name="unsupported_language">lingua non supportata</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">link</string>
+    <string name="Duration">Durata</string>
+    <string name="Language">Lingua</string>
 
 </resources>

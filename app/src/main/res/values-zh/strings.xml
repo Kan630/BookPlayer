@@ -1172,5 +1172,23 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Ebooks_special">此电子书将由设备内置的文本转语音引擎朗读。</string>
     <string name="full_screen_mode">全屏模式</string>
 
+    <string name="tts_voice_seems_incompatible">语音似乎不兼容</string>
+    <string name="Technical">技术</string>
+    <string name="Engine_buffer">引擎缓冲区</string>
+    <string name="option_radio_sleep_copy">复制通用设置值</string>
+    <string name="option_radio_use_cloudfare">使用缓存 ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">使用缓存应提高速度</string>
+    <string name="Performance">性能</string>
+    <string name="by_genre">按类别</string>
+    <string name="by_author">按作者</string>
+    <string name="librivox_no_audiobook_found_in_genre">在此类别未找到有声书</string>
+    <string name="last_added">最新添加</string>
+    <string name="by_genre_all_languages">按类别（所有语言）</string>
+    <string name="unsupported_language">不支持的语言</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">链接</string>
+    <string name="Duration">时长</string>
+    <string name="Language">语言</string>
+
 
 </resources>
