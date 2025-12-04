@@ -22,6 +22,7 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
@@ -70,7 +71,7 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
         List<LibrivoxLanguageItem> spinnerItems = librivox_languages.stream()
                 .filter(l -> l.completed > 0)
                 .sorted((a, b) -> Integer.compare(b.completed, a.completed))  // DESC
-                .toList();
+                .collect(Collectors.toList());
 
         LibrivoxLanguageStore.setupLanguageSpinner(
                 this,
