@@ -63,13 +63,15 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
                     | Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
+            final android.content.Context appCtx = act.getApplicationContext();
+
             // 2️⃣  Run the deletion *after* the current Activity is closed,
             //      to avoid any onPause()/onDestroy() code rewriting prefs.
             act.finish(); // close current activity window
 
             // Give the system a short beat to finish (optional but avoids race conditions)
             act.getWindow().getDecorView().postDelayed(() -> {
-                Option.resetToDefaults(requireContext().getApplicationContext());
+                Option.resetToDefaults(appCtx);
                 startActivity(restartIntent); // reopen app fresh
             }, 150);
         });
@@ -87,13 +89,15 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
                     | Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
+            final android.content.Context appCtx = act.getApplicationContext();
+
             // 2️⃣  Run the deletion *after* the current Activity is closed,
             //      to avoid any onPause()/onDestroy() code rewriting prefs.
             act.finish(); // close current activity window
 
             // Give the system a short beat to finish (optional but avoids race conditions)
             act.getWindow().getDecorView().postDelayed(() -> {
-                Option.resetToDefaults(requireContext().getApplicationContext());
+                Option.resetToDefaults(appCtx);
                 Option.setCopyFile(false);
                 Option.setOpenWith_all(true);
                 Option.setStopAudioIfUserClosesApp(false);
