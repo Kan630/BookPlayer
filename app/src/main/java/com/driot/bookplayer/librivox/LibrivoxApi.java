@@ -1,7 +1,5 @@
 package com.driot.bookplayer.librivox;
 
-import com.driot.bookplayer.objects.ItemMetadata;
-
 import java.util.List;
 
 import retrofit2.Call;

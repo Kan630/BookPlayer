@@ -2060,7 +2060,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private boolean playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
-        myLogI("playStream " + playMode + ": [" + title + "] -> [" + url + "]");
+        myLogI("playStream " + playMode + " - title = [" + title + "] - url = [" + url + "]");
 
         streamTitle = title;
         streamImageUrl = imageUrl;

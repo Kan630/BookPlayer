@@ -17,7 +17,6 @@ import android.widget.TextView;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
@@ -29,15 +28,16 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.objects.ItemMetadata;
+import com.driot.bookplayer.librivox.ItemMetadata;
 import com.driot.bookplayer.librivox.LibrivoxApi;
+import com.driot.bookplayer.librivox.LibrivoxLanguageMapper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Locale;
 
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -48,8 +48,6 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 public class LibrivoxDetailActivity extends BaseBottomNavActivity {
-
-    private static final double COVER_UPGRADE_THRESHOLD = 1.10;
 
     private LibrivoxDetailViewModel viewModel;
     private LibrivoxApi api;
@@ -62,7 +60,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     // cover handling
     private long cachedPicSizeBytes;
     private String futureCoverPic; // path of the file we plan to use/show
-
 
     @Override protected int getNavId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_librivox_detail; }
@@ -99,9 +96,10 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         if (localImage.exists()) {
             cachedPicSizeBytes = localImage.length();
             futureCoverPic = localImage.getAbsolutePath();
-            myLogD("local Image found: " + viewModel.identifier + " - " + getReadableSize(cachedPicSizeBytes));
+            myLogD("local Image found : (" + getReadableSize(cachedPicSizeBytes) + ") " + localImage.getAbsolutePath());
             Glide.with(coverView.getContext()).load(localImage).into(coverView);
         } else {
+            myLogD("no local Image found => check on internet");
             // Fallback low-res: archive.org/services/img
             new Thread(() -> {
                 String fallbackUrl = "https://archive.org/services/img/" + viewModel.identifier;
@@ -134,11 +132,11 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         viewModel.metadata.observe(this, this::showMetadata);
 
         // Keep zipExists only for info display; do NOT link to enabling the button
-        viewModel.zipExists.observe(this, exists -> {
-            if (exists == null) return;
-            if (exists) {
+        viewModel.download_link.observe(this, download_link -> {
+            if (download_link == null) return;
+            if (!download_link.isEmpty()) {
                 long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + formatFileSize(size) + ")");
+                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + Tonio.getReadableSize(size) + ")");
             } else {
                 tvDownloadLink.setText("\n❌ " + getString(R.string.librivox_zip_mp3_not_found));
             }
@@ -148,7 +146,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
         // Kick off both in parallel
         if (viewModel.metadata.getValue() == null) fetchMetadata();
-        if (viewModel.zipExists.getValue() == null) checkDownloadFile();
+        if (viewModel.download_link.getValue() == null) checkDownloadFile();
 
         // Enable GET immediately unless a workflow is running
         updateGetButtonEnabled();
@@ -157,7 +155,12 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             // prevent double taps
             bGet.setEnabled(false);
             myLogI("------> USER CLICKS - GET -        LIBRIVOX BOOK");
-            String downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
+            String downloadUrl;
+            if (viewModel.download_link == null) {
+                downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
+            } else {
+                downloadUrl = viewModel.download_link.getValue();
+            }
             checkThenDownload(downloadUrl);
         });
     }
@@ -172,7 +175,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         AppDatabase.databaseReadExecutor.execute(() -> {
             boolean running = ImportHelper.isAnyImportActiveSync(this);
             runOnUiThread(() -> {
-                bGet.setEnabled(!running);
+                bGet.setEnabled(!running && viewModel.download_link.getValue() != null);
                 if (running) {
                     tvDownloadLink.append("\n❌ " + getString(R.string.please_wait_another_book));
                 }
@@ -205,13 +208,22 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         StringBuilder sb = new StringBuilder();
         if (metadata.metadata != null) {
             if (metadata.metadata.creator != null) {
-                sb.append(getString(R.string.Creator)).append(": ").append(metadata.metadata.creator).append("\n");
+                sb.append("\n").append(getString(R.string.Creator)).append(": ").append(metadata.metadata.creator);
             }
             if (metadata.metadata.date != null) {
-                sb.append(getString(R.string.Available_since)).append(": ").append(metadata.metadata.date).append("\n");
+                sb.append("\n").append(getString(R.string.Available_since)).append(": ").append(metadata.metadata.date);
+            }
+            String language = LibrivoxLanguageMapper.getNameFromThreeLetter(metadata.metadata.language);
+            if (language != null) {
+                sb.append("\n").append(getString(R.string.Language)).append(": ").append(language);
+            }
+            if (metadata.metadata.runtime != null) {
+                sb.append("\n").append(getString(R.string.Duration)).append(": ").append(metadata.metadata.runtime);
             }
         }
-        infoView.setText(sb.toString());
+        String text = sb.toString();
+        infoView.setText(text.startsWith("\n") ? text.substring(1) : text);
+
 
         // Synopsis
         if (metadata.metadata != null && metadata.metadata.description != null) {
@@ -226,85 +238,13 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         String librivoxUrl = findLibrivoxUrl(metadata);
         if (librivoxUrl != null) {
             tvLinkLibrivox.setText(librivoxUrl);
-            tvLinkLibrivox.setVisibility(View.VISIBLE);
+            findViewById(R.id.ll_link_librivox).setVisibility(View.VISIBLE);
         } else {
-            tvLinkLibrivox.setVisibility(View.GONE);
+            findViewById(R.id.ll_link_librivox).setVisibility(View.GONE);
         }
 
-        // --- Pick the best (largest) cover from files and upgrade if needed ---
-        //tryUpgradeCoverIfPossible(metadata);
     }
 
-    /** Pick ONLY filenames that clearly look like a cover and upgrade if meaningfully larger. */
-    private void tryUpgradeCoverIfPossible(ItemMetadata metadata) {
-        if (metadata == null || metadata.files == null || metadata.files.isEmpty()) return;
-
-        String bestName = null;
-        long bestSize = -1;
-
-        for (ItemMetadata.FileEntry file : metadata.files) {
-            if (file == null || file.name == null || file.size == null) continue;
-
-            if (!isLikelyCover(file.name, viewModel.identifier)) continue;
-
-            long sizeBytes = parseSizeSafe(file.size);
-            if (sizeBytes <= 0) continue;
-
-            // choose the largest clear "cover" candidate
-            if (sizeBytes > bestSize) {
-                bestSize = sizeBytes;
-                bestName = file.name;
-            }
-        }
-
-        if (bestName == null) {
-            // no valid cover-like file found; keep whatever is shown already (services/img fallback)
-            return;
-        }
-
-        // Only upgrade if the candidate is meaningfully larger than our cached image
-        boolean shouldUpgrade = cachedPicSizeBytes <= 0 || bestSize > (long) (cachedPicSizeBytes * COVER_UPGRADE_THRESHOLD);
-        if (!shouldUpgrade) return;
-
-        final String betterUrl = "https://archive.org/download/" + viewModel.identifier + "/" + bestName;
-        final long bestSizeSnapshot = bestSize;
-
-        new Thread(() -> {
-            File improvedFile = ImageHelper.getLibrivoxImageFile(LibrivoxDetailActivity.this, viewModel.identifier);
-            String localPath = ImageHelper.getOrDownloadLibrivoxImage(
-                    LibrivoxDetailActivity.this, viewModel.identifier, betterUrl, true);
-
-            if (localPath != null) {
-                runOnUiThread(() -> {
-                    try {
-                        // keep all state mutations on UI thread
-                        futureCoverPic = localPath;
-                        cachedPicSizeBytes = improvedFile.exists() ? improvedFile.length() : bestSizeSnapshot;
-
-                        Glide.with(LibrivoxDetailActivity.this)
-                                .load(new File(localPath))
-                                .signature(new ObjectKey(System.currentTimeMillis()))
-                                .placeholder(R.drawable.placeholder_cover)
-                                .into(coverView);
-
-                        myLog("Glided better image: " + improvedFile.getName()
-                                + " - " + getReadableSize(cachedPicSizeBytes));
-                    } catch (Exception e) {
-                        myLogEE(e, "Error loading better image");
-                    }
-                });
-            }
-        }).start();
-    }
-
-    private long parseSizeSafe(String size) {
-        try {
-            if (size == null) return -1;
-            return Long.parseLong(size);
-        } catch (Exception ignored) {
-            return -1;
-        }
-    }
 
     private String findLibrivoxUrl(ItemMetadata metadata) {
         if (metadata.metadata != null && metadata.metadata.identifier != null) {
@@ -316,55 +256,142 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         return null;
     }
 
-    /** Keep the light HEAD/Range check for info; no longer used to enable the button. */
     private void checkDownloadFile() {
         new Thread(() -> {
             boolean[] finalResult = {false};
             long[] finalSize = {0};
+            String[] successfulUrl = {null};
 
-            Runnable check = () -> {
-                try {
-                    String url = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
-                    myLog("checking existence for [" + url + "]");
+            String id = viewModel.identifier;
+            String classicTemplate = "https://archive.org/download/%s/%s_64kb_mp3.zip";
+            String compressTemplate = "https://archive.org/compress/%s/formats=64KBPS%%20MP3&file=/%s.zip";
 
-                    HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
-                    conn.setRequestMethod("GET");
-                    conn.setRequestProperty("Range", "bytes=0-0");
-                    conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
-                    conn.connect();
+            String classicUrl = String.format(java.util.Locale.ROOT, classicTemplate, id, id);
+            String compressUrl = String.format(java.util.Locale.ROOT, compressTemplate, id, id);
 
-                    int responseCode = conn.getResponseCode();
-                    String contentRange = conn.getHeaderField("Content-Range");
-                    conn.disconnect();
-
-                    long fileSize = -1;
-                    if (contentRange != null && contentRange.contains("/")) {
-                        fileSize = Long.parseLong(contentRange.split("/")[1]);
-                    }
-
-                    finalResult[0] = (responseCode == 206 && fileSize > 0);
-                    finalSize[0] = fileSize;
-
-                } catch (Exception e) {
-                    myLogEE(e, "Error checking file");
-                    finalResult[0] = false;
-                }
-            };
-
-            check.run();
-
-            if (!finalResult[0]) {
-                try { Thread.sleep(1000); } catch (InterruptedException ignored) {}
-                myLogW("Retrying file existence check...");
-                check.run();
+            // Simple result holder
+            class CheckResult {
+                final boolean ok;
+                final long size;
+                final String url;
+                CheckResult(boolean ok, long size, String url) { this.ok = ok; this.size = size; this.url = url; }
             }
 
+            // Factory that given a URL returns a Callable<CheckResult>
+            java.util.function.Function<String, java.util.concurrent.Callable<CheckResult>> makeChecker =
+                    (final String url) -> (java.util.concurrent.Callable<CheckResult>) () -> {
+                        HttpURLConnection conn = null;
+                        try {
+                            myLog("checking existence for [" + url + "]");
+                            conn = (HttpURLConnection) new URL(url).openConnection();
+                            conn.setRequestMethod("GET");
+                            conn.setRequestProperty("Range", "bytes=0-0");
+                            conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
+                            conn.setConnectTimeout(10000);
+                            conn.setReadTimeout(15000);
+                            conn.setInstanceFollowRedirects(true);
+                            conn.connect();
+
+                            int responseCode = conn.getResponseCode();
+                            String contentRange = conn.getHeaderField("Content-Range");
+                            String contentLength = conn.getHeaderField("Content-Length");
+
+                            long fileSize = -1;
+                            if (contentRange != null && contentRange.contains("/")) {
+                                try {
+                                    String total = contentRange.split("/")[1];
+                                    fileSize = Long.parseLong(total);
+                                } catch (Exception ignored) {}
+                            } else if (contentLength != null) {
+                                try {
+                                    long len = Long.parseLong(contentLength);
+                                    if (len > 0) fileSize = len;
+                                } catch (Exception ignored) {}
+                            }
+
+                            boolean exists = false;
+                            if (responseCode == HttpURLConnection.HTTP_PARTIAL && fileSize > 0) {
+                                exists = true;
+                            } else if (responseCode == HttpURLConnection.HTTP_OK) {
+                                // compress endpoint often returns 200; accept it as existence
+                                exists = true;
+                            }
+
+                            return new CheckResult(exists, fileSize, url);
+                        } catch (Exception e) {
+                            myLogEE(e, "Error checking file url: " + url);
+                            return new CheckResult(false, -1L, url);
+                        } finally {
+                            if (conn != null) conn.disconnect();
+                        }
+                    };
+
+            // Two rounds: in each round run classic+compress in parallel, stop early if one succeeds
+            for (int round = 1; round <= 2 && !finalResult[0]; round++) {
+                java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
+                java.util.concurrent.ExecutorCompletionService<CheckResult> ecs =
+                        new java.util.concurrent.ExecutorCompletionService<>(executor);
+
+                // submit both tasks in parallel (no sleep between them)
+                ecs.submit(makeChecker.apply(classicUrl));
+                ecs.submit(makeChecker.apply(compressUrl));
+
+                int remaining = 2;
+                try {
+                    while (remaining > 0 && !finalResult[0]) {
+                        java.util.concurrent.Future<CheckResult> f;
+                        try {
+                            f = ecs.take(); // blocks until one completes
+                        } catch (InterruptedException ie) {
+                            Thread.currentThread().interrupt();
+                            break;
+                        }
+                        remaining--;
+                        try {
+                            CheckResult cr = f.get();
+                            if (cr.ok) {
+                                finalResult[0] = true;
+                                finalSize[0] = cr.size;
+                                successfulUrl[0] = cr.url;
+                                myLog("Found zip (round " + round + "): " + cr.url + " (size=" + Tonio.getReadableSize(cr.size) + ")");
+                                // we can break; remaining tasks will be cancelled at shutdown
+                                break;
+                            } else {
+                                myLog("Not found (round " + round + ") for url: " + cr.url);
+                            }
+                        } catch (Exception e) {
+                            myLogEE(e, "Error while getting check result");
+                        }
+                    }
+                } finally {
+                    // best-effort cancel any running tasks then shutdown
+                    try {
+                        executor.shutdownNow();
+                        executor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                    } catch (Exception ignored) {}
+                }
+                // if found we exit loop early (outer for guards that)
+            }
+
+            // Update UI on main thread
             runOnUiThread(() -> {
                 viewModel.zipFileSizeBytes.setValue(finalSize[0]);
-                viewModel.zipExists.setValue(finalResult[0]);
+                if (finalResult[0]) {
+                    viewModel.download_link.setValue(successfulUrl[0]);
+                    myLog("Successful zip URL: " + successfulUrl[0]);
+                } else {
+                    viewModel.download_link.setValue("");
+                    myLogW("Zip not found after two parallel rounds for id: " + id);
+                }
+                //whatever the result, enable download button
+                updateGetButtonEnabled();
             });
         }).start();
     }
+
+
 
     private void checkThenDownload(String url) {
         String futurePath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
@@ -429,34 +456,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         finish();
-    }
-
-    private String formatFileSize(long sizeBytes) {
-        if (sizeBytes < 1024) return sizeBytes + " B";
-        int z = (63 - Long.numberOfLeadingZeros(sizeBytes)) / 10;
-        return String.format(Locale.US, "%.1f %sB", (double) sizeBytes / (1L << (z * 10)), " KMGTPE".charAt(z));
-    }
-    /** Strict cover detector: allow only obvious "cover" filenames. */
-    private boolean isLikelyCover(String name, String identifier) {
-        String n = name.toLowerCase(Locale.US);
-        if (!(n.endsWith(".jpg") || n.endsWith(".jpeg") || n.endsWith(".png"))) return false;
-
-        // Most common archive.org patterns
-        String id = identifier != null ? identifier.toLowerCase(Locale.US) : "";
-        if (n.equals(id + "_cover.jpg") || n.equals(id + "_cover.jpeg")
-                || n.equals("cover.jpg") || n.equals("cover.jpeg")) {
-            return true;
-        }
-
-        // Accept common separators around "cover" to avoid matching "discover"
-        int idx = n.indexOf("cover");
-        if (idx >= 0) {
-            boolean beforeOk = (idx == 0) || !Character.isLetterOrDigit(n.charAt(idx - 1));
-            boolean afterOk  = (idx + 5 >= n.length()) || !Character.isLetterOrDigit(n.charAt(idx + 5));
-            if (beforeOk && afterOk) return true; // e.g., "_cover.jpg", "-cover.png", "cover_large.jpg"
-        }
-
-        return false;
     }
 
 }

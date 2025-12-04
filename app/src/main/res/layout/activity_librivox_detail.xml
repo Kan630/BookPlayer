@@ -22,15 +22,17 @@
             android:layout_width="wrap_content"
             android:gravity="center"
             android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
             android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_chip"
+            android:text="@string/title"
             />
         <ImageView
             android:id="@+id/imageDetailCover"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="300dp"
             android:scaleType="fitCenter"
             android:contentDescription="@string/book_cover"
+            android:src="@drawable/no_image_icon"
             />
 
         <TextView
@@ -66,6 +68,8 @@
             android:textSize="14sp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
+            android:layout_marginBottom="20dp"
+            android:background="@drawable/bg_chip"
             />
 
         <TextView
@@ -73,41 +77,87 @@
             style="@style/myStyleInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingStart="12dp"
-            android:paddingEnd="12dp"
-            android:lineSpacingExtra="4dp"
-            android:text="(Loading synopsis...)" />
-
-        <TextView
-            android:id="@+id/tvLinkArchive"
-            style="@style/myStyleInfo"
-            android:autoLink="web"
-            android:linksClickable="true"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="web link archive.org..."
-            android:textSize="14sp"
-            android:layout_marginTop="20dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="20dp"
+            android:lineSpacingExtra="4dp"
+            android:text="(Loading synopsis...)"
+            android:background="@drawable/bg_chip"
             />
 
-        <TextView
-            android:id="@+id/tvLinkLibrivox"
-            style="@style/myStyleInfo"
-            android:autoLink="web"
-            android:linksClickable="true"
+        <LinearLayout
+            android:id="@+id/ll_links"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:padding="12dp"
-            android:text="web link librivox.org..."
-            android:textSize="14sp"
+            android:orientation="vertical"
+            android:background="@drawable/bg_chip"
+            android:layout_marginTop="20dp"
+            >
+        <TextView
+            android:id="@+id/tv_links_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/links"
+            />
+        <LinearLayout
+            android:id="@+id/ll_link_archive"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:layout_marginStart="20dp"
             android:layout_marginEnd="20dp"
-            />
-
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/tvLinkArchiveHeader"
+                style="@style/myStyleInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/Internet_Archive"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                />
+            <TextView
+                android:id="@+id/tvLinkArchive"
+                style="@style/myStyleInfo"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:text="web link archive.org..."
+                android:textSize="14sp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/ll_link_librivox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginStart="20dp"
+            android:layout_marginEnd="20dp"
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/tvLinkLibrivoxHeader"
+                style="@style/myStyleInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/Librivox"
+                android:textSize="14sp"
+                android:textStyle="italic"
+                />
+            <TextView
+                android:id="@+id/tvLinkLibrivox"
+                style="@style/myStyleInfo"
+                android:autoLink="web"
+                android:linksClickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="6dp"
+                android:text="web link librivox.org..."
+                android:textSize="14sp"
+                />
+        </LinearLayout>
+        </LinearLayout>
         <TextView
             android:id="@+id/tvOtherInfo"
             style="@style/myStyleInfo"

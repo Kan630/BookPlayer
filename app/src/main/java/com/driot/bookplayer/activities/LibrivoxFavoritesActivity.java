@@ -33,12 +33,10 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-
-        InsetHelper.applyTopInsetsTo(this, findViewById(R.id.rootLayout));
-        InsetHelper.applyBottomInsetsForScrollable(this, findViewById(R.id.recyclerView));
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
         recyclerView.setLayoutManager(new GridLayoutManager(this, span));
@@ -50,6 +48,7 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
 
         adapter = new LibrivoxFavoritesRVAdapter(new LibrivoxFavoritesRVAdapter.OnItemClickListener() {
             @Override public void onItemClick(ArchiveItem item) {
+                myLogI("--- user clicks favorite item ----   id = [" + item.identifier + "] - title = [" + item.title + "]");
                 Intent intent = new Intent(LibrivoxFavoritesActivity.this, LibrivoxDetailActivity.class);
                 intent.putExtra("identifier", item.identifier);
                 intent.putExtra("title", item.title);

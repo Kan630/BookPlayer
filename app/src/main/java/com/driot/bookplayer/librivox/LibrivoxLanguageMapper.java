@@ -174,4 +174,20 @@ public final class LibrivoxLanguageMapper {
         Mapping m = MAP.get(key);
         return m == null ? FALLBACK : m;
     }
+
+    /**
+     * Returns the English language name from a three-letter code (ISO 639-3),
+     * e.g. "eng" -> "English". Returns null if not found.
+     */
+    public static String getNameFromThreeLetter(String code3) {
+        if (code3 == null || code3.isEmpty()) return null;
+        String wanted = code3.trim().toLowerCase(Locale.ROOT);
+
+        for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
+            if (wanted.equals(e.getValue().threeLetterCode)) {
+                return e.getKey();  // english name as stored in MAP keys
+            }
+        }
+        return null;
+    }
 }

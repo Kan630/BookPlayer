@@ -1254,5 +1254,9 @@
     <string name="last_added">last added</string> //means -derniers ajouts- dans la collection librivox
     <string name="by_genre_all_languages">by genre (all languages)</string>
     <string name="unsupported_language">unsupported language</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
+    <string name="links">links</string>
+    <string name="Duration">Duration</string>
+    <string name="Language">Language</string>
 
 </resources>
