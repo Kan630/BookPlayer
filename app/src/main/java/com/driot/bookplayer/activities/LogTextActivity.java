@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -33,7 +32,6 @@ public class LogTextActivity extends LoggingActivity {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private ArrayList<MyTextChunk> myTextChunkArrayList;
-    private HashMap<Integer, Integer> map;
 
     private String file;
     private String typeStorage;
@@ -50,16 +48,14 @@ public class LogTextActivity extends LoggingActivity {
         try {
 
             //FROM ASSET FOLDER (BookPlayer/app/src/main/assets/)
-            if (typeStorage.equals("asset")) {
+            if ("asset".equals(typeStorage)) {
                 inputStream = c.getAssets().open(textFileName);
 
             //FROM USER FOLDER (usually data/data/com.driot.bookplayer/files/...)
-            } else if (typeStorage.equals("classic")) {
+            } else if ("classic".equals(typeStorage)) {
                 File dir = new File(c.getFilesDir(), textFileFolder);
                 inputStream = new FileInputStream(new File(dir, textFileName));
 
-            } else {
-                inputStream = null;
             }
 
             reader = new BufferedReader(
@@ -68,10 +64,8 @@ public class LogTextActivity extends LoggingActivity {
             String str;
             int i = 0;
             while ((str = reader.readLine()) != null) {
-                //if (!(str.contains("redraw Seek Bar"))) { //TODO temp for log analysis
                 arrayList.add(new MyTextChunk(i, str, charSize));
-                    i++;
-                //}
+                i++;
             }
             reader.close();
             myLog("getTextFileContentInArrayList - Getting file lines into array...    array dim = nb line = [" + arrayList.size() + "]");
@@ -79,7 +73,6 @@ public class LogTextActivity extends LoggingActivity {
 
         } catch (IOException e) {
             myLogEE(e,"getTextFileContentInArrayList");
-            e.printStackTrace();
         }
         return null;
     }
@@ -101,11 +94,6 @@ public class LogTextActivity extends LoggingActivity {
         layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
 
-        /*
-        Toolbar myToolbar = findViewById(R.id.my_toolbar);
-        setSupportActionBar(myToolbar);
-        */
-
         file = getIntent().getStringExtra("file");
         setTitle(getIntent().getStringExtra("title") + " - " + file);
         typeStorage = getIntent().getStringExtra("typeStorage");
@@ -113,13 +101,6 @@ public class LogTextActivity extends LoggingActivity {
         textOptions = new TextOptions(this);
         loadRecyclerView();
 
-        try {
-            int zesize = myTextChunkArrayList.size();
-        } catch (Exception e) {
-            myLogEE(e,"Error, empty file");
-        }
-
-        createMap();
     }
 
     private void loadRecyclerView() {
@@ -128,14 +109,6 @@ public class LogTextActivity extends LoggingActivity {
         textOptions.setScrollPosition(this, file, recyclerView);
         recyclerView.scrollToPosition(myTextChunkArrayList.size() - 1);
         myLog("loadRecyclerView()");
-    }
-
-    private void createMap() {
-        map = new HashMap<>();
-        for (int i = 0; i < myTextChunkArrayList.size(); i++) {
-            int id = myTextChunkArrayList.get(i).getId(); // id of the model
-            map.put(id, i); // i is the position of adapter
-        }
     }
 
     @Override
