@@ -39,7 +39,6 @@ android {
         //note : 26 needed for special mediaPlayer.seekTo (m4b)
         //note : 26 needed for NotificationChannel
         //note : 26 needed for xml adaptable icons
-
         //note : 26 needed for paddingHorizontal in xml files   ====> maybe it is why it does not work on android 7 ?
 
         targetSdk = 35
@@ -99,6 +98,11 @@ android {
             // Make tests debuggable
             debuggable = true
             testCoverageEnabled = false
+
+            minifyEnabled = true
+            shrinkResources = true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
         }
         release {
             // Enables code shrinking, obfuscation, and optimization for only

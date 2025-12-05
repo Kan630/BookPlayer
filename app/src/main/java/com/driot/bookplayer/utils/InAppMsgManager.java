@@ -12,6 +12,7 @@ import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
 import android.widget.TextView;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.pm.PackageInfoCompat;
@@ -28,7 +29,6 @@ import androidx.work.WorkerParameters;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
-import com.driot.bookplayer.helpers.NetworkHelper;
 import com.google.gson.Gson;
 
 import java.io.ByteArrayOutputStream;
@@ -733,6 +733,7 @@ public final class InAppMsgManager {
         public List<InAppMessage> messages;
     }
 
+    @Keep
     public static class InAppMessage {
         public String id;
         public Integer priority;
@@ -760,6 +761,7 @@ public final class InAppMsgManager {
         public Integer rollout_pct;   // 0..100
     }
 
+    @Keep
     public static class Action {
         public Map<String, String> title; // {"fr":"Mettre à jour","en":"Update"}
         public String url;                // http/https/market
