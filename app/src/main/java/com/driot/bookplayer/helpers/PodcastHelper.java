@@ -13,12 +13,12 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.objects.DisplayableEpisode;
-import com.driot.bookplayer.objects.PodcastEpisode;
-import com.driot.bookplayer.objects.PodcastEpisodeResponse;
-import com.driot.bookplayer.objects.PodcastIndexApi;
-import com.driot.bookplayer.objects.PodcastFeed;
-import com.driot.bookplayer.objects.PodcastIndexResponse;
+import com.driot.bookplayer.podcasts.DisplayableEpisode;
+import com.driot.bookplayer.podcasts.PodcastEpisode;
+import com.driot.bookplayer.podcasts.PodcastEpisodeResponse;
+import com.driot.bookplayer.podcasts.PodcastIndexApi;
+import com.driot.bookplayer.podcasts.PodcastFeed;
+import com.driot.bookplayer.podcasts.PodcastIndexResponse;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.PodcastDownloadManager;
 

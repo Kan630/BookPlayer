@@ -1,7 +1,10 @@
 package com.driot.bookplayer.librivox;
 
+import androidx.annotation.Keep;
+
 import java.util.List;
 
+@Keep
 public class LibrivoxApiResponse {
     public ResponseData response;
     public static class ResponseData {

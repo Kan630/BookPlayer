@@ -8,7 +8,7 @@ import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.podcasts.PodcastEpisode;
 import com.driot.bookplayer.services.PodcastDownloadEpisodeWorker;
 
 import java.io.File;

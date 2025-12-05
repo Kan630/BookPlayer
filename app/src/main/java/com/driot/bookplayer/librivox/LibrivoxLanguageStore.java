@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Spinner;
 
+import androidx.annotation.Keep;
 import androidx.annotation.RawRes;
 
 import com.driot.bookplayer.helpers.LanguageHelper;
@@ -52,6 +53,7 @@ public class LibrivoxLanguageStore {
     }
 
     // helper class to parse JSON
+    @Keep
     private static class RawLang {
         String lang_en;
         String lang_native_alphabet;

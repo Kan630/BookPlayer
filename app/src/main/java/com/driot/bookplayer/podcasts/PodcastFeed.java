@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.podcasts;
 
 import android.os.Parcel;
 import android.os.Parcelable;

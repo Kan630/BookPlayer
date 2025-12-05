@@ -1,9 +1,9 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.podcasts;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 
-import com.driot.bookplayer.db.Podcast;
-
+@Keep
 public class PodcastEpisode {
 
     // Direct JSON :

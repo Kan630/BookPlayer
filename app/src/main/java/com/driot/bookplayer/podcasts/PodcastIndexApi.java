@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.podcasts;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

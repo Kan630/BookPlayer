@@ -14,7 +14,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.objects.PodcastEpisode;
+import com.driot.bookplayer.podcasts.PodcastEpisode;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.List;

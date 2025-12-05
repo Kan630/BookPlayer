@@ -1,10 +1,12 @@
 package com.driot.bookplayer.radio;
 
+import androidx.annotation.Keep;
 import androidx.annotation.NonNull;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 
 /** Snapshot of a station when it is favorited (so favorites screen is stable). */
+@Keep
 public class RadioFavoriteItem implements Serializable {
 
     @SerializedName("stationuuid") public String stationuuid;

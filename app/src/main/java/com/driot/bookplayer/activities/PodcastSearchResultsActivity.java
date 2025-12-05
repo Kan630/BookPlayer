@@ -22,7 +22,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.objects.PodcastFeed;
+import com.driot.bookplayer.podcasts.PodcastFeed;
 import com.driot.bookplayer.helpers.PodcastHelper;
 
 import java.util.List;

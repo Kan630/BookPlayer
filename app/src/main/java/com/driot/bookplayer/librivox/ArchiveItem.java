@@ -1,5 +1,8 @@
 package com.driot.bookplayer.librivox;
 
+import androidx.annotation.Keep;
+
+@Keep
 public class ArchiveItem {
     public String identifier;
     public String title;

@@ -183,6 +183,11 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
     private boolean checkLangFromSpinner() {
         selectedLanguageItem = (LibrivoxLanguageItem) spinnerLibrivox.getSelectedItem();
+        if (selectedLanguageItem == null) {
+            myLogE("Selected language item is null!");
+            myToastEE(null, getString(R.string.selected_language_error));
+            return false;
+        }
         String lang = selectedLanguageItem.code3.toLowerCase();
         if (lang.isEmpty()) {
             myLogE(selectedLanguageItem.toString());

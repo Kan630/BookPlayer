@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.podcasts;
 
 import com.driot.bookplayer.db.Episode;
 

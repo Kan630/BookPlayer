@@ -1,8 +1,11 @@
 package com.driot.bookplayer.librivox;
 
+import androidx.annotation.Keep;
+
 import java.io.Serial;
 import java.io.Serializable;
 
+@Keep
 public class LibrivoxLanguageItem implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;

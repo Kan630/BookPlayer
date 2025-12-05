@@ -727,6 +727,7 @@ public final class InAppMsgManager {
     // POJOs GSON
     // ------------------------------------------------------------------------
 
+    @Keep
     public static class InAppMessageIndex {
         public Integer version;
         public String generated_at;

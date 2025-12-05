@@ -1,5 +1,8 @@
 package com.driot.bookplayer.radio;
 
+import androidx.annotation.Keep;
+
+@Keep
 public final class TagItem {
     public String name;
     public int stationcount;

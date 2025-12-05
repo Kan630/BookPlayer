@@ -1,8 +1,10 @@
 package com.driot.bookplayer.librivox;
 
-import java.util.List;
-import java.util.Locale;
+import androidx.annotation.Keep;
 
+import java.util.List;
+
+@Keep
 public class ItemMetadata {
     public Metadata metadata;
     public List<FileEntry> files;

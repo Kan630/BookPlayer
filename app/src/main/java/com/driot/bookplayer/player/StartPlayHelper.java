@@ -26,7 +26,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.objects.DisplayableEpisode;
+import com.driot.bookplayer.podcasts.DisplayableEpisode;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioStation;
 import com.driot.bookplayer.radio.RadioStationDao;
