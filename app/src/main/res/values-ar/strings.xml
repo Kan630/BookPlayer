@@ -1188,5 +1188,11 @@
     <string name="links">روابط</string>
     <string name="Duration">المدة</string>
     <string name="Language">اللغة</string>
+    <string name="spam_fake_stations_removed">تمت الإزالة (رسائل مزعجة؟)</string>
+    <string name="Spam">رسائل مزعجة</string>
+    <string name="option_radio_remove_duplicates">إزالة التكرارات</string>
+    <string name="option_radio_remove_duplicates_subtitle">إذا ظهر اسم المحطة أكثر من 3 مرات، فلن نعرض النتائج التالية لتجنب ازدحام القائمة بالتكرارات.</string>
+    <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
+    <string name="Radio">راديو</string>
 
 </resources>

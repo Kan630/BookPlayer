@@ -1182,5 +1182,11 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="links">enlaces</string>
     <string name="Duration">Duración</string>
     <string name="Language">Idioma</string>
+    <string name="spam_fake_stations_removed">eliminado (¿spam?)</string>
+    <string name="Spam">Spam</string>
+    <string name="option_radio_remove_duplicates">eliminar duplicados</string>
+    <string name="option_radio_remove_duplicates_subtitle">Si el nombre de la emisora aparece más de 3 veces, las siguientes no se muestran para evitar saturar la lista con duplicados.</string>
+    <string name="option_radio_sleep_copy_subtitle">Aquí puedes especificar un valor personalizado para el auto-sueño de radio. Como no guardamos el progreso de la radio, ¡no pasa nada si te quedas dormido!</string>
+    <string name="Radio">Radio</string>
 
 </resources>

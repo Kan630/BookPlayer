@@ -1243,5 +1243,11 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="links">लिंक</string>
         <string name="Duration">अवधि</string>
         <string name="Language">भाषा</string>
+    <string name="spam_fake_stations_removed">हटाया (स्पैम?)</string>
+    <string name="Spam">स्पैम</string>
+    <string name="option_radio_remove_duplicates">डुप्लिकेट हटाएँ</string>
+    <string name="option_radio_remove_duplicates_subtitle">यदि स्टेशन का नाम 3 बार से अधिक मिलता है, तो सूची में अव्यवस्था से बचने के लिए आगे की प्रविष्टियाँ नहीं दिखेंगी।</string>
+    <string name="option_radio_sleep_copy_subtitle">यहाँ आप रेडियो ऑटो-स्लीप के लिए कस्टम मान सेट कर सकते हैं। हम रेडियो के लिए प्रगति नहीं सहेजते, तो यदि आप सो भी जाएँ तो कोई समस्या नहीं!</string>
+    <string name="Radio">रेडियो</string>
 
 </resources>

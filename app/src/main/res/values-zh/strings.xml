@@ -1190,5 +1190,12 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Duration">时长</string>
     <string name="Language">语言</string>
 
+    <string name="spam_fake_stations_removed">已移除（疑似垃圾）</string>
+    <string name="Spam">垃圾</string>
+    <string name="option_radio_remove_duplicates">移除重复项</string>
+    <string name="option_radio_remove_duplicates_subtitle">如果某个电台名称出现超过 3 次，后续结果将不再显示，以避免列表被重复项淹没。</string>
+    <string name="option_radio_sleep_copy_subtitle">在这里可为电台的自动休眠设置自定义值。我们不会保存电台的收听进度，所以睡着了也没关系！</string>
+    <string name="Radio">广播</string>
+
 
 </resources>

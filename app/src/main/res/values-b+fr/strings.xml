@@ -1189,5 +1189,11 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="links">liens</string>
     <string name="Duration">Durée</string>
     <string name="Language">Langue</string>
+    <string name="spam_fake_stations_removed">supprimé (spam ?)</string>
+    <string name="Spam">Spam</string>
+    <string name="option_radio_remove_duplicates">supprimer les doublons</string>
+    <string name="option_radio_remove_duplicates_subtitle">Si le nom de la station apparaît plus de 3 fois, les suivantes ne sont pas affichées afin d\'éviter d\'encombrer la liste avec des doublons.</string>
+    <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l’arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n’est pas grave si vous vous endormez !</string>
+    <string name="Radio">Radio</string>
 
 </resources>

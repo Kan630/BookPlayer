@@ -1259,7 +1259,7 @@
     <string name="Duration">Duration</string>
     <string name="Language">Language</string>
 
-    <string name="spam_fake_stations_removed">stations removed (spam?)</string>
+    <string name="spam_fake_stations_removed">removed (spam?)</string>
     <string name="Spam">Spam</string>
     <string name="option_radio_remove_duplicates">remove duplicates</string>
     <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>

@@ -1193,5 +1193,11 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="links">Links</string>
     <string name="Duration">Dauer</string>
     <string name="Language">Sprache</string>
+    <string name="spam_fake_stations_removed">entfernt (Spam?)</string>
+    <string name="Spam">Spam</string>
+    <string name="option_radio_remove_duplicates">Duplikate entfernen</string>
+    <string name="option_radio_remove_duplicates_subtitle">Wenn der Sendername mehr als 3‑mal vorkommt, werden weitere Treffer ausgeblendet, um die Liste nicht mit Duplikaten zu überladen.</string>
+    <string name="option_radio_sleep_copy_subtitle">Hier kannst du einen eigenen Wert für das Radio-Autosleep angeben. Da wir beim Radio keinen Fortschritt speichern, ist es egal, wenn du einschläfst!</string>
+    <string name="Radio">Radio</string>
 
 </resources>
