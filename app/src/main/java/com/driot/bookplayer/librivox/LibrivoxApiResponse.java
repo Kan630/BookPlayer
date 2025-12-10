@@ -7,6 +7,7 @@ import java.util.List;
 @Keep
 public class LibrivoxApiResponse {
     public ResponseData response;
+    @Keep
     public static class ResponseData {
         public List<ArchiveItem> docs;
     }
