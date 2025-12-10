@@ -2,6 +2,8 @@ package com.driot.bookplayer.librivox;
 
 import androidx.annotation.Nullable;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 //  MAPPER BETWEEN "Internet Archive Item" (archive.org)  AND  "Librivox book" (librivox.org)
 
 public final class LibrivoxMapper {
@@ -24,9 +26,23 @@ public final class LibrivoxMapper {
         ai.identifier  = extractArchiveIdentifier(book.urlIarchive);
         ai.title       = book.title;
 
-        // date / rating / reviews are not in the LibriVox API;
+        //new stuff
+        if (book.copyrightYear != null && !book.copyrightYear.isEmpty()) {
+            ai.date = "(copyright : " + book.copyrightYear + ")";
+        } else {
+            ai.date = "";
+        }
+        try {
+            ai.author      = book.authors.get(0).first_name + " " + book.authors.get(0).last_name;
+        } catch (Exception e) {
+            myLogE("author KO in LibriVox book [" + book.title + "] : " + e.getMessage());
+            ai.author = "";
+        }
+
+
+
+        // rating / reviews are not in the LibriVox API;
         // they'll be filled later when/if you hit archive.org
-        ai.date        = null;
         ai.avg_rating  = 0f;
         ai.num_reviews = 0;
 

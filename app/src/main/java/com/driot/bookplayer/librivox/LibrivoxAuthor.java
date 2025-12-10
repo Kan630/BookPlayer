@@ -1,5 +1,8 @@
 package com.driot.bookplayer.librivox;
 
+import androidx.annotation.Keep;
+
+@Keep
 public class LibrivoxAuthor {
     public String id;
     public String first_name;

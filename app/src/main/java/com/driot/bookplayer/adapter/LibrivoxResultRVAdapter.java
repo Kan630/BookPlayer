@@ -1,6 +1,7 @@
 package com.driot.bookplayer.adapter;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -135,6 +136,11 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 holder.ratingBar.setRating(item.avg_rating);
                 holder.rating.setVisibility(View.VISIBLE);
                 holder.ratingBar.setVisibility(View.VISIBLE);
+            } else if (item.author != null && !item.author.isEmpty()) { // Hack for pure Librivox Result (no rating like in Archive results, but author present...)
+                holder.rating.setText(item.author);
+                holder.rating.setTypeface(null, Typeface.BOLD);
+                holder.rating.setVisibility(View.VISIBLE);
+                holder.ratingBar.setVisibility(View.GONE);
             } else {
                 holder.rating.setVisibility(View.GONE);
                 holder.ratingBar.setVisibility(View.GONE);

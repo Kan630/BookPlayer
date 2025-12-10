@@ -336,7 +336,7 @@ public class LibrivoxRepository {
                 genre,
                 null, null, null,
                 1,
-                "{id,title,language,genres,url_iarchive,totaltimesecs}",
+                "{id,title,language,genres,url_iarchive,totaltimesecs,authors,copyright_year}",
                 pageSize,
                 offset,
                 "json"

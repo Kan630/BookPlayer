@@ -13,5 +13,7 @@ public class ArchiveItem {
     public boolean is_favorite;
     public Long idFolder;       // null if not imported
 
+    public String author;
+
     public boolean isImported() { return idFolder != null && idFolder > 0; }
 }
