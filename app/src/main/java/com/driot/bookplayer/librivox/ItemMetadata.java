@@ -9,6 +9,7 @@ public class ItemMetadata {
     public Metadata metadata;
     public List<FileEntry> files;
 
+    @Keep
     public static class Metadata {
         public String title;
         public String creator;
@@ -28,6 +29,7 @@ public class ItemMetadata {
         // Add more if needed, depending on what you want to display
     }
 
+    @Keep
     public static class FileEntry {
         public String name;
         public String format;
