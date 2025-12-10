@@ -46,6 +46,47 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         return favoritesLive;
     }
 
+    private final MutableLiveData<String> fetchStatus = new MutableLiveData<>();
+    private boolean firstFetchDone = false;
+
+    public LiveData<String> getFetchStatus() { return fetchStatus; }
+
+    public void postFetchStatus(int currentCount, int targetCount) {
+        if (!firstFetchDone) {
+            fetchStatus.postValue("Getting first results...");
+            firstFetchDone = true;
+        } else if (currentCount < targetCount) {
+            fetchStatus.postValue("Getting more results...");
+        } else {
+            fetchStatus.postValue("Max result reached (" + currentCount + ")");
+        }
+    }
+
+    private final MutableLiveData<String> headerStatus = new MutableLiveData<>();
+    public LiveData<String> getHeaderStatus() { return headerStatus; }
+
+    private int totalFetched = 0;
+    private int targetCount = 0; // max results expected
+    private boolean fetchStarted = false;
+
+    public void updateHeaderStatus(List<ArchiveItem> currentList, boolean isFinal, String webApi) {
+        totalFetched = currentList != null ? currentList.size() : 0;
+
+        String status;
+        if (!fetchStarted) {
+            status = "Getting first " + Var.LIBRIVOX_API_PAGE_SIZE + " results from " + webApi + "...";
+            fetchStarted = true;
+        } else if (!isFinal) {
+            status = totalFetched + " book(s) found, getting more...";
+        } else {
+            status = totalFetched + " book(s) found.";
+        }
+
+        headerStatus.postValue(status);
+    }
+
+
+
     public void enrichWithLocalState(List<ArchiveItem> apiItems) {
         if (apiItems == null || apiItems.isEmpty()) { results.setValue(apiItems); return; }
 
@@ -113,4 +154,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             }
         });
     }
+
+
+
 }

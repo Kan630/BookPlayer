@@ -124,7 +124,12 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             Context appContext = viewContext.getApplicationContext();
 
             holder.title.setText(item.title);
-            holder.info.setText(extractYear(item.date));
+
+            if (item.date!=null && item.date.contains("copyright")) { //Hack for pure Librivox Result
+                holder.info.setText(item.date);
+            } else {
+                holder.info.setText(extractYear(item.date));
+            }
 
             if (item.num_reviews > 0) {
                 String ratingText = item.num_reviews + " " +

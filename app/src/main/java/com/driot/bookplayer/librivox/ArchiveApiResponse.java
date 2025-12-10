@@ -5,7 +5,7 @@ import androidx.annotation.Keep;
 import java.util.List;
 
 @Keep
-public class LibrivoxApiResponse {
+public class ArchiveApiResponse {
     public ResponseData response;
     @Keep
     public static class ResponseData {

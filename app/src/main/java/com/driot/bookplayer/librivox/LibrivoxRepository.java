@@ -3,10 +3,10 @@ package com.driot.bookplayer.librivox;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedHashMap;
 import java.util.List;
 
 import okhttp3.logging.HttpLoggingInterceptor;
@@ -52,9 +52,9 @@ public class LibrivoxRepository {
         }
     }
 
-    // archive.org list source (cached or direct)
-    private LibrivoxApi listsApi() {
-        return (cachedApi != null) ? cachedApi : directApi;
+    public interface PagedResultCallback<T> {
+        void onPageReceived(List<T> items, boolean isFinalPage);
+        void onError(Throwable t);
     }
 
     // ---------------------------------------------------------------------
@@ -65,7 +65,7 @@ public class LibrivoxRepository {
             String query,
             String lang,
             int limit,
-            Callback<LibrivoxApiResponse> cb
+            Callback<ArchiveApiResponse> cb
     ) {
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
 
@@ -97,7 +97,7 @@ public class LibrivoxRepository {
             ,List<String> fields
             ,int limit
             ,String sort
-            ,Callback<LibrivoxApiResponse> cb
+            ,Callback<ArchiveApiResponse> cb
     ) {
         // If no Cloudflare client, just go direct
         if (cachedApi == null) {
@@ -114,7 +114,7 @@ public class LibrivoxRepository {
         }
 
         // Primary call: Cloudflare
-        Call<LibrivoxApiResponse> primaryCall = cachedApi.search(
+        Call<ArchiveApiResponse> primaryCall = cachedApi.search(
                 q,
                 fields,
                 limit,
@@ -125,8 +125,8 @@ public class LibrivoxRepository {
 
         primaryCall.enqueue(new Callback<>() {
             @Override
-            public void onResponse(Call<LibrivoxApiResponse> call,
-                                   Response<LibrivoxApiResponse> resp) {
+            public void onResponse(Call<ArchiveApiResponse> call,
+                                   Response<ArchiveApiResponse> resp) {
 
                 boolean ok = resp.isSuccessful()
                         && resp.body() != null
@@ -143,7 +143,7 @@ public class LibrivoxRepository {
                         + resp.code()
                         + ") - falling back to direct");
 
-                Call<LibrivoxApiResponse> fallbackCall = directApi.search(
+                Call<ArchiveApiResponse> fallbackCall = directApi.search(
                         q,
                         fields,
                         limit,
@@ -155,11 +155,11 @@ public class LibrivoxRepository {
             }
 
             @Override
-            public void onFailure(Call<LibrivoxApiResponse> call, Throwable t) {
+            public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
                 myLogW(label + " via Cloudflare failure: " + t
                         + " - falling back to direct");
 
-                Call<LibrivoxApiResponse> fallbackCall = directApi.search(
+                Call<ArchiveApiResponse> fallbackCall = directApi.search(
                         q,
                         fields,
                         limit,
@@ -176,7 +176,7 @@ public class LibrivoxRepository {
     public void mostDownloadedByLang(
             String lang,
             int limit,
-            Callback<LibrivoxApiResponse> cb
+            Callback<ArchiveApiResponse> cb
     ) {
         List<String> fields = Arrays.asList(
                 "identifier", "title", "date", "avg_rating", "num_reviews"
@@ -194,7 +194,7 @@ public class LibrivoxRepository {
             String lang,
             String genre,
             int limit,
-            Callback<LibrivoxApiResponse> cb
+            Callback<ArchiveApiResponse> cb
     ) {
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
 
@@ -214,7 +214,7 @@ public class LibrivoxRepository {
             String lang,
             String author,
             int limit,
-            Callback<LibrivoxApiResponse> cb
+            Callback<ArchiveApiResponse> cb
     ) {
         List<String> fields = Arrays.asList("identifier", "title", "date", "avg_rating", "num_reviews");
 
@@ -232,7 +232,7 @@ public class LibrivoxRepository {
     public void mostRecentlyAddedByLang(
             String lang,
             int limit,
-            Callback<LibrivoxApiResponse> cb
+            Callback<ArchiveApiResponse> cb
     ) {
         List<String> fields = Arrays.asList(
                 "identifier", "title", "date", "avg_rating", "num_reviews"
@@ -243,39 +243,6 @@ public class LibrivoxRepository {
         myLog("Librivox mostRecentlyAddedByLang: [" + q + "]");
 
         searchHotListWithFallback("mostRecentlyAddedByLang", q, fields, limit, API_SORT_ADDED_DESC, cb);
-    }
-
-    // ---------------------------------------------------------------------
-    // NEW: REAL LIBRIVOX GENRE SEARCH (LibriVox API, not archive.org)
-    // ---------------------------------------------------------------------
-
-    public void searchBooksByGenreAndLangLibrivox(
-            String appLang,
-            String genre,
-            int targetCount,
-            Callback<List<LibrivoxBook>> cb
-    ) {
-        searchBooksByGenrePagedLibrivox(appLang, genre, targetCount, cb);
-    }
-
-    // ---------------------------------------------------------------------
-    // GENRES from your local JSON (unchanged)
-    // ---------------------------------------------------------------------
-    public void listTopGenres(String lang, int limit, Callback<List<LibrivoxFacetItem>> cb) {
-        List<LibrivoxGenre> all = LibrivoxGenreStore.getGenres(appContext);
-
-        // Extract roots
-        LinkedHashMap<String, Integer> roots = new LinkedHashMap<>();
-        for (LibrivoxGenre g : all) {
-            roots.put(g.name, g.count);
-        }
-
-        List<LibrivoxFacetItem> items = new ArrayList<>();
-        for (var entry : roots.entrySet()) {
-            items.add(new LibrivoxFacetItem(entry.getKey(), entry.getValue()));
-        }
-
-        cb.onResponse(null, Response.success(items));
     }
 
     // ---------------------------------------------------------------------
@@ -301,21 +268,116 @@ public class LibrivoxRepository {
 
     /**
      * Single-genre search using LibriVox API, returning ArchiveItem list.
+     * LANG IS NOT WORKING - DON'T TRY... or you will loose some time...
      */
     public void searchArchiveItemsByGenreAndLangLibrivox(
             String appLang,
             boolean filterByLang,
             String genre,
             int targetCount,
-            Callback<List<ArchiveItem>> cb
+            PagedResultCallback<ArchiveItem> callback
     ) {
         String apiLang = mapToLibriVoxLanguage(appLang);
-        final int pageSize = 200;
+        final int pageSize = Var.LIBRIVOX_API_PAGE_SIZE;
         final List<ArchiveItem> collected = new ArrayList<>();
 
-        fetchPageGenre(appLang, apiLang, filterByLang, genre,
-                0, pageSize, targetCount, collected, cb);
+        fetchPageGenreImproved(appLang, apiLang, filterByLang, genre,
+                0, pageSize, targetCount, collected, callback);
 
+    }
+
+    private void fetchPageGenreImproved(
+            String appLang,
+            String apiLang,
+            boolean filterByLang,
+            String genre,
+            int offset,
+            int pageSize,
+            int targetCount,
+            List<ArchiveItem> collected,
+            PagedResultCallback<ArchiveItem> callback
+    ) {
+        myLogD("LibrivoxAPI page (genre): offset=" + offset + " genre=" + genre);
+
+        Call<LibrivoxBooksResponse> call = librivoxApi.getAudiobooks(
+                null,
+                genre,
+                null, null, null,
+                1,
+                "{id,title,language,genres,url_iarchive,totaltimesecs,authors,copyright_year}",
+                pageSize,
+                offset,
+                "json"
+        );
+
+        call.enqueue(new Callback<>() {
+            @Override
+            public void onResponse(Call<LibrivoxBooksResponse> c,
+                                   Response<LibrivoxBooksResponse> resp) {
+
+                // Check if API call failed
+                if (!resp.isSuccessful() || resp.body() == null) {
+                    myLog(collected.size() + " books collected - API error, sending final");
+                    callback.onPageReceived(new ArrayList<>(collected), true);
+                    return;
+                }
+
+                List<LibrivoxBook> page = resp.body().asList();
+
+                // Check if no more data
+                if (page.isEmpty()) {
+                    myLog(collected.size() + " books collected - no more data, sending final");
+                    callback.onPageReceived(new ArrayList<>(collected), true);
+                    return;
+                }
+
+                // Filter by language
+                List<LibrivoxBook> langFiltered;
+                if (filterByLang) {
+                    langFiltered = filterByLanguage(page, appLang, Integer.MAX_VALUE);
+                    myLog(langFiltered.size() + " books with correct language [" + appLang + "] / " + page.size() + " books returned");
+                } else {
+                    langFiltered = page;
+                    myLog(page.size() + " books returned");
+                }
+
+                // Map to ArchiveItem and add to collected
+                for (LibrivoxBook b : langFiltered) {
+                    if (b == null) continue;
+                    ArchiveItem ai = LibrivoxMapper.toArchiveItem(b);
+                    if (ai.identifier != null && !ai.identifier.isEmpty()) {
+                        collected.add(ai);
+                    }
+                }
+
+                // Check if we've reached target
+                boolean isFinal = collected.size() >= targetCount;
+
+                if (isFinal) {
+                    myLog(collected.size() + " books collected - target reached, sending final");
+                    callback.onPageReceived(new ArrayList<>(collected), true);
+                    return;
+                }
+
+                // Send partial results
+                myLog(collected.size() + " books collected - sending partial");
+                callback.onPageReceived(new ArrayList<>(collected), false);
+
+                // Fetch next page
+                fetchPageGenreImproved(appLang, apiLang, filterByLang, genre,
+                        offset + pageSize,
+                        pageSize,
+                        targetCount,
+                        collected,
+                        callback);
+            }
+
+            @Override
+            public void onFailure(Call<LibrivoxBooksResponse> c, Throwable t) {
+                myLogEE(t, "LibrivoxAPI fetch failed at offset " + offset);
+                callback.onError(t);
+            }
+        });
     }
 
     private void fetchPageGenre(
@@ -423,39 +485,6 @@ public class LibrivoxRepository {
         return out;
     }
 
-    private List<LibrivoxBook> filterByLanguageAndTwoGenres(List<LibrivoxBook> all,
-                                                            String langParam,
-                                                            String primary,
-                                                            String secondary,
-                                                            int limit) {
-        String wantedLang = mapToLibriVoxLanguage(langParam);
-        List<LibrivoxBook> out = new ArrayList<>();
-        if (all == null) return out;
-
-        for (LibrivoxBook b : all) {
-            if (b == null || b.language == null) continue;
-            if (!b.language.equalsIgnoreCase(wantedLang)) continue;
-            if (b.genres == null || b.genres.isEmpty()) continue;
-
-            boolean hasPrimary = false;
-            boolean hasSecondary = false;
-
-            for (LibrivoxGenre g : b.genres) {
-                if (g == null || g.name == null) continue;
-                String name = g.name;
-                if (name.equalsIgnoreCase(primary))   hasPrimary = true;
-                if (name.equalsIgnoreCase(secondary)) hasSecondary = true;
-            }
-
-            if (hasPrimary && hasSecondary) {
-                out.add(b);
-                if (out.size() >= limit) break;
-            }
-        }
-        return out;
-    }
-
-
     // ---------------------------------------------------------------------
     // Helpers for language + genre filtering (LibriVox API)
     // ---------------------------------------------------------------------
@@ -491,87 +520,4 @@ public class LibrivoxRepository {
             default:    return s; // fallback: no mapping
         }
     }
-
-    /**
-     * Fetch many pages until we collect enough books for the target language.
-     * This handles paging, filtering, and termination conditions.
-     */
-    public void searchBooksByGenrePagedLibrivox(
-            String appLang,
-            String genre,
-            int targetCount,
-            Callback<List<LibrivoxBook>> cb
-    ) {
-        String apiLang = mapToLibriVoxLanguage(appLang);
-        final int pageSize = 200;             // Ask 200 per page
-        final List<LibrivoxBook> collected = new ArrayList<>();
-
-        fetchPageGenre(appLang, apiLang, genre, 0, pageSize, targetCount, collected, cb);
-    }
-    private void fetchPageGenre(
-            String appLang,
-            String apiLang,
-            String genre,
-            int offset,
-            int pageSize,
-            int targetCount,
-            List<LibrivoxBook> collected,
-            Callback<List<LibrivoxBook>> cb
-    ) {
-        myLogD("Fetching LibriVox API page: offset=" + offset + " genre=" + genre);
-
-        Call<LibrivoxBooksResponse> call = librivoxApi.getAudiobooks(
-                null, //apiLang,
-                genre,
-                null, null, null,
-                1,
-                "{id,title,language,genres,url_iarchive,totaltimesecs}",
-                pageSize,
-                offset,
-                "json"
-        );
-
-        call.enqueue(new Callback<>() {
-            @Override
-            public void onResponse(Call<LibrivoxBooksResponse> c,
-                                   Response<LibrivoxBooksResponse> resp) {
-
-                if (!resp.isSuccessful() || resp.body() == null) {
-                    cb.onResponse(null, Response.success(collected));
-                    return;
-                }
-
-                List<LibrivoxBook> page = resp.body().asList();
-                if (page.isEmpty()) {
-                    // No more data
-                    cb.onResponse(null, Response.success(collected));
-                    return;
-                }
-
-                // Filter by language
-                List<LibrivoxBook> filtered = filterByLanguage(page, appLang, Integer.MAX_VALUE);
-                collected.addAll(filtered);
-
-                // Stop if we have enough
-                if (collected.size() >= targetCount) {
-                    cb.onResponse(null, Response.success(collected.subList(0, targetCount)));
-                    return;
-                }
-
-                // Fetch next page
-                fetchPageGenre(appLang, apiLang, genre,
-                        offset + pageSize,
-                        pageSize,
-                        targetCount,
-                        collected,
-                        cb);
-            }
-
-            @Override
-            public void onFailure(Call<LibrivoxBooksResponse> c, Throwable t) {
-                cb.onFailure(null, t);
-            }
-        });
-    }
-
 }

@@ -87,6 +87,7 @@ public class Var {
 
     public static final int LIBRIVOX_API_MAX_RESULTS = 1000;
     public static final int LIBRIVOX_API_MIN_RESULTS = 20;
+    public static final int LIBRIVOX_API_PAGE_SIZE = 100;
     public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_PODCASTS = 1000;
     public static final int PODCAST_INDEX_ORG_API_MIN_RESULTS_FOR_PODCASTS = 20;
     public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;

@@ -20,7 +20,7 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.librivox.LibrivoxRepository;
-import com.driot.bookplayer.librivox.LibrivoxApiResponse;
+import com.driot.bookplayer.librivox.ArchiveApiResponse;
 
 import java.util.List;
 
@@ -162,9 +162,9 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         // Common error handler for archive.org callbacks
         String finalQuery = query;
-        Callback<LibrivoxApiResponse> cbArchive = new Callback<>() {
+        Callback<ArchiveApiResponse> cbArchive = new Callback<>() {
             @Override
-            public void onResponse(Call<LibrivoxApiResponse> call, Response<LibrivoxApiResponse> response) {
+            public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
                 progressBar.setVisibility(View.GONE);
                 if (response.body() != null && response.body().response != null) {
                     List<ArchiveItem> results = response.body().response.docs;
@@ -178,19 +178,19 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                         myLog(results.size() + " results found");
                     }
                 } else {
-                    myLogEE(null, "invalid response body from librivox");
+                    myLogEE(null, "invalid response body from librivox Archive");
                     myToastE(getString(R.string.librivox_invalid_response));
                     viewModel.requestFinish();
                 }
             }
 
             @Override
-            public void onFailure(Call<LibrivoxApiResponse> call, Throwable t) {
+            public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
                 if (NetworkHelper.isUnknownHost(t)) {
                     myToastE(getString(R.string.no_internet_connection));
                     myLogW(t.toString());
                 } else {
-                    myLogEE(t, "librivox api search on Failure");
+                    myLogEE(t, "librivox Archive api search on Failure");
                     myToastEE(t, getString(R.string.an_error_occurred));
                 }
                 progressBar.setVisibility(View.GONE);
@@ -217,49 +217,73 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                     viewModel.requestFinish();
                     return;
                 }
+                viewModel.updateHeaderStatus(null, false, "librivox.org");
 
                 myLogD("LibrivoxResultsActivity: GENRE mode → LibriVox API (genre=" + genre + ")");
 
-                final String fLang  = selectedLanguageItem.code3;
+                final String fLang = selectedLanguageItem.code3;
                 final String fGenre = genre;
                 int limit = Option.getLibrivoxApiNbResults();
 
-                Callback<List<ArchiveItem>> cbGenre = new Callback<>() {
-                    @Override
-                    public void onResponse(Call<List<ArchiveItem>> call,
-                                           Response<List<ArchiveItem>> response) {
-                        progressBar.setVisibility(View.GONE);
-                        List<ArchiveItem> apiItems = response.body();
-                        if (apiItems == null || apiItems.isEmpty()) {
-                            String msg = getString(R.string.librivox_no_audiobook_found_in_genre) + " [" + fGenre + "]"; //"[" + fLang + "] "
-                            myToast(msg);
-                            viewModel.requestFinish();
-                        } else {
-                            viewModel.enrichWithLocalState(apiItems);
-                            myLog(apiItems.size() + " results found (LibriVox API / genre)");
-                        }
-                    }
+                LibrivoxRepository.PagedResultCallback<ArchiveItem> pagedCallback =
+                        new LibrivoxRepository.PagedResultCallback<>() {
 
-                    @Override
-                    public void onFailure(Call<List<ArchiveItem>> call, Throwable t) {
-                        progressBar.setVisibility(View.GONE);
-                        if (NetworkHelper.isUnknownHost(t)) {
-                            myToastE(getString(R.string.no_internet_connection));
-                            myLogW(t.toString());
-                        } else {
-                            myLogEE(t, "LibriVox API genre search on Failure");
-                            myToastEE(t, getString(R.string.an_error_occurred));
-                        }
-                        viewModel.requestFinish();
-                    }
-                };
+                            @Override
+                            public void onPageReceived(List<ArchiveItem> items, boolean isFinalPage) {
+                                runOnUiThread(() -> {
+                                    progressBar.setVisibility(View.GONE);
+
+                                    int nbCollected = items != null ? items.size() : 0;
+
+                                    if ((items == null || items.isEmpty()) && nbCollected == 0) {
+                                        String msg = getString(R.string.librivox_no_audiobook_found_in_genre)
+                                                + " [" + fGenre + "]";
+                                        myToast(msg);
+                                        viewModel.requestFinish();
+                                        return;
+                                    }
+
+                                    viewModel.enrichWithLocalState(items);
+                                    viewModel.updateHeaderStatus(items, isFinalPage, "librivox.org");
+
+                                    myLogD("onPageReceived [MODE_GENRE] - items=" + nbCollected
+                                            + " - isFinalPage=" + isFinalPage);
+
+                                    if (isFinalPage) {
+                                        myLogI("✅ FINAL PAGE DETECTED - " + nbCollected + " total books");
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onError(Throwable t) {
+                                runOnUiThread(() -> {
+                                    progressBar.setVisibility(View.GONE);
+                                    int nbCollected = (viewModel.getResults().getValue() == null)
+                                            ? 0
+                                            : viewModel.getResults().getValue().size();
+
+                                    if (NetworkHelper.isUnknownHost(t)) {
+                                        myToastE(getString(R.string.no_internet_connection));
+                                        myLogW(t.toString());
+                                    } else {
+                                        myLogEE(t, "onError : LibriVox API genre search");
+                                        myToastEE(t, getString(R.string.an_error_occurred));
+                                    }
+
+                                    if (nbCollected == 0) {
+                                        viewModel.requestFinish();
+                                    }
+                                });
+                            }
+                        };
 
                 repo.searchArchiveItemsByGenreAndLangLibrivox(
                         fLang,
                         false,
                         fGenre,
                         limit,
-                        cbGenre
+                        pagedCallback
                 );
                 break;
             }
