@@ -9,28 +9,70 @@ import androidx.lifecycle.MutableLiveData;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.db.BookSourceDao;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.librivox.ArchiveApiResponse;
 import com.driot.bookplayer.librivox.ArchiveItem;
+import com.driot.bookplayer.librivox.LibrivoxRepository;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import okhttp3.logging.HttpLoggingInterceptor;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
     private final MutableLiveData<List<ArchiveItem>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
+    private final MutableLiveData<HeaderStatusData> headerStatus = new MutableLiveData<>();
+    private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
     private LiveData<List<ArchiveItem>> favoritesLive;
+    private LibrivoxRepository repository;
 
     private String lastQuery = null;
     private String lastLang = null;
+    private boolean fetchStarted = false;
 
-    public LibrivoxResultsViewModel(@NonNull Application application) { super(application); }
+    // Data class for header status
+    public static class HeaderStatusData {
+        public final int count;
+        public final boolean isFinal;
+        public final boolean isMaxReached;
+        public final boolean isLoading;
+        public final String apiSource; // e.g. "librivox.org"
 
+        public HeaderStatusData(int count, boolean isFinal, boolean isMaxReached,
+                                boolean isLoading, String apiSource) {
+            this.count = count;
+            this.isFinal = isFinal;
+            this.isMaxReached = isMaxReached;
+            this.isLoading = isLoading;
+            this.apiSource = apiSource;
+        }
+    }
+
+    public LibrivoxResultsViewModel(@NonNull Application application) {
+        super(application);
+        repository = new LibrivoxRepository(
+                application.getApplicationContext(),
+                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+        );
+    }
+
+    // Getters
     public LiveData<List<ArchiveItem>> getResults() { return results; }
     public LiveData<Boolean> getShouldFinish() { return shouldFinish; }
+    public LiveData<HeaderStatusData> getHeaderStatus() { return headerStatus; }
+    public LiveData<String> getErrorMessage() { return errorMessage; }
+    public LiveData<Boolean> getIsLoading() { return isLoading; }
+
     public void requestFinish() { shouldFinish.setValue(true); }
     public String getLastQuery() { return lastQuery; }
     public void setLastQuery(String lastQuery) { this.lastQuery = lastQuery; }
@@ -41,91 +83,229 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         if (favoritesLive == null) {
             AppDatabase db = AppDatabase.getDatabase(getApplication());
             favoritesLive = db.bookSourceDao()
-                    .getFavoriteLibrivoxItems(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX); // lowercase per your convention
+                    .getFavoriteLibrivoxItems(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX);
         }
         return favoritesLive;
     }
 
-    private final MutableLiveData<String> fetchStatus = new MutableLiveData<>();
-    private boolean firstFetchDone = false;
+    // ============================================================
+    // PUBLIC METHODS TO TRIGGER SEARCHES
+    // ============================================================
 
-    public LiveData<String> getFetchStatus() { return fetchStatus; }
+    public void searchByQuery(String query, String langCode3) {
+        isLoading.setValue(true);
+        fetchStarted = false;
 
-    public void postFetchStatus(int currentCount, int targetCount) {
-        if (!firstFetchDone) {
-            fetchStatus.postValue("Getting first results...");
-            firstFetchDone = true;
-        } else if (currentCount < targetCount) {
-            fetchStatus.postValue("Getting more results...");
-        } else {
-            fetchStatus.postValue("Max result reached (" + currentCount + ")");
-        }
+        repository.searchByQueryAndLang(
+                query,
+                langCode3,
+                Option.getLibrivoxApiNbResults(),
+                createArchiveCallback("search", query)
+        );
     }
 
-    private final MutableLiveData<String> headerStatus = new MutableLiveData<>();
-    public LiveData<String> getHeaderStatus() { return headerStatus; }
+    public void searchTrending(String langCode3) {
+        isLoading.setValue(true);
+        fetchStarted = false;
 
-    private int totalFetched = 0;
-    private int targetCount = 0; // max results expected
-    private boolean fetchStarted = false;
-
-    public void updateHeaderStatus(List<ArchiveItem> currentList, boolean isFinal, String webApi) {
-        totalFetched = currentList != null ? currentList.size() : 0;
-
-        String status;
-        if (!fetchStarted) {
-            status = "Getting first " + Var.LIBRIVOX_API_PAGE_SIZE + " results from " + webApi + "...";
-            fetchStarted = true;
-        } else if (!isFinal) {
-            status = totalFetched + " book(s) found, getting more...";
-        } else {
-            status = totalFetched + " book(s) found.";
-        }
-
-        headerStatus.postValue(status);
+        repository.mostDownloadedByLang(
+                langCode3,
+                Option.getLibrivoxApiNbResults(),
+                createArchiveCallback("trending", null)
+        );
     }
 
+    public void searchLastAdded(String langCode3) {
+        isLoading.setValue(true);
+        fetchStarted = false;
 
+        repository.mostRecentlyAddedByLang(
+                langCode3,
+                Option.getLibrivoxApiNbResults(),
+                createArchiveCallback("last added", null)
+        );
+    }
+
+    public void searchByAuthor(String author, String langCode3) {
+        isLoading.setValue(true);
+        fetchStarted = false;
+
+        repository.mostDownloadedByAuthor(
+                langCode3,
+                author,
+                Option.getLibrivoxApiNbResults(),
+                createArchiveCallback("author", author)
+        );
+    }
+
+    public void searchByGenre(String genre, String langCode3) {
+        isLoading.setValue(true);
+        fetchStarted = false;
+        updateHeaderStatus(null, false, "librivox.org");
+
+        repository.searchArchiveItemsByGenreAndLangLibrivox(
+                langCode3,
+                false,
+                genre,
+                Option.getLibrivoxApiNbResults(),
+                new LibrivoxRepository.PagedResultCallback<ArchiveItem>() {
+                    @Override
+                    public void onPageReceived(List<ArchiveItem> items, boolean isFinalPage) {
+                        isLoading.postValue(false);
+
+                        int nbCollected = items != null ? items.size() : 0;
+
+                        if ((items == null || items.isEmpty()) && nbCollected == 0) {
+                            errorMessage.postValue("no_results_genre:" + genre);
+                            requestFinish();
+                            return;
+                        }
+
+                        enrichWithLocalState(items);
+                        updateHeaderStatus(items, isFinalPage, "librivox.org");
+
+                        myLogD("onPageReceived [GENRE] - items=" + nbCollected
+                                + " - isFinalPage=" + isFinalPage);
+
+                        if (isFinalPage) {
+                            myLogI("✅ FINAL PAGE DETECTED - " + nbCollected + " total books");
+                        }
+                    }
+
+                    @Override
+                    public void onError(Throwable t) {
+                        isLoading.postValue(false);
+                        int nbCollected = (results.getValue() == null)
+                                ? 0
+                                : results.getValue().size();
+
+                        myLogEE(t, "Genre search error");
+                        errorMessage.postValue("error:" + t.getMessage());
+
+                        if (nbCollected == 0) {
+                            requestFinish();
+                        }
+                    }
+                }
+        );
+    }
+
+    // ============================================================
+    // PRIVATE HELPER METHODS
+    // ============================================================
+
+    private Callback<ArchiveApiResponse> createArchiveCallback(String searchType, String query) {
+        return new Callback<ArchiveApiResponse>() {
+            @Override
+            public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
+                isLoading.postValue(false);
+
+                if (response.body() != null && response.body().response != null) {
+                    List<ArchiveItem> items = response.body().response.docs;
+
+                    if (items.isEmpty()) {
+                        String msg = "no_results_" + searchType + (query != null ? ":" + query : "");
+                        errorMessage.postValue(msg);
+                        requestFinish();
+                    } else {
+                        enrichWithLocalState(items);
+                        updateSimpleSearchHeader(items);
+                        myLog(items.size() + " results found for " + searchType);
+                    }
+                } else {
+                    myLogEE(null, "Invalid response body from archive.org");
+                    errorMessage.postValue("error:invalid_response");
+                    requestFinish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
+                isLoading.postValue(false);
+                myLogEE(t, searchType + " search failure");
+                errorMessage.postValue("error:" + t.getMessage());
+                requestFinish();
+            }
+        };
+    }
+
+    private void updateSimpleSearchHeader(List<ArchiveItem> items) {
+        int count = items == null ? 0 : items.size();
+        boolean isMaxReached = count >= Option.getLibrivoxApiNbResults();
+        headerStatus.postValue(new HeaderStatusData(count, true, isMaxReached, false, "archive.org"));
+    }
+
+    private void updateHeaderStatus(List<ArchiveItem> currentList, boolean isFinal, String webApi) {
+        int count = currentList != null ? currentList.size() : 0;
+        boolean isMaxReached = count >= Option.getLibrivoxApiNbResults();
+        boolean isLoading = !fetchStarted || !isFinal;
+
+        fetchStarted = true;
+        headerStatus.postValue(new HeaderStatusData(count, isFinal, isMaxReached, isLoading, webApi));
+    }
 
     public void enrichWithLocalState(List<ArchiveItem> apiItems) {
-        if (apiItems == null || apiItems.isEmpty()) { results.setValue(apiItems); return; }
+        if (apiItems == null || apiItems.isEmpty()) {
+            results.postValue(apiItems);
+            return;
+        }
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             BookSourceDao dao = AppDatabase.getDatabase(getApplication()).bookSourceDao();
-            List<String> ids = new ArrayList<>(apiItems.size());
-            for (ArchiveItem it : apiItems) ids.add(it.identifier);
-
-            //TODO fix android.database.sqlite.SQLiteException: too many SQL variables (code 1 SQLITE_ERROR): , while compiling: SELECT repoId, is_favorite, idFolder  => ids can be huge...>999
-            List<BookSourceDao.RepoStateRow> rows = dao.getStateFor(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX, ids);
             HashMap<String, BookSourceDao.RepoStateRow> map = new HashMap<>();
-            for (BookSourceDao.RepoStateRow r : rows) map.put(r.repoId, r);
 
+            // Handle SQLite variable limit (999) by batching
+            final int BATCH_SIZE = 900;
+            for (int i = 0; i < apiItems.size(); i += BATCH_SIZE) {
+                int end = Math.min(i + BATCH_SIZE, apiItems.size());
+                List<String> batchIds = new ArrayList<>();
+                for (int j = i; j < end; j++) {
+                    batchIds.add(apiItems.get(j).identifier);
+                }
+
+                List<BookSourceDao.RepoStateRow> rows = dao.getStateFor(
+                        Var.REPO_TYPE_AUDIOBOOK,
+                        Var.REPO_NAME_LIBRIVOX,
+                        batchIds
+                );
+                for (BookSourceDao.RepoStateRow r : rows) {
+                    map.put(r.repoId, r);
+                }
+            }
+
+            // Apply state to all items
             for (ArchiveItem it : apiItems) {
                 BookSourceDao.RepoStateRow st = map.get(it.identifier);
                 if (st != null) {
                     it.is_favorite = st.is_favorite;
-                    it.idFolder   = st.idFolder;
+                    it.idFolder = st.idFolder;
                 } else {
                     it.is_favorite = false;
-                    it.idFolder   = null;
+                    it.idFolder = null;
                 }
             }
+
             results.postValue(apiItems);
         });
     }
 
-
-    // --- Toggle favorite ---
     public void toggleFavorite(ArchiveItem item) {
         if (item == null) return;
         boolean newFav = !item.is_favorite;
+
         AppDatabase.databaseWriteExecutor.execute(() -> {
             long now = System.currentTimeMillis();
             BookSourceDao dao = AppDatabase.getDatabase(getApplication()).bookSourceDao();
 
-            int updated = dao.updateFavoriteFlag(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX, item.identifier, newFav, now);
+            int updated = dao.updateFavoriteFlag(
+                    Var.REPO_TYPE_AUDIOBOOK,
+                    Var.REPO_NAME_LIBRIVOX,
+                    item.identifier,
+                    newFav,
+                    now
+            );
+
             if (updated == 0 && newFav) {
-                // Create row if user stars something that has no BookSource entry yet
                 String url = "https://archive.org/details/" + item.identifier;
                 BookSource bs = new BookSource(
                         item.title != null ? item.title : "",
@@ -141,7 +321,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 AppDatabase.getDatabase(getApplication()).bookSourceDao().upsert(bs);
             }
 
-            // update current list for snappy UI
+            // Update current list for snappy UI
             List<ArchiveItem> cur = results.getValue();
             if (cur != null) {
                 for (ArchiveItem it : cur) {
@@ -154,7 +334,4 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             }
         });
     }
-
-
-
 }

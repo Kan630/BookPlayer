@@ -1266,6 +1266,9 @@
     <string name="option_radio_sleep_copy_subtitle">Here you can specify a custom value for the radio auto-sleep. Since we don’t save progress for radio, it doesn’t matter if you fall asleep!</string>
     <string name="Radio">Radio</string>
 
-    <string name="getting_more">getting more</string>
+    <string name="loading_more">loading more</string>
+    <string name="no_results_found">no results found</string>
+    <string name="getting_first_results_from">Getting first results from</string>
+    <string name="getting_more_from">getting more from</string>
 
 </resources>

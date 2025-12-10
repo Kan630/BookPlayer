@@ -19,25 +19,18 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
-import com.driot.bookplayer.librivox.LibrivoxRepository;
-import com.driot.bookplayer.librivox.ArchiveApiResponse;
-
-import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
-    RecyclerView recyclerView;
-    LibrivoxResultRVAdapter adapter;
-
-    ProgressBar progressBar;
-
-    public static final String API_SORT = "downloads desc";
-
+    private RecyclerView recyclerView;
+    private LibrivoxResultRVAdapter adapter;
+    private ProgressBar progressBar;
     private LibrivoxResultsViewModel viewModel;
+
+    // For animated loading dots
+    private android.os.Handler dotAnimationHandler;
+    private Runnable dotAnimationRunnable;
+    private int dotCount = 0;
 
     @Override protected int getNavId() { return R.id.nav_add; }
     @Override protected int getLayoutResId() { return R.layout.activity_librivox_results; }
@@ -48,9 +41,15 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
+        // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
 
+        // Initialize dot animation
+        dotAnimationHandler = new android.os.Handler(getMainLooper());
+        setupDotAnimation();
+
+        // Setup RecyclerView
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
@@ -58,235 +57,224 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
         );
 
+        // Setup adapter
         adapter = new LibrivoxResultRVAdapter(new LibrivoxResultRVAdapter.OnItemClickListener() {
-            @Override public void onItemClick(ArchiveItem item) {
+            @Override
+            public void onItemClick(ArchiveItem item) {
                 Intent intent = new Intent(LibrivoxResultsActivity.this, LibrivoxDetailActivity.class);
                 intent.putExtra("identifier", item.identifier);
                 intent.putExtra("title", item.title);
                 startActivity(intent);
             }
-            @Override public void onFavoriteClick(ArchiveItem item) {
-                myLogI("------- user clicks favorite ------   for [" + item.identifier + "]");
+
+            @Override
+            public void onFavoriteClick(ArchiveItem item) {
+                myLogI("User clicks favorite for [" + item.identifier + "]");
                 viewModel.toggleFavorite(item);
             }
         });
         recyclerView.setAdapter(adapter);
 
-        // ✅ INIT VIEWMODEL
+        // Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(LibrivoxResultsViewModel.class);
 
-        // ✅ OBSERVE RESULTS
-        viewModel.getResults().observe(this, items -> {
-            adapter.setItems(items);
-            progressBar.setVisibility(View.GONE);
-            String strResultsCount;
-            if (items != null && items.size() == Option.getLibrivoxApiNbResults()) {
-                strResultsCount = getString(R.string.max_number_of_results_reached) + " (" + items.size() + ")";
-            } else {
-                strResultsCount = getString((R.string.nb_of_audios_found)) + " : " + (items == null ? 0 : items.size());
-            }
-            adapter.setHeaderCount(strResultsCount);
-        });
+        // Setup observers
+        setupObservers();
 
-        // ✅ OBSERVE FINISH REQUEST
-        viewModel.getShouldFinish().observe(this, shouldFinish -> {
-            if (shouldFinish != null && shouldFinish) finish();
-        });
-
-        // 🔄 GET SEARCH PARAMS
+        // Get search parameters
         Intent intent = getIntent();
-        String mode  = intent.getStringExtra("mode"); // "MODE_SEARCH", "MODE_TRENDING", "MODE_GENRE", "MODE_AUTHOR"....
+        String mode = intent.getStringExtra("mode");
         String query = intent.getStringExtra("query");
-        String genre  = intent.getStringExtra("genre");  // for MODE_GENRE
-        String author = intent.getStringExtra("author"); // for MODE_AUTHOR
-        LibrivoxLanguageItem selectedLanguageItem = (LibrivoxLanguageItem) intent.getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
+        String genre = intent.getStringExtra("genre");
+        String author = intent.getStringExtra("author");
+        LibrivoxLanguageItem selectedLanguageItem =
+                (LibrivoxLanguageItem) intent.getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
 
+        // Validate parameters
         if (mode == null) mode = "MODE_SEARCH";
         if (query == null) query = "";
-        if (selectedLanguageItem == null || String.valueOf(selectedLanguageItem.name).isEmpty()) {
-            myLogEE(null, "bad arguments: lang is null/empty");
+
+        if (selectedLanguageItem == null || selectedLanguageItem.name == null || selectedLanguageItem.name.isEmpty()) {
+            myLogEE(null, "Bad arguments: lang is null/empty");
             finish();
             return;
         }
 
-        // 🔤 Header lines depending on mode
-        myLog(selectedLanguageItem.toString());
-        CharSequence langLine = getString(R.string.Language_2pt) + selectedLanguageItem.nativeName + (selectedLanguageItem.nativeName.equals(selectedLanguageItem.name) ? "" : " (" + selectedLanguageItem.name + ")");
+        // Setup header
+        setupHeader(mode, query, genre, author, selectedLanguageItem);
+
+        // Check cache (only for MODE_SEARCH)
+        boolean canUseCache = "MODE_SEARCH".equals(mode);
+        if (canUseCache
+                && viewModel.getResults().getValue() != null
+                && query.equals(viewModel.getLastQuery())
+                && selectedLanguageItem.code2.equals(viewModel.getLastLang())) {
+            myLogI("Using cached results (MODE_SEARCH)");
+            return;
+        }
+
+        myLogI("No cache, querying (mode=" + mode + ")");
+
+        // Store last search
+        viewModel.setLastQuery(query);
+        viewModel.setLastLang(selectedLanguageItem.code2);
+
+        // Trigger appropriate search
+        triggerSearch(mode, query, genre, author, selectedLanguageItem);
+    }
+
+    private void setupObservers() {
+        // Observe loading state
+        viewModel.getIsLoading().observe(this, isLoading -> {
+            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+        });
+
+        // Observe results
+        viewModel.getResults().observe(this, items -> {
+            adapter.setItems(items);
+        });
+
+        // Observe header status (handles both simple and paged results)
+        viewModel.getHeaderStatus().observe(this, statusData -> {
+            if (statusData == null) return;
+
+            String status;
+            if (statusData.isLoading) {
+                // Still loading more - start animation
+                startDotAnimation();
+                if (statusData.count == 0) {
+                    // First fetch
+                    status = getString(R.string.getting_first_results_from) + " "
+                            + statusData.apiSource + getAnimatedDots();
+                } else {
+                    // Subsequent pages
+                    status = getString(R.string.nb_of_audios_found) + " : " + statusData.count
+                            + " (" + getString(R.string.getting_more_from) + " "
+                            + statusData.apiSource + getAnimatedDots() + ")";
+                }
+            } else {
+                // Done loading - stop animation
+                stopDotAnimation();
+                if (statusData.isMaxReached) {
+                    // Max reached
+                    status = getString(R.string.max_number_of_results_reached)
+                            + " (" + statusData.count + ")";
+                } else {
+                    // Final count
+                    status = getString(R.string.nb_of_audios_found) + " : " + statusData.count;
+                }
+            }
+
+            adapter.setHeaderCount(status);
+        });
+
+        // Observe errors
+        viewModel.getErrorMessage().observe(this, errorMsg -> {
+            if (errorMsg == null || errorMsg.isEmpty()) return;
+
+            if (errorMsg.startsWith("no_results_")) {
+                String[] parts = errorMsg.split(":", 2);
+                String type = parts[0].replace("no_results_", "");
+                String detail = parts.length > 1 ? parts[1] : "";
+
+                switch (type) {
+                    case "genre":
+                        myToast(getString(R.string.librivox_no_audiobook_found_in_genre)
+                                + " [" + detail + "]");
+                        break;
+                    case "search":
+                        myToast(getString(R.string.librivox_no_audiobook_found_for_search)
+                                + " [" + detail + "]");
+                        break;
+                    default:
+                        myToast(getString(R.string.no_results_found));
+                }
+            } else if (errorMsg.startsWith("error:")) {
+                String msg = errorMsg.substring(6);
+                if (NetworkHelper.isUnknownHost(new Exception(msg))) {
+                    myToastE(getString(R.string.no_internet_connection));
+                } else if ("invalid_response".equals(msg)) {
+                    myToastE(getString(R.string.librivox_invalid_response));
+                } else {
+                    myToastE(getString(R.string.an_error_occurred));
+                }
+            }
+        });
+
+        // Observe finish request
+        viewModel.getShouldFinish().observe(this, shouldFinish -> {
+            if (shouldFinish != null && shouldFinish) {
+                finish();
+            }
+        });
+    }
+
+    private void setupHeader(String mode, String query, String genre, String author,
+                             LibrivoxLanguageItem langItem) {
+        myLog(langItem.toString());
+
+        CharSequence langLine = getString(R.string.Language_2pt) + langItem.nativeName
+                + (langItem.nativeName.equals(langItem.name)
+                ? ""
+                : " (" + langItem.name + ")");
         CharSequence searchLine;
+
         switch (mode) {
             case "MODE_TRENDING":
                 searchLine = getString(R.string.Search_2pt) + getString(R.string.most_downloaded);
                 break;
+
             case "MODE_LAST_ADDED":
                 searchLine = getString(R.string.Search_2pt) + getString(R.string.last_added);
                 break;
+
             case "MODE_GENRE":
                 searchLine = getString(R.string.by_genre) + " : " + (genre == null ? "" : genre);
                 langLine = null;
                 break;
+
             case "MODE_AUTHOR":
                 searchLine = getString(R.string.by_author) + " : " + (author == null ? "" : author);
                 break;
+
             case "MODE_SEARCH":
             default:
                 if (query.isEmpty()) {
-                    searchLine = getString(R.string.Search_2pt) + getString(R.string.search_nothing_specified);
+                    searchLine = getString(R.string.Search_2pt)
+                            + getString(R.string.search_nothing_specified);
                 } else {
                     searchLine = getString(R.string.Search_2pt) + query;
                 }
                 break;
         }
+
         adapter.setHeader(searchLine, langLine);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
+    }
 
-        // 🔄 Check cache
-        // Only safe for "normal" search; facet/trending results depend on mode/genre/author.
-        boolean canUseCache = "MODE_SEARCH".equals(mode);
-        if (canUseCache &&
-                viewModel.getResults().getValue() != null &&
-                query.equals(viewModel.getLastQuery()) &&
-                selectedLanguageItem.code2.equals(viewModel.getLastLang())) {
-            myLogI("Using cached results (MODE_SEARCH)");
-            return;
-        } else {
-            myLogI("No cache, let's query again (mode=" + mode + ")");
-        }
-
-        // ✅ Store last search (only query/lang – mode is currently ignored in VM)
-        viewModel.setLastQuery(query);
-        viewModel.setLastLang(selectedLanguageItem.code2);
-
-        LibrivoxRepository repo = new LibrivoxRepository(this, Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-
-        progressBar.setVisibility(View.VISIBLE);
-
-        // Common error handler for archive.org callbacks
-        String finalQuery = query;
-        Callback<ArchiveApiResponse> cbArchive = new Callback<>() {
-            @Override
-            public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
-                progressBar.setVisibility(View.GONE);
-                if (response.body() != null && response.body().response != null) {
-                    List<ArchiveItem> results = response.body().response.docs;
-                    if (results.isEmpty()) {
-                        myToast("[" + selectedLanguageItem.name + "] "
-                                + getString(R.string.librivox_no_audiobook_found_for_search)
-                                + " [" + finalQuery + "]");
-                        viewModel.requestFinish();
-                    } else {
-                        viewModel.enrichWithLocalState(results);
-                        myLog(results.size() + " results found");
-                    }
-                } else {
-                    myLogEE(null, "invalid response body from librivox Archive");
-                    myToastE(getString(R.string.librivox_invalid_response));
-                    viewModel.requestFinish();
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
-                if (NetworkHelper.isUnknownHost(t)) {
-                    myToastE(getString(R.string.no_internet_connection));
-                    myLogW(t.toString());
-                } else {
-                    myLogEE(t, "librivox Archive api search on Failure");
-                    myToastEE(t, getString(R.string.an_error_occurred));
-                }
-                progressBar.setVisibility(View.GONE);
-                viewModel.requestFinish();
-            }
-        };
-
-        // --- Route by mode ---
+    private void triggerSearch(String mode, String query, String genre, String author,
+                               LibrivoxLanguageItem langItem) {
         switch (mode) {
             case "MODE_TRENDING":
-                myLogD("LibrivoxResultsActivity: TRENDING mode → mostDownloadedByLang()");
-                repo.mostDownloadedByLang(selectedLanguageItem.code3, Option.getLibrivoxApiNbResults(), cbArchive);
+                myLogD("TRENDING mode → mostDownloadedByLang()");
+                viewModel.searchTrending(langItem.code3);
                 break;
 
             case "MODE_LAST_ADDED":
-                myLogD("LibrivoxResultsActivity: MODE_LAST_ADDED → mostDownloadedByLang()");
-                repo.mostRecentlyAddedByLang(selectedLanguageItem.code3, Option.getLibrivoxApiNbResults(), cbArchive);
+                myLogD("MODE_LAST_ADDED → mostRecentlyAddedByLang()");
+                viewModel.searchLastAdded(langItem.code3);
                 break;
 
-            case "MODE_GENRE": {
+            case "MODE_GENRE":
                 if (genre == null || genre.trim().isEmpty()) {
                     myLogEE(null, "MODE_GENRE with empty genre");
                     myToastE(getString(R.string.error_generic));
                     viewModel.requestFinish();
                     return;
                 }
-                viewModel.updateHeaderStatus(null, false, "librivox.org");
-
-                myLogD("LibrivoxResultsActivity: GENRE mode → LibriVox API (genre=" + genre + ")");
-
-                final String fLang = selectedLanguageItem.code3;
-                final String fGenre = genre;
-                int limit = Option.getLibrivoxApiNbResults();
-
-                LibrivoxRepository.PagedResultCallback<ArchiveItem> pagedCallback =
-                        new LibrivoxRepository.PagedResultCallback<>() {
-
-                            @Override
-                            public void onPageReceived(List<ArchiveItem> items, boolean isFinalPage) {
-                                runOnUiThread(() -> {
-                                    progressBar.setVisibility(View.GONE);
-
-                                    int nbCollected = items != null ? items.size() : 0;
-
-                                    if ((items == null || items.isEmpty()) && nbCollected == 0) {
-                                        String msg = getString(R.string.librivox_no_audiobook_found_in_genre)
-                                                + " [" + fGenre + "]";
-                                        myToast(msg);
-                                        viewModel.requestFinish();
-                                        return;
-                                    }
-
-                                    viewModel.enrichWithLocalState(items);
-                                    viewModel.updateHeaderStatus(items, isFinalPage, "librivox.org");
-
-                                    myLogD("onPageReceived [MODE_GENRE] - items=" + nbCollected
-                                            + " - isFinalPage=" + isFinalPage);
-
-                                    if (isFinalPage) {
-                                        myLogI("✅ FINAL PAGE DETECTED - " + nbCollected + " total books");
-                                    }
-                                });
-                            }
-
-                            @Override
-                            public void onError(Throwable t) {
-                                runOnUiThread(() -> {
-                                    progressBar.setVisibility(View.GONE);
-                                    int nbCollected = (viewModel.getResults().getValue() == null)
-                                            ? 0
-                                            : viewModel.getResults().getValue().size();
-
-                                    if (NetworkHelper.isUnknownHost(t)) {
-                                        myToastE(getString(R.string.no_internet_connection));
-                                        myLogW(t.toString());
-                                    } else {
-                                        myLogEE(t, "onError : LibriVox API genre search");
-                                        myToastEE(t, getString(R.string.an_error_occurred));
-                                    }
-
-                                    if (nbCollected == 0) {
-                                        viewModel.requestFinish();
-                                    }
-                                });
-                            }
-                        };
-
-                repo.searchArchiveItemsByGenreAndLangLibrivox(
-                        fLang,
-                        false,
-                        fGenre,
-                        limit,
-                        pagedCallback
-                );
+                myLogD("GENRE mode → LibriVox API (genre=" + genre + ")");
+                viewModel.searchByGenre(genre, langItem.code3);
                 break;
-            }
 
             case "MODE_AUTHOR":
                 if (author == null || author.trim().isEmpty()) {
@@ -295,15 +283,79 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                     viewModel.requestFinish();
                     return;
                 }
-                myLogD("LibrivoxResultsActivity: AUTHOR mode → mostDownloadedByAuthor(" + author + ")");
-                repo.mostDownloadedByAuthor(selectedLanguageItem.code3, author, Option.getLibrivoxApiNbResults(), cbArchive);
+                myLogD("AUTHOR mode → mostDownloadedByAuthor(" + author + ")");
+                viewModel.searchByAuthor(author, langItem.code3);
                 break;
 
             case "MODE_SEARCH":
             default:
-                myLogD("LibrivoxResultsActivity: SEARCH mode → searchByQueryAndLang()");
-                repo.searchByQueryAndLang(query, selectedLanguageItem.code3, Option.getLibrivoxApiNbResults(), cbArchive);
+                myLogD("SEARCH mode → searchByQueryAndLang()");
+                viewModel.searchByQuery(query, langItem.code3);
                 break;
         }
     }
+
+    // =====================================================================
+    // DOT ANIMATION FOR LOADING STATE
+    // =====================================================================
+
+    private void setupDotAnimation() {
+        dotAnimationRunnable = new Runnable() {
+            @Override
+            public void run() {
+                dotCount = (dotCount + 1) % 4; // Cycle through 0, 1, 2, 3
+
+                // Update the header directly instead of re-triggering observer
+                LibrivoxResultsViewModel.HeaderStatusData currentStatus =
+                        viewModel.getHeaderStatus().getValue();
+                if (currentStatus != null && currentStatus.isLoading) {
+                    updateHeaderWithDots(currentStatus);
+                    dotAnimationHandler.postDelayed(this, 500); // Update every 500ms
+                }
+            }
+        };
+    }
+
+    private void updateHeaderWithDots(LibrivoxResultsViewModel.HeaderStatusData statusData) {
+        String status;
+        if (statusData.count == 0) {
+            // First fetch
+            status = getString(R.string.getting_first_results_from) + " "
+                    + statusData.apiSource + getAnimatedDots();
+        } else {
+            // Subsequent pages
+            status = getString(R.string.nb_of_audios_found) + " : " + statusData.count
+                    + " (" + getString(R.string.getting_more_from) + " "
+                    + statusData.apiSource + getAnimatedDots() + ")";
+        }
+        adapter.setHeaderCount(status);
+    }
+
+    private void startDotAnimation() {
+        stopDotAnimation(); // Ensure no duplicate runnables
+        dotCount = 0;
+        dotAnimationHandler.postDelayed(dotAnimationRunnable, 500);
+    }
+
+    private void stopDotAnimation() {
+        dotAnimationHandler.removeCallbacks(dotAnimationRunnable);
+        dotCount = 0;
+    }
+
+    private String getAnimatedDots() {
+        switch (dotCount) {
+            case 0: return "";
+            case 1: return ".";
+            case 2: return "..";
+            case 3: return "...";
+            default: return "";
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopDotAnimation();
+    }
+
 }
