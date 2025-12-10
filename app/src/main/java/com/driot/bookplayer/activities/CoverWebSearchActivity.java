@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -78,7 +79,7 @@ public class CoverWebSearchActivity extends LoggingActivity {
                 runSearch(etQuery.getText().toString().trim()));
 
         // Enable/disable button based on text present (optional)
-        btnSearch.setEnabled(!etQuery.getText().isEmpty());
+        btnSearch.setEnabled(!TextUtils.isEmpty(etQuery.getText()));
         etQuery.addTextChangedListener(new android.text.TextWatcher() {
             @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
             @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
