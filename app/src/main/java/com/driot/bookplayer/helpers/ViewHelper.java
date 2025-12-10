@@ -5,14 +5,20 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.app.AlertDialog;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.graphics.Rect;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class ViewHelper {
 
@@ -58,5 +64,27 @@ public class ViewHelper {
         }
     }
     public static int dp(Context c, int v){ return Math.round(c.getResources().getDisplayMetrics().density * v); }
+
+    public static void pasteClipboard(Context context, AppCompatAutoCompleteTextView editText) {
+        try {
+            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+            if (clipboard != null && clipboard.hasPrimaryClip()) {
+                ClipData clip = clipboard.getPrimaryClip();
+                if (clip != null && clip.getItemCount() > 0) {
+                    CharSequence pasteData = clip.getItemAt(0).coerceToText(context);
+                    if (!TextUtils.isEmpty(pasteData)) {
+                        editText.setText(pasteData);
+                        editText.setSelection(pasteData.length());
+                        editText.showDropDown(); // refresh suggestions contextually
+                    }
+                }
+            } else {
+                Toast.makeText(context, context.getString(R.string.Clipboard_is_empty), Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            myToastEE(e,context.getString(R.string.error) + " : " + e.getMessage());
+        }
+    }
+
 
 }

@@ -12,7 +12,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
+import android.widget.EditText;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
@@ -20,13 +20,15 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingLinearLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class EditText1lineWithPasteDelete extends LinearLayout {
+public class EditText1lineWithPasteDelete extends LoggingLinearLayout {
 
     private AppCompatAutoCompleteTextView editText;
 
@@ -97,22 +99,7 @@ public class EditText1lineWithPasteDelete extends LinearLayout {
             return false; // let caller handle actual search
         });
 
-        findViewById(R.id.btnPaste).setOnClickListener(v -> {
-            ClipboardManager clipboard = (ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
-            if (clipboard != null && clipboard.hasPrimaryClip()) {
-                ClipData clip = clipboard.getPrimaryClip();
-                if (clip != null && clip.getItemCount() > 0) {
-                    CharSequence pasteData = clip.getItemAt(0).coerceToText(context);
-                    if (!TextUtils.isEmpty(pasteData)) {
-                        editText.setText(pasteData);
-                        editText.setSelection(pasteData.length());
-                        editText.showDropDown(); // refresh suggestions contextually
-                    }
-                }
-            } else {
-                Toast.makeText(context, context.getString(R.string.Clipboard_is_empty), Toast.LENGTH_SHORT).show();
-            }
-        });
+        findViewById(R.id.btnPaste).setOnClickListener(v -> ViewHelper.pasteClipboard(context, editText));
 
         findViewById(R.id.btnClear).setOnClickListener(v -> editText.setText(""));
     }
