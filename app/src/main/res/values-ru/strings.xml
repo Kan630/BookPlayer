@@ -1196,5 +1196,12 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Duration">Длительность</string>
         <string name="Language">Язык</string>
 
+        <string name="spam_fake_stations_removed">удалено (спам?)</string>
+        <string name="Spam">Спам</string>
+        <string name="option_radio_remove_duplicates">удалить дубликаты</string>
+        <string name="option_radio_remove_duplicates_subtitle">Если название станции встречается более 3 раз, последующие не отображаются, чтобы не загромождать список дубликатами.</string>
+        <string name="option_radio_sleep_copy_subtitle">Здесь вы можете указать пользовательское значение для автоматического сна радио. Так как мы не сохраняем прогресс для радио, неважно, если вы заснёте!</string>
+        <string name="Radio">Радио</string>
+
 
 </resources>
