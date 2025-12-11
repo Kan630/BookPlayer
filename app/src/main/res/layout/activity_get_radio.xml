@@ -104,7 +104,7 @@
 
                 <!-- Description -->
                 <TextView
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="20dp"
                     android:text="@string/quick_lists"
                     style="@style/GetResourceTextTopOfButton" />
 
@@ -113,45 +113,33 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
                     android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="12dp"
+                    android:layout_marginTop="16dp"
                     android:baselineAligned="false"
                     android:gravity="top"
                     >
 
                     <Button
                         android:id="@+id/bTopClick"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/top_click"
+                        style="@style/radio_btn"
                         />
 
                     <Button
                         android:id="@+id/bTopVote"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/top_vote"
+                        style="@style/radio_btn"
                         />
 
                     <Button
                         android:id="@+id/blastClick"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/last_click"
+                        style="@style/radio_btn"
                         />
 
                     <Button
                         android:id="@+id/blastChange"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/last_change"
+                        style="@style/radio_btn"
                         />
 
                 </LinearLayout>
@@ -162,42 +150,34 @@
                     android:orientation="horizontal"
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="12dp"
+                    android:layout_marginBottom="12dp"
                     android:baselineAligned="false"
                     android:gravity="top"
                     >
 
                     <Button
                         android:id="@+id/bByTag"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/by_tag"
+                        style="@style/radio_btn"
                         />
 
                     <Button
                         android:id="@+id/bByCountry"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/by_country"
+                        style="@style/radio_btn"
                         />
 
                     <Button
                         android:id="@+id/bByLanguage"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="64dp"
-                        android:layout_marginHorizontal="6dp"
                         android:text="@string/by_language"
+                        style="@style/radio_btn"
                         />
                 </LinearLayout>
 
                 <View style="@style/GetResourceHorizontalBar" />
 
                 <TextView
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="20dp"
                     android:text="@string/search_by_station_name"
                     style="@style/GetResourceTextTopOfButton" />
 
