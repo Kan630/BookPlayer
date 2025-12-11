@@ -62,4 +62,7 @@ public interface PodcastDao {
     @Query("UPDATE Podcast SET lastCheck = :lastCheck WHERE feedId = :feedId")
     void updateLastCheck(long feedId, long lastCheck);
 
+    @Query("SELECT COUNT(*) FROM Podcast WHERE autoDownload = 1")
+    int getNbAutoDownload();
+
 }

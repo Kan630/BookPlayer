@@ -4,6 +4,7 @@ import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 
 import android.content.Context;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -30,35 +31,35 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
     }
 
     public void start() {
-        if (scheduledFuture == null || scheduledFuture.isCancelled()) {
-            scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
-                //myLogD("InAppPeriodicTask - Running task at " + new Date());
 
-///  Pocasts
-                if (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY) {
-                    if (NetworkHelper.hasInternet(context)) {
-                        PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCAST_INDEX_ORG_SINCE);
-                    } else {
-                        myLogD("no internet => bypassing podcast auto-download");
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            final int nbPodcastAutoDownload = AppDatabase.getDatabase(context).podcastDao().getNbAutoDownload();
+
+            if (scheduledFuture == null || scheduledFuture.isCancelled()) {
+                scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
+                    myLogD("InAppPeriodicTask (images caching, optional podcasts auto-download and auto-delete) - every " + periodMinutes + " min.");
+///  Podcasts AutoDownload
+                    if (nbPodcastAutoDownload > 0 && (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY)) {
+                        if (NetworkHelper.hasInternet(context)) {
+                            PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCAST_INDEX_ORG_SINCE);
+                        } else {
+                            myLogD("no internet => bypassing podcast auto-download");
+                        }
                     }
+///  Podcasts AutoDelete
                     PodcastHelper.checkForEpisodesToAutoDelete(context);
-                }
 /// Images
-                ImageHelper.processPendingImages(context);
+                    ImageHelper.processPendingImages(context);
 
-            }, 0, periodMinutes, TimeUnit.MINUTES);
-        }
+                }, 0, periodMinutes, TimeUnit.MINUTES);
+            }
+        });
     }
 
     public void stop() {
         if (scheduledFuture != null) {
             scheduledFuture.cancel(true);
         }
-    }
-
-    public void shutdown() {
-        stop();
-        scheduler.shutdownNow();
     }
 
 }

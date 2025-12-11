@@ -225,9 +225,9 @@ public class PodcastHelper {
 
     public static void checkForEpisodesToAutoDelete(Context context) {
         if (Option.getPodcastAutoDelete()) {
-            myLogD("AutoDelete On");
+            //myLogD("AutoDelete On");
         } else {
-            myLogD("AutoDelete Off");
+            //myLogD("AutoDelete Off");
             return;
         }
 

@@ -154,19 +154,19 @@ public class Pref {
 
     /////////////////// LAST PODCAST API CHECK  ///////////////////
 
-    public static void setLastCheck(long value) {prefs.edit().putLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", value).apply();}
-    public static long getLastCheck() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", Option.getPodcastAutoDownloadDelayBetweenChecks());}
+    public static void setLastCheckPodcastAutoDownload(long value) {prefs.edit().putLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", value).apply();}
+    public static long getLastCheckPodcastAutoDownload() {return prefs.getLong("LAST_PODCASTINDEXORG_API_AUTO_CHECK_TIMESTAMP", Option.getPodcastAutoDownloadDelayBetweenChecks());}
     public static boolean doCheckForPodcastAutoDownload() {
-        long lastCheck = getLastCheck();
+        long lastCheck = getLastCheckPodcastAutoDownload();
         long now = System.currentTimeMillis();
         long diffInMinutes = (now - lastCheck) / (60 * 1000);
         long minDelayBetweenCheck = (long) Option.getPodcastAutoDownloadDelayBetweenChecks();
         if (now - lastCheck > minDelayBetweenCheck * 60 * 1000) {
-            setLastCheck(now);
-            myLogD("shouldCheckApiForAutoDownload() => true  -  last check = " + diffInMinutes + " min ago...   (min delay = " + minDelayBetweenCheck + " min.)");
+            setLastCheckPodcastAutoDownload(now);
+            //myLogD("shouldCheckApiForAutoDownload() => true  -  last check = " + diffInMinutes + " min ago...   (min delay = " + minDelayBetweenCheck + " min.)");
             return true;
         } else {
-            myLogD("shouldCheckApiForAutoDownload() => false  -  last check = " + diffInMinutes + " min ago...   (min delay = " + minDelayBetweenCheck + " min.)");
+            //myLogD("shouldCheckApiForAutoDownload() => false  -  last check = " + diffInMinutes + " min ago...   (min delay = " + minDelayBetweenCheck + " min.)");
             return false;
         }
     }
