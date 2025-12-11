@@ -59,9 +59,11 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
         ibFavorite.setOnClickListener(v -> clickFavorite());
         ibSettings.setOnClickListener(v -> clickSettings());
 
-        editTextPodcast.setHistoryKey("podcast_search"); // keep histories separate
-        editTextPodcast.setCompletionThreshold(1);        // suggestions after 1 char
-        editTextPodcast.setSuggestOnFocus(true);          // show dropdown on focus if empty
+        editTextPodcast.post(() -> { //async because takes ages
+            editTextPodcast.setHistoryKey("podcast_search");
+            editTextPodcast.setCompletionThreshold(1);
+            editTextPodcast.setSuggestOnFocus(true);
+        });
 
         buttonPodcastSearch.setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");

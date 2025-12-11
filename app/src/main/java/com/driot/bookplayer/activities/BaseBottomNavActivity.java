@@ -50,11 +50,13 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
         if (enableOngoingTaskOverlay()) {
             View topOverlay = findViewById(R.id.topOverlayContainer);
             if (topOverlay != null) {
-                OngoingTaskHost.attach(
-                        this,
-                        R.id.topOverlayContainer,
-                        new Intent(this, AddResourceActivity.class)
-                );
+                topOverlay.post(() -> {
+                    OngoingTaskHost.attach(
+                            this,
+                            R.id.topOverlayContainer,
+                            new Intent(this, AddResourceActivity.class)
+                    );
+                });
             } else {
                 myLogEE(null, "enableOngoingTaskOverlay()==true but no topOverlayContainer in layout " + getLayoutResId());
             }
