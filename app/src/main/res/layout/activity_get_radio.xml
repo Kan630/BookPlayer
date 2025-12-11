@@ -108,16 +108,53 @@
                     android:text="@string/quick_lists"
                     style="@style/GetResourceTextTopOfButton" />
 
-                <!-- Trending -->
-                <Button
-                    android:id="@+id/bRadioTrending"
-                    android:layout_width="wrap_content"
-                    android:layout_height="64dp"
-                    android:layout_marginTop="24dp"
-                    android:text="@string/trending_radios"
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_gravity="center_horizontal"
-                    style="@style/GetResourceButton" />
+                    android:layout_marginTop="12dp"
+                    android:baselineAligned="false"
+                    android:gravity="top"
+                    >
 
+                    <Button
+                        android:id="@+id/bTopClick"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/top_click"
+                        />
+
+                    <Button
+                        android:id="@+id/bTopVote"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/top_vote"
+                        />
+
+                    <Button
+                        android:id="@+id/blastClick"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/last_click"
+                        />
+
+                    <Button
+                        android:id="@+id/blastChange"
+                        android:layout_width="0dp"
+                        android:layout_weight="1"
+                        android:layout_height="64dp"
+                        android:layout_marginHorizontal="6dp"
+                        android:text="@string/last_change"
+                        />
+
+                </LinearLayout>
                 <!-- Filters: Language / Country / Tag -->
                 <LinearLayout
                     android:layout_width="match_parent"

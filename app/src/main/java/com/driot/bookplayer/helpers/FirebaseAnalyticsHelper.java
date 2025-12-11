@@ -277,14 +277,6 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("start_streaming", bundle);
     }
 
-    public static void tellAnalyticsRadioTrending(String query, String lang, String country, String tag) {
-        Bundle bundle = new Bundle();
-        bundle.putString("query", trimFA(query));
-        bundle.putString("language", trimFA(lang));
-        bundle.putString("country", trimFA(country));
-        bundle.putString("tag", trimFA(tag));
-        logBundleEvent("radio_trending", bundle);
-    }
     public static void tellAnalyticsRadioBy(String byWhat) {
         Bundle bundle = new Bundle();
         logBundleEvent("radio_by_" + byWhat, bundle);

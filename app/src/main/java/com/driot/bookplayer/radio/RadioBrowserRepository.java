@@ -61,9 +61,24 @@ public class RadioBrowserRepository {
         ).enqueue(new LoggingCallback<>(cb, "searchStations"));
     }
 
+    public void vote(String uuid, Callback<VoteResponse> cb) {
+        api.vote(uuid).enqueue(new LoggingCallback<VoteResponse>(cb, "vote"));
+    }
 
     public void topVoted(int limit, Callback<List<Station>> cb) {
         listsApi().topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
+    }
+
+    public void topClicked(int limit, Callback<List<Station>> cb) {
+        listsApi().topClicked(limit, true).enqueue(new LoggingCallback<>(cb, "topClicked"));
+    }
+
+    public void lastClicked(int limit, Callback<List<Station>> cb) {
+        listsApi().lastClicked(limit, true).enqueue(new LoggingCallback<>(cb, "lastClicked"));
+    }
+
+    public void lastChanged(int limit, Callback<List<Station>> cb) {
+        listsApi().lastAddedChanged(limit, true).enqueue(new LoggingCallback<>(cb, "lastAddedChanged"));
     }
 
     public void byTag(String tag, int limit, Callback<List<Station>> cb) {
@@ -103,8 +118,6 @@ public class RadioBrowserRepository {
     }
 
 
-
-
     /** Use this when the user taps Play: it increments click stats AND returns a fresh stream URL. */
     public void resolveUrl(String stationUuid, Callback<UrlResolve> cb) {
         api.resolveUrl(stationUuid).enqueue(new LoggingCallback<>(cb, "resolveUrl"));
@@ -128,4 +141,7 @@ public class RadioBrowserRepository {
         }
     }
 
+    public void searchByUuid(String stationUuid, Callback<List<Station>> cb) {
+        api.searchByUuid(stationUuid).enqueue(new LoggingCallback<>(cb, "searchByUuid"));
+    }
 }

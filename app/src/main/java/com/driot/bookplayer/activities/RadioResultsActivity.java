@@ -279,9 +279,24 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         switch (station_search_mode) {
 
-            case "MODE_TRENDING":
-                repo.topVoted(Option.getRadioApiNbResults(), resultsCb("trending"));
-                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.trending_radios));
+            case "MODE_TOP_VOTE":
+                repo.topVoted(Option.getRadioApiNbResults(), resultsCb("topVote"));
+                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.top_vote));
+                break;
+
+            case "MODE_TOP_CLICK":
+                repo.topClicked(Option.getRadioApiNbResults(), resultsCb("topClick"));
+                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.top_click));
+                break;
+
+            case "MODE_LAST_CLICK":
+                repo.lastClicked(Option.getRadioApiNbResults(), resultsCb("lastClick"));
+                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.last_click));
+                break;
+
+            case "MODE_LAST_CHANGE":
+                repo.lastChanged(Option.getRadioApiNbResults(), resultsCb("lastChange"));
+                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.last_change));
                 break;
 
             case "MODE_TAG":

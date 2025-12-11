@@ -1271,4 +1271,15 @@
     <string name="getting_first_results_from">Getting first results from</string>
     <string name="getting_more_from">getting more from</string>
 
+    <string name="stream_url">stream url</string>
+    <string name="votes_2pt">Votes: %1$d</string>
+
+    <string name="top_click">top click</string> //keep it short.. it's a button label
+    <string name="top_vote">top vote</string> //keep it short.. it's a button label
+    <string name="last_click">last click</string> //keep it short.. it's a button label
+    <string name="last_change">last change</string> //keep it short.. it's a button label
+
+
+
+
 </resources>

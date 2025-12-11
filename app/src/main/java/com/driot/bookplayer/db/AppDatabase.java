@@ -29,7 +29,7 @@ import java.util.concurrent.Executors;
         )
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APP_DATABASE_VERSION = 19;
+    public static final int APP_DATABASE_VERSION = 20;
 
     public abstract FolderDao folderDao();
     public abstract ZikFileDao zikFileDao();

@@ -24,4 +24,34 @@ public class Station {
     @SerializedName("tags")        public String tags;          // comma list
     @SerializedName("clickcount")  public int clickcount;
     @SerializedName("lastcheckok") public int lastcheckok;      // 1 if last check OK
+
+    @SerializedName("state") public String state;
+    @SerializedName("iso_3166_2") public String iso_3166_2;
+    @SerializedName("votes") public String votes;
+    @SerializedName("homepage") public String homepage;
+
+
+    @Override
+    public String toString() {
+        return "Station{" +
+                "stationuuid='" + stationuuid + '\'' +
+                ", name='" + name + '\'' +
+                ", url='" + url + '\'' +
+                ", url_resolved='" + url_resolved + '\'' +
+                ", codec='" + codec + '\'' +
+                ", bitrate=" + bitrate +
+                ", hls=" + hls +
+                ", favicon='" + favicon + '\'' +
+                ", country='" + country + '\'' +
+                ", countrycode='" + countrycode + '\'' +
+                ", language='" + language + '\'' +
+                ", tags='" + tags + '\'' +
+                ", clickcount=" + clickcount +
+                ", lastcheckok=" + lastcheckok +
+                ", state='" + state + '\'' +
+                ", iso_3166_2='" + iso_3166_2 + '\'' +
+                ", votes='" + votes + '\'' +
+                ", homepage='" + homepage + '\'' +
+                '}';
+    }
 }

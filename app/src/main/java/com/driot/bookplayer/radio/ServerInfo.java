@@ -1,7 +1,10 @@
 package com.driot.bookplayer.radio;
 
+import androidx.annotation.Keep;
+
 import com.google.gson.annotations.SerializedName;
 
+@Keep
 public class ServerInfo {
     @SerializedName("name")     public String name;     // e.g. "fr1.api.radio-browser.info"
     @SerializedName("ip")       public String ip;

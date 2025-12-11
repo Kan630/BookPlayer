@@ -356,5 +356,14 @@ public class DatabaseMigrations {
         }
     };
 
-
+    static final Migration MIGRATION_19_20 = new Migration(19, 20) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 19 => 20"); // 2025-12-11
+            db.execSQL("ALTER TABLE `RadioStation` ADD COLUMN `state` TEXT");
+            db.execSQL("ALTER TABLE `RadioStation` ADD COLUMN `iso_3166_2` TEXT");
+            db.execSQL("ALTER TABLE `RadioStation` ADD COLUMN `votes` TEXT");
+            db.execSQL("ALTER TABLE `RadioStation` ADD COLUMN `homepage` TEXT");
+        }
+    };
 }

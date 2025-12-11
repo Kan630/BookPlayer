@@ -57,6 +57,11 @@ public class RadioStation {
     @ColumnInfo(defaultValue = "0")
     public long date_maj;              // INTEGER NOT NULL DEFAULT 0
 
+    @Nullable public String state;
+    @Nullable public String iso_3166_2;
+    @Nullable public String votes;
+    @Nullable public String homepage;
+
 
     public static RadioStation fromStation(@NonNull Station s,
                                            @Nullable String streamUrl) {
@@ -85,6 +90,11 @@ public class RadioStation {
         r.date_last_played = null;
         r.date_added       = now;
         r.date_maj         = now;
+
+        r.state       = s.state;
+        r.iso_3166_2  = s.iso_3166_2;
+        r.votes       = s.votes;
+        r.homepage    = s.homepage;
 
         return r;
     }

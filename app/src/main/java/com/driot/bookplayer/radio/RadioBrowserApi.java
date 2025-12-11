@@ -27,12 +27,52 @@ public interface RadioBrowserApi {
             @Query("hidebroken") boolean hideBroken
     );
 
+    @GET("json/stations/byname/{name}")
+    Call<List<Station>> byName(
+            @Path("name") String name,
+            @Query("limit") int limit,
+            @Query("order") String order,
+            @Query("hidebroken") boolean hideBroken
+    );
+
+    @GET("json/stations/byuuid")
+    Call<List<Station>> searchByUuid(
+            @Query("uuids") String stationUuid
+    );
+
+    // ---- “Click + resolve” recommended path ----
+    @GET("json/url/{stationuuid}")
+    Call<UrlResolve> resolveUrl(@Path("stationuuid") String stationUuid);
+
+
     // ---- Lists ----
+    @GET("json/stations/topclick")
+    Call<List<Station>> topClicked(
+            @Query("limit") int limit,
+            @Query("hidebroken") boolean hideBroken
+    );
+
     @GET("json/stations/topvote")
     Call<List<Station>> topVoted(
             @Query("limit") int limit,
             @Query("hidebroken") boolean hideBroken
     );
+
+    @GET("json/stations/lastclick")
+    Call<List<Station>> lastClicked(
+            @Query("limit") int limit,
+            @Query("hidebroken") boolean hideBroken
+    );
+
+    @GET("json/stations/lastchange")
+    Call<List<Station>> lastAddedChanged(
+            @Query("limit") int limit,
+            @Query("hidebroken") boolean hideBroken
+    );
+
+    @GET("json/vote/{uuid}")
+    Call<VoteResponse> vote(@Path("uuid") String uuid);
+
 
     // ---- Lists ----
     @GET("json/stations/bytag/{tag}")
@@ -57,18 +97,6 @@ public interface RadioBrowserApi {
             @Query("hidebroken") boolean hideBroken
     );
 
-    @GET("json/stations/byname/{name}")
-    Call<List<Station>> byName(
-            @Path("name") String name,
-            @Query("limit") int limit,
-            @Query("order") String order,
-            @Query("hidebroken") boolean hideBroken
-    );
-
-
-    // ---- “Click + resolve” recommended path ----
-    @GET("json/url/{stationuuid}")
-    Call<UrlResolve> resolveUrl(@Path("stationuuid") String stationUuid);
 
     @GET("json/tags")
     Call<List<TagItem>> getTags(

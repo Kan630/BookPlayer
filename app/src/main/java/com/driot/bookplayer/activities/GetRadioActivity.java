@@ -45,7 +45,7 @@ public class GetRadioActivity extends BaseBottomNavActivity {
     Button bFavorite;
     ImageButton ibFavorite;
     ImageButton ibSettings;
-    Button buttonTrending;
+    Button bTopClick, bTopVote, bLastClick, bLastChange;
     Button buttonSearch;
 
     String query, lang, country, tag;
@@ -68,14 +68,11 @@ public class GetRadioActivity extends BaseBottomNavActivity {
                 /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
         );
 
-        // ---- find views ----
-        buttonTrending = findViewById(R.id.bRadioTrending);
-        /*
-        spinnerLang    = findViewById(R.id.spinnerRadioLang);
-        spinnerCountry = findViewById(R.id.spinnerRadioCountry);
-        spinnerTag     = findViewById(R.id.spinnerRadioTag);
+        bTopClick      = findViewById(R.id.bTopClick);
+        bTopVote       = findViewById(R.id.bTopVote);
+        bLastClick     = findViewById(R.id.blastClick);
+        bLastChange    = findViewById(R.id.blastChange);
 
-         */
         etRadio        = findViewById(R.id.etRadio);
         buttonSearch   = findViewById(R.id.bRadioSearch);
         bFavorite      = findViewById(R.id.bFavorite);
@@ -101,55 +98,42 @@ public class GetRadioActivity extends BaseBottomNavActivity {
             myLogI("---- user clicks BY LANGUAGE ---");
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lang");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_LANGUAGE);
-
         });
 
         etRadio.setHistoryKey("radio_search");     // keep histories separate
         etRadio.setCompletionThreshold(1);
         etRadio.setSuggestOnFocus(true);
 
-        /*
-        // ---- language spinner ----
-        // Reuse your LanguageHelper. If you prefer a different list for radios,
-        // add LanguageHelper.getRadioLanguages() the same way you did for podcasts/librivox.
-        LanguageHelper.setupLanguageSpinner(
-                this,
-                spinnerLang,
-                Pref.get_Audio_Language_Radio(this),
-                LanguageHelper.getRadioLanguages(),
-                langItem -> Pref.set_Audio_Language_Radio(this, langItem.twoLetterCode),
-                false
-        );
+        bTopClick.setOnClickListener(v -> {
+            myLogI("---- user clicks TOP CLICK ---");
+            Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
+                    .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TOP_CLICK");
+            startActivity(i);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("topClick");
+        });
 
-        // ---- optional: country + tag spinners ----
-        // If you have helpers, plug them here. For now we keep them optional:
-        // spinnerCountry: entries like "FR", "US", "" (empty = any)
-        // spinnerTag: popular tags ("news", "jazz", "talk", "", etc.)
-        // If you don’t have adapters yet, leave them empty; we read their .toString() safely.
+        bTopVote.setOnClickListener(v -> {
+            myLogI("---- user clicks TOP VOTE ---");
+            Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
+                    .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TOP_VOTE");
+            startActivity(i);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("topVote");
+        });
 
-         */
+        bLastClick.setOnClickListener(v -> {
+            myLogI("---- user clicks LAST CLICK ---");
+            Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
+                    .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LAST_CLICK");
+            startActivity(i);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lastClick");
+        });
 
-        buttonTrending.setOnClickListener(v -> {
-            myLogI("--- User clicks TRENDING ---");
-            // keep your existing lang/country/tag selections if you also filter later
-            repo.topVoted(Option.getRadioApiNbResults(), new Callback<>() {
-                @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
-                    if (rsp.isSuccessful() && rsp.body() != null) {
-                        // e.g., open results screen with a “Top voted” header,
-                        // or directly set items in a local RecyclerView if you have one here.
-                        Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
-                                .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TRENDING");
-                        startActivity(i);
-                        FirebaseAnalyticsHelper.tellAnalyticsRadioTrending("", "", "", "");
-                    } else {
-                        myToastE(getString(R.string.an_error_occurred));
-                    }
-                }
-                @Override public void onFailure(Call<List<Station>> call, Throwable t) {
-                    myLogEE(t, "topVoted failed");
-                    myToastE(getString(R.string.an_error_occurred));
-                }
-            });
+        bLastChange.setOnClickListener(v -> {
+            myLogI("---- user clicks LAST CHANGE ---");
+            Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
+                    .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LAST_CHANGE");
+            startActivity(i);
+            FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lastChange");
         });
 
         buttonSearch.setOnClickListener(v -> {

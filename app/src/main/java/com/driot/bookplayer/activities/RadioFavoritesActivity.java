@@ -137,7 +137,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     );
 
                     // 2) Background best-effort renew (no UI spinner/toasts)
-                    repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() {
+                    repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { //RadioBrowser wants us to ping for their STATS
                         @Override
                         public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                             if (!rsp.isSuccessful() || rsp.body() == null ||
@@ -184,7 +184,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                         + " => resolveUrl(" + f.stationuuid + ") - " + f.name);
                 setProgressVisible(true, getString(R.string.checking_for_best_mirror));
 
-                repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() {
+                repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { //RadioBrowser wants us to ping for their STATS
                     @Override
                     public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         setProgressVisible(false, null);
