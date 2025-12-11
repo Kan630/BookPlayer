@@ -1,7 +1,7 @@
 // GutendexPerson.java
 package com.driot.bookplayer.ebooks.gutendex;
 
-import com.google.errorprone.annotations.Keep;
+import androidx.annotation.Keep;
 
 @Keep
 public class GutendexPerson {

@@ -1,6 +1,6 @@
 package com.driot.bookplayer.ebooks;
 
-import com.google.errorprone.annotations.Keep;
+import androidx.annotation.Keep;
 
 @Keep
 public class EbookItem {

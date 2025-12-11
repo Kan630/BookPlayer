@@ -198,8 +198,9 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             @Override
             public void onFailure(Call<GutendexResponse> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                myLogEE(t, "Gutendex search FAILED");
                 myToastEE(t, getString(R.string.an_error_occurred));
+                String errMsg = getString(R.string.an_error_occurred) + "\n" + t.getMessage();
+                tvEmptyMessage.setText(errMsg);
                 tvEmptyMessage.setVisibility(View.VISIBLE);
                 recyclerView.setVisibility(View.GONE);
             }
