@@ -17,6 +17,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.radio.RadioStation;
 import com.driot.bookplayer.utils.Tonio;
+import com.google.android.material.color.MaterialColors;
 
 public class RadioStationActivity extends BaseBottomNavActivity {
 
@@ -88,14 +89,17 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         tvName.setText(safe(radioStation.name));
 
         // Favorite
-        int tint = ContextCompat.getColor(this, radioStation.isFavorite ? R.color.red : android.R.color.white);
+        int onSurface = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, "onSurface");
+        int colorControlNormal = MaterialColors.getColor(this,androidx.appcompat.R.attr.colorControlNormal,"colorControlNormal");
+
+        int tint = radioStation.isFavorite ? ContextCompat.getColor(this, R.color.red_500) : colorControlNormal;
         ibFavorite.setColorFilter(tint);
 
         ibFavorite.setOnClickListener(v -> {
             myLogI("--- user clicks favorite --- ");
             vm.toggleFavorite(radioStation);
             // Update icon immediately
-            int tint2 = ContextCompat.getColor(this, radioStation.isFavorite ? android.R.color.white : R.color.red);
+            int tint2 = radioStation.isFavorite ? ContextCompat.getColor(this, R.color.red_500) : colorControlNormal;
             ibFavorite.setColorFilter(tint2);
         });
 
