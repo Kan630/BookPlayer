@@ -1,5 +1,8 @@
 package com.driot.bookplayer.ebooks;
 
+import com.google.errorprone.annotations.Keep;
+
+@Keep
 public class EbookItem {
 
     public int gutendexId;

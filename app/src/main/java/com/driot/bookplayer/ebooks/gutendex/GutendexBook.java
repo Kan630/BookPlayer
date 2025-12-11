@@ -1,9 +1,12 @@
 // GutendexBook.java
 package com.driot.bookplayer.ebooks.gutendex;
 
+import com.google.errorprone.annotations.Keep;
+
 import java.util.List;
 import java.util.Map;
 
+@Keep
 public class GutendexBook {
 
     public int id;
