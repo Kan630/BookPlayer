@@ -1196,4 +1196,17 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l’arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n’est pas grave si vous vous endormez !</string>
     <string name="Radio">Radio</string>
 
+    <string name="loading_more">chargement…</string>
+    <string name="no_results_found">aucun résultat</string>
+    <string name="getting_first_results_from">Premiers résultats depuis</string>
+    <string name="getting_more_from">plus depuis</string>
+
+    <string name="stream_url">URL du flux</string>
+    <string name="votes_2pt">Votes : %1$d</string>
+
+    <string name="top_click">plus cliqués</string> <!-- short -->
+    <string name="top_vote">plus votés</string> <!-- short -->
+    <string name="last_click">derniers clics</string> <!-- short -->
+    <string name="last_change">dernier modifiés.</string> <!-- short -->
+
 </resources>

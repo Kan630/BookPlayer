@@ -1215,4 +1215,17 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="option_radio_sleep_copy_subtitle">Qui puoi specificare un valore personalizzato per la modalità di sospensione automatica della radio. Poiché non salviamo i progressi della radio, non importa se ti addormenti!</string>
     <string name="Radio">Radio</string>
 
+    <string name="loading_more">caricamento…</string>
+    <string name="no_results_found">nessun risultato</string>
+    <string name="getting_first_results_from">Primi risultati da</string>
+    <string name="getting_more_from">altri da</string>
+
+    <string name="stream_url">URL streaming</string>
+    <string name="votes_2pt">Voti: %1$d</string>
+
+    <string name="top_click">più clic</string> <!-- short -->
+    <string name="top_vote">più voti</string> <!-- short -->
+    <string name="last_click">ultimi clic</string> <!-- short -->
+    <string name="last_change">ultima modif.</string> <!-- short -->
+
 </resources>

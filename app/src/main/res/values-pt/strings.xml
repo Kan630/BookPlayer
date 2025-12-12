@@ -1213,5 +1213,18 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_radio_sleep_copy_subtitle">Aqui você pode definir um valor personalizado para o auto-sleep do rádio. Como não salvamos o progresso do rádio, não tem problema se você dormir!</string>
     <string name="Radio">Rádio</string>
 
+    <string name="loading_more">carregando…</string>
+    <string name="no_results_found">nenhum resultado</string>
+    <string name="getting_first_results_from">Primeiros resultados de</string>
+    <string name="getting_more_from">mais de</string>
+
+    <string name="stream_url">URL do stream</string>
+    <string name="votes_2pt">Votos: %1$d</string>
+
+    <string name="top_click">mais cliques</string> <!-- short -->
+    <string name="top_vote">mais votos</string> <!-- short -->
+    <string name="last_click">últimos cliques</string> <!-- short -->
+    <string name="last_change">última alteração</string> <!-- short -->
+
 
 </resources>

@@ -1250,4 +1250,17 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_radio_sleep_copy_subtitle">यहाँ आप रेडियो ऑटो-स्लीप के लिए कस्टम मान सेट कर सकते हैं। हम रेडियो के लिए प्रगति नहीं सहेजते, तो यदि आप सो भी जाएँ तो कोई समस्या नहीं!</string>
     <string name="Radio">रेडियो</string>
 
+        <string name="loading_more">और लोड हो रहा…</string>
+        <string name="no_results_found">कोई परिणाम नहीं</string>
+        <string name="getting_first_results_from">पहले परिणाम यहाँ से</string>
+        <string name="getting_more_from">और यहाँ से</string>
+
+        <string name="stream_url">स्ट्रीम URL</string>
+        <string name="votes_2pt">वोट: %1$d</string>
+
+        <string name="top_click">टॉप क्लिक</string> <!-- short -->
+        <string name="top_vote">टॉप वोट</string> <!-- short -->
+        <string name="last_click">आखिरी क्लिक</string> <!-- short -->
+        <string name="last_change">आखिरी बदल.</string> <!-- short -->
+
 </resources>

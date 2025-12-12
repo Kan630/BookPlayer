@@ -1195,4 +1195,17 @@
     <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
     <string name="Radio">راديو</string>
 
+    <string name="loading_more">تحميل…</string>
+    <string name="no_results_found">لا توجد نتائج</string>
+    <string name="getting_first_results_from">أول النتائج من</string>
+    <string name="getting_more_from">المزيد من</string>
+
+    <string name="stream_url">رابط البث</string>
+    <string name="votes_2pt">التصويتات: %1$d</string>
+
+    <string name="top_click">الأكثر نقراً</string> <!-- keep short -->
+    <string name="top_vote">الأكثر تصويتاً</string> <!-- keep short -->
+    <string name="last_click">آخر نقر</string> <!-- keep short -->
+    <string name="last_change">آخر تغيير</string> <!-- keep short -->
+
 </resources>

@@ -1203,5 +1203,19 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="option_radio_sleep_copy_subtitle">Здесь вы можете указать пользовательское значение для автоматического сна радио. Так как мы не сохраняем прогресс для радио, неважно, если вы заснёте!</string>
         <string name="Radio">Радио</string>
 
+        <string name="loading_more">загрузка…</string>
+        <string name="no_results_found">нет результатов</string>
+        <string name="getting_first_results_from">Первые результаты из</string>
+        <string name="getting_more_from">ещё из</string>
 
-</resources>
+        <string name="stream_url">URL потока</string>
+        <string name="votes_2pt">Голоса: %1$d</string>
+
+        <string name="top_click">топ клики</string> <!-- short -->
+        <string name="top_vote">топ голоса</string> <!-- short -->
+        <string name="last_click">последние клики</string> <!-- short -->
+        <string name="last_change">последн. изм.</string> <!-- short -->
+
+
+
+    </resources>

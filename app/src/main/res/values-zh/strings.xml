@@ -1197,5 +1197,18 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="option_radio_sleep_copy_subtitle">在这里可为电台的自动休眠设置自定义值。我们不会保存电台的收听进度，所以睡着了也没关系！</string>
     <string name="Radio">广播</string>
 
+    <string name="loading_more">加载中…</string>
+    <string name="no_results_found">无结果</string>
+    <string name="getting_first_results_from">首次结果来自</string>
+    <string name="getting_more_from">更多来自</string>
+
+    <string name="stream_url">流 URL</string>
+    <string name="votes_2pt">投票: %1$d</string>
+
+    <string name="top_click">最高点</string> <!-- short -->
+    <string name="top_vote">最高票</string> <!-- short -->
+    <string name="last_click">最近点</string> <!-- short -->
+    <string name="last_change">最近改</string> <!-- short -->
+
 
 </resources>

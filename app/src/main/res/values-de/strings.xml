@@ -1200,4 +1200,17 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_radio_sleep_copy_subtitle">Hier kannst du einen eigenen Wert für das Radio-Autosleep angeben. Da wir beim Radio keinen Fortschritt speichern, ist es egal, wenn du einschläfst!</string>
     <string name="Radio">Radio</string>
 
+    <string name="loading_more">mehr laden…</string>
+    <string name="no_results_found">keine Ergebnisse</string>
+    <string name="getting_first_results_from">Erste Ergebnisse von</string>
+    <string name="getting_more_from">mehr von</string>
+
+    <string name="stream_url">Stream-URL</string>
+    <string name="votes_2pt">Stimmen: %1$d</string>
+
+    <string name="top_click">Top Klicks</string> <!-- short -->
+    <string name="top_vote">Top Stimmen</string> <!-- short -->
+    <string name="last_click">Letzte Klicks</string> <!-- short -->
+    <string name="last_change">Letzte Änderung</string> <!-- short -->
+
 </resources>
