@@ -26,14 +26,17 @@ import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.UrlResolve;
+import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     private RadioResultsViewModel viewModel;
@@ -44,13 +47,13 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     private ItemTouchHelper touchHelper;
     private boolean isHistoryMode = false;
 
-    private NetworkStatusRowController networkStatusController;
-
     private boolean updatingToggleFromVm = false;
 
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
+    private boolean hasInternet = true;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,8 +63,10 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         recyclerView = findViewById(R.id.recyclerView);
         dropZone     = findViewById(R.id.dragDeleteZone);
 
-        View networkRow = findViewById(R.id.includeNetworkStatus);
-        networkStatusController = new NetworkStatusRowController(this, networkRow);
+        View networkRowView = findViewById(R.id.includeNetworkStatus);
+        NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
+        new NetworkStatusRowController(this, networkRowView, this, netVm);
+        netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet );
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
@@ -109,8 +114,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             @Override public void onPlay(RadioFavoriteItem f) {
                 myLogI("--- user clicks 'favorite/history' radio item --- : " + f.name);
 
-                boolean online = networkStatusController != null && networkStatusController.hasInternet();
-                if (!online) {
+                if (!hasInternet) {
                     myToast(getString(R.string.no_internet_connection));
                     return;
                 }
@@ -321,22 +325,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         } else {
             progressBar.setVisibility(View.GONE);
             progressText.setVisibility(View.GONE);
-        }
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (networkStatusController != null) {
-            networkStatusController.start();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusController != null) {
-            networkStatusController.stop();
         }
     }
 }

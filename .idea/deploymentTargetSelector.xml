@@ -153,7 +153,7 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="expandsEachSection_scrolls_topAndBottom_andSeesControls()">
+      <SelectionState runConfigName="PodcastSearchResultsActivity">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>

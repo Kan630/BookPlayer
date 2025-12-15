@@ -1177,12 +1177,12 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="APPEND_MODE">मौजूदा पुस्तक में जोड़ें</string>
     <string name="internet_status">इंटरनेट स्थिति</string>
     <string name="net_status_initial">नेटवर्क की जाँच…</string>
-    <string name="net_status_online_for">%1$ds से ऑनलाइन</string>
-    <string name="net_status_offline_for">%1$ds से ऑफ़लाइन</string>
+    <string name="deprecated__net_status_online_for">%1$ds से ऑनलाइन</string>
+    <string name="deprecated__net_status_offline_for">%1$ds से ऑफ़लाइन</string>
     <string name="net_status_unmetered">अनलिमिटेड कनेक्शन</string>
     <string name="net_status_roaming">रोमिंग</string>
-    <string name="net_status_online_for_percent">%1$ds से ऑनलाइन · %2$d%%</string>
-    <string name="net_status_offline_for_percent">%1$ds से ऑफ़लाइन · %2$d%%</string>
+    <string name="deprecated_net_status_online_for_percent">%1$ds से ऑनलाइन · %2$d%%</string>
+    <string name="deprecated_net_status_offline_for_percent">%1$ds से ऑफ़लाइन · %2$d%%</string>
     <string name="AskReset_popupText_order">आप ट्रैक क्रम रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?</string>
     <string name="zikFiles_not_readable">कुछ ट्रैकों में त्रुटियाँ हैं और चल नहीं सकतीं:</string>
     <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>

@@ -1127,12 +1127,12 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="APPEND_MODE">ZU BESTEHENDEM BUCH HINZUFÜGEN</string>
     <string name="internet_status">Internetstatus</string>
     <string name="net_status_initial">Netzwerk wird geprüft…</string>
-    <string name="net_status_online_for">Online seit %1$ds</string>
-    <string name="net_status_offline_for">Offline seit %1$ds</string>
+    <string name="deprecated__net_status_online_for">Online seit %1$ds</string>
+    <string name="deprecated__net_status_offline_for">Offline seit %1$ds</string>
     <string name="net_status_unmetered">Unbegrenzte Verbindung</string>
     <string name="net_status_roaming">Roaming</string>
-    <string name="net_status_online_for_percent">Online seit %1$ds · %2$d%%</string>
-    <string name="net_status_offline_for_percent">Offline seit %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_online_for_percent">Online seit %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_offline_for_percent">Offline seit %1$ds · %2$d%%</string>
     <string name="AskReset_popupText_order">Sie sind dabei, die Reihenfolge der Titel zurückzusetzen.\nSind Sie sicher?</string>
     <string name="zikFiles_not_readable">einige Titel haben Fehler und sind nicht abspielbar:</string>
     <string name="All_zikFiles_not_readable">Dieses Buch ist fehlerhaft. Kein Titel kann abgespielt werden.</string>

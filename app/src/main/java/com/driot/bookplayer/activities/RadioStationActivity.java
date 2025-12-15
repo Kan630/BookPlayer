@@ -16,14 +16,16 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.radio.RadioStation;
+import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.color.MaterialColors;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class RadioStationActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_STATION_UUID = "stationuuid";
-
-    private NetworkStatusRowController networkStatusController;
 
     private ImageView ivCover;
     private TextView tvName;
@@ -73,8 +75,9 @@ public class RadioStationActivity extends BaseBottomNavActivity {
 
         vm.refreshStationFromApi(stationUuid);
 
-        View networkRow = findViewById(R.id.includeNetworkStatus);
-        networkStatusController = new NetworkStatusRowController(this, networkRow);
+        View networkRowView = findViewById(R.id.includeNetworkStatus);
+        NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
+        new NetworkStatusRowController(this, networkRowView, this, netVm);
 
     }
 
@@ -189,19 +192,4 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         return s == null ? "" : s.trim();
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (networkStatusController != null) {
-            networkStatusController.start();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusController != null) {
-            networkStatusController.stop();
-        }
-    }
 }

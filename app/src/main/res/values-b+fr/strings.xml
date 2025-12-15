@@ -1123,12 +1123,12 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="APPEND_MODE">AJOUTER AU LIVRE EXISTANT</string>
     <string name="internet_status">État Internet</string>
     <string name="net_status_initial">Vérification du réseau…</string>
-    <string name="net_status_online_for">En ligne depuis %1$ds</string>
-    <string name="net_status_offline_for">Hors ligne depuis %1$ds</string>
+    <string name="deprecated__net_status_online_for">En ligne depuis %1$ds</string>
+    <string name="deprecated__net_status_offline_for">Hors ligne depuis %1$ds</string>
     <string name="net_status_unmetered">Connexion illimitée</string>
     <string name="net_status_roaming">Itinérance</string>
-    <string name="net_status_online_for_percent">En ligne depuis %1$ds · %2$d%%</string>
-    <string name="net_status_offline_for_percent">Hors ligne depuis %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_online_for_percent">En ligne depuis %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_offline_for_percent">Hors ligne depuis %1$ds · %2$d%%</string>
     <string name="AskReset_popupText_order">Vous êtes sur le point de réinitialiser l\'ordre des pistes.\nÊtes-vous sûr?</string>
     <string name="zikFiles_not_readable">des pistes ont des erreurs et ne sont pas lisibles:</string>
     <string name="All_zikFiles_not_readable">Ce livre est KO. Aucune piste ne peut être lue.</string>

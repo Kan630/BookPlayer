@@ -1116,12 +1116,12 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="APPEND_MODE">AÑADIR AL LIBRO EXISTENTE</string>
     <string name="internet_status">Estado de Internet</string>
     <string name="net_status_initial">Comprobando red…</string>
-    <string name="net_status_online_for">En línea desde %1$ds</string>
-    <string name="net_status_offline_for">Sin conexión desde %1$ds</string>
+    <string name="deprecated__net_status_online_for">En línea desde %1$ds</string>
+    <string name="deprecated__net_status_offline_for">Sin conexión desde %1$ds</string>
     <string name="net_status_unmetered">Conexión ilimitada</string>
     <string name="net_status_roaming">Roaming</string>
-    <string name="net_status_online_for_percent">En línea desde %1$ds · %2$d%%</string>
-    <string name="net_status_offline_for_percent">Sin conexión desde %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_online_for_percent">En línea desde %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_offline_for_percent">Sin conexión desde %1$ds · %2$d%%</string>
     <string name="AskReset_popupText_order">Está a punto de restablecer el orden de las pistas.\n¿Está seguro?</string>
     <string name="zikFiles_not_readable">algunas pistas tienen errores y no se pueden reproducir:</string>
     <string name="All_zikFiles_not_readable">Este libro está dañado. Ninguna pista se puede reproducir.</string>

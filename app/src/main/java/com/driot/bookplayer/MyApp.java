@@ -33,6 +33,9 @@ import androidx.annotation.RequiresApi;
 
 import java.util.concurrent.Executors;
 
+import dagger.hilt.android.HiltAndroidApp;
+
+@HiltAndroidApp
 public class MyApp extends Application {
 
     private static InAppPeriodicTaskManager periodicTaskManager;

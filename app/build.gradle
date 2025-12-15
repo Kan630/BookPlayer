@@ -2,6 +2,7 @@ plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
     id 'com.google.firebase.crashlytics'
+    id "dagger.hilt.android.plugin"
 }
 
 android {
@@ -151,7 +152,7 @@ dependencies {
     implementation 'androidx.documentfile:documentfile:1.1.0'
 
     implementation 'com.google.firebase:firebase-crashlytics:20.0.3'
-    implementation platform('com.google.firebase:firebase-bom:34.6.0')
+    implementation platform('com.google.firebase:firebase-bom:34.7.0')
     implementation 'com.google.firebase:firebase-analytics'
 
     implementation 'com.google.code.gson:gson:2.13.2'
@@ -176,6 +177,8 @@ dependencies {
     //implementation("net.lingala.zip4j:zip4j:2.11.5") // Password-protected ZIPs (optional but recommended)
     //implementation("com.github.junrar:junrar:7.5.7") // RAR (optional)
 
+    implementation "com.google.dagger:hilt-android:2.57.2"
+    annotationProcessor "com.google.dagger:hilt-compiler:2.57.2"
 
 
 

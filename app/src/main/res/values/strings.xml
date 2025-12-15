@@ -1200,12 +1200,12 @@
     <string name="APPEND_MODE">APPEND TO EXISTING BOOK</string>
     <string name="internet_status">Internet status</string>
     <string name="net_status_initial">Checking network…</string>
-    <string name="net_status_online_for">Online for %1$ds</string>
-    <string name="net_status_offline_for">Offline for %1$ds</string>
+    <string name="deprecated__net_status_online_for">Online for %1$ds</string>
+    <string name="deprecated__net_status_offline_for">Offline for %1$ds</string>
     <string name="net_status_unmetered">Unmetered connection</string>
     <string name="net_status_roaming">Roaming</string>
-    <string name="net_status_online_for_percent">Online for %1$ds · %2$d%%</string>
-    <string name="net_status_offline_for_percent">Offline for %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_online_for_percent">Online for %1$ds · %2$d%%</string>
+    <string name="deprecated_net_status_offline_for_percent">Offline for %1$ds · %2$d%%</string>
     <string name="AskReset_popupText_order">You are about to reset tracks order.\nAre you sure ?</string>
     <string name="zikFiles_not_readable">tracks have errors and are not playable:</string>
     <string name="All_zikFiles_not_readable">This Book is KO. No track can be read.</string>
@@ -1279,7 +1279,8 @@
     <string name="last_click">last clicked</string> //keep it short.. it's a button label
     <string name="last_change">last changed</string> //keep it short.. it's a button label
 
-
+    <string name="vote_too_many">You voted too often for the same station — try again later.</string>
+    <string name="Offline_for">Offline for</string>
 
 
 </resources>

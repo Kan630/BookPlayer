@@ -24,9 +24,13 @@ import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.podcasts.PodcastFeed;
 import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.utils.NetworkStatusViewModel;
 
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
 
     private PodcastSearchResultsViewModel viewModel;
@@ -34,8 +38,6 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
     private TextView errorMessage;
     private PodcastSearchResultsRVAdapter adapter;
     Podcast podcast;
-
-    private NetworkStatusRowController networkStatusController;
 
     @Override protected int getNavId() { return R.id.nav_podcast; }
     @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
@@ -48,8 +50,9 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
 
         RecyclerView recyclerView = findViewById(R.id.recyclerViewPodcast);
 
-        View networkRow = findViewById(R.id.includeNetworkStatus);
-        networkStatusController = new NetworkStatusRowController(this, networkRow);
+        View networkRowView = findViewById(R.id.includeNetworkStatus);
+        NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
+        new NetworkStatusRowController(this, networkRowView, this, netVm);
 
         progressBar = findViewById(R.id.progressBarPodcast);
         errorMessage = findViewById(R.id.podcast_error_message);
@@ -58,7 +61,6 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this,Var.GRID_LAYOUT_SPACER)));
-        //recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
 
@@ -170,19 +172,5 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
             errorMessage.setText("Error : \n" + e.getMessage());
         }
     }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (networkStatusController != null) {
-            networkStatusController.start();
-        }
-    }
 
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusController != null) {
-            networkStatusController.stop();
-        }
-    }
 }

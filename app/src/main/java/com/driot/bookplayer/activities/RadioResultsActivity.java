@@ -21,6 +21,7 @@ import com.driot.bookplayer.radio.RadioBrowserRepository;
 import com.driot.bookplayer.radio.RadioResultsViewModel;
 import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.radio.UrlResolve;
+import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.util.HashMap;
@@ -30,10 +31,12 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class RadioResultsActivity extends BaseBottomNavActivity {
 
     // --- list ---
@@ -44,19 +47,21 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
 
-    private NetworkStatusRowController networkStatusController;
-
     @Override protected int getNavId() { return R.id.nav_radio; }
     @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
     @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
+    private boolean hasInternet = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        View networkRow = findViewById(R.id.includeNetworkStatus);
-        networkStatusController = new NetworkStatusRowController(this, networkRow);
+        View networkRowView = findViewById(R.id.includeNetworkStatus);
+        NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
+        new NetworkStatusRowController(this, networkRowView, this, netVm);
+        netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet );
 
         findViewById(R.id.groupFavoriteVsHistory).setVisibility(View.GONE);
 
@@ -80,8 +85,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             @Override public void onPlay(Station s) {
                 myLogI("-------- USER CLICK radio item -------- : " + s.name);
 
-                boolean online = networkStatusController != null && networkStatusController.hasInternet();
-                if (!online) {
+                if (!hasInternet) {
                     myToast(getString(R.string.no_internet_connection));
                     return;
                 }
@@ -435,20 +439,5 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 viewModel.requestFinish();
             }
         };
-    }
-    @Override
-    protected void onStart() {
-        super.onStart();
-        if (networkStatusController != null) {
-            networkStatusController.start();
-        }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        if (networkStatusController != null) {
-            networkStatusController.stop();
-        }
     }
 }
