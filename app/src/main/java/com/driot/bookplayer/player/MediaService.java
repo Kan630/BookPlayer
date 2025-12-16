@@ -34,6 +34,7 @@ import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.radio.RadioStation;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsErrorUtils;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -107,8 +108,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final int TRIM_AFTER_PAUSE_MS = 7 * 24 * 60 * 60 * 1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
 
-
-    private static final boolean LOG_TRACE_ALL = false;
 
     // --- RADIO MODE ---
     @Nullable
@@ -189,6 +188,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         PlaybackUiBus.get().clear();
     }
 
+    private void broadcastUiState(String fromWhere) {
+        final String playMode = (engine != null) ? getPlayMode() : null;
+        broadcastUiState(fromWhere, playMode);
+    }
+
     private void broadcastUiState(String fromWhere, String playMode) {
         final String loadPhase = getLoadPhase();
         final boolean ready = isReadyToPlay();
@@ -257,12 +261,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
-    }
-
-
-    private void broadcastUiState(String fromWhere) {
-        final String playMode = (engine != null) ? getPlayMode() : null;
-        broadcastUiState(fromWhere, playMode);
     }
 
 
@@ -1835,6 +1833,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void onEngineFatal(String msg, int what, int extra) {
+        myLogEE(null, "onEngineFatal: " + msg + " (" + what + "," + extra + ")");
+        emitUiTick("onEngineFatal");
         ErrorLoadingFile = true;
         sleepTimer.stop();
         alertError(null, null);
@@ -1846,6 +1846,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogEE(null, "Engine FATAL: " + msg + " (" + what + "," + extra + ")");
             }
         }
+        engine = null; //to force reload if user retry (added 2025-12-16 for radio)
     }
 
     public boolean isReadyToPlay() {
@@ -2329,6 +2330,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void loadAndPlay() {
+        myLogD("loadAndPlay()");
         PlayList.createFromStorage(this, true, pl -> {
             if (pl == null) {
                 myLogEE(null, "error creating playlist from storage (pl == null)");
@@ -2346,13 +2348,21 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     }
                 });
 
-                // no DB access inside playStream(), so main thread is fine
             } else if (pl.isStream()) {
 
-                boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), null, null);
-                if (!ok) {
-                    myLogEE(null, "loadAndPlayFromStorage(): playback failed");
-                }
+                AppDatabase.databaseReadExecutor.execute(()->{
+                    RadioStation rs = AppDatabase.getDatabase(this).radioStationDao().getFromUrl(pl.getUrl());
+                    String title = rs.name;
+                    String imageUrl = rs.favicon;
+                    broadcastUiState("loadAndPlay");
+                    main.post(() -> {
+                        boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);
+                        if (!ok) {
+                            myLogEE(null, "loadAndPlayFromStorage(): playback failed");
+                        }
+                    });
+                });
+
 
             } else {
                 myLogEE(null, "error wrong playMode = " + pl.getPlayMode());

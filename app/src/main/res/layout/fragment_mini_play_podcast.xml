@@ -122,6 +122,15 @@
             app:trackColor="?attr/colorSecondary"
             app:thumbColor="?attr/colorSecondary"
             />
+        <ImageView
+            android:id="@+id/ivNoInternet"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="center"
+            android:contentDescription="@string/no_internet_connection"
+            android:src="@drawable/ic_cloud_off_24px"
+            app:tint="@color/red_500"
+            />
         <ImageButton
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

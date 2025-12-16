@@ -54,7 +54,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
-            UiHelper.FillUiBasic(s, null, ibPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek);
+            UiHelper.FillUiBasic(s, null, ibPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek, null, false);
         });
 
         v.setOnClickListener(_x -> {

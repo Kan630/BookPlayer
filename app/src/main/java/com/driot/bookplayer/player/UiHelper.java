@@ -26,8 +26,6 @@ public class UiHelper {
     /** Holds listeners + state, and provides detach() */
     public static final class SliderBinding {
         private final Slider slider;
-        private final TextView tvTime;
-        private final PlaybackViewModel vm;
         private final Slider.OnChangeListener changeListener;
         private final Slider.OnSliderTouchListener touchListener;
 
@@ -35,8 +33,6 @@ public class UiHelper {
                               @NonNull TextView tvTime,
                               @NonNull PlaybackViewModel vm) {
             this.slider = slider;
-            this.tvTime = tvTime;
-            this.vm = vm;
 
             // Bubble formatter (mm:ss) while dragging
             slider.setLabelFormatter(value -> Tonio.formatHhMmSs((long) value * 1000L));
@@ -118,7 +114,9 @@ public class UiHelper {
             @Nullable TextView tvSubTitle,
             @Nullable TextView tvTime,
             @Nullable ImageView ivCover,
-            @Nullable Slider sbSeek
+            @Nullable Slider sbSeek,
+            @Nullable ImageView ivNoInternet,
+            @Nullable Boolean hasInternet
     ) {
         //myLogD(s.toString());
 
@@ -126,16 +124,20 @@ public class UiHelper {
             setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
         }
 
-        if (progressBar != null && ibPlayPause!=null) {
-            boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
-            if (buffering) {
-                progressBar.setVisibility(View.VISIBLE);
-                ibPlayPause.setVisibility(View.GONE);
+        boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
+        if (ivNoInternet != null && hasInternet!=null) {
+            if (hasInternet) {
+                if (progressBar != null) progressBar.setVisibility(buffering ? View.VISIBLE : View.GONE);
+                ivNoInternet.setVisibility(View.GONE);
             } else {
-                progressBar.setVisibility(View.GONE);
-                ibPlayPause.setVisibility(View.VISIBLE);
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                ivNoInternet.setVisibility(View.VISIBLE);
             }
+        } else {
+            if (progressBar != null)
+                progressBar.setVisibility(buffering ? View.VISIBLE : View.GONE);
         }
+
         if (ibPlayPause!=null) {
             ibPlayPause.setImageResource(
                     s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24
@@ -154,7 +156,8 @@ public class UiHelper {
                 if (sbSeek!=null) if (sbSeek.getValueTo() != durSec) sbSeek.setValueTo(durSec);
                 if (sbSeek!=null) if (sbSeek.getValue() != posSec) sbSeek.setValue(posSec);
 
-                if (tvTime!=null) tvTime.setText(Tonio.formatHhMmSs(pos) + " / " + Tonio.formatHhMmSs(dur));
+                String strSliderProgressText =  Tonio.formatHhMmSs(pos) + " / " + Tonio.formatHhMmSs(dur);
+                if (tvTime!=null) tvTime.setText(strSliderProgressText);
             } else {
                 // Unknown duration
                 if (sbSeek!=null) if (sbSeek.getValueTo() != 1000f) sbSeek.setValueTo(1000f);

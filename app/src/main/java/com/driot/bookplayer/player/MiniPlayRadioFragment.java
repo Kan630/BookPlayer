@@ -11,18 +11,20 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetRadioActivity;
 import com.driot.bookplayer.activities.RadioStationActivity;
+import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
+import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
-    private View root;
     private ProgressBar progressBar;
-    private ImageView ivCover;
+    private ImageView ivCover, ivNoInternet;
     private TextView tvTitle, tvSubTitle;
     private ImageButton ibPlayPause, ibClose;
 
-    PlaybackUiState lastState;
+    private PlaybackUiState lastState;
+    private Boolean hasInternet = null;
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -31,24 +33,23 @@ public class MiniPlayRadioFragment extends LoggingFragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
-        root = v.findViewById(R.id.root);
         progressBar = v.findViewById(R.id.progress);
         ivCover = v.findViewById(R.id.ivCover);
         tvTitle = v.findViewById(R.id.tvTitle);
         tvSubTitle = v.findViewById(R.id.tvSub);
         ibPlayPause = v.findViewById(R.id.bMiniPlayPause);
         ibClose = v.findViewById(R.id.bMiniClose);
+        ivNoInternet = v.findViewById(R.id.ivNoInternet);
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
-
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) {
                 myLog("vm.getState().observe : s == null");
                 return;
             }
+
             //myLogD(s.toString());
-            //myLogI("vm.getState().observe " + s);
-            UiHelper.FillUiBasic(s, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null);
+            myLogI("vm.getState().observe " + s);
 
             if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");
@@ -59,8 +60,22 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                         .into(ivCover);
             }
 
+            if (lastState!=null && lastState.playing != s.playing) myLogD("playing changed => " + s.playing);
             lastState = vm.getState().getValue();
+            refreshUi();
         });
+
+        try {
+            NetworkStatusViewModel netVm = new ViewModelProvider(requireActivity()).get(NetworkStatusViewModel.class);
+            netVm.getStatus().observe(getViewLifecycleOwner(), s -> {
+                hasInternet = s.hasInternet;
+                myLogD("internet ok => " + hasInternet);
+                refreshUi();
+            });
+        } catch (Throwable t) {
+            myLogEE(t, "hilt shits - NetworkStatusViewModel");
+            hasInternet = true;
+        }
 
         ibPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
         ibClose.setOnClickListener(_v -> { myLogI("---- user press CLOSE button ----"); vm.stop(); });
@@ -73,6 +88,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 if (radioStationUuid!=null) {
                     Intent intent = new Intent(requireContext(), RadioStationActivity.class);
                     intent.putExtra(RadioStationActivity.EXTRA_STATION_UUID, radioStationUuid);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // dont open it multiple time... NOT SURE CLEAR TOP is really usefull...
                     startActivity(intent);
                 } else {
                     startActivity(new Intent(requireContext(), GetRadioActivity.class));
@@ -81,6 +97,11 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 startActivity(new Intent(requireContext(), GetRadioActivity.class));
             }
         });
+    }
+
+    private void refreshUi() {
+        if (lastState == null || hasInternet == null) return;
+        UiHelper.FillUiBasic(lastState, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null, ivNoInternet, hasInternet);
     }
 
     @Override public void onStart() {

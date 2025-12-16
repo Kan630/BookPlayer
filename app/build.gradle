@@ -100,10 +100,13 @@ android {
             debuggable = true
             testCoverageEnabled = false
 
+            /*
             minifyEnabled = true
             shrinkResources = true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
                     'proguard-rules.pro'
+
+             */
         }
         release {
             // Enables code shrinking, obfuscation, and optimization for only

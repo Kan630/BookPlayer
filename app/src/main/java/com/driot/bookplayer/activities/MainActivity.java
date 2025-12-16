@@ -40,6 +40,9 @@
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;
 
+    import dagger.hilt.android.AndroidEntryPoint;
+
+    @AndroidEntryPoint
     public class MainActivity extends BaseBottomNavActivity {
 
         private RecyclerView recyclerView;

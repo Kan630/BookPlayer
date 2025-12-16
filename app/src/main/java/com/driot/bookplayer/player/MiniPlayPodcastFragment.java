@@ -18,6 +18,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.slider.Slider;
@@ -26,7 +27,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
     private PlaybackViewModel vm;
     private View root;
     private ProgressBar progressBar;
-    private ImageView ivCover;
+    private ImageView ivCover, ivNoInternet;
     //private TextView tvTitle, tvSubTitle;
     private TextView tvMiniTime;
     private Slider sbMiniSeek; // <- change type
@@ -35,6 +36,8 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
 
     private UiHelper.SliderBinding sliderBinding;
 
+    private PlaybackUiState lastState;
+    private Boolean hasInternet = null;
 
     @Nullable
     @Override
@@ -55,6 +58,7 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         tvMiniTime = v.findViewById(R.id.tvMiniTime);
         ibClose = v.findViewById(R.id.ibClose);
         ivCover = v.findViewById(R.id.ivCover);
+        ivNoInternet = v.findViewById(R.id.ivNoInternet);
 
         btnPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
         btnNext.setImageResource(R.drawable.ic_media_fast_forward_24);
@@ -69,7 +73,8 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                 long previewMs = (long) value * 1000L;
                 PlaybackUiState s = vm.getState().getValue();
                 long dur = (s != null) ? s.durationMs : 0L;
-                tvMiniTime.setText(Tonio.formatMmSs(previewMs) + " / " + Tonio.formatMmSs(dur));
+                String strSliderProgressText =  Tonio.formatHhMmSs(previewMs) + " / " + Tonio.formatHhMmSs(dur);
+                tvMiniTime.setText(strSliderProgressText);
             }
         });
 
@@ -91,9 +96,17 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
         sliderBinding = UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null) return;
-            myLogD(s.toString());
-            UiHelper.FillUiBasic(s, progressBar, btnPlayPause, null, null, tvMiniTime, ivCover, sbMiniSeek);
+            //myLogD(s.toString());
+            lastState = vm.getState().getValue();
+            refreshUi();
         });
+
+        NetworkStatusViewModel netVm = new ViewModelProvider(requireActivity()).get(NetworkStatusViewModel.class);
+        netVm.getStatus().observe(getViewLifecycleOwner(), s -> {
+            hasInternet = s.hasInternet;
+            refreshUi();
+        });
+
 
         btnPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
         btnPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
@@ -111,6 +124,11 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
                 });
             }
         });
+    }
+
+    private void refreshUi() {
+        if (lastState == null || hasInternet == null) return;
+        UiHelper.FillUiBasic(lastState, progressBar, btnPlayPause, null, null, tvMiniTime, ivCover, sbMiniSeek, ivNoInternet, hasInternet);
     }
 
     @Override

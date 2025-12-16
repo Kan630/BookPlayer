@@ -17,6 +17,9 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.Objects;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class MiniPlayHostFragment extends LoggingFragment {
 
     private View root;

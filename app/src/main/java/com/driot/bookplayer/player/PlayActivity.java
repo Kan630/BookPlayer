@@ -239,7 +239,7 @@ public class PlayActivity extends LoggingActivity {
             reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
             // Title/sub
-            UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, sbSeek);
+            UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, sbSeek, null, null);
 
             // Seek/progress: sliderBinding handles slider + current time label
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));

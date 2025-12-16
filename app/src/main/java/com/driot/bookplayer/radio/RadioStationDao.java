@@ -29,6 +29,9 @@ public interface RadioStationDao {
     @Query("SELECT * FROM RadioStation ORDER BY display_order ASC, name COLLATE NOCASE ASC")
     List<RadioStation> getAll();
 
+    @Query("SELECT * FROM RadioStation WHERE url = :url OR url_resolved = :url LIMIT 1")
+    RadioStation getFromUrl(String url);
+
     @Query("SELECT * FROM RadioStation WHERE stationuuid = :uuid LIMIT 1")
     LiveData<RadioStation> getLiveDataByUuid(String uuid);
 
