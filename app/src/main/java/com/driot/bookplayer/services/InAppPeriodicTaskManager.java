@@ -51,7 +51,7 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
 /// Images
                     ImageHelper.processPendingImages(context);
 
-                }, 0, periodMinutes, TimeUnit.MINUTES);
+                }, Var.PERIODIC_TASK_MANAGER_INITIAL_DELAY_IN_SECONDS, periodMinutes, TimeUnit.MINUTES);
             }
         });
     }
