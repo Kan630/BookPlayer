@@ -31,6 +31,9 @@ import com.driot.bookplayer.player.PlaybackViewModel;
 
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class ZikFileActivity extends BaseBottomNavActivity {
 
     private RecyclerView recyclerView;

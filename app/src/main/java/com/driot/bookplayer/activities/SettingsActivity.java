@@ -19,9 +19,13 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
+
+@AndroidEntryPoint
 public class SettingsActivity extends BaseBottomNavActivity {
 
     ScrollView scrollView;
