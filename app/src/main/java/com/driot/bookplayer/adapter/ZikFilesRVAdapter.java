@@ -58,6 +58,15 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         });
     }
 
+    @NonNull
+    @Override
+    public ZikFilesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        View view = LayoutInflater.from(parent.getContext())
+                .inflate(R.layout.recyclerview_zikfiles, parent, false);
+        return new ZikFilesViewHolder(view);
+    }
+
+
     ///  SORT - Drag and Drop - Called by Activity
 
     private static final String PAYLOAD_ROWNUM = "rownum";
@@ -119,15 +128,6 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         ZikFile z = getItem(position);
         return (z == null) ? RecyclerView.NO_ID : z.getId();
     }
-
-    @NonNull
-    @Override
-    public ZikFilesViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.recyclerview_zikfiles, parent, false);
-        return new ZikFilesViewHolder(view);
-    }
-
 
     // PARTIAL BIND
     @Override
@@ -207,11 +207,11 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         TextView ibSort;
         PlayHeatMapView heatMapView;
 
-        void updateHeatMap(ZikFile t) {
+        void updateHeatMap(ZikFile zikFile) {
             if (heatMapView == null) return;
 
-            final long zikFileId = t.getId();
-            final long durationMs = (long) t.getDuration() ;
+            final long zikFileId = zikFile.getId();
+            final long durationMs = (long) zikFile.getDuration() ;
 
             if (durationMs <= 0) {
                 heatMapView.setIntensities(new float[0]);
@@ -240,6 +240,14 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                     if (current == null || current.getId() != zikFileId) return;
 
                     heatMapView.setIntensities(intensities);
+
+                    final float[] cursors;
+                    if (zikFile.getPosition() > 0) {
+                        cursors = new float[] { (float) zikFile.getPosition() / durationMs };
+                    } else {
+                        cursors = new float[0];
+                    }
+                    heatMapView.setCursors(cursors);
                 });
             });
         }
