@@ -8,6 +8,9 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class GetActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_add; }

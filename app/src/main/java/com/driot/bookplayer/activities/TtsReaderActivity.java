@@ -23,6 +23,9 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsHelper;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class TtsReaderActivity extends BaseBottomNavActivity {
 
     @Override protected int getNavId() { return R.id.nav_library; } // or whatever your "play" tab id is

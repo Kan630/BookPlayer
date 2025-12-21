@@ -49,6 +49,9 @@ import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermission
 import java.util.UUID;
 import java.util.concurrent.Executors;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class GetOtherActivity extends BaseBottomNavActivity {
 
     private View importDimScrim;

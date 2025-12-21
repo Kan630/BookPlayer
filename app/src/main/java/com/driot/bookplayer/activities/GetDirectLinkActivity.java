@@ -25,7 +25,9 @@ import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText2linesWithPaste;
 
+import dagger.hilt.android.AndroidEntryPoint;
 
+@AndroidEntryPoint
 public class GetDirectLinkActivity extends BaseBottomNavActivity {
 
     private View importDimScrim;

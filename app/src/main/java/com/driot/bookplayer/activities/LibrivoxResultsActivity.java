@@ -20,6 +20,9 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
     private RecyclerView recyclerView;

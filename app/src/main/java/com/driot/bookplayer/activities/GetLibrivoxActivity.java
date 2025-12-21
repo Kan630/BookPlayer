@@ -24,6 +24,9 @@ import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
     Spinner spinnerLibrivox;

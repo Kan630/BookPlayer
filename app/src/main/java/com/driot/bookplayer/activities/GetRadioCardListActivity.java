@@ -25,10 +25,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+@AndroidEntryPoint
 public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";

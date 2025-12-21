@@ -57,6 +57,9 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.concurrent.Executors;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LoadBookActivity extends BaseBottomNavActivity {
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());

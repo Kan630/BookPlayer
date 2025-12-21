@@ -24,6 +24,7 @@ import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 import java.util.List;
 import java.util.concurrent.Executors;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -32,6 +33,7 @@ import retrofit2.Response;
  * Entry screen to browse/search internet radios (Radio Browser).
  * Very close to GetAudiobookActivity: favorites, settings, search, trending.
  */
+@AndroidEntryPoint
 public class GetRadioActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_RADIO_STATION_SEARCH_MODE = "EXTRA_RADIO_STATION_SEARCH_MODE";

@@ -55,6 +55,9 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
     private TextView tvTitle, tvDescription, tvStats, tvToolbarStats;

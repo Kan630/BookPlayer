@@ -19,6 +19,9 @@ import com.driot.bookplayer.librivox.ArchiveItem;
 
 import java.util.Collections;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
 
     private LibrivoxResultsViewModel viewModel;

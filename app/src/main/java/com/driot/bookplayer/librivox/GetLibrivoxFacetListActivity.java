@@ -20,6 +20,9 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";

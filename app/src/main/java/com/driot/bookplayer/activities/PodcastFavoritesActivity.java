@@ -25,6 +25,9 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import java.util.Collections;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class PodcastFavoritesActivity extends BaseBottomNavActivity {
 
     private PodcastSearchResultsViewModel viewModel;

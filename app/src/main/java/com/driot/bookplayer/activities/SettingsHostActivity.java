@@ -11,6 +11,9 @@ import androidx.fragment.app.Fragment;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class SettingsHostActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_FRAGMENT_CLASS = "extra_fragment_class";

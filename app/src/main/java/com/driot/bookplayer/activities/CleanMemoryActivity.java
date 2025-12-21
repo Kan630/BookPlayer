@@ -21,6 +21,9 @@ import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
     private CleanMemoryRVAdapter cacheFilesAdapter;
     private CleanMemoryViewModel cacheFilesViewModel;

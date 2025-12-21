@@ -20,6 +20,9 @@ import com.driot.bookplayer.imports.TaskUiState;
 import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.services.DownloadControl;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class AddResourceActivity extends BaseBottomNavActivity {
 
     private static final int DELAY_END_WAIT_WARNINGS = 5*60_000;

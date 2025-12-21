@@ -31,6 +31,9 @@ import com.driot.bookplayer.objects.LoadBookTaskState;
 import java.io.File;
 import java.util.Locale;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class EbookDetailActivity extends BaseBottomNavActivity {
 
     private ImageView coverView;

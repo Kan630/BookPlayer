@@ -24,6 +24,7 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -32,6 +33,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+@AndroidEntryPoint
 public class EbookResultsActivity extends BaseBottomNavActivity {
 
     RecyclerView recyclerView;

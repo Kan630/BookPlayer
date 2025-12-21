@@ -19,6 +19,9 @@ import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class GetPodcastActivity extends BaseBottomNavActivity {
 
     String query, lang;
