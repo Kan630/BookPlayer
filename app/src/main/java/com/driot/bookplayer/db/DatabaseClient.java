@@ -75,6 +75,7 @@ public class DatabaseClient {
                             , DatabaseMigrations.MIGRATION_17_18
                             , DatabaseMigrations.MIGRATION_18_19
                             , DatabaseMigrations.MIGRATION_19_20
+                            , DatabaseMigrations.MIGRATION_20_21
                     )
                     .addCallback(new RoomDatabase.Callback() {
                         @Override

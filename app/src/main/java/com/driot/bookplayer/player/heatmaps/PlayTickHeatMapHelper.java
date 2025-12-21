@@ -1,6 +1,4 @@
-package com.driot.bookplayer.helpers;
-
-import com.driot.bookplayer.objects.PlayTickBucket;
+package com.driot.bookplayer.player.heatmaps;
 
 import java.util.List;
 

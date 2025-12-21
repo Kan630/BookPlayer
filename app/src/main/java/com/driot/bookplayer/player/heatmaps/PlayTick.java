@@ -1,4 +1,4 @@
-package com.driot.bookplayer.db;
+package com.driot.bookplayer.player.heatmaps;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
@@ -6,6 +6,7 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import com.driot.bookplayer.db.ZikFile;
 
 @Entity(
         tableName = "PlayTick",
@@ -15,13 +16,12 @@ import androidx.room.PrimaryKey;
                 childColumns = "zikFileId",
                 onDelete = ForeignKey.CASCADE
         )
-        /*
         ,
         indices = {
                 @Index("zikFileId"),
+                @Index(value = {"zikFileId", "timestamp"}),
                 @Index(value = {"zikFileId", "position"})
         }
-         */
 )
 public class PlayTick {
 

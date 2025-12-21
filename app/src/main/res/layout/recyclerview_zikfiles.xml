@@ -79,7 +79,7 @@
             app:layout_constraintRight_toLeftOf="@+id/guideline">
 
             <!-- Heatmap as background -->
-            <com.driot.bookplayer.views.PlayHeatMapView
+            <com.driot.bookplayer.player.heatmaps.PlayHeatMapView
                 android:id="@+id/heatMapView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

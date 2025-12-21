@@ -11,6 +11,10 @@ import androidx.room.RoomDatabase;
 
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportJobDao;
+import com.driot.bookplayer.player.heatmaps.PlaySession;
+import com.driot.bookplayer.player.heatmaps.PlaySessionDao;
+import com.driot.bookplayer.player.heatmaps.PlayTick;
+import com.driot.bookplayer.player.heatmaps.PlayTickDao;
 import com.driot.bookplayer.radio.RadioStation;
 import com.driot.bookplayer.radio.RadioStationDao;
 
@@ -23,13 +27,14 @@ import java.util.concurrent.Executors;
         ,BookSource.class
         ,Episode.class
         ,ImportJob.class
-        ,PlayTick.class
+        , PlayTick.class
         ,RadioStation.class
+        , PlaySession.class
         }, version = APP_DATABASE_VERSION
         )
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APP_DATABASE_VERSION = 20;
+    public static final int APP_DATABASE_VERSION = 21;
 
     public abstract FolderDao folderDao();
     public abstract ZikFileDao zikFileDao();
@@ -39,6 +44,7 @@ public abstract class AppDatabase extends RoomDatabase {
     public abstract ImportJobDao importJobDao();
     public abstract PlayTickDao playTickDao();
     public abstract RadioStationDao radioStationDao();
+    public abstract PlaySessionDao playSessionDao();
 
     private static final int NUMBER_OF_WRITE_THREADS = 4;
     private static final int NUMBER_OF_READ_THREADS = 4;

@@ -5,7 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.PlayTick;
+import com.driot.bookplayer.player.heatmaps.PlayTick;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.db.Sql;

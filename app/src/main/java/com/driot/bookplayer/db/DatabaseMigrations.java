@@ -366,4 +366,44 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE `RadioStation` ADD COLUMN `homepage` TEXT");
         }
     };
+
+    static final Migration MIGRATION_20_21 = new Migration(20, 21) { //2025-12-21
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 20 => 21 (PlayTick sessions)");
+
+            // 1) Add missing indices to existing PlayTick table
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId ON PlayTick(zikFileId)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId_timestamp ON PlayTick(zikFileId, timestamp)");
+            db.execSQL("CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId_position ON PlayTick(zikFileId, position)");
+
+            db.execSQL(
+                    "CREATE TABLE PlaySession (" +
+                            "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                            "zikFileId INTEGER NOT NULL, " +
+                            "timestampStart INTEGER NOT NULL, " +
+                            "timestampEnd INTEGER NOT NULL, " +
+                            "positionStart INTEGER NOT NULL, " +
+                            "positionEnd INTEGER NOT NULL, " +
+                            "FOREIGN KEY(zikFileId) REFERENCES ZikFile(id) ON DELETE CASCADE" +
+                            ")"
+            );
+
+            // 3) Indices (important for heatmaps)
+            db.execSQL("CREATE INDEX index_PlaySession_zikFileId ON PlaySession(zikFileId)");
+            db.execSQL("CREATE INDEX index_PlaySession_zikFileId_positionStart ON PlaySession(zikFileId, positionStart)");
+
+            // 4) Handle legacy data: For ZikFiles with position > 0 but no PlayTick data,
+            //    create a session from 0 to current position (assumes they listened from start)
+            db.execSQL(
+                    "INSERT INTO PlaySession (zikFileId, timestampStart, timestampEnd, positionStart, positionEnd) " +
+                            "SELECT z.id, 0, z.position, 0, z.position " +
+                            "FROM ZikFile z " +
+                            "WHERE z.position > 0 " +
+                            "AND NOT EXISTS (SELECT 1 FROM PlayTick pt WHERE pt.zikFileId = z.id)"
+            );
+        }
+    };
+
+
 }

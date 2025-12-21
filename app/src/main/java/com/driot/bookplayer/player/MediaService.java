@@ -28,6 +28,7 @@ import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
@@ -1547,6 +1548,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (engine != null && engine.isPlaying()) {
             enginePause();
             updateZikFileStateInDB(false);
+            compactPlayTicks();
             focus.abandon();
             sleepTimer.stop();
             showForegroundNotification(false);
@@ -1764,6 +1766,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             if (pl != null && pl.isLastTrack()) {
                 if (Option.getBeepBookEnd()) playBeep("3beeps");
                 alertPlaylistFinished();
+                compactPlayTicks();
                 shutdown(false);
             } else {
                 nextTrack();
@@ -2370,6 +2373,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         });
     }
 
-
+    private void compactPlayTicks() {
+        if (isZikFile()) {
+            PlayList pl = PlayList.getInstance();
+            if (pl!= null && pl.getZikFile() != null) {
+                AppDatabase.databaseWriteExecutor.execute(() ->
+                        PlayTickCompactor.compact(AppDatabase.getInstance(this), pl.getZikFile().getId()));
+            }
+        }
+    }
 
 }

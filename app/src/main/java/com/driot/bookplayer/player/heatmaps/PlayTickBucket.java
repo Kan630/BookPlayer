@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.player.heatmaps;
 
 public class PlayTickBucket {
     public long bucket;  // 0..(nbBuckets-1)

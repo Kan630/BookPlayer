@@ -17,7 +17,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ModifyZikFileActivity;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.player.heatmaps.PlayHeatMapView;
+import com.driot.bookplayer.player.heatmaps.PlayTickDao;
+import com.driot.bookplayer.player.heatmaps.PlayTickHeatMapHelper;
+import com.driot.bookplayer.player.heatmaps.PlayTickBucketMerger;
+import com.driot.bookplayer.player.heatmaps.PlayTickBucket;
+import com.driot.bookplayer.player.heatmaps.PlaySession;
+import com.driot.bookplayer.player.heatmaps.PlaySessionDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -25,11 +33,8 @@ import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingListAdapter;
 
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.PlayTickDao;
-import com.driot.bookplayer.helpers.PlayTickHeatMapHelper;
-import com.driot.bookplayer.objects.PlayTickBucket;
-import com.driot.bookplayer.views.PlayHeatMapView;
+
+import java.util.List;
 
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
@@ -225,7 +230,16 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 PlayTickDao dao = AppDatabase.getInstance(appCtx).playTickDao();
                 long bucketSizeMs = Math.max(1L, durationMs / nbBuckets);
 
-                java.util.List<PlayTickBucket> buckets = dao.getBucketCounts(zikFileId, bucketSizeMs);
+                PlayTickDao tickDao = AppDatabase.getInstance(appCtx).playTickDao();
+                PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx).playSessionDao();
+
+                List<PlayTickBucket> tickBuckets = tickDao.getBucketCounts(zikFileId, bucketSizeMs);
+
+                // Get sessions and convert to buckets
+                List<PlaySession> sessions = sessionDao.getAllForFile(zikFileId);
+                List<PlayTickBucket> sessionBuckets = PlaySessionDao.getBucketCounts(sessions, bucketSizeMs);
+
+                List<PlayTickBucket> buckets = PlayTickBucketMerger.merge(sessionBuckets, tickBuckets);
 
                 //myLogD(t.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
 

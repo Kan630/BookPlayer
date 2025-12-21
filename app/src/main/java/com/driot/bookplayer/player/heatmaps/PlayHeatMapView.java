@@ -1,4 +1,4 @@
-package com.driot.bookplayer.views;
+package com.driot.bookplayer.player.heatmaps;
 
 import android.content.Context;
 import android.content.res.TypedArray;
