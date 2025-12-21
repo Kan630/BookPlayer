@@ -24,6 +24,7 @@ import android.widget.ImageView;
 
 import com.driot.bookplayer.activities.TtsReaderActivity;
 import com.driot.bookplayer.objects.VoiceItem;
+import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -61,7 +62,7 @@ public class PlayActivity extends LoggingActivity {
 
     private PlaybackViewModel vm;
 
-    private ImageButton bPlayPause, bRewind, bForward;
+    private MaterialButton bPlayPause, bRewind, bForward;
     private Button bSpeedUp, bSpeedDown, bSetSleep;
     private Slider sbSeek;
     private UiHelper.SliderBinding sliderBinding;
@@ -143,8 +144,8 @@ public class PlayActivity extends LoggingActivity {
         messageOverlay  = findViewById(R.id.message_overlay);
 
         bPlayPause = findViewById(R.id.ibPlayPause);
-        bRewind    = findViewById(R.id.ibRewind);
-        bForward   = findViewById(R.id.ibForward);
+        bRewind    = findViewById(R.id.mbRewind);
+        bForward   = findViewById(R.id.mbForward);
         bSpeedUp   = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
         bSetSleep  = findViewById(R.id.bSetSleep);
@@ -184,6 +185,10 @@ public class PlayActivity extends LoggingActivity {
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
         progressTitle.setText(getString(R.string.Text_To_Speech));
+
+        String nbSec = String.valueOf(Option.get_ForwardSeconds());
+        bRewind.setText("-" + nbSec + " " + getString(R.string.sec));
+        bForward.setText("+" + nbSec + " " + getString(R.string.sec));
 
         // Clicks
         bPlayPause.setOnClickListener(v -> {myLogI("--- user press PLAY/PAUSE ---"); vm.playPause(); suppressAutoScroll = false;});
@@ -267,10 +272,10 @@ public class PlayActivity extends LoggingActivity {
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
-                bPlayPause.setImageResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
+                bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
             } else {
                 bPlayPause.setEnabled(false);
-                bPlayPause.setImageResource(R.drawable.ic_hourglass_24);
+                bPlayPause.setIconResource(R.drawable.ic_hourglass_24);
             }
 
             // cover

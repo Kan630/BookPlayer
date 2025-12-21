@@ -1281,6 +1281,6 @@
 
     <string name="vote_too_many">You voted too often for the same station — try again later.</string>
     <string name="Offline_for">Offline for</string>
-
+    <string name="sec">sec</string>"  // means second, keep below 3 chars
 
 </resources>

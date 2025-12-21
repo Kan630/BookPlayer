@@ -23,7 +23,7 @@ public class Option {
     public static final int MIN_TIME_BEFORE_SLEEP = 1;
     public static final int MAX_TIME_BEFORE_SLEEP = 60 * 24; // 1440
 
-    public static final int DEFAULT_FORWARD_SECONDS = 5;
+    public static final int DEFAULT_FORWARD_SECONDS = 10;
     public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;
     public static final int DEFAULT_TIME_BEFORE_SLEEP_RADIO = 300;
     private static final boolean DEFAULT_UNZIP_LOCAL  = true;

@@ -71,7 +71,7 @@ public class Var {
 
     public static final String REPO_TYPE_AUDIOBOOK = "audiobook";
     public static final String REPO_NAME_LIBRIVOX = "librivox";
-    public static final int RADIO_LIST_MAX_CARD_ITEM = 500;
+    public static final int RADIO_LIST_MAX_CARD_ITEM = 500; //WARNING, if you change that, also change the scheduled worker in cloudfare...
     public static final int LIBRIVOX_LIST_MAX_CARD_ITEM = 400;
 
     public static final int FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS = 512;

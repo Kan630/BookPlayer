@@ -352,6 +352,9 @@ public class NetworkHelper {
                 if (isCleartextNotPermitted(t)) {
                     myLogD("Cleartext blocked for: " + url);
                     return null;
+                } else if (t.getMessage() != null && t.getMessage().contains("Invalid host")) {
+                    myLogW("Invalid host for: " + url);
+                    return null;
                 }
                 myLogEE(t, "fetch failed for: " + url);
                 return null;

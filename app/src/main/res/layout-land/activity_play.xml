@@ -333,43 +333,41 @@
     <LinearLayout
         android:id="@+id/llCommandButtons"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:gravity="center"
+        android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:paddingHorizontal="8dp"
-        android:paddingTop="2dp"
-        android:paddingBottom="4dp"
-        >
+        android:gravity="center"
+        android:weightSum="3">
 
-        <ImageButton
-            android:id="@+id/ibRewind"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mbRewind"
             style="@style/PlayActivityActionButtons"
-            android:src="@drawable/ic_media_fast_rewind_24"
+            android:text="@string/rewind"
             android:contentDescription="@string/rewind"
-            android:background="@drawable/rounded_corner_primary"
-            app:tint="?attr/colorOnPrimary"
-            android:cropToPadding="false" />
+            app:icon="@drawable/ic_media_fast_rewind_24"
+            app:iconGravity="textTop"
+            app:iconPadding="4dp"
+            />
 
-        <ImageButton
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/ibPlayPause"
             style="@style/PlayActivityActionButtons"
-            android:layout_marginStart="6dp"
-            android:layout_marginEnd="6dp"
-            android:src="@drawable/ic_hourglass_24"
             android:contentDescription="@string/play"
-            android:background="@drawable/rounded_corner_primary"
-            app:tint="?attr/colorOnPrimary"
-            android:cropToPadding="false" />
+            app:icon="@drawable/ic_hourglass_24"
+            app:iconGravity="textStart"
+            app:iconPadding="0dp"
+            android:layout_marginHorizontal="6dp"
+            />
 
-        <ImageButton
-            android:id="@+id/ibForward"
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/mbForward"
             style="@style/PlayActivityActionButtons"
-            android:src="@drawable/ic_media_fast_forward_24"
-            android:contentDescription="@string/forward"
-            android:background="@drawable/rounded_corner_primary"
-            app:tint="?attr/colorOnPrimary"
-            android:cropToPadding="false" />
+            android:text="@string/forward"
+            android:contentDescription="@string/rewind"
+            app:icon="@drawable/ic_media_fast_forward_24"
+            app:iconGravity="textTop"
+            app:iconPadding="4dp"
+            />
+
     </LinearLayout>
 
     <!-- Overlays (inchangés) -->
