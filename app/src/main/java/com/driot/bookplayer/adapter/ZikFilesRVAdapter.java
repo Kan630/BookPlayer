@@ -234,14 +234,16 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx).playSessionDao();
 
                 List<PlayTickBucket> tickBuckets = tickDao.getBucketCounts(zikFileId, bucketSizeMs);
+                //myLogD(zikFile.getDisplayName() + " => " + tickBuckets.size() + "Tick buckets:\n" + tickBuckets.toString());
 
                 // Get sessions and convert to buckets
                 List<PlaySession> sessions = sessionDao.getAllForFile(zikFileId);
                 List<PlayTickBucket> sessionBuckets = PlaySessionDao.getBucketCounts(sessions, bucketSizeMs);
+                //myLogD(zikFile.getDisplayName() + " => " + sessionBuckets.size() + "Session buckets:\n" + sessionBuckets.toString());
 
                 List<PlayTickBucket> buckets = PlayTickBucketMerger.merge(sessionBuckets, tickBuckets);
 
-                //myLogD(t.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
+                //myLogD(zikFile.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
 
                 final float[] intensities = PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
 

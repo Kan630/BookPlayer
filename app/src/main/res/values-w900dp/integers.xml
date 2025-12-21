@@ -3,4 +3,5 @@
 
     <integer name="classic_grid_span">3</integer>
     <integer name="radio_grid_span">9</integer>
+    <integer name="heatmaps_cursor_size_dp">6</integer>
 </resources>

@@ -87,7 +87,7 @@ public class PlayTickHeatMapHelper {
                 }
             }
         }
-
+/*
         // 4) Smoothing inside listened segments only (no renorm)
         float[] smooth = new float[nbBuckets];
 
@@ -132,6 +132,10 @@ public class PlayTickHeatMapHelper {
 
         // 5) Copy smoothed result; zeros remain zeros outside segments
         System.arraycopy(smooth, 0, result, 0, nbBuckets);
+ */
+
+
+        System.arraycopy(filled, 0, result, 0, nbBuckets);
         return result;
     }
 }

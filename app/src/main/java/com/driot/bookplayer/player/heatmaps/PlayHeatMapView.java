@@ -17,7 +17,7 @@ import com.driot.bookplayer.helpers.ViewHelper;
 public class PlayHeatMapView extends View {
 
     private float[] intensities = new float[0]; // 0..1
-    private final Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint progressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private float[] cursors = new float[0]; // positions 0..1 relative to duration
     private final Paint cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -49,14 +49,16 @@ public class PlayHeatMapView extends View {
         } else {
             baseColor = defaultColor;
         }
-        paint.setStyle(Paint.Style.FILL);
-
-        cursorPaint.setColor(0xFFFF5722); // orange for last-listened
-        cursorPaint.setStrokeWidth(ViewHelper.dp(context, 2)); // 2dp line
+        progressPaint.setStyle(Paint.Style.FILL);
 
         borderPaint.setStyle(Paint.Style.STROKE);
         borderPaint.setStrokeWidth(ViewHelper.dp(context,1)); // 1dp de bordure
         borderPaint.setColor(Color.DKGRAY);     // couleur de la bordure
+
+        int cursorSizeDp = context.getResources().getInteger(R.integer.heatmaps_cursor_size_dp);
+        float cursorWidthPx = ViewHelper.dp(context, cursorSizeDp);
+        cursorPaint.setStrokeWidth(cursorWidthPx);
+        cursorPaint.setColor(0xFFFF5722); // orange for last-listened
     }
 
     @Override
@@ -94,7 +96,7 @@ public class PlayHeatMapView extends View {
         for (int i = 0; i < nbBuckets; i++) {
             float intensity = intensities[i]; // 0..1
             if (intensity <= 0f) {
-                continue; // pas dessiné
+                continue;
             }
 
             float left = i * bucketWidth;
@@ -103,10 +105,10 @@ public class PlayHeatMapView extends View {
             int alpha = (int) (aBase * Math.max(0f, Math.min(intensity, 1f)));
 
             int color = (alpha << 24) | (rBase << 16) | (gBase << 8) | bBase; //ex : 0xFF6496C8.  pour alpha=255, r=100, g=150, b=200
-            paint.setColor(color);
+            progressPaint.setColor(color);
+            progressPaint.setAntiAlias(false);
 
-            //canvas.drawColor(Color.TRANSPARENT);
-            canvas.drawRoundRect(left, 0, right, height, cornerRadius, cornerRadius, paint);
+            canvas.drawRect(left, 0, right, height, progressPaint);
 
         }
 
