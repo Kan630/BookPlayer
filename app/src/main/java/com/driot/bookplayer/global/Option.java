@@ -80,7 +80,7 @@ public class Option {
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_PROGRESS_HEAT_MAP = true;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
-    public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = true;
+    public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
 
 

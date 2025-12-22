@@ -57,7 +57,7 @@ public class Var {
             {60 * 24 * 30, 30000},
     };
 
-    public static final String USER_AGENT_BOOKPLAYER = "BookPlayer/1.0 (Android)";
+    public static final String USER_AGENT_BOOKPLAYER = "BookPlayer/v" + BuildConfig.VERSION_CODE + " (Android)";
 
     public static final String SOURCE_LOCATION_PODCAST = "podcast";
     public static final String SOURCE_LOCATION_LIBRIVOX = "librivox";

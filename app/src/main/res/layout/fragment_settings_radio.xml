@@ -139,7 +139,7 @@
 
         <TextView
             style="@style/OptionTitle"
-            android:text="@string/Performance"/>
+            android:text="@string/Technical"/>
         <LinearLayout
             android:id="@+id/ll_radio_renew_url"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal">
@@ -157,9 +157,15 @@
             android:text="@string/option_radio_renew_url_subtitle" />
 
 
+        <TextView
+            android:layout_marginTop="30dp"
+            style="@style/warningTextView"
+            android:text="@string/beta_test" />
         <LinearLayout
             android:id="@+id/ll_radio_use_cloudfare"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="10dp"
+            >
 
         <com.google.android.material.checkbox.MaterialCheckBox
             android:id="@+id/chk_radio_use_cloudfare"
@@ -169,9 +175,11 @@
             style="@style/OptionCheckBoxText"
             android:text="@string/option_radio_use_cloudfare" />
     </LinearLayout>
+        <!--
     <TextView
         style="@style/OptionSubTitle"
         android:text="@string/option_radio_use_cloudfare_subtitle" />
+        -->
 
         <View style="@style/myStyleViewSimpleHorizontalBar"
             android:layout_marginTop="20dp"

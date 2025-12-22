@@ -16,6 +16,7 @@ public final class AppUpgrade {
     // Set this to the app version where NOT_ROAMING was introduced
     private static final long VERSION_INTRODUCING_NOT_ROAMING = 170L;
     private static final long VERSION_INTRODUCING_HEATMAPS = 223L;
+    private static final long VERSION_DISABLING_CLOUDFARE = 223L;
 
     private static final String KEY_LAST_MIGRATED_VERSION = "last_migrated_app_version";
 
@@ -40,6 +41,10 @@ public final class AppUpgrade {
             if (!Option.getProgressHeatMapInitialized()) {
                 Option.setProgressHeatMap(true);
             }
+        }
+
+        if (last < VERSION_DISABLING_CLOUDFARE) {
+            Option.setRadioUseCloudflare(false);
         }
 
         // Optionally: record the current version (useful for future gates)
