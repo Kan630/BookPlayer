@@ -6,9 +6,6 @@ public class PlayTickBucket {
 
     @Override
     public String toString() {
-        return "{" +
-                "bucket=" + bucket +
-                ", ticks=" + ticks +
-                '}';
+        return ticks + "   ";  // for logging
     }
 }

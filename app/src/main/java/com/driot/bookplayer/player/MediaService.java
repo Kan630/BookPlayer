@@ -1547,7 +1547,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public void pauseAudio() {
         if (engine != null && engine.isPlaying()) {
             enginePause();
-            updateZikFileStateInDB(false);
+            //updateZikFileStateInDB(false);
             compactPlayTicks();
             focus.abandon();
             sleepTimer.stop();
@@ -1660,29 +1660,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
 
-    /********************************************************************************
-     ***       UPDATE DB
-     ********************************************************************************
-     */
-    private void updateZikFileStateInDB(boolean bFinished) {
-        if (isStream()) return;
-        PlayList pl = PlayList.getInstance();
-        ZikFile zf = null;
-        if (pl!=null) {
-            zf = pl.getZikFile();
-        }
-        if (zf == null) {
-            myLogEE(null, "updateZikFileState : ZikFile = null");
-            return;
-        }
-        try {
-            long pos = bFinished ? (int) zf.getDuration() : getPosition();
-            long dur = bFinished ? (int) zf.getDuration() : getDuration();
-            progress.update(zf, bFinished, pos, dur);
-        } catch (Exception e) {
-            myLogEE(e, "updateZikFileStateInDB");
-        }
-    }
 
 
     /********************************************************************************
@@ -2374,12 +2351,43 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void compactPlayTicks() {
-        if (isZikFile()) {
-            PlayList pl = PlayList.getInstance();
-            if (pl!= null && pl.getZikFile() != null) {
+        try {
+            if (isZikFile()) {
+                PlayList pl = PlayList.getInstance();
+                if (pl!= null && pl.getZikFile() != null) {
                 AppDatabase.databaseWriteExecutor.execute(() ->
                         PlayTickCompactor.compact(AppDatabase.getInstance(this), pl.getZikFile().getId()));
             }
+        }
+        } catch (Exception e) {
+            myLogEE(e, "compactPlayTicks");
+        }
+    }
+
+    private void updateZikFileStateInDB(boolean bFinished) {
+        if (isStream()) return;
+        PlayList pl = PlayList.getInstance();
+        ZikFile zf = null;
+        if (pl!=null) {
+            zf = pl.getZikFile();
+        }
+        if (zf == null) {
+            myLogEE(null, "updateZikFileState : ZikFile = null");
+            return;
+        }
+        long pos = 0;
+        long dur = 0;
+        try {
+            pos = bFinished ? (int) zf.getDuration() : getPosition();
+            dur = bFinished ? (int) zf.getDuration() : getDuration();
+        } catch (Exception e) {
+            myLogEE(e, "updateZikFileStateInDB - pos/dur");
+            return;
+        }
+        try {
+            progress.update(zf, bFinished, pos, dur, getPlayMode());
+        } catch (Exception e) {
+            myLogEE(e, "updateZikFileStateInDB - progress");
         }
     }
 

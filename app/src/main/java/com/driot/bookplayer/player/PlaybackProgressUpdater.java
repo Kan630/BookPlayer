@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.player.heatmaps.PlayTick;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.ZikFileDao;
@@ -28,7 +29,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
         this.app = ctx.getApplicationContext();
     }
 
-    public void update(@NonNull ZikFile zf, boolean finished, long pos, long dur) {
+    public void update(@NonNull ZikFile zf, boolean finished, long pos, long dur, String playMode) {
         if (System.currentTimeMillis() < suspendUntil) {
             myLog("update() skipped (suspended)");
             return;
@@ -64,13 +65,21 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 myLogEE(t, "update exception");
             }
 
-            // new Heatmap tick save
-            try {
-                PlayTick tick = new PlayTick(System.currentTimeMillis(), zf.getId(), pos);
-                AppDatabase db = AppDatabase.getDatabase(app);
-                db.playTickDao().insert(tick);
-            } catch (Exception e) {
-                myLogEE(e, "updatePlayTick");
+            if (!finished) {
+                //PlayTick
+                try {
+                    PlayTick tick = new PlayTick(System.currentTimeMillis(), zf.getId(), pos);
+                    AppDatabase.getDatabase(app).playTickDao().insert(tick);
+                } catch (Throwable t) {
+                    myLogEE(t, "playTick insert exception");
+                }
+
+                //Stats
+                try {
+                    Pref.addToTotalMsPlayed(playMode, MediaService.DELAY_CHECK_TIMER_SLEEP);
+                } catch (Throwable t) {
+                    myLogEE(t, "Pref.addToTotalMsPlayed exception");
+                }
             }
 
         });

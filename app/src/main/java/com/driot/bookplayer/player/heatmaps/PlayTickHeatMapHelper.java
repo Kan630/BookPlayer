@@ -2,6 +2,8 @@ package com.driot.bookplayer.player.heatmaps;
 
 import java.util.List;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 public class PlayTickHeatMapHelper {
 
         /**
@@ -34,6 +36,37 @@ public class PlayTickHeatMapHelper {
             }
         }
 
+        // 1D morphological “isolated outlier correction” (a.k.a. impulse removal).
+        if (nbBuckets >= 3) {
+            long[] fixed = tickCounts.clone();
+
+            for (int i = 1; i < nbBuckets - 1; i++) {
+                long left  = tickCounts[i - 1];
+                long mid   = tickCounts[i];
+                long right = tickCounts[i + 1];
+
+                if (left == right && mid != left) {
+                    fixed[i] = left;
+                }
+            }
+            tickCounts = fixed;
+        }
+        // 2nd : 1D morphological “isolated outlier correction” (a.k.a. impulse removal).
+        if (nbBuckets >= 3) {
+            long[] fixed = tickCounts.clone();
+
+            for (int i = 1; i < nbBuckets - 1; i++) {
+                long left  = tickCounts[i - 1];
+                long mid   = tickCounts[i];
+                long right = tickCounts[i + 1];
+
+                if (left == right && mid != left) {
+                    fixed[i] = left;
+                }
+            }
+            tickCounts = fixed;
+        }
+
         // 2) Compute base intensities from "number of passes", with an absolute mapping
         float[] base = new float[nbBuckets];
 
@@ -43,6 +76,8 @@ public class PlayTickHeatMapHelper {
             bucketDurationMs = 1.0;
         }
         double bucketDurationSec = bucketDurationMs / 1000.0;
+        //myLogD("bucketDurationMs=" + bucketDurationMs + " bucketDurationSec=" + bucketDurationSec);
+
 
         for (int i = 0; i < nbBuckets; i++) {
             long ticks = tickCounts[i];
@@ -61,7 +96,7 @@ public class PlayTickHeatMapHelper {
         // 3) Fill small gaps of zeros between non-zero neighbors (continuity)
         float[] filled = new float[nbBuckets];
         System.arraycopy(base, 0, filled, 0, nbBuckets);
-
+/*
         int i = 0;
         while (i < nbBuckets) {
             if (filled[i] > 0f) {
