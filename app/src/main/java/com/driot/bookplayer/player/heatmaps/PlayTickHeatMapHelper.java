@@ -4,6 +4,8 @@ import java.util.List;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.utils.Tonio;
+
 public class PlayTickHeatMapHelper {
 
         /**
@@ -21,9 +23,10 @@ public class PlayTickHeatMapHelper {
             return result;
         }
 
-        final int maxGapBuckets = 3;      // used to fill small holes
-        final int smoothRadius  = 5;      // +/- buckets smoothing
-        final float passesForFullColor = 3f; // 3 full passes => intensity 1.0
+        final int smoothRadius  = 3;      // +/- buckets smoothing
+
+        final float nb_tick_for_1_pass = (float) durationMs / 1000 / nbBuckets;
+        //myLogD("nb_tick_for_1_pass=" + nb_tick_for_1_pass);
 
         long[] tickCounts = new long[nbBuckets];
 
@@ -67,6 +70,50 @@ public class PlayTickHeatMapHelper {
             tickCounts = fixed;
         }
 
+        float[] smoothed = new float[tickCounts.length];
+/*
+        if (Var.HEATMAP_PROGRESSBAR_BUCKET_SIZE == nbBuckets) {
+            myLogD(nbBuckets + " buckets => smoothing array");
+            smoothed = smoothTicks(tickCounts, nbBuckets, smoothRadius);
+
+        } else {
+            myLogD(nbBuckets + " buckets => no smoothing");
+            for (int i = 0; i < tickCounts.length; i++) {
+                smoothed[i] = tickCounts[i];
+            }
+        }
+        */
+
+        for (int i = 0; i < tickCounts.length; i++) {
+            smoothed[i] = tickCounts[i];
+        }
+        //myLogD("smoothed: " + Tonio.getStringFromFloatArray2digits2decimals(smoothed));
+
+        float[] pass = new float[nbBuckets];
+        for (int i = 0; i < nbBuckets; i++) {
+            float zePass = smoothed[i] / nb_tick_for_1_pass;
+            if (zePass <= 0.5) {
+                zePass = 0f;
+            } else if (zePass <= 1.5) {
+                zePass = 0.5f;
+            } else if (zePass <= 2.5) {
+                zePass = 0.75f;
+            } else if (zePass <= 3.5) {
+                zePass = 0.87f;
+            } else {
+                zePass = 0.93f;
+            }
+            pass[i] = zePass;
+        }
+        //myLogD("pass:     " + Tonio.getStringFromFloatArray2digits2decimals(pass));
+
+        return pass;
+
+
+
+
+
+/*
         // 2) Compute base intensities from "number of passes", with an absolute mapping
         float[] base = new float[nbBuckets];
 
@@ -122,55 +169,117 @@ public class PlayTickHeatMapHelper {
                 }
             }
         }
-/*
-        // 4) Smoothing inside listened segments only (no renorm)
+
+ */
+
+
+
+    }
+
+
+
+    public static float[] smoothTicks(long[] tickCounts,
+                                      int nbBuckets,
+                                      int smoothRadius) {
+
         float[] smooth = new float[nbBuckets];
+
+        if (tickCounts == null || nbBuckets <= 0 || smoothRadius <= 0) {
+            return smooth;
+        }
 
         int idx = 0;
         while (idx < nbBuckets) {
-            // skip zeros => silent zone
-            if (filled[idx] <= 0f) {
+
+            // skip silent zone
+            if (tickCounts[idx] <= 0L) {
                 idx++;
                 continue;
             }
 
-            // start of a listened segment
+            // start of listened segment
             int segStart = idx;
-            while (idx < nbBuckets && filled[idx] > 0f) {
+            while (idx < nbBuckets && tickCounts[idx] > 0L) {
                 idx++;
             }
             int segEnd = idx - 1;
 
-            // smoothing with window +/- smoothRadius inside [segStart, segEnd]
+            // smoothing inside [segStart, segEnd]
             for (int j = segStart; j <= segEnd; j++) {
-                float sum = 0f;
+
+                float sum  = 0f;
                 float sumW = 0f;
 
                 int from = Math.max(segStart, j - smoothRadius);
-                int to   = Math.min(segEnd, j + smoothRadius);
+                int to   = Math.min(segEnd,   j + smoothRadius);
 
-                for (int k2 = from; k2 <= to; k2++) {
-                    int dist = Math.abs(k2 - j);
-                    int w = smoothRadius + 1 - dist; // triangle kernel: e.g. 6,5,4,...
+                for (int k = from; k <= to; k++) {
+                    int dist = Math.abs(k - j);
+                    float w = (float) (smoothRadius + 1 - dist); // triangle kernel
 
-                    sum  += filled[k2] * w;
+                    sum  += (float) tickCounts[k] * w;
                     sumW += w;
                 }
 
-                float v = (sumW > 0f) ? (sum / sumW) : filled[j];
-                // clamp 0..1, but DO NOT renormalize per segment
-                if (v > 1f) v = 1f;
+                float v = (sumW > 0f) ? (sum / sumW) : (float) tickCounts[j];
+
+                // clamp only (no renorm)
                 if (v < 0f) v = 0f;
+                if (v > 1f) v = 1f;
+
                 smooth[j] = v;
             }
         }
 
-        // 5) Copy smoothed result; zeros remain zeros outside segments
-        System.arraycopy(smooth, 0, result, 0, nbBuckets);
- */
-
-
-        System.arraycopy(filled, 0, result, 0, nbBuckets);
-        return result;
+        return smooth;
     }
+
+    public static float[] gaussianSmooth(int[] input,
+                                         int radius,
+                                         float sigma) {
+
+        int n = input.length;
+        float[] output = new float[n];
+
+        if (n == 0 || radius <= 0 || sigma <= 0f) {
+            return output;
+        }
+
+        // 1) Build Gaussian kernel
+        int size = radius * 2 + 1;
+        float[] kernel = new float[size];
+
+        float sum = 0f;
+        float sigma2 = 2f * sigma * sigma;
+
+        for (int i = -radius; i <= radius; i++) {
+            float v = (float) Math.exp(-(i * i) / sigma2);
+            kernel[i + radius] = v;
+            sum += v;
+        }
+
+        // Normalize kernel
+        for (int i = 0; i < size; i++) {
+            kernel[i] /= sum;
+        }
+
+        // 2) Convolution
+        for (int i = 0; i < n; i++) {
+            float acc = 0f;
+
+            int from = Math.max(0, i - radius);
+            int to   = Math.min(n - 1, i + radius);
+
+            for (int j = from; j <= to; j++) {
+                int k = j - i + radius;
+                acc += input[j] * kernel[k];
+            }
+
+            output[i] = acc;
+        }
+
+        return output;
+    }
+
+
 }

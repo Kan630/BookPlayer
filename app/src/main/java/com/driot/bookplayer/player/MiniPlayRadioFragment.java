@@ -49,7 +49,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             }
 
             //myLogD(s.toString());
-            myLogI("vm.getState().observe " + s);
+            //myLogI("vm.getState().observe " + s);
 
             if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");

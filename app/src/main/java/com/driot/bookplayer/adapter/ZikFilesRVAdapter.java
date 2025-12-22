@@ -242,11 +242,10 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 //myLogD(zikFile.getDisplayName() + " => " + sessionBuckets.size() + "Session buckets:\n" + sessionBuckets.toString());
 
                 List<PlayTickBucket> buckets = PlayTickBucketMerger.merge(sessionBuckets, tickBuckets);
-
-                myLogD(zikFile.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
+                //myLog("-------");
+                //myLogD(zikFile.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
 
                 final float[] intensities = PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
-                myLogD(Tonio.getStringFromFloatArray2decimals(intensities));
 
                 // Come back on UI thread and check that this ViewHolder still represents the same item
                 itemView.post(() -> {

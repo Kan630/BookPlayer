@@ -56,6 +56,7 @@ public class NetworkStatusRowController {
     }
 
     private void onStatusChanged(NetworkStatus status) {
+        if (root==null) return;
         hasInternet = status.hasInternet;
         offlineSinceMillis = status.offlineSinceMillis;
 

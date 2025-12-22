@@ -23,6 +23,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 
 import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.objects.VoiceItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
@@ -212,15 +214,33 @@ public class PlayActivity extends LoggingActivity {
         ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
         container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
             @Override public void onSingleTap() {
+                myLogD("ClickInterceptFrameLayout - single tap");
                 if (Option.getClickMainContainerPlayPause()) vm.playPause();
             }
             @Override public void onDoubleTap() {
+                myLogD("ClickInterceptFrameLayout - double tap");
                 PlaybackUiState s = vm.getState().getValue();
-                if (s != null && "tts".equals(s.playMode)) {
+                if (s == null) {
+                    myLogD("no PlaybackUiState");
+                    return;
+                }
+                if (Var.PLAY_MODE_TTS.equals(s.playMode)) {
                     applyTtsToggleUi(s);
+                }
+                if (Var.PLAY_MODE_BOOK.equals(s.playMode)) { //open podcast view.
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        PodcastDao dao = AppDatabase.getDatabase(getApplicationContext()).podcastDao();
+                        Podcast podcast = dao.getPodcastByFolderId(folder.getId());
+                        if (podcast != null) {
+                            runOnUiThread(() -> {
+                                handlePodcastClick(podcast);
+                            });
+                        }
+                    });
                 }
             }
             @Override public void onLongPress() {
+                myLogD("ClickInterceptFrameLayout - long press");
                 ZikFile z = PlayList.getInstance() != null ? PlayList.getInstance().getZikFile() : null;
                 if (z != null) MetadataUi.showMetadataDialog(PlayActivity.this, z);
             }
@@ -498,10 +518,13 @@ public class PlayActivity extends LoggingActivity {
         }
     }
 
-    private void handlePodcastClick(@Nullable Podcast p) {
+    private void handlePodcastClick(@NonNull Podcast p) {
         long now = System.currentTimeMillis();
-        if (now - podcastLastClickTime < PODCAST_DOUBLE_CLICK_THRESHOLD && p != null) {
+        if (now - podcastLastClickTime > PODCAST_DOUBLE_CLICK_THRESHOLD) {
+            myLogI("user clicks podcast");
             startActivity(new Intent(this, PodcastEpisodeActivity.class).putExtra("podcast", p));
+        } else {
+            myLogW("user clicks podcast - bypassing" + now + "-" + podcastLastClickTime);
         }
         podcastLastClickTime = now;
     }

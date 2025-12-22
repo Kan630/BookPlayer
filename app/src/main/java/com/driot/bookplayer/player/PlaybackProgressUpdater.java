@@ -3,6 +3,7 @@ package com.driot.bookplayer.player;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
@@ -29,18 +30,28 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
         this.app = ctx.getApplicationContext();
     }
 
-    public void update(@NonNull ZikFile zf, boolean finished, long pos, long dur, String playMode) {
+    public void update(@Nullable ZikFile zf, boolean finished, long pos, long dur, String playMode, long timestamp) {
         if (System.currentTimeMillis() < suspendUntil) {
             myLog("update() skipped (suspended)");
             return;
         }
         io.submit(() -> {
-            // Legacy zikFile position
+            //Stats
+            if (!finished) {
+                try {
+                    Pref.addToTotalMsPlayed(playMode, MediaService.DELAY_CHECK_TIMER_SLEEP);
+                } catch (Throwable t) {
+                    myLogEE(t, "Pref.addToTotalMsPlayed exception");
+                }
+            }
+            if (zf == null) return;
+
+                // Legacy zikFile position
             try {
                 if (zf.lFirstAccess == null || zf.lFirstAccess == 0) {
-                    zf.lFirstAccess = System.currentTimeMillis();
+                    zf.lFirstAccess = timestamp;
                 }
-                zf.lLastAccess = System.currentTimeMillis();
+                zf.lLastAccess = timestamp;
 
                 if (finished) {
                     zf.setPosition(zf.getDuration());
@@ -65,21 +76,15 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 myLogEE(t, "update exception");
             }
 
+            //PlayTick
             if (!finished) {
-                //PlayTick
                 try {
-                    PlayTick tick = new PlayTick(System.currentTimeMillis(), zf.getId(), pos);
+                    PlayTick tick = new PlayTick(timestamp, zf.getId(), pos);
                     AppDatabase.getDatabase(app).playTickDao().insert(tick);
                 } catch (Throwable t) {
                     myLogEE(t, "playTick insert exception");
                 }
 
-                //Stats
-                try {
-                    Pref.addToTotalMsPlayed(playMode, MediaService.DELAY_CHECK_TIMER_SLEEP);
-                } catch (Throwable t) {
-                    myLogEE(t, "Pref.addToTotalMsPlayed exception");
-                }
             }
 
         });

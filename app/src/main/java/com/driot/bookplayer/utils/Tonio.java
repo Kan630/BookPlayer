@@ -566,11 +566,13 @@ public class Tonio {
         return cleanedString;
     }
 
-    public static String getStringFromFloatArray2decimals(float[] values) {
+    public static String getStringFromFloatArray2digits2decimals(float[] values) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < values.length; i++) {
             if (i > 0) sb.append(", ");
-            sb.append(String.format(Locale.US, "%.2f", values[i]));
+            // %5.2f means: total width 5 chars, 2 decimals
+            // numbers <10 get a leading space
+            sb.append(String.format(Locale.US, "%5.2f", values[i]));
         }
         sb.append("]");
         return sb.toString();
