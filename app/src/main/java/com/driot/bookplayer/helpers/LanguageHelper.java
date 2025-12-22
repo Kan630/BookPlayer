@@ -191,6 +191,7 @@ public class LanguageHelper {
             case "ml": return "IN";  // Malayalam
             case "kn": return "IN";  // Kannada
             // ... add more languages here
+            case "yue": return "CN";  // Kannada
             default: return null;    // no mapping available
         }
     }
