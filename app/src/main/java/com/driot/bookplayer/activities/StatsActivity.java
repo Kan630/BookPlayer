@@ -68,6 +68,9 @@ public class StatsActivity extends LoggingActivity {
         if (getFilesDir().getParentFile() != null) {
             sizeDB = getFolderSize(this.getFilesDir().getParentFile().getPath() + "/databases") / 1048576L;
         }
+        //TODO asynch... livedata (cause reading the SD is slow)
+        long sizeCachedImages = getFolderSize(this.getFilesDir().getPath() + "/cached_images") / 1048576L;
+
 
 
         zeText =

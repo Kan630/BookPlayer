@@ -74,6 +74,12 @@ public class AdminActivity extends LoggingActivity {
                 myLogD("-----------------");
                 FileHelper.listAllFiles(StorageHelper.getImageFolder(this, false));
                 myLogD("-----------------");
+            }).start();
+        });
+
+        findViewById(R.id.bFlushDiskCachedImages).setOnClickListener(v -> {
+            new Thread(() -> {
+                myLogD("-----------------");
                 myLogD("-- CACHED");
                 myLogD("-----------------");
                 FileHelper.listAllFiles(StorageHelper.getImageFolder(this, true));

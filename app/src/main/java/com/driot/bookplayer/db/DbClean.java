@@ -22,11 +22,11 @@ public class DbClean {
     private static final int DEBUG_LOG_SKIP_LOOP = 20;
     private static final int INTERVAL_BETWEEN_CHECKS_IN_MIN = 60*24;
 
-    public static void doClean(Context context, boolean cleanZikFilePaths, boolean cleanImagesPaths) {
+    public static void doClean(Context context, boolean cleanZikFilePaths, boolean cleanImagesPaths, boolean forceClean) {
 
         long lastDbClean = Pref.getLastDbClean();
         long now = System.currentTimeMillis();
-        boolean doClean = (now - lastDbClean > INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000);
+        boolean doClean = forceClean || (now - lastDbClean > INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000);
         myLog("doClean = [" + doClean +  "].. - last Clean was " + Tonio.formatTime(now - lastDbClean) + " ago. -  Interval = " + Tonio.formatTime(INTERVAL_BETWEEN_CHECKS_IN_MIN * 60 * 1000));
         if (!doClean) return;
         Pref.setLastDbClean();

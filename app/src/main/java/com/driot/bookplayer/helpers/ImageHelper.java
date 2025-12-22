@@ -26,6 +26,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -78,101 +79,130 @@ public class ImageHelper {
         return imageFile.getAbsolutePath();
     }
 
-        public static void processPendingImages(Context context) {
-            //myLogD("processPendingImages");
-            AppDatabase.databaseWriteExecutor.execute(() -> {
-                AppDatabase db = AppDatabase.getDatabase(context);
+    public static void processPendingImages(Context context) {
+        //myLogD("processPendingImages");
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getDatabase(context);
 
-                // --- 0) Migrate folder images from cached_images -> images ---
-                try {
-                    List<Folder> allFolders = db.folderDao().getAll(); // you already use this elsewhere
-                    for (Folder f : allFolders) {
-                        String path = f.image;
-                        if (path == null || path.isEmpty()) continue;
+            // --- 0) Migrate folder images from cached_images -> images ---
+            try {
+                List<Folder> allFolders = db.folderDao().getAll(); // you already use this elsewhere
+                for (Folder f : allFolders) {
+                    String path = f.image;
+                    if (path == null || path.isEmpty()) continue;
 
-                        // Only local absolute files (skip URIs)
-                        if (path.startsWith("content://") || path.startsWith("file://")) continue;
+                    // Only local absolute files (skip URIs)
+                    if (path.startsWith("content://") || path.startsWith("file://")) continue;
 
-                        // If in cached_images, move it
-                        String moved = moveCachedImageToPermanent(context, path);
-                        if (moved != null && !moved.equals(path)) {
+                    // If in cached_images, move it
+                    String moved = moveCachedImageToPermanent(context, path);
+                    if (moved != null && !moved.equals(path)) {
+                        try {
+                            db.folderDao().updateImage(f.getId(), moved);
+                            myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
+                        } catch (Exception e) {
+                            myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "processPendingImages: cached->images migration block");
+            }
+
+
+            // --- Handle Podcast images ---
+            List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
+            for (Podcast podcast : pendingPodcasts) {
+                String url = podcast.image;
+                if (url == null || !url.startsWith("http")) continue;
+
+                String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
+                String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
+                if (localPath != null) {
+                    podcast.image = localPath;
+                    db.podcastDao().update(podcast);
+                }
+            }
+
+            //Move Folder cover if on SD card
+            try {
+                List<Folder> allFolders = db.folderDao().getAll();
+                for (Folder f : allFolders) {
+                    String path = f.image;
+                    if (path == null || path.isEmpty()) continue;
+
+                    // Check if it's on SD card (absolute path or content URI)
+                    if (path.startsWith("/storage/") ||
+                            path.startsWith("/sdcard/") ||
+                            path.startsWith("content://com.android.externalstorage")) {
+
+                        String localPath = checkAndCopySdCardCoverToLocal(context, path, f.getId());
+                        myLog("Folder image to move from SD card: [" + path + "] => [" + localPath + "]");
+
+                        if (localPath != null && !localPath.equals(path)) {
                             try {
-                                db.folderDao().updateImage(f.getId(), moved);
-                                myLogD("Folder image path updated (cache->images): id=" + f.getId() + "  " + moved);
+                                db.folderDao().updateImage(f.getId(), localPath);
+                                myLogD("Folder cover migrated from SD to local: id=" + f.getId());
                             } catch (Exception e) {
-                                myLogEE(e, "DB update after moving cached image (folderId=" + f.getId() + ")");
+                                myLogEE(e, "DB update after SD->local migration (folderId=" + f.getId() + ")");
                             }
                         }
                     }
-                } catch (Exception e) {
-                    myLogEE(e, "processPendingImages: cached->images migration block");
+                }
+            } catch (Exception e) {
+                myLogEE(e, "processPendingImages: SD->local migration block");
+            }
+
+            // --- Handle Folder images ---
+            List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
+            for (Folder folder : pendingFolders) {
+                String url = folder.image;
+
+                if (url == null) continue;
+
+                String localPath = null;
+                String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
+
+                if (url.startsWith("http")) {
+                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
+                } else if (isContentUri(url)) {
+                    localPath = copyContentUriToImageFile(context, url, imagePath, false);
                 }
 
-
-    // --- Handle Podcast images ---
-                List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
-                for (Podcast podcast : pendingPodcasts) {
-                    String url = podcast.image;
-                    if (url == null || !url.startsWith("http")) continue;
-
-                    String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
-                    String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
-                    if (localPath != null) {
-                        podcast.image = localPath;
-                        db.podcastDao().update(podcast);
-                    }
+                if (localPath != null) {
+                    folder.image = localPath;
+                    db.folderDao().update(folder);
                 }
+            }
 
-                // --- Handle Folder images ---
-                List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
-                for (Folder folder : pendingFolders) {
-                    String url = folder.image;
-
-                    if (url == null) continue;
-
+            // --- Handle Radio images ---
+            if (NetworkHelper.hasInternet(context)) {
+                List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImages();
+                for (RadioStation radioStation : radioStations) {
+                    String url = radioStation.favicon;
+                    String imagePath = IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
                     String localPath = null;
-                    String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
-
-                    if (url.startsWith("http")) {
-                        localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
-                    } else if (isContentUri(url)) {
-                        localPath = copyContentUriToImageFile(context, url, imagePath, false);
-                    }
-
+                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
                     if (localPath != null) {
-                        folder.image = localPath;
-                        db.folderDao().update(folder);
-                    }
-                }
-
-                // --- Handle Radio images ---
-                if (NetworkHelper.hasInternet(context)) {
-                    List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImages();
-                    for (RadioStation radioStation : radioStations) {
-                        String url = radioStation.favicon;
-                        String imagePath = IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
-                        String localPath = null;
-                        localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
-                        if (localPath != null) {
-                            File f = new File(localPath);
-                            if (f.exists() && f.length() > 0L) {
-                                // OK, non-empty file → persist local path
-                                radioStation.favicon = localPath;
-                                db.radioStationDao().update(radioStation);
-                            } else {
-                                // 0 KB or missing → treat as failure, clean up
-                                myLogW("Radio favicon download failed or empty (" + f.length() + " bytes) for " + url);
-                                if (f.exists() && f.length() == 0L) {
-                                    try {myLog("deleting bad file, success=" + f.delete());} catch (Exception ignored) {}
-                                }
-                                // keep old favicon URL in DB so Glide can still try remote
+                        File f = new File(localPath);
+                        if (f.exists() && f.length() > 0L) {
+                            // OK, non-empty file → persist local path
+                            radioStation.favicon = localPath;
+                            db.radioStationDao().update(radioStation);
+                        } else {
+                            // 0 KB or missing → treat as failure, clean up
+                            myLogW("Radio favicon download failed or empty (" + f.length() + " bytes) for " + url);
+                            if (f.exists() && f.length() == 0L) {
+                                try {myLog("deleting bad file, success=" + f.delete());} catch (Exception ignored) {}
                             }
+                            // keep old favicon URL in DB so Glide can still try remote
                         }
                     }
                 }
+            }
 
-            });
-        }
+        });
+    }
 
     public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl, boolean forceDownload) {
         String imagePath = IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg";
@@ -766,6 +796,98 @@ public class ImageHelper {
         int r;
         while ((r = is.read(buf)) != -1) bos.write(buf, 0, r);
         return bos.toByteArray();
+    }
+
+    /**
+     * Checks if a cover image is stored on SD card and copies/moves it to local storage
+     * to improve app loading performance.
+     *
+     * @param context The application context
+     * @param currentImagePath The current image path from the database
+     * @param bookId The book/folder ID to use for naming the local cover file
+     * @return The new local path if copied/moved, or the original path if already local, null on failure
+     */
+    public static String checkAndCopySdCardCoverToLocal(Context context, String currentImagePath, long bookId) {
+        if (currentImagePath == null || currentImagePath.isEmpty()) {
+            return null;
+        }
+
+        // Skip if already a local path (relative path in our files dir)
+        if (!currentImagePath.startsWith("/storage/") &&
+                !currentImagePath.startsWith("/sdcard/") &&
+                !currentImagePath.startsWith("content://")) {
+            // Already local relative path
+            return currentImagePath;
+        }
+
+        try {
+            File sourceFile = null;
+            File destFile = new File(StorageHelper.getImageFolder(context,false), IMAGE_PREFIX_FOR_SAVED_BOOK + bookId + ".jpg");
+            boolean shouldMove = false; // move if in our app folder, copy otherwise
+
+            // Handle content:// URIs
+            if (currentImagePath.startsWith("content://")) {
+                // For content URIs, we'll copy (can't move)
+                return copyContentUriToImageFile(context, currentImagePath, destFile.getPath(), false);
+            }
+
+            // Handle absolute file paths on SD card
+            sourceFile = new File(currentImagePath);
+            if (!sourceFile.exists() || !sourceFile.canRead()) {
+                myLogW("SD card cover not accessible: " + currentImagePath);
+                return null;
+            }
+
+            // Check if it's in our app's reserved SD card folder
+            File[] externalFilesDirs = context.getExternalFilesDirs(null);
+            for (File appDir : externalFilesDirs) {
+                if (appDir != null && currentImagePath.startsWith(appDir.getAbsolutePath())) {
+                    shouldMove = true;
+                    break;
+                }
+            }
+
+            // Create parent directories if needed
+            File parentDir = destFile.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();
+            }
+
+            // Copy the file
+            try (FileInputStream fis = new FileInputStream(sourceFile);
+                 FileOutputStream fos = new FileOutputStream(destFile)) {
+
+                byte[] buffer = new byte[8192];
+                int bytesRead;
+                while ((bytesRead = fis.read(buffer)) != -1) {
+                    fos.write(buffer, 0, bytesRead);
+                }
+                fos.flush();
+            }
+
+            // If we should move (app folder), delete the source
+            shouldMove = false; //TODO, to check, maybe ok, but afraid to break export or something else...
+            if (shouldMove) {
+                try {
+                    if (sourceFile.delete()) {
+                        myLog("cover on sd_card MOVED to local: " + destFile.getPath());
+                    } else {
+                        myLogW("Could not delete source file after copy: " + currentImagePath);
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error deleting source file after move");
+                }
+            } else {
+                myLog("cover on sd_card COPIED to local: " + destFile.getPath());
+            }
+
+            return destFile.getPath();
+
+        } catch (Exception e) {
+            myLogEE(e, "checkAndCopySdCardCoverToLocal failed for: " + currentImagePath);
+        }
+
+        return null;
     }
 
 }

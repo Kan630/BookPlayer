@@ -355,6 +355,9 @@ public class NetworkHelper {
                 } else if (t.getMessage() != null && t.getMessage().contains("Invalid host")) {
                     myLogW("Invalid host for: " + url);
                     return null;
+                } else if (t.getMessage() != null && t.getMessage().contains("No address associated with hostname")) {
+                    myLogW("No address associated with hostname: " + url);
+                    return null;
                 }
                 myLogEE(t, "fetch failed for: " + url);
                 return null;

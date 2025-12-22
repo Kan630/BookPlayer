@@ -195,7 +195,7 @@ public class RadioBrowserServiceFactory {
 
     /** Make a tiny blocking call to check the mirror is alive. */
     private static boolean probeMirror(OkHttpClient client, String base) {
-        myLog("probeMirror : " + base);
+        myLog("probeMirror / call to check the mirror is alive: " + base);
         try {
             Retrofit r = new Retrofit.Builder()
                     .baseUrl(base)
