@@ -100,8 +100,16 @@ public class PlayTickHeatMapHelper {
                 zePass = 0.75f;
             } else if (zePass <= 3.5) {
                 zePass = 0.87f;
-            } else {
+            } else if (zePass <= 4.5) {
                 zePass = 0.93f;
+            } else if (zePass <= 5.5) {
+                zePass = 0.96f;
+            } else if (zePass <= 6.5) {
+                zePass = 0.98f;
+            } else if (zePass <= 7.5) {
+                zePass = 0.99f;
+            } else {
+                zePass = 1f;
             }
             pass[i] = zePass;
         }
