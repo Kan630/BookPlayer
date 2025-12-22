@@ -78,7 +78,7 @@ public class Option {
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
-    public static final boolean DEFAULT_PROGRESS_HEAT_MAP = false;
+    public static final boolean DEFAULT_PROGRESS_HEAT_MAP = true;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = true;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
@@ -157,9 +157,8 @@ public class Option {
     public static void setRadioRemoveSpamStations(boolean bool) {prefs.edit().putBoolean("RADIO_REMOVE_SPAM_STATIONS",bool).apply();}
 
     public static boolean getProgressHeatMap() {return prefs.getBoolean("PROGRESS_HEAT_MAP", DEFAULT_PROGRESS_HEAT_MAP);}
+    public static boolean getProgressHeatMapInitialized() {return prefs.contains("PROGRESS_HEAT_MAP");}
     public static void setProgressHeatMap(boolean bool) {prefs.edit().putBoolean("PROGRESS_HEAT_MAP",bool).apply();}
-
-
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////
     public static void setTimeBeforeSleep(int i) {prefs.edit().putInt("TIME_BEFORE_SLEEP",i).apply();}

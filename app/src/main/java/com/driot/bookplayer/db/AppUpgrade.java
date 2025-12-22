@@ -15,6 +15,7 @@ public final class AppUpgrade {
 
     // Set this to the app version where NOT_ROAMING was introduced
     private static final long VERSION_INTRODUCING_NOT_ROAMING = 170L;
+    private static final long VERSION_INTRODUCING_HEATMAPS = 223L;
 
     private static final String KEY_LAST_MIGRATED_VERSION = "last_migrated_app_version";
 
@@ -33,6 +34,12 @@ public final class AppUpgrade {
             migrateAddNotRoaming(context, prefs);
             // Mark this migration as done
             prefs.edit().putLong(KEY_LAST_MIGRATED_VERSION, VERSION_INTRODUCING_NOT_ROAMING).apply();
+        }
+
+        if (last < VERSION_INTRODUCING_HEATMAPS) {
+            if (!Option.getProgressHeatMapInitialized()) {
+                Option.setProgressHeatMap(true);
+            }
         }
 
         // Optionally: record the current version (useful for future gates)
