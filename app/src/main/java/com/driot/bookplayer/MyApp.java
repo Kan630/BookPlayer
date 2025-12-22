@@ -6,6 +6,7 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
+import android.os.Handler;
 import android.os.Looper;
 import android.os.StrictMode;
 
@@ -74,7 +75,9 @@ public class MyApp extends Application {
 
         AppUpgrade.runMigrations(getApplicationContext());
 
-        DbClean.doClean(getApplicationContext(), true, true, false);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            DbClean.doClean(getApplicationContext(), true, true, false);
+        }, Var.PERIODIC_DO_CLEAN_INITIAL_DELAY_IN_SECONDS * 1000);
 
         myLog("Context has been initialized");
 

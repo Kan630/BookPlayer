@@ -16,6 +16,7 @@ public class Var {
     public static final int HEATMAP_PROGRESSBAR_BUCKET_SIZE = 400;
 
     public static final int PERIODIC_TASK_MANAGER_INITIAL_DELAY_IN_SECONDS = 15;
+    public static final int PERIODIC_DO_CLEAN_INITIAL_DELAY_IN_SECONDS = 30;
 
     public static final int RADIO_STATION_MAX_DUPLICATES = 3; // change value in strings...
     // Example blacklist
