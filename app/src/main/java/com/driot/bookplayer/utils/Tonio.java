@@ -142,6 +142,7 @@ public class Tonio {
         if (d == 100.0) return "100 %";
         return String.format(Locale.US, "%.1f %%", d);
     }
+
     public static int formatPercentForProgressBar(Double d) {
         int i;
         if (d != null) {

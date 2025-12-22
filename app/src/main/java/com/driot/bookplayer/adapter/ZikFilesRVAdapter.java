@@ -180,26 +180,26 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
     // FULL BIND
     @Override
     public void onBindViewHolder(@NonNull ZikFilesViewHolder holder, int position) {
-        ZikFile t = getItem(position);
-        if (t == null) return;
+        ZikFile zikFile = getItem(position);
+        if (zikFile == null) return;
         holder.ibSort.setText(String.valueOf(position + 1));
 
         Context ctx = holder.itemView.getContext();
 
-        holder.textViewFileName.setText(t.getDisplayName());
+        holder.textViewFileName.setText(zikFile.getDisplayName());
         Option.applyUserTextAppearance(holder.textViewFileName);
-        holder.textViewFilePercent.setText(Tonio.formatPercentString(t.getPercentdone()));
-        holder.mProgressBar.setProgress(Tonio.formatPercentForProgressBar(t.getPercentdone()));
-        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(t.lLastAccess, ctx));
-        holder.textViewDuration.setText(Tonio.formatTime(t.getDuration()));
+        holder.textViewFilePercent.setText(Tonio.formatPercentString(zikFile.getPercentdone()));
+        holder.textViewFileLastAccess.setText(Tonio.formatLastAccess(zikFile.lLastAccess, ctx));
+        holder.textViewDuration.setText(Tonio.formatTime(zikFile.getDuration()));
 
-        holder.itemView.setActivated(t.getId() == highlightedTrackId);
+        holder.itemView.setActivated(zikFile.getId() == highlightedTrackId);
 
         if (displayHeatMaps) {
-            holder.updateHeatMap(t);
+            holder.updateHeatMap(zikFile);
             holder.mProgressBar.setVisibility(View.GONE);
             holder.heatMapView.setVisibility(View.VISIBLE);
         } else {
+            holder.mProgressBar.setProgress(Tonio.formatPercentForProgressBar(zikFile.getPercentdone()));
             holder.mProgressBar.setVisibility(View.VISIBLE);
             holder.heatMapView.setVisibility(View.GONE);
         }
