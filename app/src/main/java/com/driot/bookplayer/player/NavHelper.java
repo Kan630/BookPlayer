@@ -9,10 +9,10 @@ import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.activities.GetPodcastActivity;
-import com.driot.bookplayer.activities.GetRadioActivity;
+import com.driot.bookplayer.radio.GetRadioActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.PodcastFavoritesActivity;
-import com.driot.bookplayer.activities.RadioFavoritesActivity;
+import com.driot.bookplayer.radio.RadioFavoritesActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;

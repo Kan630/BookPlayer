@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.radio;
 
 import android.app.Application;
 
@@ -7,11 +7,6 @@ import androidx.lifecycle.LiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.radio.RadioBrowserRepository;
-import com.driot.bookplayer.radio.RadioStation;
-import com.driot.bookplayer.radio.RadioStationDao;
-import com.driot.bookplayer.radio.Station;
-import com.driot.bookplayer.radio.VoteResponse;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.List;

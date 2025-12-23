@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.radio;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,24 +10,16 @@ import android.widget.Spinner;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.radio.RadioBrowserRepository;
-import com.driot.bookplayer.radio.Station;
-import com.driot.bookplayer.radio.TagCardAdapter;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
 
-import java.util.List;
-import java.util.concurrent.Executors;
-
 import dagger.hilt.android.AndroidEntryPoint;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 /**
  * Entry screen to browse/search internet radios (Radio Browser).

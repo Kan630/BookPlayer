@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.radio;
 
 import android.os.Bundle;
 import android.view.View;
@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.BaseBottomNavActivity;
 import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.adapter.RadioFavoritesRVAdapter;
 import com.driot.bookplayer.global.Option;
@@ -22,10 +23,6 @@ import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.StartPlayHelper;
-import com.driot.bookplayer.radio.RadioBrowserRepository;
-import com.driot.bookplayer.radio.RadioFavoriteItem;
-import com.driot.bookplayer.radio.RadioResultsViewModel;
-import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 

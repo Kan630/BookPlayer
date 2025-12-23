@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.radio;
 
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -13,9 +13,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
-import com.driot.bookplayer.radio.RadioStation;
+import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.color.MaterialColors;
@@ -24,8 +26,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class RadioStationActivity extends BaseBottomNavActivity {
-
-    public static final String EXTRA_STATION_UUID = "stationuuid";
 
     private ImageView ivCover;
     private TextView tvName;
@@ -47,7 +47,7 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        String stationUuid = getIntent().getStringExtra(EXTRA_STATION_UUID);
+        String stationUuid = getIntent().getStringExtra(Intents.EXTRA_STATION_UUID);
         if (stationUuid == null || stationUuid.isEmpty()) {
             myLogE("RadioStationActivity started without stationuuid extra");
             finish();
@@ -66,7 +66,6 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         ibFavorite = findViewById(R.id.ibFavorite);
         ibVote     = findViewById(R.id.ibVote);
 
-
         // Load station
 
         vm = new ViewModelProvider(this).get(RadioStationViewModel.class);
@@ -78,6 +77,13 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         View networkRowView = findViewById(R.id.includeNetworkStatus);
         NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
         new NetworkStatusRowController(this, networkRowView, this, netVm);
+
+        ImageButton ibShare = findViewById(R.id.ibShare);
+        ibShare.setOnClickListener(v -> {
+            String currentRadioUrl = tvUrl.getText().toString();
+            myLogI("--- user clicks share ----  " + currentRadioUrl);
+            ShareHelper.shareRadioStation(RadioStationActivity.this, currentRadioUrl, stationUuid);
+        });
 
     }
 

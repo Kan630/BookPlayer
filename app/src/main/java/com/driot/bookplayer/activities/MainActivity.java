@@ -37,6 +37,8 @@
     import com.driot.bookplayer.player.NavHelper;
     import com.driot.bookplayer.player.PlaybackUiState;
     import com.driot.bookplayer.player.PlaybackViewModel;
+    import com.driot.bookplayer.player.StartPlayHelper;
+    import com.driot.bookplayer.radio.RadioStationActivity;
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;
 
@@ -168,6 +170,8 @@
                 }
             });
 
+            handleDeepLink(getIntent());
+
             //InAppMsgManager.deleteInAppMsgCache(this);
             MyApp.getPeriodicTaskManager(this).start(); // safe
             InAppMsgManager.maybeShowBestMessage(this, "message");
@@ -185,6 +189,7 @@
                 myLog("scrollToTop");
                 mainVm.requestScrollToTopNow();
             }
+            handleDeepLink(intent);
         }
 
         @Override
@@ -293,5 +298,58 @@
             } else if (requestedNavId == R.id.nav_settings) {
                 startActivity(new Intent(this, SettingsActivity.class));
             }
+        }
+
+        private void handleDeepLink(Intent intent) {
+            Uri data = intent.getData();
+
+            if (data != null) {
+                String host = data.getHost();
+                String path = data.getPath();
+
+                myLogI("DeepLink: host=[" + host + "] - path=[" + path + "] - data=[" + data.toString() + "]");
+
+                if (host != null) {
+
+                    switch (path) {
+
+                        case "/share/radio":
+                            String url = data.getQueryParameter("url");
+                            String uuid = data.getQueryParameter("uuid");
+                            myLog("url=[" + url + "] - uuid=[" + uuid + "]");
+
+                            if (uuid != null) {
+                                Intent i = new Intent(this, RadioStationActivity.class);
+                                i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
+                                i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                                startActivity(i);
+                            }
+                            if (url != null) {
+                                StartPlayHelper.playRadioFromUuidAndUrl(this, uuid, url, "DeepLink");
+                            }
+
+                            break;
+
+                        case "share/librivox":
+                            String bookUrl = data.getQueryParameter("url");
+                            if (bookUrl != null) {
+                                playLibrivoxBook(bookUrl);
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+
+        private void playRadioStation(String url) {
+            // Your logic to play radio station
+            myLog("Playing radio: " + url);
+            // TODO: Implement your radio player logic
+        }
+
+        private void playLibrivoxBook(String url) {
+            // Your logic to play librivox book
+            myLog("Playing librivox book: " + url);
+            // TODO: Implement your librivox player logic
         }
     }

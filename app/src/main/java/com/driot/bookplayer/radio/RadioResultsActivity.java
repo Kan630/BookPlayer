@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.radio;
 
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.BaseBottomNavActivity;
 import com.driot.bookplayer.adapter.RadioResultRVAdapter;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -17,10 +18,6 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
-import com.driot.bookplayer.radio.RadioBrowserRepository;
-import com.driot.bookplayer.radio.RadioResultsViewModel;
-import com.driot.bookplayer.radio.Station;
-import com.driot.bookplayer.radio.UrlResolve;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 

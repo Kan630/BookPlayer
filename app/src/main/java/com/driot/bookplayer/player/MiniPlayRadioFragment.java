@@ -9,12 +9,11 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.GetRadioActivity;
-import com.driot.bookplayer.activities.RadioStationActivity;
+import com.driot.bookplayer.radio.GetRadioActivity;
+import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.radio.RadioStationActivity;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.log.LoggingFragment;
-
-import dagger.hilt.android.internal.lifecycle.HiltViewModelFactory;
 
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
@@ -87,7 +86,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 myLogD("radioStationUuid = " + radioStationUuid);
                 if (radioStationUuid!=null) {
                     Intent intent = new Intent(requireContext(), RadioStationActivity.class);
-                    intent.putExtra(RadioStationActivity.EXTRA_STATION_UUID, radioStationUuid);
+                    intent.putExtra(Intents.EXTRA_STATION_UUID, radioStationUuid);
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // dont open it multiple time... NOT SURE CLEAR TOP is really usefull...
                     startActivity(intent);
                 } else {

@@ -1,4 +1,4 @@
-package com.driot.bookplayer.activities;
+package com.driot.bookplayer.radio;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,13 +12,10 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.BaseBottomNavActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.radio.RadioBrowserRepository;
-import com.driot.bookplayer.radio.TagCardAdapter;
-import com.driot.bookplayer.radio.TagItem;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

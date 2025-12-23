@@ -54,7 +54,16 @@ public class StartPlayHelper {
         playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title, cover, caller);
     }
 
+    public static void playRadioFromUuidAndUrl(Context context, String uuid, String streamUrl, String caller) {
+        Station station = new Station();
+        station.stationuuid = uuid;
+        station.url = streamUrl;
+        station.name = "shared station";
+        onRadioClick(context, station, streamUrl, caller);
+    }
+
     public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
+        myLogI("onRadioClick()");
         playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon, caller);
         //update DB
         final Station station = s;
