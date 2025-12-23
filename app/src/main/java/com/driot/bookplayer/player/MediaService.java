@@ -2260,6 +2260,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
 
         Folder folder = AppDatabase.getDatabase(this).folderDao().getById(zikFile.getIdFolder());
+        if (folder == null) {
+            err = "Folder not found for [" + zikFile.getFolderName() + "]";
+            myLogEE(null, err);
+            loadFileKO(err);
+            return false;
+        }
+
         List<ZikFile> list;
         if (isPodcast) {
             if (newestFirst) {
