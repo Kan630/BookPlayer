@@ -7,6 +7,8 @@ import com.driot.bookplayer.utils.Tonio;
 
 public class PlayTickHeatMapHelper {
 
+    public final static boolean LOG_DEBUG_PLAYTICK = false;
+
     public static float[] computeIntensities(List<PlayTickBucket> buckets,
                                              long durationMs,
                                              int nbBuckets) {
@@ -16,7 +18,7 @@ public class PlayTickHeatMapHelper {
         }
 
         final float nb_tick_for_1_pass = (float) durationMs / 1000 / nbBuckets;
-        //myLogD("nb_tick_for_1_pass=" + nb_tick_for_1_pass);
+        if (LOG_DEBUG_PLAYTICK) myLogD("nb_tick_for_1_pass=" + nb_tick_for_1_pass);
 
         long[] tickCounts = new long[nbBuckets];
 
@@ -64,7 +66,7 @@ public class PlayTickHeatMapHelper {
         for (int i = 0; i < tickCounts.length; i++) {
             smoothed[i] = tickCounts[i];
         }
-        //myLogD("smoothed: " + Tonio.getStringFromFloatArray2digits2decimals(smoothed));
+        if (LOG_DEBUG_PLAYTICK) myLogD("smoothed: " + Tonio.getStringFromFloatArray2digits2decimals(smoothed));
 
         float[] pass = new float[nbBuckets];
         for (int i = 0; i < nbBuckets; i++) {
@@ -90,7 +92,7 @@ public class PlayTickHeatMapHelper {
             }
             pass[i] = zePass;
         }
-        //myLogD("pass:     " + Tonio.getStringFromFloatArray2digits2decimals(pass));
+        if (LOG_DEBUG_PLAYTICK) myLogD("pass:     " + Tonio.getStringFromFloatArray2digits2decimals(pass));
 
         return pass;
     }

@@ -94,12 +94,6 @@ public interface ZikFileDao {
     @Query("DELETE FROM ZikFile WHERE id = :idZikFile")
     void deleteZikFile(int idZikFile);
 
-    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder")
-    void resetFolderProgression(int idFolder);
-
-    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder AND zeorder >= :zeorder")
-    void resetProgressionFromThisZikFile(int idFolder, double zeorder);
-
     @Update
     int update(ZikFile zikFile);
 
@@ -242,5 +236,63 @@ public interface ZikFileDao {
         }
         return insert(zikFile);
     }
+
+
+
+//-----------------------------------------------------
+    /// PROGRESS
+//-----------------------------------------------------
+
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder")
+    void resetFolderProgression(int idFolder);
+
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE id =:id")
+    void resetProgression(int id);
+
+    @Query("DELETE FROM PlayTick WHERE zikFileId = :id")
+    void deletePlayTicks(int id);
+
+    @Query("DELETE FROM PlaySession WHERE zikFileId = :id")
+    void deletePlaySessions(int id);
+
+    @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder AND zeorder >= :zeorder")
+    void resetProgressionFromThisZikFile(int idFolder, double zeorder);
+
+    @Query("""
+    DELETE FROM PlayTick
+    WHERE zikFileId IN (
+        SELECT id FROM ZikFile
+        WHERE idFolder = :idFolder
+          AND zeorder >= :zeorder
+    )
+""")
+    void deletePlayTicksFromZikFileOrder(int idFolder, double zeorder);
+
+    @Query("""
+    DELETE FROM PlaySession
+    WHERE zikFileId IN (
+        SELECT id FROM ZikFile
+        WHERE idFolder = :idFolder
+          AND zeorder >= :zeorder
+    )
+""")
+    void deletePlaySessionsFromZikFileOrder(int idFolder, double zeorder);
+
+    @Transaction
+    default void resetProgressionFully(int id) {
+        deletePlayTicks(id);
+        deletePlaySessions(id);
+        resetProgression(id);
+    }
+
+    @Transaction
+    default void resetProgressionFromThisZikFileFully(int idFolder, double zeorder) {
+        deletePlayTicksFromZikFileOrder(idFolder, zeorder);
+        deletePlaySessionsFromZikFileOrder(idFolder, zeorder);
+        resetProgressionFromThisZikFile(idFolder, zeorder);
+    }
+
+
+
 
 }

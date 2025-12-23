@@ -579,4 +579,10 @@ public class Tonio {
         return sb.toString();
     }
 
+    public static String lpad(int value, int width) {
+        return String.format(Locale.US, "%" + width + "d", value);
+    }
+    public static String lpad(long value, int width) {
+        return String.format(Locale.US, "%" + width + "d", value);
+    }
 }

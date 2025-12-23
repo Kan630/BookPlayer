@@ -44,7 +44,8 @@ public class ModifyZikFileActivity extends LoggingActivity {
 
         TextView tvTitle = findViewById(R.id.title);
 
-        Button bReset = findViewById(R.id.bReset);
+        Button bResetOnlyThisTrack = findViewById(R.id.bResetOnlyThisTrack);
+        Button bResetFromThisTrack = findViewById(R.id.bResetFromThisTrack);
         Button bDelete = findViewById(R.id.bDelete);
 
         EditText etRename = findViewById(R.id.etRename);
@@ -98,7 +99,8 @@ public class ModifyZikFileActivity extends LoggingActivity {
             MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text), warning);
         });
 
-        bReset.setOnClickListener(view -> bResetClick(zikFile));
+        bResetOnlyThisTrack.setOnClickListener(view -> bResetClick(zikFile));
+        bResetFromThisTrack.setOnClickListener(view -> bResetFromThisZikFileClick(zikFile));
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 
@@ -188,13 +190,22 @@ public class ModifyZikFileActivity extends LoggingActivity {
                 .setTitle(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
                 .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
                 .setCancelable(false)
+                .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgress(zikFile))
+                .setNegativeButton(ModifyZikFileActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
+                .show();
+    }
+    private void bResetFromThisZikFileClick(ZikFile zikFile) {
+        new AlertDialog.Builder(ModifyZikFileActivity.this)
+                .setTitle(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
+                .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
+                .setCancelable(false)
                 .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(zikFile))
                 .setNegativeButton(ModifyZikFileActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
                 .show();
     }
-    private void deleteProgressFromThisZikFile(ZikFile zikFile) {
+    private void deleteProgress(ZikFile zikFile) {
         new Thread(() -> {
-            AppDatabase.getDatabase(this).zikFileDao().resetProgressionFromThisZikFile(zikFile.getIdFolder(), zikFile.getZeorder());
+            AppDatabase.getDatabase(this).zikFileDao().resetProgressionFully(zikFile.getId());
             Sql.calculateFolderProgress(ModifyZikFileActivity.this, zikFile.getIdFolder());
             runOnUiThread(() -> {
                 myToast(ModifyZikFileActivity.this.getString(R.string.Progression_reset_done));
@@ -202,8 +213,18 @@ public class ModifyZikFileActivity extends LoggingActivity {
             });
         }).start();
     }
-    @Override
+    private void deleteProgressFromThisZikFile(ZikFile zikFile) {
+        new Thread(() -> {
+            AppDatabase.getDatabase(this).zikFileDao().resetProgressionFromThisZikFileFully(zikFile.getIdFolder(), zikFile.getZeorder());
+            Sql.calculateFolderProgress(ModifyZikFileActivity.this, zikFile.getIdFolder());
+            runOnUiThread(() -> {
+                myToast(ModifyZikFileActivity.this.getString(R.string.Progression_reset_done));
+                finish(); //close activity
+            });
+        }).start();
+    }
 
+    @Override
     public void onBackPressed() {
         String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
         if (!newName.equals(zikFile.getDisplayName())) {

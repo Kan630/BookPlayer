@@ -67,7 +67,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 ZikFileDao dao = db.zikFileDao();
                 int r = dao.update(zf);
                 if (r > 0) {
-                    myLogD("zik updated (" + zf.getName() + ") pos=" + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - " + zf.getPercentdone() + "%");
+                    myLogD("zik updated " + String.valueOf(timestamp).substring(8) + " (" + zf.getName() + ") pos=" + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - " + zf.getPercentdone() + "%");
                     Sql.calculateFolderProgress(app, zf.getIdFolder());
                 } else {
                     myLogEE(null,"update failed for " + zf.getName());
@@ -82,7 +82,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                     PlayTick tick = new PlayTick(timestamp, zf.getId(), pos);
                     AppDatabase.getDatabase(app).playTickDao().insert(tick);
                 } catch (Throwable t) {
-                    myLogEE(t, "playTick insert exception");
+                    myLogEE(t, "playTick insert exception for [" + zf.getDisplayName() + "] - pos=" + pos);
                 }
 
             }

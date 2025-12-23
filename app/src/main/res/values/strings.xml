@@ -1284,5 +1284,6 @@
     <string name="sec">sec</string>"  // means second, keep below 3 chars
     <string name="Track_View">Track View</string>
     <string name="All_modes_except_Legacy_are_in_beta">All modes except Legacy are in beta.</string>
+    <string name="reset_progress_only_for_this_track">reset progress only for this track</string>
 
 </resources>

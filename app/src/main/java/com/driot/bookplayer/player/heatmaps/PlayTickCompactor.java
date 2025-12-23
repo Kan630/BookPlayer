@@ -11,7 +11,7 @@ import com.driot.bookplayer.utils.Tonio;
 public final class PlayTickCompactor {
 
     private static final long MAX_TS_GAP_MS = 1500;   // tick continuity
-    private static final long MAX_POS_GAP_MS = 1500;
+    private static final long MAX_POS_GAP_MS = 2500; //TODO check, maybe speed will put it off.   increased from 1500 to 2500 because of tts...
     private static final long MIN_SESSION_MS = 2000; // ignore noise
 
     private PlayTickCompactor() {}
@@ -85,7 +85,7 @@ public final class PlayTickCompactor {
             long posEnd
     ) {
         if (posEnd - posStart >= MIN_SESSION_MS) {
-            myLogD("adding session " + Tonio.formatHhMmSs(tsEnd-tsStart));
+            myLogD("adding session - TS=" + Tonio.formatMmSsMs(tsEnd-tsStart) + " - pos=" + Tonio.formatMmSsMs(tsEnd-tsStart));
             out.add(new PlaySession(
                     zikFileId,
                     tsStart,
@@ -93,6 +93,8 @@ public final class PlayTickCompactor {
                     posStart,
                     posEnd
             ));
+        } else {
+            myLogD("NOT adding session - TS=" + Tonio.formatMmSsMs(tsEnd-tsStart) + " - pos=" + Tonio.formatMmSsMs(tsEnd-tsStart));
         }
     }
 }

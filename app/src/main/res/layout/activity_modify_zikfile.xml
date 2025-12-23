@@ -45,7 +45,15 @@
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <Button
-            android:id="@+id/bReset"
+            android:id="@+id/bResetOnlyThisTrack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="20dp"
+            android:text="@string/reset_progress_only_for_this_track" />
+
+        <Button
+            android:id="@+id/bResetFromThisTrack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"

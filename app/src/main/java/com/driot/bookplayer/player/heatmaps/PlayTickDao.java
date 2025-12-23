@@ -27,12 +27,12 @@ public interface PlayTickDao {
     """)
     void deleteUpTo(long zikFileId, long maxTimestamp);
 
-    @Query("""
-        SELECT (position / :bucketSizeMs) AS bucket,
-               COUNT(*) AS ticks
-        FROM PlayTick
-        WHERE zikFileId = :zikFileId
-        GROUP BY bucket
-    """)
-    List<PlayTickBucket> getBucketCounts(long zikFileId, long bucketSizeMs);
+        @Query("""
+            SELECT (position / :bucketSizeMs) AS bucket,
+                   COUNT(*) AS ticks
+            FROM PlayTick
+            WHERE zikFileId = :zikFileId
+            GROUP BY bucket
+        """)
+        List<PlayTickBucket> getBucketCounts(long zikFileId, long bucketSizeMs);
 }

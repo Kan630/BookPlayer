@@ -9,6 +9,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 @Dao
 public interface PlaySessionDao {
 
@@ -22,23 +24,25 @@ public interface PlaySessionDao {
     static List<PlayTickBucket> getBucketCounts(List<PlaySession> sessions, long bucketSizeMs) {
         Map<Long, Long> bucketMap = new HashMap<>();
 
+        if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD("sessions size: " + sessions.size());
         for (PlaySession session : sessions) {
-            long startBucket = session.positionStart / bucketSizeMs;
-            long endBucket = session.positionEnd / bucketSizeMs;
+            long sessionStartBucket = session.positionStart / bucketSizeMs;
+            long sessionEndBucket = session.positionEnd / bucketSizeMs;
+            if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD("sessionStartBucket: " + sessionStartBucket + " - sessionEndBucket: " + sessionEndBucket + " - bucketSizeMs: " + bucketSizeMs);
 
-            for (long bucket = startBucket; bucket <= endBucket; bucket++) {
+            for (long bucketPos = sessionStartBucket; bucketPos <= sessionEndBucket; bucketPos++) {
                 // Calculate how much of this bucket is covered by the session
-                long bucketStart = bucket * bucketSizeMs;
-                long bucketEnd = (bucket + 1) * bucketSizeMs;
+                long bucketStart = bucketPos * bucketSizeMs;
+                long bucketEnd = (bucketPos + 1) * bucketSizeMs;
 
                 long overlapStart = Math.max(session.positionStart, bucketStart);
                 long overlapEnd = Math.min(session.positionEnd, bucketEnd);
-                long overlapMs = overlapEnd - overlapStart;
+                long overlapMs = Math.max(overlapEnd - overlapStart, 1000);
 
-                if (overlapMs > 0) {
-                    long ticks = overlapMs / 1000; // Convert ms to seconds
-                    bucketMap.merge(bucket, ticks, Long::sum);
-                }
+                long ticks = 0;
+                ticks = Math.round((float) overlapMs / 1000); // Convert ms to seconds //TODO => 1000 is SleepTimer periodicity ?
+                bucketMap.merge(bucketPos, ticks, Long::sum);
+                if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD("bucketPos: " + bucketPos + " - bucket [ start: " + bucketStart + " - end: " + bucketEnd + "] - overlap [ start: " + overlapStart + " - end: " + overlapEnd + "] - overlapMs: " + overlapMs + " - ticks: " + ticks + " - bucketMap: " + bucketMap.toString());
             }
         }
 

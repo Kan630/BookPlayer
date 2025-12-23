@@ -35,6 +35,7 @@ import com.driot.bookplayer.utils.log.LoggingListAdapter;
 
 
 import java.util.List;
+import java.util.Locale;
 
 public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAdapter.ZikFilesViewHolder> {
 
@@ -234,18 +235,20 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                 PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx).playSessionDao();
 
                 List<PlayTickBucket> tickBuckets = tickDao.getBucketCounts(zikFileId, bucketSizeMs);
-                //myLogD(zikFile.getDisplayName() + " => " + tickBuckets.size() + "Tick buckets:\n" + tickBuckets.toString());
+                if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLog(zikFile.getDisplayName());
+                if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD(Tonio.lpad(tickBuckets.size(), 3) + " tick: " + tickBuckets.toString());
+
 
                 // Get sessions and convert to buckets
                 List<PlaySession> sessions = sessionDao.getAllForFile(zikFileId);
                 List<PlayTickBucket> sessionBuckets = PlaySessionDao.getBucketCounts(sessions, bucketSizeMs);
-                //myLogD(zikFile.getDisplayName() + " => " + sessionBuckets.size() + "Session buckets:\n" + sessionBuckets.toString());
+                if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD(Tonio.lpad(sessionBuckets.size(), 3) + " sess: " + sessionBuckets.toString());
 
                 List<PlayTickBucket> buckets = PlayTickBucketMerger.merge(sessionBuckets, tickBuckets);
-                //myLog("-------");
-                //myLogD(zikFile.getDisplayName() + " => " + nbBuckets + " buckets:\n" + buckets.toString());
+                if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD(Tonio.lpad(buckets.size(), 3) + " merg: " + buckets.toString());
 
                 final float[] intensities = PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
+                if (PlayTickHeatMapHelper.LOG_DEBUG_PLAYTICK) myLogD("----");
 
                 // Come back on UI thread and check that this ViewHolder still represents the same item
                 itemView.post(() -> {
