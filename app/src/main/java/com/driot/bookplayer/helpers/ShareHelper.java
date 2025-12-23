@@ -7,28 +7,22 @@ import android.net.Uri;
 public class ShareHelper {
 
     public static void shareRadioStation(Context context, String url, String uuid) {
-        //String deepLink = "bookplayer://" + type + "?url=" + Uri.encode(url);
+        String customLink = "bookplayer://share/radio?url=" + Uri.encode(url) + "&uuid=" + Uri.encode(uuid);
+        String webLink = "https://bookplayer.driot.com/share/radio?url=" + Uri.encode(url) + "&uuid=" + Uri.encode(uuid);
 
-        String shareUrl = "https://bookplayer.driot.com/share/radio" + "?url=" + Uri.encode(url) + "&uuid=" + Uri.encode(uuid);
-        String shareMessage = "!! BETA TEST !!   Check out this radio on BookPlayer: " + shareUrl;
+        String sharedMessageBody = "!! BETA TEST !! Check out this radio on BookPlayer: " + customLink + "\n\nOr visit: " + webLink;
+        String sharedMessageHead = "!! BETA TEST !!   BookPlayer radio share";
 
-        shareContent(context, shareMessage, "radio station");
+        shareContent(context, sharedMessageBody, sharedMessageHead);
     }
 
-    public static void shareLibrivoxBook(Context context, String bookUrl) {
-        //shareContent(context, "librivox", bookUrl, "audiobook");
-    }
-
-    private static void shareContent(Context context, String shareMessage, String description) {
-        // Create deep link
-        //shareMessage = "Check out this " + description + " on BookPlayer: " + deepLink;
-
+    private static void shareContent(Context context, String messageBody, String messageHead) {
 
         // Create share intent
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
         shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, shareMessage);
-        shareIntent.putExtra(Intent.EXTRA_SUBJECT, "!! BETA TEST !!   BookPlayer - " + description);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, messageBody);
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, messageHead);
 
         // Show share dialog
         context.startActivity(Intent.createChooser(shareIntent, "Share via"));

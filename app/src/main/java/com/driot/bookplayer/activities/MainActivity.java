@@ -301,7 +301,21 @@
         }
 
         private void handleDeepLink(Intent intent) {
+            myLogI("=== handleDeepLink called ===");
+
+            if (intent == null) {
+                myLogI("Intent is NULL");
+                return;
+            }
+
+            myLogI("Intent action: " + intent.getAction());
+
             Uri data = intent.getData();
+
+            if (data == null) {
+                myLogI("URI data is NULL");
+                return;
+            }
 
             if (data != null) {
                 String host = data.getHost();
@@ -330,26 +344,11 @@
 
                             break;
 
-                        case "share/librivox":
-                            String bookUrl = data.getQueryParameter("url");
-                            if (bookUrl != null) {
-                                playLibrivoxBook(bookUrl);
-                            }
-                            break;
+
                     }
                 }
             }
         }
 
-        private void playRadioStation(String url) {
-            // Your logic to play radio station
-            myLog("Playing radio: " + url);
-            // TODO: Implement your radio player logic
-        }
 
-        private void playLibrivoxBook(String url) {
-            // Your logic to play librivox book
-            myLog("Playing librivox book: " + url);
-            // TODO: Implement your librivox player logic
-        }
     }

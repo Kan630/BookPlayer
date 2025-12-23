@@ -66,6 +66,10 @@ public class StartPlayHelper {
         myLogI("onRadioClick()");
         playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon, caller);
         //update DB
+        if (s.stationuuid == null) {
+            myLogEE(null, "onRadioClick() - null uuid - caller=" + caller);
+            return;
+        }
         final Station station = s;
         AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
