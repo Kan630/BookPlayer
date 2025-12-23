@@ -37,6 +37,9 @@ public class HelpActivity extends LoggingActivity {
         tv = findViewById(R.id.help_url_text);
         tv.setText(Html.fromHtml(getString(R.string.help_url_text), Html.FROM_HTML_MODE_LEGACY));
 
+        tv = findViewById(R.id.help_radio_text);
+        tv.setText(Html.fromHtml(getString(R.string.help_radio_text), Html.FROM_HTML_MODE_LEGACY));
+
         tv = findViewById(R.id.help_tts_text);
         tv.setText(Html.fromHtml(getString(R.string.help_tts_text), Html.FROM_HTML_MODE_LEGACY));
 

@@ -72,6 +72,16 @@
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
         <TextView style="@style/HelpTitle"
+            android:text="@string/help_radio_title"
+            />
+        <TextView style="@style/HelpText"
+            android:id="@+id/help_radio_text"
+            android:text="@string/help_radio_text"
+            />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+
+        <TextView style="@style/HelpTitle"
             android:text="@string/help_tts_title"
             />
         <TextView style="@style/HelpText"

@@ -223,20 +223,18 @@
     You can <font color="#81C784"><b>start listening right away</b></font>.
     ]]></string>
 
-        <string name="help_podcast_title">Podcast Import :</string>
+        <string name="help_podcast_title">Discover Podcasts</string>
     <string name="help_podcast_text"><![CDATA[
-    <font color="#BA68C8"><b>Discover Podcasts</b></font>
-    <br><br>
     Explore a wide range of <font color="#90D8E8">podcasts</font> in many <font color="#81C784">languages</font>.
     <br><br>
     Stream any <font color="#FFCC80">episode</font> with a single tap.
     <br><br>
-    Save a <font color="#90D8E8">podcast</font> as a <font color="#BA68C8">book</font> by tapping the <font color="#FFCC80">download</font> button on any episode,
-    or use the top-level option to enable <font color="#81C784">automatic checks</font> for new episodes.
+    Save a <font color="#90D8E8">podcast</font> as a <font color="#BA68C8">book</font> by tapping the <font color="#FFCC80">download</font> button on any episode.
+    Use the top-level button to enable <font color="#81C784">automatic downloads</font> for new episodes.
     <br><br>
-    Tap the <font color="#EF9A9A">cover image</font> to open the book of your downloaded episodes.
+    Tap/DoubleTap the <font color="#EF9A9A">cover image</font> to switch, between <font color="#90D8E8"><b>live</b></font> podcast episode list view, and <font color="#BA68C8"><b>downloaded</b></font> podcast episode book view.
     <br><br>
-    Adjust <font color="#90D8E8">defaults</font> and <font color="#81C784">navigation preferences</font> in the settings menu.
+    Check the <font color="#90D8E8">settings menu</font> to activate an <font color="#81C784">auto-pruning</font> option or to set other preferences.
 ]]></string>
 
         <string name="help_url_title">Import from URL :</string>
@@ -249,6 +247,17 @@
     <br><br>
     Everything is handled automatically — unpacking, adding, and making it available for playback.
     ]]></string>
+
+    <string name="help_radio_title">Stream World Radios</string>
+    <string name="help_radio_text"><![CDATA[
+    Browse stations by <font color="#81C784">country</font>, <font color="#FFCC80">popularity</font>, or other available categories,
+    or <font color="#64B5F6">search</font> for a specific station by name.
+    <br><br>
+    Tap a station to <font color="#81C784"><b>start streaming instantly</b></font>.
+    <br><br>
+    Use the <font color="#EF9A9A">heart icon</font> to add a station to your <font color="#BA68C8">favorites</font> for quick and easy access.
+    ]]></string>
+
 
         <string name="help_memory_cleaning_title">Memory Cleaning :</string>
         <string name="help_memory_cleaning_text"><![CDATA[
@@ -1082,7 +1091,7 @@
     <string name="reset_for_power_user">reset for power user</string>
 
     <string name="option_reset_for_power_user_explain_text">
-    The Power User reset restores factory defaults, but with a few specific settings:
+    The 2nd reset -Power User- restores app defaults, but customize a few specific settings:
     \nImport:
         \n* [don\'t copy]
         \n* [\"Open With\" for any kind of file]
@@ -1094,8 +1103,8 @@
     <string name="cancel_ongoing_operation">Cancel ongoing operations</string>
 
     <string name="option_reset_app_explain_text">
-    Sometimes the app can get stuck, for example after a crash during a book import, preventing further imports or cancellations.
-    In such case, tap this button to reset all processes. - No data will be lost, it\'s just a system reset.
+    If the app ever get stuck, for example after a crash during a book import, tap this button to reset all processes.
+    \nNo data will be lost, it\'s just a system reset.
     </string>
 
     <string name="option_tts_chunk_size_explain_text">
