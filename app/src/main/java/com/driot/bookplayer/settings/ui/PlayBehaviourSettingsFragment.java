@@ -70,6 +70,17 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         etTimeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
         etForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
 
+        //HEAT MAPS
+        CheckBox chk_progress_heatmap;
+        LinearLayout ll_progress_heatmap;
+        chk_progress_heatmap = root.findViewById(R.id.chk_progress_heatmap);
+        ll_progress_heatmap  = root.findViewById(R.id.ll_progress_heatmap);
+        chk_progress_heatmap.setChecked(Option.getProgressHeatMap());
+        ll_progress_heatmap.setOnClickListener(v -> chk_progress_heatmap.toggle());
+        chk_progress_heatmap.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setProgressHeatMap(isChecked));
+
+
         // ---- Visualizer
         llVisualizerOn              = root.findViewById(R.id.ll_visualizer_on);
         chkVisualizerOn             = root.findViewById(R.id.chk_visualizer_on);

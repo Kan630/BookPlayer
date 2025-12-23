@@ -103,6 +103,44 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/Track_View" />
+
+        <TextView style="@style/betatest"/>
+        <LinearLayout
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:id="@+id/ll_progress_heatmap"
+            android:layout_marginTop="0dp">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_progress_heatmap"
+                style="@style/OptionCheckBox" />
+
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_progress_heatmap" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_progress_heatmap_subtitle"
+            android:layout_marginBottom="5dp"
+            android:textStyle="italic"
+            />
+
+        <LinearLayout
+            android:id="@+id/ll_open_play_activity"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_open_play_activity"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_open_play_activity" />
+        </LinearLayout>
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
         <LinearLayout style="@style/LinearLayoutOptionsVertical">
             <TextView
                 style="@style/OptionTitle"
@@ -113,17 +151,6 @@
                 android:text="@string/option_play_view_explain"
                 android:textStyle="italic"
                 />
-
-            <LinearLayout
-                android:id="@+id/ll_open_play_activity"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_open_play_activity"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_open_play_activity" />
-            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/ll_lock_orientation_play_activity"
@@ -159,6 +186,10 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_visualizer_text_01" />
             </LinearLayout>
+
+            <TextView style="@style/betatest"
+                android:text="@string/All_modes_except_Legacy_are_in_beta"
+                />
 
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/groupVisualizerMode"
