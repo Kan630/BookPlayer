@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- Your scrollable content -->
     <ScrollView
@@ -32,7 +32,10 @@
                 />
 
             <LinearLayout style="@style/wideLinearLayout_Vertical"
-                android:id="@+id/ll_zikfile_resolve_error">
+                android:id="@+id/ll_zikfile_resolve_error"
+                android:background="@drawable/bg_chip"
+                >
+                <TextView style="@style/betatest"/>
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -40,13 +43,34 @@
                     android:layout_gravity="center"
                     />
                 <TextView
+                    android:id="@+id/tv_error_title"
+                    style="@style/simpleTextWrap"
+                    android:text="@string/error"
+                    android:layout_gravity="center"
+                    android:textColor="@color/red_500"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="10dp"
+                />
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/mbPickNewLocation"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:text="@string/pick_a_new_location"
+                    />
+                <TextView
                     android:id="@+id/tv_zikfile_resolve_error"
                     style="@style/simpleTextWrap"
                     android:layout_gravity="center"
-                    android:text="Error resolving ZikFiles"
+                    android:text="@string/error_generic"
                     android:textColor="@color/red_500"
+                    android:maxHeight="300dp"
+                    android:scrollbars="vertical"
+                    android:focusable="true"
+                    android:textIsSelectable="true"
+
                     />
-                <View style="@style/myStyleViewSimpleHorizontalBar" />
             </LinearLayout>
 
             <LinearLayout

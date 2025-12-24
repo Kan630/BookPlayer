@@ -114,7 +114,7 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
                     if (!vr.ok) {
                         // server says vote failed (rate limit etc)
                         if (vr.message != null && vr.message.toLowerCase().contains("same station")) {
-                            myToast("10 min. cooldown - You voted too often for the same station — try again later.");
+                            myToast("You voted too often for the same station — try again later.");
                         } else {
                             myToast("Vote rejected: " + vr.message);
                         }

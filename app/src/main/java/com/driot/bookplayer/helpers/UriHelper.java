@@ -533,4 +533,18 @@ public class UriHelper {
 
     }
 
+    public static boolean isReturnedUriOk(Intent data) {
+        try {
+            Uri uri = data.getData();
+            if (uri == null || uri.getPath() == null) {
+                myToastE("checkDataOk : Error getting URI of selected item.");
+                return false;
+            }
+            return true;
+        } catch (Exception e) {
+            myLogEE(e, "checkDataOk is KO");
+            return false;
+        }
+    }
+
 }

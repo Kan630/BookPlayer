@@ -34,6 +34,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportJobRepository;
@@ -71,7 +72,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
         try {
             if (result.getResultCode() == RESULT_OK) {
-                if (isReturnedUriOk(result.getData())) {
+                if (UriHelper.isReturnedUriOk(result.getData())) {
                     Uri uri = result.getData().getData();
                     myLog("picked data : " + uri.getPath());
 
@@ -385,19 +386,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         }).start();
     }
 
-    private boolean isReturnedUriOk(Intent data) {
-        try {
-            Uri uri = data.getData();
-            if (uri == null || uri.getPath() == null) {
-                myToastE("checkDataOk : Error getting URI of selected item.");
-                return false;
-            }
-            return true;
-        } catch (Exception e) {
-            myLogEE(e, "checkDataOk is KO");
-            return false;
-        }
-    }
 
     private void scanThatShit() {
         String[] paths = { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() };

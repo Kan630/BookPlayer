@@ -1,5 +1,7 @@
 package com.driot.bookplayer.activities;
 
+import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
+
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -15,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AlertDialog;
@@ -30,6 +33,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
@@ -42,6 +46,7 @@ import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
 import java.util.List;
@@ -129,52 +134,7 @@ public class ModifyFolderActivity extends LoggingActivity {
             openFolderInFileExplorer(folder.getUri());
         });
 
-        // CHECK zikFiles are readable
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            Context context = getApplicationContext();
-            String path;
-            String masterMsg = "";
-            Uri src;
-            int i = 0;
-            int nbKO = 0;
-            List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
-            final int nbZikFiles = list.size();
-            for (ZikFile zikFile : list) {
-                i = i + 1;
-                path = zikFile.getPath();
-                String pathType = (path.startsWith("content://") ? "[CONTENT] " : "");
-                String logStrPrefix = getString(R.string.track) + " " + i + "/" + nbZikFiles + " : [" + zikFile.getDisplayName() + "]";
-                src = UriHelper.resolveUriFromPath(context, path);
-                if (src == null) {
-                    nbKO = nbKO + 1;
-                    String errMessage = ErrorUi.getErrorMessage(context, path);
-                    String fullError = logStrPrefix
-                            + "\n" + errMessage
-                            + "\npath = [" + pathType + path + "]";
-                    masterMsg = masterMsg + "\n\n" + fullError;
-                }
-            }
-            final String finalMasterMsg = masterMsg;
-            final int finalNbKO = nbKO;
-            if (nbKO > 0) {
-                runOnUiThread(() -> {
-                    String errMsg="";
-                    if (finalNbKO==nbZikFiles) {
-                        errMsg = getString(R.string.All_zikFiles_not_readable) + "\n\n" + finalMasterMsg;
-                    } else {
-                        errMsg = finalNbKO + "/" + nbZikFiles + " " + getString(R.string.zikFiles_not_readable) + "\n\n" + finalMasterMsg;
-                    }
-                    TextView tv_zikfile_resolve_error = findViewById(R.id.tv_zikfile_resolve_error);
-                    tv_zikfile_resolve_error.setText(errMsg);
-                    ll_zikfile_resolve_error.setVisibility(View.VISIBLE);
-                });
-                //TODO next
-                //propose to pick the folder where those tracks may be
-                //then update the paths in Folder and ZikFile
-                //then recreate activity
-
-            }
-        });
+        checkZikFilesReadable();
 
         String percentDone = folder.getPercentdone()>0 ? "  .  " + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened) : "";
         String info = "";
@@ -392,6 +352,10 @@ public class ModifyFolderActivity extends LoggingActivity {
             finish(); // No changes, just leave
         }
     }
+
+    private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> { checkResults(result); });
+
 
     private void clickChangeCover() {
         myLogI("user clicks - CHANGE cover IMAGE");
@@ -662,6 +626,118 @@ public class ModifyFolderActivity extends LoggingActivity {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             db.zikFileDao().resetSmartChapterOrderForFolder(folder.getId());
             runOnUiThread(() -> myToast(getString(R.string.tracks_order_has_been_reset)));
+        });
+    }
+
+    private void checkResults(ActivityResult result) {
+        if (result.getResultCode() == RESULT_OK) {
+            if (UriHelper.isReturnedUriOk(result.getData())) {
+                final Uri pickedFolderUri = result.getData().getData();
+                myLog("pickeddata : " + pickedFolderUri.getPath());
+                myLog("pickeddata : " + pickedFolderUri.toString());
+
+//check if better now :
+                AppDatabase.databaseReadExecutor.execute(() -> {
+                    Context context = getApplicationContext();
+                    String oldPath, newPath;
+                    Uri oldUri, newUri;
+                    int i = 0;
+                    int nbBetter = 0;
+                    int nbWorse = 0;
+                    List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
+                    final int nbZikFiles = list.size();
+                    for (ZikFile zikFile : list) {
+                        i = i + 1;
+                        oldPath = zikFile.getPath();
+                        newPath = new File(pickedFolderUri.getPath(), zikFile.getName()).getPath();
+                        oldUri = UriHelper.resolveUriFromPath(context, oldPath);
+                        newUri = UriHelper.resolveUriFromPath(context, newPath);
+                        if (oldUri == null && newUri != null) {
+                            nbBetter = nbBetter + 1;
+                        } else if (oldUri != null && newUri == null) {
+                            nbWorse = nbWorse + 1;
+                        }
+                    }
+                    //TODO ask for confirmation
+                    myToastE("nbBetter : " + nbBetter + ", worse : " + nbWorse);
+                    if (nbBetter>0) {
+                        myLogW("changing folder path...");
+                        folder.setPath(pickedFolderUri.getPath());
+                        AppDatabase.getDatabase(context).folderDao().update(folder);
+                    }
+                });
+                //RECHECK ET RELOAD ERROR STATUS
+                checkZikFilesReadable();
+            } else {
+                myToastE("returned Uri not OK");
+            }
+        } else {
+            myToastE("result code not OK");
+        }
+    }
+
+    private void pickNewLocation() {
+        myLogI("------------ USER CLICKS : pick new location");
+        if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+            try {
+                activityResultLauncher.launch(intent);
+            } catch (Exception e) {
+                myToastEE(e, "could not open android folder explorer");
+            }
+        } else {
+            myToast("permission read storage not granted");
+            //askForPermission(); // check code in getOthers
+        }
+    }
+
+    private void checkZikFilesReadable() {
+    // CHECK zikFiles are readable
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            Context context = getApplicationContext();
+            String path;
+            String masterMsg = "";
+            Uri src;
+            int i = 0;
+            int nbKO = 0;
+            List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
+            final int nbZikFiles = list.size();
+            for (ZikFile zikFile : list) {
+                i = i + 1;
+                path = zikFile.getPath();
+                String pathType = (path.startsWith("content://") ? "[CONTENT] " : "");
+                String logStrPrefix = getString(R.string.track) + " " + i + "/" + nbZikFiles + " : [" + zikFile.getDisplayName() + "]";
+                src = UriHelper.resolveUriFromPath(context, path);
+                if (src == null) {
+                    nbKO = nbKO + 1;
+                    String errMessage = ErrorUi.getErrorMessage(context, path);
+                    String fullError = logStrPrefix
+                            + "\n" + errMessage
+                            + "\npath = [" + pathType + path + "]";
+                    masterMsg = masterMsg + "\n\n" + fullError;
+                }
+            }
+            final String finalMasterMsg = masterMsg;
+            final int finalNbKO = nbKO;
+            runOnUiThread(() -> {
+                if (finalNbKO > 0) {
+                    TextView tv_zikfile_resolve_error = findViewById(R.id.tv_zikfile_resolve_error);
+                    tv_zikfile_resolve_error.setText(finalMasterMsg);
+                    TextView tv_error_title = findViewById(R.id.tv_error_title);
+                    String errDetail = finalNbKO + "/" + nbZikFiles + " " + getString(R.string.zikFiles_not_readable);
+                    if (finalNbKO==nbZikFiles) errDetail = getString(R.string.All_zikFiles_not_readable);
+                    tv_error_title.setText(errDetail);
+                    MaterialButton mbPickNewLocation = findViewById(R.id.mbPickNewLocation);
+                    mbPickNewLocation.setOnClickListener((v -> pickNewLocation()));
+                    ll_zikfile_resolve_error.setVisibility(View.VISIBLE);
+                } else {
+                    ll_zikfile_resolve_error.setVisibility(View.GONE);
+                }
+            });
         });
     }
 
