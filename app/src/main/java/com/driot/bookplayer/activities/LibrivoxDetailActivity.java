@@ -6,6 +6,7 @@ import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -20,6 +21,8 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -133,58 +136,112 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         // Observers
         viewModel.metadata.observe(this, this::showMetadata);
 
-        // Keep zipExists only for info display; do NOT link to enabling the button
-        viewModel.download_link.observe(this, download_link -> {
-            if (download_link == null) return;
-            if (!download_link.isEmpty()) {
-                long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + Tonio.getReadableSize(size) + ")");
+        // Observe existing folder
+        viewModel.existingFolder.observe(this, folder -> {
+            if (folder != null) {
+                // Book already downloaded
+                myLogI("Book already downloaded, showing open button");
+                tvDownloadLink.setText("\n✅ " + getString(R.string.already_downloaded));
+                bGet.setText(R.string.open_audiobook);
+                bGet.setEnabled(true);
+
+                // Don't check download link if already downloaded
             } else {
-                tvDownloadLink.setText("\n❌ " + getString(R.string.librivox_zip_mp3_not_found));
+                // Book not downloaded yet - observe download link
+                myLogI("Book not downloaded, setting up download observers");
+                bGet.setText(R.string.Librivox_bGetAudioBook);
+                setupDownloadLinkObserver();
+                // Check download file availability
+                if (viewModel.download_link.getValue() == null) {
+                    checkDownloadFile();
+                } else {
+                    updateGetButtonEnabled();
+                }
             }
-            // Button state is controlled ONLY by workflow running state:
-            updateGetButtonEnabled();
         });
 
-        // Kick off both in parallel
+        // Kick off metadata fetch and existing folder check
         if (viewModel.metadata.getValue() == null) fetchMetadata();
-        if (viewModel.download_link.getValue() == null) checkDownloadFile();
-
-        // Enable GET immediately unless a workflow is running
-        updateGetButtonEnabled();
+        checkIfAlreadyDownloaded();
 
         bGet.setOnClickListener(v -> {
-            // prevent double taps
             bGet.setEnabled(false);
-            myLogI("------> USER CLICKS - GET -        LIBRIVOX BOOK");
-            String downloadUrl;
-            if (viewModel.download_link == null) {
-                downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
+
+            Folder existingFolder = viewModel.existingFolder.getValue();
+            if (existingFolder != null) {
+                // Open existing book
+                myLogI("------> USER CLICKS - OPEN - EXISTING LIBRIVOX BOOK");
+                openExistingBook(existingFolder);
             } else {
-                downloadUrl = viewModel.download_link.getValue();
+                // Download new book
+                myLogI("------> USER CLICKS - GET - NEW LIBRIVOX BOOK");
+                String downloadUrl = viewModel.download_link.getValue();
+                if (downloadUrl == null || downloadUrl.isEmpty()) {
+                    downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
+                }
+                checkThenDownload(downloadUrl);
             }
-            checkThenDownload(downloadUrl);
         });
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        updateGetButtonEnabled();
+        // Re-check if book exists (user might have deleted it)
+        checkIfAlreadyDownloaded();
+        // updateGetButtonEnabled will be called by the observer
+    }
+
+    private void checkIfAlreadyDownloaded() {
+        String futurePath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
+
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            Folder folder = AppDatabase.getDatabase(this).folderDao().getFolderByPath(futurePath);
+            runOnUiThread(() -> viewModel.existingFolder.setValue(folder));
+        });
+    }
+
+    private void setupDownloadLinkObserver() {
+        viewModel.download_link.observe(this, download_link -> {
+            if (download_link == null) return;
+
+            if (!download_link.isEmpty()) {
+                long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
+                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + Tonio.getReadableSize(size) + ")");
+            } else {
+                tvDownloadLink.setText("\n❌ " + getString(R.string.librivox_zip_mp3_not_found));
+            }
+            updateGetButtonEnabled();
+        });
     }
 
     private void updateGetButtonEnabled() {
+        Folder existingFolder = viewModel.existingFolder.getValue();
+
+        if (existingFolder != null) {
+            // Always enable for opening existing book
+            bGet.setEnabled(true);
+            return;
+        }
+
+        // For new downloads, check if workflow is running
         AppDatabase.databaseReadExecutor.execute(() -> {
             boolean running = ImportHelper.isAnyImportActiveSync(this);
             runOnUiThread(() -> {
-                bGet.setEnabled(!running && viewModel.download_link.getValue() != null);
+                bGet.setEnabled(!running && viewModel.download_link.getValue() != null && !viewModel.download_link.getValue().isEmpty());
                 if (running) {
-                    tvDownloadLink.append("\n❌ " + getString(R.string.please_wait_another_book));
+                    tvDownloadLink.setText(tvDownloadLink.getText() + "\n❌ " + getString(R.string.please_wait_another_book));
                 }
             });
         });
     }
 
+    private void openExistingBook(Folder folder) {
+        Intent intent = new Intent(this, ZikFileActivity.class);
+        intent.putExtra(Intents.EXTRA_FOLDER, folder);
+        startActivity(intent);
+        finish();
+    }
 
     // --- Networking ---
 
@@ -226,7 +283,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         String text = sb.toString();
         infoView.setText(text.startsWith("\n") ? text.substring(1) : text);
 
-
         // Synopsis
         if (metadata.metadata != null && metadata.metadata.description != null) {
             synopsisView.setText(parseMaybeHtml(metadata.metadata.description.trim()));
@@ -244,9 +300,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         } else {
             findViewById(R.id.ll_link_librivox).setVisibility(View.GONE);
         }
-
     }
-
 
     private String findLibrivoxUrl(ItemMetadata metadata) {
         if (metadata.metadata != null && metadata.metadata.identifier != null) {
@@ -271,7 +325,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             String classicUrl = String.format(java.util.Locale.ROOT, classicTemplate, id, id);
             String compressUrl = String.format(java.util.Locale.ROOT, compressTemplate, id, id);
 
-            // Simple result holder
             class CheckResult {
                 final boolean ok;
                 final long size;
@@ -279,7 +332,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                 CheckResult(boolean ok, long size, String url) { this.ok = ok; this.size = size; this.url = url; }
             }
 
-            // Factory that given a URL returns a Callable<CheckResult>
             java.util.function.Function<String, java.util.concurrent.Callable<CheckResult>> makeChecker =
                     (final String url) -> (java.util.concurrent.Callable<CheckResult>) () -> {
                         HttpURLConnection conn = null;
@@ -315,7 +367,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                             if (responseCode == HttpURLConnection.HTTP_PARTIAL && fileSize > 0) {
                                 exists = true;
                             } else if (responseCode == HttpURLConnection.HTTP_OK) {
-                                // compress endpoint often returns 200; accept it as existence
                                 exists = true;
                             }
 
@@ -328,13 +379,11 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                         }
                     };
 
-            // Two rounds: in each round run classic+compress in parallel, stop early if one succeeds
             for (int round = 1; round <= 2 && !finalResult[0]; round++) {
                 java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
                 java.util.concurrent.ExecutorCompletionService<CheckResult> ecs =
                         new java.util.concurrent.ExecutorCompletionService<>(executor);
 
-                // submit both tasks in parallel (no sleep between them)
                 ecs.submit(makeChecker.apply(classicUrl));
                 ecs.submit(makeChecker.apply(compressUrl));
 
@@ -343,7 +392,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                     while (remaining > 0 && !finalResult[0]) {
                         java.util.concurrent.Future<CheckResult> f;
                         try {
-                            f = ecs.take(); // blocks until one completes
+                            f = ecs.take();
                         } catch (InterruptedException ie) {
                             Thread.currentThread().interrupt();
                             break;
@@ -356,7 +405,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                                 finalSize[0] = cr.size;
                                 successfulUrl[0] = cr.url;
                                 myLog("Found zip (round " + round + "): " + cr.url + " (size=" + Tonio.getReadableSize(cr.size) + ")");
-                                // we can break; remaining tasks will be cancelled at shutdown
                                 break;
                             } else {
                                 myLog("Not found (round " + round + ") for url: " + cr.url);
@@ -366,7 +414,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                         }
                     }
                 } finally {
-                    // best-effort cancel any running tasks then shutdown
                     try {
                         executor.shutdownNow();
                         executor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS);
@@ -374,10 +421,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                         Thread.currentThread().interrupt();
                     } catch (Exception ignored) {}
                 }
-                // if found we exit loop early (outer for guards that)
             }
 
-            // Update UI on main thread
             runOnUiThread(() -> {
                 viewModel.zipFileSizeBytes.setValue(finalSize[0]);
                 if (finalResult[0]) {
@@ -387,13 +432,10 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                     viewModel.download_link.setValue("");
                     myLogW("Zip not found after two parallel rounds for id: " + id);
                 }
-                //whatever the result, enable download button
                 updateGetButtonEnabled();
             });
         }).start();
     }
-
-
 
     private void checkThenDownload(String url) {
         String futurePath = getUnzipFolder(this).getAbsolutePath() + "/" + viewModel.identifier;
@@ -442,14 +484,9 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         state.optionSplit = false;
         state.optionCopy = true;
         state.optionDelete = false;
-        state.originalFile = SupportedFilesHelper.getFileName(this, Uri.parse(url)) ;
-        //state.originalHash = ;
+        state.originalFile = SupportedFilesHelper.getFileName(this, Uri.parse(url));
         state.sourceLocation = SOURCE_LOCATION_LIBRIVOX;
         state.fileExtension = "zip";
-        //state.mimeType = SupportedFilesHelper.getMimeType(this, Uri.parse(url));
-        //state.playType = ;
-
-        //specific as of 2025-10-13 (compared to LoadBookActivity)
         state.imagePath = futureCoverPic;
         state.onGoingLoading = true;
         state.progressText = getString(R.string.About_to_start_download);
@@ -459,5 +496,4 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         FirebaseAnalyticsHelper.tellLibrivoxDownload(state.title);
         finish();
     }
-
 }

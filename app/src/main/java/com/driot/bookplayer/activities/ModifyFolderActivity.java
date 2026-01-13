@@ -695,7 +695,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                         final int nbWorseFinal = nbWorse;
                         runOnUiThread(() -> {
                             String oldPathExample = list.isEmpty() ? "" : Tonio.getParentFolderOrEmpty(list.get(0).getPath());
-                            String textMsg = getString(R.string.AskChangeSource_popupText)
+                            String fixText = (nbWorseFinal>0 ? getString(R.string.new_location_better_and_worse) : getString(R.string.new_location_better));
+                            String textMsg = fixText
                                     + "\n " + getString(R.string.from) + " [" + oldPathExample + "]"
                                     + "\n " + getString(R.string.to) + " [" + pickedTreeUri + "]"
                                     + "\n\n" + nbBetterFinal + " files will be fixed"

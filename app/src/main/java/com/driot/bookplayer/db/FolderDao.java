@@ -79,9 +79,11 @@ public interface FolderDao {
     @Query("SELECT * FROM Folder WHERE id = :folderId")
     Folder getById(long folderId);
 
+    @Query("SELECT * FROM Folder WHERE path = :path LIMIT 1")
+    Folder getFolderByPath(String path);
+
     @Query("SELECT COUNT(*) FROM Folder WHERE image LIKE '%' || :imageName")
     boolean doesImageExist(String imageName);
-
 
     @Query("UPDATE Folder SET lLastAccess = :timestamp WHERE id = :folderId")
     void updateLastAccess(int folderId, long timestamp);
