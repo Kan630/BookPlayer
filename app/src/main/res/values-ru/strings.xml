@@ -1218,4 +1218,34 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
 
 
-    </resources>
+    
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">Все режимы, кроме Legacy, находятся в бета-версии.</string>
+    <string name="AskChangeSource_popupTitle">Подтвердить смену места</string>
+    <string name="Offline_for">Оффлайн в течение</string>
+    <string name="Track_View">Просмотр трека</string>
+    <string name="already_downloaded">Уже загружено</string>
+    <string name="cancel">отмена</string>
+    <string name="help_radio_text"><![CDATA[Ищите станции по <font color="#81C784">стране</font>, <font color="#FFCC80">популярности</font> или <font color="#64B5F6">имени</font>.
+    <br><br>
+    Нажмите на станцию, чтобы <font color="#81C784"><b>слушать</b></font>.
+    <br><br>
+    Используйте <font color="#EF9A9A">сердце</font> для добавления в <font color="#BA68C8">избранное</font>.]]></string>
+    <string name="help_radio_title">Мировое радио</string>
+    <string name="live_podcast">живой подкаст</string>
+    <string name="new_location_better">Папка исправляет все битые пути</string>
+    <string name="new_location_better_and_worse">Папка исправляет некоторые битые пути</string>
+    <string name="new_location_not_better">Папка не исправляет битые пути</string>
+    <string name="open_audiobook">Открыть аудиокнигу</string>
+    <string name="pick_a_new_location">выбрать новое место</string>
+    <string name="proceed">далее</string>
+    <string name="reset_progress_only_for_this_track">сброс прогресса только этого трека</string>
+    <string name="sec">сек</string>
+    <string name="sort_alphabetically">По алфавиту</string>
+    <string name="sort_by">Сортировка</string>
+    <string name="sort_last_added">Недавно добавленные</string>
+    <string name="sort_last_played">Недавно прослушанные</string>
+    <string name="to">до</string>
+    <string name="vote_too_many">Вы слишком часто голосовали за эту станцию — попробуйте позже.</string>
+</resources>

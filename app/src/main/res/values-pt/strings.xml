@@ -1227,4 +1227,34 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="last_change">última alteração</string> <!-- short -->
 
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">Todos os modos, exceto Legacy, estão em beta.</string>
+    <string name="AskChangeSource_popupTitle">Confirmar mudança de local</string>
+    <string name="Offline_for">Offline por</string>
+    <string name="Track_View">Visão da Faixa</string>
+    <string name="already_downloaded">Já baixado</string>
+    <string name="cancel">cancelar</string>
+    <string name="help_radio_text"><![CDATA[Navegue por <font color="#81C784">país</font>, <font color="#FFCC80">popularidade</font> ou <font color="#64B5F6">busque</font> por nome.
+    <br><br>
+    Toque na estação para <font color="#81C784"><b>tocar instantaneamente</b></font>.
+    <br><br>
+    Use o <font color="#EF9A9A">coração</font> para adicionar aos <font color="#BA68C8">favoritos</font>.]]></string>
+    <string name="help_radio_title">Rádios do Mundo</string>
+    <string name="live_podcast">podcast ao vivo</string>
+    <string name="new_location_better">A pasta corrige todos os caminhos quebrados</string>
+    <string name="new_location_better_and_worse">A pasta corrige alguns caminhos quebrados</string>
+    <string name="new_location_not_better">A pasta não corrige nenhum caminho</string>
+    <string name="open_audiobook">Abrir o audiolivro</string>
+    <string name="pick_a_new_location">escolher novo local</string>
+    <string name="proceed">prosseguir</string>
+    <string name="reset_progress_only_for_this_track">resetar progresso apenas desta faixa</string>
+    <string name="sec">seg</string>
+    <string name="sort_alphabetically">Alfabeticamente</string>
+    <string name="sort_by">Ordenar por</string>
+    <string name="sort_last_added">Adicionados recentemente</string>
+    <string name="sort_last_played">Tocado recentemente</string>
+    <string name="to">para</string>
+    <string name="vote_too_many">Você votou demais na mesma estação — tente novamente mais tarde.</string>
 </resources>

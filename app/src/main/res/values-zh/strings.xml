@@ -1211,4 +1211,34 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="last_change">最近改</string> <!-- short -->
 
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">除经典模式外，所有模式均处于测试阶段。</string>
+    <string name="AskChangeSource_popupTitle">确认位置更改</string>
+    <string name="Offline_for">离线时间</string>
+    <string name="Track_View">曲目视图</string>
+    <string name="already_downloaded">已下载</string>
+    <string name="cancel">取消</string>
+    <string name="help_radio_text"><![CDATA[按<font color="#81C784">国家</font>、<font color="#FFCC80">热度</font>浏览，或按名称<font color="#64B5F6">搜索</font>电台。
+    <br><br>
+    点击电台<font color="#81C784"><b>立即播放</b></font>。
+    <br><br>
+    使用<font color="#EF9A9A">爱心</font>添加到<font color="#BA68C8">收藏夹</font>。]]></string>
+    <string name="help_radio_title">流媒体世界广播</string>
+    <string name="live_podcast">直播播客</string>
+    <string name="new_location_better">所选文件夹修复了所有损坏路径</string>
+    <string name="new_location_better_and_worse">所选文件夹修复了部分损坏路径</string>
+    <string name="new_location_not_better">所选文件夹未修复任何路径</string>
+    <string name="open_audiobook">打开有声书</string>
+    <string name="pick_a_new_location">选择新位置</string>
+    <string name="proceed">继续</string>
+    <string name="reset_progress_only_for_this_track">仅重置此曲目进度</string>
+    <string name="sec">秒</string>
+    <string name="sort_alphabetically">按字母</string>
+    <string name="sort_by">排序</string>
+    <string name="sort_last_added">最近添加</string>
+    <string name="sort_last_played">最近播放</string>
+    <string name="to">至</string>
+    <string name="vote_too_many">您为同一电台投票太频繁 — 请稍后再试。</string>
 </resources>

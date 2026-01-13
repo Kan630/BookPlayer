@@ -1202,4 +1202,34 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="last_click">últimos clics</string> <!-- short -->
     <string name="last_change">último cambio</string> <!-- short -->
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">Todos los modos excepto Legacy están en beta.</string>
+    <string name="AskChangeSource_popupTitle">Confirmar cambio de ubicación</string>
+    <string name="Offline_for">Desconectado por</string>
+    <string name="Track_View">Vista de Pista</string>
+    <string name="already_downloaded">Ya descargado</string>
+    <string name="cancel">cancelar</string>
+    <string name="help_radio_text"><![CDATA[Explore emisoras por <font color="#81C784">país</font>, <font color="#FFCC80">popularidad</font> o <font color="#64B5F6">busque</font> por nombre.
+    <br><br>
+    Toque una emisora para <font color="#81C784"><b>escuchar al instante</b></font>.
+    <br><br>
+    Use el <font color="#EF9A9A">corazón</font> para añadir a <font color="#BA68C8">favoritos</font>.]]></string>
+    <string name="help_radio_title">Radios del Mundo</string>
+    <string name="live_podcast">podcast en vivo</string>
+    <string name="new_location_better">La carpeta corrige todas las rutas rotas</string>
+    <string name="new_location_better_and_worse">La carpeta corrige algunas rutas rotas</string>
+    <string name="new_location_not_better">La carpeta no corrige ninguna ruta</string>
+    <string name="open_audiobook">Abrir el audiolibro</string>
+    <string name="pick_a_new_location">elegir nueva ubicación</string>
+    <string name="proceed">proceder</string>
+    <string name="reset_progress_only_for_this_track">reiniciar progreso solo de esta pista</string>
+    <string name="sec">seg</string>
+    <string name="sort_alphabetically">Alfabéticamente</string>
+    <string name="sort_by">Ordenar por</string>
+    <string name="sort_last_added">Últimos añadidos</string>
+    <string name="sort_last_played">Últimos reproducidos</string>
+    <string name="to">a</string>
+    <string name="vote_too_many">Ha votado demasiado por la misma emisora; inténtelo más tarde.</string>
 </resources>

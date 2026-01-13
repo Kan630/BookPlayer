@@ -1193,7 +1193,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="Spam">Spam</string>
     <string name="option_radio_remove_duplicates">supprimer les doublons</string>
     <string name="option_radio_remove_duplicates_subtitle">Si le nom de la station apparaît plus de 3 fois, les suivantes ne sont pas affichées afin d\'éviter d\'encombrer la liste avec des doublons.</string>
-    <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l’arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n’est pas grave si vous vous endormez !</string>
+    <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l\'arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n\'est pas grave si vous vous endormez !</string>
     <string name="Radio">Radio</string>
 
     <string name="loading_more">chargement…</string>
@@ -1209,4 +1209,34 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="last_click">derniers clics</string> <!-- short -->
     <string name="last_change">dernier modifiés.</string> <!-- short -->
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">Tous les modes sauf Legacy sont en bêta.</string>
+    <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
+    <string name="Offline_for">Hors ligne depuis</string>
+    <string name="Track_View">Vue Piste</string>
+    <string name="already_downloaded">Déjà téléchargé</string>
+    <string name="cancel">annuler</string>
+    <string name="help_radio_text"><![CDATA[Parcourez les stations par <font color="#81C784">pays</font>, <font color="#FFCC80">popularité</font> ou autre, ou <font color="#64B5F6">cherchez</font> une station par nom.
+    <br><br>
+    Tapez sur une station pour <font color="#81C784"><b>lancer la lecture</b></font>.
+    <br><br>
+    Utilisez <font color="#EF9A9A">le cœur</font> pour ajouter aux <font color="#BA68C8">favoris</font>.]]></string>
+    <string name="help_radio_title">Radios du Monde</string>
+    <string name="live_podcast">podcast en direct</string>
+    <string name="new_location_better">Ce dossier corrige tous les chemins rompus</string>
+    <string name="new_location_better_and_worse">Ce dossier corrige certains chemins rompus</string>
+    <string name="new_location_not_better">Ce dossier ne corrige aucun chemin</string>
+    <string name="open_audiobook">Ouvrir le livre audio</string>
+    <string name="pick_a_new_location">choisir un nouvel emplacement</string>
+    <string name="proceed">continuer</string>
+    <string name="reset_progress_only_for_this_track">réinit. progression de cette piste</string>
+    <string name="sec">sec</string>
+    <string name="sort_alphabetically">par nom</string>
+    <string name="sort_by">Trier par</string>
+    <string name="sort_last_added">Derniers ajouts</string>
+    <string name="sort_last_played">Dernières écoutes</string>
+    <string name="to">vers</string>
+    <string name="vote_too_many">Vous avez trop voté pour cette station — réessayez plus tard.</string>
 </resources>

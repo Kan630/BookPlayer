@@ -1208,4 +1208,34 @@
     <string name="last_click">آخر نقر</string> <!-- keep short -->
     <string name="last_change">آخر تغيير</string> <!-- keep short -->
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">جميع الأوضاع باستثناء القديمة في مرحلة تجريبية.</string>
+    <string name="AskChangeSource_popupTitle">تأكيد تغيير الموقع</string>
+    <string name="Offline_for">غير متصل لـ</string>
+    <string name="Track_View">عرض المسار</string>
+    <string name="already_downloaded">تم التنزيل بالفعل</string>
+    <string name="cancel">إلغاء</string>
+    <string name="help_radio_text"><![CDATA[تصفح المحطات حسب <font color="#81C784">البلد</font> أو <font color="#FFCC80">الشعبية</font> أو فئات أخرى، أو <font color="#64B5F6">ابحث</font> عن محطة بالاسم.
+    <br><br>
+    اضغط على محطة <font color="#81C784"><b>للبدء فورًا</b></font>.
+    <br><br>
+    استخدم <font color="#EF9A9A">القلب</font> للإضافة إلى <font color="#BA68C8">المفضلة</font>.]]></string>
+    <string name="help_radio_title">بث راديو العالم</string>
+    <string name="live_podcast">بودكاست مباشر</string>
+    <string name="new_location_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
+    <string name="new_location_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
+    <string name="new_location_not_better">المجلد المحدد لا يصلح أي مسارات معطلة</string>
+    <string name="open_audiobook">فتح الكتاب الصوتي</string>
+    <string name="pick_a_new_location">اختر موقعًا جديدًا</string>
+    <string name="proceed">متابعة</string>
+    <string name="reset_progress_only_for_this_track">إعادة تعيين التقدم لهذا المسار فقط</string>
+    <string name="sec">ث</string>
+    <string name="sort_alphabetically">أبجديا</string>
+    <string name="sort_by">فرز حسب</string>
+    <string name="sort_last_added">آخر إضافة</string>
+    <string name="sort_last_played">آخر تشغيل</string>
+    <string name="to">إلى</string>
+    <string name="vote_too_many">لقد قمت بالتصويت كثيرًا لنفس المحطة — حاول مرة أخرى لاحقًا.</string>
 </resources>

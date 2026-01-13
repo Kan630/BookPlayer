@@ -1263,4 +1263,34 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="last_click">आखिरी क्लिक</string> <!-- short -->
         <string name="last_change">आखिरी बदल.</string> <!-- short -->
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">लेगासी को छोड़कर सभी मोड बीटा में हैं।</string>
+    <string name="AskChangeSource_popupTitle">स्थान परिवर्तन की पुष्टि करें</string>
+    <string name="Offline_for">ऑफ़लाइन के लिए</string>
+    <string name="Track_View">ट्रैक व्यू</string>
+    <string name="already_downloaded">पहले से डाउनलोड किया गया</string>
+    <string name="cancel">रद्द करें</string>
+    <string name="help_radio_text"><![CDATA[<font color="#81C784">देश</font>, <font color="#FFCC80">लोकप्रियता</font> या अन्य श्रेणियों द्वारा स्टेशन ब्राउज़ करें, या नाम से <font color="#64B5F6">खोजें</font>।
+    <br><br>
+    <font color="#81C784"><b>तुरंत सुनने</b></font> के लिए स्टेशन पर टैप करें।
+    <br><br>
+    <font color="#BA68C8">पसंदीदा</font> में जोड़ने के लिए <font color="#EF9A9A">दिल आइकन</font> का उपयोग करें।]]></string>
+    <string name="help_radio_title">दुनिया के रेडियो</string>
+    <string name="live_podcast">लाइव पॉडकास्ट</string>
+    <string name="new_location_better">चयनित फ़ोल्डर सभी टूटे हुए रास्तों को ठीक करता है</string>
+    <string name="new_location_better_and_worse">चयनित फ़ोल्डर कुछ टूटे हुए रास्तों को ठीक करता है</string>
+    <string name="new_location_not_better">चयनित फ़ोल्डर कोई टूटे रास्ते ठीक नहीं करता</string>
+    <string name="open_audiobook">ऑडियोबुक खोलें</string>
+    <string name="pick_a_new_location">नया स्थान चुनें</string>
+    <string name="proceed">आगे बढ़ें</string>
+    <string name="reset_progress_only_for_this_track">केवल इस ट्रैक की प्रगति रीसेट करें</string>
+    <string name="sec">से</string>
+    <string name="sort_alphabetically">वर्णमाला अनुसार</string>
+    <string name="sort_by">क्रमबद्ध करें</string>
+    <string name="sort_last_added">अंतिम जोड़ा गया</string>
+    <string name="sort_last_played">अंतिम बार चलाया गया</string>
+    <string name="to">तक</string>
+    <string name="vote_too_many">आपने एक ही स्टेशन के लिए बहुत बार वोट दिया - बाद में पुनः प्रयास करें।</string>
 </resources>

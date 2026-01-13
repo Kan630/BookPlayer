@@ -1213,4 +1213,34 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="last_click">Letzte Klicks</string> <!-- short -->
     <string name="last_change">Letzte Änderung</string> <!-- short -->
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">Alle Modi außer Legacy sind im Beta-Status.</string>
+    <string name="AskChangeSource_popupTitle">Standortwechsel bestätigen</string>
+    <string name="Offline_for">Offline seit</string>
+    <string name="Track_View">Titelansicht</string>
+    <string name="already_downloaded">Bereits heruntergeladen</string>
+    <string name="cancel">abbrechen</string>
+    <string name="help_radio_text"><![CDATA[Durchsuchen Sie Sender nach <font color="#81C784">Land</font>, <font color="#FFCC80">Beliebtheit</font> oder <font color="#64B5F6">suchen</font> Sie nach Namen.
+    <br><br>
+    Tippen Sie zum <font color="#81C784"><b>Abspielen</b></font> auf einen Sender.
+    <br><br>
+    Nutzen Sie das <font color="#EF9A9A">Herz</font>, um Sender zu <font color="#BA68C8">Favoriten</font> hinzuzufügen.]]></string>
+    <string name="help_radio_title">Weltweite Radiosender</string>
+    <string name="live_podcast">Live-Podcast</string>
+    <string name="new_location_better">Ordner repariert alle defekten Pfade</string>
+    <string name="new_location_better_and_worse">Ordner repariert einige defekte Pfade</string>
+    <string name="new_location_not_better">Ordner repariert keine defekten Pfade</string>
+    <string name="open_audiobook">Das Hörbuch öffnen</string>
+    <string name="pick_a_new_location">neuen Ort wählen</string>
+    <string name="proceed">weiter</string>
+    <string name="reset_progress_only_for_this_track">Fortschritt nur für diesen Titel zurücksetzen</string>
+    <string name="sec">Sek</string>
+    <string name="sort_alphabetically">Alphabetisch</string>
+    <string name="sort_by">Sortieren nach</string>
+    <string name="sort_last_added">Zuletzt hinzugefügt</string>
+    <string name="sort_last_played">Zuletzt gespielt</string>
+    <string name="to">bis</string>
+    <string name="vote_too_many">Sie haben zu oft für denselben Sender abgestimmt — versuchen Sie es später.</string>
 </resources>

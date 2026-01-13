@@ -1228,4 +1228,34 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="last_click">ultimi clic</string> <!-- short -->
     <string name="last_change">ultima modif.</string> <!-- short -->
 
+
+
+    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
+    <string name="All_modes_except_Legacy_are_in_beta">Tutte le modalità tranne Legacy sono in beta.</string>
+    <string name="AskChangeSource_popupTitle">Conferma cambio posizione</string>
+    <string name="Offline_for">Offline da</string>
+    <string name="Track_View">Vista Traccia</string>
+    <string name="already_downloaded">Già scaricato</string>
+    <string name="cancel">annulla</string>
+    <string name="help_radio_text"><![CDATA[Sfoglia stazioni per <font color="#81C784">paese</font>, <font color="#FFCC80">popolarità</font> o <font color="#64B5F6">cerca</font> per nome.
+    <br><br>
+    Tocca una stazione per <font color="#81C784"><b>ascoltare subito</b></font>.
+    <br><br>
+    Usa il <font color="#EF9A9A">cuore</font> per aggiungere ai <font color="#BA68C8">preferiti</font>.]]></string>
+    <string name="help_radio_title">Radio dal Mondo</string>
+    <string name="live_podcast">podcast live</string>
+    <string name="new_location_better">La cartella corregge tutti i percorsi rotti</string>
+    <string name="new_location_better_and_worse">La cartella corregge alcuni percorsi rotti</string>
+    <string name="new_location_not_better">La cartella non corregge alcun percorso</string>
+    <string name="open_audiobook">Apri l\'audiolibro</string>
+    <string name="pick_a_new_location">scegli nuova posizione</string>
+    <string name="proceed">procedi</string>
+    <string name="reset_progress_only_for_this_track">resetta progressi solo per questa traccia</string>
+    <string name="sec">sec</string>
+    <string name="sort_alphabetically">Alfabetico</string>
+    <string name="sort_by">Ordina per</string>
+    <string name="sort_last_added">Ultimi aggiunti</string>
+    <string name="sort_last_played">Ultimi riprodotti</string>
+    <string name="to">a</string>
+    <string name="vote_too_many">Hai votato troppo spesso per la stessa stazione — riprova più tardi.</string>
 </resources>
