@@ -632,67 +632,138 @@ public class ModifyFolderActivity extends LoggingActivity {
     private void checkResults(ActivityResult result) {
         if (result.getResultCode() == RESULT_OK) {
             if (UriHelper.isReturnedUriOk(result.getData())) {
-                final Uri pickedFolderUri = result.getData().getData();
-                myLog("pickeddata : " + pickedFolderUri.getPath());
-                myLog("pickeddata : " + pickedFolderUri.toString());
+                final Uri pickedTreeUri = result.getData().getData();
+                myLog("pickedTreeUri : " + pickedTreeUri.toString());
 
-//check if better now :
+                // Persist the URI permission so it survives app restarts
+                try {
+                    getContentResolver().takePersistableUriPermission(pickedTreeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                } catch (Exception e) {
+                    myLogEE(e, "Failed to persist URI permission");
+                }
+
                 AppDatabase.databaseReadExecutor.execute(() -> {
                     Context context = getApplicationContext();
-                    String oldPath = "", newPath;
-                    Uri oldUri, newUri;
-                    int i = 0;
                     int nbBetter = 0;
                     int nbWorse = 0;
+                    int nbSame = 0;
+
                     List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
                     final int nbZikFiles = list.size();
                     myLogW("nb zik files : " + nbZikFiles);
+
+                    // Get the tree document ID from the tree URI
+                    String treeDocumentId = DocumentsContract.getTreeDocumentId(pickedTreeUri);
+
                     for (ZikFile zikFile : list) {
-                        i = i + 1;
-                        oldPath = zikFile.getPath();
-                        newPath = new File(pickedFolderUri.getPath(), zikFile.getName()).getPath();
-                        oldUri = UriHelper.resolveUriFromPath(context, oldPath);
-                        newUri = UriHelper.resolveUriFromPath(context, newPath);
-                        myLog(i + " oldPath : [" + oldPath + "], oldUri : [" + oldUri + "]\n"
-                                + i + " newPath : [" + newPath + "], newUri : [" + newUri + "]");
-                        if (oldUri == null && newUri != null) {
-                            nbBetter = nbBetter + 1;
-                            myLog(i + " BETTER");
-                        } else if (oldUri != null && newUri == null) {
-                            nbWorse = nbWorse + 1;
-                            myLog(i + " WORSE");
+                        String oldPath = zikFile.getPath();
+                        Uri oldUri = UriHelper.resolveUriFromPath(context, oldPath);
+
+                        // Build a content URI for the file in the new location
+                        // Construct child document ID: treeDocumentId + "/" + filename
+                        String childDocumentId = treeDocumentId + "/" + zikFile.getName();
+                        Uri newUri = DocumentsContract.buildDocumentUriUsingTree(pickedTreeUri, childDocumentId);
+
+                        myLog("Checking file: " + zikFile.getName());
+                        myLog("  oldUri: " + oldUri);
+                        myLog("  newUri: " + newUri);
+
+                        // Check if the new URI actually points to a readable file
+                        boolean newUriValid = isUriReadable(context, newUri);
+                        boolean oldUriValid = (oldUri != null);
+
+                        myLog("  oldUriValid: " + oldUriValid + ", newUriValid: " + newUriValid);
+
+                        if (!oldUriValid && newUriValid) {
+                            nbBetter++;
+                            myLog("  BETTER");
+                        } else if (oldUriValid && !newUriValid) {
+                            nbWorse++;
+                            myLog("  WORSE");
+                        } else {
+                            nbSame++;
+                            myLog("  SAME");
                         }
                     }
-                    myLogW("nbBetter : " + nbBetter + ", worse : " + nbWorse);
+
+                    myLogW("nbBetter : " + nbBetter + ", worse : " + nbWorse + ", same : " + nbSame);
+
                     if (nbBetter <= 0) {
-                        myToastE(getString(R.string.new_location_not_better));
+                        runOnUiThread(() -> myToastE(getString(R.string.new_location_not_better)));
                     } else {
-                        String textMsg = getString(R.string.AskChangeSource_popupText)
-                                + "\n " + getString(R.string.from) + " [" + Tonio.getParentFolderOrEmpty(oldPath) + "]"
-                                + "\n " + getString(R.string.to) + " [" + pickedFolderUri + "]";
-                        new AlertDialog.Builder(ModifyFolderActivity.this)
-                                .setTitle(getString((R.string.AskChangeSource_popupTitle)))
-                                .setMessage(textMsg)
-                                .setCancelable(true)
-                                .setPositiveButton(getString(R.string.proceed), (dialog, ii) -> {
-                                    myLogW("changing folder path...");
-                                    folder.setPath(pickedFolderUri.getPath());
-                                    AppDatabase.getDatabase(context).folderDao().update(folder);
-                                    //RECHECK ET RELOAD ERROR STATUS
-                                    checkZikFilesReadable();
-                                })
-                                .setNegativeButton(getString(R.string.cancel), (dialog, ii) -> {})
-                                .show();
+                        final int nbBetterFinal = nbBetter;
+                        final int nbWorseFinal = nbWorse;
+                        runOnUiThread(() -> {
+                            String oldPathExample = list.isEmpty() ? "" : Tonio.getParentFolderOrEmpty(list.get(0).getPath());
+                            String textMsg = getString(R.string.AskChangeSource_popupText)
+                                    + "\n " + getString(R.string.from) + " [" + oldPathExample + "]"
+                                    + "\n " + getString(R.string.to) + " [" + pickedTreeUri + "]"
+                                    + "\n\n" + nbBetterFinal + " files will be fixed"
+                                    + (nbWorseFinal > 0 ? "\n" + "BUT " + nbWorseFinal + " files will be broken" : "");
+
+                            new AlertDialog.Builder(ModifyFolderActivity.this)
+                                    .setTitle(getString(R.string.AskChangeSource_popupTitle))
+                                    .setMessage(textMsg)
+                                    .setCancelable(true)
+                                    .setPositiveButton(getString(R.string.proceed), (dialog, ii) -> {
+                                        updateZikFilePaths(pickedTreeUri, treeDocumentId);
+                                    })
+                                    .setNegativeButton(getString(R.string.cancel), (dialog, ii) -> {})
+                                    .show();
+                        });
                     }
                 });
-                //RECHECK ET RELOAD ERROR STATUS
-                //checkZikFilesReadable();
             } else {
                 myToastE("returned Uri not OK");
             }
         } else {
             myLogE("result code not OK");
         }
+    }
+
+    private boolean isUriReadable(Context context, Uri uri) {
+        try {
+            String[] projection = {DocumentsContract.Document.COLUMN_DOCUMENT_ID};
+            try (android.database.Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
+                return cursor != null && cursor.getCount() > 0;
+            }
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void updateZikFilePaths(Uri pickedTreeUri, String treeDocumentId) {
+        myLogW("Updating file paths to new location...");
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            Context context = getApplicationContext();
+            List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
+
+            int updated = 0;
+            for (ZikFile zikFile : list) {
+                // Build the content URI for this file in the new location
+                String childDocumentId = treeDocumentId + "/" + zikFile.getName();
+                Uri newUri = DocumentsContract.buildDocumentUriUsingTree(pickedTreeUri, childDocumentId);
+
+                // Verify it's readable before updating
+                if (isUriReadable(context, newUri)) {
+                    zikFile.setPath(newUri.toString());
+                    AppDatabase.getDatabase(context).zikFileDao().update(zikFile);
+                    updated++;
+                    myLog("Updated: " + zikFile.getName() + " -> " + newUri);
+                }
+            }
+
+            // Update the folder path to store the tree URI
+            folder.setPath(pickedTreeUri.toString());
+            AppDatabase.getDatabase(context).folderDao().update(folder);
+
+            final int finalUpdated = updated;
+            runOnUiThread(() -> {
+                myToast(finalUpdated + " files updated successfully");
+                checkZikFilesReadable(); // Recheck to update UI
+            });
+        });
     }
 
     private void pickNewLocation() {
