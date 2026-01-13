@@ -30,6 +30,7 @@ import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.driot.bookplayer.utils.Tonio.*;
@@ -118,16 +119,12 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
     }
 
     public void submitList(List<Folder> folders) {
-        differ.submitList(folders);
-    }
-    public void submitList(List<Folder> folders, @Nullable Runnable commit) {
-        differ.submitList(folders, commit);
+        differ.submitList(folders == null ? null : new ArrayList<>(folders));
     }
 
     @Override public int getItemCount() {
         return differ.getCurrentList().size();
     }
-
 
     @NonNull
     @Override

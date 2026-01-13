@@ -20,6 +20,9 @@ public class Option {
 
     public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
 
+    private static final String DEFAULT_SORT_MODE      = "last_played";
+    private static final String DEFAULT_SORT_DIRECTION = "desc";
+
     public static final int MIN_TIME_BEFORE_SLEEP = 1;
     public static final int MAX_TIME_BEFORE_SLEEP = 60 * 24; // 1440
 
@@ -147,6 +150,14 @@ public class Option {
  */
     }
 
+    /////////////////// SORT BOOK LIST ///////////////////
+    public static String getSortMode() {return prefs.getString("sort_mode", DEFAULT_SORT_MODE);}
+    public static void setSortMode(String mode) {prefs.edit().putString("sort_mode", mode).apply();}
+
+    public static String getSortDirection() {return prefs.getString("sort_direction", DEFAULT_SORT_DIRECTION);}
+    public static void setSortDirection(String direction) {prefs.edit().putString("sort_direction", direction).apply();}
+
+    /////////////////// RADIO ///////////////////
     public static void setRadioUseCloudflare(boolean bool) {prefs.edit().putBoolean("RADIO_USE_CLOUDFARE",bool).apply();}
     public static boolean getRadioUseCloudflare() {return prefs.getBoolean("RADIO_USE_CLOUDFARE", DEFAULT_RADIO_USE_CLOUDFARE);}
 
@@ -156,6 +167,7 @@ public class Option {
     public static boolean getRadioRemoveSpamStations() {return prefs.getBoolean("RADIO_REMOVE_SPAM_STATIONS", DEFAULT_RADIO_REMOVE_SPAM_STATIONS);}
     public static void setRadioRemoveSpamStations(boolean bool) {prefs.edit().putBoolean("RADIO_REMOVE_SPAM_STATIONS",bool).apply();}
 
+    /////////////////// HEAT_MAPS ///////////////////
     public static boolean getProgressHeatMap() {return prefs.getBoolean("PROGRESS_HEAT_MAP", DEFAULT_PROGRESS_HEAT_MAP);}
     public static boolean getProgressHeatMapInitialized() {return prefs.contains("PROGRESS_HEAT_MAP");}
     public static void setProgressHeatMap(boolean bool) {prefs.edit().putBoolean("PROGRESS_HEAT_MAP",bool).apply();}

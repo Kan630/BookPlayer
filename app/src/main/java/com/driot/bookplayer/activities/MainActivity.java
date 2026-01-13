@@ -41,6 +41,7 @@
     import com.driot.bookplayer.radio.RadioStationActivity;
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;
+    import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
     import dagger.hilt.android.AndroidEntryPoint;
 
@@ -233,6 +234,9 @@
         public boolean onOptionsItemSelected(@NonNull MenuItem item) {
             int itemId = item.getItemId();
             if (itemId == R.id.action_menu_three_dot) {
+            } else if (itemId == R.id.menu_sort) {
+                myLogI("--- USER clicks MENU : SORT ---");
+                showSortOrderDialog();
             } else if (itemId == R.id.menu_settings) {
                 myLogI("--- USER clicks MENU : SETTINGS ---");
                 this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); //trick to reload MainActivity if color changed in OptionActivity, by allowing to set Result=OK only if color is changed
@@ -347,6 +351,62 @@
 
                     }
                 }
+            }
+        }
+
+
+        private void showSortOrderDialog() {
+            String currentMode = Option.getSortMode();
+            String currentDir  = Option.getSortDirection();
+
+            String[] options = new String[] {
+                    getString(R.string.sort_last_played)
+                            + (currentMode.equals("last_played") ? getDirectionLabel(currentDir) : ""),
+
+                    getString(R.string.sort_alphabetically)
+                            + (currentMode.equals("alpha") || currentMode.equals("alphabetical") ? getDirectionLabel(currentDir) : ""),
+
+                    getString(R.string.sort_last_added)
+                            + (currentMode.equals("added") || currentMode.equals("last_added") ? getDirectionLabel(currentDir) : "")
+            };
+
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.sort_by)
+                    .setItems(options, (dialog, which) -> {
+                        String selectedMode;
+                        switch (which) {
+                            case 0: selectedMode = "last_played"; break;
+                            case 1: selectedMode = "alpha";       break;
+                            case 2: selectedMode = "added";       break;
+                            default: return;
+                        }
+
+                        if (selectedMode.equals(currentMode)) {
+                            // same mode → toggle direction
+                            String newDir = "asc".equals(currentDir) ? "desc" : "asc";
+                            Option.setSortDirection(newDir);
+                        } else {
+                            // new mode → start with descending (recent / Z first)
+                            Option.setSortMode(selectedMode);
+                            Option.setSortDirection("desc");
+                        }
+
+                        // Tell ViewModel to re-sort and refresh UI
+                        if (mainVm != null) {
+                            mainVm.forceRefresh();
+                        }
+
+                        myLogI("Sort changed → mode=" + Option.getSortMode() + " dir=" + Option.getSortDirection());
+                    })
+                    .setNegativeButton(R.string.cancel, null)
+                    .show();
+        }
+
+        private String getDirectionLabel(String dir) {
+            if ("asc".equals(dir)) {
+                return "   (↑)";
+            } else {
+                return "   (↓)";
             }
         }
 

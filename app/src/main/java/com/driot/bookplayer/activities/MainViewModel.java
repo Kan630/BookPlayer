@@ -9,11 +9,15 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.Event;
 import com.driot.bookplayer.utils.NoContent;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 
 public class MainViewModel extends LoggingAndroidViewModel {
@@ -40,19 +44,68 @@ public class MainViewModel extends LoggingAndroidViewModel {
         if (!state.contains(K_LAST_SCROLLED_FOLDER_ID)) state.set(K_LAST_SCROLLED_FOLDER_ID, -1);
 
         LiveData<List<Folder>> source = repo.observeAll();
-        folders.addSource(source, list -> {
-            folders.setValue(list);
-            boolean empty = (list == null || list.isEmpty());
+        folders.addSource(source, rawList -> {
+            if (rawList == null) {
+                folders.setValue(null);
+                return;
+            }
 
-            // If we requested a scroll because playback changed, fire it once
-            if (pendingScrollToTop && list != null && !list.isEmpty()) {
+            List<Folder> sorted = sortFolders(rawList);
+            folders.setValue(sorted);
+
+            if (pendingScrollToTop && !sorted.isEmpty()) {
                 pendingScrollToTop = false;
                 scrollToTop.setValue(new Event<>(NoContent.INSTANCE));
-                // mark that we scrolled to this folder once
                 state.set(K_LAST_SCROLLED_FOLDER_ID, pendingFolderIdForScroll);
             }
         });
     }
+
+    private List<Folder> sortFolders(List<Folder> folders) {
+        if (folders == null || folders.isEmpty()) {
+            return folders;
+        }
+
+        List<Folder> list = new ArrayList<>(folders);
+
+        String mode = Option.getSortMode();
+        String dir  = Option.getSortDirection();
+        boolean descending = "desc".equals(dir);
+
+        Comparator<Folder> comparator;
+
+        switch (mode) {
+            case "alpha":
+            case "alphabetical":
+                comparator = Comparator.comparing(
+                        f -> f.getName() != null ? f.getName().trim().toLowerCase(Locale.getDefault()) : ""
+                );
+                break;
+
+            case "added":
+            case "last_added":
+                comparator = Comparator.comparingLong(
+                        f -> f.date_added
+                );
+                break;
+
+            case "last_played":
+            default:
+                comparator = Comparator.comparingLong(
+                        f -> f.lLastAccess
+                );
+                break;
+        }
+
+        if (descending) {
+            comparator = comparator.reversed();
+        }
+
+        list.sort(comparator);
+        return list;
+    }
+
+
 
     // region Public API for Activity
 
@@ -88,11 +141,11 @@ public class MainViewModel extends LoggingAndroidViewModel {
         state.set(K_LAST_SCROLLED_FOLDER_ID, -1);
     }
 
-    /** If you pass an intent extra like forceRefresh, you can expose this no-op. Room auto-updates anyway. */
     public void forceRefresh() {
-        // No-op with Room; kept for symmetry/testing hooks.
-        List<Folder> cur = folders.getValue();
-        if (cur != null) folders.setValue(cur); // poke observers
+        List<Folder> current = folders.getValue();
+        if (current != null) {
+            folders.setValue(sortFolders(current));
+        }
     }
 
 }

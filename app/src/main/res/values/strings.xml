@@ -1307,6 +1307,9 @@
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>
 
-
+    <string name="sort_by">Sort by</string>
+    <string name="sort_last_played">Last played</string>
+    <string name="sort_alphabetically">Alphabetically</string>
+    <string name="sort_last_added">Last added</string>
 
 </resources>

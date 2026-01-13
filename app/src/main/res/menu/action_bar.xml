@@ -5,6 +5,12 @@
         tools:context=".MainActivity">
 
     <item
+        android:id="@+id/menu_sort"
+        android:icon="@drawable/ic_menu_sort"
+        android:title="@string/sort"
+        app:showAsAction="ifRoom"/>
+
+    <item
         android:id="@+id/action_menu_three_dot"
         android:icon="@drawable/ic_baseline_more_vert_24"
         android:title="@string/action_menu_three_dot"
