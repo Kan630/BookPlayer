@@ -1295,5 +1295,15 @@
     <string name="All_modes_except_Legacy_are_in_beta">All modes except Legacy are in beta.</string>
     <string name="reset_progress_only_for_this_track">reset progress only for this track</string>
     <string name="pick_a_new_location">pick a new location</string>
+    <string name="new_location_better">picked folder does fix some broken paths</string>
+    <string name="new_location_not_better">picked folder does not fix broken paths</string>
+    <string name="AskChangeSource_popupTitle">Confirm location change</string>
+    <string name="AskChangeSource_popupText">Changing folder source for this book</string>
+    <string name="proceed">proceed</string> //keep it relatively short, it is for a dialog button
+    <string name="cancel">cancel</string>
+    <string name="to">to</string>  // used in : from - to   (french : depuis - vers)
+
+
+
 
 </resources>

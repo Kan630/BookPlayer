@@ -639,40 +639,59 @@ public class ModifyFolderActivity extends LoggingActivity {
 //check if better now :
                 AppDatabase.databaseReadExecutor.execute(() -> {
                     Context context = getApplicationContext();
-                    String oldPath, newPath;
+                    String oldPath = "", newPath;
                     Uri oldUri, newUri;
                     int i = 0;
                     int nbBetter = 0;
                     int nbWorse = 0;
                     List<ZikFile> list = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(folder.getId());
                     final int nbZikFiles = list.size();
+                    myLogW("nb zik files : " + nbZikFiles);
                     for (ZikFile zikFile : list) {
                         i = i + 1;
                         oldPath = zikFile.getPath();
                         newPath = new File(pickedFolderUri.getPath(), zikFile.getName()).getPath();
                         oldUri = UriHelper.resolveUriFromPath(context, oldPath);
                         newUri = UriHelper.resolveUriFromPath(context, newPath);
+                        myLog(i + " oldPath : [" + oldPath + "], oldUri : [" + oldUri + "]\n"
+                                + i + " newPath : [" + newPath + "], newUri : [" + newUri + "]");
                         if (oldUri == null && newUri != null) {
                             nbBetter = nbBetter + 1;
+                            myLog(i + " BETTER");
                         } else if (oldUri != null && newUri == null) {
                             nbWorse = nbWorse + 1;
+                            myLog(i + " WORSE");
                         }
                     }
-                    //TODO ask for confirmation
-                    myToastE("nbBetter : " + nbBetter + ", worse : " + nbWorse);
-                    if (nbBetter>0) {
-                        myLogW("changing folder path...");
-                        folder.setPath(pickedFolderUri.getPath());
-                        AppDatabase.getDatabase(context).folderDao().update(folder);
+                    myLogW("nbBetter : " + nbBetter + ", worse : " + nbWorse);
+                    if (nbBetter <= 0) {
+                        myToastE(getString(R.string.new_location_not_better));
+                    } else {
+                        String textMsg = getString(R.string.AskChangeSource_popupText)
+                                + "\n " + getString(R.string.from) + " [" + Tonio.getParentFolderOrEmpty(oldPath) + "]"
+                                + "\n " + getString(R.string.to) + " [" + pickedFolderUri + "]";
+                        new AlertDialog.Builder(ModifyFolderActivity.this)
+                                .setTitle(getString((R.string.AskChangeSource_popupTitle)))
+                                .setMessage(textMsg)
+                                .setCancelable(true)
+                                .setPositiveButton(getString(R.string.proceed), (dialog, ii) -> {
+                                    myLogW("changing folder path...");
+                                    folder.setPath(pickedFolderUri.getPath());
+                                    AppDatabase.getDatabase(context).folderDao().update(folder);
+                                    //RECHECK ET RELOAD ERROR STATUS
+                                    checkZikFilesReadable();
+                                })
+                                .setNegativeButton(getString(R.string.cancel), (dialog, ii) -> {})
+                                .show();
                     }
                 });
                 //RECHECK ET RELOAD ERROR STATUS
-                checkZikFilesReadable();
+                //checkZikFilesReadable();
             } else {
                 myToastE("returned Uri not OK");
             }
         } else {
-            myToastE("result code not OK");
+            myLogE("result code not OK");
         }
     }
 

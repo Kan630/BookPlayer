@@ -9,6 +9,7 @@ import android.provider.OpenableColumns;
 import android.webkit.MimeTypeMap;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
@@ -585,4 +586,28 @@ public class Tonio {
     public static String lpad(long value, int width) {
         return String.format(Locale.US, "%" + width + "d", value);
     }
+
+
+    @Nullable
+    public static String getParentFolder(@Nullable String fullPath) {
+        if (fullPath == null || fullPath.isEmpty()) {
+            return null;
+        }
+        try {
+            File f = new File(fullPath);
+            return f.getParent();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    @NonNull
+    public static String getParentFolderOrEmpty(@Nullable String fullPath) {
+        String parent = getParentFolder(fullPath);
+        return parent != null ? parent : "";
+    }
+
+
+
+
+
 }
