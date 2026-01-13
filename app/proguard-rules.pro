@@ -92,4 +92,9 @@
     public static *** i(...);
 }
 
+# ----- new stuff because jsoup (1.22) could use better regex now.  (security + speed)
+# ------- other possibility would be to actually follow that move that by adding :  implementation "com.google.re2j:re2j:1.7"
+-dontwarn com.google.re2j.Matcher
+-dontwarn com.google.re2j.Pattern
+
 # ---------- End ----------
