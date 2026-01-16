@@ -43,6 +43,9 @@ public interface EpisodeDao {
     @Query("SELECT * FROM Episode WHERE idEpisode = :idEpisode")
     Episode getByEpisodeId(long idEpisode);
 
+    @Query("SELECT * FROM Episode WHERE enclosureUrl = :url LIMIT 1")
+    Episode getFromUrl(String url);
+
     @Query("SELECT * FROM Episode ORDER BY date_add DESC")
     List<Episode> getAll();
 

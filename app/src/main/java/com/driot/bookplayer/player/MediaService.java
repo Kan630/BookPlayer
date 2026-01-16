@@ -27,7 +27,9 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
@@ -2338,15 +2340,32 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                 AppDatabase.databaseReadExecutor.execute(()->{
                     RadioStation rs = AppDatabase.getDatabase(this).radioStationDao().getFromUrl(pl.getUrl());
-                    String title = rs.name;
-                    String imageUrl = rs.favicon;
-                    broadcastUiState("loadAndPlay");
-                    main.post(() -> {
-                        boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);
-                        if (!ok) {
-                            myLogEE(null, "loadAndPlayFromStorage(): playback failed");
-                        }
-                    });
+                    if (rs != null) {
+                        String title = rs.name;
+                        String imageUrl = rs.favicon;
+                        broadcastUiState("loadAndPlay");
+                        main.post(() -> {
+                            boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);
+                            if (!ok) {
+                                myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio");
+                            }
+                        });
+                        return;
+                    }
+                    Episode episode = AppDatabase.getDatabase(this).episodeDao().getFromUrl(pl.getUrl());
+                    if (episode != null) {
+                        String title = episode.title;
+                        String imageUrl = episode.image;
+                        broadcastUiState("loadAndPlay");
+                        main.post(() -> {
+                            boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);
+                            if (!ok) {
+                                myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
+                            }
+                        });
+                        return;
+                    }
+                    myLogEE(null, "could not retrieve stream object");
                 });
 
 
