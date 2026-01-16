@@ -71,7 +71,9 @@
         <activity android:name=".activities.GetDirectLinkActivity" />
         <activity android:name=".activities.GetLibrivoxActivity" />
         <activity android:name=".activities.GetPodcastActivity" />
-        <activity android:name=".radio.GetRadioActivity" />
+        <activity android:name=".radio.GetRadioActivity"
+            android:launchMode="singleTop"
+            />
         <activity android:name=".radio.GetRadioCardListActivity" />
         <activity android:name=".imports.LoadBookActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />

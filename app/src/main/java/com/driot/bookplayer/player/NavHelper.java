@@ -88,8 +88,8 @@ public class NavHelper {
                     context,
                     0,
                     new Intent(context, GetRadioActivity.class)
-                            .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                    flags
+                            //.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    ,flags
             );
         }
     }

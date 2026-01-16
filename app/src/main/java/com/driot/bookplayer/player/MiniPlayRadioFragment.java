@@ -83,16 +83,18 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             myLogI("---- user press mini player ----");
             if (vm.getState() != null && vm.getState().getValue() != null) {
                 String radioStationUuid = vm.getState().getValue().radioStationUuid;
-                myLogD("radioStationUuid = " + radioStationUuid);
                 if (radioStationUuid!=null) {
+                    myLogD("radioStationUuid = " + radioStationUuid);
                     Intent intent = new Intent(requireContext(), RadioStationActivity.class);
                     intent.putExtra(Intents.EXTRA_STATION_UUID, radioStationUuid);
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // dont open it multiple time... NOT SURE CLEAR TOP is really usefull...
                     startActivity(intent);
                 } else {
+                    myLogE("radioStationUuid is NULL");
                     startActivity(new Intent(requireContext(), GetRadioActivity.class));
                 }
             } else {
+                myLog("no VM state");
                 startActivity(new Intent(requireContext(), GetRadioActivity.class));
             }
         });
