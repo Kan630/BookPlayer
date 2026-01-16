@@ -2356,6 +2356,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     if (episode != null) {
                         String title = episode.title;
                         String imageUrl = episode.image;
+                        //TODO => we need a position, or it will start the episode from the beggining....
                         broadcastUiState("loadAndPlay");
                         main.post(() -> {
                             boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);

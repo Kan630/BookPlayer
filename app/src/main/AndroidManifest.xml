@@ -94,7 +94,9 @@
         <activity android:name=".radio.RadioStationActivity" />
         <activity android:name=".activities.LibrivoxDetailActivity" />
         <activity android:name=".activities.PodcastSearchResultsActivity"/>
-        <activity android:name=".activities.PodcastEpisodeActivity"/>
+        <activity android:name=".activities.PodcastEpisodeActivity"
+            android:launchMode="singleTop"
+            />
         <activity android:name=".activities.PodcastFavoritesActivity"/>
         <activity android:name=".activities.SupportedExtensionsActivity"/>
         <activity android:name=".activities.CoverGenerationActivity" />
