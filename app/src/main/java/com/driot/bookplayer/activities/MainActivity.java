@@ -41,6 +41,8 @@
     import com.driot.bookplayer.radio.RadioStationActivity;
     import com.driot.bookplayer.utils.InAppMsgManager;
     import com.driot.bookplayer.utils.KanMail;
+    import com.google.android.material.button.MaterialButton;
+    import com.google.android.material.button.MaterialButtonToggleGroup;
     import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
     import dagger.hilt.android.AndroidEntryPoint;
@@ -357,51 +359,90 @@
 
         private void showSortOrderDialog() {
             String currentMode = Option.getSortMode();
-            String currentDir  = Option.getSortDirection();
+            String currentDir = Option.getSortDirection();
 
-            String[] options = new String[] {
-                    getString(R.string.sort_last_played)
-                            + (currentMode.equals("last_played") ? getDirectionLabel(currentDir) : ""),
+            // Inflate custom layout
+            View dialogView = getLayoutInflater().inflate(R.layout.dialog_sort_order, null);
 
-                    getString(R.string.sort_alphabetically)
-                            + (currentMode.equals("alpha") || currentMode.equals("alphabetical") ? getDirectionLabel(currentDir) : ""),
+            MaterialButtonToggleGroup toggleGroup = dialogView.findViewById(R.id.toggle_group_sort);
+            MaterialButton btnLastPlayed = dialogView.findViewById(R.id.btn_last_played);
+            MaterialButton btnAlpha      = dialogView.findViewById(R.id.btn_alpha);
+            MaterialButton btnAdded      = dialogView.findViewById(R.id.btn_added);
 
-                    getString(R.string.sort_last_added)
-                            + (currentMode.equals("added") || currentMode.equals("last_added") ? getDirectionLabel(currentDir) : "")
-            };
+            // Set initial checked button + direction suffix
+            int checkedId0;
+            String suffix = "desc".equals(currentDir) ? " ↓" : " ↑";
+
+            if ("last_played".equals(currentMode)) {
+                checkedId0 = R.id.btn_last_played;
+                btnLastPlayed.setText(getString(R.string.sort_last_played) + suffix);
+            } else if ("alpha".equals(currentMode) || "alphabetical".equals(currentMode)) {
+                checkedId0 = R.id.btn_alpha;
+                btnAlpha.setText(getString(R.string.sort_alphabetically) + suffix);
+            } else { // added / last_added
+                checkedId0 = R.id.btn_added;
+                btnAdded.setText(getString(R.string.sort_last_added) + suffix);
+            }
+
+            toggleGroup.check(checkedId0);
+
+            // Listen to selection changes
+            toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked) return; // we only care about the newly selected one
+
+                String newMode;
+                MaterialButton selectedButton = null;
+
+                if (checkedId == R.id.btn_last_played) {
+                    newMode = "last_played";
+                    selectedButton = btnLastPlayed;
+                } else if (checkedId == R.id.btn_alpha) {
+                    newMode = "alpha";
+                    selectedButton = btnAlpha;
+                } else if (checkedId == R.id.btn_added) {
+                    newMode = "added";
+                    selectedButton = btnAdded;
+                } else {
+                    return;
+                }
+
+                // Decide direction
+                String newDir;
+                if (newMode.equals(currentMode)) {
+                    // same mode → toggle direction
+                    newDir = "asc".equals(currentDir) ? "desc" : "asc";
+                } else {
+                    // new mode → start with "recent/Z first" = descending
+                    newDir = "desc";
+                }
+
+                // Update Option
+                Option.setSortMode(newMode);
+                Option.setSortDirection(newDir);
+
+                // Update UI immediately (suffix)
+                String newSuffix = "desc".equals(newDir) ? " ↓" : " ↑";
+                btnLastPlayed.setText(getString(R.string.sort_last_played));
+                btnAlpha.setText(     getString(R.string.sort_alphabetically));
+                btnAdded.setText(     getString(R.string.sort_last_added));
+
+                if (selectedButton != null) {
+                    selectedButton.setText(selectedButton.getText() + newSuffix);
+                }
+
+                // Refresh list
+                if (mainVm != null) {
+                    mainVm.forceRefresh();
+                }
+
+                myLogI("Sort changed → mode=" + newMode + " dir=" + newDir);
+            });
 
             new MaterialAlertDialogBuilder(this)
-                    .setTitle(R.string.sort_by)
-                    .setItems(options, (dialog, which) -> {
-                        String selectedMode;
-                        switch (which) {
-                            case 0: selectedMode = "last_played"; break;
-                            case 1: selectedMode = "alpha";       break;
-                            case 2: selectedMode = "added";       break;
-                            default: return;
-                        }
-
-                        if (selectedMode.equals(currentMode)) {
-                            // same mode → toggle direction
-                            String newDir = "asc".equals(currentDir) ? "desc" : "asc";
-                            Option.setSortDirection(newDir);
-                        } else {
-                            // new mode → start with descending (recent / Z first)
-                            Option.setSortMode(selectedMode);
-                            Option.setSortDirection("desc");
-                        }
-
-                        // Tell ViewModel to re-sort and refresh UI
-                        if (mainVm != null) {
-                            mainVm.forceRefresh();
-                        }
-
-                        myLogI("Sort changed → mode=" + Option.getSortMode() + " dir=" + Option.getSortDirection());
-                    })
+                    .setView(dialogView)
                     .setNegativeButton(R.string.cancel, null)
                     .show();
         }
-
         private String getDirectionLabel(String dir) {
             if ("asc".equals(dir)) {
                 return "   (↑)";
