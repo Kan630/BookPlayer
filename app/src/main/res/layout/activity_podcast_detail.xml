@@ -113,6 +113,13 @@
                             android:layout_marginBottom="8dp"
                             style="@style/PodcastImageButton"/>
 
+                        <ImageButton
+                            android:id="@+id/btnSearchOverlay"
+                            android:contentDescription="@string/Search"
+                            android:src="@drawable/ic_search_24px"
+                            android:layout_marginBottom="8dp"
+                            style="@style/PodcastImageButton"/>
+
                     </LinearLayout>
                 </RelativeLayout>
 
@@ -189,6 +196,12 @@
                         android:id="@+id/btnAutoDownloadToolbar"
                         android:contentDescription="@string/Auto_Download_episodes"
                         android:src="@drawable/ic_download_action_24"
+                        style="@style/PodcastHeaderImageButton"/>
+
+                    <ImageButton
+                        android:id="@+id/btnSearchToolbar"
+                        android:contentDescription="@string/Search"
+                        android:src="@drawable/ic_search_24px"
                         style="@style/PodcastHeaderImageButton"/>
 
                     <ImageButton

@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.content.res.AppCompatResources;
@@ -54,11 +55,13 @@ import com.driot.bookplayer.utils.PodcastDownloadManager;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
+public class PodcastEpisodeActivity extends BaseBottomNavActivity
+        implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
     private TextView tvTitle, tvDescription, tvStats, tvToolbarStats;
     private ImageView ivCover, ivMiniCover;
@@ -69,8 +72,10 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
     private PodcastFeed podcastFeed;
 
     // ADD these:
-    private ImageButton btnFavoriteToolbar, btnAutoDownloadToolbar, btnRefreshToolbar, btnSortToolbar, btnCollapseToolbar;
-    private ImageButton btnFavoriteOverlay, btnAutoDownloadOverlay, btnRefreshOverlay, btnSortOverlay, btnCollapseOverlay;
+    private ImageButton btnFavoriteToolbar, btnAutoDownloadToolbar, btnSearchToolbar, btnRefreshToolbar, btnSortToolbar,
+            btnCollapseToolbar;
+    private ImageButton btnFavoriteOverlay, btnAutoDownloadOverlay, btnSearchOverlay, btnRefreshOverlay, btnSortOverlay,
+            btnCollapseOverlay;
 
     private PodcastDao podcastDao;
 
@@ -79,6 +84,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
     private boolean sortNewestFirst;
 
     private boolean isPlaying = false;
+    private List<DisplayableEpisode> allEpisodes = new ArrayList<>();
+    private String currentSearchQuery = "";
+    private boolean searchInDescription = false;
 
     private DisplayableEpisode currentEpisode;
 
@@ -90,9 +98,20 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
     private com.google.android.material.appbar.AppBarLayout appBar;
     private androidx.appcompat.widget.Toolbar toolbar;
 
-    @Override protected int getNavId() { return R.id.nav_podcast; }
-    @Override protected int getLayoutResId() { return R.layout.activity_podcast_detail; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_podcast;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_podcast_detail;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,16 +132,18 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
         recyclerEpisodes = findViewById(R.id.rvEpisodes);
 
-// TOOLBAR actions
+        // TOOLBAR actions
         btnFavoriteToolbar = findViewById(R.id.btnFavoriteToolbar);
         btnAutoDownloadToolbar = findViewById(R.id.btnAutoDownloadToolbar);
+        btnSearchToolbar = findViewById(R.id.btnSearchToolbar);
         btnRefreshToolbar = findViewById(R.id.btnRefreshToolbar);
         btnSortToolbar = findViewById(R.id.btnSortToolbar);
         btnCollapseToolbar = findViewById(R.id.btnCollapseToolbar);
 
-// OVERLAY actions on top of the big cover
+        // OVERLAY actions on top of the big cover
         btnFavoriteOverlay = findViewById(R.id.btnFavoriteOverlay);
         btnAutoDownloadOverlay = findViewById(R.id.btnAutoDownloadOverlay);
+        btnSearchOverlay = findViewById(R.id.btnSearchOverlay);
         btnRefreshOverlay = findViewById(R.id.btnRefreshOverlay);
         btnSortOverlay = findViewById(R.id.btnSortOverlay);
         btnCollapseOverlay = findViewById(R.id.btnCollapseOverlay);
@@ -137,7 +158,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         podcast = getIntent().getParcelableExtra("podcast");
 
         if (podcast == null) {
-            myLogEE(null,"podcast == null");
+            myLogEE(null, "podcast == null");
             return;
         }
 
@@ -145,11 +166,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         myLogD("Sort newest first: " + sortNewestFirst);
 
         podcastFeed = new PodcastFeed(
-                  podcast.feedId
-                , podcast.title
-                , podcast.image
-                , podcast.description
-        );
+                podcast.feedId, podcast.title, podcast.image, podcast.description);
         podcastFeed.image = StorageHelper.checkAndCleanImagePath(this, podcastFeed.image);
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
@@ -160,11 +177,11 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
             }
         });
 
-        //recyclerEpisodes.setLayoutManager(new LinearLayoutManager(this));
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerEpisodes.setLayoutManager(glm);
-        recyclerEpisodes.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
+        recyclerEpisodes
+                .addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         adapter = new PodcastEpisodeRVAdapter(this, podcastFeed, podcastEpisodeViewModel, this);
         recyclerEpisodes.setAdapter(adapter);
@@ -178,7 +195,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         btnAutoDownloadToolbar.setVisibility(vis);
         btnAutoDownloadOverlay.setVisibility(vis);
 
-
         ivCover.setOnClickListener(view -> {
             myLogI("---- USER CLICK IMAGE ----");
             goToPlaySection();
@@ -190,8 +206,11 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
-        Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), podcastFeed.image)).into(ivCover);
-        Glide.with(ivMiniCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivMiniCover.getContext(), podcastFeed.image)).into(ivMiniCover);
+        Glide.with(ivCover.getContext())
+                .load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), podcastFeed.image)).into(ivCover);
+        Glide.with(ivMiniCover.getContext())
+                .load(StorageHelper.checkAndCleanImagePath(ivMiniCover.getContext(), podcastFeed.image))
+                .into(ivMiniCover);
 
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");
@@ -201,23 +220,27 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
         View.OnClickListener favoriteClick = v -> toggleFavorite();
         View.OnClickListener autoDownloadClick = v -> toggleAutoDownload();
+        View.OnClickListener searchClick = v -> showSearchDialog();
         View.OnClickListener refreshClick = v -> {
             FirebaseAnalyticsHelper.tellAnalyticsPodcastRefresh(podcastFeed.title);
             myLogI("-------- USER CLICKS REFRESH -----");
-            fetchEpisodes(true); };
+            fetchEpisodes(true);
+        };
         View.OnClickListener sortClick = v -> toggleSort();
         View.OnClickListener collapseClick = v -> toggleCollapse();
 
-// Toolbar
+        // Toolbar
         btnFavoriteToolbar.setOnClickListener(favoriteClick);
         btnAutoDownloadToolbar.setOnClickListener(autoDownloadClick);
+        btnSearchToolbar.setOnClickListener(searchClick);
         btnRefreshToolbar.setOnClickListener(refreshClick);
         btnSortToolbar.setOnClickListener(sortClick);
         btnCollapseToolbar.setOnClickListener(collapseClick);
 
-// Overlay
+        // Overlay
         btnFavoriteOverlay.setOnClickListener(favoriteClick);
         btnAutoDownloadOverlay.setOnClickListener(autoDownloadClick);
+        btnSearchOverlay.setOnClickListener(searchClick);
         btnRefreshOverlay.setOnClickListener(refreshClick);
         btnSortOverlay.setOnClickListener(sortClick);
         btnCollapseOverlay.setOnClickListener(collapseClick);
@@ -229,7 +252,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
             // Don’t show the bar until the user *started* scrolling a bit
             float showThreshold = 0.06f; // ~6% collapse before we show anything
             if (progress > showThreshold) {
-                if (toolbar.getVisibility() != View.VISIBLE) toolbar.setVisibility(View.VISIBLE);
+                if (toolbar.getVisibility() != View.VISIBLE)
+                    toolbar.setVisibility(View.VISIBLE);
                 // Fade from 0 -> 1 between threshold and ~30% collapse
                 float alpha = (progress - showThreshold) / (0.30f - showThreshold);
                 toolbar.setAlpha(Math.max(0f, Math.min(1f, alpha)));
@@ -304,8 +328,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
             List<Episode> dbEpisodes = podcastEpisodeViewModel.toggleSortAndGetEpisodesFromDB(podcast.getId());
             List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
             runOnUiThread(() -> {
-                adapter.setItems(sortedList);
-                adapter.notifyDataSetChanged();
+                updateAdapter(sortedList);
             });
         });
     }
@@ -315,27 +338,86 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         myLogI("-------- USER CLICKS COLLAPSE --  isExpanded= " + isExpanded);
         Option.setPodcastEpisodesDescriptionExpand(isExpanded);
         animateDescriptionHeight(tvDescription, isExpanded);
-        adapter.setShowDescriptions(isExpanded);  // show/hide item descriptions
+        adapter.setShowDescriptions(isExpanded); // show/hide item descriptions
         updateCollapseIcon();
     }
-
-
-
 
     private void updateFavoriteIconColor(boolean isOn) {
         int colorResId = isOn ? android.R.color.holo_red_light : R.color.gray_500;
         int color = ContextCompat.getColor(this, colorResId);
-        if (btnFavoriteToolbar != null) btnFavoriteToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        if (btnFavoriteOverlay != null) btnFavoriteOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnFavoriteToolbar != null)
+            btnFavoriteToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnFavoriteOverlay != null)
+            btnFavoriteOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
     private void updateAutoDownloadIconColor(boolean isOn) {
         int colorResId = isOn ? R.color.green_300 : R.color.gray_500;
         int color = ContextCompat.getColor(this, colorResId);
-        if (btnAutoDownloadToolbar != null) btnAutoDownloadToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-        if (btnAutoDownloadOverlay != null) btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnAutoDownloadToolbar != null)
+            btnAutoDownloadToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
+        if (btnAutoDownloadOverlay != null)
+            btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
+    // NEW SEARCH DIALOG
+    private void showSearchDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.Search);
+
+        LinearLayout layout = new LinearLayout(this);
+        layout.setOrientation(LinearLayout.VERTICAL);
+        int padding = ViewHelper.dp(this, 16);
+        layout.setPadding(padding, padding / 2, padding, 0);
+
+        final android.widget.EditText input = new android.widget.EditText(this);
+        input.setHint(R.string.Search_2pt);
+        input.setText(currentSearchQuery);
+        input.setSingleLine(true);
+        layout.addView(input);
+
+        final android.widget.CheckBox cbDesc = new android.widget.CheckBox(this);
+        cbDesc.setText(R.string.Episode_description);
+        cbDesc.setChecked(searchInDescription);
+        layout.addView(cbDesc);
+
+        builder.setView(layout);
+
+        builder.setPositiveButton(getString(R.string.Close), (dialog, which) -> {
+            // just close, search is live
+        });
+
+        builder.setNeutralButton(getString(R.string.clear), (dialog, which) -> {
+            input.setText("");
+        });
+
+        AlertDialog dialog = builder.create();
+
+        input.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString();
+                filterAndUpdateList();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+
+        cbDesc.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            searchInDescription = isChecked;
+            filterAndUpdateList();
+        });
+
+        dialog.show();
+        // focus input
+        input.requestFocus();
+    }
 
     private void fetchEpisodes(boolean isRefresh) {
         myLogD("fetchEpisodes " + (isRefresh ? "refresh" : "no refresh"));
@@ -350,7 +432,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
                 updateAdapter(initial);
             });
         });
-        if (!isRefresh && podcast.lastCheck > System.currentTimeMillis() - 1000 * 60 * Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
+        if (!isRefresh && podcast.lastCheck > System.currentTimeMillis()
+                - 1000 * 60 * Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
             return;
         }
 
@@ -363,8 +446,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
                 maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE;
             } else {
                 maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE;
-                Long lastPublished = podcastEpisodeViewModel.getLastPublishedForPodcastSync(podcast.getId()); // epoch seconds
-                since = (lastPublished == null) ? 0L : Math.max(0L, lastPublished - 60);  //30j :  -(60*60*24*30)
+                Long lastPublished = podcastEpisodeViewModel.getLastPublishedForPodcastSync(podcast.getId()); // epoch
+                                                                                                              // seconds
+                since = (lastPublished == null) ? 0L : Math.max(0L, lastPublished - 60); // 30j : -(60*60*24*30)
             }
             PodcastHelper.getEpisodesByFeedId(
                     this,
@@ -382,13 +466,13 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
                             // 4) Refresh DB and merge for display
                             AppDatabase.databaseReadExecutor.execute(() -> {
                                 List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
-                                List<DisplayableEpisode> fullList =
-                                        DisplayableEpisode.mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
+                                List<DisplayableEpisode> fullList = DisplayableEpisode
+                                        .mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
                                 int nbEpisodeFull = fullList.size();
                                 myLog("Displayed episodes count: " + nbEpisodeFull);
                                 runOnUiThread(() -> {
                                     if (isRefresh) {
-                                        myToast(nbEpisodeFull + " " + getString(R.string.episodes) );
+                                        myToast(nbEpisodeFull + " " + getString(R.string.episodes));
                                     }
                                     updateAdapter(fullList);
                                 });
@@ -397,7 +481,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
                         @Override
                         public void onError(Exception e) {
-                            // Fallback: DB-only (you already showed initial DB result; here we just end the spinner and warn)
+                            // Fallback: DB-only (you already showed initial DB result; here we just end the
+                            // spinner and warn)
                             myLogE("API CALL ERROR - " + e.getMessage());
                             AppDatabase.databaseReadExecutor.execute(() -> {
                                 List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
@@ -410,11 +495,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
                                 });
                             });
                         }
-                    }
-            );
+                    });
         });
     }
-
 
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
         PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, podcast, since);
@@ -435,6 +518,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
             goToPlaySection2();
         }
     }
+
     private void goToPlaySection2() {
         if (podcast == null) {
             myLogE("Podcast == null");
@@ -450,24 +534,30 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         AppDatabase.databaseReadExecutor.execute(() -> {
             try {
                 Folder folder = AppDatabase.getDatabase(getApplicationContext()).folderDao().getById(podcast.idFolder);
-                if (folder == null) return;
+                if (folder == null)
+                    return;
 
-                //TODO we need a AudioService.isPlaying
-                if (MediaService.isRunning && PlayList.getInstance()!=null &&  PlayList.getInstance().getZikFile()!=null && PlayList.getInstance().getZikFile().getIdFolder()==podcast.idFolder) {
+                // TODO we need a AudioService.isPlaying
+                if (MediaService.isRunning && PlayList.getInstance() != null
+                        && PlayList.getInstance().getZikFile() != null
+                        && PlayList.getInstance().getZikFile().getIdFolder() == podcast.idFolder) {
                     startActivity(new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
                 } else {
                     List<ZikFile> zikFilesList = AppDatabase.getDatabase(getApplicationContext())
                             .zikFileDao().getZikFiles(podcast.idFolder);
 
-                    myLogI("nb ZikFiles in that Podcast Book : " + zikFilesList.size() + " - [" + folder.getName() + "]");
+                    myLogI("nb ZikFiles in that Podcast Book : " + zikFilesList.size() + " - [" + folder.getName()
+                            + "]");
 
                     // Switch to main thread for any UI / navigation
                     runOnUiThread(() -> {
-                        if (isFinishing() || isDestroyed()) return;
+                        if (isFinishing() || isDestroyed())
+                            return;
 
                         if (!zikFilesList.isEmpty()) {
-                            //closeExoPlayer();
-                            startActivity(new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
+                            // closeExoPlayer();
+                            startActivity(
+                                    new Intent(this, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, folder));
                         } else {
                             myLogE("no ZikFiles in that folder !");
                             myToastE(getString(R.string.ErrorCouldNotLoadAudios_emptyfolder)); // main thread
@@ -481,17 +571,39 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         });
     }
 
-
     private void updateAdapter(List<DisplayableEpisode> displayableEpisodeList) {
-        adapter.setItems(displayableEpisodeList);
+        this.allEpisodes = displayableEpisodeList;
+        filterAndUpdateList();
+    }
+
+    private void filterAndUpdateList() {
+        List<DisplayableEpisode> filtered = new ArrayList<>();
+        if (currentSearchQuery == null || currentSearchQuery.trim().isEmpty()) {
+            filtered.addAll(allEpisodes);
+        } else {
+            String q = currentSearchQuery.toLowerCase(Locale.getDefault());
+            for (DisplayableEpisode ep : allEpisodes) {
+                if (ep.title != null && ep.title.toLowerCase(Locale.getDefault()).contains(q)) {
+                    filtered.add(ep);
+                    continue;
+                }
+                if (searchInDescription && ep.description != null
+                        && ep.description.toLowerCase(Locale.getDefault()).contains(q)) {
+                    filtered.add(ep);
+                }
+            }
+        }
+
+        adapter.setItems(filtered);
         adapter.notifyDataSetChanged();
-        String tvStatsText = displayableEpisodeList.size() + "." + getString(R.string.ep);
+        String tvStatsText = filtered.size() + "." + getString(R.string.ep);
         tvStats.setText(tvStatsText);
         tvToolbarStats.setText(tvStatsText);
     }
 
     // ROW CLICK CALLBACK
-    @Override public void onPlayEpisode(DisplayableEpisode ep) {
+    @Override
+    public void onPlayEpisode(DisplayableEpisode ep) {
         myLogD("onPlayEpisode [" + ep.title + "]");
         if (currentEpisode != null && currentEpisode.idEpisode == ep.idEpisode) {
             // Same episode toggled
@@ -502,22 +614,24 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
     }
 
     private void playEpisode(DisplayableEpisode ep) {
-        if (ep == null) return;
+        if (ep == null)
+            return;
         boolean online = NetworkHelper.isConnected(this);
         if (!online) {
             myToast(getString(R.string.no_internet_connection));
             return;
         }
-        StartPlayHelper.onPodcastClick(getApplicationContext(), ep, podcast, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
+        StartPlayHelper.onPodcastClick(getApplicationContext(), ep, podcast,
+                "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
 
         isPlaying = true;
         adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
     }
 
-
     @Override
     public void onOpenLocalEpisode(ZikFile zikFile) {
-        StartPlayHelper.onZikFileFromPodcast(this, zikFile, this.getClass().getSimpleName() + ".onOpenLocalEpisode()", sortNewestFirst);
+        StartPlayHelper.onZikFileFromPodcast(this, zikFile, this.getClass().getSimpleName() + ".onOpenLocalEpisode()",
+                sortNewestFirst);
     }
 
     @Override
@@ -527,7 +641,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
             return;
         }
 
-        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {
+        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
+                && !NetworkHelper.isUnmeteredConnected(this)) {
             new AlertDialog.Builder(this)
                     .setTitle(R.string.download_warning_title_unmetered)
                     .setMessage(R.string.download_warning_message_unmetered)
@@ -547,26 +662,22 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
 
     private void proceedWithDownload(String futureFolderName, DisplayableEpisode displayableEpisode, long feedId) {
         File targetFolder = PodcastHelper.buildPodcastPath(this, futureFolderName);
-        if (!targetFolder.exists()) targetFolder.mkdirs();
+        if (!targetFolder.exists())
+            targetFolder.mkdirs();
         List<PodcastEpisode> singleList = new ArrayList<>();
         singleList.add(displayableEpisode.toPodcastEpisode());
         PodcastDownloadManager.enqueueDownloads(this, feedId, singleList, targetFolder, null);
     }
 
-
     private void updateCollapseIcon() {
         btnCollapseOverlay.setImageDrawable(
                 AppCompatResources.getDrawable(
                         this,
-                        isExpanded ? R.drawable.ic_content_collapse_24 : R.drawable.ic_content_expand_24
-                )
-        );
+                        isExpanded ? R.drawable.ic_content_collapse_24 : R.drawable.ic_content_expand_24));
         btnCollapseToolbar.setImageDrawable(
                 AppCompatResources.getDrawable(
                         this,
-                        isExpanded ? R.drawable.ic_content_collapse_24 : R.drawable.ic_content_expand_24
-                )
-        );
+                        isExpanded ? R.drawable.ic_content_collapse_24 : R.drawable.ic_content_expand_24));
     }
 
     /** Animate tv height: 0 -> wrap content (expand) or current -> 0 (collapse). */
@@ -603,7 +714,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
                     tv.setLayoutParams(lp);
                 });
                 va.addListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
                         // Let layout reflow naturally going forward
                         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
                         tv.setLayoutParams(lp);
@@ -622,7 +734,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
                     tv.setLayoutParams(lp);
                 });
                 va.addListener(new AnimatorListenerAdapter() {
-                    @Override public void onAnimationEnd(Animator animation) {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
                         tv.setVisibility(View.GONE);
                         // Reset so next expand measures correctly
                         lp.height = ViewGroup.LayoutParams.WRAP_CONTENT;
@@ -634,13 +747,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity  implements Po
         });
     }
 
-
-
-
     private void stopAudioServiceIfRunning() {
         if (MediaService.isRunning) {
-            Intent intentStopService = new Intent(this, MediaService.class).
-                    setAction(Intents.EXTRA_CMD_STOP)
+            Intent intentStopService = new Intent(this, MediaService.class).setAction(Intents.EXTRA_CMD_STOP)
                     .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName());
             try {
                 // App au premier plan → safe, pas de règle des 5s
