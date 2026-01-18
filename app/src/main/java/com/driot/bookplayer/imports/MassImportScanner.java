@@ -67,8 +67,9 @@ public class MassImportScanner extends LoggerHelper {
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
                     myLogD("-> Found Audio Folder candidate: " + fileName);
+                    long size = calculateSize(file);
                     candidates.add(new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(dir) + "/" + fileName));
+                            safeName(dir) + "/" + fileName, size));
                 } else {
                     myLogD("-> Ignored folder (no audio): " + fileName);
                 }
@@ -78,7 +79,7 @@ public class MassImportScanner extends LoggerHelper {
                 if (type != null) {
                     myLogD("-> Found File candidate [" + type + "]: " + fileName);
                     candidates.add(new BookCandidate(file.getUri(), fileName, type,
-                            safeName(dir) + "/" + fileName));
+                            safeName(dir) + "/" + fileName, file.length()));
                 } else {
                     myLogD("-> Ignored file (unsupported type): " + fileName);
                 }
@@ -112,12 +113,26 @@ public class MassImportScanner extends LoggerHelper {
 
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file)));
+                    long size = com.driot.bookplayer.utils.Tonio
+                            .getFolderSize(new java.io.File(file.getUri().getPath())); // This might not work for
+                                                                                       // TreeUri content://
+                    // Tonio.getFolderSize(File) only works for java.io.File.
+                    // For DocumentFile, we need a recursive calculation distinct from java.io.File
+                    // if it's not a raw file path.
+                    // However, Tonio.getFolderSize(String) exists but might expect a path.
+                    // Let's implement a recursive size for DocumentFile here or reuse Tonio if
+                    // possible,
+                    // BUT Tonio.getFolderSize uses File.
+                    // Let's rely on a local helper for DocumentFile size.
+                    size = calculateSize(file);
+
+                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size));
                 }
             } else {
                 String type = detectBookType(file);
                 if (type != null) {
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file)));
+                    candidates
+                            .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length()));
                 }
             }
         }
@@ -178,6 +193,17 @@ public class MassImportScanner extends LoggerHelper {
     private String getExt(String name) {
         int dot = name.lastIndexOf('.');
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
+    }
+
+    private long calculateSize(DocumentFile file) {
+        if (!file.isDirectory()) {
+            return file.length();
+        }
+        long size = 0;
+        for (DocumentFile child : file.listFiles()) {
+            size += calculateSize(child);
+        }
+        return size;
     }
 
     private String safeName(DocumentFile f) {

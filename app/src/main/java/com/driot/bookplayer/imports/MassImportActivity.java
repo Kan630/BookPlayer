@@ -126,7 +126,15 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
         viewModel.getCandidates().observe(this, candidates -> {
             adapter.setItems(candidates);
-            tvCount.setText("Found " + candidates.size() + " items");
+
+            long totalSize = 0;
+            for (BookCandidate c : candidates) {
+                totalSize += c.size;
+            }
+
+            tvCount.setText("Found " + candidates.size() + " items ("
+                    + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ")");
+
             if (candidates.isEmpty() && Boolean.FALSE.equals(viewModel.getIsScanning().getValue())) {
                 tvCount.setText("No items found.");
                 btnConfirmImport.setEnabled(false);
@@ -147,7 +155,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
         new Thread(() -> {
             for (BookCandidate candidate : candidates) {
                 LoadBookTaskState s = new LoadBookTaskState();
-                s.title = candidate.name;
+                // Format the name for display (remove underscores, extension, etc.)
+                String formattedName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(candidate.name);
+
+                s.title = formattedName;
                 s.originalUri = candidate.uri;
                 s.originalType = candidate.type;
                 s.dynamicUri = candidate.uri;
@@ -156,7 +167,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
                 // Correctly configure path and options based on type
                 if ("Folder".equals(candidate.type)) {
-                    s.futureFolderName = candidate.name;
+                    s.futureFolderName = formattedName;
                     s.futureFolderPath = candidate.uri.toString(); // For folders, this is the source (in-place)
                     s.fileExtension = null;
                     s.playType = "Folder";
@@ -168,9 +179,9 @@ public class MassImportActivity extends BaseBottomNavActivity {
                     // configured SD card)
                     boolean useSd = Option.getUseSdCard();
                     File root = StorageHelper.getUnzipFolder(this, useSd);
-                    s.futureFolderName = candidate.name;
+                    s.futureFolderName = formattedName;
                     // Important: Destination path, not source path
-                    s.futureFolderPath = new File(root, candidate.name).getAbsolutePath();
+                    s.futureFolderPath = new File(root, formattedName).getAbsolutePath();
 
                     if ("ZIP".equals(candidate.type)) {
                         s.fileExtension = "zip";

@@ -38,26 +38,22 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BookCandidate item = items.get(position);
-        holder.tvName.setText(item.name);
-        holder.tvType.setText(item.type + " - " + item.path);
+        holder.tvName.setText(com.driot.bookplayer.utils.Tonio.formatNameForDisplay(item.name));
+        holder.tvType.setText(
+                item.type + " - " + com.driot.bookplayer.utils.Tonio.getReadableSize(item.size) + "\n" + item.path);
 
         // Simple icon logic
         if ("Folder".equals(item.type)) {
             holder.ivIcon.setImageResource(R.drawable.ic_folder_24px);
         } else if ("ZIP".equals(item.type)) {
-            holder.ivIcon.setImageResource(R.drawable.ic_folder_zip_24px); // Assuming ic_zip exists or fallback
+            holder.ivIcon.setImageResource(R.drawable.ic_folder_zip_24px);
         } else if ("M4B".equals(item.type)) {
-            holder.ivIcon.setImageResource(R.drawable.ic_audio_file_24px); // Assuming exists
+            holder.ivIcon.setImageResource(R.drawable.ic_file_m4b);
+        } else if ("Ebook".equals(item.type)) {
+            holder.ivIcon.setImageResource(R.drawable.ic_docs_24px);
         } else {
-            holder.ivIcon.setImageResource(R.drawable.ic_draft_24px); // Assuming exists
+            holder.ivIcon.setImageResource(R.drawable.ic_audio_file_24px);
         }
-        // Note: I might need to check available drawables.
-        // For now, I'll use safely existing ones or a default if I'm not sure.
-        // Let's assume generic folder for all if unsure, or check resources.
-        // BaseBottomNavActivity had R.id.nav_add...
-        // Let's use R.drawable.ic_folder and maybe others if I can find them.
-        // I'll stick to a generic one first if I don't know resource names, but I see
-        // ic_folder used in layout.
     }
 
     @Override

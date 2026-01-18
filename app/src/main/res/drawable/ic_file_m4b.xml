@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal"
+    android:autoMirrored="true">
+    <!-- Document outline -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M240,880Q207,880 183.5,856.5Q160,833 160,800L160,160Q160,127 183.5,103.5Q207,80 240,80L560,80L800,320L800,800Q800,833 776.5,856.5Q753,880 720,880L240,880ZM520,360L520,160L240,160Q240,160 240,160Q240,160 240,160L240,800Q240,800 240,800Q240,800 240,800L720,800Q720,800 720,800Q720,800 720,800L720,360L520,360ZM240,160L240,160L240,360L240,360L240,160L240,360L240,360L240,800Q240,800 240,800Q240,800 240,800L240,800Q240,800 240,800Q240,800 240,800L240,160Q240,160 240,160Q240,160 240,160Z"/>
+
+    <!-- M4B Text as paths -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M300,520 L300,620 L320,620 L320,575 L350,620 L380,575 L380,620 L400,620 L400,520 L380,520 L350,570 L320,520 Z"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M420,520 L420,575 L450,575 L450,520 L470,520 L470,575 L490,575 L490,595 L470,595 L470,620 L450,620 L450,595 L420,595 Z"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M510,520 L510,620 L560,620 Q570,620 575,615 Q580,610 580,600 L580,585 Q580,575 575,572.5 Q570,570 560,570 Q570,570 575,567.5 Q580,565 580,555 L580,540 Q580,530 575,525 Q570,520 560,520 Z M530,540 L555,540 Q560,540 560,545 L560,555 Q560,560 555,560 L530,560 Z M530,580 L555,580 Q560,580 560,585 L560,600 Q560,600 555,600 L530,600 Z"/>
+</vector>
