@@ -40,11 +40,13 @@ import java.util.Objects;
 public class FinalParseFolderWorker extends ImportWorker {
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SCAN;
 
-    private enum SaveResultEnum {SUCCESS, SKIPPED, FAILED}
+    private enum SaveResultEnum {
+        SUCCESS, SKIPPED, FAILED
+    }
 
     private ArrayList<AudioFileInfo> audioFileInfoArrayList;
 
-    private long fullFolderSize; //to make storage space checks
+    private long fullFolderSize; // to make storage space checks
 
     // global because recursive method
     private long totalDuration;
@@ -60,12 +62,14 @@ public class FinalParseFolderWorker extends ImportWorker {
         super(context, workerParams);
         this.context = context.getApplicationContext();
     }
+
     private static final String K_ERR = "error_msg";
 
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_final_parse) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_final_parse) + " "
+                + context.getString(R.string.import_task_start));
         try {
             DocumentFile df;
             importJob = jobOrFail();
@@ -74,7 +78,8 @@ public class FinalParseFolderWorker extends ImportWorker {
             // setForegroundEarly(buildForegroundInfo());
 
             if (importJob == null) {
-                emitFailed(TASK_NAME, "importJob == null", getApplicationContext().getString(R.string.invalid_resource));
+                emitFailed(TASK_NAME, "importJob == null",
+                        getApplicationContext().getString(R.string.invalid_resource));
                 return Result.failure();
             }
 
@@ -85,45 +90,47 @@ public class FinalParseFolderWorker extends ImportWorker {
             myLogD("dynamic Uri : " + importJob.dynamicUri);
             myLogW("addToExistingFolderId : " + importJob.addToExistingFolderId);
 
-
             if (importJob.dynamicType.equals("Folder")) {
                 try {
                     df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri));
                 } catch (Exception e) {
-                    myLogEE(e,"Error reading Folder Uri...." + Uri.parse(importJob.dynamicUri));
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception", context.getString(R.string.Error_Import_CannotReadFolder));
+                    myLogEE(e, "Error reading Folder Uri...." + Uri.parse(importJob.dynamicUri));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_exception",
+                            context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 if (df == null) {
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null", context.getString(R.string.Error_Import_CannotReadFolder));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFolder_null",
+                            context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
                 populateArrayListOfTracksFromFolder(df);
-
 
             } else {
                 try {
                     df = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.dynamicUri));
                 } catch (Exception e) {
-                    myLogEE(e,"Error reading File Uri.... " + Uri.parse(importJob.dynamicUri));
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception", context.getString(R.string.Error_Import_CannotReadFile));
+                    myLogEE(e, "Error reading File Uri.... " + Uri.parse(importJob.dynamicUri));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_exception",
+                            context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
                 if (df == null) {
-                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null", context.getString(R.string.Error_Import_CannotReadFile));
+                    emitFailed(TASK_NAME, "Error_Import_CannotReadFile_null",
+                            context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
-            /*
-            try {
-                // the temp image is updated at the end..  ImageHelper.finalizeTempFolderImage
-                MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context, importJob.Uri.parse(importJob.dynamicUri));
-
-            } catch (Throwable t) {
-                myLogEE(t, "Error parsing metadata");
-            }
-             */
+                /*
+                 * try {
+                 * // the temp image is updated at the end.. ImageHelper.finalizeTempFolderImage
+                 * MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context,
+                 * importJob.Uri.parse(importJob.dynamicUri));
+                 * 
+                 * } catch (Throwable t) {
+                 * myLogEE(t, "Error parsing metadata");
+                 * }
+                 */
                 populateArrayListOfTracksFromFile(df);
-
 
             }
             return Result.success();
@@ -133,9 +140,9 @@ public class FinalParseFolderWorker extends ImportWorker {
         } catch (Throwable t) {
             return failResult( // you can still reuse failResult for unknown crashes
                     TASK_NAME,
-                    "Unexpected: " + t.getClass().getSimpleName() + " - " + (t.getMessage() == null ? "" : t.getMessage()),
-                    getApplicationContext().getString(R.string.unexpected_error)
-            );
+                    "Unexpected: " + t.getClass().getSimpleName() + " - "
+                            + (t.getMessage() == null ? "" : t.getMessage()),
+                    getApplicationContext().getString(R.string.unexpected_error));
         }
     }
 
@@ -145,7 +152,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         myLog("populateArrayListOfTracksFromFile [" + dfPickedFile.getUri() + "] - single file");
 
         if (dfPickedFile.isDirectory()) {
-            emitFailed(TASK_NAME,"Error_Import_IsNotFile", context.getString(R.string.Error_Import_IsNotFile));
+            emitFailed(TASK_NAME, "Error_Import_IsNotFile", context.getString(R.string.Error_Import_IsNotFile));
             return;
         }
 
@@ -161,11 +168,13 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
         if (dfPickedDir == null) {
-            emitFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir == null", context.getString(R.string.Error_Import_CannotReadFolder));
+            emitFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir == null",
+                    context.getString(R.string.Error_Import_CannotReadFolder));
             return;
         }
         if (!dfPickedDir.isDirectory()) {
-            emitFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir is not directory", context.getString(R.string.Error_Import_IsNotFolder));
+            emitFailed(TASK_NAME, "populateArrayListOfTracksFromFolder - dfPickedDir is not directory",
+                    context.getString(R.string.Error_Import_IsNotFolder));
             return;
         }
 
@@ -211,22 +220,23 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private void addAudioFileUnique(DocumentFile df) {
-        myLogD("* New Audio File : [" +  df.getName() + ']');
+        myLogD("* New Audio File : [" + df.getName() + ']');
         AudioInfo audioInfo = AudioProber.probe(context, df.getUri(), true);
         if (audioInfo == null || audioInfo.durationMs <= 0) {
             failNow(
-                    TASK_NAME
-                    , "Error_Import_extract_audio_data_failed for [" + df.getName() + "]"
-                    , context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + df.getName() + "]");
+                    TASK_NAME, "Error_Import_extract_audio_data_failed for [" + df.getName() + "]",
+                    context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + df.getName() + "]");
 
         } else {
-            myLogD("* Duration : [" +  formatTime(audioInfo.durationMs) + ']');
+            myLogD("* Duration : [" + formatTime(audioInfo.durationMs) + ']');
             AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, df.getName());
             audioFileInfoArrayList.add(afi);
-            //audioFileInfoArrayList.add(new AudioFileInfo(df.getName(), audioInfo.durationMs, audioInfo.uri.toString()));
+            // audioFileInfoArrayList.add(new AudioFileInfo(df.getName(),
+            // audioInfo.durationMs, audioInfo.uri.toString()));
             audioInfo.saveCover(this.context);
         }
     }
+
     private void addAudioFileRecursive(DocumentFile f0) {
         totalDuration = 0;
         nbFileScan = 0;
@@ -234,28 +244,29 @@ public class FinalParseFolderWorker extends ImportWorker {
         totalAudioToScan = 0;
         nbAudioScanned = 0;
         countAudioFiles(f0);
-        addAudioFileRecursive(f0,"");
-        if (totalDuration==0) {
-            failNow(TASK_NAME
-                    , "addAudioFileRecursive - Error_Import_track_duration_extraction"
-                    , context.getString(R.string.Error_Import_track_duration_extraction));
+        addAudioFileRecursive(f0, "");
+        if (totalDuration == 0) {
+            failNow(TASK_NAME, "addAudioFileRecursive - Error_Import_track_duration_extraction",
+                    context.getString(R.string.Error_Import_track_duration_extraction));
         }
     }
+
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
         myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
         myLogD("-------------------------------------------------------------------------------------------------------------------xxx");
         String l_audioFilePath;
         long l_audioSize;
-        boolean hadImageBefore = importJob.imagePath != null; //dont look in subDir if image found at top dir
+        boolean hadImageBefore = importJob.imagePath != null; // dont look in subDir if image found at top dir
         for (DocumentFile f1 : f0.listFiles()) {
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
-                addAudioFileRecursive(f1,recursivFolder + f1.getName() + '/');
+                addAudioFileRecursive(f1, recursivFolder + f1.getName() + '/');
             } else {
                 String fileName = SupportedFilesHelper.getFileName(f1);
                 String fileExtension = SupportedFilesHelper.getFileExtension(f1);
                 String mimeType = SupportedFilesHelper.getMimeType(f1);
-                myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursivFolder + "]");
+                myLogD("* Checking File : [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType
+                        + "] - subfolder : [" + recursivFolder + "]");
 
                 if (SupportedFilesHelper.isAudio(f1) || SupportedFilesHelper.isVideo(f1)) {
                     nbFileScan = nbFileScan + 1;
@@ -263,32 +274,40 @@ public class FinalParseFolderWorker extends ImportWorker {
                     l_audioSize = f1.length();
 
                     long duration = 0;
+
                     AudioInfo audioInfo = AudioProber.probe(context, f1.getUri(), false);
                     if (audioInfo == null) {
-                        emitWarning(context.getString(R.string.Error_Import_extract_audio_data_failed) + " for [" + f1.getName() + "]");
+                        emitWarning(context.getString(R.string.Error_Import_extract_audio_data_failed) + " for ["
+                                + f1.getName() + "]");
                     } else if (audioInfo.durationMs <= 0) {
-                        emitWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for [" + f1.getName() + "]");
+                        emitWarning(context.getString(R.string.Error_Import_track_duration_extraction) + " for ["
+                                + f1.getName() + "]");
                     } else {
                         duration = audioInfo.durationMs;
                         AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, f1.getName());
                         audioFileInfoArrayList.add(afi);
-                        //audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration, audioInfo.uri.toString()));
+                        // audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration,
+                        // audioInfo.uri.toString()));
                     }
-                    myLogD("Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "] - [" +  formatTime(duration) + "]");
+                    myLogD("Audio File : [" + l_audioFilePath + "] - size = [" + l_audioSize + "] - ["
+                            + formatTime(duration) + "]");
 
                     totalDuration = totalDuration + duration;
                     nbAudioScanned++;
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
-                    emitStepProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + " " + nbAudioScanned + "..... \n[" +  l_audioFilePath + ']');
+                    emitStepProgress(TASK_NAME, scaledProgress, context.getString(R.string.scanning_tracks) + " "
+                            + nbAudioScanned + "..... \n[" + l_audioFilePath + ']');
 
                     fullFolderSize = fullFolderSize + l_audioSize;
 
                 } else if (SupportedFilesHelper.isImage(f1)) {
                     if (!hadImageBefore) {
                         long imageSize = f1.length();
-                        if (importJob.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
-                            myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
+                        if (importJob.imagePath == null
+                                || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
+                            myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - ["
+                                    + f1.getUri() + "]");
                             importJob.imagePath = f1.getUri().toString();
                             hadImageBefore = true;
                         }
@@ -296,8 +315,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                         myLogD("bypassing image (already got a cover)");
                     }
                 } else {
-                    emitWarning(context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] : "
-                            + "\"" + f1.getName() + "\"");
+                    emitWarning(
+                            context.getString(R.string.Error_Import_unsupported_file) + " - [" + fileExtension + "] : "
+                                    + "\"" + f1.getName() + "\"");
                     myLogW("Wrong mime/extension - [\" + fileExtension + \"] - Bypassed file: [" + f1.getName() + "]");
                 }
             }
@@ -318,10 +338,10 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private void addTextFileRecursive(DocumentFile root) {
-        totalDuration = 0;      // not used for text, but keep consistent
+        totalDuration = 0; // not used for text, but keep consistent
         nbFileScan = 0;
         fullFolderSize = 0;
-        totalAudioToScan = 0;   // reuse counters for progress
+        totalAudioToScan = 0; // reuse counters for progress
         nbAudioScanned = 0;
 
         countTextFiles(root);
@@ -329,7 +349,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private void addTextFileRecursive(DocumentFile dir, String recursiveFolder) {
-        boolean hadImageBefore = importJob.imagePath != null; //dont look in subDir if image found at top dir
+        boolean hadImageBefore = importJob.imagePath != null; // dont look in subDir if image found at top dir
         for (DocumentFile f1 : dir.listFiles()) {
             if (f1.isDirectory()) {
                 myLog("increase recursive depth for Directory : [" + f1.getName() + "]");
@@ -338,7 +358,8 @@ public class FinalParseFolderWorker extends ImportWorker {
                 String fileName = SupportedFilesHelper.getFileName(f1);
                 String fileExtension = SupportedFilesHelper.getFileExtension(f1);
                 String mimeType = SupportedFilesHelper.getMimeType(f1);
-                myLogD("* Checking File (TEXT): [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType + "] - subfolder : [" + recursiveFolder + "]");
+                myLogD("* Checking File (TEXT): [" + fileExtension + "] . [" + fileName + "] - mime = [" + mimeType
+                        + "] - subfolder : [" + recursiveFolder + "]");
 
                 if (SupportedFilesHelper.isText(f1)) {
                     nbFileScan++;
@@ -354,16 +375,20 @@ public class FinalParseFolderWorker extends ImportWorker {
                     double progress = totalAudioToScan > 0 ? (nbAudioScanned / (double) totalAudioToScan) : 0;
                     int scaledProgress = 10 + (int) ((80 - 10) * progress);
                     emitStepProgress(TASK_NAME, scaledProgress,
-                            context.getString(R.string.scanning_tracks) + " " + nbAudioScanned + "..... \n[" + displayPath + ']');
+                            context.getString(R.string.scanning_tracks) + " " + nbAudioScanned + "..... \n["
+                                    + displayPath + ']');
                 } else if (!hadImageBefore && (SupportedFilesHelper.isImage(f1))) {
                     long imageSize = f1.length();
-                    if (importJob.imagePath == null || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
-                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - [" + f1.getUri() + "]");
+                    if (importJob.imagePath == null
+                            || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
+                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - ["
+                                + f1.getUri() + "]");
                         importJob.imagePath = f1.getUri().toString();
                         hadImageBefore = true;
                     }
                 } else {
-                    myLogW("Wrong mime/extension for TEXT import - [" + fileExtension + "] - Bypassed file: [" + fileName + "]");
+                    myLogW("Wrong mime/extension for TEXT import - [" + fileExtension + "] - Bypassed file: ["
+                            + fileName + "]");
                 }
             }
         }
@@ -395,29 +420,30 @@ public class FinalParseFolderWorker extends ImportWorker {
                                     context,
                                     importJob.title,
                                     importJob.futureFolderPath,
-                                    Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS
-                            );
+                                    Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS);
                             if (path != null) {
                                 importJob.imagePath = path;
                             }
                         }
                     } catch (Exception e) {
-                        myLogEE(e, "Error creating cover" );
+                        myLogEE(e, "Error creating cover");
                     }
                 }
                 saveFolder();
             } else {
-                failNow(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
+                failNow(TASK_NAME, "Error_Import_NoMediaInFolder",
+                        context.getString(R.string.Error_Import_NoMediaInFolder));
             }
         } else {
-            failNow(TASK_NAME, "Error_Import_NoMediaInFolder", context.getString(R.string.Error_Import_NoMediaInFolder));
+            failNow(TASK_NAME, "Error_Import_NoMediaInFolder",
+                    context.getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
 
     private void saveFolder() {
         emitStepProgress(TASK_NAME, 81, context.getString(R.string.saving_folder));
 
-        if (importJob.addToExistingFolderId>0) {
+        if (importJob.addToExistingFolderId > 0) {
             myLog("saving in existing folder : " + importJob.addToExistingFolderId);
             saveFiles(importJob.addToExistingFolderId);
         } else {
@@ -425,11 +451,11 @@ public class FinalParseFolderWorker extends ImportWorker {
             Folder folder = new Folder();
             folder.setName(importJob.title);
             folder.setPath(importJob.futureFolderPath);
-            folder.setUri(importJob.futureFolderPath); //2023-10-22 deprecated
-            folder.setHash("0"); //2023-10-22 deprecated
+            folder.setUri(importJob.futureFolderPath); // 2023-10-22 deprecated
+            folder.setHash("0"); // 2023-10-22 deprecated
             folder.setPercentdone(0.0);
             folder.setFinished(false);
-            folder.setIszipfile(false); //2023-10-22 deprecated (live zip reading - code has been removed)
+            folder.setIszipfile(false); // 2023-10-22 deprecated (live zip reading - code has been removed)
             folder.setOriginalHash(importJob.originalHash);
             folder.setOriginalFile(importJob.originalFile);
             folder.setOriginalType(importJob.originalType);
@@ -437,7 +463,7 @@ public class FinalParseFolderWorker extends ImportWorker {
             folder.playType = importJob.playType;
             folder.date_added = System.currentTimeMillis();
             folder.image = importJob.imagePath;
-            folder.lLastAccess = System.currentTimeMillis(); //used to sort the Book on the main page
+            folder.lLastAccess = System.currentTimeMillis(); // used to sort the Book on the main page
 
             int insertedFolderId = (int) DatabaseClient.getInstance(context)
                     .getAppDatabase().folderDao().insert(folder);
@@ -451,7 +477,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     private void saveFiles(int insertedFolderId) {
         myLogD("--------------------- saving files...");
         if (audioFileInfoArrayList == null) {
-            failNow(TASK_NAME, "saveFiles - audioFileArrayList is null", context.getString(R.string.Error_Import_no_valid_media_found));
+            failNow(TASK_NAME, "saveFiles - audioFileArrayList is null",
+                    context.getString(R.string.Error_Import_no_valid_media_found));
             return;
         }
 
@@ -473,9 +500,15 @@ public class FinalParseFolderWorker extends ImportWorker {
             emitStepProgress(TASK_NAME, progress, txtProgress);
 
             switch (result) {
-                case SUCCESS: saved++; break;
-                case SKIPPED: skipped++; break;
-                case FAILED: failed++; break;
+                case SUCCESS:
+                    saved++;
+                    break;
+                case SKIPPED:
+                    skipped++;
+                    break;
+                case FAILED:
+                    failed++;
+                    break;
             }
         }
 
@@ -485,7 +518,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         myLogD("❌ Failed:  " + failed);
 
         if (saved == 0) {
-            myLogEE(null,"no saved zikFile, about to delete folder...");
+            myLogEE(null, "no saved zikFile, about to delete folder...");
             new Thread(() -> {
                 try {
                     DatabaseClient.getInstance(context).getAppDatabase().folderDao().delete(insertedFolderId);
@@ -506,30 +539,33 @@ public class FinalParseFolderWorker extends ImportWorker {
 
         // check we have something in folder...
         if (saved == 0) {
-            failNow(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found", context.getString(R.string.Error_Import_No_Usable_item_Found));
+            failNow(TASK_NAME, "saved = 0 - Error_Import_No_Usable_item_Found",
+                    context.getString(R.string.Error_Import_No_Usable_item_Found));
             return;
         } else {
-            //FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(importJob.originalUri), importJob.fileExtension, importJob.doDownload);
+            // FirebaseAnalyticsHelper.tellLoadBookSuccess(String.valueOf(importJob.originalUri),
+            // importJob.fileExtension, importJob.doDownload);
             if (Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation)) {
                 FirebaseAnalyticsHelper.tellLibrivoxSuccess(String.valueOf(importJob.title));
                 AppDatabase.databaseWriteExecutor.execute(() -> {
                     AppDatabase db = AppDatabase.getDatabase(context);
                     db.bookSourceDao().markImported(
-                            Var.REPO_TYPE_AUDIOBOOK,               // repoType (lowercase)
-                            Var.REPO_NAME_LIBRIVOX,                // repoName (lowercase)
-                            importJob.futureFolderName,                // repoId (e.g., "dracula_123")
-                            insertedFolderId,                  // the new Folder.id
-                            importJob.title,                     // display title
-                            importJob.originalUri.toString(),  // source_url
-                            null,      // imageLocal if you saved it
-                            null       // imageRemote if available
+                            Var.REPO_TYPE_AUDIOBOOK, // repoType (lowercase)
+                            Var.REPO_NAME_LIBRIVOX, // repoName (lowercase)
+                            importJob.futureFolderName, // repoId (e.g., "dracula_123")
+                            insertedFolderId, // the new Folder.id
+                            importJob.title, // display title
+                            importJob.originalUri.toString(), // source_url
+                            null, // imageLocal if you saved it
+                            null // imageRemote if available
                     );
                 });
             }
         }
 
         myLogD("deleting source ??"
-                + "\nOption CopyFile : " + importJob.optionCopy + "  -  is a ZIP : " + importJob.dynamicType.equals("ZIP")
+                + "\nOption CopyFile : " + importJob.optionCopy + "  -  is a ZIP : "
+                + importJob.dynamicType.equals("ZIP")
                 + "\nOption DeleteSourceFile : " + importJob.optionDelete);
         if ((importJob.optionCopy || "ZIP".equals(importJob.dynamicType)) && importJob.optionDelete) {
             if (!deleteSourceFile()) {
@@ -538,7 +574,6 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
         emitSuccess();
     }
-
 
     private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
         ZikFile file = new ZikFile();
@@ -562,22 +597,21 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
 
         long id = -1;
-        //verify it does not exist
-        if (importJob.addToExistingFolderId>0) {
+        // verify it does not exist
+        if (importJob.addToExistingFolderId > 0) {
             id = AppDatabase.getDatabase(context).zikFileDao().insertIfNameNotExists(file);
         } else {
             id = AppDatabase.getDatabase(context).zikFileDao().insert(file);
         }
 
         if (id > 0) {
-            //myLog("✔️ ZikFile inserted: id = " + id);
+            // myLog("✔️ ZikFile inserted: id = " + id);
             return SaveResultEnum.SUCCESS;
         } else {
             myLogE("❌ DB insert failed for: " + info.getDisplayPath());
-            //TODO, maybe better just a warning...  (anyway, should not happen)
-            failNow(TASK_NAME
-                    , "Error_Import_CannotSaveInDB [" + info.getDisplayPath() + "]"
-                    , context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getDisplayPath() + "]");
+            // TODO, maybe better just a warning... (anyway, should not happen)
+            failNow(TASK_NAME, "Error_Import_CannotSaveInDB [" + info.getDisplayPath() + "]",
+                    context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getDisplayPath() + "]");
             return SaveResultEnum.FAILED;
         }
     }
@@ -585,15 +619,16 @@ public class FinalParseFolderWorker extends ImportWorker {
     private boolean deleteSourceFile() {
         myLog("deleteSourceFile() - uri = [" + importJob.originalUri + "]");
         DocumentFile dfPickedDir = null;
-        if (importJob.dynamicType.equals("File") || importJob.dynamicType.equals("ZIP") || importJob.dynamicType.equals("Folder")) {
+        if (importJob.dynamicType.equals("File") || importJob.dynamicType.equals("ZIP")
+                || importJob.dynamicType.equals("Folder")) {
             try {
                 dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.originalUri));
             } catch (Exception e) {
-                myLogEE(e,"deleting - error getting DocumentFile.fromSingleUri");
+                myLogEE(e, "deleting - error getting DocumentFile.fromSingleUri");
                 return false;
             }
         } else {
-            myLogEE(null,"Incorrect type : **" + importJob.dynamicType + "**");
+            myLogEE(null, "Incorrect type : **" + importJob.dynamicType + "**");
             return false;
         }
         if (!(dfPickedDir == null)) {
@@ -602,11 +637,11 @@ public class FinalParseFolderWorker extends ImportWorker {
                 myLogD("source file deletion ok");
                 return true;
             } else {
-                myLogEE(null,"Error during source file deletion");
+                myLogEE(null, "Error during source file deletion");
                 return false;
             }
         } else {
-            myLogEE(null,"deleteSourceFile() => could not get ref to picked file");
+            myLogEE(null, "deleteSourceFile() => could not get ref to picked file");
             return false;
         }
     }
@@ -620,18 +655,21 @@ public class FinalParseFolderWorker extends ImportWorker {
                 String mime = Objects.toString(f1.getType());
                 if (mime.startsWith(Var.ONLY_MIME_AUDIO) || Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
                     totalAudioToScan++;
-                    emitStepProgress(TASK_NAME, 2, context.getString(R.string.counting_files) + " : " + totalAudioToScan);
+                    emitStepProgress(TASK_NAME, 2,
+                            context.getString(R.string.counting_files) + " : " + totalAudioToScan);
                 }
             }
         }
     }
 
-// --- TTS duration estimation (import-time, fixed WPM) ---
+    // --- TTS duration estimation (import-time, fixed WPM) ---
 
-    private long estimateTtsDurationMsFromUri(Context ctx, Uri uri, @Nullable String fileName, @Nullable String mimeType) {
+    private long estimateTtsDurationMsFromUri(Context ctx, Uri uri, @Nullable String fileName,
+            @Nullable String mimeType) {
         int words = 0;
         try (java.io.InputStream in = ctx.getContentResolver().openInputStream(uri)) {
-            if (in == null) return 0;
+            if (in == null)
+                return 0;
             boolean htmlLike = isHtmlLike(fileName, mimeType);
             words = countWordsStreaming(in, htmlLike);
         } catch (Exception e) {
@@ -643,15 +681,18 @@ public class FinalParseFolderWorker extends ImportWorker {
     private static boolean isHtmlLike(@Nullable String fileName, @Nullable String mimeType) {
         String fn = fileName == null ? "" : fileName.toLowerCase();
         String mt = mimeType == null ? "" : mimeType.toLowerCase();
-        if (mt.contains("html") || mt.contains("xhtml") || mt.contains("xml") || mt.contains("application/xhtml")) return true;
+        if (mt.contains("html") || mt.contains("xhtml") || mt.contains("xml") || mt.contains("application/xhtml"))
+            return true;
         return fn.endsWith(".html") || fn.endsWith(".htm") || fn.endsWith(".xhtml") || fn.endsWith(".xml");
     }
 
-    /** Streams through the file and counts "words" without loading whole file.
-     *  If htmlLike=true, characters inside <...> are ignored (rough tag strip).
+    /**
+     * Streams through the file and counts "words" without loading whole file.
+     * If htmlLike=true, characters inside <...> are ignored (rough tag strip).
      */
     private static int countWordsStreaming(java.io.InputStream in, boolean htmlLike) throws java.io.IOException {
-        final java.io.InputStreamReader isr = new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8);
+        final java.io.InputStreamReader isr = new java.io.InputStreamReader(in,
+                java.nio.charset.StandardCharsets.UTF_8);
         final char[] buf = new char[8192];
         int read, count = 0;
         boolean inWord = false;
@@ -662,13 +703,25 @@ public class FinalParseFolderWorker extends ImportWorker {
                 char c = buf[i];
 
                 if (htmlLike) {
-                    if (c == '<') { inTag = true; inWord = false; continue; }
-                    if (c == '>') { inTag = false; continue; }
-                    if (inTag) { continue; }
+                    if (c == '<') {
+                        inTag = true;
+                        inWord = false;
+                        continue;
+                    }
+                    if (c == '>') {
+                        inTag = false;
+                        continue;
+                    }
+                    if (inTag) {
+                        continue;
+                    }
                 }
 
                 if (Character.isLetterOrDigit(c)) {
-                    if (!inWord) { count++; inWord = true; }
+                    if (!inWord) {
+                        count++;
+                        inWord = true;
+                    }
                 } else {
                     inWord = false;
                 }
@@ -678,7 +731,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private static long wordsToMs(int words) {
-        if (words <= 0) return 0;
+        if (words <= 0)
+            return 0;
         double wpm = Math.max(30, Var.TTS_WPM_IMPORT); // guardrail
         long ms = (long) Math.round((words / wpm) * 60_000.0);
         return Math.max(ms, 1L);

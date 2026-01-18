@@ -160,9 +160,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 .get(OngoingTaskViewModel.class);
         // myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
-        viewModel.getUi().observe(this, ui -> {
-            setImportOverlayVisible(ui.isRunningLike());
-        });
+        // viewModel.getUi().observe(this, ui -> {
+        // setImportOverlayVisible(ui.isRunningLike());
+        // });
 
         // ADD RESOURCE (log)
         registerForActivityResult(

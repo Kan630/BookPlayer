@@ -71,6 +71,10 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
 
         executor.execute(() -> {
             List<BookCandidate> result = scanner.scan(rootUri);
+            myLog("Scan complete. Items found: " + result.size());
+            for (BookCandidate c : result) {
+                myLogD("Candidate: " + c.name + " [" + c.type + "] -> " + c.uri);
+            }
             mainHandler.post(() -> {
                 candidates.setValue(result);
                 isScanning.setValue(false);

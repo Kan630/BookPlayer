@@ -46,14 +46,16 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
 
-
-    //TODO ASYNC...
-    private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath, boolean isCached) {
+    // TODO ASYNC...
+    private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath,
+            boolean isCached) {
         try {
             byte[] imageBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(imageUrl);
-            if (imageBytes == null) return null;
+            if (imageBytes == null)
+                return null;
 
-            // Optional but recommended: ensure it’s actually an image (prevents saving HTML error pages)
+            // Optional but recommended: ensure it’s actually an image (prevents saving HTML
+            // error pages)
             if (!isLikelyImage(imageBytes)) {
                 myLogE("Not an image (decode failed): " + imageUrl);
                 return null;
@@ -67,10 +69,11 @@ public class ImageHelper {
         }
     }
 
-
-    private static String saveBytesToFile(Context context, byte[] data, String imagePath, boolean isCached) throws IOException {
+    private static String saveBytesToFile(Context context, byte[] data, String imagePath, boolean isCached)
+            throws IOException {
         File dir = StorageHelper.getImageFolder(context, isCached);
-        if (!dir.exists()) dir.mkdirs();
+        if (!dir.exists())
+            dir.mkdirs();
         File imageFile = new File(dir, imagePath);
         FileOutputStream fos = new FileOutputStream(imageFile);
         fos.write(data);
@@ -80,7 +83,7 @@ public class ImageHelper {
     }
 
     public static void processPendingImages(Context context) {
-        //myLogD("processPendingImages");
+        // myLogD("processPendingImages");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
 
@@ -89,10 +92,12 @@ public class ImageHelper {
                 List<Folder> allFolders = db.folderDao().getAll(); // you already use this elsewhere
                 for (Folder f : allFolders) {
                     String path = f.image;
-                    if (path == null || path.isEmpty()) continue;
+                    if (path == null || path.isEmpty())
+                        continue;
 
                     // Only local absolute files (skip URIs)
-                    if (path.startsWith("content://") || path.startsWith("file://")) continue;
+                    if (path.startsWith("content://") || path.startsWith("file://"))
+                        continue;
 
                     // If in cached_images, move it
                     String moved = moveCachedImageToPermanent(context, path);
@@ -109,12 +114,12 @@ public class ImageHelper {
                 myLogEE(e, "processPendingImages: cached->images migration block");
             }
 
-
             // --- Handle Podcast images ---
             List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
             for (Podcast podcast : pendingPodcasts) {
                 String url = podcast.image;
-                if (url == null || !url.startsWith("http")) continue;
+                if (url == null || !url.startsWith("http"))
+                    continue;
 
                 String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
                 String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
@@ -124,12 +129,13 @@ public class ImageHelper {
                 }
             }
 
-            //Move Folder cover if on SD card
+            // Move Folder cover if on SD card
             try {
                 List<Folder> allFolders = db.folderDao().getAll();
                 for (Folder f : allFolders) {
                     String path = f.image;
-                    if (path == null || path.isEmpty()) continue;
+                    if (path == null || path.isEmpty())
+                        continue;
 
                     // Check if it's on SD card (absolute path or content URI)
                     if (path.startsWith("/storage/") ||
@@ -158,7 +164,8 @@ public class ImageHelper {
             for (Folder folder : pendingFolders) {
                 String url = folder.image;
 
-                if (url == null) continue;
+                if (url == null)
+                    continue;
 
                 String localPath = null;
                 String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
@@ -193,7 +200,10 @@ public class ImageHelper {
                             // 0 KB or missing → treat as failure, clean up
                             myLogW("Radio favicon download failed or empty (" + f.length() + " bytes) for " + url);
                             if (f.exists() && f.length() == 0L) {
-                                try {myLog("deleting bad file, success=" + f.delete());} catch (Exception ignored) {}
+                                try {
+                                    myLog("deleting bad file, success=" + f.delete());
+                                } catch (Exception ignored) {
+                                }
                             }
                             // keep old favicon URL in DB so Glide can still try remote
                         }
@@ -204,7 +214,8 @@ public class ImageHelper {
         });
     }
 
-    public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl, boolean forceDownload) {
+    public static String getOrDownloadLibrivoxImage(Context context, String identifier, String imageUrl,
+            boolean forceDownload) {
         String imagePath = IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg";
         File imageFile = new File(StorageHelper.getImageFolder(context, true), imagePath);
 
@@ -222,7 +233,8 @@ public class ImageHelper {
         return new File(dir, IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg");
     }
 
-    public static String copyContentUriToImageFile(Context context, String uriOrPath, String outputFileName, boolean isCached) {
+    public static String copyContentUriToImageFile(Context context, String uriOrPath, String outputFileName,
+            boolean isCached) {
         try {
             InputStream in;
             Uri uri;
@@ -235,7 +247,8 @@ public class ImageHelper {
             }
 
             in = context.getContentResolver().openInputStream(uri);
-            if (in == null) return null;
+            if (in == null)
+                return null;
 
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buffer = new byte[8192];
@@ -266,6 +279,20 @@ public class ImageHelper {
             return null;
         }
     }
+
+    public static String saveTempBitmap(Context context, Bitmap bitmap, String suffix) {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        try {
+            // Use PNG to keep original quality before compressing later
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            byte[] imageBytes = out.toByteArray();
+            return compressAndSaveImage(context, imageBytes, IMAGE_PREFIX_FOR_TEMP_FILE + suffix + ".jpg", true);
+        } catch (Exception e) {
+            myLogEE(e, "saveTempBitmap with suffix");
+            return null;
+        }
+    }
+
     public static void deleteTempImportImage(Context context) {
         File imageDir = StorageHelper.getImageFolder(context, true);
         File tmpFile = new File(imageDir, IMAGE_PREFIX_FOR_TEMP_FILE + ".jpg");
@@ -281,9 +308,31 @@ public class ImageHelper {
             myLogD("No temp import image to delete at: " + tmpFile.getAbsolutePath());
         }
     }
+
+    public static void deleteTempImportImage(Context context, String suffix) {
+        File imageDir = StorageHelper.getImageFolder(context, true);
+        File tmpFile = new File(imageDir, IMAGE_PREFIX_FOR_TEMP_FILE + suffix + ".jpg");
+
+        if (tmpFile.exists()) {
+            boolean deleted = tmpFile.delete();
+            if (deleted) {
+                myLog("Temp import image deleted: " + tmpFile.getAbsolutePath());
+            } else {
+                myLogE("Failed to delete temp import image: " + tmpFile.getAbsolutePath());
+            }
+        }
+    }
+
     public static void finalizeTempFolderImage(Context context, int folderId) {
-        File tmpFile = new File(StorageHelper.getImageFolder(context, true), IMAGE_PREFIX_FOR_TEMP_FILE + ".jpg");
-        File newFile = new File(StorageHelper.getImageFolder(context, false), IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".jpg");
+        finalizeTempFolderImage(context, folderId, "");
+    }
+
+    public static void finalizeTempFolderImage(Context context, int folderId, String suffix) {
+        String safeSuffix = (suffix == null) ? "" : suffix;
+        File tmpFile = new File(StorageHelper.getImageFolder(context, true),
+                IMAGE_PREFIX_FOR_TEMP_FILE + safeSuffix + ".jpg");
+        File newFile = new File(StorageHelper.getImageFolder(context, false),
+                IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".jpg");
 
         if (!tmpFile.exists()) {
             myLogD("Temp image not found: " + tmpFile.getAbsolutePath());
@@ -311,12 +360,12 @@ public class ImageHelper {
         });
     }
 
-
     private static boolean isContentUri(String s) {
         return s != null && s.startsWith("content://");
     }
 
-    private static String compressAndSaveImage(Context context, byte[] imageBytes, String outputFileName, boolean isCached) throws IOException {
+    private static String compressAndSaveImage(Context context, byte[] imageBytes, String outputFileName,
+            boolean isCached) throws IOException {
         if (imageBytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
             return saveBytesToFile(context, imageBytes, outputFileName, isCached);
         }
@@ -329,7 +378,8 @@ public class ImageHelper {
             bounds.inJustDecodeBounds = true;
             BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.length, bounds);
 
-            int inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, MAX_IMAGE_WIDTH, MAX_IMAGE_HEIGHT);
+            int inSampleSize = calculateInSampleSize(bounds.outWidth, bounds.outHeight, MAX_IMAGE_WIDTH,
+                    MAX_IMAGE_HEIGHT);
 
             BitmapFactory.Options options = new BitmapFactory.Options();
             options.inSampleSize = inSampleSize;
@@ -387,7 +437,9 @@ public class ImageHelper {
         return Bitmap.createScaledBitmap(original, newWidth, newHeight, true);
     }
 
-    private static int calculateInSampleSize(int width, int height, int reqWidth, int reqHeight) { //used for old device with low memory...
+    private static int calculateInSampleSize(int width, int height, int reqWidth, int reqHeight) { // used for old
+                                                                                                   // device with low
+                                                                                                   // memory...
         int inSampleSize = 1;
         if (height > reqHeight || width > reqWidth) {
             final int halfHeight = height / 2;
@@ -405,7 +457,7 @@ public class ImageHelper {
             try {
                 Uri uri = Uri.parse(folder.image);
                 DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
-                if (file!=null && file.exists()) {
+                if (file != null && file.exists()) {
                     if (!file.delete()) {
                         myLogEE(null, "Error deleting image file from content URI: " + folder.image);
                     } else {
@@ -422,13 +474,13 @@ public class ImageHelper {
         }
     }
 
-
-// === Fallback cover generation (initials over colored background) ===
+    // === Fallback cover generation (initials over colored background) ===
 
     private static String createAndSaveFallbackImage(Context context, String fileName, String title, int sizePx) {
         try {
-            Bitmap bmp = createInitialsBitmap(title, sizePx, /*rounded=*/true);
-            // Encode once to JPEG, then let your existing compressor enforce MAX_IMAGE_SIZE_KB
+            Bitmap bmp = createInitialsBitmap(title, sizePx, /* rounded= */true);
+            // Encode once to JPEG, then let your existing compressor enforce
+            // MAX_IMAGE_SIZE_KB
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
             bmp.recycle();
@@ -449,9 +501,11 @@ public class ImageHelper {
 
     /** Same rendering but with explicit initials & color for the generator UI. */
     public static Bitmap createInitialsBitmapCustom(String initials, int bgColor, int sizePx, boolean rounded) {
-        if (initials == null) initials = "";
+        if (initials == null)
+            initials = "";
         initials = initials.trim();
-        if (initials.length() > 5) initials = initials.substring(0, 5); // hard cap
+        if (initials.length() > 5)
+            initials = initials.substring(0, 5); // hard cap
 
         Bitmap bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
@@ -482,9 +536,11 @@ public class ImageHelper {
     }
 
     private static String getInitials(String title) {
-        if (title == null) return "?";
+        if (title == null)
+            return "?";
         String t = title.trim();
-        if (t.isEmpty()) return "?";
+        if (t.isEmpty())
+            return "?";
 
         // For CJK scripts (Chinese, Japanese, Korean), just take the first 2 chars
         int firstCodePoint = t.codePointAt(0);
@@ -504,7 +560,8 @@ public class ImageHelper {
     }
 
     private static String safeFirstLetter(String s) {
-        if (s.isEmpty()) return "";
+        if (s.isEmpty())
+            return "";
         int cp = s.codePointAt(0);
         return Character.isLetterOrDigit(cp) ? new String(Character.toChars(cp)).toUpperCase() : "";
     }
@@ -520,12 +577,11 @@ public class ImageHelper {
                 || block == Character.UnicodeBlock.HANGUL_SYLLABLES;
     }
 
-
     public static int getColorFromTitle(String title) {
         int h = (title == null ? 0 : title.hashCode());
         float hue = (h % 360 + 360) % 360;
         // Pastel-ish: low saturation, high value
-        return Color.HSVToColor(new float[]{hue, 0.35f, 0.92f});
+        return Color.HSVToColor(new float[] { hue, 0.35f, 0.92f });
     }
 
     public static String saveGeneratedInitialsCover(Context context, int folderId, Bitmap bmp) throws IOException {
@@ -539,7 +595,8 @@ public class ImageHelper {
     }
 
     public static String buildManualFolderImageFileName(String title, String futureFolderPath) {
-        String key = (title == null ? "" : title.trim()) + "|" + (futureFolderPath == null ? "" : futureFolderPath.trim());
+        String key = (title == null ? "" : title.trim()) + "|"
+                + (futureFolderPath == null ? "" : futureFolderPath.trim());
         String hash = md5Hex(key);
         return IMAGE_PREFIX_FOR_SAVED_BOOK + "manual_" + hash + ".jpg";
     }
@@ -549,17 +606,18 @@ public class ImageHelper {
             MessageDigest md = MessageDigest.getInstance("MD5");
             byte[] b = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             StringBuilder sb = new StringBuilder(b.length * 2);
-            for (byte x : b) sb.append(String.format(Locale.US, "%02x", x));
+            for (byte x : b)
+                sb.append(String.format(Locale.US, "%02x", x));
             return sb.toString();
         } catch (NoSuchAlgorithmException e) {
             // Fallback: simple hash if MD5 not available (very unlikely)
             return Integer.toHexString(s.hashCode());
         }
     }
+
     public static String saveGeneratedInitialsCoverVersioned(
             Context context, long folderId,
-            String initials, int color, boolean rounded, Bitmap bmp
-    ) throws IOException {
+            String initials, int color, boolean rounded, Bitmap bmp) throws IOException {
 
         // Build a short, stable suffix for current settings
         String signature = initials + "|" + color + "|" + (rounded ? 1 : 0);
@@ -572,15 +630,19 @@ public class ImageHelper {
         bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
         byte[] bytes = out.toByteArray();
 
-        String absPath = compressAndSaveImage(context, bytes, fileName, /*isCached=*/false);
+        String absPath = compressAndSaveImage(context, bytes, fileName, /* isCached= */false);
 
         // Delete older versions for this folder to avoid accumulation
         File dir = StorageHelper.getImageFolder(context, false);
-        File[] old = dir.listFiles((d, name) ->
-                name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_")
-                        && !name.equals(fileName));
+        File[] old = dir.listFiles((d, name) -> name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_")
+                && !name.equals(fileName));
         if (old != null) {
-            for (File o : old) { try { /* ignore result */ o.delete(); } catch (Throwable ignored) {} }
+            for (File o : old) {
+                try {
+                    /* ignore result */ o.delete();
+                } catch (Throwable ignored) {
+                }
+            }
         }
 
         return absPath;
@@ -592,39 +654,44 @@ public class ImageHelper {
             byte[] b = md.digest(s.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             // 8 hex chars is plenty
             StringBuilder sb = new StringBuilder(8);
-            for (int i = 0; i < 4; i++) sb.append(String.format(Locale.US, "%02x", b[i]));
+            for (int i = 0; i < 4; i++)
+                sb.append(String.format(Locale.US, "%02x", b[i]));
             return sb.toString();
         } catch (Exception e) {
             return Integer.toHexString(s.hashCode());
         }
     }
 
-
-
-    /** Create fallback cover for manual folder BEFORE insert, returns absolute path */
-    public static @Nullable String createFallbackManualFolderImagePreInsert(Context ctx, String title, String futureFolderPath, int sizePx) {
+    /**
+     * Create fallback cover for manual folder BEFORE insert, returns absolute path
+     */
+    public static @Nullable String createFallbackManualFolderImagePreInsert(Context ctx, String title,
+            String futureFolderPath, int sizePx) {
         String fileName = buildManualFolderImageFileName(title, futureFolderPath);
         return createAndSaveFallbackImage(ctx, fileName, title, sizePx); // uses the helper we added earlier
     }
 
     private static @Nullable String moveCachedImageToPermanent(Context context, String currentAbsPath) {
-        if (currentAbsPath == null || currentAbsPath.isEmpty()) return null;
+        if (currentAbsPath == null || currentAbsPath.isEmpty())
+            return null;
 
         // Only handle plain file paths (skip content:// or file://)
-        if (currentAbsPath.startsWith("content://") || currentAbsPath.startsWith("file://")) return null;
+        if (currentAbsPath.startsWith("content://") || currentAbsPath.startsWith("file://"))
+            return null;
 
-        File cachedDir = StorageHelper.getImageFolder(context, /*isCached=*/true);
-        File imagesDir = StorageHelper.getImageFolder(context, /*isCached=*/false);
+        File cachedDir = StorageHelper.getImageFolder(context, /* isCached= */true);
+        File imagesDir = StorageHelper.getImageFolder(context, /* isCached= */false);
 
         // Robust check: path starts with cached dir OR contains "/cached_images/"
         String cachedDirPath = cachedDir.getAbsolutePath();
         boolean isInCached = currentAbsPath.startsWith(cachedDirPath)
                 || currentAbsPath.contains(File.separator + Var.FOLDER_CACHED_IMAGE + File.separator);
-        if (!isInCached) return null;
+        if (!isInCached)
+            return null;
 
         File src = new File(currentAbsPath);
         if (!src.exists()) {
-            //check if it was not already in the permanent folder, but DB was not updated
+            // check if it was not already in the permanent folder, but DB was not updated
             File dst = new File(imagesDir, src.getName());
             if (dst.exists()) {
                 myLogW("image was already moved but DB was not updated: " + dst.getAbsolutePath());
@@ -641,7 +708,8 @@ public class ImageHelper {
         }
 
         File dst = new File(imagesDir, src.getName());
-        if (dst.equals(src)) return src.getAbsolutePath(); // already correct
+        if (dst.equals(src))
+            return src.getAbsolutePath(); // already correct
 
         // If target exists, delete it to allow rename
         if (dst.exists() && !dst.delete()) {
@@ -654,18 +722,28 @@ public class ImageHelper {
             // Fallback: copy -> delete
             myLogD("renameTo failed, will copy: " + src.getAbsolutePath() + " -> " + dst.getAbsolutePath());
             try (java.io.FileInputStream in = new java.io.FileInputStream(src);
-                 java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
+                    java.io.FileOutputStream out = new java.io.FileOutputStream(dst)) {
                 byte[] buf = new byte[8192];
                 int n;
-                while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                while ((n = in.read(buf)) != -1)
+                    out.write(buf, 0, n);
             } catch (IOException io) {
                 myLogEE(io, "moveCachedImageToPermanent: copy failed");
                 // Clean up partial file
-                try { if (dst.exists()) dst.delete(); } catch (Throwable ignore) {}
+                try {
+                    if (dst.exists())
+                        dst.delete();
+                } catch (Throwable ignore) {
+                }
                 return null;
             }
-            // try to delete src; if it fails, we still proceed (we “copied” instead of move)
-            try { if (!src.delete()) myLogD("moveCachedImageToPermanent: could not delete source (copied): " + src.getAbsolutePath()); } catch (Throwable ignore) {}
+            // try to delete src; if it fails, we still proceed (we “copied” instead of
+            // move)
+            try {
+                if (!src.delete())
+                    myLogD("moveCachedImageToPermanent: could not delete source (copied): " + src.getAbsolutePath());
+            } catch (Throwable ignore) {
+            }
         }
 
         myLog("Moved cached image to permanent: " + dst.getAbsolutePath());
@@ -686,18 +764,24 @@ public class ImageHelper {
     public static String downloadRemoteToBookCoverVersioned(Context context, long folderId, String imageUrl) {
         try {
             byte[] imageBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(imageUrl);
-            if (imageBytes == null || !isLikelyImage(imageBytes)) return null;
+            if (imageBytes == null || !isLikelyImage(imageBytes))
+                return null;
 
             String hash = shortHash(imageBytes); // first 8 hex chars of MD5, for example
             String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";
 
-            String abs = compressAndSaveImage(context, imageBytes, fileName, /*isCached=*/false);
+            String abs = compressAndSaveImage(context, imageBytes, fileName, /* isCached= */false);
 
             // delete older versions
             File dir = StorageHelper.getImageFolder(context, false);
-            File[] old = dir.listFiles((d, name) ->
-                    name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_") && !name.equals(fileName));
-            if (old != null) for (File o : old) try { o.delete(); } catch (Throwable ignore) {}
+            File[] old = dir.listFiles((d, name) -> name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_")
+                    && !name.equals(fileName));
+            if (old != null)
+                for (File o : old)
+                    try {
+                        o.delete();
+                    } catch (Throwable ignore) {
+                    }
 
             return abs;
         } catch (Throwable t) {
@@ -711,7 +795,8 @@ public class ImageHelper {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
             byte[] b = md.digest(data);
             StringBuilder sb = new StringBuilder(8);
-            for (int i = 0; i < 4; i++) sb.append(String.format(java.util.Locale.US, "%02x", b[i]));
+            for (int i = 0; i < 4; i++)
+                sb.append(String.format(java.util.Locale.US, "%02x", b[i]));
             return sb.toString();
         } catch (Exception e) {
             return Integer.toHexString(java.util.Arrays.hashCode(data));
@@ -720,27 +805,35 @@ public class ImageHelper {
 
     public static String saveUserSelectedImageToBookCoverVersioned(Context context, long folderId, String uriOrPath) {
         try (InputStream in = context.getContentResolver().openInputStream(Uri.parse(uriOrPath))) {
-            if (in == null) return null;
+            if (in == null)
+                return null;
             // read all bytes
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             byte[] buf = new byte[8192];
             int n;
-            while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+            while ((n = in.read(buf)) != -1)
+                out.write(buf, 0, n);
             byte[] imageBytes = out.toByteArray();
 
-            if (!isLikelyImage(imageBytes)) return null;
+            if (!isLikelyImage(imageBytes))
+                return null;
 
             // build short hash from content
             String hash = shortHash(imageBytes);
             String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";
 
-            String abs = compressAndSaveImage(context, imageBytes, fileName, /*isCached=*/false);
+            String abs = compressAndSaveImage(context, imageBytes, fileName, /* isCached= */false);
 
             // remove older versions for this folder
             File dir = StorageHelper.getImageFolder(context, false);
-            File[] old = dir.listFiles((d, name) ->
-                    name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_") && !name.equals(fileName));
-            if (old != null) for (File o : old) try { o.delete(); } catch (Throwable ignored) {}
+            File[] old = dir.listFiles((d, name) -> name.startsWith(IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_")
+                    && !name.equals(fileName));
+            if (old != null)
+                for (File o : old)
+                    try {
+                        o.delete();
+                    } catch (Throwable ignored) {
+                    }
 
             return abs;
         } catch (Throwable t) {
@@ -751,21 +844,24 @@ public class ImageHelper {
 
     @Nullable
     public static android.graphics.Bitmap decodeBitmapFromStringUri(Context context, String uriString, int maxSidePx) {
-        //myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
-        if (uriString == null) return null;
+        // myLog("decodeBitmapFromStringUri : " + uriString + " - " + maxSidePx);
+        if (uriString == null)
+            return null;
         try {
             android.net.Uri uri = android.net.Uri.parse(uriString);
 
             // File path support (if your DB sometimes stores plain paths)
-            //myLog("decodeBitmapFromStringUri by file");
+            // myLog("decodeBitmapFromStringUri by file");
             if ("file".equalsIgnoreCase(uri.getScheme()) || uriString.startsWith("/")) {
                 String path = "file".equalsIgnoreCase(uri.getScheme()) ? uri.getPath() : uriString;
-                if (path == null) return null;
+                if (path == null)
+                    return null;
                 android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
                 android.graphics.BitmapFactory.decodeFile(path, o);
                 int sample = 1;
-                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
+                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx)
+                    sample *= 2;
                 android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
                 o2.inSampleSize = sample;
                 o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
@@ -775,37 +871,45 @@ public class ImageHelper {
             // Content:// (SAF) — decode via stream (we are the same app → we can read it)
             try (java.io.InputStream is = context.getContentResolver().openInputStream(uri)) {
                 myLogW("decodeBitmapFromStringUri by stream");
-                if (is == null) return null;
+                if (is == null)
+                    return null;
                 byte[] all = readAll(is);
                 android.graphics.BitmapFactory.Options o = new android.graphics.BitmapFactory.Options();
                 o.inJustDecodeBounds = true;
                 android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o);
                 int sample = 1;
-                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx) sample *= 2;
+                while (Math.max(o.outWidth / sample, o.outHeight / sample) > maxSidePx)
+                    sample *= 2;
                 android.graphics.BitmapFactory.Options o2 = new android.graphics.BitmapFactory.Options();
                 o2.inSampleSize = sample;
                 o2.inPreferredConfig = android.graphics.Bitmap.Config.ARGB_8888;
                 return android.graphics.BitmapFactory.decodeByteArray(all, 0, all.length, o2);
             }
-        } catch (Throwable ignored) { }
+        } catch (Throwable ignored) {
+        }
         return null;
     }
+
     private static byte[] readAll(java.io.InputStream is) throws java.io.IOException {
         java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream();
         byte[] buf = new byte[16 * 1024];
         int r;
-        while ((r = is.read(buf)) != -1) bos.write(buf, 0, r);
+        while ((r = is.read(buf)) != -1)
+            bos.write(buf, 0, r);
         return bos.toByteArray();
     }
 
     /**
-     * Checks if a cover image is stored on SD card and copies/moves it to local storage
+     * Checks if a cover image is stored on SD card and copies/moves it to local
+     * storage
      * to improve app loading performance.
      *
-     * @param context The application context
+     * @param context          The application context
      * @param currentImagePath The current image path from the database
-     * @param bookId The book/folder ID to use for naming the local cover file
-     * @return The new local path if copied/moved, or the original path if already local, null on failure
+     * @param bookId           The book/folder ID to use for naming the local cover
+     *                         file
+     * @return The new local path if copied/moved, or the original path if already
+     *         local, null on failure
      */
     public static String checkAndCopySdCardCoverToLocal(Context context, String currentImagePath, long bookId) {
         if (currentImagePath == null || currentImagePath.isEmpty()) {
@@ -822,7 +926,8 @@ public class ImageHelper {
 
         try {
             File sourceFile = null;
-            File destFile = new File(StorageHelper.getImageFolder(context,false), IMAGE_PREFIX_FOR_SAVED_BOOK + bookId + ".jpg");
+            File destFile = new File(StorageHelper.getImageFolder(context, false),
+                    IMAGE_PREFIX_FOR_SAVED_BOOK + bookId + ".jpg");
             boolean shouldMove = false; // move if in our app folder, copy otherwise
 
             // Handle content:// URIs
@@ -855,7 +960,7 @@ public class ImageHelper {
 
             // Copy the file
             try (FileInputStream fis = new FileInputStream(sourceFile);
-                 FileOutputStream fos = new FileOutputStream(destFile)) {
+                    FileOutputStream fos = new FileOutputStream(destFile)) {
 
                 byte[] buffer = new byte[8192];
                 int bytesRead;
@@ -866,7 +971,7 @@ public class ImageHelper {
             }
 
             // If we should move (app folder), delete the source
-            shouldMove = false; //TODO, to check, maybe ok, but afraid to break export or something else...
+            shouldMove = false; // TODO, to check, maybe ok, but afraid to break export or something else...
             if (shouldMove) {
                 try {
                     if (sourceFile.delete()) {

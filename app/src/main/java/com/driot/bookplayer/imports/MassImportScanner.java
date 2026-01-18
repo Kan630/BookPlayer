@@ -52,6 +52,7 @@ public class MassImportScanner extends LoggerHelper {
             return;
 
         callback.onProgress(dir.getName());
+        myLogD("Scanning directory: " + dir.getName());
 
         DocumentFile[] files = dir.listFiles();
         boolean hasAudio = false;
@@ -60,104 +61,26 @@ public class MassImportScanner extends LoggerHelper {
             if (isCancelled)
                 return;
 
+            String fileName = safeName(file);
+            myLogD("Checking file: " + fileName);
+
             if (file.isDirectory()) {
-                // Determine if this directory itself is a book or if we go deeper
-                // Current logic in ScanAndReimport: if it has audio recursive, it's a
-                // candidate.
-                // But wait, if we go deeper, do we treat children as separate books?
-                // The old logic was: "Collect child folders that contain audio somewhere in
-                // their subtree"
-                // AND "Library container: import children only, never the root" if children
-                // have audio.
-                // Let's refine:
-                // If a folder has audio files DIRECTLY, it's a potential book.
-                // If it has ONLY subfolders, we recurse.
-
-                // Correction: The user wants "Add multiple books by selecting only a master
-                // folder".
-                // So the master folder is the container.
-                // Anything inside is potential book.
-
-                // Let's try a simple approach first:
-                // Check if the current folder (file) is a book (has audio directly).
-                // Or if it's just a container.
-
-                // Actually, the previous logic was: findBookCandidates(root)
-                // -> iterates ALL children of root.
-                // -> for each child: check if it has audio recursive.
-                // -> if yes, add child as candidate.
-
-                // So we should do depth-first search but identifying "Book Roots".
-                // A "Book Root" is typically a folder that contains audio files or subfolders
-                // with audio (chapters).
-
-                // Let's recursively scan.
-                // But we need to handle "Single File Books" (ZIP, M4B) separately.
-
-                // Re-implementing logic close to "findBookCandidates" but recursive?
-                // Actually, we want to find "items" inside the Master Folder.
-                // So we scan the children of the Master Folder.
-
-                // If the Master Folder is the Root:
-                // We look at each child.
-                // Child A (Folder) -> Check if it contains audio (recursive). If yes ->
-                // Candidate (Folder).
-                // Child B (ZIP) -> Candidate (ZIP).
-                // Child C (M4B) -> Candidate (M4B).
-                // Child D (EPUB) -> Candidate (EPUB).
-
-                // What if Child A contains sub-books?
-                // E.g. Root/Author/Book1, Root/Author/Book2.
-                // If we select Root.
-                // Child A is "Author". It contains audio recursive (in Book1).
-                // Do we import "Author" as one book? Or recurs?
-                // The prompt says "functionnality that allow user to register/add multiple
-                // books by selecting only a master folder."
-                // "Right now it will import only child folders if they contain audio files."
-                // Implicitly: It scans 1 level deep?
-
-                // Let's look at ScanAndReimportWorker again.
-                // `nbFolders = root.listFiles().length;`
-                // `for (DocumentFile child : root.listFiles()) ...`
-                // It only iterates IMMEDIATE children of root.
-
-                // "I would like it to be able to take any kind of object in that master folder"
-
-                // So safe assumption: We iterate immediate children of the root only.
-                // If a child is a folder -> check if valid book (has audio recursive).
-                // If a child is a file -> check if valid book (ZIP, M4B, EPUB).
-
-                // Wait, what if the user selects a folder that contains "Artist/Album"
-                // structure?
-                // If I select "Artist", do I get "Album" as candidate?
-                // ScanAndReimportWorker:
-                // `hasAnyAudioRecursive(child)` -> if true, add `child`.
-                // So `Artist` would be added as the book.
-
-                // User Request: "right now it will import only child folders if they contain
-                // audio files. I would like it to be able to take any kind of object in that
-                // master folder"
-                // So we stick to 1 level deep scanning for now, but expand the "Object types"
-                // accepted.
-
                 if (hasAnyAudioRecursive(file)) {
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder",
-                            safeName(dir) + "/" + safeName(file)));
+                    myLogD("-> Found Audio Folder candidate: " + fileName);
+                    candidates.add(new BookCandidate(file.getUri(), fileName, "Folder",
+                            safeName(dir) + "/" + fileName));
                 } else {
-                    // Maybe it's a folder but has no audio, just other files. Ignore.
+                    myLogD("-> Ignored folder (no audio): " + fileName);
                 }
 
             } else {
-                // It's a file at the root level?
-                // ScanAndReimportWorker ignored root files mostly.
-                // "Optional: log any top-level standalone files so you can handle them later"
-                // -> `listTopLevelStandaloneAudio`
-
-                // Now we want to support them.
                 String type = detectBookType(file);
                 if (type != null) {
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), type,
-                            safeName(dir) + "/" + safeName(file)));
+                    myLogD("-> Found File candidate [" + type + "]: " + fileName);
+                    candidates.add(new BookCandidate(file.getUri(), fileName, type,
+                            safeName(dir) + "/" + fileName));
+                } else {
+                    myLogD("-> Ignored file (unsupported type): " + fileName);
                 }
             }
         }
