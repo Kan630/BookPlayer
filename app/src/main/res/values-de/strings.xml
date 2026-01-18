@@ -1054,7 +1054,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="Streaming_Podcast">Streaming-Podcast</string>
     <string name="deprecated_Stop_the_player_to_move_playing_tracks">Bitte Wiedergabe stoppen, um den aktuell gespielten Titel zu verschieben</string>
 
-    <string name="bOpenMassImport_warning">Nur Unterordner mit Audiodateien werden derzeit unterstützt</string>
+    <string name="deprecated_bOpenMassImport_warning">Nur Unterordner mit Audiodateien werden derzeit unterstützt</string>
     <string name="librivox_search_edittext_title">Suche nach Autor oder Titel...\nTipp: Ein einzelnes Wort liefert oft bessere Ergebnisse</string>
     <string name="podcast_search_edittext_title">Suche... (alle Sprachen)\nTipp: Ein einzelnes Wort liefert oft bessere Ergebnisse</string>
     <string name="import_settings">Importeinstellungen</string>

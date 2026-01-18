@@ -1049,7 +1049,7 @@
     <string name="Streaming_Podcast">بودكاست مباشر</string>
     <string name="deprecated_Stop_the_player_to_move_playing_tracks">يجب إيقاف التشغيل لنقل المقطع الجاري تشغيله</string>
 
-    <string name="bOpenMassImport_warning">يتم دعم المجلدات الفرعية التي تحتوي على ملفات صوتية فقط حالياً</string>
+    <string name="deprecated_bOpenMassImport_warning">يتم دعم المجلدات الفرعية التي تحتوي على ملفات صوتية فقط حالياً</string>
     <string name="librivox_search_edittext_title">ابحث حسب المؤلف أو العنوان...\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
     <string name="podcast_search_edittext_title">ابحث... (جميع اللغات)\nنصيحة: كلمة واحدة غالباً تعطي نتائج أفضل</string>
     <string name="import_settings">إعدادات الاستيراد</string>

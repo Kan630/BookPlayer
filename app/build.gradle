@@ -46,8 +46,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 229
-        versionName = "229 - Placid Beaver"
+        versionCode = 230
+        versionName = "230 - Placid Beaver"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -154,8 +154,8 @@ dependencies {
 
     implementation 'androidx.documentfile:documentfile:1.1.0'
 
-    implementation 'com.google.firebase:firebase-crashlytics:20.0.3'
-    implementation platform('com.google.firebase:firebase-bom:34.7.0')
+    implementation 'com.google.firebase:firebase-crashlytics:20.0.4'
+    implementation platform('com.google.firebase:firebase-bom:34.8.0')
     implementation 'com.google.firebase:firebase-analytics'
 
     implementation 'com.google.code.gson:gson:2.13.2'

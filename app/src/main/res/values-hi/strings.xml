@@ -1104,7 +1104,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="Streaming_Podcast">स्ट्रीमिंग पॉडकास्ट</string>
     <string name="deprecated_Stop_the_player_to_move_playing_tracks">चल रहे ट्रैक को स्थानांतरित करने के लिए आपको प्लेबैक रोकना होगा</string>
 
-    <string name="bOpenMassImport_warning">अभी केवल उपफ़ोल्डर जिनमें ऑडियो फ़ाइलें हैं, समर्थित हैं</string>
+    <string name="deprecated_bOpenMassImport_warning">अभी केवल उपफ़ोल्डर जिनमें ऑडियो फ़ाइलें हैं, समर्थित हैं</string>
     <string name="librivox_search_edittext_title">लेखक या शीर्षक से खोजें...\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="podcast_search_edittext_title">खोजें... (सभी भाषाएँ)\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="import_settings">आयात सेटिंग्स</string>

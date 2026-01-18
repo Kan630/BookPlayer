@@ -1066,7 +1066,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="Streaming_Podcast">Podcast em streaming</string>
     <string name="deprecated_Stop_the_player_to_move_playing_tracks">Você deve parar a reprodução para mover a faixa em reprodução</string>
 
-    <string name="bOpenMassImport_warning">Apenas subpastas contendo arquivos de áudio são suportadas por enquanto</string>
+    <string name="deprecated_bOpenMassImport_warning">Apenas subpastas contendo arquivos de áudio são suportadas por enquanto</string>
     <string name="librivox_search_edittext_title">Pesquisar por autor ou título...\nDica: uma única palavra geralmente dá melhores resultados</string>
     <string name="podcast_search_edittext_title">Pesquisar... (todos os idiomas)\nDica: uma única palavra geralmente dá melhores resultados</string>
     <string name="import_settings">Configurações de importação</string>

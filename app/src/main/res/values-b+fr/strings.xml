@@ -1050,7 +1050,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="Streaming_Podcast">Podcast en streaming</string>
     <string name="deprecated_Stop_the_player_to_move_playing_tracks">Vous devez arrêter la lecture pour déplacer la piste en cours</string>
 
-    <string name="bOpenMassImport_warning">Seuls les sous-dossiers contenant des fichiers audio sont pris en charge pour l\'instant</string>
+    <string name="deprecated_bOpenMassImport_warning">Seuls les sous-dossiers contenant des fichiers audio sont pris en charge pour l\'instant</string>
     <string name="librivox_search_edittext_title">Recherche par auteur ou titre...\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
     <string name="podcast_search_edittext_title">Recherche... (toutes langues)\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
     <string name="import_settings">Paramètres d\'importation</string>

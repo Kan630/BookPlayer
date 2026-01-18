@@ -69,6 +69,10 @@
     <string name="Import_in_progress">Import in progress</string>
 
     <string name="confirm">confirm</string>
+    <string name="proceed">proceed</string> //keep it relatively short, it is for a dialog button
+    <string name="cancel">cancel</string>
+    <string name="to">to</string>  // used in : from - to   (french : depuis - vers)
+    <string name="sec">sec</string>"  // means second, keep below 3 chars
     <string name="back">back</string>
     <string name="save">save</string>
     <string name="paste">paste</string>
@@ -1137,7 +1141,7 @@
     <string name="Streaming_Podcast">Streaming Podcast</string>
     <string name="deprecated_Stop_the_player_to_move_playing_tracks">You must stop playback to move the track that is currently playing</string>
 
-    <string name="bOpenMassImport_warning">Only subfolders containing audio files are supported for now</string>
+    <string name="deprecated_bOpenMassImport_warning">Only subfolders containing audio files are supported for now</string>
     <string name="librivox_search_edittext_title">Search by author or title...\nTip: a single word often gives better results</string>
     <string name="podcast_search_edittext_title">Search... (all languages)\nTip: a single word often gives better results</string>
     <string name="import_settings">Import settings</string>
@@ -1290,7 +1294,6 @@
 
     <string name="vote_too_many">You voted too often for the same station — try again later.</string>
     <string name="Offline_for">Offline for</string>
-    <string name="sec">sec</string>"  // means second, keep below 3 chars
     <string name="Track_View">Track View</string>
     <string name="All_modes_except_Legacy_are_in_beta">All modes except Legacy are in beta.</string>
     <string name="reset_progress_only_for_this_track">reset progress only for this track</string>
@@ -1300,9 +1303,6 @@
     <string name="new_location_better_and_worse">The selected folder fixes some broken paths</string>
     <string name="new_location_not_better">The selected folder does not fix any broken paths</string>
     <string name="AskChangeSource_popupTitle">Confirm location change</string>
-    <string name="proceed">proceed</string> //keep it relatively short, it is for a dialog button
-    <string name="cancel">cancel</string>
-    <string name="to">to</string>  // used in : from - to   (french : depuis - vers)
 
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>

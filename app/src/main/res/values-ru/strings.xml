@@ -1056,7 +1056,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Streaming_Podcast">Потоковый подкаст</string>
         <string name="deprecated_Stop_the_player_to_move_playing_tracks">Остановите воспроизведение, чтобы переместить текущий трек</string>
 
-        <string name="bOpenMassImport_warning">В настоящее время поддерживаются только вложенные папки, содержащие аудиофайлы</string>
+        <string name="deprecated_bOpenMassImport_warning">В настоящее время поддерживаются только вложенные папки, содержащие аудиофайлы</string>
         <string name="librivox_search_edittext_title">Поиск по автору или названию...\nСовет: одно слово часто даёт лучшие результаты</string>
         <string name="podcast_search_edittext_title">Поиск... (все языки)\nСовет: одно слово часто даёт лучшие результаты</string>
         <string name="import_settings">Настройки импорта</string>
