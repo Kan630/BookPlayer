@@ -78,45 +78,22 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
                     getContentResolver().takePersistableUriPermission(
                             uri,
-                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-                    );
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
 
                     if (type.equals("MassImport")) {
 
                         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            Executors.newSingleThreadExecutor().execute(() -> {
-                                String importId = "mass_import_" + UUID.randomUUID();
-                                ImportJob j = new ImportJob();
-                                j.importId = importId;
-                                j.status = Var.IMPORT_STATUS_RUNNING;
-                                j.createdAt = j.updatedAt = System.currentTimeMillis();
-                                j.sourceLocation = Var.WORKER_MASS_IMPORT;
-                                //j.showToUser = true;
-                                j.title = getString(R.string.Mass_Import);
-                                ImportJobRepository repo = new ImportJobRepository(this.getApplicationContext());
-                                repo.upsert(j);
-                                ImportHelper.setShowToUser(this.getApplicationContext(), true);
-                                myLogD("ImportJobRepository populated (for proper UI display), now worker code");
-                                WorkManager.getInstance(this).enqueue(
-                                        new OneTimeWorkRequest.Builder(com.driot.bookplayer.services.ScanAndReimportWorker.class)
-                                                .setInputData(new Data.Builder()
-                                                        .putString(ImportWorker.KEY_IMPORT_ID, importId)
-                                                        .putString(com.driot.bookplayer.services.ScanAndReimportWorker.K_ROOT_TREE_URI, uri.toString())
-                                                        .putString(com.driot.bookplayer.services.ScanAndReimportWorker.K_SOURCE_LOC, "MassImport")
-                                                        .build())
-                                                .addTag("BulkReimportScan")
-                                                .build()
-                                );
-                                myLogD("and open activity");
-                                startActivity(new Intent(this, AddResourceActivity.class));
-                            });
+                            Intent intent = new Intent(this, com.driot.bookplayer.imports.MassImportActivity.class);
+                            intent.putExtra(com.driot.bookplayer.imports.MassImportActivity.EXTRA_URI, uri);
+                            startActivity(intent);
                         }, 0);
 
                     } else {
                         Intent intent = new Intent(this, LoadBookActivity.class);
                         intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
                         intent.putExtra(LoadBookActivity.EXTRA_TYPE, type);
-                        if (folderToAddTo!=null) intent.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folderToAddTo);
+                        if (folderToAddTo != null)
+                            intent.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folderToAddTo);
                         loadBookActivityResultLauncher.launch(intent);
                     }
                 } else {
@@ -130,9 +107,20 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         }
     }
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_get_other; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_get_other;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -168,15 +156,15 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
         viewModel = new ViewModelProvider(
                 com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
-        ).get(OngoingTaskViewModel.class);
-        //myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                .get(OngoingTaskViewModel.class);
+        // myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
             setImportOverlayVisible(ui.isRunningLike());
         });
 
-        // ADD RESOURCE  (log)
+        // ADD RESOURCE (log)
         registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -192,7 +180,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         // SINGLE FILE
         bOpenFileActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                result -> { launchAddResource(result, "File"); });
+                result -> {
+                    launchAddResource(result, "File");
+                });
         bOpenFile.setOnClickListener(view -> {
             myLogI("------------ USER CLICKS : button ANY file");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
@@ -215,7 +205,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             myLogI("------------ USER CLICKS : button ZIP file");
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");
-            String[] mimeTypes = {"application/zip", "application/x-zip-compressed"};
+            String[] mimeTypes = { "application/zip", "application/x-zip-compressed" };
             intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
                     | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
@@ -232,7 +222,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[]{"audio/*"});
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "audio/*" });
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
                     | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
@@ -244,7 +234,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         // FOLDER
         bOpenFolderActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
-                result -> { launchAddResource(result, "Folder"); });
+                result -> {
+                    launchAddResource(result, "Folder");
+                });
         bOpenFolder.setOnClickListener(view -> {
             myLogI("------------ USER CLICKS : button FOLDER");
             if (isReadAudioPermissionGranted(this) || Option.getCopyFile()) {
@@ -263,7 +255,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             }
         });
 
-        if (folderToAddTo==null) {
+        if (folderToAddTo == null) {
             findViewById(R.id.ll_massive_import).setVisibility(View.VISIBLE);
             findViewById(R.id.ll_append_mode).setVisibility(View.GONE);
             // MASS IMPORT (folder)
@@ -293,8 +285,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             findViewById(R.id.tv_load_one_book).setVisibility(View.GONE);
         }
 
-
-// RESULT LAUNCHER
+        // RESULT LAUNCHER
 
         loadBookActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -302,10 +293,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         startActivity(new Intent(this, MainActivity.class)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
-                        //startActivity(new Intent(this, AddResourceActivity.class));
+                        // startActivity(new Intent(this, AddResourceActivity.class));
                     }
-                }
-        );
+                });
 
         // Secret / auto-tests unchanged...
         View secretEntry = findViewById(R.id.viewSecretEntry);
@@ -367,7 +357,10 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
     }
 
-    public interface WWWCheckCallback { void onResult(boolean canReach); }
+    public interface WWWCheckCallback {
+        void onResult(boolean canReach);
+    }
+
     private void checkWWW(WWWCheckCallback callback) {
         if (!NetworkHelper.isNetworkAvailable(this)) {
             myToast("Aie. Network not available.");
@@ -377,7 +370,8 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         new Thread(() -> {
             boolean canReach = NetworkHelper.canReachUrl("https://bookplayer.driot.com");
             runOnUiThread(() -> {
-                if (canReach) callback.onResult(true);
+                if (canReach)
+                    callback.onResult(true);
                 else {
                     myToast("Aie. bookplayer.driot.com not reachable.");
                     callback.onResult(false);
@@ -386,10 +380,10 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         }).start();
     }
 
-
     private void scanThatShit() {
-        String[] paths = { Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() };
-        String[] mimeTypes = {"*/*"};
+        String[] paths = {
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath() };
+        String[] mimeTypes = { "*/*" };
         MediaScanner2.scanFileAndNotifyMediaScanner(this, paths[0], mimeTypes[0]);
     }
 
@@ -399,13 +393,17 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             Uri uri = Uri.fromParts("package", getPackageName(), null);
             intent.setData(uri);
             startActivity(intent);
-        } catch (Exception e) { myLogEE(e, "openAppSettingsOnPhone()"); }
+        } catch (Exception e) {
+            myLogEE(e, "openAppSettingsOnPhone()");
+        }
     }
 
     public void openOptionActivity() {
         try {
             startActivity(new Intent(this, SettingsActivity.class).putExtra("CopyFileSetRed", true));
-        } catch (Exception e) { myLogEE(e, "openOptionActivity()"); }
+        } catch (Exception e) {
+            myLogEE(e, "openOptionActivity()");
+        }
     }
 
     private void askForPermission() {
@@ -434,8 +432,16 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                     .denied(R.string.permission_read_write_denied)
                     .snackbar((ViewGroup) findViewById(android.R.id.content))
                     .callback(new PermissionRequest.Callback() {
-                        @Override public void onPermissionsGranted() { myLog("Granted"); }
-                        @Override public void onPermissionsDenied() { myLog("Denied"); showPermissionDeniedDialog(); }
+                        @Override
+                        public void onPermissionsGranted() {
+                            myLog("Granted");
+                        }
+
+                        @Override
+                        public void onPermissionsDenied() {
+                            myLog("Denied");
+                            showPermissionDeniedDialog();
+                        }
                     })
                     .submit();
         }
@@ -453,8 +459,8 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         if (mPermissionRequest != null) {
             mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
             mPermissionRequest = null;
@@ -465,7 +471,8 @@ public class GetOtherActivity extends BaseBottomNavActivity {
     }
 
     private void setImportOverlayVisible(boolean show) {
-        if (importDimScrim == null) return;
+        if (importDimScrim == null)
+            return;
 
         final float target = show ? 1f : 0f;
         if (show && importDimScrim.getVisibility() != View.VISIBLE) {
@@ -476,7 +483,8 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 .alpha(target)
                 .setDuration(180)
                 .withEndAction(() -> {
-                    if (!show) importDimScrim.setVisibility(View.GONE);
+                    if (!show)
+                        importDimScrim.setVisibility(View.GONE);
                 })
                 .start();
 
@@ -489,7 +497,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
         importDimMessage.setText(getString(R.string.please_wait_another_book_is_being_imported));
     }
-
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
