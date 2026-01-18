@@ -18,6 +18,7 @@
     import androidx.annotation.NonNull;
 
     import androidx.annotation.Nullable;
+    import androidx.appcompat.app.AlertDialog;
     import androidx.appcompat.widget.Toolbar;
     import androidx.lifecycle.ViewModelProvider;
     import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -371,85 +372,80 @@
 
             // Set initial checked button + direction suffix
             int checkedId0;
-            String suffix = "desc".equals(currentDir) ? " ↓" : " ↑";
+            String suffix0 = "desc".equals(currentDir) ? " ↓" : " ↑";
 
             if ("last_played".equals(currentMode)) {
                 checkedId0 = R.id.btn_last_played;
-                btnLastPlayed.setText(getString(R.string.sort_last_played) + suffix);
+                btnLastPlayed.setText(getString(R.string.sort_last_played) + suffix0);
             } else if ("alpha".equals(currentMode) || "alphabetical".equals(currentMode)) {
                 checkedId0 = R.id.btn_alpha;
-                btnAlpha.setText(getString(R.string.sort_alphabetically) + suffix);
+                btnAlpha.setText(getString(R.string.sort_alphabetically) + suffix0);
             } else { // added / last_added
                 checkedId0 = R.id.btn_added;
-                btnAdded.setText(getString(R.string.sort_last_added) + suffix);
+                btnAdded.setText(getString(R.string.sort_last_added) + suffix0);
             }
 
             toggleGroup.check(checkedId0);
 
-            // Listen to selection changes
-            toggleGroup.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-                if (!isChecked) return; // we only care about the newly selected one
+            AlertDialog dialog =
+                    new MaterialAlertDialogBuilder(this)
+                            .setView(dialogView)
+                            .setNegativeButton(R.string.cancel, null)
+                            .create();
 
+            dialog.show();
+
+            View.OnClickListener sortClick = v -> {
                 String newMode;
-                MaterialButton selectedButton = null;
 
-                if (checkedId == R.id.btn_last_played) {
+                if (v.getId() == R.id.btn_last_played) {
                     newMode = "last_played";
-                    selectedButton = btnLastPlayed;
-                } else if (checkedId == R.id.btn_alpha) {
+                } else if (v.getId() == R.id.btn_alpha) {
                     newMode = "alpha";
-                    selectedButton = btnAlpha;
-                } else if (checkedId == R.id.btn_added) {
+                } else if (v.getId() == R.id.btn_added) {
                     newMode = "added";
-                    selectedButton = btnAdded;
                 } else {
                     return;
                 }
 
-                // Decide direction
-                String newDir;
-                if (newMode.equals(currentMode)) {
-                    // same mode → toggle direction
-                    newDir = "asc".equals(currentDir) ? "desc" : "asc";
-                } else {
-                    // new mode → start with "recent/Z first" = descending
-                    newDir = "desc";
-                }
+                applySortAndClose(newMode, dialog);
+            };
 
-                // Update Option
-                Option.setSortMode(newMode);
-                Option.setSortDirection(newDir);
+            btnLastPlayed.setOnClickListener(sortClick);
+            btnAlpha.setOnClickListener(sortClick);
+            btnAdded.setOnClickListener(sortClick);
 
-                // Update UI immediately (suffix)
-                String newSuffix = "desc".equals(newDir) ? " ↓" : " ↑";
-                btnLastPlayed.setText(getString(R.string.sort_last_played));
-                btnAlpha.setText(     getString(R.string.sort_alphabetically));
-                btnAdded.setText(     getString(R.string.sort_last_added));
 
-                if (selectedButton != null) {
-                    selectedButton.setText(selectedButton.getText() + newSuffix);
-                }
-
-                // Refresh list
-                if (mainVm != null) {
-                    mainVm.forceRefresh();
-                }
-
-                myLogI("Sort changed → mode=" + newMode + " dir=" + newDir);
-            });
-
-            new MaterialAlertDialogBuilder(this)
-                    .setView(dialogView)
-                    .setNegativeButton(R.string.cancel, null)
-                    .show();
         }
-        private String getDirectionLabel(String dir) {
-            if ("asc".equals(dir)) {
-                return "   (↑)";
+        private void applySortAndClose(String newMode, AlertDialog dialog) {
+            String currentMode = Option.getSortMode();
+            String currentDir  = Option.getSortDirection();
+
+            String newDir;
+
+            if (newMode.equals(currentMode)) {
+                newDir = "asc".equals(currentDir) ? "desc" : "asc";
             } else {
-                return "   (↓)";
+                newDir = "desc";
             }
+
+            Option.setSortMode(newMode);
+            Option.setSortDirection(newDir);
+
+            if (mainVm != null) {
+                mainVm.forceRefresh();
+                mainVm.requestScrollToTopNow();
+            }
+
+            dialog.dismiss();
+
+            myLogI("Sort changed → mode=" + newMode + " dir=" + newDir);
         }
+
+
+
+
+
 
 
     }
