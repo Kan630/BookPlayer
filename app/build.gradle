@@ -98,7 +98,8 @@ android {
 
             // Make tests debuggable
             debuggable = true
-            testCoverageEnabled = false
+            enableUnitTestCoverage false
+            enableAndroidTestCoverage false
 
             /*
             minifyEnabled = true

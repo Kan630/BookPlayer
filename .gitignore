@@ -16,3 +16,6 @@ local.properties
 /sdcard_Pixel9.img
 /sdcard_shared.img
 /app/src/androidTest/assets/fixtures
+/app/src/main/cpp
+/app/src/debug/google-services.json
+/app/src/release/google-services.json
