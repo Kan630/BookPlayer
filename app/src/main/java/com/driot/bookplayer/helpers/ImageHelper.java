@@ -933,7 +933,7 @@ public class ImageHelper {
             // Handle content:// URIs
             if (currentImagePath.startsWith("content://")) {
                 // For content URIs, we'll copy (can't move)
-                return copyContentUriToImageFile(context, currentImagePath, destFile.getPath(), false);
+                return copyContentUriToImageFile(context, currentImagePath, destFile.getName(), false);
             }
 
             // Handle absolute file paths on SD card
