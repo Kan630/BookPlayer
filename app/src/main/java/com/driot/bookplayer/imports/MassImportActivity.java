@@ -213,8 +213,9 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 myLog(" - futurePath: " + s.futureFolderPath);
                 myLog(" - copy: " + s.optionCopy);
 
-                // Launch non-sequential (independent) to avoid one failure blocking the rest
-                BookLoadingWorkLauncher.launch(getApplicationContext(), s, false);
+                // Launch sequential to prevent cover association issues and mixed progress messages
+                // Books will be processed one after another in a queue
+                BookLoadingWorkLauncher.launch(getApplicationContext(), s, true);
             }
 
             runOnUiThread(() -> {
