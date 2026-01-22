@@ -21,7 +21,7 @@
         android:layout_height="wrap_content"
         android:gravity="center"
         android:padding="8dp"
-        android:text="@string/librivox_no_audiobook_found_for_search"
+        android:text="@string/no_ebook_found"
         android:layout_marginTop="300dp"
         android:visibility="gone" />
 

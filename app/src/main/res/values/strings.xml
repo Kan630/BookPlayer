@@ -777,7 +777,7 @@
     <string name="max_number_of_results_reached">max number of results reached</string>
 
 
-    <string name="network_preferences_title">network preferences</string>
+    <string name="network_preferences_title">Network preferences</string>
     <string name="option_download_auto_title">Auto download</string>
     <string name="option_download_user_title">Manual download</string>
     <string name="download_any">📶 Any connection</string>
@@ -1313,5 +1313,17 @@
     <string name="share_title">Share via</string>
     <string name="share_radio_body">Check out this live web radio on BookPlayer</string>
     <string name="share_radio_head">BookPlayer radio share</string>"
+
+    <string name="massimport_all_aready_imported">No items to import (all are already imported)</string>
+    <string name="import_started_for">Import started for</string>
+    <string name="skippring_already_imported_item">Skipping already-imported item</string>
+    <string name="imported_as">imported as</string>
+    <string name="no_items_found">no items found</string>
+    <string name="mass_import_found_items_mixed">Found %1$d items (%2$s) - %3$d already imported</string>
+    <string name="mass_import_found_items">Found %1$d items (%2$s)</string>
+    <string name="mass_import_all_imported">All %1$d items are already imported.</string>
+
+    <string name="no_ebook_found">no ebook found</string>
+
 
 </resources>

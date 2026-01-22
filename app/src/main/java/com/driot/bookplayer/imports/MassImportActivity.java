@@ -141,18 +141,18 @@ public class MassImportActivity extends BaseBottomNavActivity {
             int importableCount = importableCandidates.size();
             int totalCount = candidates.size();
             if (importableCount < totalCount) {
-                tvCount.setText("Found " + importableCount + " items (" + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + 
-                        ") - " + (totalCount - importableCount) + " already imported");
+                tvCount.setText(getString(R.string.mass_import_found_items_mixed, importableCount,
+                        com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize), (totalCount - importableCount)));
             } else {
-                tvCount.setText("Found " + importableCount + " items ("
-                        + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ")");
+                tvCount.setText(getString(R.string.mass_import_found_items, importableCount,
+                        com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize)));
             }
 
             if (importableCount == 0 && Boolean.FALSE.equals(viewModel.getIsScanning().getValue())) {
                 if (totalCount > 0) {
-                    tvCount.setText("All " + totalCount + " items are already imported.");
+                    tvCount.setText(getString(R.string.mass_import_all_imported, totalCount));
                 } else {
-                    tvCount.setText("No items found.");
+                    tvCount.setText(getString(R.string.no_items_found));
                 }
                 btnConfirmImport.setEnabled(false);
             } else {
@@ -175,7 +175,8 @@ public class MassImportActivity extends BaseBottomNavActivity {
             for (BookCandidate candidate : candidates) {
                 // Skip already-imported items
                 if (candidate.isAlreadyImported()) {
-                    myLog("Skipping already-imported item: [" + candidate.name + "] (imported as: " + candidate.existingBookName + ")");
+                    myLog(getString(R.string.skippring_already_imported_item) + ": [" + candidate.name + "] ("
+                            + getString(R.string.imported_as) + ": " + candidate.existingBookName + ")");
                     continue;
                 }
 
@@ -237,7 +238,8 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 if (s.originalHash != null && !s.originalHash.isEmpty()) {
                     myLog("Using pre-computed originalHash for [" + s.title + "]: " + s.originalHash);
                 } else {
-                    myLogW("No originalHash available for [" + s.title + "] (hash computation may have failed during scanning)");
+                    myLogW("No originalHash available for [" + s.title
+                            + "] (hash computation may have failed during scanning)");
                 }
 
                 myLog("Launching import task for [" + s.title + "]:");
@@ -247,7 +249,8 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 myLog(" - copy: " + s.optionCopy);
                 myLog(" - originalHash: " + s.originalHash);
 
-                // Launch sequential to prevent cover association issues and mixed progress messages
+                // Launch sequential to prevent cover association issues and mixed progress
+                // messages
                 // Books will be processed one after another in a queue
                 BookLoadingWorkLauncher.launch(getApplicationContext(), s, true);
             }
@@ -260,9 +263,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
                     }
                 }
                 if (importableCount > 0) {
-                    Toast.makeText(this, "Import started for " + importableCount + " book" + (importableCount > 1 ? "s" : ""), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.import_started_for) + " " + importableCount + " book"
+                            + (importableCount > 1 ? "s" : ""), Toast.LENGTH_SHORT).show();
                 } else {
-                    Toast.makeText(this, "No items to import (all are already imported)", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, getString(R.string.massimport_all_aready_imported), Toast.LENGTH_SHORT).show();
                 }
                 finish();
             });
