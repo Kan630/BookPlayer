@@ -2,11 +2,13 @@ package com.driot.bookplayer.settings.ui;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -75,6 +77,13 @@ public class TtsSettingsFragment extends LoggingFragment {
         etTtsChunkSize = root.findViewById(R.id.et_tts_chunk_size);
         etTtsChunkSize.setText(String.valueOf(Option.getTtsChunkSize()));
 
+        // Update max value display with device-specific maximum
+        TextView tvMax = root.findViewById(R.id.tv_tts_chunk_size_max);
+        if (tvMax != null) {
+            int maxInputLength = TextToSpeech.getMaxSpeechInputLength();
+            tvMax.setText("Max = " + maxInputLength);
+        }
+
         return root;
     }
 
@@ -106,10 +115,11 @@ public class TtsSettingsFragment extends LoggingFragment {
 
         final Integer chunkSize;
         if (etTtsChunkSize != null) {
+            int maxInputLength = TextToSpeech.getMaxSpeechInputLength();
             chunkSize = Option.clampInt(
                     ctx,
                     etTtsChunkSize,
-                    1200, 7000,
+                    1200, maxInputLength,
                     Option.DEFAULT_TTS_CHUNK_SIZE,
                     ctx.getString(R.string.tts_chunk_size)
             );
