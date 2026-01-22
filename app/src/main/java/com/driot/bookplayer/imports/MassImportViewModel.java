@@ -23,6 +23,7 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Boolean> isScanning = new MutableLiveData<>(false);
 
     private MassImportScanner scanner;
+    private Uri lastScannedUri; // Store the last scanned URI to prevent rescanning on rotation
     private final ExecutorService executor = Executors.newSingleThreadExecutor();
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
 
@@ -43,9 +44,17 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
     }
 
     public void startScan(Uri rootUri) {
+        // Don't restart scan if already scanning
         if (Boolean.TRUE.equals(isScanning.getValue()))
             return;
+        
+        // If we already have candidates for this URI, don't rescan (prevents recomputation on rotation)
+        if (rootUri.equals(lastScannedUri) && candidates.getValue() != null && !candidates.getValue().isEmpty()) {
+            myLogD("Scan already completed for this URI, skipping rescan. Candidates: " + candidates.getValue().size());
+            return;
+        }
 
+        lastScannedUri = rootUri;
         isScanning.setValue(true);
         candidates.setValue(Collections.emptyList());
 

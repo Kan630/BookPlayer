@@ -87,7 +87,8 @@ public class MassImportActivity extends BaseBottomNavActivity {
             startImport();
         });
 
-        // Start scanning automatically
+        // Start scanning automatically only if not already done
+        // This prevents recomputation on rotation
         viewModel.startScan(rootUri);
     }
 

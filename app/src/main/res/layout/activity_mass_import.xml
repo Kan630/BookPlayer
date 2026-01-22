@@ -14,7 +14,9 @@
         android:text="@string/Mass_Import"
         android:textAppearance="@style/TextAppearance.AppCompat.Large"
         android:textStyle="bold"
-        android:layout_marginBottom="16dp" />
+        android:layout_marginBottom="16dp"
+        android:layout_marginTop="16dp"
+        />
 
     <!-- Scanning Progress Area -->
     <LinearLayout
