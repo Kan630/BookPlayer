@@ -71,6 +71,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         PlaybackCommands.requestTtsText(getApplication(), rr);
     }
 
+    /** Reset the TTS text request flag to allow requesting text again (e.g., when track changes). */
+    public void resetTtsTextRequestFlag() {
+        ttsTextRequested.set(false);
+    }
+
 
     public PlaybackViewModel(@NonNull Application app) {
         super(app);

@@ -101,6 +101,10 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
             // 2) When chapter changes OR TTS becomes READY for a new chapter → refresh text + auto-follow
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
+                // Reset the request flag to allow requesting text for the new track
+                if (trackChanged) {
+                    vm.resetTtsTextRequestFlag();
+                }
                 vm.requestTtsTextOnce();
             }
 

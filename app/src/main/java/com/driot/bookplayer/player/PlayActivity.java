@@ -283,6 +283,10 @@ public class PlayActivity extends LoggingActivity {
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
                 lastTtsTextString = null;
+                // Reset the request flag to allow requesting text for the new track
+                if (trackChanged) {
+                    vm.resetTtsTextRequestFlag();
+                }
                 vm.requestTtsTextOnce();
             }
 
