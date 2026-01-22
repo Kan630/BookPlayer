@@ -4,17 +4,17 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    card_view:cardElevation="2dp"
-    card_view:cardCornerRadius="8dp"
-    card_view:cardBackgroundColor="@color/cardBackground"
-    android:layout_margin="2dp"
+    card_view:cardElevation="4dp"
+    card_view:cardCornerRadius="12dp"
+    card_view:cardBackgroundColor="?attr/colorSurfaceVariant"
+    android:layout_margin="4dp"
     android:foreground="?android:attr/selectableItemBackground">
 
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="80dp"
-        android:padding="5dp">
+        android:minHeight="96dp"
+        android:padding="12dp">
 
         <ImageView
             android:id="@+id/ebook_image"
@@ -23,7 +23,7 @@
             android:scaleType="centerCrop"
             android:layout_alignParentStart="true"
             android:contentDescription="@string/cover_preview"
-            android:layout_marginEnd="10dp" />
+            android:layout_marginEnd="12dp" />
 
         <LinearLayout
             android:id="@+id/text_container"
@@ -41,7 +41,7 @@
                 style="@style/OptionMiniText"
                 android:textStyle="bold"
                 android:textSize="16sp"
-                android:textColor="@android:color/white"
+                android:textColor="?attr/colorOnSurface"
                 android:maxLines="3"
                 android:ellipsize="end"
                 android:text="War and Peace" />
@@ -51,8 +51,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 style="@style/OptionMiniText"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="2dp"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
                 android:text="Leo Tolstoy" />
 
             <LinearLayout
@@ -67,7 +68,8 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     style="@style/OptionMiniText"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:textSize="12sp"
                     android:text="en · 24 486 downloads" />
 
                 <ImageView
