@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -29,8 +30,10 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM   = 1;
+    private static final int VT_LOADING = 2;
 
     private List<EbookItem> items = new ArrayList<>();
+    private boolean isLoading = false;
 
     // Header data
     private CharSequence headerSearch = "";
@@ -56,7 +59,54 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     // --- Items API ---
     public void setItems(List<EbookItem> newItems) {
         items = newItems != null ? newItems : new ArrayList<>();
+        isLoading = false;
         notifyDataSetChanged();
+    }
+
+    public void addItems(List<EbookItem> newItems) {
+        if (newItems == null || newItems.isEmpty()) {
+            setLoading(false);
+            return;
+        }
+        
+        boolean hadLoadingFooter = isLoading;
+        int startPosition = items.size() + 1; // +1 for header
+        
+        if (hadLoadingFooter) {
+            isLoading = false;
+            notifyItemRemoved(getItemCount() - 1); // Remove loading footer
+        }
+        
+        items.addAll(newItems);
+        notifyItemRangeInserted(startPosition, newItems.size());
+    }
+
+    public void setLoading(boolean loading) {
+        if (isLoading == loading) return;
+        
+        if (loading) {
+            // Adding loading footer
+            isLoading = true;
+            int position = getItemCount(); // This is items.size() + 1 (header + items)
+            notifyItemInserted(position);
+        } else {
+            // Removing loading footer
+            int position = getItemCount() - 1; // This is items.size() + 1 (header + items + loading - 1)
+            isLoading = false;
+            notifyItemRemoved(position);
+        }
+    }
+
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    public int getItemCountExcludingHeader() {
+        return items.size();
+    }
+
+    public List<EbookItem> getItems() {
+        return new ArrayList<>(items); // Return a copy to prevent external modification
     }
 
     // --- ViewHolders ---
@@ -85,9 +135,19 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         }
     }
 
+    static class LoadingVH extends RecyclerView.ViewHolder {
+        ProgressBar progressBar;
+        LoadingVH(@NonNull View v) {
+            super(v);
+            progressBar = v.findViewById(R.id.progressBar);
+        }
+    }
+
     @Override
     public int getItemViewType(int position) {
-        return position == 0 ? VT_HEADER : VT_ITEM;
+        if (position == 0) return VT_HEADER;
+        if (position == getItemCount() - 1 && isLoading) return VT_LOADING;
+        return VT_ITEM;
     }
 
     @NonNull @Override
@@ -95,6 +155,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == VT_HEADER) {
             return new HeaderVH(inf.inflate(R.layout.recyclerview_ebook_header, parent, false));
+        } else if (viewType == VT_LOADING) {
+            return new LoadingVH(inf.inflate(R.layout.recyclerview_loading_footer, parent, false));
         } else {
             return new ItemVH(inf.inflate(R.layout.recyclerview_ebook_result, parent, false));
         }
@@ -107,6 +169,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             h.tvSearch.setText(headerSearch);
             h.tvLang.setText(headerLang);
             h.tvCount.setText(headerCount);
+        } else if (getItemViewType(position) == VT_LOADING) {
+            // Loading footer - nothing to bind
         } else {
             int idx = position - 1;
             EbookItem item = items.get(idx);
@@ -153,6 +217,6 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     @Override
     public int getItemCount() {
-        return items.size() + 1; // header + items
+        return items.size() + 1 + (isLoading ? 1 : 0); // header + items + loading footer (if loading)
     }
 }
