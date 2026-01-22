@@ -27,6 +27,7 @@ import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.utils.HashWorker;
 
 import java.io.File;
 import java.util.Locale;
@@ -219,9 +220,10 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
     private void proceedWithDownload(String url, String futurePath) {
         LoadBookTaskState state = new LoadBookTaskState();
 
-        state.originalUri = Uri.parse(url);
+        Uri epubUri = Uri.parse(url);
+        state.originalUri = epubUri;
         state.originalType = "EPUB";
-        state.dynamicUri = Uri.parse(url);
+        state.dynamicUri = epubUri;
         state.dynamicType = "EPUB";
 
         state.title = title;
@@ -232,9 +234,22 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
         state.optionCopy = true;
         state.optionDelete = false;
 
-        state.originalFile = SupportedFilesHelper.getFileName(this, Uri.parse(url));
+        state.originalFile = SupportedFilesHelper.getFileName(this, epubUri);
         state.sourceLocation = SOURCE_LOCATION_EBOOK_GUTENDEX;
         state.fileExtension = "epub";
+
+        // Compute originalHash for the EPUB URL
+        try {
+            String hash = HashWorker.computeHashFromUri(this, epubUri);
+            if (hash != null && !hash.isEmpty()) {
+                state.originalHash = hash;
+                myLogD("Computed originalHash for Gutenberg ebook [" + title + "]: " + hash);
+            } else {
+                myLogE("Failed to compute hash for Gutenberg ebook [" + title + "], originalHash will be null");
+            }
+        } catch (Exception e) {
+            myLogE("Error computing hash for Gutenberg ebook [" + title + "]: " + e.getMessage());
+        }
 
         // For now: no explicit cover file – rely on embedded cover in EPUB.
         // If later you download the cover to a file, set:

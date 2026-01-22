@@ -9,6 +9,8 @@ public class BookCandidate {
     public String type; // Folder, ZIP, M4B, EPUB.
     public String path; // For display
     public long size;
+    public String originalHash; // Computed during scanning
+    public String existingBookName; // Name of book if hash already exists in DB (null if not imported)
 
     public BookCandidate(Uri uri, String name, String type, String path, long size) {
         this.uri = uri;
@@ -16,6 +18,32 @@ public class BookCandidate {
         this.type = type;
         this.path = path;
         this.size = size;
+        this.originalHash = null;
+        this.existingBookName = null;
+    }
+
+    public BookCandidate(Uri uri, String name, String type, String path, long size, String originalHash) {
+        this.uri = uri;
+        this.name = name;
+        this.type = type;
+        this.path = path;
+        this.size = size;
+        this.originalHash = originalHash;
+        this.existingBookName = null;
+    }
+
+    public BookCandidate(Uri uri, String name, String type, String path, long size, String originalHash, String existingBookName) {
+        this.uri = uri;
+        this.name = name;
+        this.type = type;
+        this.path = path;
+        this.size = size;
+        this.originalHash = originalHash;
+        this.existingBookName = existingBookName;
+    }
+
+    public boolean isAlreadyImported() {
+        return existingBookName != null && !existingBookName.isEmpty();
     }
 
     @NonNull

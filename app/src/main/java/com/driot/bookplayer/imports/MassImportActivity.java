@@ -127,17 +127,35 @@ public class MassImportActivity extends BaseBottomNavActivity {
         viewModel.getCandidates().observe(this, candidates -> {
             adapter.setItems(candidates);
 
+            // Filter out already-imported items for count and size
+            List<BookCandidate> importableCandidates = new java.util.ArrayList<>();
             long totalSize = 0;
             for (BookCandidate c : candidates) {
-                totalSize += c.size;
+                if (!c.isAlreadyImported()) {
+                    importableCandidates.add(c);
+                    totalSize += c.size;
+                }
             }
 
-            tvCount.setText("Found " + candidates.size() + " items ("
-                    + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ")");
+            int importableCount = importableCandidates.size();
+            int totalCount = candidates.size();
+            if (importableCount < totalCount) {
+                tvCount.setText("Found " + importableCount + " items (" + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + 
+                        ") - " + (totalCount - importableCount) + " already imported");
+            } else {
+                tvCount.setText("Found " + importableCount + " items ("
+                        + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ")");
+            }
 
-            if (candidates.isEmpty() && Boolean.FALSE.equals(viewModel.getIsScanning().getValue())) {
-                tvCount.setText("No items found.");
+            if (importableCount == 0 && Boolean.FALSE.equals(viewModel.getIsScanning().getValue())) {
+                if (totalCount > 0) {
+                    tvCount.setText("All " + totalCount + " items are already imported.");
+                } else {
+                    tvCount.setText("No items found.");
+                }
                 btnConfirmImport.setEnabled(false);
+            } else {
+                btnConfirmImport.setEnabled(importableCount > 0);
             }
         });
     }
@@ -154,6 +172,12 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
         new Thread(() -> {
             for (BookCandidate candidate : candidates) {
+                // Skip already-imported items
+                if (candidate.isAlreadyImported()) {
+                    myLog("Skipping already-imported item: [" + candidate.name + "] (imported as: " + candidate.existingBookName + ")");
+                    continue;
+                }
+
                 LoadBookTaskState s = new LoadBookTaskState();
                 // Format the name for display (remove underscores, extension, etc.)
                 String formattedName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(candidate.name);
@@ -207,11 +231,20 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
                 }
 
+                // Use pre-computed originalHash from scanning (computed in MassImportScanner)
+                s.originalHash = candidate.originalHash;
+                if (s.originalHash != null && !s.originalHash.isEmpty()) {
+                    myLog("Using pre-computed originalHash for [" + s.title + "]: " + s.originalHash);
+                } else {
+                    myLogW("No originalHash available for [" + s.title + "] (hash computation may have failed during scanning)");
+                }
+
                 myLog("Launching import task for [" + s.title + "]:");
                 myLog(" - type: " + s.dynamicType);
                 myLog(" - uri: " + s.dynamicUri);
                 myLog(" - futurePath: " + s.futureFolderPath);
                 myLog(" - copy: " + s.optionCopy);
+                myLog(" - originalHash: " + s.originalHash);
 
                 // Launch sequential to prevent cover association issues and mixed progress messages
                 // Books will be processed one after another in a queue
@@ -219,7 +252,17 @@ public class MassImportActivity extends BaseBottomNavActivity {
             }
 
             runOnUiThread(() -> {
-                Toast.makeText(this, "Import started for " + candidates.size() + " books", Toast.LENGTH_SHORT).show();
+                int importableCount = 0;
+                for (BookCandidate c : candidates) {
+                    if (!c.isAlreadyImported()) {
+                        importableCount++;
+                    }
+                }
+                if (importableCount > 0) {
+                    Toast.makeText(this, "Import started for " + importableCount + " book" + (importableCount > 1 ? "s" : ""), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(this, "No items to import (all are already imported)", Toast.LENGTH_SHORT).show();
+                }
                 finish();
             });
         }).start();

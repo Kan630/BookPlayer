@@ -5,7 +5,9 @@ import android.net.Uri;
 
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.ArrayList;
@@ -68,8 +70,11 @@ public class MassImportScanner extends LoggerHelper {
                 if (hasAnyAudioRecursive(file)) {
                     myLogD("-> Found Audio Folder candidate: " + fileName);
                     long size = calculateSize(file);
+                    // Compute hash for folder and check if already imported
+                    String hash = computeHash(file.getUri());
+                    String existingBookName = checkHashExists(hash);
                     candidates.add(new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(dir) + "/" + fileName, size));
+                            safeName(dir) + "/" + fileName, size, hash, existingBookName));
                 } else {
                     myLogD("-> Ignored folder (no audio): " + fileName);
                 }
@@ -78,8 +83,11 @@ public class MassImportScanner extends LoggerHelper {
                 String type = detectBookType(file);
                 if (type != null) {
                     myLogD("-> Found File candidate [" + type + "]: " + fileName);
+                    // Compute hash for file and check if already imported
+                    String hash = computeHash(file.getUri());
+                    String existingBookName = checkHashExists(hash);
                     candidates.add(new BookCandidate(file.getUri(), fileName, type,
-                            safeName(dir) + "/" + fileName, file.length()));
+                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName));
                 } else {
                     myLogD("-> Ignored file (unsupported type): " + fileName);
                 }
@@ -126,13 +134,17 @@ public class MassImportScanner extends LoggerHelper {
                     // Let's rely on a local helper for DocumentFile size.
                     size = calculateSize(file);
 
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size));
+                    String hash = computeHash(file.getUri());
+                    String existingBookName = checkHashExists(hash);
+                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size, hash, existingBookName));
                 }
             } else {
                 String type = detectBookType(file);
                 if (type != null) {
+                    String hash = computeHash(file.getUri());
+                    String existingBookName = checkHashExists(hash);
                     candidates
-                            .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length()));
+                            .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length(), hash, existingBookName));
                 }
             }
         }
@@ -209,5 +221,42 @@ public class MassImportScanner extends LoggerHelper {
     private String safeName(DocumentFile f) {
         String n = f.getName();
         return n == null ? "Untitled" : n;
+    }
+
+    private String computeHash(Uri uri) {
+        try {
+            String hash = HashWorker.computeHashFromUri(context, uri);
+            if (hash != null && !hash.isEmpty()) {
+                // Try to get name for logging, but don't fail if it doesn't work
+                String name = uri.getLastPathSegment();
+                if (name != null && name.contains("/")) {
+                    name = name.substring(name.lastIndexOf('/') + 1);
+                }
+                myLogD("Computed hash for [" + (name != null ? name : "item") + "]: " + hash);
+                return hash;
+            } else {
+                myLogW("Failed to compute hash for URI: " + uri);
+                return null;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error computing hash for URI: " + uri);
+            return null;
+        }
+    }
+
+    private String checkHashExists(String hash) {
+        if (hash == null || hash.isEmpty()) {
+            return null;
+        }
+        try {
+            String existingBookName = AppDatabase.getDatabase(context).folderDao().originalHashAlreadyExist_getBookName(hash);
+            if (existingBookName != null) {
+                myLogD("Hash already exists in DB for book: " + existingBookName);
+            }
+            return existingBookName;
+        } catch (Exception e) {
+            myLogEE(e, "Error checking if hash exists in DB: " + hash);
+            return null;
+        }
     }
 }

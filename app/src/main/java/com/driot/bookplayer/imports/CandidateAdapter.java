@@ -43,16 +43,32 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
                 item.type + " - " + com.driot.bookplayer.utils.Tonio.getReadableSize(item.size) + "\n" + item.path);
 
         // Simple icon logic
+        int iconRes;
         if ("Folder".equals(item.type)) {
-            holder.ivIcon.setImageResource(R.drawable.ic_folder_24px);
+            iconRes = R.drawable.ic_folder_24px;
         } else if ("ZIP".equals(item.type)) {
-            holder.ivIcon.setImageResource(R.drawable.ic_folder_zip_24px);
+            iconRes = R.drawable.ic_folder_zip_24px;
         } else if ("M4B".equals(item.type)) {
-            holder.ivIcon.setImageResource(R.drawable.ic_file_m4b);
+            iconRes = R.drawable.ic_file_m4b;
         } else if ("Ebook".equals(item.type)) {
-            holder.ivIcon.setImageResource(R.drawable.ic_docs_24px);
+            iconRes = R.drawable.ic_docs_24px;
         } else {
-            holder.ivIcon.setImageResource(R.drawable.ic_audio_file_24px);
+            iconRes = R.drawable.ic_audio_file_24px;
+        }
+        holder.ivIcon.setImageResource(iconRes);
+
+        // Check if already imported
+        if (item.isAlreadyImported()) {
+            // Apply red tint to icon
+            holder.ivIcon.setColorFilter(0xFFFF0000); // Red color
+            // Show "already imported" message
+            holder.tvAlreadyImported.setVisibility(android.view.View.VISIBLE);
+            holder.tvAlreadyImported.setText("Already imported under the name: " + item.existingBookName);
+        } else {
+            // Clear color filter (normal icon)
+            holder.ivIcon.clearColorFilter();
+            // Hide "already imported" message
+            holder.tvAlreadyImported.setVisibility(android.view.View.GONE);
         }
     }
 
@@ -64,12 +80,14 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
     static class ViewHolder extends RecyclerView.ViewHolder {
         TextView tvName;
         TextView tvType;
+        TextView tvAlreadyImported;
         ImageView ivIcon;
 
         ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
             tvType = itemView.findViewById(R.id.tvType);
+            tvAlreadyImported = itemView.findViewById(R.id.tvAlreadyImported);
             ivIcon = itemView.findViewById(R.id.ivIcon);
         }
     }
