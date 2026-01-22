@@ -176,6 +176,7 @@ public final class EpubGutenbergHelper {
         // Build chapters from TOC
         List<File> outFiles = new ArrayList<>();
         Set<String> usedFilePaths = new LinkedHashSet<>();
+        int globalChapterIndex = 0; // Global counter for all chapters
 
         for (Map.Entry<String, List<TocEntry>> e : byFile.entrySet()) {
             String filePath = e.getKey();
@@ -198,11 +199,11 @@ public final class EpubGutenbergHelper {
             }
 
             String html = bytesToStringWithXmlGuess(xhtmlBytes);
-            buildChaptersFromSingleFile(html, filePath, entries, outDir, outFiles);
+            globalChapterIndex = buildChaptersFromSingleFile(html, filePath, entries, outDir, outFiles, globalChapterIndex);
         }
 
         // Any extra XHTML files not referenced in TOC -> zz_* chapter
-        addNonTocHtmlAsZzChapters(zip, opf, usedFilePaths, basePath, outDir, outFiles);
+        addNonTocHtmlAsZzChapters(zip, opf, usedFilePaths, basePath, outDir, outFiles, globalChapterIndex);
 
         myLog("=== EpubGutenbergHelper.extractAll: done; chapters=" + outFiles.size() + " ===");
         return new ExtractResult(bookTitle, outDir, outFiles, cover);
@@ -212,13 +213,15 @@ public final class EpubGutenbergHelper {
 
     /**
      * Build chapter files for one XHTML file, using TOC anchors as boundaries.
+     * @return The next global chapter index to use
      */
-    private static void buildChaptersFromSingleFile(String html,
+    private static int buildChaptersFromSingleFile(String html,
                                                     String filePath,
                                                     List<TocEntry> entries,
                                                     File outDir,
-                                                    List<File> outFiles) throws Exception {
-        if (entries == null || entries.isEmpty()) return;
+                                                    List<File> outFiles,
+                                                    int globalChapterIndex) throws Exception {
+        if (entries == null || entries.isEmpty()) return globalChapterIndex;
 
         String lower = html.toLowerCase(Locale.ROOT);
 
@@ -240,7 +243,7 @@ public final class EpubGutenbergHelper {
             bounds.add(b);
         }
 
-        if (bounds.isEmpty()) return;
+        if (bounds.isEmpty()) return globalChapterIndex;
 
         // Sort in document order
         bounds.sort((a, b) -> Integer.compare(a.start, b.start));
@@ -259,7 +262,8 @@ public final class EpubGutenbergHelper {
             plain = cleanText(plain);
 
             String baseTitle = humanChapterTitle(b.entry.title);
-            String fileName = makeSafeFilename(baseTitle, i + 1, false);
+            globalChapterIndex++;
+            String fileName = makeSafeFilename(baseTitle, globalChapterIndex, false);
 
             File f = new File(outDir, fileName + ".txt");
             try (FileOutputStream fos = new FileOutputStream(f)) {
@@ -272,6 +276,8 @@ public final class EpubGutenbergHelper {
                     + " len=" + plain.length()
                     + " from=" + start + " to=" + end);
         }
+        
+        return globalChapterIndex;
     }
 
     /**
@@ -283,7 +289,8 @@ public final class EpubGutenbergHelper {
                                                   Set<String> usedFilePaths,
                                                   String basePath,
                                                   File outDir,
-                                                  List<File> outFiles) throws Exception {
+                                                  List<File> outFiles,
+                                                  int globalChapterIndex) throws Exception {
         Set<String> alreadyDone = new LinkedHashSet<>(usedFilePaths);
         for (Map.Entry<String, String> e : opf.manifestHref.entrySet()) {
             String id = e.getKey();
@@ -319,7 +326,8 @@ public final class EpubGutenbergHelper {
                     .contains("PROJECT GUTENBERG LICENSE");
             String baseTitle = looksLikeLicense ? "zz_Licence" : ("zz_" + basenameNoExt(href));
 
-            String fileName = makeSafeFilename(baseTitle, 0, true);
+            globalChapterIndex++;
+            String fileName = makeSafeFilename(baseTitle, globalChapterIndex, true);
             File f = new File(outDir, fileName + ".txt");
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(plain.getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -770,7 +778,8 @@ public final class EpubGutenbergHelper {
             cleaned = cleaned.substring(0, MAX_FILENAME_CHARS).trim();
         }
 
-        String prefix = isZz ? "" : String.format(Locale.US, "%03d_", Math.max(1, index));
+        // Always add numeric prefix for proper ordering, even for zz_ files
+        String prefix = String.format(Locale.US, "%03d_", Math.max(1, index));
         return prefix + cleaned;
     }
 }

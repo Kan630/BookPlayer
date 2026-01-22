@@ -155,17 +155,26 @@ public class EbookSplitWorker extends ImportWorker {
                 // Our helpers already wrote *plain text* with preserved newlines.
                 String text = readUtf8File(chapterFile);
 
-                // Derive title from file name (remove ###_ prefix and extension)
+                // Derive title from file name (remove ###_ prefix and extension) for display,
+                // but keep the numeric prefix in the actual output filename so folder sorting
+                // preserves reading order (important for Gutenberg & structured EPUBs).
                 String title = titleFromFileName(chapterFile.getName());
                 if (title == null || title.trim().isEmpty()) {
                     title = "chapter" + numFmt.format(i + 1);
                 }
                 title = toSafeFilename(title.trim());
-                title = ensureUnique(usedNames, title);
-                usedNames.add(title);
+
+                String prefix = leadingIndexFromFileName(chapterFile.getName());
+                if (prefix == null) {
+                    prefix = numFmt.format(i + 1);
+                }
+
+                String outBase = prefix + "_" + title;
+                outBase = ensureUnique(usedNames, outBase);
+                usedNames.add(outBase.toLowerCase(Locale.ROOT));
 
                 // Write as UTF-8 .txt (preserve newlines; do minimal cleanup only)
-                File out = new File(outFolder, title + ".txt");
+                File out = new File(outFolder, outBase + ".txt");
                 writeUtf8(out, cleanTextKeepParagraphs(text));
 
                 int progress = (int) Math.round(((i + 1) * 100.0) / total);
@@ -238,6 +247,22 @@ public class EbookSplitWorker extends ImportWorker {
             base = base.substring(4);
         }
         return base;
+    }
+
+    /** From file like "003_chapter-title.txt" → "003" (or null if no prefix). */
+    private static String leadingIndexFromFileName(String name) {
+        if (name == null) return null;
+        String base = name;
+        int dot = base.lastIndexOf('.');
+        if (dot > 0) base = base.substring(0, dot);
+        if (base.length() >= 4
+                && Character.isDigit(base.charAt(0))
+                && Character.isDigit(base.charAt(1))
+                && Character.isDigit(base.charAt(2))
+                && base.charAt(3) == '_') {
+            return base.substring(0, 3);
+        }
+        return null;
     }
 
     private static String toSafeFilename(String s) {

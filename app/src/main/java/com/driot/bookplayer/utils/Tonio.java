@@ -247,7 +247,17 @@ public class Tonio {
     public static String formatNameForDisplay(String s, boolean stripExtension) {
         if (stripExtension) s = stripExtension(s);
         s = removeLongDuplicates(s,10);
-        s = s.replace("_", " ");
+        
+        // Format numbered prefixes like "002_" as "[002] - " for better readability
+        if (s != null && s.length() >= 4 && 
+            Character.isDigit(s.charAt(0)) && Character.isDigit(s.charAt(1)) && 
+            Character.isDigit(s.charAt(2)) && s.charAt(3) == '_') {
+            String prefix = s.substring(0, 3);
+            String rest = s.substring(4).trim();
+            s = "[" + prefix + "] - " + rest;
+        } else {
+            s = s.replace("_", " ");
+        }
         return s;
     }
 
