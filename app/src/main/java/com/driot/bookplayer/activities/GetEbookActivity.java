@@ -13,6 +13,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
@@ -24,6 +25,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
     Spinner spinnerEbookLang;
     EditText1lineWithSearch editTextEbook;
+    Button bMostDownloaded;
 
     String query, lang;
 
@@ -49,8 +51,8 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
         spinnerEbookLang = findViewById(R.id.spinnerEbookLang);
         editTextEbook = findViewById(R.id.etEbook);
+        bMostDownloaded = findViewById(R.id.bMostDownloaded);
 
-        // Keep history separate from Librivox search
         editTextEbook.setHistoryKey("ebook_search");
         editTextEbook.setCompletionThreshold(1);
         editTextEbook.setSuggestOnFocus(true);
@@ -65,8 +67,16 @@ public class GetEbookActivity extends BaseBottomNavActivity {
                 langItem -> Pref.set_Audio_Language_Ebook(this, langItem.twoLetterCode),
                 false);
 
+        bMostDownloaded.setOnClickListener(v -> {
+            myLogI("--- User clicks MOST DOWNLOADED ---");
+            query = "";
+            doSearch();
+        });
+
         editTextEbook.getSearchButton().setOnClickListener(v -> {
             myLogI("--- User clicks EBOOK SEARCH ---");
+            query = Tonio.cleanSearchString(editTextEbook.getText());
+            editTextEbook.saveCurrentTextToHistory();
             doSearch();
         });
 
@@ -77,6 +87,8 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
             if (actionId == EditorInfo.IME_ACTION_SEARCH || isEnterKey) {
                 myLogI("--- User clicks EBOOK SEARCH --- (via keyboard)");
+                query = Tonio.cleanSearchString(editTextEbook.getText());
+                editTextEbook.saveCurrentTextToHistory();
                 doSearch();
                 editTextEbook.getEditText().dismissDropDown();
                 return true;
@@ -86,9 +98,6 @@ public class GetEbookActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
-        query = Tonio.cleanSearchString(editTextEbook.getText());
-        editTextEbook.saveCurrentTextToHistory();
-
         // Here we expect spinner entries like "en", "fr", ...
         LanguageItem selected = (LanguageItem) spinnerEbookLang.getSelectedItem();
         lang = selected.twoLetterCode; // "en", "fr", etc.
@@ -110,5 +119,6 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         intent.putExtra("lang", lang);
         startActivity(intent);
     }
+
 
 }

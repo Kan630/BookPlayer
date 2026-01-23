@@ -92,7 +92,7 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
                 lli -> Pref.set_Audio_Language_Librivox(this, lli.name));
 
         buttonTrending.setOnClickListener(v -> {
-            myLogI("--- User clicks TRENDING ---");
+            myLogI("--- User clicks MOST DOWNLOADED ---");
             query = "";
             if (!checkLangFromSpinner())
                 return;
