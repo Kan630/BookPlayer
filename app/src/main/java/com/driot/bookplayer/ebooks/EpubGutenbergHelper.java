@@ -247,6 +247,7 @@ public final class EpubGutenbergHelper {
         String lower = html.toLowerCase(Locale.ROOT);
 
         // First, compute start index for each entry in this file
+        // Keep entries in TOC order (don't sort) to preserve reading order
         class Bound {
             TocEntry entry;
             int start;
@@ -267,14 +268,27 @@ public final class EpubGutenbergHelper {
         if (bounds.isEmpty())
             return globalChapterIndex;
 
-        // Sort in document order
-        bounds.sort((a, b) -> Integer.compare(a.start, b.start));
+        // Create a sorted map of positions to find slice boundaries
+        // Key: position, Value: list of bounds at that position (rare but possible)
+        Map<Integer, List<Bound>> positionMap = new LinkedHashMap<>();
+        for (Bound b : bounds) {
+            positionMap.computeIfAbsent(b.start, k -> new ArrayList<>()).add(b);
+        }
+        List<Integer> sortedPositions = new ArrayList<>(positionMap.keySet());
+        sortedPositions.sort(Integer::compare);
 
-        // Now slice segments between each anchor and the next
-        for (int i = 0; i < bounds.size(); i++) {
-            Bound b = bounds.get(i);
+        // Process entries in TOC order (not HTML position order)
+        for (Bound b : bounds) {
             int start = b.start;
-            int end = (i + 1 < bounds.size()) ? bounds.get(i + 1).start : html.length();
+            
+            // Find the next position in the document (sorted order) to determine slice end
+            int end = html.length();
+            for (int pos : sortedPositions) {
+                if (pos > start) {
+                    end = pos;
+                    break;
+                }
+            }
 
             if (start < 0 || start >= html.length() || end <= start)
                 continue;
@@ -297,7 +311,8 @@ public final class EpubGutenbergHelper {
 
             myLogD("WROTE (Gutenberg) " + f.getName()
                     + " len=" + plain.length()
-                    + " from=" + start + " to=" + end);
+                    + " from=" + start + " to=" + end
+                    + " [TOC order preserved]");
         }
 
         return globalChapterIndex;

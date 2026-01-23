@@ -193,7 +193,17 @@ public class FinalParseFolderWorker extends ImportWorker {
                 addAudioFileRecursive(dfPickedDir);
             }
             myLogD("Recursive done, sorting now...");
-            audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
+            
+            // Check if files have numeric prefixes (like "001_", "002_") at the start
+            // If so, use numeric prefix sorting instead of content-based sorting
+            boolean hasNumericPrefixes = hasNumericPrefixes(audioFileInfoArrayList);
+            if (hasNumericPrefixes) {
+                myLogD("Files have numeric prefixes, using prefix-based sorting (preserving numeric order)");
+                audioFileInfoArrayList.sort(createNumericPrefixComparator());
+            } else {
+                myLogD("No numeric prefixes detected, using smart chapter comparator");
+                audioFileInfoArrayList.sort(AudioFileInfo.SMART_CHAPTER_COMPARATOR);
+            }
 
             if (audioFileInfoArrayList.isEmpty()) {
                 myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
@@ -736,5 +746,92 @@ public class FinalParseFolderWorker extends ImportWorker {
         double wpm = Math.max(30, Var.TTS_WPM_IMPORT); // guardrail
         long ms = (long) Math.round((words / wpm) * 60_000.0);
         return Math.max(ms, 1L);
+    }
+
+    /**
+     * Checks if files have numeric prefixes (like "1_", "002_", "0003_") at the start of filenames.
+     * This indicates files have explicit numeric ordering that should be preserved.
+     * Returns true if 100% of files have numeric prefixes.
+     */
+    private static boolean hasNumericPrefixes(ArrayList<AudioFileInfo> files) {
+        if (files == null || files.isEmpty()) {
+            return false;
+        }
+
+        int countWithPrefix = 0;
+        int total = files.size();
+
+        for (AudioFileInfo info : files) {
+            String fileName = getFileNameFromPath(info.getDisplayPath());
+            if (fileName != null && hasNumericPrefix(fileName)) {
+                countWithPrefix++;
+            }
+        }
+
+        // Consider it a numeric-prefixed set if 100% of files have prefixes
+        return countWithPrefix == total;
+    }
+
+    /**
+     * Checks if a filename starts with a numeric prefix pattern like "1_", "02_", "003_", "0004_", etc.
+     * Pattern: starts with 1-4 digits followed by underscore.
+     */
+    private static boolean hasNumericPrefix(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return false;
+        }
+        // Pattern: 1-4 digits followed by underscore at the start
+        return fileName.matches("^\\d{1,4}_.*");
+    }
+
+    /**
+     * Creates a comparator that sorts by numeric prefix (e.g., "001_", "002_") if present,
+     * otherwise falls back to natural filename order.
+     * This preserves explicit numeric ordering when present in filenames.
+     */
+    private static java.util.Comparator<AudioFileInfo> createNumericPrefixComparator() {
+        return (a1, a2) -> {
+            String name1 = getFileNameFromPath(a1.getDisplayPath());
+            String name2 = getFileNameFromPath(a2.getDisplayPath());
+
+            if (name1 == null) name1 = "";
+            if (name2 == null) name2 = "";
+
+            Integer prefix1 = extractNumericPrefix(name1);
+            Integer prefix2 = extractNumericPrefix(name2);
+
+            // If both have numeric prefixes, sort by prefix
+            if (prefix1 != null && prefix2 != null) {
+                int cmp = Integer.compare(prefix1, prefix2);
+                if (cmp != 0) return cmp;
+            }
+
+            // If only one has a prefix, it comes first
+            if (prefix1 != null && prefix2 == null) return -1;
+            if (prefix2 != null && prefix1 == null) return 1;
+
+            // Fallback to natural order
+            return name1.compareTo(name2);
+        };
+    }
+
+    /**
+     * Extracts numeric prefix from filename (e.g., "1_Chapter.txt" -> 1, "002_Chapter.txt" -> 2).
+     * Returns null if no prefix found.
+     * Supports 1-4 digit prefixes.
+     */
+    private static Integer extractNumericPrefix(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return null;
+        }
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d{1,4})_").matcher(fileName);
+        if (m.find()) {
+            try {
+                return Integer.parseInt(m.group(1));
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
     }
 }
