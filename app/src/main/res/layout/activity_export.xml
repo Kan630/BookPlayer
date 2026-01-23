@@ -7,164 +7,135 @@
     android:clipToPadding="false"
     android:fillViewport="true"
     style="@style/MainContainer">
-
-
-<LinearLayout
-    android:orientation="vertical"
-    android:padding="24dp"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    style="@style/MainContainer"
-    >
-
     <LinearLayout
-        style="@style/wideLinearLayout_Vertical"
-        android:background="@drawable/bg_chip">
-
-    <TextView
-        style="@style/ExportProgressText"
+        android:orientation="vertical"
+        android:padding="24dp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/StillExperimental"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        android:textColor="@color/orange"
-        android:layout_marginTop="20dp"
-        android:layout_marginStart="40dp"
-        />
+        style="@style/MainContainer"
+        >
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical"
+            android:background="@drawable/bg_chip">
 
-    <TextView
-        android:id="@+id/tvExportTitle"
-        style="@style/ExportTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Export audiobook:"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginStart="30dp"
-        />
-
-    <TextView
-        android:id="@+id/tvExportAudioBookName"
-        style="@style/ExportTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="audiobook name"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:textColor="@color/pastel_blue_300"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="20dp"
-        />
+            <TextView
+                android:id="@+id/tvExportTitle"
+                style="@style/simpleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/export_title_label"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="12dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginStart="30dp"
+                />
+            <TextView
+                android:id="@+id/tvExportAudioBookName"
+                style="@style/simpleText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/export_audiobook_name_placeholder"
+                android:gravity="center"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:textColor="@color/pastel_blue_300"
+                android:layout_marginBottom="12dp"
+                />
+        </LinearLayout>
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_chip">
+            <TextView
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_destination_folder_label"
+                android:textSize="20sp"
+                android:layout_marginTop="10dp"
+                />
+            <TextView
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_click_to_change_label"
+                android:textSize="10sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="10dp"
+                />
+            <Button
+                android:id="@+id/b_destinationFolder"
+                style="@style/GetResourceButton"
+                android:text="@string/export_download_folder_button"
+                android:layout_marginBottom="5dp"
+                />
+            <TextView
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_destination_filename_label"
+                android:textSize="20sp"
+                android:layout_marginTop="10dp"
+                />
+            <TextView
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_edit_name_hint"
+                android:textSize="10sp"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="10dp"
+                />
+            <EditText
+                android:id="@+id/etDestinationFileName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/EditText"
+                android:padding="8dp"
+                android:layout_marginBottom="10dp"
+                />
+        </LinearLayout>
+        <TextView
+            android:id="@+id/tvCurrentTrack"
+            style="@style/ExportProgressText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_zipping_label"
+            android:textSize="16sp"
+            android:layout_marginBottom="28dp" />
+        <ProgressBar
+            android:id="@+id/progressBarExport"
+            style="@android:style/Widget.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_marginStart="5dp"
+            android:layout_marginEnd="5dp"
+            android:max="100"
+            android:progressDrawable="@drawable/progress_bar_theme"
+            android:layout_marginBottom="8dp" />
+        <TextView
+            android:id="@+id/tvProgressText"
+            style="@style/ExportProgressText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/export_progress_info_placeholder"
+            android:textSize="14sp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="40dp"
+            />
+        <LinearLayout
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:gravity="center"
+            android:layout_width="match_parent">
+            <Button
+                android:id="@+id/btnCancelExport"
+                style="@style/GetResourceButton"
+                android:text="@string/Cancel" />
+            <Button
+                android:id="@+id/btnStartExport"
+                style="@style/GetResourceButton"
+                android:text="@string/export_start_button" />
+        </LinearLayout>
     </LinearLayout>
-
-    <LinearLayout
-        style="@style/wideLinearLayout_Vertical"
-        android:layout_marginTop="20dp"
-        android:background="@drawable/bg_chip">
-
-    <TextView
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="destination folder :"
-        android:textSize="20sp"
-        android:layout_marginTop="10dp"
-        />
-    <TextView
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="click to change"
-        android:textSize="10sp"
-        android:layout_marginBottom="10dp"
-        />
-    <Button
-        android:id="@+id/b_destinationFolder"
-        style="@style/GetResourceButton"
-        android:text="Download folder"
-        android:layout_marginBottom="5dp"
-        />
-    <TextView
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="destination file name :"
-        android:textSize="20sp"
-        android:layout_marginTop="10dp"
-        />
-    <TextView
-        style="@style/simpleText"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="you can edit that name"
-        android:textSize="10sp"
-        android:layout_marginBottom="10dp"
-        />
-    <EditText
-        android:id="@+id/etDestinationFileName"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        style="@style/EditText"
-        android:padding="8dp"
-        android:layout_marginBottom="10dp"
-        />
-
-
-</LinearLayout>
-
-
-
-    <TextView
-        android:id="@+id/tvCurrentTrack"
-        style="@style/ExportProgressText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Zipping: "
-        android:textSize="16sp"
-        android:layout_marginBottom="28dp" />
-
-    <ProgressBar
-        android:id="@+id/progressBarExport"
-        style="@android:style/Widget.ProgressBar.Horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_marginStart="5dp"
-        android:layout_marginEnd="5dp"
-        android:max="100"
-        android:progressDrawable="@drawable/progress_bar_theme"
-        android:layout_marginBottom="8dp" />
-
-
-    <TextView
-        android:id="@+id/tvProgressText"
-        style="@style/ExportProgressText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Progress info..."
-        android:textSize="14sp"
-        android:layout_marginTop="8dp"
-        android:layout_marginBottom="40dp"
-        />
-
-    <LinearLayout
-        style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-        android:gravity="center"
-        android:layout_width="match_parent">
-
-        <Button
-            android:id="@+id/btnCancelExport"
-            style="@style/GetResourceButton"
-            android:text="Cancel" />
-
-        <Button
-            android:id="@+id/btnStartExport"
-            style="@style/GetResourceButton"
-            android:text="Start Export" />
-
-    </LinearLayout>
-
-</LinearLayout>
 </ScrollView>
