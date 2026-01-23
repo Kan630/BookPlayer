@@ -15,16 +15,9 @@ import org.jsoup.select.NodeVisitor;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -32,8 +25,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -64,7 +55,7 @@ public final class EpubGutenbergHelper {
 
     // ---------- Data classes ----------
 
-    public static final class OpfInfo {
+    public static final class OpfInfo implements EpubCommonHelper.OpfInfoForCover {
         public String opfPath;
         public String title;
         public String coverId;
@@ -72,6 +63,18 @@ public final class EpubGutenbergHelper {
         public final Map<String, String> manifestType = new LinkedHashMap<>();
         public final Map<String, String> manifestProps = new LinkedHashMap<>();
         public final List<String> spine = new ArrayList<>();
+
+        @Override
+        public String getOpfPath() { return opfPath; }
+
+        @Override
+        public String getCoverId() { return coverId; }
+
+        @Override
+        public Map<String, String> getManifestHref() { return manifestHref; }
+
+        @Override
+        public Map<String, String> getManifestType() { return manifestType; }
     }
 
     public static final class ExtractResult {
@@ -106,7 +109,7 @@ public final class EpubGutenbergHelper {
     public static ExtractResult extractAll(Context ctx, Uri epubUri) throws Exception {
         myLog("=== EpubGutenbergHelper.extractAll: begin ===");
 
-        Map<String, byte[]> zip = readZip(epubUri, ctx);
+        Map<String, byte[]> zip = EpubCommonHelper.readZip(epubUri, ctx);
 
         byte[] container = zip.get("META-INF/container.xml");
         if (container == null) {
@@ -114,7 +117,7 @@ public final class EpubGutenbergHelper {
             throw new IllegalStateException("container.xml not found");
         }
 
-        String opfPath = findOpfPath(container);
+        String opfPath = EpubCommonHelper.findOpfPath(container);
         if (opfPath == null) {
             myLogE("content.opf not found from container.xml");
             throw new IllegalStateException("content.opf not found");
@@ -129,7 +132,7 @@ public final class EpubGutenbergHelper {
 
         OpfInfo opf = parseOpf(opfBytes);
         opf.opfPath = opfPath;
-        String basePath = opfBase(opfPath);
+        String basePath = EpubCommonHelper.opfBase(opfPath);
 
         myLogD("OPF (Gutenberg): title=" + opf.title + " spineItems=" + opf.spine.size());
 
@@ -148,7 +151,7 @@ public final class EpubGutenbergHelper {
         }
 
         // Cover
-        Bitmap cover = extractCoverBitmap(zip, opf);
+        Bitmap cover = EpubCommonHelper.extractCoverBitmap(zip, opf);
         if (cover != null)
             myLogD("Cover extracted OK (Gutenberg)");
 
@@ -156,10 +159,10 @@ public final class EpubGutenbergHelper {
         String navHref = findNavHref(opf);
         List<TocEntry> tocEntries = new ArrayList<>();
         if (navHref != null) {
-            String navPath = normalizePath(resolve(basePath, navHref));
+            String navPath = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, navHref));
             byte[] navBytes = zip.get(navPath);
             if (navBytes != null) {
-                String navHtml = bytesToStringWithXmlGuess(navBytes);
+                String navHtml = EpubCommonHelper.bytesToStringWithXmlGuess(navBytes);
                 tocEntries = parseToc(navHtml, basePath);
             } else {
                 myLogW("Nav file not found in zip: " + navPath + " – falling back to empty TOC");
@@ -183,7 +186,7 @@ public final class EpubGutenbergHelper {
         for (Map.Entry<String, String> e : opf.manifestHref.entrySet()) {
             String mt = opf.manifestType.get(e.getKey());
             if (mt != null && (mt.contains("html") || mt.contains("xhtml"))) {
-                String p = normalizePath(resolve(basePath, e.getValue()));
+                String p = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, e.getValue()));
                 if (!byFile.containsKey(p)) {
                     expectedChapters++;
                 }
@@ -215,7 +218,7 @@ public final class EpubGutenbergHelper {
                 continue;
             }
 
-            String html = bytesToStringWithXmlGuess(xhtmlBytes);
+            String html = EpubCommonHelper.bytesToStringWithXmlGuess(xhtmlBytes);
             globalChapterIndex = buildChaptersFromSingleFile(html, filePath, entries, outDir, outFiles,
                     globalChapterIndex, padWidth);
         }
@@ -343,7 +346,7 @@ public final class EpubGutenbergHelper {
             if (!(mt.contains("html") || mt.contains("xhtml")))
                 continue;
 
-            String path = normalizePath(resolve(basePath, href));
+            String path = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, href));
             if (alreadyDone.contains(path))
                 continue;
 
@@ -361,7 +364,7 @@ public final class EpubGutenbergHelper {
                 continue;
             }
 
-            String html = bytesToStringWithXmlGuess(xhtmlBytes);
+            String html = EpubCommonHelper.bytesToStringWithXmlGuess(xhtmlBytes);
             String plain = xhtmlToPlain(html);
             plain = ensureParagraphs(plain);
             plain = cleanText(plain);
@@ -463,7 +466,7 @@ public final class EpubGutenbergHelper {
                     continue;
 
                 TocEntry te = new TocEntry();
-                te.filePath = normalizePath(resolve(basePath, file));
+                te.filePath = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, file));
                 te.fragmentId = (frag != null && !frag.isEmpty()) ? frag : null;
                 te.title = title;
 
@@ -493,44 +496,10 @@ public final class EpubGutenbergHelper {
 
     // ---------- OPF / ZIP helpers ----------
 
-    private static Map<String, byte[]> readZip(Uri uri, Context ctx) throws Exception {
-        Map<String, byte[]> map = new LinkedHashMap<>();
-        try (InputStream in = new BufferedInputStream(ctx.getContentResolver().openInputStream(uri));
-                ZipInputStream zin = new ZipInputStream(in)) {
-            byte[] buf = new byte[8192];
-            ZipEntry e;
-            while ((e = zin.getNextEntry()) != null) {
-                if (!e.isDirectory()) {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream(
-                            (int) Math.max(0, e.getSize()));
-                    int n;
-                    while ((n = zin.read(buf)) != -1)
-                        bos.write(buf, 0, n);
-                    map.put(e.getName(), bos.toByteArray());
-                }
-                zin.closeEntry();
-            }
-        }
-        myLogD("Gutenberg ZIP entries: " + map.size());
-        return map;
-    }
-
-    private static String findOpfPath(byte[] containerXml) throws Exception {
-        XmlPullParser x = newPull(containerXml);
-        int t;
-        while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
-            if (t == XmlPullParser.START_TAG && "rootfile".equals(x.getName())) {
-                String p = attr(x, "full-path");
-                if (p != null)
-                    return p;
-            }
-        }
-        return null;
-    }
 
     private static OpfInfo parseOpf(byte[] opfXml) throws Exception {
         OpfInfo o = new OpfInfo();
-        XmlPullParser x = newPull(opfXml);
+        XmlPullParser x = EpubCommonHelper.newPull(opfXml);
         int t;
         boolean inMetadata = false;
 
@@ -541,20 +510,20 @@ public final class EpubGutenbergHelper {
                     inMetadata = true;
                 } else if (inMetadata &&
                         ("dc:title".equalsIgnoreCase(name) || "title".equalsIgnoreCase(name))) {
-                    o.title = text(x).trim();
+                    o.title = EpubCommonHelper.text(x).trim();
                 } else if ("meta".equalsIgnoreCase(name)) {
-                    String nm = attr(x, "name");
-                    String prop = attr(x, "property");
+                    String nm = EpubCommonHelper.attr(x, "name");
+                    String prop = EpubCommonHelper.attr(x, "property");
                     if ("cover".equalsIgnoreCase(nm) || "cover".equalsIgnoreCase(prop)) {
-                        String content = attr(x, "content");
+                        String content = EpubCommonHelper.attr(x, "content");
                         if (content != null && !content.isEmpty())
                             o.coverId = content;
                     }
                 } else if ("item".equalsIgnoreCase(name)) {
-                    String id = attr(x, "id");
-                    String href = attr(x, "href");
-                    String mt = attr(x, "media-type");
-                    String props = attr(x, "properties");
+                    String id = EpubCommonHelper.attr(x, "id");
+                    String href = EpubCommonHelper.attr(x, "href");
+                    String mt = EpubCommonHelper.attr(x, "media-type");
+                    String props = EpubCommonHelper.attr(x, "properties");
                     if (id != null && href != null) {
                         o.manifestHref.put(id, href);
                         o.manifestType.put(id, mt != null ? mt : "");
@@ -562,7 +531,7 @@ public final class EpubGutenbergHelper {
                             o.manifestProps.put(id, props);
                     }
                 } else if ("itemref".equalsIgnoreCase(name)) {
-                    String idref = attr(x, "idref");
+                    String idref = EpubCommonHelper.attr(x, "idref");
                     if (idref != null)
                         o.spine.add(idref);
                 }
@@ -573,143 +542,6 @@ public final class EpubGutenbergHelper {
         return o;
     }
 
-    private static XmlPullParser newPull(byte[] bytes) throws Exception {
-        XmlPullParserFactory f = XmlPullParserFactory.newInstance();
-        f.setNamespaceAware(true);
-        XmlPullParser x = f.newPullParser();
-        x.setInput(new ByteArrayInputStream(bytes), null);
-        return x;
-    }
-
-    private static String attr(XmlPullParser x, String name) {
-        String v = x.getAttributeValue(null, name);
-        if (v == null)
-            v = x.getAttributeValue("", name);
-        if (v == null && x.getAttributeCount() > 0) {
-            for (int i = 0; i < x.getAttributeCount(); i++) {
-                if (name.equals(x.getAttributeName(i)))
-                    return x.getAttributeValue(i);
-            }
-        }
-        return v;
-    }
-
-    private static String text(XmlPullParser x) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        int t;
-        while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
-            if (t == XmlPullParser.TEXT)
-                sb.append(x.getText());
-            else if (t == XmlPullParser.END_TAG)
-                break;
-        }
-        return sb.toString();
-    }
-
-    private static String opfBase(String opfPath) {
-        if (opfPath == null)
-            return "";
-        int i = opfPath.lastIndexOf('/');
-        return i >= 0 ? opfPath.substring(0, i + 1) : "";
-    }
-
-    private static String resolve(String base, String href) {
-        if (href == null)
-            return null;
-        if (href.startsWith("/"))
-            return href.substring(1);
-        if (base == null || base.isEmpty())
-            return normalizePath(href);
-        return normalizePath(base + href);
-    }
-
-    private static String normalizePath(String p) {
-        if (p == null)
-            return null;
-        String[] parts = p.split("/");
-        Deque<String> stack = new ArrayDeque<>();
-        for (String part : parts) {
-            if (part.isEmpty() || ".".equals(part))
-                continue;
-            if ("..".equals(part)) {
-                if (!stack.isEmpty())
-                    stack.removeLast();
-            } else {
-                stack.addLast(part);
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String s : stack) {
-            if (sb.length() > 0)
-                sb.append('/');
-            sb.append(s);
-        }
-        return sb.toString();
-    }
-
-    // ---------- Cover & encoding ----------
-
-    private static Bitmap extractCoverBitmap(Map<String, byte[]> zip, OpfInfo opf) {
-        String basePath = opfBase(opf.opfPath);
-        String coverHref = null;
-
-        if (opf.coverId != null) {
-            coverHref = opf.manifestHref.get(opf.coverId);
-        }
-        if (coverHref == null) {
-            // fallback: first image in manifest
-            for (Map.Entry<String, String> e : opf.manifestType.entrySet()) {
-                String mt = e.getValue();
-                if (mt != null && mt.startsWith("image/")) {
-                    coverHref = opf.manifestHref.get(e.getKey());
-                    if (coverHref != null)
-                        break;
-                }
-            }
-        }
-        if (coverHref == null)
-            return null;
-
-        String resolved = normalizePath(resolve(basePath, coverHref));
-        byte[] imgBytes = zip.get(resolved);
-        if (imgBytes == null) {
-            for (String k : zip.keySet()) {
-                if (k.equalsIgnoreCase(resolved)) {
-                    imgBytes = zip.get(k);
-                    break;
-                }
-            }
-        }
-        if (imgBytes == null)
-            return null;
-        return BitmapFactory.decodeByteArray(imgBytes, 0, imgBytes.length);
-    }
-
-    private static String bytesToStringWithXmlGuess(byte[] data) {
-        if (data == null)
-            return "";
-
-        String sniff = new String(data, 0, Math.min(data.length, 256), Charset.forName("ISO-8859-1"));
-        String enc = null;
-        int i = sniff.indexOf("encoding=");
-        if (i >= 0) {
-            int q1 = sniff.indexOf('"', i);
-            int q2 = sniff.indexOf('"', q1 + 1);
-            int a1 = sniff.indexOf('\'', i);
-            int a2 = sniff.indexOf('\'', a1 + 1);
-            if (q1 > 0 && q2 > q1)
-                enc = sniff.substring(q1 + 1, q2);
-            else if (a1 > 0 && a2 > a1)
-                enc = sniff.substring(a1 + 1, a2);
-        }
-        Charset cs;
-        try {
-            cs = (enc != null) ? Charset.forName(enc) : Charset.forName("UTF-8");
-        } catch (Exception e) {
-            cs = Charset.forName("UTF-8");
-        }
-        return new String(data, cs);
-    }
 
     // ---------- HTML → text ----------
 

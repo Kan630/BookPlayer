@@ -14,24 +14,15 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.nio.charset.Charset;
-import java.util.ArrayDeque;
 import java.util.ArrayList;
-import java.util.Deque;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Simplified EPUB extractor (1 file per usable spine item) with detailed logging.
@@ -60,7 +51,7 @@ public final class EpubLowLevelHelper {
     private static final Pattern FILENAME_WORDS = Pattern.compile("[_\\-]+");
 
     // ===== Data =====
-    public static final class OpfInfo {
+    public static final class OpfInfo implements EpubCommonHelper.OpfInfoForCover {
         public String opfPath;
         public String title;
         public String coverId;
@@ -70,6 +61,18 @@ public final class EpubLowLevelHelper {
         public final List<String>      spine          = new ArrayList<>();
         public final List<String>      guideRawHrefsToSkip = new ArrayList<>();
         public final java.util.Set<String> guideExcludeResolved = new LinkedHashSet<>();
+
+        @Override
+        public String getOpfPath() { return opfPath; }
+
+        @Override
+        public String getCoverId() { return coverId; }
+
+        @Override
+        public Map<String, String> getManifestHref() { return manifestHref; }
+
+        @Override
+        public Map<String, String> getManifestType() { return manifestType; }
     }
 
     public static final class ExtractResult {
@@ -113,14 +116,14 @@ public final class EpubLowLevelHelper {
     // ===== Entry point =====
     public static ExtractResult extractAll(Context ctx, Uri epubUri) throws Exception {
         myLog("=== extractAll: begin ===");
-        Map<String, byte[]> zip = readZip(epubUri, ctx);
+        Map<String, byte[]> zip = EpubCommonHelper.readZip(epubUri, ctx);
 
         byte[] container = zip.get("META-INF/container.xml");
         if (container == null) {
             myLogE("container.xml not found in epub!");
             throw new IllegalStateException("container.xml not found");
         }
-        String opfPath = findOpfPath(container);
+        String opfPath = EpubCommonHelper.findOpfPath(container);
         if (opfPath == null) {
             myLogE("content.opf not found from container.xml!");
             throw new IllegalStateException("content.opf not found");
@@ -135,12 +138,12 @@ public final class EpubLowLevelHelper {
 
         OpfInfo opf = parseOpf(opfBytes);
         opf.opfPath = opfPath;
-        String basePath = opfBase(opfPath);
+        String basePath = EpubCommonHelper.opfBase(opfPath);
 
         // Resolve guide excludes with OPF base
         opf.guideExcludeResolved.clear();
         for (String hrefRaw : opf.guideRawHrefsToSkip) {
-            String resolved = normalize(resolve(basePath, hrefRaw));
+            String resolved = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, hrefRaw));
             if (resolved != null) opf.guideExcludeResolved.add(resolved);
         }
         myLogD("Guide excludes (resolved): " + opf.guideExcludeResolved);
@@ -155,7 +158,7 @@ public final class EpubLowLevelHelper {
             throw new IllegalStateException("Cannot create " + outDir);
         }
 
-        Bitmap cover = extractCoverBitmap(zip, opf);
+        Bitmap cover = EpubCommonHelper.extractCoverBitmap(zip, opf);
         if (cover != null) myLogD("Cover extracted OK");
 
         // Pass: parse every spine item; keep only textual, non-tiny, non-front/back matter
@@ -171,7 +174,7 @@ public final class EpubLowLevelHelper {
                 continue;
             }
 
-            it.resolvedPath = normalize(resolve(basePath, it.href));
+            it.resolvedPath = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, it.href));
             it.fileBase     = basenameNoExt(it.href);
 
             // Early skip rules
@@ -196,7 +199,7 @@ public final class EpubLowLevelHelper {
                 continue;
             }
 
-            String xhtml = bytesToStringWithXmlGuess(x);
+            String xhtml = EpubCommonHelper.bytesToStringWithXmlGuess(x);
 
             // Extract possible heading and title
             it.headingRaw  = findTopHeadingText(xhtml);
@@ -311,41 +314,10 @@ public final class EpubLowLevelHelper {
     }
 
     // ===== EPUB parsing =====
-    private static Map<String, byte[]> readZip(Uri uri, Context ctx) throws Exception {
-        Map<String, byte[]> map = new LinkedHashMap<>();
-        try (InputStream in = new BufferedInputStream(ctx.getContentResolver().openInputStream(uri));
-             ZipInputStream zin = new ZipInputStream(in)) {
-            byte[] buf = new byte[8192];
-            ZipEntry e;
-            while ((e = zin.getNextEntry()) != null) {
-                if (!e.isDirectory()) {
-                    ByteArrayOutputStream bos = new ByteArrayOutputStream((int)Math.max(0, e.getSize()));
-                    int n;
-                    while ((n = zin.read(buf)) != -1) bos.write(buf, 0, n);
-                    map.put(e.getName(), bos.toByteArray());
-                }
-                zin.closeEntry();
-            }
-        }
-        myLogD("ZIP entries: " + map.size());
-        return map;
-    }
-
-    private static String findOpfPath(byte[] containerXml) throws Exception {
-        XmlPullParser x = newPull(containerXml);
-        int t;
-        while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
-            if (t == XmlPullParser.START_TAG && "rootfile".equals(x.getName())) {
-                String p = attr(x, "full-path");
-                if (p != null) return p;
-            }
-        }
-        return null;
-    }
 
     private static OpfInfo parseOpf(byte[] opfXml) throws Exception {
         OpfInfo o = new OpfInfo();
-        XmlPullParser x = newPull(opfXml);
+        XmlPullParser x = EpubCommonHelper.newPull(opfXml);
         int t;
         boolean inMetadata = false;
 
@@ -355,31 +327,31 @@ public final class EpubLowLevelHelper {
                 if ("metadata".equalsIgnoreCase(name)) {
                     inMetadata = true;
                 } else if (inMetadata && ("dc:title".equalsIgnoreCase(name) || "title".equalsIgnoreCase(name))) {
-                    o.title = text(x).trim();
+                    o.title = EpubCommonHelper.text(x).trim();
                 } else if ("meta".equalsIgnoreCase(name)) {
-                    String nm = attr(x,"name");
-                    String prop = attr(x,"property");
+                    String nm = EpubCommonHelper.attr(x,"name");
+                    String prop = EpubCommonHelper.attr(x,"property");
                     if ("cover".equalsIgnoreCase(nm) || "cover".equalsIgnoreCase(prop)) {
-                        String content = attr(x,"content");
+                        String content = EpubCommonHelper.attr(x,"content");
                         if (content != null && !content.isEmpty()) o.coverId = content;
                     }
                 } else if ("item".equalsIgnoreCase(name)) {
-                    String id   = attr(x,"id");
-                    String href = attr(x,"href");
-                    String mt   = attr(x,"media-type");
-                    String props= attr(x,"properties"); // EPUB3
+                    String id   = EpubCommonHelper.attr(x,"id");
+                    String href = EpubCommonHelper.attr(x,"href");
+                    String mt   = EpubCommonHelper.attr(x,"media-type");
+                    String props= EpubCommonHelper.attr(x,"properties"); // EPUB3
                     if (id != null && href != null) {
                         o.manifestHref.put(id, href);
                         o.manifestType.put(id, mt != null ? mt : "");
                         if (props != null) o.manifestProps.put(id, props);
                     }
                 } else if ("itemref".equalsIgnoreCase(name)) {
-                    String idref = attr(x,"idref");
+                    String idref = EpubCommonHelper.attr(x,"idref");
                     if (idref != null) o.spine.add(idref);
                 } else if ("reference".equalsIgnoreCase(name)) {
                     // EPUB2 guide landmarks
-                    String type = attr(x,"type");
-                    String href = attr(x,"href");
+                    String type = EpubCommonHelper.attr(x,"type");
+                    String href = EpubCommonHelper.attr(x,"href");
                     if (type != null && href != null) {
                         String ty = type.toLowerCase(Locale.ROOT);
                         if (ty.matches("cover|title-page|toc|index|copyright-page|acknowledgements|colophon|glossary|backmatter|frontmatter")) {
@@ -395,34 +367,6 @@ public final class EpubLowLevelHelper {
         return o;
     }
 
-    private static XmlPullParser newPull(byte[] bytes) throws Exception {
-        XmlPullParserFactory f = XmlPullParserFactory.newInstance();
-        f.setNamespaceAware(true);
-        XmlPullParser x = f.newPullParser();
-        x.setInput(new ByteArrayInputStream(bytes), null);
-        return x;
-    }
-
-    private static String attr(XmlPullParser x, String name) {
-        String v = x.getAttributeValue(null, name);
-        if (v == null) v = x.getAttributeValue("", name);
-        if (v == null && x.getAttributeCount() > 0) {
-            for (int i=0;i<x.getAttributeCount();i++) {
-                if (name.equals(x.getAttributeName(i))) return x.getAttributeValue(i);
-            }
-        }
-        return v;
-    }
-
-    private static String text(XmlPullParser x) throws Exception {
-        StringBuilder sb = new StringBuilder();
-        int t;
-        while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
-            if (t == XmlPullParser.TEXT) sb.append(x.getText());
-            else if (t == XmlPullParser.END_TAG) break;
-        }
-        return sb.toString();
-    }
 
     // ===== HTML → Text & headings =====
     private static String xhtmlToPlainSmart(String xhtml) {
@@ -585,32 +529,6 @@ public final class EpubLowLevelHelper {
         return out.length()>40 ? out.substring(0,40) : out;
     }
 
-    private static String normalize(String p) {
-        if (p == null) return null;
-        String[] parts = p.split("/");
-        Deque<String> stack = new ArrayDeque<>();
-        for (String part : parts) {
-            if (part.isEmpty() || ".".equals(part)) continue;
-            if ("..".equals(part)) { if (!stack.isEmpty()) stack.removeLast(); }
-            else stack.addLast(part);
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String s : stack) { if (sb.length()>0) sb.append('/'); sb.append(s); }
-        return sb.toString();
-    }
-
-    private static String opfBase(String opfPath) {
-        if (opfPath == null) return "";
-        int i = opfPath.lastIndexOf('/');
-        return i>=0 ? opfPath.substring(0, i+1) : "";
-    }
-
-    private static String resolve(String base, String href) {
-        if (href == null) return null;
-        if (href.startsWith("/")) return href.substring(1);
-        if (base == null || base.isEmpty()) return normalize(href);
-        return normalize(base + href);
-    }
 
     private static String normalizeTitle(String s) {
         if (s == null) return "";
@@ -627,46 +545,7 @@ public final class EpubLowLevelHelper {
     }
 
     // ===== Cover & encoding =====
-    public static Bitmap extractCoverBitmap(Map<String, byte[]> zip, OpfInfo opf) {
-        String basePath = opfBase(opf.opfPath);
-        String coverHref = null;
-        if (opf.coverId != null) coverHref = opf.manifestHref.get(opf.coverId);
-        if (coverHref == null) {
-            for (Map.Entry<String,String> e : opf.manifestType.entrySet()) {
-                String mt = e.getValue();
-                if (mt != null && mt.startsWith("image/")) {
-                    coverHref = opf.manifestHref.get(e.getKey());
-                    if (coverHref != null) break;
-                }
-            }
-        }
-        if (coverHref == null) return null;
-        String resolved = resolve(basePath, coverHref);
-        byte[] imgBytes = zip.get(resolved);
-        if (imgBytes == null) {
-            for (String k : zip.keySet()) {
-                if (k.equalsIgnoreCase(resolved)) { imgBytes = zip.get(k); break; }
-            }
-        }
-        if (imgBytes == null) return null;
-        return BitmapFactory.decodeByteArray(imgBytes, 0, imgBytes.length);
-    }
-
-    private static String bytesToStringWithXmlGuess(byte[] data) {
-        String sniff = new String(data, 0, Math.min(data.length, 256), Charset.forName("ISO-8859-1"));
-        String enc = null;
-        int i = sniff.indexOf("encoding=");
-        if (i >= 0) {
-            int q1 = sniff.indexOf('"', i), q2 = sniff.indexOf('"', q1+1);
-            int a1 = sniff.indexOf('\'', i), a2 = sniff.indexOf('\'', a1+1);
-            if (q1>0 && q2>q1) enc = sniff.substring(q1+1, q2);
-            else if (a1>0 && a2>a1) enc = sniff.substring(a1+1, a2);
-        }
-        Charset cs;
-        try { cs = enc!=null ? Charset.forName(enc) : Charset.forName("UTF-8"); }
-        catch (Exception e) { cs = Charset.forName("UTF-8"); }
-        return new String(data, cs);
-    }
+    // Note: extractCoverBitmap is now in EpubCommonHelper
 
     private static String clean(String s) { if (s == null) return ""; String t = s.replace('\u00A0',' '); t = t.replace("\r\n","\n").replace("\r","\n"); t = t.replaceAll("[\\t ]{2,}", " "); t = t.replaceAll("\n{3,}", "\n\n"); return t.trim(); }
 

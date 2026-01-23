@@ -10,6 +10,7 @@ import androidx.work.WorkerParameters;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.ebooks.EpubCommonHelper;
 import com.driot.bookplayer.ebooks.EpubGutenbergHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
@@ -228,7 +229,7 @@ public class EbookSplitWorker extends ImportWorker {
     private static boolean shouldUseTocBasedSplitting(Context ctx, Uri epubUri) {
         try {
             // Read EPUB zip
-            java.util.Map<String, byte[]> zip = readEpubZip(epubUri, ctx);
+            java.util.Map<String, byte[]> zip = EpubCommonHelper.readZip(epubUri, ctx);
             if (zip == null || zip.isEmpty()) {
                 KanLogger.myLogW("Auto mode: Cannot read EPUB zip, using spine-based");
                 return false;
@@ -242,7 +243,7 @@ public class EbookSplitWorker extends ImportWorker {
             }
 
             // Find OPF path
-            String opfPath = findOpfPath(container);
+            String opfPath = EpubCommonHelper.findOpfPath(container);
             if (opfPath == null) {
                 KanLogger.myLogW("Auto mode: OPF not found, using spine-based");
                 return false;
@@ -264,8 +265,8 @@ public class EbookSplitWorker extends ImportWorker {
             }
 
             // Read nav file
-            String basePath = opfBase(opfPath);
-            String navPath = normalizePath(resolve(basePath, navHref));
+            String basePath = EpubCommonHelper.opfBase(opfPath);
+            String navPath = EpubCommonHelper.normalizePath(EpubCommonHelper.resolve(basePath, navHref));
             byte[] navBytes = zip.get(navPath);
             if (navBytes == null) {
                 KanLogger.myLogD("Auto mode: Nav file not found, using spine-based");
@@ -273,7 +274,7 @@ public class EbookSplitWorker extends ImportWorker {
             }
 
             // Parse TOC and count entries
-            String navHtml = bytesToStringWithXmlGuess(navBytes);
+            String navHtml = EpubCommonHelper.bytesToStringWithXmlGuess(navBytes);
             int tocCount = countTocEntries(navHtml);
 
             KanLogger.myLogD("Auto mode: Found " + tocCount + " TOC entries");
@@ -294,58 +295,20 @@ public class EbookSplitWorker extends ImportWorker {
         }
     }
 
-    // Helper methods for TOC detection (simplified versions from EpubGutenbergHelper)
-    private static java.util.Map<String, byte[]> readEpubZip(Uri uri, Context ctx) throws Exception {
-        java.util.Map<String, byte[]> map = new java.util.LinkedHashMap<>();
-        try (java.io.InputStream in = new java.io.BufferedInputStream(ctx.getContentResolver().openInputStream(uri));
-                java.util.zip.ZipInputStream zin = new java.util.zip.ZipInputStream(in)) {
-            byte[] buf = new byte[8192];
-            java.util.zip.ZipEntry e;
-            while ((e = zin.getNextEntry()) != null) {
-                if (!e.isDirectory()) {
-                    java.io.ByteArrayOutputStream bos = new java.io.ByteArrayOutputStream(
-                            (int) Math.max(0, e.getSize()));
-                    int n;
-                    while ((n = zin.read(buf)) != -1)
-                        bos.write(buf, 0, n);
-                    map.put(e.getName(), bos.toByteArray());
-                }
-                zin.closeEntry();
-            }
-        }
-        return map;
-    }
-
-    private static String findOpfPath(byte[] containerXml) throws Exception {
-        org.xmlpull.v1.XmlPullParserFactory f = org.xmlpull.v1.XmlPullParserFactory.newInstance();
-        f.setNamespaceAware(true);
-        org.xmlpull.v1.XmlPullParser x = f.newPullParser();
-        x.setInput(new java.io.ByteArrayInputStream(containerXml), null);
-        int t;
-        while ((t = x.next()) != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
-            if (t == org.xmlpull.v1.XmlPullParser.START_TAG && "rootfile".equals(x.getName())) {
-                String p = x.getAttributeValue(null, "full-path");
-                if (p != null) return p;
-            }
-        }
-        return null;
-    }
+    // Helper methods for TOC detection (using EpubCommonHelper)
 
     private static EpubGutenbergHelper.OpfInfo parseOpfForNav(byte[] opfXml) throws Exception {
         EpubGutenbergHelper.OpfInfo o = new EpubGutenbergHelper.OpfInfo();
-        org.xmlpull.v1.XmlPullParserFactory f = org.xmlpull.v1.XmlPullParserFactory.newInstance();
-        f.setNamespaceAware(true);
-        org.xmlpull.v1.XmlPullParser x = f.newPullParser();
-        x.setInput(new java.io.ByteArrayInputStream(opfXml), null);
+        org.xmlpull.v1.XmlPullParser x = EpubCommonHelper.newPull(opfXml);
         int t;
         while ((t = x.next()) != org.xmlpull.v1.XmlPullParser.END_DOCUMENT) {
             if (t == org.xmlpull.v1.XmlPullParser.START_TAG) {
                 String name = x.getName();
                 if ("item".equalsIgnoreCase(name)) {
-                    String id = x.getAttributeValue(null, "id");
-                    String href = x.getAttributeValue(null, "href");
-                    String mt = x.getAttributeValue(null, "media-type");
-                    String props = x.getAttributeValue(null, "properties");
+                    String id = EpubCommonHelper.attr(x, "id");
+                    String href = EpubCommonHelper.attr(x, "href");
+                    String mt = EpubCommonHelper.attr(x, "media-type");
+                    String props = EpubCommonHelper.attr(x, "properties");
                     if (id != null && href != null) {
                         o.manifestHref.put(id, href);
                         o.manifestType.put(id, mt != null ? mt : "");
@@ -420,60 +383,6 @@ public class EbookSplitWorker extends ImportWorker {
         }
     }
 
-    private static String opfBase(String opfPath) {
-        if (opfPath == null) return "";
-        int i = opfPath.lastIndexOf('/');
-        return i >= 0 ? opfPath.substring(0, i + 1) : "";
-    }
-
-    private static String resolve(String base, String href) {
-        if (href == null) return null;
-        if (href.startsWith("/")) return href.substring(1);
-        if (base == null || base.isEmpty()) return normalizePath(href);
-        return normalizePath(base + href);
-    }
-
-    private static String normalizePath(String p) {
-        if (p == null) return null;
-        String[] parts = p.split("/");
-        java.util.Deque<String> stack = new java.util.ArrayDeque<>();
-        for (String part : parts) {
-            if (part.isEmpty() || ".".equals(part)) continue;
-            if ("..".equals(part)) {
-                if (!stack.isEmpty()) stack.removeLast();
-            } else {
-                stack.addLast(part);
-            }
-        }
-        StringBuilder sb = new StringBuilder();
-        for (String s : stack) {
-            if (sb.length() > 0) sb.append('/');
-            sb.append(s);
-        }
-        return sb.toString();
-    }
-
-    private static String bytesToStringWithXmlGuess(byte[] data) {
-        if (data == null) return "";
-        String sniff = new String(data, 0, Math.min(data.length, 256), java.nio.charset.Charset.forName("ISO-8859-1"));
-        String enc = null;
-        int i = sniff.indexOf("encoding=");
-        if (i >= 0) {
-            int q1 = sniff.indexOf('"', i);
-            int q2 = sniff.indexOf('"', q1 + 1);
-            int a1 = sniff.indexOf('\'', i);
-            int a2 = sniff.indexOf('\'', a1 + 1);
-            if (q1 > 0 && q2 > q1) enc = sniff.substring(q1 + 1, q2);
-            else if (a1 > 0 && a2 > a1) enc = sniff.substring(a1 + 1, a2);
-        }
-        java.nio.charset.Charset cs;
-        try {
-            cs = (enc != null) ? java.nio.charset.Charset.forName(enc) : java.nio.charset.Charset.forName("UTF-8");
-        } catch (Exception e) {
-            cs = java.nio.charset.Charset.forName("UTF-8");
-        }
-        return new String(data, cs);
-    }
 
     private static String guessTypeFromPath(String path) {
         String name = new File(path).getName().toLowerCase(Locale.ROOT);
