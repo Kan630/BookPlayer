@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.IBinder;
 import android.os.Parcelable;
+import android.provider.DocumentsContract;
 
 import androidx.core.content.FileProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -35,6 +36,9 @@ import androidx.documentfile.provider.DocumentFile;
 
 public class ExportService extends LoggingService {
 
+    public static final String ACTION_CANCEL = "ACTION_CANCEL";
+    private volatile boolean isCancelled = false;
+
     private int totalFiles = 0;
     private long totalSize = 0;
 
@@ -43,6 +47,14 @@ public class ExportService extends LoggingService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        if (intent != null && ACTION_CANCEL.equals(intent.getAction())) {
+            myLog("Cancellation requested");
+            isCancelled = true;
+            return START_NOT_STICKY;
+        }
+        // Reset cancellation flag for new start
+        isCancelled = false;
+
         Folder folder = intent.getParcelableExtra(Intents.EXTRA_BOOK_SOURCE_FOLDER);
         if (folder == null) {
             myLogEE(null, "folder is null");
@@ -186,6 +198,9 @@ public class ExportService extends LoggingService {
                 int currentIndex = 0;
 
                 for (int i = 0; i < filesToZip.size(); i++) {
+                    if (isCancelled)
+                        break;
+
                     Uri fileUri = filesToZip.get(i);
                     String fileName = fileNames.get(i);
                     currentIndex++;
@@ -203,6 +218,8 @@ public class ExportService extends LoggingService {
                         byte[] buffer = new byte[8192];
                         int length;
                         while ((length = fis.read(buffer)) != -1) {
+                            if (isCancelled)
+                                break;
                             zos.write(buffer, 0, length);
                             zippedSoFar += length;
                             sendProgress(fileName, zippedSoFar, currentIndex);
@@ -214,7 +231,28 @@ public class ExportService extends LoggingService {
                 }
 
                 zos.flush();
-                sendProgress(getString(R.string.Export_done_Excl), totalSize, totalFiles);
+                if (isCancelled) {
+                    myLog("Export cancelled by user.");
+                } else {
+                    sendProgress(getString(R.string.Export_done_Excl), totalSize, totalFiles);
+                }
+            }
+
+            // Cleanup if cancelled
+            if (isCancelled) {
+                myLog("Export cancelled, deleting partial file.");
+                if (useSaf && safDestUri != null) {
+                    try {
+                        DocumentsContract.deleteDocument(getContentResolver(), safDestUri);
+                    } catch (Exception e) {
+                        myLogE("Failed to delete cancelled SAF file: " + e.getMessage());
+                    }
+                } else if (outputFile != null && outputFile.exists()) {
+                    boolean deleted = outputFile.delete();
+                    myLog("Deleted cancelled legacy file: " + deleted);
+                }
+                sendFail(getString(R.string.cancelled));
+                return;
             }
 
             // Success: broadcast EXPORT_DONE with the right Uri

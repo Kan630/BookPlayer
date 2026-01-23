@@ -134,8 +134,16 @@ public class ExportActivity extends LoggingActivity {
         progressText.setText("");
         tvCurrentTrack.setText("");
 
-        // Cancel button can always close
-        btnCancel.setOnClickListener(v -> finish());
+        // Cancel button
+        btnCancel.setOnClickListener(v -> {
+            if (!btnExport.isEnabled()) {
+                // Export likely in progress (since btnExport disabled when running)
+                Intent cancelIntent = new Intent(this, ExportService.class);
+                cancelIntent.setAction(ExportService.ACTION_CANCEL);
+                startService(cancelIntent);
+            }
+            finish();
+        });
 
         b_destinationFolder.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE);
@@ -335,7 +343,8 @@ public class ExportActivity extends LoggingActivity {
                 myLogI("--- user chooses folder ---, " + tree.getPath());
                 // Persist access so we can use it later (and from the service)
                 try {
-                    getContentResolver().takePersistableUriPermission(tree, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    getContentResolver().takePersistableUriPermission(tree,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 } catch (SecurityException ignore) {
                     /* some OEMs can throw if you already have it */ }
 
