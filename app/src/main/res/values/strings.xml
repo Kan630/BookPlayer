@@ -439,6 +439,13 @@
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
     <string name="option_tts_highlight_delay_text">delay :</string>
 
+    <string name="option_epub_split_mode_title">EPUB chapter splitting</string>
+    <string name="option_epub_split_mode_text">How to split EPUB files into chapters:</string>
+    <string name="option_epub_split_mode_auto">Auto (use TOC if available, otherwise use spine)</string>
+    <string name="option_epub_split_mode_toc">TOC-based (one chapter per table of contents entry)</string>
+    <string name="option_epub_split_mode_spine">Spine-based (one chapter per EPUB file)</string>
+    <string name="option_epub_split_mode_explain_text">TOC-based splitting creates more chapters but preserves the book\'s structure. Spine-based is simpler and creates fewer chapters.</string>
+
     <string name="option_text_preview_label">Preview</string>
     <string name="deprecated_option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_automotive_title">Automotive</string>

@@ -137,5 +137,33 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <!-- EPUB Split Mode -->
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/option_epub_split_mode_title"
+            android:textStyle="italic"
+            />
+
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_epub_split_mode_text"
+            />
+
+        <Spinner
+            android:id="@+id/spinner_epub_split_mode"
+            style="@style/Spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="15dp" />
+
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_epub_split_mode_explain_text"
+            />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
     </LinearLayout>
 </ScrollView>

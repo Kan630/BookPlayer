@@ -179,6 +179,10 @@ public class KanLogger {
         }
     }
 
+
+    public static void myLogEE(Throwable t, String str) {
+        myLogEE(t, "", str);
+    }
     //TODO add e.getClass() to the string ?
     public static void myLogEE(Throwable t, String prefix, String str) {
         myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));

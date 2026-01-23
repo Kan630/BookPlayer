@@ -80,6 +80,7 @@ public class Option {
     public static final int DEFAULT_RADIO_API_NB_RESULTS = 200;
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
+    public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_PROGRESS_HEAT_MAP = true;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
@@ -383,6 +384,9 @@ public class Option {
 
     public static void setTtsChunkSize(int chunkSize) {prefs.edit().putInt("TTS_CHUNK_SIZE", chunkSize).apply();}
     public static int getTtsChunkSize() {return prefs.getInt("TTS_CHUNK_SIZE", DEFAULT_TTS_CHUNK_SIZE);}
+
+    public static void setEpubSplitMode(String mode) {prefs.edit().putString("EPUB_SPLIT_MODE", mode).apply();}
+    public static String getEpubSplitMode() {return prefs.getString("EPUB_SPLIT_MODE", DEFAULT_EPUB_SPLIT_MODE);}
 
 
     /////////////////// AUTOMOTIVE ///////////////////

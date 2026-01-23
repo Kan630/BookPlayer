@@ -6,6 +6,8 @@ import android.speech.tts.TextToSpeech;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -24,6 +26,7 @@ public class TtsSettingsFragment extends LoggingFragment {
 
     private String lastSavedTtsVoice;
     private EditText etTtsHighlightDelay, etTtsChunkSize;
+    private Spinner spinnerEpubSplitMode;
     private boolean hasBeenInitialized = false;
 
     @Nullable
@@ -85,7 +88,59 @@ public class TtsSettingsFragment extends LoggingFragment {
             tvMax.setText(getString(com.driot.bookplayer.R.string.max_value_label) + maxInputLength);
         }
 
+        // EPUB Split Mode spinner
+        spinnerEpubSplitMode = root.findViewById(R.id.spinner_epub_split_mode);
+        setupEpubSplitModeSpinner();
+
         return root;
+    }
+
+    private void setupEpubSplitModeSpinner() {
+        String[] options = new String[] {
+                getString(R.string.option_epub_split_mode_auto),
+                getString(R.string.option_epub_split_mode_toc),
+                getString(R.string.option_epub_split_mode_spine),
+        };
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(
+                requireContext(), R.layout.spinner_item, options);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
+        spinnerEpubSplitMode.setAdapter(adapter);
+
+        // Set current selection
+        String currentMode = Option.getEpubSplitMode();
+        int selection = 0; // default to "auto"
+        if ("toc".equals(currentMode)) {
+            selection = 1;
+        } else if ("spine".equals(currentMode)) {
+            selection = 2;
+        }
+        spinnerEpubSplitMode.setSelection(selection, false);
+
+        spinnerEpubSplitMode.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String mode;
+                switch (position) {
+                    case 1:
+                        mode = "toc";
+                        break;
+                    case 2:
+                        mode = "spine";
+                        break;
+                    default:
+                        mode = "auto";
+                        break;
+                }
+                Option.setEpubSplitMode(mode);
+                myLogD("EPUB split mode set to: " + mode);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+                // Do nothing
+            }
+        });
     }
 
     @Override
