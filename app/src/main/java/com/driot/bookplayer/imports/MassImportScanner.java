@@ -73,8 +73,9 @@ public class MassImportScanner extends LoggerHelper {
                     // Compute hash for folder and check if already imported
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
+                    int tracksCount = calculateTrackCount(file);
                     candidates.add(new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(dir) + "/" + fileName, size, hash, existingBookName));
+                            safeName(dir) + "/" + fileName, size, hash, existingBookName, tracksCount));
                 } else {
                     myLogD("-> Ignored folder (no audio): " + fileName);
                 }
@@ -87,7 +88,7 @@ public class MassImportScanner extends LoggerHelper {
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     candidates.add(new BookCandidate(file.getUri(), fileName, type,
-                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName));
+                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName, 1));
                 } else {
                     myLogD("-> Ignored file (unsupported type): " + fileName);
                 }
@@ -136,7 +137,9 @@ public class MassImportScanner extends LoggerHelper {
 
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size, hash, existingBookName));
+                    int tracksCount = calculateTrackCount(file);
+                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size,
+                            hash, existingBookName, tracksCount));
                 }
             } else {
                 String type = detectBookType(file);
@@ -144,7 +147,8 @@ public class MassImportScanner extends LoggerHelper {
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     candidates
-                            .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length(), hash, existingBookName));
+                            .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length(),
+                                    hash, existingBookName, 1));
                 }
             }
         }
@@ -218,6 +222,18 @@ public class MassImportScanner extends LoggerHelper {
         return size;
     }
 
+    private int calculateTrackCount(DocumentFile file) {
+        if (!file.isDirectory()) {
+            // If it's a file, check if it's audio
+            return isAudio(file) ? 1 : 0;
+        }
+        int count = 0;
+        for (DocumentFile child : file.listFiles()) {
+            count += calculateTrackCount(child);
+        }
+        return count;
+    }
+
     private String safeName(DocumentFile f) {
         String n = f.getName();
         return n == null ? "Untitled" : n;
@@ -249,7 +265,8 @@ public class MassImportScanner extends LoggerHelper {
             return null;
         }
         try {
-            String existingBookName = AppDatabase.getDatabase(context).folderDao().originalHashAlreadyExist_getBookName(hash);
+            String existingBookName = AppDatabase.getDatabase(context).folderDao()
+                    .originalHashAlreadyExist_getBookName(hash);
             if (existingBookName != null) {
                 myLogD("Hash already exists in DB for book: " + existingBookName);
             }

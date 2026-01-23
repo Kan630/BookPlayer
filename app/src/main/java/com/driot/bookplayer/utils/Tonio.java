@@ -51,8 +51,11 @@ public class Tonio {
             return sizeBytes + " B";
         if (sizeBytes < 1024 * 1024)
             return String.format(Locale.US, "%.1f KB", sizeBytes / 1024.0);
-        return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
+        if (sizeBytes < 1024L * 1024L * 1024L)
+            return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
+        return String.format(Locale.US, "%.1f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0));
     }
+
 
     public static String getReadableSizeForCleanActivity(long sizeBytes) {
         // if (sizeBytes <= 0) return "0 B";

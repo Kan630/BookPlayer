@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -38,9 +39,21 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         BookCandidate item = items.get(position);
-        holder.tvName.setText(com.driot.bookplayer.utils.Tonio.formatNameForDisplay(item.name));
-        holder.tvType.setText(
-                item.type + " - " + com.driot.bookplayer.utils.Tonio.getReadableSize(item.size) + "\n" + item.path);
+        holder.tvName.setText(Tonio.formatNameForDisplay(item.name));
+        String tracksPart = "";
+        // Only show track count for Folders or generic Audio Files (where we know the
+        // count)
+        // For ZIP, M4B, Ebook, we don't know the count yet, so don't show it.
+        if ("Folder".equals(item.type) || "Audio File".equals(item.type)) {
+            tracksPart = " - " + item.tracksCount + " "
+                    + holder.ivIcon.getContext().getString(com.driot.bookplayer.R.string.tracks);
+        }
+        String txtInfo = item.type
+                + " - " + Tonio.getReadableSize(item.size)
+                + tracksPart
+                + "\n" + item.path;
+
+        holder.tvType.setText(txtInfo);
 
         // Simple icon logic
         int iconRes;
@@ -63,9 +76,8 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             holder.ivIcon.setColorFilter(0xFFFF0000); // Red color
             // Show "already imported" message
             holder.tvAlreadyImported.setVisibility(android.view.View.VISIBLE);
-            holder.tvAlreadyImported.setText(
-                    holder.itemView.getContext().getString(com.driot.bookplayer.R.string.already_imported_under_name)
-                            + item.existingBookName);
+            String txtError = holder.itemView.getContext().getString(com.driot.bookplayer.R.string.already_imported_under_name) + item.existingBookName;
+            holder.tvAlreadyImported.setText(txtError);
         } else {
             // Clear color filter (normal icon)
             holder.ivIcon.clearColorFilter();

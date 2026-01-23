@@ -140,12 +140,17 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
             int importableCount = importableCandidates.size();
             int totalCount = candidates.size();
+            String countText = importableCount + (importableCount > 1 ? " books" : " book");
             if (importableCount < totalCount) {
-                tvCount.setText(getString(R.string.mass_import_found_items_mixed, importableCount,
-                        com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize), (totalCount - importableCount)));
+                // If some items are hidden/filtered, mention it? Or just show importable count.
+                // User logic in previous code showed mixed.
+                // Let's stick to "X books (Total Size) (+ Y already imported)" or simpler.
+                // User said "3 books" instead of "Found 3 items".
+                // I'll make it: "3 books ({size}) (+ 2 already imported)"
+                tvCount.setText(countText + " (" + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ") (+ "
+                        + (totalCount - importableCount) + " already imported)");
             } else {
-                tvCount.setText(getString(R.string.mass_import_found_items, importableCount,
-                        com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize)));
+                tvCount.setText(countText + " (" + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ")");
             }
 
             if (importableCount == 0 && Boolean.FALSE.equals(viewModel.getIsScanning().getValue())) {
