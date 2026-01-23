@@ -64,6 +64,7 @@ public class MassImportScanner extends LoggerHelper {
                 return;
 
             String fileName = safeName(file);
+            callback.onProgress(fileName);
             myLogD("Checking file: " + fileName);
 
             if (file.isDirectory()) {
