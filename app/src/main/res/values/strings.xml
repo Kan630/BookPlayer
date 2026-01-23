@@ -649,16 +649,17 @@
     <string name="Export_display_text_export_title">"ZIP Export"</string>
     <string name="Export_done">"Export_done"</string>
 
-    <string name="export_title_label">"Export audiobook:"</string>
+    <string name="export_title_label">"Export book as ZIP:"</string>
     <string name="export_audiobook_name_placeholder">"audiobook name"</string>
-    <string name="export_destination_folder_label">"destination folder :"</string>
+    <string name="export_base_destination_folder_label">"base destination folder :"</string>
     <string name="export_click_to_change_label">"click to change"</string>
     <string name="export_download_folder_button">"Download folder"</string>
     <string name="export_destination_filename_label">"destination file name :"</string>
     <string name="export_edit_name_hint">"you can edit that name"</string>
     <string name="export_zipping_label">"Zipping: "</string>
-    <string name="export_progress_info_placeholder">"Progress info..."</string>
+    <string name="export_progress_info_placeholder">"Progress info…"</string>
     <string name="export_start_button">"Start Export"</string>
+    <string name="export_inside_subfolder_label">"and inside a \'BookPlayer\' subfolder"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->

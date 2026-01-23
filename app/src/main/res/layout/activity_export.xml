@@ -51,7 +51,7 @@
                 style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/export_destination_folder_label"
+                android:text="@string/export_base_destination_folder_label"
                 android:textSize="20sp"
                 android:layout_marginTop="10dp"
                 />
@@ -69,6 +69,15 @@
                 style="@style/GetResourceButton"
                 android:text="@string/export_download_folder_button"
                 android:layout_marginBottom="5dp"
+                />
+            <CheckBox
+                android:id="@+id/cbCreateSubfolder"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/export_inside_subfolder_label"
+                android:checked="true"
+                android:layout_marginBottom="10dp"
+                android:layout_marginStart="10dp"
                 />
             <TextView
                 style="@style/simpleText"

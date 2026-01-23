@@ -23,13 +23,12 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.services.ExportService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
-
-
 
 public class ExportActivity extends LoggingActivity {
 
@@ -38,7 +37,7 @@ public class ExportActivity extends LoggingActivity {
 
     public static final int REQUEST_CODE_destinationFolder = 35737;
     private static final String STATE_EXPORT_TREE_URI = "STATE_EXPORT_TREE_URI";
-    private Uri exportTreeUri = null;  // user-chosen folder (tree) Uri
+    private Uri exportTreeUri = null; // user-chosen folder (tree) Uri
 
     Folder folder;
     File fileFolder;
@@ -48,7 +47,6 @@ public class ExportActivity extends LoggingActivity {
     private Button btnExport, btnCancel, b_destinationFolder;
 
     private final Handler uiHandler = new Handler(Looper.getMainLooper());
-
 
     private final BroadcastReceiver exportProgressReceiver = new BroadcastReceiver() {
         @Override
@@ -112,7 +110,8 @@ public class ExportActivity extends LoggingActivity {
             return;
         }
 
-        //ScreenLock //TODO later, we will have a room table to store export and status, with livedata for observing fragment/activity
+        // ScreenLock //TODO later, we will have a room table to store export and
+        // status, with livedata for observing fragment/activity
         int currentOrientation = getResources().getConfiguration().orientation;
         if (currentOrientation == Configuration.ORIENTATION_LANDSCAPE) {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -120,10 +119,8 @@ public class ExportActivity extends LoggingActivity {
             setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         }
 
-
         progressBar = findViewById(R.id.progressBarExport);
         progressText = findViewById(R.id.tvProgressText);
-        TextView tvExportTitle = findViewById(R.id.tvExportTitle);
         tvExportAudioBookName = findViewById(R.id.tvExportAudioBookName);
         tvCurrentTrack = findViewById(R.id.tvCurrentTrack);
         btnExport = findViewById(R.id.btnStartExport);
@@ -132,7 +129,6 @@ public class ExportActivity extends LoggingActivity {
 
         // Initially disable the export button and show loading message
         btnExport.setEnabled(false);
-        tvExportTitle.setText(getString(R.string.Export_display_text_export_title));
         tvExportAudioBookName.setText("---");
         progressText.setText("");
         tvCurrentTrack.setText("");
@@ -149,28 +145,30 @@ public class ExportActivity extends LoggingActivity {
             startActivityForResult(intent, REQUEST_CODE_destinationFolder);
         });
 
+        //String destinationFileName = "BookplayerExport_" + fileFolder.getName();
+        String destinationFileName = folder.getName();
+        etDestinationFileName = findViewById(R.id.etDestinationFileName);
+        etDestinationFileName.setText(destinationFileName);
+
         myLog("folderPath : " + folder.getPath());
         fileFolder = new File(folder.getPath());
         if (!fileFolder.exists() || !fileFolder.isDirectory()) {
+            myLogEE(null, "export folderPath : " + folder.getPath());
             tvExportAudioBookName.setText(getString(R.string.Export_display_no_valid_audiobook));
             tvExportAudioBookName.setTextColor(getColor(R.color.red_700));
             btnExport.setEnabled(false);
             return;
         }
 
-        String destinationFileName = "BookplayerExport_" + fileFolder.getName();
-        etDestinationFileName = findViewById(R.id.etDestinationFileName);
-        etDestinationFileName.setText(destinationFileName);
-
-        tvExportAudioBookName.setText(fileFolder.getName());
+        tvExportAudioBookName.setText(folder.getName());
 
         // below Android 10, need permission to write to Downloads
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    != PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
 
                 ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                        new String[] { Manifest.permission.WRITE_EXTERNAL_STORAGE },
                         123); // arbitrary request code
                 return; // wait for user to accept before continuing
             }
@@ -183,9 +181,14 @@ public class ExportActivity extends LoggingActivity {
         btnExport.setEnabled(true);
 
         btnExport.setOnClickListener(v -> {
-            String destinationFileName = etDestinationFileName.getText().toString();
-            myLogI("--- user click goExport ---  , exportFileName = " + destinationFileName);
-            if (destinationFileName.isEmpty() || destinationFileName.length()<3) {
+            String destinationFileName = etDestinationFileName.getText().toString().trim();
+            destinationFileName = FileHelper.sanitizeFilename(destinationFileName);
+            CheckBox cbCreateSubfolder = findViewById(R.id.cbCreateSubfolder);
+            boolean createSubfolder = cbCreateSubfolder.isChecked();
+
+            myLogI("--- user click goExport ---  , exportFileName = [" + destinationFileName + "], createSubfolder = "
+                    + createSubfolder);
+            if (destinationFileName.isEmpty() || destinationFileName.length() < 3) {
                 tvCurrentTrack.setText(getString(R.string.Export_Progress_file_name_should_have_at_east_3_chars));
                 tvCurrentTrack.setTextColor(getColor(R.color.red_700));
                 return;
@@ -194,7 +197,7 @@ public class ExportActivity extends LoggingActivity {
             Intent serviceIntent = new Intent(this, ExportService.class);
             serviceIntent.putExtra(Intents.EXTRA_BOOK_SOURCE_FOLDER, folder);
 
-            if (exportTreeUri != null) { //user picked a specific folder
+            if (exportTreeUri != null) { // user picked a specific folder
                 // Create the destination ZIP file inside the chosen folder
                 DocumentFile tree = DocumentFile.fromTreeUri(this, exportTreeUri);
                 if (tree == null || !tree.canWrite()) {
@@ -202,9 +205,26 @@ public class ExportActivity extends LoggingActivity {
                     tvCurrentTrack.setTextColor(getColor(R.color.red_700));
                     return;
                 }
+
+                DocumentFile targetFolder = tree;
+                if (createSubfolder) {
+                    DocumentFile existingSub = tree.findFile("BookPlayer");
+                    if (existingSub != null && existingSub.isDirectory()) {
+                        targetFolder = existingSub;
+                    } else {
+                        targetFolder = tree.createDirectory("BookPlayer");
+                        if (targetFolder == null) {
+                            // fallback to parent if creation fails
+                            myLogE("Failed to create BookPlayer subfolder in SAF tree, using root.");
+                            targetFolder = tree;
+                        }
+                    }
+                }
+
                 // Ensure a clean filename (no extension duplication)
-                if (destinationFileName.endsWith(".zip")) destinationFileName = destinationFileName.substring(0, destinationFileName.length() - 4);
-                DocumentFile zipDoc = tree.createFile("application/zip", destinationFileName);
+                if (destinationFileName.endsWith(".zip"))
+                    destinationFileName = destinationFileName.substring(0, destinationFileName.length() - 4);
+                DocumentFile zipDoc = targetFolder.createFile("application/zip", destinationFileName);
                 if (zipDoc == null) {
                     tvCurrentTrack.setText(getString(R.string.Failed_to_create_the_destionation_file));
                     tvCurrentTrack.setTextColor(getColor(R.color.red_700));
@@ -216,10 +236,21 @@ public class ExportActivity extends LoggingActivity {
                 serviceIntent.putExtra(EXTRA_DEST_URI, zipDoc.getUri().toString());
 
             } else {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { //Android 10
                     // Legacy: real path + WRITE_EXTERNAL_STORAGE
                     File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                    File outFile = new File(downloadsDir, destinationFileName);
+                    File targetDir = downloadsDir;
+                    if (createSubfolder) {
+                        targetDir = new File(downloadsDir, "BookPlayer");
+                        if (!targetDir.exists()) {
+                            if (!targetDir.mkdirs()) {
+                                myLogE("Failed to create BookPlayer subfolder in Legacy Downloads.");
+                                targetDir = downloadsDir;
+                            }
+                        }
+                    }
+
+                    File outFile = new File(targetDir, destinationFileName);
                     String detFileFullPath = outFile.getAbsolutePath();
                     myLog("Export destination (legacy Downloads path) = " + detFileFullPath);
                     serviceIntent.putExtra(EXTRA_DEST_FILE_FULL_PATH, detFileFullPath);
@@ -232,8 +263,14 @@ public class ExportActivity extends LoggingActivity {
                     values.put(android.provider.MediaStore.Downloads.DISPLAY_NAME, destinationFileName);
                     values.put(android.provider.MediaStore.Downloads.MIME_TYPE, "application/zip");
 
-                    // optional: subfolder inside Downloads (e.g. "Download/BookPlayer")
-                    values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS + "/BookPlayer");
+                    if (createSubfolder) {
+                        // optional: subfolder inside Downloads (e.g. "Download/BookPlayer")
+                        values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH,
+                                Environment.DIRECTORY_DOWNLOADS + "/BookPlayer");
+                    } else {
+                        values.put(android.provider.MediaStore.Downloads.RELATIVE_PATH,
+                                Environment.DIRECTORY_DOWNLOADS);
+                    }
 
                     Uri downloadsUri = android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI;
                     Uri destUri = getContentResolver().insert(downloadsUri, values);
@@ -255,11 +292,11 @@ public class ExportActivity extends LoggingActivity {
         });
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
-        LocalBroadcastManager.getInstance(this).registerReceiver(exportProgressReceiver, new IntentFilter("EXPORT_PROGRESS"));
+        LocalBroadcastManager.getInstance(this).registerReceiver(exportProgressReceiver,
+                new IntentFilter("EXPORT_PROGRESS"));
         LocalBroadcastManager.getInstance(this).registerReceiver(exportDoneReceiver, new IntentFilter("EXPORT_DONE"));
         LocalBroadcastManager.getInstance(this).registerReceiver(exportFailReceiver, new IntentFilter("EXPORT_FAIL"));
     }
@@ -274,8 +311,8 @@ public class ExportActivity extends LoggingActivity {
 
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == 123) {
@@ -299,17 +336,20 @@ public class ExportActivity extends LoggingActivity {
                         & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
                 try {
                     getContentResolver().takePersistableUriPermission(tree, takeFlags);
-                } catch (SecurityException ignore) { /* some OEMs can throw if you already have it */ }
+                } catch (SecurityException ignore) {
+                    /* some OEMs can throw if you already have it */ }
 
                 exportTreeUri = tree;
 
                 // Update button label to show chosen folder name
                 DocumentFile picked = DocumentFile.fromTreeUri(this, tree);
-                String name = (picked != null && picked.getName() != null) ? picked.getName() : tree.getLastPathSegment();
+                String name = (picked != null && picked.getName() != null) ? picked.getName()
+                        : tree.getLastPathSegment();
                 b_destinationFolder.setText(name);
 
                 // If everything else is ready, you can enable export here as well
-                if (fileFolder != null && fileFolder.exists()) btnExport.setEnabled(true);
+                if (fileFolder != null && fileFolder.exists())
+                    btnExport.setEnabled(true);
             }
         }
     }
@@ -317,7 +357,8 @@ public class ExportActivity extends LoggingActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (exportTreeUri != null) outState.putString(STATE_EXPORT_TREE_URI, exportTreeUri.toString());
+        if (exportTreeUri != null)
+            outState.putString(STATE_EXPORT_TREE_URI, exportTreeUri.toString());
     }
 
     @Override
@@ -327,7 +368,8 @@ public class ExportActivity extends LoggingActivity {
         if (s != null) {
             exportTreeUri = Uri.parse(s);
             DocumentFile picked = DocumentFile.fromTreeUri(this, exportTreeUri);
-            String name = (picked != null && picked.getName() != null) ? picked.getName() : exportTreeUri.getLastPathSegment();
+            String name = (picked != null && picked.getName() != null) ? picked.getName()
+                    : exportTreeUri.getLastPathSegment();
             b_destinationFolder.setText(name);
         }
     }
