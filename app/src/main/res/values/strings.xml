@@ -940,6 +940,16 @@
     <string name="pause_following_error">pause following error</string>
     <string name="failed_to_create_destination_folder">Failed to create destination folder</string>
     <string name="server_returned_http">Server returned HTTP</string>
+    <string name="http_code_400">Bad Request</string>
+    <string name="http_code_401">Unauthorized</string>
+    <string name="http_code_403">Forbidden</string>
+    <string name="http_code_404">Not Found</string>
+    <string name="http_code_408">Request Timeout</string>
+    <string name="http_code_429">Too Many Requests</string>
+    <string name="http_code_500">Internal Server Error</string>
+    <string name="http_code_502">Bad Gateway</string>
+    <string name="http_code_503">Service Unavailable</string>
+    <string name="http_code_504">Gateway Timeout</string>
     <string name="Pause_wait_interrupted">Paused wait interrupted</string>
     <string name="download_cancelled_during_execution">Download cancelled during execution</string>
     <string name="connection_aborted">Connection aborted</string>
@@ -1346,4 +1356,5 @@
     <string name="id_label">"ID: "</string>
     <string name="error_label_multiline">"Error : \n"</string>
 
+    <string name="no_ebooks_found_search">No ebooks found \nfor search [%1$s] \nwith language [%2$s]</string>
 </resources>

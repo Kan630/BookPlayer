@@ -44,41 +44,52 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     TextView tvEmptyMessage;
 
     EbookResultRVAdapter adapter;
-    
+
     private String nextPageUrl;
     private boolean isLoadingMore = false;
     private int totalCount = 0;
     private String query;
     private String lang;
-    
+
     private static final String STATE_ITEMS = "state_items";
     private static final String STATE_NEXT_PAGE_URL = "state_next_page_url";
     private static final String STATE_TOTAL_COUNT = "state_total_count";
     private static final String STATE_QUERY = "state_query";
     private static final String STATE_LANG = "state_lang";
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_ebook_results; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_ebook_results;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        recyclerView    = findViewById(R.id.recyclerView);
-        progressBar     = findViewById(R.id.progressBar);
-        tvEmptyMessage  = findViewById(R.id.tvEmptyMessage);
+        recyclerView = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R.id.progressBar);
+        tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
-        );
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         adapter = new EbookResultRVAdapter(item -> {
-            myLogI("User clicks ebook item id=[" + item.gutendexId + "] - title=[" + item.title + "]\nurl=[" + item.epubUrl + "]");
+            myLogI("User clicks ebook item id=[" + item.gutendexId + "] - title=[" + item.title + "]\nurl=["
+                    + item.epubUrl + "]");
 
             Intent intent = new Intent(EbookResultsActivity.this, EbookDetailActivity.class);
             intent.putExtra("gutendex_id", item.gutendexId);
@@ -98,14 +109,15 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             @Override
             public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
-                
+
                 GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-                if (layoutManager == null) return;
-                
+                if (layoutManager == null)
+                    return;
+
                 int visibleItemCount = layoutManager.getChildCount();
                 int totalItemCount = layoutManager.getItemCount();
                 int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                
+
                 // Check if we've scrolled near the bottom (within last 5 items)
                 if (!isLoadingMore && nextPageUrl != null && !nextPageUrl.isEmpty()) {
                     if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
@@ -120,15 +132,18 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             query = savedInstanceState.getString(STATE_QUERY);
             lang = savedInstanceState.getString(STATE_LANG);
         }
-        if (query == null) query = getIntent().getStringExtra("query");
-        if (lang == null) lang = getIntent().getStringExtra("lang");
+        if (query == null)
+            query = getIntent().getStringExtra("query");
+        if (lang == null)
+            lang = getIntent().getStringExtra("lang");
 
         if (lang == null || lang.isEmpty()) {
             myLogE("EbookResultsActivity: missing/empty lang extra");
             finish();
             return;
         }
-        if (query == null) query = "";
+        if (query == null)
+            query = "";
 
         // Header text, reuse your strings
         CharSequence searchLine = getString(R.string.Search_2pt)
@@ -145,12 +160,12 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             if (savedItems != null && !savedItems.isEmpty()) {
                 nextPageUrl = savedInstanceState.getString(STATE_NEXT_PAGE_URL);
                 totalCount = savedInstanceState.getInt(STATE_TOTAL_COUNT, 0);
-                
+
                 adapter.setItems(savedItems);
                 updateCountDisplay(savedItems.size());
                 recyclerView.setVisibility(View.VISIBLE);
                 tvEmptyMessage.setVisibility(View.GONE);
-                
+
                 myLogD("EbookResultsActivity - Restored state with " + savedItems.size() + " items");
                 return; // Don't make API call
             }
@@ -159,14 +174,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         // No saved state, make API call
         callGutendex(query, lang);
     }
-    
+
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        
+
         // Save current state to prevent re-querying on rotation
         List<EbookItem> items = adapter.getItems();
-        
+
         if (items != null && !items.isEmpty()) {
             outState.putParcelableArrayList(STATE_ITEMS, new ArrayList<>(items));
             outState.putString(STATE_NEXT_PAGE_URL, nextPageUrl);
@@ -183,7 +198,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         isLoadingMore = false;
         totalCount = 0;
         adapter.setLoading(false);
-        
+
         progressBar.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.GONE);
         tvEmptyMessage.setVisibility(View.GONE);
@@ -207,10 +222,10 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
         Call<GutendexResponse> call = api.searchBooks(
                 searchParam,
-                lang,                      // languages
-                null,                      // topic
-                "application/epub+zip",    // epub only
-                null                       // first page
+                lang, // languages
+                null, // topic
+                "application/epub+zip", // epub only
+                null // first page
         );
 
         call.enqueue(new Callback<GutendexResponse>() {
@@ -230,7 +245,8 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 List<GutendexBook> books = resp.results;
 
                 if (books == null || books.isEmpty()) {
-                    String errMsg = "No ebooks found \nfor search [" + query + "] \nwith language [" + LanguageMapper.getNameFromTwoLetters(lang) + "]";
+                    String errMsg = getString(R.string.no_ebooks_found_search, query,
+                            LanguageMapper.getNameFromTwoLetters(lang));
                     myLogW(errMsg);
                     tvEmptyMessage.setText(errMsg);
                     tvEmptyMessage.setVisibility(View.VISIBLE);
@@ -240,26 +256,27 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 }
 
                 // LOG ALL BOOKS FOUND :
-                //for (GutendexBook b : books) { myLogE(b.toString()); }
+                // for (GutendexBook b : books) { myLogE(b.toString()); }
 
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
-                    String epubUrl  = GutendexMapper.findBestEpubUrl(b);
+                    String epubUrl = GutendexMapper.findBestEpubUrl(b);
                     if (epubUrl == null || epubUrl.isEmpty()) {
                         continue; // skip entries without EPUB
                     }
                     String coverUrl = GutendexMapper.findCoverUrl(b);
 
                     EbookItem item = new EbookItem();
-                    item.gutendexId   = b.id;
-                    item.title        = b.title;
-                    item.authors      = GutendexMapper.buildAuthorLine(b);
-                    item.language     = (b.languages != null && !b.languages.isEmpty())
-                            ? b.languages.get(0) : "";
+                    item.gutendexId = b.id;
+                    item.title = b.title;
+                    item.authors = GutendexMapper.buildAuthorLine(b);
+                    item.language = (b.languages != null && !b.languages.isEmpty())
+                            ? b.languages.get(0)
+                            : "";
                     item.downloadCount = b.download_count;
-                    item.coverUrl     = coverUrl;
-                    item.epubUrl      = epubUrl;
-                    item.isImported   = false; // for now
+                    item.coverUrl = coverUrl;
+                    item.epubUrl = epubUrl;
+                    item.isImported = false; // for now
 
                     mapped.add(item);
                 }
@@ -273,11 +290,11 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 }
 
                 myLog("Gutendex: " + mapped.size() + " ebooks with EPUB found (total=" + resp.count + ")");
-                
+
                 // Store pagination info
                 nextPageUrl = resp.next;
                 totalCount = resp.count;
-                
+
                 adapter.setItems(mapped);
                 updateCountDisplay(mapped.size());
 
@@ -345,22 +362,23 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
-                    String epubUrl  = GutendexMapper.findBestEpubUrl(b);
+                    String epubUrl = GutendexMapper.findBestEpubUrl(b);
                     if (epubUrl == null || epubUrl.isEmpty()) {
                         continue; // skip entries without EPUB
                     }
                     String coverUrl = GutendexMapper.findCoverUrl(b);
 
                     EbookItem item = new EbookItem();
-                    item.gutendexId   = b.id;
-                    item.title        = b.title;
-                    item.authors      = GutendexMapper.buildAuthorLine(b);
-                    item.language     = (b.languages != null && !b.languages.isEmpty())
-                            ? b.languages.get(0) : "";
+                    item.gutendexId = b.id;
+                    item.title = b.title;
+                    item.authors = GutendexMapper.buildAuthorLine(b);
+                    item.language = (b.languages != null && !b.languages.isEmpty())
+                            ? b.languages.get(0)
+                            : "";
                     item.downloadCount = b.download_count;
-                    item.coverUrl     = coverUrl;
-                    item.epubUrl      = epubUrl;
-                    item.isImported   = false; // for now
+                    item.coverUrl = coverUrl;
+                    item.epubUrl = epubUrl;
+                    item.isImported = false; // for now
 
                     mapped.add(item);
                 }
@@ -369,7 +387,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                     // Update pagination info
                     nextPageUrl = resp.next;
                     totalCount = resp.count;
-                    
+
                     // Append new items
                     adapter.addItems(mapped);
                     updateCountDisplay(adapter.getItemCountExcludingHeader());

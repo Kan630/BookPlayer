@@ -63,7 +63,7 @@ public class DownloadWorker extends ImportWorker {
     private static final String CHANNEL_ID = "BookplayerDownloadChannel";
     private static final int NOTIF_ID_BASE = 1630; // you can offset with workId hash if running many in parallel
 
-    public static final String ACTION_PAUSE  = "com.driot.bookplayer.ACTION_DOWNLOAD_PAUSE";
+    public static final String ACTION_PAUSE = "com.driot.bookplayer.ACTION_DOWNLOAD_PAUSE";
     public static final String ACTION_CANCEL = "com.driot.bookplayer.ACTION_DOWNLOAD_CANCEL";
     public static final String ACTION_RESUME = "com.driot.bookplayer.ACTION_DOWNLOAD_RESUME";
     public static final String EXTRA_WORK_ID = "work_id";
@@ -94,7 +94,8 @@ public class DownloadWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_download) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME,
+                context.getString(R.string.import_task_download) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         final String urlStr = j.downloadFileUrl;
         final String destFolder = j.downloadDestinationFolder;
@@ -115,10 +116,10 @@ public class DownloadWorker extends ImportWorker {
         final Context ctx = getApplicationContext();
 
         // TODO, rewire, notably for auto download
-        //final String urlStr = getInputData().getString(KEY_URL);
-        //final String destFolder = getInputData().getString(KEY_DEST_FOLDER);
-        //final String title = getInputData().getString(KEY_TITLE);
-        //final boolean isManual = getInputData().getBoolean(KEY_IS_MANUAL, false);
+        // final String urlStr = getInputData().getString(KEY_URL);
+        // final String destFolder = getInputData().getString(KEY_DEST_FOLDER);
+        // final String title = getInputData().getString(KEY_TITLE);
+        // final boolean isManual = getInputData().getBoolean(KEY_IS_MANUAL, false);
 
         if (urlStr == null || destFolder == null) {
             myLogE("Missing input data: url or dest_folder");
@@ -132,16 +133,21 @@ public class DownloadWorker extends ImportWorker {
         // Create channel and move worker to foreground immediately
         createNotificationChannel(ctx);
         try {
-                    setForegroundAsync(buildForegroundInfo(ctx, notifId, 0, ctx.getString(R.string.starting_download), title)).get();
-        } catch (Exception ignored) {}
+            setForegroundAsync(buildForegroundInfo(ctx, notifId, 0, ctx.getString(R.string.starting_download), title))
+                    .get();
+        } catch (Exception ignored) {
+        }
 
         // Register actions receiver (dynamic, in-process only)
         BroadcastReceiver controls = new BroadcastReceiver() {
-            @Override public void onReceive(Context context, Intent intent) {
-                if (intent == null) return;
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                if (intent == null)
+                    return;
                 String act = intent.getAction();
                 String target = intent.getStringExtra(EXTRA_WORK_ID);
-                if (target == null || !workId.equals(target)) return; // ignore other workers
+                if (target == null || !workId.equals(target))
+                    return; // ignore other workers
 
                 if (ACTION_PAUSE.equals(act)) {
                     pauseRequested.set(true);
@@ -178,15 +184,18 @@ public class DownloadWorker extends ImportWorker {
             File parent = outFile.getParentFile();
             if (parent != null && !parent.exists() && !parent.mkdirs()) {
                 emitFailed(TASK_NAME,
-                        "failed_to_create_destination_folder : " + parent.getAbsolutePath()
-                        , ctx.getString(R.string.failed_to_create_destination_folder) + ": " + parent.getAbsolutePath());
+                        "failed_to_create_destination_folder : " + parent.getAbsolutePath(),
+                        ctx.getString(R.string.failed_to_create_destination_folder) + ": " + parent.getAbsolutePath());
                 return Result.failure();
             }
 
             if (!acquireDownloadLock(outFile)) {
                 myLogW("Another DownloadWorker holds the lock for " + outFile.getName() + " — retry later");
                 // Small courtesy delay reduces hammering if user taps RESUME a lot
-                try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ignored) {
+                }
                 return Result.retry();
             }
 
@@ -220,9 +229,9 @@ public class DownloadWorker extends ImportWorker {
                     myLogW("Server ignored Range; restarting download from 0");
                     already = 0L;
                 } else if (code != HttpURLConnection.HTTP_OK && code != HttpURLConnection.HTTP_PARTIAL) {
-                    emitFailed(TASK_NAME
-                            , "server returned: " + code + " - " + conn.getResponseMessage()
-                            , ctx.getString(R.string.server_returned_http) + " " + code);
+                    emitFailed(TASK_NAME, "server returned: " + code + " - " + conn.getResponseMessage(),
+                            ctx.getString(R.string.server_returned_http) + " " + code
+                                    + com.driot.bookplayer.helpers.HttpCodeHelper.getTranslatedHttpCode(ctx, code));
                     return Result.failure();
                 }
 
@@ -250,10 +259,11 @@ public class DownloadWorker extends ImportWorker {
                     }
                     if (isStopped()) {
                         myLogW("Stopped by WM/constraints — keeping partial and retrying");
-                        emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
+                        emitDownloadPause(
+                                getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
                     }
-                    if (stoppedRequested.get()) { //happens if we hit onStopped()... constraints ?
+                    if (stoppedRequested.get()) { // happens if we hit onStopped()... constraints ?
                         myLogW("Stop requested");
                         emitDownloadPause(getApplicationContext().getString(R.string.download_stop_requested));
                         return Result.retry(); // partial file kept; WM will reschedule when constraints are met
@@ -265,13 +275,18 @@ public class DownloadWorker extends ImportWorker {
                         // Close current connection so the server doesn't time out while we wait.
                         safeClose(in);
                         safeClose(out);
-                        if (conn != null) try { conn.disconnect(); } catch (Throwable ignore) {}
+                        if (conn != null)
+                            try {
+                                conn.disconnect();
+                            } catch (Throwable ignore) {
+                            }
 
                         // Wait here until resume or cancel or stop
                         while (true) {
                             if (isStopped()) {
                                 myLogW("Paused → stopped");
-                                emitDownloadPause(getApplicationContext().getString(R.string.download_stopped_by_system_will_retry));
+                                emitDownloadPause(getApplicationContext()
+                                        .getString(R.string.download_stopped_by_system_will_retry));
                                 return Result.retry();
                             }
                             if (cancelRequested.get()) {
@@ -287,11 +302,15 @@ public class DownloadWorker extends ImportWorker {
                                 // flip flags and rebuild the running notification
                                 resumeRequested.set(false);
                                 pauseRequested.set(false);
-                                updateForeground(ctx, notifId, lastPercent, progressText(written, fileLenIfKnown), title);
+                                updateForeground(ctx, notifId, lastPercent, progressText(written, fileLenIfKnown),
+                                        title);
                                 emitDownloadResuming();
                                 break; // continue the download loop
                             }
-                            try { Thread.sleep(300); } catch (InterruptedException ignored) {}
+                            try {
+                                Thread.sleep(300);
+                            } catch (InterruptedException ignored) {
+                            }
                         }
 
                         // Re-establish connection with Range starting at 'written'
@@ -302,7 +321,8 @@ public class DownloadWorker extends ImportWorker {
                         conn.setReadTimeout(READ_TIMEOUT_MS);
                         conn.setRequestProperty("Accept-Encoding", "identity"); // avoid gzip/chunked altering lengths
                         conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
-                        if (already > 0L) conn.setRequestProperty("Range", "bytes=" + already + "-");
+                        if (already > 0L)
+                            conn.setRequestProperty("Range", "bytes=" + already + "-");
                         conn.connect();
 
                         code = conn.getResponseCode();
@@ -313,9 +333,10 @@ public class DownloadWorker extends ImportWorker {
                             myLogW("416 Range not satisfiable — restarting from 0");
                             already = 0L;
                         } else if (code != HttpURLConnection.HTTP_OK && code != HttpURLConnection.HTTP_PARTIAL) {
-                            emitFailed(TASK_NAME
-                                    , "server returned: " + code + " - " + conn.getResponseMessage()
-                                    , ctx.getString(R.string.server_returned_http) + " " + code);
+                            emitFailed(TASK_NAME, "server returned: " + code + " - " + conn.getResponseMessage(),
+                                    ctx.getString(R.string.server_returned_http) + " " + code
+                                            + com.driot.bookplayer.helpers.HttpCodeHelper.getTranslatedHttpCode(ctx,
+                                                    code));
 
                             return Result.failure();
                         }
@@ -342,9 +363,9 @@ public class DownloadWorker extends ImportWorker {
                         emitStepProgress(TASK_NAME, lastPercent, txtNow);
                     }
 
-
                     int read = in.read(buf);
-                    if (read == -1) break;
+                    if (read == -1)
+                        break;
                     out.write(buf, 0, read);
                     written += read;
 
@@ -352,7 +373,8 @@ public class DownloadWorker extends ImportWorker {
                 }
 
                 // Success
-                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath(), ctx.getString(R.string.import_task_download) + " " + ctx.getString(R.string.import_task_complete));
+                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath(), ctx.getString(R.string.import_task_download)
+                        + " " + ctx.getString(R.string.import_task_complete));
                 setProgressAsync(new Data.Builder()
                         .putInt(PROG_PERCENT, 100)
                         .putString(PROG_TEXT, progressText(written, fileLenIfKnown))
@@ -367,10 +389,15 @@ public class DownloadWorker extends ImportWorker {
                         .build());
 
             } finally {
-                try { if (out != null) out.flush(); } catch (Throwable ignored) {}
+                try {
+                    if (out != null)
+                        out.flush();
+                } catch (Throwable ignored) {
+                }
                 safeClose(in);
                 safeClose(out);
-                if (conn != null) conn.disconnect();
+                if (conn != null)
+                    conn.disconnect();
                 releaseDownloadLock();
             }
 
@@ -379,34 +406,42 @@ public class DownloadWorker extends ImportWorker {
             myLogE("No internet connection [" + e.getMessage() + "]");
             return Result.retry();
         } catch (SocketException e) {
-            TellHimWhyPause(ctx.getString(R.string.connection_aborted) + " (" + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
+            TellHimWhyPause(ctx.getString(R.string.connection_aborted) + " ("
+                    + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
             myLogE("Connection aborted [" + e.getMessage() + "]");
             return Result.retry();
         } catch (IOException e) {
             if (NetworkHelper.isCleartextNotPermitted(e)) {
                 String host = null;
-                try { host = Uri.parse(urlStr).getHost(); } catch (Throwable ignore) {}
+                try {
+                    host = Uri.parse(urlStr).getHost();
+                } catch (Throwable ignore) {
+                }
                 String why = (host != null)
-                        ? ctx.getString(R.string.http_cleartext_to) + " " + host + " " + ctx.getString(R.string.is_blocked_by_android_s_network_security_policy) + ". " +
-                        ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config)
-                        : ctx.getString(R.string.http_is_blocked_by_android_s_network_security_policy)  + " " +
-                        ctx.getString(R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config);
+                        ? ctx.getString(R.string.http_cleartext_to) + " " + host + " "
+                                + ctx.getString(R.string.is_blocked_by_android_s_network_security_policy) + ". " +
+                                ctx.getString(
+                                        R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config)
+                        : ctx.getString(R.string.http_is_blocked_by_android_s_network_security_policy) + " " +
+                                ctx.getString(
+                                        R.string.use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config);
                 emitFailed(TASK_NAME, "clear_text_not_permitted: [" + e.getMessage() + "]", why);
                 return Result.failure();
             }
-            TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection) + "?)\n" + e.getMessage());
+            TellHimWhyPause(ctx.getString(R.string.io_error) + " (" + ctx.getString(R.string.no_internet_connection)
+                    + "?)\n" + e.getMessage());
             myLogE("IO error [" + e.getMessage() + "]");
             return Result.retry();
         } catch (Exception e) {
             myLogEE(e, "Unexpected error in DownloadWorker");
-            emitFailed(TASK_NAME
-                    ,"unexpected_error: [" + e.getMessage() + "]"
-                    ,getApplicationContext().getString(R.string.unexpected_error) + " [" + e.getMessage() + "]");
+            emitFailed(TASK_NAME, "unexpected_error: [" + e.getMessage() + "]",
+                    getApplicationContext().getString(R.string.unexpected_error) + " [" + e.getMessage() + "]");
             return Result.retry(); // treat as transient
         } finally {
             try {
                 getApplicationContext().unregisterReceiver(controls);
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
             releaseDownloadLock();
         }
     }
@@ -419,15 +454,17 @@ public class DownloadWorker extends ImportWorker {
     }
 
     private void TellHimWhyPause(String whyPause) {
-        pauseRequested.set(true); //TODO useless : You don’t need to switch the notification to the paused layout here because the Worker is exiting with Result.retry(); your UI gets the paused reason via TaskStateManager.
+        pauseRequested.set(true); // TODO useless : You don’t need to switch the notification to the paused layout
+                                  // here because the Worker is exiting with Result.retry(); your UI gets the
+                                  // paused reason via TaskStateManager.
         resumeRequested.set(false);
         emitDownloadPause(whyPause);
     }
 
-
     private void maybeUpdateProgress(Context ctx, int notifId, long written, long fileLenIfKnown, String title) {
         long now = System.currentTimeMillis();
-        if (now - lastTick < MIN_UPDATE_INTERVAL_MS && fileLenIfKnown <= 0) return;
+        if (now - lastTick < MIN_UPDATE_INTERVAL_MS && fileLenIfKnown <= 0)
+            return;
 
         String text = progressText(written, fileLenIfKnown);
         int percent = (fileLenIfKnown > 0) ? (int) ((written * 100L) / fileLenIfKnown) : 0;
@@ -440,7 +477,8 @@ public class DownloadWorker extends ImportWorker {
             emitStepProgress(TASK_NAME, percent, text);
             lastPercent = percent;
             lastTick = now;
-            if (percent > 0) myLogD("Progress " + percent + "% - " + text);
+            if (percent > 0)
+                myLogD("Progress " + percent + "% - " + text);
         }
     }
 
@@ -458,30 +496,29 @@ public class DownloadWorker extends ImportWorker {
             return new ForegroundInfo(
                     notifId,
                     notif,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            );
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
         } else {
             return new ForegroundInfo(notifId, notif);
         }
     }
+
     private ForegroundInfo buildForegroundInfoPaused(Context ctx, int notifId, String title, String text) {
         Notification notif = buildNotificationPaused(ctx, notifId, text, title);
         if (android.os.Build.VERSION.SDK_INT >= 29) {
             return new ForegroundInfo(
                     notifId,
                     notif,
-                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC
-            );
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
         } else {
             return new ForegroundInfo(notifId, notif);
         }
     }
 
-
     private void updateForeground(Context ctx, int notifId, int percent, String text, String title) {
         try {
             setForegroundAsync(buildForegroundInfo(ctx, notifId, percent, text, title));
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private Notification buildNotification(Context ctx, int notifId, int percent, String text, String title) {
@@ -539,7 +576,8 @@ public class DownloadWorker extends ImportWorker {
         // Rebuild notification to show RESUME/CANCEL only
         try {
             setForegroundAsync(buildForegroundInfoPaused(ctx, notifId, title, why)).get();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private PendingIntent actionPI(Context ctx, String action, int requestCodeSeed) {
@@ -554,30 +592,41 @@ public class DownloadWorker extends ImportWorker {
         NotificationChannel ch = new NotificationChannel(
                 CHANNEL_ID, "Download Channel", NotificationManager.IMPORTANCE_LOW);
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        if (nm != null) nm.createNotificationChannel(ch);
+        if (nm != null)
+            nm.createNotificationChannel(ch);
     }
 
     private static long getContentLengthLongCompat(HttpURLConnection conn) {
         try {
             return conn.getContentLengthLong();
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         // Fallback: parse header (may be -1)
         try {
             String v = conn.getHeaderField("Content-Length");
-            if (v != null) return Long.parseLong(v);
-        } catch (Throwable ignored) {}
+            if (v != null)
+                return Long.parseLong(v);
+        } catch (Throwable ignored) {
+        }
         return -1L;
     }
 
     private static void safeClose(Object c) {
         try {
-            if (c instanceof InputStream) ((InputStream) c).close();
-            if (c instanceof FileOutputStream) ((FileOutputStream) c).close();
-        } catch (Throwable ignored) {}
+            if (c instanceof InputStream)
+                ((InputStream) c).close();
+            if (c instanceof FileOutputStream)
+                ((FileOutputStream) c).close();
+        } catch (Throwable ignored) {
+        }
     }
 
     private static void safeDelete(File f) {
-        try { if (f != null && f.exists()) f.delete(); } catch (Throwable ignored) {}
+        try {
+            if (f != null && f.exists())
+                f.delete();
+        } catch (Throwable ignored) {
+        }
     }
 
     private long computeTotalFromHeadersOrFallback(HttpURLConnection conn, long already, long remainingLen) {
@@ -590,25 +639,28 @@ public class DownloadWorker extends ImportWorker {
                     return Long.parseLong(cr.substring(slash + 1).trim()); // full size
                 }
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return (remainingLen > 0) ? (already + remainingLen) : -1L;
     }
-
 
     private boolean acquireDownloadLock(File outFile) {
         try {
             lockPath = Paths.get(outFile.getAbsolutePath() + ".lock");
             Path parent = lockPath.getParent();
-            if (parent != null) Files.createDirectories(parent);
+            if (parent != null)
+                Files.createDirectories(parent);
 
-            // Keep channel open for the lifetime of the Worker; close in releaseDownloadLock()
+            // Keep channel open for the lifetime of the Worker; close in
+            // releaseDownloadLock()
             lockChannel = FileChannel.open(
                     lockPath,
                     StandardOpenOption.CREATE,
                     StandardOpenOption.READ,
                     StandardOpenOption.WRITE
-                    // You could add StandardOpenOption.DELETE_ON_CLOSE and skip the manual delete below,
-                    // but manual delete is fine and explicit.
+            // You could add StandardOpenOption.DELETE_ON_CLOSE and skip the manual delete
+            // below,
+            // but manual delete is fine and explicit.
             );
 
             try {
@@ -631,12 +683,24 @@ public class DownloadWorker extends ImportWorker {
     }
 
     private void closeLockResources() {
-        try { if (downloadLock != null && downloadLock.isValid()) downloadLock.release(); } catch (Exception ignored) {}
-        try { if (lockChannel != null && lockChannel.isOpen()) lockChannel.close(); } catch (Exception ignored) {}
-        try { if (lockPath != null) Files.deleteIfExists(lockPath); } catch (Exception ignored) {}
+        try {
+            if (downloadLock != null && downloadLock.isValid())
+                downloadLock.release();
+        } catch (Exception ignored) {
+        }
+        try {
+            if (lockChannel != null && lockChannel.isOpen())
+                lockChannel.close();
+        } catch (Exception ignored) {
+        }
+        try {
+            if (lockPath != null)
+                Files.deleteIfExists(lockPath);
+        } catch (Exception ignored) {
+        }
         downloadLock = null;
-        lockChannel  = null;
-        lockPath     = null;
+        lockChannel = null;
+        lockPath = null;
     }
 
     private void releaseDownloadLock() {
