@@ -9,14 +9,14 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.EpubGutenbergHelper;
+import com.driot.bookplayer.ebooks.EpubGutenbergHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.OdtLowLevelHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.helpers.EpubLowLevelHelper;
-import com.driot.bookplayer.helpers.Fb2LowLevelHelper;
+import com.driot.bookplayer.ebooks.EpubLowLevelHelper;
+import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
 
 import java.io.BufferedWriter;
 import java.io.File;
