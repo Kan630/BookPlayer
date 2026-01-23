@@ -29,7 +29,9 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
     protected abstract boolean enableOngoingTaskOverlay();
 
     /** Override to false in activities that should NOT show the bottom nav bar */
-    protected boolean displayBottomNavBar() { return true; }
+    protected boolean displayBottomNavBar() {
+        return true;
+    }
 
     private NavigationBarView bottomNav;
 
@@ -54,11 +56,11 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
                     OngoingTaskHost.attach(
                             this,
                             R.id.topOverlayContainer,
-                            new Intent(this, AddResourceActivity.class)
-                    );
+                            new Intent(this, AddResourceActivity.class));
                 });
             } else {
-                myLogEE(null, "enableOngoingTaskOverlay()==true but no topOverlayContainer in layout " + getLayoutResId());
+                myLogEE(null,
+                        "enableOngoingTaskOverlay()==true but no topOverlayContainer in layout " + getLayoutResId());
             }
         }
 
@@ -67,7 +69,8 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
 
         // 5) Optional: hide the bottom nav completely
         if (!displayBottomNavBar()) {
-            if (bottomNav != null) bottomNav.setVisibility(View.GONE);
+            if (bottomNav != null)
+                bottomNav.setVisibility(View.GONE);
         }
     }
 
@@ -77,7 +80,7 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
 
         bottomNav.setOnItemSelectedListener(item -> {
             boolean fromCode = navSelectionFromCode;
-            navSelectionFromCode = false;   // reset for next time
+            navSelectionFromCode = false; // reset for next time
 
             if (fromCode) {
                 myLogD("BottomNav selection changed programmatically: item="
@@ -88,13 +91,10 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
             myLogI("--- user click bottom Nav bar ---    item = "
                     + item.getItemId() + " - " + item.getTitle());
 
-            int id = item.getItemId();
-            if (id == getNavId()) {
-                myLogD("already here");
+            if (NavHelper.handleBottomNavClick(BaseBottomNavActivity.this, item.getItemId())) {
                 return true;
             }
 
-            MainActivity.startAsRoot(this, id);
             return true;
         });
 
@@ -109,36 +109,33 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
             int targetId = getNavId();
             if (bottomNav.getSelectedItemId() != targetId) {
                 myLogD("onResume(): fixing bottom nav selection to " + targetId);
-                bottomNav.setSelectedItemId(targetId);
+                selectBottomNavItemFromCode(targetId);
             }
         }
     }
-
 
     // IMPORTANT: don't call setContentView() in child activities
     @Override
     public void setContentView(int layoutResID) {
         throw new UnsupportedOperationException(
-                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()"
-        );
+                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()");
     }
 
     @Override
     public void setContentView(View view) {
         throw new UnsupportedOperationException(
-                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()"
-        );
+                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()");
     }
 
     @Override
     public void setContentView(View view, ViewGroup.LayoutParams params) {
         throw new UnsupportedOperationException(
-                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()"
-        );
+                "Use getLayoutResId() in BaseBottomNavActivity instead of setContentView()");
     }
 
     private void selectBottomNavItemFromCode(int itemId) {
-        if (bottomNav == null) return;
+        if (bottomNav == null)
+            return;
         navSelectionFromCode = true;
         bottomNav.setSelectedItemId(itemId);
     }
@@ -150,4 +147,3 @@ public abstract class BaseBottomNavActivity extends LoggingActivity {
         ctx.startActivity(intent);
     }
 }
-

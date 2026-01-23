@@ -316,18 +316,7 @@ public class MainActivity extends BaseBottomNavActivity {
         // Consume the extra so it won't re-trigger next time
         intent.removeExtra(EXTRA_REQUESTED_NAV_ID);
 
-        if (requestedNavId == R.id.nav_library) {
-            // Already on the Library tab, nothing else to do
-            return;
-        } else if (requestedNavId == R.id.nav_radio) {
-            NavHelper.navigateToRadioSection(this, true);
-        } else if (requestedNavId == R.id.nav_podcast) {
-            NavHelper.navigateToPodcastSection(this, true);
-        } else if (requestedNavId == R.id.nav_add) {
-            startActivity(new Intent(this, GetActivity.class));
-        } else if (requestedNavId == R.id.nav_settings) {
-            startActivity(new Intent(this, SettingsActivity.class));
-        }
+        NavHelper.handleBottomNavClick(this, requestedNavId);
     }
 
     private void handleDeepLink(Intent intent) {
