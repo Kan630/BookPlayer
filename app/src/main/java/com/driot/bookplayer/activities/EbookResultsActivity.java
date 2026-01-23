@@ -20,7 +20,9 @@ import com.driot.bookplayer.ebooks.gutendex.GutendexMapper;
 import com.driot.bookplayer.ebooks.gutendex.GutendexResponse;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.librivox.LanguageMapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -228,7 +230,9 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 List<GutendexBook> books = resp.results;
 
                 if (books == null || books.isEmpty()) {
-                    myLog("Gutendex: no books found for [" + query + "] lang [" + lang + "]");
+                    String errMsg = "No ebooks found \nfor search [" + query + "] \nwith language [" + LanguageMapper.getNameFromTwoLetters(lang) + "]";
+                    myLogW(errMsg);
+                    tvEmptyMessage.setText(errMsg);
                     tvEmptyMessage.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                     adapter.setHeaderCount(getString(R.string.Results_2pt) + " 0");

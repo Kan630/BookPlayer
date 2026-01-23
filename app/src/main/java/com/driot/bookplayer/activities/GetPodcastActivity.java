@@ -33,9 +33,21 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
     Button buttonPodcastSearch;
     Spinner spinnerLang;
 
-    @Override protected int getNavId() { return R.id.nav_podcast; }
-    @Override protected int getLayoutResId() { return R.layout.activity_get_podcast; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_podcast;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_get_podcast;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -55,14 +67,13 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
                 Pref.get_Audio_Language_Podcast(this),
                 LanguageHelper.getPodcastLanguages(),
                 lang -> Pref.set_Audio_Language_Podcast(this, lang.twoLetterCode),
-                false
-        );
+                false);
 
         bFavorite.setOnClickListener(v -> clickFavorite());
         ibFavorite.setOnClickListener(v -> clickFavorite());
         ibSettings.setOnClickListener(v -> clickSettings());
 
-        editTextPodcast.post(() -> { //async because takes ages
+        editTextPodcast.post(() -> { // async because takes ages
             editTextPodcast.setHistoryKey("podcast_search");
             editTextPodcast.setCompletionThreshold(1);
             editTextPodcast.setSuggestOnFocus(true);
@@ -123,7 +134,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
         lang = spinnerLang.getSelectedItem().toString().toLowerCase();
 
         if (lang.isEmpty()) {
-            myToast("selected language error");
+            myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
             return;
         }
 
@@ -131,6 +142,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
 
         FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(query, lang);
     }
+
     private void openPodcastResultsActivity() {
         Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
         intent.putExtra("query", query);

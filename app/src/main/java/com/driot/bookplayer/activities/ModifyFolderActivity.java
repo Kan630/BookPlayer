@@ -111,18 +111,20 @@ public class ModifyFolderActivity extends LoggingActivity {
             startActivity(i);
         });
 
-        findViewById(R.id.bResetTracksOrder).setOnClickListener(view -> { clickResetTracksOrder(); });
+        findViewById(R.id.bResetTracksOrder).setOnClickListener(view -> {
+            clickResetTracksOrder();
+        });
 
         findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
             startActivity(new Intent(this, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER, folder)
-                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
-            );
+                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true));
             String warning = null;
-            if ( PlaybackUiBus.get().state().getValue() != null) {
+            if (PlaybackUiBus.get().state().getValue() != null) {
                 warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
             }
-            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text), warning);
+            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text),
+                    warning);
         });
 
         String memoryLocationText = getString(R.string.AudioLocation) + " : " + folder.getMemoryLocationText(this);
@@ -136,11 +138,15 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         checkZikFilesReadable();
 
-        String percentDone = folder.getPercentdone()>0 ? "  .  " + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened) : "";
+        String percentDone = folder.getPercentdone() > 0
+                ? "  .  " + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened)
+                : "";
         String info = "";
         info = info + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
-        info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess) + " (" + Tonio.formatLastAccess(folder.lLastAccess,this) + ")";
-        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks) + percentDone;
+        info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess)
+                + " (" + Tonio.formatLastAccess(folder.lLastAccess, this) + ")";
+        info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " "
+                + getString(R.string.audio_tracks) + percentDone;
         tvInfo.setText(info);
 
         restoreDeletionIfActive();
@@ -158,7 +164,8 @@ public class ModifyFolderActivity extends LoggingActivity {
         ivCoverPreview.setImageResource(R.drawable.no_image_icon);
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() {
+            @Override
+            public void handleOnBackPressed() {
                 if (isDeleting || (blockingOverlay != null && blockingOverlay.getVisibility() == View.VISIBLE)) {
                     // Don’t cancel the Work; just finish this Activity
                     setResult(RESULT_OK, new Intent().putExtra("deleteInProgressFolderId", folder.getId()));
@@ -170,7 +177,6 @@ public class ModifyFolderActivity extends LoggingActivity {
             }
         });
 
-
         bChangeCover.setOnClickListener(view -> clickChangeCover());
         bDeleteCover.setOnClickListener(view -> clickDeleteCover());
         bGenerateCover.setOnClickListener(view -> clickGenerateCover());
@@ -181,7 +187,8 @@ public class ModifyFolderActivity extends LoggingActivity {
         AppDatabase.getDatabase(this).folderDao()
                 .observeById(folder.getId())
                 .observe(this, fresh -> {
-                    if (fresh == null) return;
+                    if (fresh == null)
+                        return;
                     if (fresh.image != null) {
                         myLogD("observe folderDAO => display new fresh image : " + fresh.image);
                         folder.image = fresh.image;
@@ -199,7 +206,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                                 .error(R.drawable.no_image_icon)
                                 .placeholder(R.drawable.no_image_icon)
                                 .into(ivCoverPreview);
-                        //ivCoverPreview.setImageURI(Uri.parse(fresh.image));
+                        // ivCoverPreview.setImageURI(Uri.parse(fresh.image));
                     }
                 });
     }
@@ -207,9 +214,11 @@ public class ModifyFolderActivity extends LoggingActivity {
     private void bDeleteClick() {
         WorkManager wm = WorkManager.getInstance(getApplicationContext());
         wm.getWorkInfosByTag(deleteTag(folder.getId()))
-                .addListener(() -> {}, Runnable::run); // no-op; example if you wanted async
+                .addListener(() -> {
+                }, Runnable::run); // no-op; example if you wanted async
 
-        // simpler: use getWorkInfosByTag (blocking) from a background thread, or just rely on UI lock:
+        // simpler: use getWorkInfosByTag (blocking) from a background thread, or just
+        // rely on UI lock:
         // If overlay is visible, do nothing:
         if (blockingOverlay.getVisibility() == View.VISIBLE) {
             // already deleting → ignore tap
@@ -221,14 +230,15 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setMessage(getString(R.string.ModifyFolder_AskDelete))
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialog, which) -> startDeleteWorker())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                })
                 .show();
     }
-
 
     private static String deleteTag(long folderId) {
         return "delete_folder_" + folderId;
     }
+
     private static String deleteUniqueName(long folderId) {
         return "delete_folder_unique_" + folderId;
     }
@@ -253,30 +263,37 @@ public class ModifyFolderActivity extends LoggingActivity {
         wm.enqueueUniqueWork(
                 deleteUniqueName(folder.getId()),
                 ExistingWorkPolicy.KEEP,
-                req
-        );
+                req);
 
         // Observe by TAG so we can reattach later, even if we lose the request id
         attachDeletionObserverByTag(deleteTag(folder.getId()));
     }
 
-
     private void setUiDeleting(boolean deleting) {
         if (deleting) {
             // block taps visually
-            if (blockingOverlay != null) blockingOverlay.setVisibility(View.VISIBLE);
+            if (blockingOverlay != null)
+                blockingOverlay.setVisibility(View.VISIBLE);
         } else {
-            if (blockingOverlay != null) blockingOverlay.setVisibility(View.GONE);
+            if (blockingOverlay != null)
+                blockingOverlay.setVisibility(View.GONE);
         }
 
         // Disable all action buttons to prevent multiple clicks
-        if (bDelete != null) bDelete.setEnabled(!deleting);
-        if (bReset != null)  bReset.setEnabled(!deleting);
-        if (bExport != null) bExport.setEnabled(!deleting);
-        if (etRename != null) etRename.setEnabled(!deleting);
-        if (bChangeCover != null) bChangeCover.setEnabled(!deleting);
-        if (bDeleteCover != null) bDeleteCover.setEnabled(!deleting);
-        if (bGenerateCover != null) bGenerateCover.setEnabled(!deleting);
+        if (bDelete != null)
+            bDelete.setEnabled(!deleting);
+        if (bReset != null)
+            bReset.setEnabled(!deleting);
+        if (bExport != null)
+            bExport.setEnabled(!deleting);
+        if (etRename != null)
+            etRename.setEnabled(!deleting);
+        if (bChangeCover != null)
+            bChangeCover.setEnabled(!deleting);
+        if (bDeleteCover != null)
+            bDeleteCover.setEnabled(!deleting);
+        if (bGenerateCover != null)
+            bGenerateCover.setEnabled(!deleting);
     }
 
     private void renameBook(String newName) {
@@ -288,7 +305,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 AppDatabase.getDatabase(this).folderDao().updateFolderNameInZikFile(folder.getId(), newName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.Folder_Renamed));
-                    myLogInFile(getString(R.string.Folder_Renamed) + " : [" + folder.getName() + "] - > [" + newName + "]");
+                    myLogInFile(
+                            getString(R.string.Folder_Renamed) + " : [" + folder.getName() + "] - > [" + newName + "]");
                     finish();
                 });
             }).start();
@@ -302,7 +320,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setMessage(getString((R.string.ModifyFolder_AskReset)))
                 .setCancelable(true)
                 .setPositiveButton("ok", (dialog, i) -> resetFolder())
-                .setNegativeButton("cancel", (dialog, i) -> {})
+                .setNegativeButton("cancel", (dialog, i) -> {
+                })
                 .show();
     }
 
@@ -312,7 +331,6 @@ public class ModifyFolderActivity extends LoggingActivity {
         intent.putExtra(Intents.EXTRA_FOLDER, folder);
         this.startActivity(intent);
     }
-
 
     private void resetFolder() {
         myLog("resetFolder()");
@@ -354,8 +372,9 @@ public class ModifyFolderActivity extends LoggingActivity {
     }
 
     private final ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> { checkResults(result); });
-
+            new ActivityResultContracts.StartActivityForResult(), result -> {
+                checkResults(result);
+            });
 
     private void clickChangeCover() {
         myLogI("user clicks - CHANGE cover IMAGE");
@@ -363,15 +382,18 @@ public class ModifyFolderActivity extends LoggingActivity {
         intent.setType("image/*");
         selectImageLauncher.launch(Intent.createChooser(intent, "Select Cover Image"));
     }
-    private final ActivityResultLauncher<Intent> selectImageLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+
+    private final ActivityResultLauncher<Intent> selectImageLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Uri selectedImageUri = result.getData().getData();
                     if (selectedImageUri != null) {
                         new Thread(() -> {
                             try {
-                                String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this, folder.getId(), selectedImageUri.toString());
-                                if (newImagePath == null) throw new RuntimeException("Image copy/compression failed");
+                                String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this,
+                                        folder.getId(), selectedImageUri.toString());
+                                if (newImagePath == null)
+                                    throw new RuntimeException("Image copy/compression failed");
                                 folder.image = newImagePath;
                                 AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
                                 runOnUiThread(() -> {
@@ -386,6 +408,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                     }
                 }
             });
+
     private void clickDeleteCover() {
         myLogI("user clicks - DELETE cover IMAGE");
         new AlertDialog.Builder(ModifyFolderActivity.this)
@@ -393,9 +416,11 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setMessage(getString(R.string.DeleteCoverImage_AskDelete))
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialog, which) -> deleteCover())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                })
                 .show();
     }
+
     private void deleteCover() {
         new Thread(() -> {
             try {
@@ -408,13 +433,16 @@ public class ModifyFolderActivity extends LoggingActivity {
             }
         }).start();
     }
-    private final ActivityResultLauncher<Intent> coverGenLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+
+    private final ActivityResultLauncher<Intent> coverGenLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 myLogW("result from CoverGenerationActivity " + result.getResultCode() + " " + result.getData());
-                if (result.getResultCode() != RESULT_OK || result.getData() == null) return;
+                if (result.getResultCode() != RESULT_OK || result.getData() == null)
+                    return;
                 String savedPath = result.getData().getStringExtra(CoverGenerationActivity.RESULT_SAVED_PATH);
                 myLogW("savedPath = " + savedPath);
-                if (savedPath == null || savedPath.isEmpty()) return;
+                if (savedPath == null || savedPath.isEmpty())
+                    return;
 
                 new Thread(() -> {
                     try {
@@ -439,7 +467,7 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         // Load saved prefs (if any), else fall back to defaults
         String savedInitials = Pref.getBookCoverInitials(this, fId);
-        Integer savedColor   = Pref.getBookCoverColorOrNull(this, fId);
+        Integer savedColor = Pref.getBookCoverColorOrNull(this, fId);
         Boolean savedRounded = Pref.getBookCoverRoundedOrNull(this, fId);
 
         final boolean rounded = (savedRounded != null) ? savedRounded : true;
@@ -464,7 +492,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         i.putExtra(CoverWebSearchActivity.EXTRA_FOLDER_ID, (long) folder.getId());
         i.putExtra(CoverWebSearchActivity.EXTRA_DEFAULT_TITLE, folder.getName());
         this.startActivity(i);
-        }
+    }
 
     private void openFolderInFileExplorer(String pathOrUri) {
         myLog("openFolderInFileExplorer: " + pathOrUri);
@@ -485,14 +513,16 @@ public class ModifyFolderActivity extends LoggingActivity {
         } else {
             // It's a file system path. FileProvider can't "open a folder".
             // Best UX: if you previously stored a treeUri for this folder, use that here.
-            // Otherwise, just fall back to the picker at that location (see fallback below).
+            // Otherwise, just fall back to the picker at that location (see fallback
+            // below).
             File file = new File(pathOrUri);
             File folder = file.isDirectory() ? file : file.getParentFile();
             if (folder == null || !folder.exists()) {
                 myToastE("Folder does not exist");
                 return;
             }
-            // We cannot build a valid SAF uri from a raw path here without prior SAF access.
+            // We cannot build a valid SAF uri from a raw path here without prior SAF
+            // access.
             // We'll use the picker with EXTRA_INITIAL_URI as a fallback below.
         }
 
@@ -505,7 +535,8 @@ public class ModifyFolderActivity extends LoggingActivity {
 
         if (dirTreeOrDocUri != null) {
             viewDir.setDataAndType(dirTreeOrDocUri, DocumentsContract.Document.MIME_TYPE_DIR);
-            // Prefer the standard Files app when present (AOSP/Pixel); safe to try and ignore if missing
+            // Prefer the standard Files app when present (AOSP/Pixel); safe to try and
+            // ignore if missing
             viewDir.setPackage("com.android.documentsui");
             try {
                 myLog("Opening with DocumentsUI: " + dirTreeOrDocUri);
@@ -523,7 +554,8 @@ public class ModifyFolderActivity extends LoggingActivity {
             }
         }
 
-        // 2) Fallback: open the system folder picker AT that location (user sees the directory).
+        // 2) Fallback: open the system folder picker AT that location (user sees the
+        // directory).
         // Works reliably across Android versions/vendors.
         Intent openTree = new Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
                 .addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
@@ -537,7 +569,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 myLog("Opening picker at EXTRA_INITIAL_URI: " + dirTreeOrDocUri);
             } else {
                 // If we only had a raw path, try to hint the picker with the last used tree
-                // (optional: store/retrieve a matching treeUri in your DB when the user selects a folder).
+                // (optional: store/retrieve a matching treeUri in your DB when the user selects
+                // a folder).
             }
             startActivity(openTree);
         } catch (ActivityNotFoundException e) {
@@ -558,7 +591,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 return;
             }
 
-            // If any already SUCCEEDED → finish immediately (covers the “came back later” case)
+            // If any already SUCCEEDED → finish immediately (covers the “came back later”
+            // case)
             for (WorkInfo wi : infos) {
                 if (wi.getState() == WorkInfo.State.SUCCEEDED) {
                     isDeleting = false;
@@ -572,7 +606,10 @@ public class ModifyFolderActivity extends LoggingActivity {
             // Otherwise, look for an active one
             WorkInfo active = null;
             for (WorkInfo wi : infos) {
-                if (!wi.getState().isFinished()) { active = wi; break; }
+                if (!wi.getState().isFinished()) {
+                    active = wi;
+                    break;
+                }
             }
 
             if (active == null) {
@@ -603,8 +640,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                     isDeleting = false;
                     setUiDeleting(false);
                     String err = active.getOutputData().getString("error");
-                    myToastE(err != null ? err :
-                            (active.getState() == WorkInfo.State.CANCELLED ? "Delete cancelled" : "Delete failed"));
+                    myToastE(err != null ? err
+                            : (active.getState() == WorkInfo.State.CANCELLED ? "Delete cancelled" : "Delete failed"));
                     myLogEE(null, "Worker Delete folder : " + err);
                     break;
             }
@@ -618,9 +655,11 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setMessage(getString(R.string.AskReset_popupText_order))
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialog, which) -> resetTrackOrder())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                })
                 .show();
     }
+
     private void resetTrackOrder() {
         AppDatabase db = AppDatabase.getInstance(getApplicationContext());
         AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -637,7 +676,8 @@ public class ModifyFolderActivity extends LoggingActivity {
 
                 // Persist the URI permission so it survives app restarts
                 try {
-                    getContentResolver().takePersistableUriPermission(pickedTreeUri, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+                    getContentResolver().takePersistableUriPermission(pickedTreeUri,
+                            Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 } catch (Exception e) {
                     myLogEE(e, "Failed to persist URI permission");
                 }
@@ -694,8 +734,10 @@ public class ModifyFolderActivity extends LoggingActivity {
                         final int nbBetterFinal = nbBetter;
                         final int nbWorseFinal = nbWorse;
                         runOnUiThread(() -> {
-                            String oldPathExample = list.isEmpty() ? "" : Tonio.getParentFolderOrEmpty(list.get(0).getPath());
-                            String fixText = (nbWorseFinal>0 ? getString(R.string.new_location_better_and_worse) : getString(R.string.new_location_better));
+                            String oldPathExample = list.isEmpty() ? ""
+                                    : Tonio.getParentFolderOrEmpty(list.get(0).getPath());
+                            String fixText = (nbWorseFinal > 0 ? getString(R.string.new_location_better_and_worse)
+                                    : getString(R.string.new_location_better));
                             String textMsg = fixText
                                     + "\n " + getString(R.string.from) + " [" + oldPathExample + "]"
                                     + "\n " + getString(R.string.to) + " [" + pickedTreeUri + "]"
@@ -709,7 +751,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                                     .setPositiveButton(getString(R.string.proceed), (dialog, ii) -> {
                                         updateZikFilePaths(pickedTreeUri, treeDocumentId);
                                     })
-                                    .setNegativeButton(getString(R.string.cancel), (dialog, ii) -> {})
+                                    .setNegativeButton(getString(R.string.cancel), (dialog, ii) -> {
+                                    })
                                     .show();
                         });
                     }
@@ -724,8 +767,9 @@ public class ModifyFolderActivity extends LoggingActivity {
 
     private boolean isUriReadable(Context context, Uri uri) {
         try {
-            String[] projection = {DocumentsContract.Document.COLUMN_DOCUMENT_ID};
-            try (android.database.Cursor cursor = context.getContentResolver().query(uri, projection, null, null, null)) {
+            String[] projection = { DocumentsContract.Document.COLUMN_DOCUMENT_ID };
+            try (android.database.Cursor cursor = context.getContentResolver().query(uri, projection, null, null,
+                    null)) {
                 return cursor != null && cursor.getCount() > 0;
             }
         } catch (Exception e) {
@@ -781,13 +825,13 @@ public class ModifyFolderActivity extends LoggingActivity {
                 myToastEE(e, "could not open android folder explorer");
             }
         } else {
-            myToast("permission read storage not granted");
-            //askForPermission(); // check code in getOthers
+            myToast(getString(com.driot.bookplayer.R.string.permission_read_storage_not_granted));
+            // askForPermission(); // check code in getOthers
         }
     }
 
     private void checkZikFilesReadable() {
-    // CHECK zikFiles are readable
+        // CHECK zikFiles are readable
         AppDatabase.databaseReadExecutor.execute(() -> {
             Context context = getApplicationContext();
             String path;
@@ -801,7 +845,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 i = i + 1;
                 path = zikFile.getPath();
                 String pathType = (path.startsWith("content://") ? "[CONTENT] " : "");
-                String logStrPrefix = getString(R.string.track) + " " + i + "/" + nbZikFiles + " : [" + zikFile.getDisplayName() + "]";
+                String logStrPrefix = getString(R.string.track) + " " + i + "/" + nbZikFiles + " : ["
+                        + zikFile.getDisplayName() + "]";
                 src = UriHelper.resolveUriFromPath(context, path);
                 if (src == null) {
                     nbKO = nbKO + 1;
@@ -820,7 +865,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                     tv_zikfile_resolve_error.setText(finalMasterMsg);
                     TextView tv_error_title = findViewById(R.id.tv_error_title);
                     String errDetail = finalNbKO + "/" + nbZikFiles + " " + getString(R.string.zikFiles_not_readable);
-                    if (finalNbKO==nbZikFiles) errDetail = getString(R.string.All_zikFiles_not_readable);
+                    if (finalNbKO == nbZikFiles)
+                        errDetail = getString(R.string.All_zikFiles_not_readable);
                     tv_error_title.setText(errDetail);
                     MaterialButton mbPickNewLocation = findViewById(R.id.mbPickNewLocation);
                     mbPickNewLocation.setOnClickListener((v -> pickNewLocation()));

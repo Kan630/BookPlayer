@@ -49,7 +49,8 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
         void onToggle(Podcast podcast, boolean newState);
     }
 
-    public PodcastFavoritesRVAdapter(OnItemClickListener onItemClickListener, OnAutoDownloadToggleListener autoDownloadToggleListener) {
+    public PodcastFavoritesRVAdapter(OnItemClickListener onItemClickListener,
+            OnAutoDownloadToggleListener autoDownloadToggleListener) {
         this.onItemClickListener = onItemClickListener;
         this.autoDownloadToggleListener = autoDownloadToggleListener;
     }
@@ -89,10 +90,6 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             ((PodcastViewHolder) holder).bind(podcast, onItemClickListener, autoDownloadToggleListener);
         }
     }
-
-
-
-
 
     @Override
     public int getItemCount() {
@@ -138,16 +135,17 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
         }
 
         void bind(Podcast podcast,
-                  OnItemClickListener listener,
-                  OnAutoDownloadToggleListener autoDownloadToggleListener) {
+                OnItemClickListener listener,
+                OnAutoDownloadToggleListener autoDownloadToggleListener) {
 
             title.setText(podcast.title);
-            //desc.setText(podcast.language); // placeholder (you could fetch/show `feedId` or something better)
+            // desc.setText(podcast.language); // placeholder (you could fetch/show `feedId`
+            // or something better)
             desc.setVisibility(View.GONE);
-            Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image)).into(image);
+            Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image))
+                    .into(image);
 
-
-            ///  AUTO DOWNLOAD BUTTON
+            /// AUTO DOWNLOAD BUTTON
             autoDownload.setVisibility(View.VISIBLE);
 
             int colorRes = podcast.autoDownload ? R.color.green_500 : R.color.gray_500;
@@ -169,30 +167,33 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
 
                 // ⬇ Trigger download if enabled
                 if (newState) {
-                    PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(itemView.getContext(), podcast, PODCAST_INDEX_ORG_SINCE);
+                    PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(itemView.getContext(), podcast,
+                            PODCAST_INDEX_ORG_SINCE);
                 }
             });
 
-            ///  STATS
+            /// STATS
             if (podcast.idFolder != null && podcast.idFolder > 0) {
                 AppDatabase.databaseWriteExecutor.execute(() -> {
-                    Folder folder = AppDatabase.getDatabase(itemView.getContext()).folderDao().getById(podcast.idFolder);
+                    Folder folder = AppDatabase.getDatabase(itemView.getContext()).folderDao()
+                            .getById(podcast.idFolder);
                     if (folder != null) {
                         new Handler(Looper.getMainLooper()).post(() -> {
                             String nbFile = folder.nbZikFile + " tracks";
                             String duration = Tonio.formatTime(folder.getDuration());
                             String percentDone = String.format(Locale.US, "%.0f", folder.getPercentdone());
-                            String lastAdded = "Updated : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", folder.date_last_zikfile_added);
+                            String lastAdded = "Updated : " + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm",
+                                    folder.date_last_zikfile_added);
                             String stats = nbFile + " · " + duration + " · " + percentDone + "% done"
                                     + "\n" + lastAdded;
                             folderStats.setText(stats);
                         });
                     } else {
-                        folderStats.setText("No episode downloaded");
+                        folderStats.setText(com.driot.bookplayer.R.string.no_episode_downloaded);
                     }
                 });
             } else {
-                folderStats.setText("No episode downloaded");
+                folderStats.setText(com.driot.bookplayer.R.string.no_episode_downloaded);
             }
 
             itemView.setOnClickListener(v -> listener.onItemClick(podcast));

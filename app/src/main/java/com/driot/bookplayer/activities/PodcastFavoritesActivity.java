@@ -36,9 +36,20 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
     private TextView emptyMessage, tvSearchTerms, tvLanguage, tvResultsCount;
     private PodcastFavoritesRVAdapter adapter;
 
-    @Override protected int getNavId() { return R.id.nav_podcast; }
-    @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_podcast;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_podcast_search_result;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -52,11 +63,13 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
-        recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
+        recyclerView
+                .addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
-            if (shouldFinish != null && shouldFinish) finish();
+            if (shouldFinish != null && shouldFinish)
+                finish();
         });
 
         adapter = new PodcastFavoritesRVAdapter(
@@ -74,13 +87,12 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
                                 .updateAutoDownloadStatus_fromFeedId(item.feedId, newState);
                         PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, item, PODCAST_INDEX_ORG_SINCE);
                     });
-                }
-        );
+                });
         recyclerView.setAdapter(adapter);
 
         viewModel.getFavoritePodcastsLive().observe(this, favorites -> {
             if (favorites == null || favorites.isEmpty()) {
-                myToast("No favorite podcasts found");
+                myToast(getString(com.driot.bookplayer.R.string.no_favorite_podcasts_found));
                 adapter.setItems(Collections.emptyList());
                 adapter.notifyDataSetChanged();
             } else {
@@ -97,6 +109,4 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
         adapter.setHeaderInfo(query, lang, podcastList.size());
     }
 
-
 }
-

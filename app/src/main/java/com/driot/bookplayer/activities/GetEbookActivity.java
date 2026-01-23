@@ -15,7 +15,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
+import com.driot.bookplayer.views.EditText1lineWithSearch;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -23,14 +23,24 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class GetEbookActivity extends BaseBottomNavActivity {
 
     Spinner spinnerEbookLang;
-    EditText1lineWithPasteDelete editTextEbook;
-    Button buttonSearch;
+    EditText1lineWithSearch editTextEbook;
 
     String query, lang;
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_get_ebook; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_get_ebook;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -38,25 +48,24 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         InsetHelper.apply(this);
 
         spinnerEbookLang = findViewById(R.id.spinnerEbookLang);
-        editTextEbook    = findViewById(R.id.etEbook);
-        buttonSearch     = findViewById(R.id.bEbookSearch);
+        editTextEbook = findViewById(R.id.etEbook);
 
         // Keep history separate from Librivox search
         editTextEbook.setHistoryKey("ebook_search");
         editTextEbook.setCompletionThreshold(1);
         editTextEbook.setSuggestOnFocus(true);
 
-        // Reuse Librivox language pref & list for now (you can make a dedicated one later)
+        // Reuse Librivox language pref & list for now (you can make a dedicated one
+        // later)
         LanguageHelper.setupLanguageSpinner(
                 this,
                 spinnerEbookLang,
                 Pref.get_Audio_Language_Ebook(this),
                 LanguageHelper.getLibrivoxLanguages(),
                 langItem -> Pref.set_Audio_Language_Ebook(this, langItem.twoLetterCode),
-                false
-        );
+                false);
 
-        buttonSearch.setOnClickListener(v -> {
+        editTextEbook.getSearchButton().setOnClickListener(v -> {
             myLogI("--- User clicks EBOOK SEARCH ---");
             doSearch();
         });
@@ -82,11 +91,12 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
         // Here we expect spinner entries like "en", "fr", ...
         LanguageItem selected = (LanguageItem) spinnerEbookLang.getSelectedItem();
-        lang = selected.twoLetterCode;           // "en", "fr", etc.
-        if (lang == null) lang = "";
+        lang = selected.twoLetterCode; // "en", "fr", etc.
+        if (lang == null)
+            lang = "";
 
         if (lang.isEmpty()) {
-            myToast("selected language error");
+            myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
             return;
         }
         FirebaseAnalyticsHelper.tellAnalyticsGutendexSearch(query, lang);
@@ -100,6 +110,5 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         intent.putExtra("lang", lang);
         startActivity(intent);
     }
-
 
 }

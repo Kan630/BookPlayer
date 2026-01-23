@@ -35,10 +35,13 @@ public class AdminActivity extends LoggingActivity {
     private ListView listActivities;
 
     // Map of label -> Activity class to create buttons dynamically
-    private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {{
-        put("Debug Database Activity", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
-        //put("Tts Read Txt Activity", com.driot.bookplayer.activities.TtsReadTxtActivity.class);
-    }};
+    private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {
+        {
+            put("Debug Database Activity", com.driot.bookplayer.activities.DebugDatabaseActivity.class);
+            // put("Tts Read Txt Activity",
+            // com.driot.bookplayer.activities.TtsReadTxtActivity.class);
+        }
+    };
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -97,12 +100,12 @@ public class AdminActivity extends LoggingActivity {
         findViewById(R.id.bCrash).setOnClickListener(v -> {
             String crashText = ((EditText) findViewById(R.id.etCrashText)).getText().toString();
             throw new RuntimeException(crashText); // Force a crash
-                });
+        });
 
-        findViewById(R.id.bCarConnect).setOnClickListener(v -> myToast("nothing"));
+        findViewById(R.id.bCarConnect)
+                .setOnClickListener(v -> myToast(getString(com.driot.bookplayer.R.string.nothing)));
 
-
-//auto stuff
+        // auto stuff
         btnContainer = findViewById(R.id.btnContainer);
         listActivities = findViewById(R.id.listActivities);
         addDynamicButtons();
@@ -118,8 +121,7 @@ public class AdminActivity extends LoggingActivity {
 
             LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.MATCH_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            );
+                    LinearLayout.LayoutParams.WRAP_CONTENT);
             lp.bottomMargin = margin;
             b.setLayoutParams(lp);
 
@@ -144,10 +146,12 @@ public class AdminActivity extends LoggingActivity {
 
         for (ResolveInfo ri : infos) {
             ActivityInfo ai = ri.activityInfo;
-            if (ai == null) continue;
+            if (ai == null)
+                continue;
 
             // Skip AdminActivity itself (optional)
-            if (AdminActivity.class.getName().equals(ai.name)) continue;
+            if (AdminActivity.class.getName().equals(ai.name))
+                continue;
 
             CharSequence label = ri.loadLabel(pm);
             labels.add(label != null ? label.toString() : ai.name);
@@ -155,8 +159,7 @@ public class AdminActivity extends LoggingActivity {
         }
 
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this, android.R.layout.simple_list_item_1, labels
-        );
+                this, android.R.layout.simple_list_item_1, labels);
         listActivities.setAdapter(adapter);
 
         listActivities.setOnItemClickListener((parent, view, position, id) -> {

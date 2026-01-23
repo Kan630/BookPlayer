@@ -63,7 +63,9 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             holder.ivIcon.setColorFilter(0xFFFF0000); // Red color
             // Show "already imported" message
             holder.tvAlreadyImported.setVisibility(android.view.View.VISIBLE);
-            holder.tvAlreadyImported.setText("Already imported under the name: " + item.existingBookName);
+            holder.tvAlreadyImported.setText(
+                    holder.itemView.getContext().getString(com.driot.bookplayer.R.string.already_imported_under_name)
+                            + item.existingBookName);
         } else {
             // Clear color filter (normal icon)
             holder.ivIcon.clearColorFilter();

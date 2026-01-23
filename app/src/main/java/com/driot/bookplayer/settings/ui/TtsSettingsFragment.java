@@ -29,15 +29,16 @@ public class TtsSettingsFragment extends LoggingFragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_settings_tts, container, false);
 
         // Show/hide local title when embedded
         boolean showLocalTitle = true;
         Bundle args = getArguments();
-        if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
+        if (args != null)
+            showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
         View titleContainer = root.findViewById(R.id.ll_title);
         if (titleContainer != null) {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
@@ -53,7 +54,8 @@ public class TtsSettingsFragment extends LoggingFragment {
                 /* otherwise use requireContext() */ ttsVoiceSpinner,
                 lastSavedTtsVoice,
                 voiceItem -> {
-                    myLogD("TtsHelper.setupTtsVoiceSpinner callback with voiceItem = " + (voiceItem == null ? "null" : voiceItem.name));
+                    myLogD("TtsHelper.setupTtsVoiceSpinner callback with voiceItem = "
+                            + (voiceItem == null ? "null" : voiceItem.name));
                     if (hasBeenInitialized) {
                         String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
                                 ? Option.DEFAULT_VOICE
@@ -67,8 +69,7 @@ public class TtsSettingsFragment extends LoggingFragment {
                         hasBeenInitialized = true;
                         myLogD("ignoring callback on init");
                     }
-                }
-        );
+                });
 
         // Fields
         etTtsHighlightDelay = root.findViewById(R.id.et_tts_highlight_delay);
@@ -81,7 +82,7 @@ public class TtsSettingsFragment extends LoggingFragment {
         TextView tvMax = root.findViewById(R.id.tv_tts_chunk_size_max);
         if (tvMax != null) {
             int maxInputLength = TextToSpeech.getMaxSpeechInputLength();
-            tvMax.setText("Max = " + maxInputLength);
+            tvMax.setText(getString(com.driot.bookplayer.R.string.max_value_label) + maxInputLength);
         }
 
         return root;
@@ -94,7 +95,8 @@ public class TtsSettingsFragment extends LoggingFragment {
     }
 
     private void saveEditTextValues() {
-        if (!isAdded()) return; // fragment still attached
+        if (!isAdded())
+            return; // fragment still attached
 
         final Context ctx = requireContext();
 
@@ -107,8 +109,7 @@ public class TtsSettingsFragment extends LoggingFragment {
                     etTtsHighlightDelay,
                     0, 400,
                     Option.DEFAULT_TTS_HIGHLIGHT_DELAY_MS,
-                    ctx.getString(R.string.option_tts_highlight_delay_outOfBounds)
-            );
+                    ctx.getString(R.string.option_tts_highlight_delay_outOfBounds));
         } else {
             highlightDelay = null;
         }
@@ -121,8 +122,7 @@ public class TtsSettingsFragment extends LoggingFragment {
                     etTtsChunkSize,
                     1200, maxInputLength,
                     Option.DEFAULT_TTS_CHUNK_SIZE,
-                    ctx.getString(R.string.tts_chunk_size)
-            );
+                    ctx.getString(R.string.tts_chunk_size));
         } else {
             chunkSize = null;
         }

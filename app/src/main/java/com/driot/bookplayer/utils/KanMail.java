@@ -24,10 +24,9 @@ public class KanMail {
     private static Uri u_attachment;
     private static Context appContext;
 
-    //cannot get import, maybe because the java class is in another Lib...
+    // cannot get import, maybe because the java class is in another Lib...
     public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
     public static final boolean DEFAULT_SEND_MAIL_METHOD_DEFAULT = true;
-
 
     public static void sendDaMail(Context c, String listRecipients, String subject, String body, Uri attachmentUri) {
         appContext = c;
@@ -63,7 +62,7 @@ public class KanMail {
     private static void sendMail_DefaultApp() {
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("message/rfc822");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { s_listRecipients });
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
         emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
 
@@ -76,10 +75,10 @@ public class KanMail {
     }
 
     private static void sendMail_andLetUserChooseAnyApp() {
-        myToast("Please select an email app");
+        myToast(appContext.getString(com.driot.bookplayer.R.string.please_select_email_app));
         Intent emailIntent = new Intent(Intent.ACTION_SEND);
         emailIntent.setType("message/rfc822");
-        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
+        emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[] { s_listRecipients });
         emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
         emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
         if (u_attachment != null) {
@@ -106,7 +105,7 @@ public class KanMail {
                 Intent intent = new Intent(Intent.ACTION_SENDTO);
                 intent.setComponent(new ComponentName(info.activityInfo.packageName, info.activityInfo.name));
                 intent.setData(Uri.parse("mailto:"));
-                intent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
+                intent.putExtra(Intent.EXTRA_EMAIL, new String[] { s_listRecipients });
                 intent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
                 intent.putExtra(Intent.EXTRA_TEXT, s_body);
                 emailIntents.add(intent);
@@ -114,7 +113,7 @@ public class KanMail {
 
             // Create a chooser dialog with email apps only
             Intent chooser = Intent.createChooser(emailIntents.remove(0), "Send Email");
-            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, emailIntents.toArray(new Parcelable[]{}));
+            chooser.putExtra(Intent.EXTRA_INITIAL_INTENTS, emailIntents.toArray(new Parcelable[] {}));
             appContext.startActivity(chooser);
 
         } else {
@@ -124,30 +123,36 @@ public class KanMail {
         }
 
     }
-    /* chatGPT me dit de remplacer par ca mais je vais pas le faire !
-private static void sendMail_andLetUserChooseEmailApp(Uri attachmentUri) {
-    myToast("Please select an email app");
-
-    Intent emailIntent = new Intent(Intent.ACTION_SEND);
-    emailIntent.setType("message/rfc822");
-    emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
-    emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
-    emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
-
-    if (attachmentUri != null) {
-        emailIntent.putExtra(Intent.EXTRA_STREAM, attachmentUri);
-        emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-    }
-
-    appContext.startActivity(Intent.createChooser(emailIntent, "Send Email"));
-}
+    /*
+     * chatGPT me dit de remplacer par ca mais je vais pas le faire !
+     * private static void sendMail_andLetUserChooseEmailApp(Uri attachmentUri) {
+     * myToast("Please select an email app");
+     * 
+     * Intent emailIntent = new Intent(Intent.ACTION_SEND);
+     * emailIntent.setType("message/rfc822");
+     * emailIntent.putExtra(Intent.EXTRA_EMAIL, new String[]{s_listRecipients});
+     * emailIntent.putExtra(Intent.EXTRA_SUBJECT, s_subject);
+     * emailIntent.putExtra(Intent.EXTRA_TEXT, s_body);
+     * 
+     * if (attachmentUri != null) {
+     * emailIntent.putExtra(Intent.EXTRA_STREAM, attachmentUri);
+     * emailIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+     * }
+     * 
+     * appContext.startActivity(Intent.createChooser(emailIntent, "Send Email"));
+     * }
      */
-
 
     ////////////////////////////////////////////////////////
     ///////// Loggers
     ////////////////////////////////////////////////////////
     private static final String TAG = "KanMail";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+
+    private static void myLog(String str) {
+        KanLogger.myLog(TAG, str);
+    }
+
+    private static void myLogE(String str) {
+        KanLogger.myLogE(TAG, str);
+    }
 }

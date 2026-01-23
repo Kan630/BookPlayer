@@ -33,7 +33,7 @@ import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.librivox.ItemMetadata;
 import com.driot.bookplayer.librivox.LibrivoxApi;
-import com.driot.bookplayer.librivox.LibrivoxLanguageMapper;
+import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.Tonio;
@@ -66,9 +66,20 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     private long cachedPicSizeBytes;
     private String futureCoverPic; // path of the file we plan to use/show
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_librivox_detail; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_librivox_detail;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -93,7 +104,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         viewModel.title = getIntent().getStringExtra("title");
 
         titleView.setText(viewModel.title);
-        idView.setText("ID: " + viewModel.identifier);
+        idView.setText(getString(com.driot.bookplayer.R.string.id_label) + viewModel.identifier);
         infoView.setText(getString(R.string.loading_details));
 
         // Load cached image if any
@@ -108,15 +119,14 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             // Fallback low-res: archive.org/services/img
             new Thread(() -> {
                 String fallbackUrl = "https://archive.org/services/img/" + viewModel.identifier;
-                String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, fallbackUrl, false);
+                String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, fallbackUrl,
+                        false);
                 if (localPath != null) {
                     futureCoverPic = localPath;
-                    runOnUiThread(() ->
-                            Glide.with(coverView.getContext())
-                                    .load(new File(localPath))
-                                    .placeholder(R.drawable.placeholder_cover)
-                                    .into(coverView)
-                    );
+                    runOnUiThread(() -> Glide.with(coverView.getContext())
+                            .load(new File(localPath))
+                            .placeholder(R.drawable.placeholder_cover)
+                            .into(coverView));
                 }
             }).start();
         }
@@ -161,7 +171,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         });
 
         // Kick off metadata fetch and existing folder check
-        if (viewModel.metadata.getValue() == null) fetchMetadata();
+        if (viewModel.metadata.getValue() == null)
+            fetchMetadata();
         checkIfAlreadyDownloaded();
 
         bGet.setOnClickListener(v -> {
@@ -177,7 +188,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                 myLogI("------> USER CLICKS - GET - NEW LIBRIVOX BOOK");
                 String downloadUrl = viewModel.download_link.getValue();
                 if (downloadUrl == null || downloadUrl.isEmpty()) {
-                    downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier + "_64kb_mp3.zip";
+                    downloadUrl = "https://archive.org/download/" + viewModel.identifier + "/" + viewModel.identifier
+                            + "_64kb_mp3.zip";
                 }
                 checkThenDownload(downloadUrl);
             }
@@ -203,11 +215,13 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
     private void setupDownloadLinkObserver() {
         viewModel.download_link.observe(this, download_link -> {
-            if (download_link == null) return;
+            if (download_link == null)
+                return;
 
             if (!download_link.isEmpty()) {
                 long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + Tonio.getReadableSize(size) + ")");
+                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " ("
+                        + Tonio.getReadableSize(size) + ")");
             } else {
                 tvDownloadLink.setText("\n❌ " + getString(R.string.librivox_zip_mp3_not_found));
             }
@@ -228,9 +242,11 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         AppDatabase.databaseReadExecutor.execute(() -> {
             boolean running = ImportHelper.isAnyImportActiveSync(this);
             runOnUiThread(() -> {
-                bGet.setEnabled(!running && viewModel.download_link.getValue() != null && !viewModel.download_link.getValue().isEmpty());
+                bGet.setEnabled(!running && viewModel.download_link.getValue() != null
+                        && !viewModel.download_link.getValue().isEmpty());
                 if (running) {
-                    tvDownloadLink.setText(tvDownloadLink.getText() + "\n❌ " + getString(R.string.please_wait_another_book));
+                    tvDownloadLink
+                            .setText(tvDownloadLink.getText() + "\n❌ " + getString(R.string.please_wait_another_book));
                 }
             });
         });
@@ -247,7 +263,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
     private void fetchMetadata() {
         api.getItemMetadata(viewModel.identifier).enqueue(new Callback<ItemMetadata>() {
-            @Override public void onResponse(Call<ItemMetadata> call, Response<ItemMetadata> response) {
+            @Override
+            public void onResponse(Call<ItemMetadata> call, Response<ItemMetadata> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     viewModel.metadata.setValue(response.body());
                 } else {
@@ -255,13 +272,17 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                 }
             }
 
-            @Override public void onFailure(Call<ItemMetadata> call, Throwable t) {
+            @Override
+            public void onFailure(Call<ItemMetadata> call, Throwable t) {
                 infoView.setText(getString(R.string.loading_detail_failed) + ": " + t.getMessage());
             }
         });
     }
 
-    /** Only populate a nicer high-res image + basic text; no more file/bitrate counting. */
+    /**
+     * Only populate a nicer high-res image + basic text; no more file/bitrate
+     * counting.
+     */
     private void showMetadata(ItemMetadata metadata) {
         // Basic info
         StringBuilder sb = new StringBuilder();
@@ -272,7 +293,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             if (metadata.metadata.date != null) {
                 sb.append("\n").append(getString(R.string.Available_since)).append(": ").append(metadata.metadata.date);
             }
-            String language = LibrivoxLanguageMapper.getNameFromThreeLetter(metadata.metadata.language);
+            String language = LanguageMapper.getNameFromThreeLetter(metadata.metadata.language);
             if (language != null) {
                 sb.append("\n").append(getString(R.string.Language)).append(": ").append(language);
             }
@@ -314,9 +335,9 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
     private void checkDownloadFile() {
         new Thread(() -> {
-            boolean[] finalResult = {false};
-            long[] finalSize = {0};
-            String[] successfulUrl = {null};
+            boolean[] finalResult = { false };
+            long[] finalSize = { 0 };
+            String[] successfulUrl = { null };
 
             String id = viewModel.identifier;
             String classicTemplate = "https://archive.org/download/%s/%s_64kb_mp3.zip";
@@ -329,11 +350,16 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                 final boolean ok;
                 final long size;
                 final String url;
-                CheckResult(boolean ok, long size, String url) { this.ok = ok; this.size = size; this.url = url; }
+
+                CheckResult(boolean ok, long size, String url) {
+                    this.ok = ok;
+                    this.size = size;
+                    this.url = url;
+                }
             }
 
-            java.util.function.Function<String, java.util.concurrent.Callable<CheckResult>> makeChecker =
-                    (final String url) -> (java.util.concurrent.Callable<CheckResult>) () -> {
+            java.util.function.Function<String, java.util.concurrent.Callable<CheckResult>> makeChecker = (
+                    final String url) -> (java.util.concurrent.Callable<CheckResult>) () -> {
                         HttpURLConnection conn = null;
                         try {
                             myLog("checking existence for [" + url + "]");
@@ -355,12 +381,15 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                                 try {
                                     String total = contentRange.split("/")[1];
                                     fileSize = Long.parseLong(total);
-                                } catch (Exception ignored) {}
+                                } catch (Exception ignored) {
+                                }
                             } else if (contentLength != null) {
                                 try {
                                     long len = Long.parseLong(contentLength);
-                                    if (len > 0) fileSize = len;
-                                } catch (Exception ignored) {}
+                                    if (len > 0)
+                                        fileSize = len;
+                                } catch (Exception ignored) {
+                                }
                             }
 
                             boolean exists = false;
@@ -375,14 +404,15 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                             myLogEE(e, "Error checking file url: " + url);
                             return new CheckResult(false, -1L, url);
                         } finally {
-                            if (conn != null) conn.disconnect();
+                            if (conn != null)
+                                conn.disconnect();
                         }
                     };
 
             for (int round = 1; round <= 2 && !finalResult[0]; round++) {
                 java.util.concurrent.ExecutorService executor = java.util.concurrent.Executors.newFixedThreadPool(2);
-                java.util.concurrent.ExecutorCompletionService<CheckResult> ecs =
-                        new java.util.concurrent.ExecutorCompletionService<>(executor);
+                java.util.concurrent.ExecutorCompletionService<CheckResult> ecs = new java.util.concurrent.ExecutorCompletionService<>(
+                        executor);
 
                 ecs.submit(makeChecker.apply(classicUrl));
                 ecs.submit(makeChecker.apply(compressUrl));
@@ -404,7 +434,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                                 finalResult[0] = true;
                                 finalSize[0] = cr.size;
                                 successfulUrl[0] = cr.url;
-                                myLog("Found zip (round " + round + "): " + cr.url + " (size=" + Tonio.getReadableSize(cr.size) + ")");
+                                myLog("Found zip (round " + round + "): " + cr.url + " (size="
+                                        + Tonio.getReadableSize(cr.size) + ")");
                                 break;
                             } else {
                                 myLog("Not found (round " + round + ") for url: " + cr.url);
@@ -419,7 +450,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                         executor.awaitTermination(2, java.util.concurrent.TimeUnit.SECONDS);
                     } catch (InterruptedException ie) {
                         Thread.currentThread().interrupt();
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                 }
             }
 
@@ -445,22 +477,30 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             } else {
                 NetworkHelper.logCurrentNetworkState(this);
                 runOnUiThread(() -> {
-                    if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
+                    if (Option.getNetworkPolicyManualDownload()
+                            .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                             && !NetworkHelper.isUnmeteredConnected(this)) {
                         new AlertDialog.Builder(this)
                                 .setTitle(R.string.download_warning_title_unmetered)
                                 .setMessage(R.string.download_warning_message_unmetered)
-                                .setPositiveButton(android.R.string.ok, (dialog, which) -> proceedWithDownload(url, futurePath))
-                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> myLogD("User cancelled download (Network state popup unmetered)"))
+                                .setPositiveButton(android.R.string.ok,
+                                        (dialog, which) -> proceedWithDownload(url, futurePath))
+                                .setNegativeButton(android.R.string.cancel,
+                                        (dialog, which) -> myLogD(
+                                                "User cancelled download (Network state popup unmetered)"))
                                 .show();
                     } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING)
+                        if (Option.getNetworkPolicyManualDownload()
+                                .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING)
                                 && !NetworkHelper.isRoaming(this)) {
                             new AlertDialog.Builder(this)
                                     .setTitle(R.string.download_warning_title_roaming)
                                     .setMessage(R.string.download_warning_message_roaming)
-                                    .setPositiveButton(android.R.string.ok, (dialog, which) -> proceedWithDownload(url, futurePath))
-                                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> myLogD("User cancelled download (Network state popup roaming)"))
+                                    .setPositiveButton(android.R.string.ok,
+                                            (dialog, which) -> proceedWithDownload(url, futurePath))
+                                    .setNegativeButton(android.R.string.cancel,
+                                            (dialog, which) -> myLogD(
+                                                    "User cancelled download (Network state popup roaming)"))
                                     .show();
                         } else {
                             proceedWithDownload(url, futurePath);

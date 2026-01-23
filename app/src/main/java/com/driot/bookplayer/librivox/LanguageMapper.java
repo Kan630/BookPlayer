@@ -19,9 +19,9 @@ import java.util.Map;
  *
  * Edit entries if you want to change the chosen flag or the codes.
  */
-public final class LibrivoxLanguageMapper {
+public final class LanguageMapper {
 
-    private LibrivoxLanguageMapper() {}
+    private LanguageMapper() {}
 
     public static final class Mapping {
         public final String threeLetterCode; // e.g. "eng"
@@ -189,5 +189,21 @@ public final class LibrivoxLanguageMapper {
             }
         }
         return null;
+    }
+
+    /**
+     * Returns the English language name from a three-letter code (ISO 639-3),
+     * e.g. "eng" -> "English". Returns 2 letters code if not found.
+     */
+    public static String getNameFromTwoLetters(String code2) {
+        if (code2 == null || code2.isEmpty()) return null;
+        String wanted = code2.trim().toLowerCase(Locale.ROOT);
+
+        for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
+            if (wanted.equals(e.getValue().twoLetterCode)) {
+                return e.getKey();  // english name as stored in MAP keys
+            }
+        }
+        return code2;
     }
 }

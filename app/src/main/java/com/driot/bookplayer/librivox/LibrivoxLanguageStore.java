@@ -8,8 +8,6 @@ import android.widget.Spinner;
 import androidx.annotation.Keep;
 import androidx.annotation.RawRes;
 
-import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.objects.LanguageItem;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
@@ -34,7 +32,7 @@ public class LibrivoxLanguageStore {
 
             List<LibrivoxLanguageItem> result = new ArrayList<>();
             for (RawLang r : rawList) {
-                LibrivoxLanguageMapper.Mapping m = LibrivoxLanguageMapper.getMapping(r.lang_en);
+                LanguageMapper.Mapping m = LanguageMapper.getMapping(r.lang_en);
                 result.add(new LibrivoxLanguageItem(
                         r.lang_en,
                         r.lang_native_alphabet,

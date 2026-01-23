@@ -64,7 +64,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
         rootUri = getIntent().getParcelableExtra(EXTRA_URI);
         if (rootUri == null) {
-            myToast("Error: No folder selected.");
+            myToast(getString(com.driot.bookplayer.R.string.error_no_folder_selected));
             finish();
             return;
         }

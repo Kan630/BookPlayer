@@ -37,9 +37,20 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
 
     private ActivityResultLauncher<Intent> loadBookActivityResultLauncher;
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_get_direct_link; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_get_direct_link;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -61,15 +72,15 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
 
         viewModel = new ViewModelProvider(
                 com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
-        ).get(OngoingTaskViewModel.class);
-        //myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
+                .get(OngoingTaskViewModel.class);
+        // myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
             setImportOverlayVisible(ui.isRunningLike());
         });
 
-        // ADD RESOURCE  (log)
+        // ADD RESOURCE (log)
         registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
                 result -> {
@@ -82,8 +93,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                     }
                 });
 
-
-// JUST GET IT
+        // JUST GET IT
 
         bDirectDownload.setOnClickListener(view -> {
             myLogI("Button click : JUST GET IT");
@@ -92,7 +102,9 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 myToast(getString(R.string.Please_enter_a_URL));
                 return;
             }
-            if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(this)) {
+            if (Option.getNetworkPolicyManualDownload()
+                    .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
+                    && !NetworkHelper.isUnmeteredConnected(this)) {
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.download_warning_title_unmetered)
                         .setMessage(R.string.download_warning_message_unmetered)
@@ -126,7 +138,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
             }
         });
 
-// RESULT LAUNCHER
+        // RESULT LAUNCHER
 
         loadBookActivityResultLauncher = registerForActivityResult(
                 new ActivityResultContracts.StartActivityForResult(),
@@ -134,10 +146,9 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                     if (result.getResultCode() == Activity.RESULT_OK) {
                         startActivity(new Intent(this, MainActivity.class)
                                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK));
-                        //startActivity(new Intent(this, AddResourceActivity.class));
+                        // startActivity(new Intent(this, AddResourceActivity.class));
                     }
-                }
-        );
+                });
 
         // Secret
         View secretEntry = findViewById(R.id.viewSecretEntry);
@@ -152,22 +163,23 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
         });
     }
 
+    public interface WWWCheckCallback {
+        void onResult(boolean canReach);
+    }
 
-
-
-    public interface WWWCheckCallback { void onResult(boolean canReach); }
     private void checkWWW(WWWCheckCallback callback) {
         if (!NetworkHelper.isNetworkAvailable(this)) {
-            myToast("Aie. Network not available.");
+            myToast(getString(com.driot.bookplayer.R.string.error_network_not_available));
             callback.onResult(false);
             return;
         }
         new Thread(() -> {
             boolean canReach = NetworkHelper.canReachUrl("https://bookplayer.driot.com");
             runOnUiThread(() -> {
-                if (canReach) callback.onResult(true);
+                if (canReach)
+                    callback.onResult(true);
                 else {
-                    myToast("Aie. bookplayer.driot.com not reachable.");
+                    myToast(getString(com.driot.bookplayer.R.string.error_server_not_reachable));
                     callback.onResult(false);
                 }
             });
@@ -175,7 +187,8 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
     }
 
     private void setImportOverlayVisible(boolean show) {
-        if (importDimScrim == null) return;
+        if (importDimScrim == null)
+            return;
 
         final float target = show ? 1f : 0f;
         if (show && importDimScrim.getVisibility() != View.VISIBLE) {
@@ -186,7 +199,8 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 .alpha(target)
                 .setDuration(180)
                 .withEndAction(() -> {
-                    if (!show) importDimScrim.setVisibility(View.GONE);
+                    if (!show)
+                        importDimScrim.setVisibility(View.GONE);
                 })
                 .start();
 

@@ -39,9 +39,20 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
     private PodcastSearchResultsRVAdapter adapter;
     Podcast podcast;
 
-    @Override protected int getNavId() { return R.id.nav_podcast; }
-    @Override protected int getLayoutResId() { return R.layout.activity_podcast_search_result; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_podcast;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_podcast_search_result;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -60,12 +71,14 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
         int span = getResources().getInteger(R.integer.classic_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
-        recyclerView.addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this,Var.GRID_LAYOUT_SPACER)));
+        recyclerView
+                .addItemDecoration(new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         viewModel = new ViewModelProvider(this).get(PodcastSearchResultsViewModel.class);
 
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
-            if (shouldFinish != null && shouldFinish) finish();
+            if (shouldFinish != null && shouldFinish)
+                finish();
         });
         myLogD("hello");
         adapter = new PodcastSearchResultsRVAdapter(podcastFeed -> {
@@ -75,9 +88,9 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
                 if (podcast == null) {
                     podcast = PodcastHelper.fromPodcastFeed(podcastFeed);
                     dao.insert(podcast);
-                    myLogD("podcast inserted " + podcastFeed.id );
+                    myLogD("podcast inserted " + podcastFeed.id);
                 } else {
-                    myLogD("podcast exist " + podcastFeed.id );
+                    myLogD("podcast exist " + podcastFeed.id);
                 }
 
                 // Always navigate on UI thread
@@ -124,13 +137,14 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
             @Override
             public void onSuccess(List<PodcastFeed> feeds) {
                 runOnUiThread(() -> {
-                    if (feeds!=null) {
+                    if (feeds != null) {
                         adapter.setHeaderInfo(query, lang, feeds.size());
                         adapter.setItems(feeds);
                         handleSuccess(feeds);
                     } else {
                         adapter.setHeaderInfo(query, lang, 0);
-                        handleError(new Exception("no podcast found for query: [" + query + "] and lang: [" + lang + "]"));
+                        handleError(
+                                new Exception("no podcast found for query: [" + query + "] and lang: [" + lang + "]"));
                     }
                 });
             }
@@ -169,7 +183,7 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
             errorMessage.setText(getString(R.string.no_internet_connection));
         } else {
             myLogEE(e, "performSearch - handleError");
-            errorMessage.setText("Error : \n" + e.getMessage());
+            errorMessage.setText(getString(com.driot.bookplayer.R.string.error_label_multiline) + e.getMessage());
         }
     }
 

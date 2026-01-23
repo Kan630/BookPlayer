@@ -20,7 +20,6 @@ import com.driot.bookplayer.utils.log.LoggingActivity;
 import java.io.File;
 import java.text.SimpleDateFormat;
 
-
 public class DebugDatabaseActivity extends LoggingActivity {
 
     @Override
@@ -41,10 +40,11 @@ public class DebugDatabaseActivity extends LoggingActivity {
                         "🕒 Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(backupFile.lastModified());
                 tvBackupInfo.setText(info);
             } else {
-                tvBackupInfo.setText("❌ No backup found in: " + getBackupDir().getAbsolutePath());
+                tvBackupInfo.setText(
+                        getString(com.driot.bookplayer.R.string.no_backup_found) + getBackupDir().getAbsolutePath());
             }
         } catch (Exception e) {
-            tvBackupInfo.setText("Error reading backup: " + e.getMessage());
+            tvBackupInfo.setText(getString(com.driot.bookplayer.R.string.error_reading_backup) + e.getMessage());
         }
 
         backupBtn.setOnClickListener(v -> {

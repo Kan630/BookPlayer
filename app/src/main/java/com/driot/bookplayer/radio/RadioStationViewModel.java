@@ -37,16 +37,16 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
         RadioBrowserRepository repo = new RadioBrowserRepository(
                 getApplication(),
                 false,
-                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
         repo.searchByUuid(stationUuid, new Callback<List<Station>>() {
             @Override
             public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
-                myLogD("refresh station from API - get details - success = " + response.code() + " / " + response.message() + " /");
+                myLogD("refresh station from API - get details - success = " + response.code() + " / "
+                        + response.message() + " /");
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
                     Station apiStation = response.body().get(0);
 
-                    //myLog(apiStation.toString().replace(", ", "\n"));
+                    // myLog(apiStation.toString().replace(", ", "\n"));
 
                     AppDatabase.databaseWriteExecutor.execute(() -> {
                         RadioStationDao dao = AppDatabase.getInstance(getApplication()).radioStationDao();
@@ -56,23 +56,23 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
                             dao.insert(RadioStation.fromStation(apiStation, apiStation.url_resolved));
                         } else {
                             dbStation.url_resolved = apiStation.url_resolved;
-                            dbStation.name         = apiStation.name;
-                            dbStation.url          = apiStation.url;
-                            dbStation.codec        = apiStation.codec;
-                            dbStation.bitrate      = apiStation.bitrate;
-                            dbStation.hls          = apiStation.hls;
-                            dbStation.favicon      = apiStation.favicon;
-                            dbStation.country      = apiStation.country;
-                            dbStation.countrycode  = apiStation.countrycode;
-                            dbStation.language     = apiStation.language;
-                            dbStation.tags         = apiStation.tags;
-                            dbStation.clickcount   = apiStation.clickcount;
-                            dbStation.lastcheckok  = apiStation.lastcheckok;
-                            dbStation.state        = apiStation.state;
-                            dbStation.iso_3166_2   = apiStation.iso_3166_2;
-                            dbStation.votes        = apiStation.votes;
-                            dbStation.homepage     = apiStation.homepage;
-                            dbStation.date_maj     = System.currentTimeMillis();
+                            dbStation.name = apiStation.name;
+                            dbStation.url = apiStation.url;
+                            dbStation.codec = apiStation.codec;
+                            dbStation.bitrate = apiStation.bitrate;
+                            dbStation.hls = apiStation.hls;
+                            dbStation.favicon = apiStation.favicon;
+                            dbStation.country = apiStation.country;
+                            dbStation.countrycode = apiStation.countrycode;
+                            dbStation.language = apiStation.language;
+                            dbStation.tags = apiStation.tags;
+                            dbStation.clickcount = apiStation.clickcount;
+                            dbStation.lastcheckok = apiStation.lastcheckok;
+                            dbStation.state = apiStation.state;
+                            dbStation.iso_3166_2 = apiStation.iso_3166_2;
+                            dbStation.votes = apiStation.votes;
+                            dbStation.homepage = apiStation.homepage;
+                            dbStation.date_maj = System.currentTimeMillis();
 
                             dao.update(dbStation);
                         }
@@ -101,8 +101,7 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
         RadioBrowserRepository repo = new RadioBrowserRepository(
                 getApplication(),
                 false,
-                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
         repo.vote(stationUuid, new Callback<VoteResponse>() {
             @Override
@@ -114,28 +113,29 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
                     if (!vr.ok) {
                         // server says vote failed (rate limit etc)
                         if (vr.message != null && vr.message.toLowerCase().contains("same station")) {
-                            myToast("You voted too often for the same station — try again later.");
+                            myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_too_many));
                         } else {
-                            myToast("Vote rejected: " + vr.message);
+                            myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_rejected)
+                                    + vr.message);
                         }
                     } else {
-                        myToast("Vote sent to server, thank you.");
+                        myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_sent_success));
                         // Optionally: refresh station details from API to update vote count in DB/UI
                         refreshStationFromApi(stationUuid);
                     }
                 } else {
-                    myLogE("Vote failed, empty response or HTTP error: " + (response != null ? response.code() : "null"));
-                    myToast("Error sending vote to server.");
+                    myLogE("Vote failed, empty response or HTTP error: "
+                            + (response != null ? response.code() : "null"));
+                    myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_send_error));
                 }
             }
 
             @Override
             public void onFailure(Call<VoteResponse> call, Throwable t) {
                 myLogW("Vote API failed: " + t);
-                myToast("Error sending vote to server.");
+                myToast(getApplication().getString(com.driot.bookplayer.R.string.vote_send_error));
             }
         });
     }
-
 
 }

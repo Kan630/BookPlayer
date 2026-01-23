@@ -28,21 +28,21 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
     private MaterialCheckBox chkMailMethod;
     private LinearLayout llMailMethod;
 
-
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_settings_utilities, container, false);
 
         // Hide local title when embedded
         boolean showLocalTitle = true;
         Bundle args = getArguments();
-        if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
+        if (args != null)
+            showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
         View titleContainer = root.findViewById(R.id.ll_title);
-        if (titleContainer != null) titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
+        if (titleContainer != null)
+            titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
 
         chkMailMethod = root.findViewById(R.id.chk_mail_method_default);
         llMailMethod = root.findViewById(R.id.ll_mail_method_default);
@@ -55,18 +55,19 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
 
             Activity act = requireActivity();
 
-            // 1️⃣  Get the launch intent *before* finishing the activity
+            // 1️⃣ Get the launch intent *before* finishing the activity
             Intent restartIntent = act.getPackageManager()
                     .getLaunchIntentForPackage(act.getPackageName());
-            if (restartIntent == null) return; // should never happen
+            if (restartIntent == null)
+                return; // should never happen
             restartIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                     | Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
             final android.content.Context appCtx = act.getApplicationContext();
 
-            // 2️⃣  Run the deletion *after* the current Activity is closed,
-            //      to avoid any onPause()/onDestroy() code rewriting prefs.
+            // 2️⃣ Run the deletion *after* the current Activity is closed,
+            // to avoid any onPause()/onDestroy() code rewriting prefs.
             act.finish(); // close current activity window
 
             // Give the system a short beat to finish (optional but avoids race conditions)
@@ -81,18 +82,19 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
 
             Activity act = requireActivity();
 
-            // 1️⃣  Get the launch intent *before* finishing the activity
+            // 1️⃣ Get the launch intent *before* finishing the activity
             Intent restartIntent = act.getPackageManager()
                     .getLaunchIntentForPackage(act.getPackageName());
-            if (restartIntent == null) return; // should never happen
+            if (restartIntent == null)
+                return; // should never happen
             restartIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP
                     | Intent.FLAG_ACTIVITY_NEW_TASK
                     | Intent.FLAG_ACTIVITY_CLEAR_TASK);
 
             final android.content.Context appCtx = act.getApplicationContext();
 
-            // 2️⃣  Run the deletion *after* the current Activity is closed,
-            //      to avoid any onPause()/onDestroy() code rewriting prefs.
+            // 2️⃣ Run the deletion *after* the current Activity is closed,
+            // to avoid any onPause()/onDestroy() code rewriting prefs.
             act.finish(); // close current activity window
 
             // Give the system a short beat to finish (optional but avoids race conditions)
@@ -111,7 +113,7 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             ImportHelper.cancelCurrentImport(requireContext().getApplicationContext());
             ImportHelper.cancelAll_in_DB(requireContext().getApplicationContext());
             PlaybackCommands.stop(requireContext().getApplicationContext());
-            myToast("App Reset Done");
+            myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
         });
 
         appLanguageSpinner = root.findViewById(R.id.spinner_app_language);
@@ -126,9 +128,8 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
                     myLogD("App language chosen: " + value);
                     Option.setAppLanguage(value);
                     LocaleHelper.applyAppLocale(value);
-                    //recreate(); // activity-level refresh
-                },false
-        );
+                    // recreate(); // activity-level refresh
+                }, false);
 
         return root;
     }

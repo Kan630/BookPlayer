@@ -58,8 +58,8 @@ public class StatsActivity extends LoggingActivity {
         long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
         long currentAppSize = getAppSize(this) / 1048576L;
 
-        // Hard Coded                        => "/data/data/com.driot.bookplayer/files/"
-        // Context.getFilesDir().getPath()   =>  /data/user/0/com.driot.bookplayer/files/
+        // Hard Coded => "/data/data/com.driot.bookplayer/files/"
+        // Context.getFilesDir().getPath() => /data/user/0/com.driot.bookplayer/files/
 
         long currentAudiosSizeInternal = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, false)) / 1048576L;
         long sizeImages = getFolderSize(this.getFilesDir().getPath() + "/images") / 1048576L;
@@ -68,31 +68,29 @@ public class StatsActivity extends LoggingActivity {
         if (getFilesDir().getParentFile() != null) {
             sizeDB = getFolderSize(this.getFilesDir().getParentFile().getPath() + "/databases") / 1048576L;
         }
-        //TODO asynch... livedata (cause reading the SD is slow)
+        // TODO asynch... livedata (cause reading the SD is slow)
         long sizeCachedImages = getFolderSize(this.getFilesDir().getPath() + "/cached_images") / 1048576L;
 
-
-
-        zeText =
-                Tonio.formatMemPadding(totalMemory) + getString(R.string.MB_device_memory)
-                        + "\n" + "\n" + Tonio.formatMemPadding(availableMegs2) + getString(R.string.MB_available_on_device)
-                        + "\n" + "\n" + Tonio.formatMemPadding(currentAudiosSizeInternal) + getString(R.string.MB_taken_by_audio_files)
-                        + "\n" + "\n" + Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app)
-                        + "\n" + "\n" + Tonio.formatMemPadding(sizeImages) + getString(R.string.MB_taken_by_images)
-                        + "\n" + "\n" + Tonio.formatMemPadding(sizeLogs) + getString(R.string.MB_taken_by_logs)
-                        + "\n" + "\n" + Tonio.formatMemPadding(sizeDB) + getString(R.string.MB_taken_by_databases)
-                ;
-        long total = getTotalRemovableSDCardSize(this) / 1048576L;;
+        zeText = Tonio.formatMemPadding(totalMemory) + getString(R.string.MB_device_memory)
+                + "\n" + "\n" + Tonio.formatMemPadding(availableMegs2) + getString(R.string.MB_available_on_device)
+                + "\n" + "\n" + Tonio.formatMemPadding(currentAudiosSizeInternal)
+                + getString(R.string.MB_taken_by_audio_files)
+                + "\n" + "\n" + Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app)
+                + "\n" + "\n" + Tonio.formatMemPadding(sizeImages) + getString(R.string.MB_taken_by_images)
+                + "\n" + "\n" + Tonio.formatMemPadding(sizeLogs) + getString(R.string.MB_taken_by_logs)
+                + "\n" + "\n" + Tonio.formatMemPadding(sizeDB) + getString(R.string.MB_taken_by_databases);
+        long total = getTotalRemovableSDCardSize(this) / 1048576L;
+        ;
         if (total > 0) {
-            long available = getAvailableRemovableSDCardSize(this) / 1048576L;;
+            long available = getAvailableRemovableSDCardSize(this) / 1048576L;
+            ;
             long currentAudiosSizeSD = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, true)) / 1048576L;
             zeText = zeText
                     + "\n\n----"
                     + "\n\n" + Tonio.formatMemPadding(total) + getString(R.string.MB_SD_card_memory)
                     + "\n\n" + Tonio.formatMemPadding(available) + getString(R.string.MB_available_on_SD_card)
-                    + "\n\n" + Tonio.formatMemPadding(currentAudiosSizeSD) + getString(R.string.MB_taken_by_audio_files)
-            ;
-
+                    + "\n\n" + Tonio.formatMemPadding(currentAudiosSizeSD)
+                    + getString(R.string.MB_taken_by_audio_files);
 
         }
 
@@ -103,16 +101,14 @@ public class StatsActivity extends LoggingActivity {
 
         // ----------------------------------------
 
-        zeText =
-                "Android SDK version = "  + Build.VERSION.SDK_INT
-                        + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
-                        + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
-                        + "\n" + "\n" + "SQL lite version = " + getSqlLiteVersion()
-                        + "\n" + "\n" + "---"
-                        + "\n" + "\n" + "Bookplayer version number = " + BuildConfig.VERSION_CODE
-                        + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
-                        + "\n" + "\n" + "Bookplayer db version = " + APP_DATABASE_VERSION
-        ;
+        zeText = "Android SDK version = " + Build.VERSION.SDK_INT
+                + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
+                + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
+                + "\n" + "\n" + "SQL lite version = " + getSqlLiteVersion()
+                + "\n" + "\n" + "---"
+                + "\n" + "\n" + "Bookplayer version number = " + BuildConfig.VERSION_CODE
+                + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
+                + "\n" + "\n" + "Bookplayer db version = " + APP_DATABASE_VERSION;
 
         tv_head = findViewById(R.id.tv2_head);
         tv_body = findViewById(R.id.tv2_body);
@@ -125,8 +121,7 @@ public class StatsActivity extends LoggingActivity {
                 + "\n" + "\n" + "Region TimeZone = " + TimeZone.getDefault().getID()
                 + "\n" + "\n" + "Region SimCard = " + getCountryFromTelephonyManager(this)
                 + "\n" + "\n" + "---"
-                + "\n" + "\n" + "Theme = " + getKindOfTheme()
-        ;
+                + "\n" + "\n" + "Theme = " + getKindOfTheme();
 
         tv_head = findViewById(R.id.tv3_head);
         tv_body = findViewById(R.id.tv3_body);
@@ -141,8 +136,7 @@ public class StatsActivity extends LoggingActivity {
                 + "\n" + "* TTS Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS))
                 + "\n" + "* Radio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO))
                 + "\n" + "* Podcast Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST))
-                + "\n" + "\n" + "(These stats started in 2025 (oct-nov)"
-        ;
+                + "\n" + "\n" + "(These stats started in 2025 (oct-nov)";
 
         tv_head = findViewById(R.id.tv4_head);
         tv_body = findViewById(R.id.tv4_body);
@@ -166,9 +160,10 @@ public class StatsActivity extends LoggingActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogEE(e,"openAppSettingsOnPhone()");
+            myLogEE(e, "openAppSettingsOnPhone()");
         }
     }
+
     private static String getCountryFromTelephonyManager(Context context) {
         TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         String countryIso = telephonyManager.getNetworkCountryIso(); // returns the country code, e.g., "us"
@@ -191,14 +186,17 @@ public class StatsActivity extends LoggingActivity {
                 .setMessage(getString(R.string.DeleteLogs_AskConfirm))
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialog, which) -> deleteLogs())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                })
                 .show();
     }
+
     private void deleteLogs() {
         File dir = new File(this.getFilesDir(), "log");
         FileHelper.recursiveRemove(dir);
         recreate();
     }
+
     private void deleteCachedImagesClick() {
         myLogI("--- user clicks DELETE CACHED IMAGES ---");
         new AlertDialog.Builder(this)
@@ -206,19 +204,22 @@ public class StatsActivity extends LoggingActivity {
                 .setMessage(getString(R.string.DeleteImages_AskConfirm))
                 .setCancelable(false)
                 .setPositiveButton("ok", (dialog, which) -> deleteCachedImages())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                })
                 .show();
     }
+
     private void deleteCachedImages() {
         File dir = new File(this.getFilesDir(), "images");
         FileHelper.RemoveCachedImages(this, dir);
         recreate();
     }
+
     private void resetApp() {
         myLogI("--- user clicks RESET APP ---");
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
-        myToast("App Reset Done");
+        myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
     }
 
     public static String getVersionName(int sdkVersion) {
@@ -273,13 +274,13 @@ public class StatsActivity extends LoggingActivity {
                 return "Nougat";
             case Build.VERSION_CODES.N_MR1:
                 return "Nougat MR1";
-            case Build.VERSION_CODES.O: //New minimum for BookPlayer as of 2024
+            case Build.VERSION_CODES.O: // New minimum for BookPlayer as of 2024
                 return "Oreo";
             case Build.VERSION_CODES.O_MR1:
                 return "Oreo MR1";
             case Build.VERSION_CODES.P:
                 return "Pie";
-            case Build.VERSION_CODES.Q:  // SDK 28  // Android 9
+            case Build.VERSION_CODES.Q: // SDK 28 // Android 9
                 return "Android 10";
             case Build.VERSION_CODES.R:
                 return "Android 11";
@@ -291,7 +292,7 @@ public class StatsActivity extends LoggingActivity {
                 return "Tiramisu";
             case Build.VERSION_CODES.UPSIDE_DOWN_CAKE:
                 return "Upside Down Cake";
-            case Build.VERSION_CODES.VANILLA_ICE_CREAM: // SDK 35  // Android 15
+            case Build.VERSION_CODES.VANILLA_ICE_CREAM: // SDK 35 // Android 15
                 return "Vanilla Ice Cream";
             case 36: // Android 16
                 return "Baklava";
@@ -314,7 +315,8 @@ public class StatsActivity extends LoggingActivity {
     }
 
     private String getSqlLiteVersion() {
-        SupportSQLiteDatabase db = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().getOpenHelper().getWritableDatabase();
+        SupportSQLiteDatabase db = DatabaseClient.getInstance(getApplicationContext()).getAppDatabase().getOpenHelper()
+                .getWritableDatabase();
         return DatabaseBackupHelper.getSQLiteVersion(db);
     }
 

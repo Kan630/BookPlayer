@@ -1326,4 +1326,24 @@
     <string name="no_ebook_found">no ebook found</string>
 
 
+    <string name="please_select_email_app">Please select an email app</string>
+    <string name="app_reset_done">App Reset Done</string>
+    <string name="vote_rejected">"Vote rejected: "</string>
+    <string name="vote_sent_success">Vote sent to server, thank you.</string>
+    <string name="vote_send_error">Error sending vote to server.</string>
+    <string name="error_no_folder_selected">Error: No folder selected.</string>
+    <string name="error_network_not_available">Aie. Network not available.</string>
+    <string name="error_server_not_reachable">Aie. bookplayer.driot.com not reachable.</string>
+    <string name="no_favorite_podcasts_found">No favorite podcasts found</string>
+    <string name="permission_read_storage_not_granted">permission read storage not granted</string>
+    <string name="error_file_not_found_attach">File not found, cannot attach.</string>
+    <string name="nothing">nothing</string>
+    <string name="max_value_label">"Max = "</string>
+    <string name="already_imported_under_name">"Already imported under the name: "</string>
+    <string name="no_episode_downloaded">No episode downloaded</string>
+    <string name="no_backup_found">"❌ No backup found in: "</string>
+    <string name="error_reading_backup">"Error reading backup: "</string>
+    <string name="id_label">"ID: "</string>
+    <string name="error_label_multiline">"Error : \n"</string>
+
 </resources>

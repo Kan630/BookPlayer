@@ -363,7 +363,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
     private void checkWWW(WWWCheckCallback callback) {
         if (!NetworkHelper.isNetworkAvailable(this)) {
-            myToast("Aie. Network not available.");
+            myToast(getString(com.driot.bookplayer.R.string.error_network_not_available));
             callback.onResult(false);
             return;
         }
@@ -373,7 +373,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 if (canReach)
                     callback.onResult(true);
                 else {
-                    myToast("Aie. bookplayer.driot.com not reachable.");
+                    myToast(getString(com.driot.bookplayer.R.string.error_server_not_reachable));
                     callback.onResult(false);
                 }
             });

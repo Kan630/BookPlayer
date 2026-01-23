@@ -86,10 +86,11 @@ public class MyFileRVAdapter extends LoggingRVAdapter<MyFileRVAdapter.MyFileView
             // send it by mail also !!
             Uri fileUri = MyFile.getUriFromMyFile(mContext, myFile);
             if (fileUri != null) {
-                KanMail.sendDaMail(mContext, "bookplayer@driot.com", "**BookplayerLog**", myFile.getFileName() , fileUri);
+                KanMail.sendDaMail(mContext, "bookplayer@driot.com", "**BookplayerLog**", myFile.getFileName(),
+                        fileUri);
             } else {
                 myLogE("File not found, cannot attach.... [" + myFile.getFileName() + "]");
-                myToast("File not found, cannot attach.");
+                myToast(mContext.getString(com.driot.bookplayer.R.string.error_file_not_found_attach));
             }
 
         }
