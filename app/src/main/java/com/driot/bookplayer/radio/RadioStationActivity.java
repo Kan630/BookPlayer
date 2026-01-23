@@ -38,9 +38,20 @@ public class RadioStationActivity extends BaseBottomNavActivity {
 
     private RadioStationViewModel vm;
 
-    @Override protected int getNavId() { return R.id.nav_radio; }
-    @Override protected int getLayoutResId() { return R.layout.activity_radio_station; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_radio;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_radio_station;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -54,17 +65,17 @@ public class RadioStationActivity extends BaseBottomNavActivity {
             return;
         }
 
-        ivCover    = findViewById(R.id.ivCover);
-        tvName     = findViewById(R.id.tvName);
+        ivCover = findViewById(R.id.ivCover);
+        tvName = findViewById(R.id.tvName);
         tvSubtitle = findViewById(R.id.tvSubtitle);
-        tvTagLine  = findViewById(R.id.tvTagLine);
-        tvTags     = findViewById(R.id.tvTags);
-        tvUrl      = findViewById(R.id.tvUrl);
+        tvTagLine = findViewById(R.id.tvTagLine);
+        tvTags = findViewById(R.id.tvTags);
+        tvUrl = findViewById(R.id.tvUrl);
         tvHomepage = findViewById(R.id.tvHomepage);
-        tvStats    = findViewById(R.id.tvStats);
-        tvTagLine  = findViewById(R.id.tvTagLine);
+        tvStats = findViewById(R.id.tvStats);
+        tvTagLine = findViewById(R.id.tvTagLine);
         ibFavorite = findViewById(R.id.ibFavorite);
-        ibVote     = findViewById(R.id.ibVote);
+        ibVote = findViewById(R.id.ibVote);
 
         // Load station
 
@@ -99,7 +110,8 @@ public class RadioStationActivity extends BaseBottomNavActivity {
 
         // Favorite
         int onSurface = MaterialColors.getColor(this, com.google.android.material.R.attr.colorOnSurface, "onSurface");
-        int colorControlNormal = MaterialColors.getColor(this,androidx.appcompat.R.attr.colorControlNormal,"colorControlNormal");
+        int colorControlNormal = MaterialColors.getColor(this, androidx.appcompat.R.attr.colorControlNormal,
+                "colorControlNormal");
 
         int tint = radioStation.isFavorite ? ContextCompat.getColor(this, R.color.red_500) : colorControlNormal;
         ibFavorite.setColorFilter(tint);
@@ -114,25 +126,29 @@ public class RadioStationActivity extends BaseBottomNavActivity {
 
         ibVote.setOnClickListener(v -> {
             myLogI("--- user clicks VOTE --- ");
-            if (vm.getStation().getValue() == null) return;
+            if (vm.getStation().getValue() == null)
+                return;
             String uuid = vm.getStation().getValue().stationuuid;
             vm.voteStation(uuid);
         });
 
         // Subtitle: Country · Language
-        String country  = safe(radioStation.country);
-        String state    = safe(radioStation.state);
+        String country = safe(radioStation.country);
+        String state = safe(radioStation.state);
         String language = safe(radioStation.language);
 
         if (!country.isEmpty() || !state.isEmpty() || !language.isEmpty()) {
             StringBuilder sb = new StringBuilder();
-            if (!country.isEmpty()) sb.append(country);
+            if (!country.isEmpty())
+                sb.append(country);
             if (!state.isEmpty()) {
-                if (sb.length() > 0) sb.append(" · ");
+                if (sb.length() > 0)
+                    sb.append(" · ");
                 sb.append(state);
             }
             if (!language.isEmpty()) {
-                if (sb.length() > 0) sb.append(" · ");
+                if (sb.length() > 0)
+                    sb.append(" · ");
                 sb.append(language);
             }
             tvSubtitle.setText(sb.toString());
@@ -143,14 +159,20 @@ public class RadioStationActivity extends BaseBottomNavActivity {
 
         // Cover
         String favicon = safe(radioStation.favicon);
-        if (!favicon.isEmpty()) {
-            Glide.with(this)
-                    .load(favicon)
-                    .placeholder(R.drawable.ic_radio_24px)
-                    .error(R.drawable.ic_radio_24px)
-                    .into(ivCover);
-        } else {
-            ivCover.setImageResource(R.drawable.ic_radio_24px);
+        String currentFavicon = (String) ivCover.getTag();
+
+        if (!favicon.equals(currentFavicon)) {
+            if (!favicon.isEmpty()) {
+                Glide.with(this)
+                        .load(favicon)
+                        .placeholder(R.drawable.ic_radio_24px)
+                        .error(R.drawable.ic_radio_24px)
+                        .into(ivCover);
+                ivCover.setTag(favicon);
+            } else {
+                ivCover.setImageResource(R.drawable.ic_radio_24px);
+                ivCover.setTag(null);
+            }
         }
 
         // Tags
@@ -166,7 +188,9 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         }
 
         // URL + homepage
-        tvUrl.setText(safe(radioStation.url_resolved != null && !radioStation.url_resolved.isEmpty() ? radioStation.url_resolved : radioStation.url));
+        tvUrl.setText(safe(
+                radioStation.url_resolved != null && !radioStation.url_resolved.isEmpty() ? radioStation.url_resolved
+                        : radioStation.url));
         tvHomepage.setText(radioStation.homepage == null ? "not found" : radioStation.homepage);
 
         // Simple stats line (clickcount, etc. – adapt to your fields)
@@ -183,7 +207,8 @@ public class RadioStationActivity extends BaseBottomNavActivity {
 
         stats.append("\n");
         stats.append("\nadded in app : " + Tonio.formatDateForDisplay(radioStation.date_added));
-        stats.append("\nlast played : " + (radioStation.date_last_played==null ? "never" : Tonio.formatDateForDisplay(radioStation.date_last_played)));
+        stats.append("\nlast played : " + (radioStation.date_last_played == null ? "never"
+                : Tonio.formatDateForDisplay(radioStation.date_last_played)));
 
         if (!TextUtils.isEmpty(stats.toString())) {
             tvStats.setText(stats.toString());

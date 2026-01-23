@@ -61,7 +61,57 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
                             dbStation.codec = apiStation.codec;
                             dbStation.bitrate = apiStation.bitrate;
                             dbStation.hls = apiStation.hls;
-                            dbStation.favicon = apiStation.favicon;
+
+                            // Protect local favicon with deep comparison
+                            boolean isLocalFavicon = dbStation.favicon != null && !dbStation.favicon.startsWith("http");
+                            if (isLocalFavicon) {
+                                // Deep comparison: check if remote image is actually different
+                                if (apiStation.favicon != null && !apiStation.favicon.isEmpty()) {
+                                    byte[] remoteBytes = com.driot.bookplayer.helpers.NetworkHelper
+                                            .fetchBytesWithHttpsFallbackForImage(apiStation.favicon);
+                                    if (remoteBytes != null) {
+                                        byte[] localBytes = null;
+                                        try {
+                                            java.io.File localFile = new java.io.File(dbStation.favicon);
+                                            if (localFile.exists()) {
+                                                java.io.InputStream in = new java.io.FileInputStream(localFile);
+                                                java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+                                                byte[] buf = new byte[8192];
+                                                int n;
+                                                while ((n = in.read(buf)) != -1) {
+                                                    out.write(buf, 0, n);
+                                                }
+                                                in.close();
+                                                localBytes = out.toByteArray();
+                                            }
+                                        } catch (Exception e) {
+                                            myLogW("Failed to read local favicon for comparison: " + e);
+                                        }
+
+                                        if (localBytes != null) {
+                                            String remoteHash = com.driot.bookplayer.helpers.ImageHelper
+                                                    .shortHash(remoteBytes);
+                                            String localHash = com.driot.bookplayer.helpers.ImageHelper
+                                                    .shortHash(localBytes);
+
+                                            // Only update if content is different
+                                            if (!remoteHash.equals(localHash)) {
+                                                myLogW("Favicon changed (content diff), updating to remote: "
+                                                        + apiStation.favicon);
+                                                dbStation.favicon = apiStation.favicon;
+                                            } else {
+                                                myLogD("Favicon content identical, keeping local path.");
+                                            }
+                                        } else {
+                                            // Local file issue, fallback to remote
+                                            dbStation.favicon = apiStation.favicon;
+                                        }
+                                    }
+                                }
+                            } else {
+                                // Not local, standard update
+                                dbStation.favicon = apiStation.favicon;
+                            }
                             dbStation.country = apiStation.country;
                             dbStation.countrycode = apiStation.countrycode;
                             dbStation.language = apiStation.language;

@@ -790,7 +790,7 @@ public class ImageHelper {
         }
     }
 
-    private static String shortHash(byte[] data) {
+    public static String shortHash(byte[] data) {
         try {
             java.security.MessageDigest md = java.security.MessageDigest.getInstance("MD5");
             byte[] b = md.digest(data);
