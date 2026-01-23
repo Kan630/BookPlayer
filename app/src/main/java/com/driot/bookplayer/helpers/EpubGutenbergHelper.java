@@ -41,25 +41,26 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  * Gutenberg-focused EPUB extractor.
  *
  * Strategy:
- *  - Parse container.xml -> content.opf.
- *  - From OPF:
- *      - title, coverId, manifest, spine, nav item (properties="nav").
- *  - Read toc.xhtml nav[epub:type=toc] and:
- *      - For each <a href="file.xhtml#fragment">Title</a> create a chapter.
- *      - Ignore pagelist entries like "[1]".
- *  - For each referenced XHTML file:
- *      - Locate each fragment id in the XHTML string.
- *      - Take the substring from this id up to the next id used by TOC.
- *      - Convert HTML -> plain text with Jsoup, preserving paragraphs.
- *  - For XHTML files *not* referenced by TOC:
- *      - Export all their text as a zz_* chapter (typically license, etc.).
+ * - Parse container.xml -> content.opf.
+ * - From OPF:
+ * - title, coverId, manifest, spine, nav item (properties="nav").
+ * - Read toc.xhtml nav[epub:type=toc] and:
+ * - For each <a href="file.xhtml#fragment">Title</a> create a chapter.
+ * - Ignore pagelist entries like "[1]".
+ * - For each referenced XHTML file:
+ * - Locate each fragment id in the XHTML string.
+ * - Take the substring from this id up to the next id used by TOC.
+ * - Convert HTML -> plain text with Jsoup, preserving paragraphs.
+ * - For XHTML files *not* referenced by TOC:
+ * - Export all their text as a zz_* chapter (typically license, etc.).
  *
- *  Nothing is discarded; "non-book" content is simply pushed at the end
- *  with a "zz_" prefix in the filename.
+ * Nothing is discarded; "non-book" content is simply pushed at the end
+ * with a "zz_" prefix in the filename.
  */
 public final class EpubGutenbergHelper {
 
-    private EpubGutenbergHelper() {}
+    private EpubGutenbergHelper() {
+    }
 
     // ---------- Data classes ----------
 
@@ -67,8 +68,8 @@ public final class EpubGutenbergHelper {
         public String opfPath;
         public String title;
         public String coverId;
-        public final Map<String, String> manifestHref  = new LinkedHashMap<>();
-        public final Map<String, String> manifestType  = new LinkedHashMap<>();
+        public final Map<String, String> manifestHref = new LinkedHashMap<>();
+        public final Map<String, String> manifestType = new LinkedHashMap<>();
         public final Map<String, String> manifestProps = new LinkedHashMap<>();
         public final List<String> spine = new ArrayList<>();
     }
@@ -77,7 +78,8 @@ public final class EpubGutenbergHelper {
         public final String bookTitle;
         public final File outDir;
         public final List<File> chapterFiles;
-        @Nullable public final Bitmap coverBitmap;
+        @Nullable
+        public final Bitmap coverBitmap;
 
         public ExtractResult(String t, File d, List<File> f, @Nullable Bitmap c) {
             this.bookTitle = t;
@@ -89,12 +91,13 @@ public final class EpubGutenbergHelper {
 
     /** One TOC entry. */
     private static final class TocEntry {
-        String filePath;   // normalized, with OPF base
+        String filePath; // normalized, with OPF base
         String fragmentId; // after '#', may be null
-        String title;      // visible nav text
+        String title; // visible nav text
     }
 
-    // For slugging filenames a little nicer (replace _ / - with spaces when deriving labels if needed).
+    // For slugging filenames a little nicer (replace _ / - with spaces when
+    // deriving labels if needed).
     private static final Pattern FILENAME_WORDS = Pattern.compile("[_\\-]+");
     private static final int MAX_FILENAME_CHARS = 80;
 
@@ -146,7 +149,8 @@ public final class EpubGutenbergHelper {
 
         // Cover
         Bitmap cover = extractCoverBitmap(zip, opf);
-        if (cover != null) myLogD("Cover extracted OK (Gutenberg)");
+        if (cover != null)
+            myLogD("Cover extracted OK (Gutenberg)");
 
         // TOC (toc.xhtml)
         String navHref = findNavHref(opf);
@@ -174,6 +178,19 @@ public final class EpubGutenbergHelper {
         }
 
         // Build chapters from TOC
+        int expectedChapters = tocEntries.size();
+        // Estimate non-TOC HTML files
+        for (Map.Entry<String, String> e : opf.manifestHref.entrySet()) {
+            String mt = opf.manifestType.get(e.getKey());
+            if (mt != null && (mt.contains("html") || mt.contains("xhtml"))) {
+                String p = normalizePath(resolve(basePath, e.getValue()));
+                if (!byFile.containsKey(p)) {
+                    expectedChapters++;
+                }
+            }
+        }
+        int padWidth = Math.max(3, String.valueOf(expectedChapters).length());
+
         List<File> outFiles = new ArrayList<>();
         Set<String> usedFilePaths = new LinkedHashSet<>();
         int globalChapterIndex = 0; // Global counter for all chapters
@@ -199,11 +216,12 @@ public final class EpubGutenbergHelper {
             }
 
             String html = bytesToStringWithXmlGuess(xhtmlBytes);
-            globalChapterIndex = buildChaptersFromSingleFile(html, filePath, entries, outDir, outFiles, globalChapterIndex);
+            globalChapterIndex = buildChaptersFromSingleFile(html, filePath, entries, outDir, outFiles,
+                    globalChapterIndex, padWidth);
         }
 
         // Any extra XHTML files not referenced in TOC -> zz_* chapter
-        addNonTocHtmlAsZzChapters(zip, opf, usedFilePaths, basePath, outDir, outFiles, globalChapterIndex);
+        addNonTocHtmlAsZzChapters(zip, opf, usedFilePaths, basePath, outDir, outFiles, globalChapterIndex, padWidth);
 
         myLog("=== EpubGutenbergHelper.extractAll: done; chapters=" + outFiles.size() + " ===");
         return new ExtractResult(bookTitle, outDir, outFiles, cover);
@@ -213,15 +231,18 @@ public final class EpubGutenbergHelper {
 
     /**
      * Build chapter files for one XHTML file, using TOC anchors as boundaries.
+     * 
      * @return The next global chapter index to use
      */
     private static int buildChaptersFromSingleFile(String html,
-                                                    String filePath,
-                                                    List<TocEntry> entries,
-                                                    File outDir,
-                                                    List<File> outFiles,
-                                                    int globalChapterIndex) throws Exception {
-        if (entries == null || entries.isEmpty()) return globalChapterIndex;
+            String filePath,
+            List<TocEntry> entries,
+            File outDir,
+            List<File> outFiles,
+            int globalChapterIndex,
+            int padWidth) throws Exception {
+        if (entries == null || entries.isEmpty())
+            return globalChapterIndex;
 
         String lower = html.toLowerCase(Locale.ROOT);
 
@@ -243,7 +264,8 @@ public final class EpubGutenbergHelper {
             bounds.add(b);
         }
 
-        if (bounds.isEmpty()) return globalChapterIndex;
+        if (bounds.isEmpty())
+            return globalChapterIndex;
 
         // Sort in document order
         bounds.sort((a, b) -> Integer.compare(a.start, b.start));
@@ -254,7 +276,8 @@ public final class EpubGutenbergHelper {
             int start = b.start;
             int end = (i + 1 < bounds.size()) ? bounds.get(i + 1).start : html.length();
 
-            if (start < 0 || start >= html.length() || end <= start) continue;
+            if (start < 0 || start >= html.length() || end <= start)
+                continue;
 
             String segmentHtml = html.substring(start, end);
             String plain = xhtmlToPlain(segmentHtml);
@@ -263,7 +286,7 @@ public final class EpubGutenbergHelper {
 
             String baseTitle = humanChapterTitle(b.entry.title);
             globalChapterIndex++;
-            String fileName = makeSafeFilename(baseTitle, globalChapterIndex, false);
+            String fileName = makeSafeFilename(baseTitle, globalChapterIndex, false, padWidth);
 
             File f = new File(outDir, fileName + ".txt");
             try (FileOutputStream fos = new FileOutputStream(f)) {
@@ -276,32 +299,38 @@ public final class EpubGutenbergHelper {
                     + " len=" + plain.length()
                     + " from=" + start + " to=" + end);
         }
-        
+
         return globalChapterIndex;
     }
 
     /**
-     * Add chapters for XHTML files that are in the manifest but not referenced by TOC (e.g., pg-footer).
-     * These are saved with a "zz_" prefix so they appear at the end and are clearly "extra".
+     * Add chapters for XHTML files that are in the manifest but not referenced by
+     * TOC (e.g., pg-footer).
+     * These are saved with a "zz_" prefix so they appear at the end and are clearly
+     * "extra".
      */
     private static void addNonTocHtmlAsZzChapters(Map<String, byte[]> zip,
-                                                  OpfInfo opf,
-                                                  Set<String> usedFilePaths,
-                                                  String basePath,
-                                                  File outDir,
-                                                  List<File> outFiles,
-                                                  int globalChapterIndex) throws Exception {
+            OpfInfo opf,
+            Set<String> usedFilePaths,
+            String basePath,
+            File outDir,
+            List<File> outFiles,
+            int globalChapterIndex,
+            int padWidth) throws Exception {
         Set<String> alreadyDone = new LinkedHashSet<>(usedFilePaths);
         for (Map.Entry<String, String> e : opf.manifestHref.entrySet()) {
             String id = e.getKey();
             String href = e.getValue();
             String mt = opf.manifestType.get(id);
-            if (mt == null) mt = "";
+            if (mt == null)
+                mt = "";
 
-            if (!(mt.contains("html") || mt.contains("xhtml"))) continue;
+            if (!(mt.contains("html") || mt.contains("xhtml")))
+                continue;
 
             String path = normalizePath(resolve(basePath, href));
-            if (alreadyDone.contains(path)) continue;
+            if (alreadyDone.contains(path))
+                continue;
 
             byte[] xhtmlBytes = zip.get(path);
             if (xhtmlBytes == null) {
@@ -327,7 +356,7 @@ public final class EpubGutenbergHelper {
             String baseTitle = looksLikeLicense ? "zz_Licence" : ("zz_" + basenameNoExt(href));
 
             globalChapterIndex++;
-            String fileName = makeSafeFilename(baseTitle, globalChapterIndex, true);
+            String fileName = makeSafeFilename(baseTitle, globalChapterIndex, true, padWidth);
             File f = new File(outDir, fileName + ".txt");
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(plain.getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -341,10 +370,12 @@ public final class EpubGutenbergHelper {
 
     /**
      * Find the start index in the XHTML string for a given fragment id.
-     * Returns the index of the '<' starting the element that owns the id, or -1 if not found.
+     * Returns the index of the '<' starting the element that owns the id, or -1 if
+     * not found.
      */
     private static int findFragmentStartIndex(String html, String lower, String fragmentId) {
-        if (fragmentId == null || fragmentId.isEmpty()) return -1;
+        if (fragmentId == null || fragmentId.isEmpty())
+            return -1;
 
         String fragLower = fragmentId.toLowerCase(Locale.ROOT);
         int idx = -1;
@@ -366,7 +397,8 @@ public final class EpubGutenbergHelper {
             String p4 = "name='" + fragLower + "'";
             idx = lower.indexOf(p4);
         }
-        if (idx < 0) return -1;
+        if (idx < 0)
+            return -1;
 
         int tagStart = html.lastIndexOf('<', idx);
         return (tagStart >= 0) ? tagStart : idx;
@@ -389,15 +421,19 @@ public final class EpubGutenbergHelper {
             // All <a> under that nav; we'll filter out pagelist entries "[12]" etc.
             for (Element a : nav.select("a[href]")) {
                 String title = a.text();
-                if (title == null) title = "";
+                if (title == null)
+                    title = "";
                 title = title.trim();
-                if (title.isEmpty()) continue;
+                if (title.isEmpty())
+                    continue;
 
                 // Skip explicit pagelist (page number) links like "[12]"
-                if (title.matches("\\[\\d+\\]")) continue;
+                if (title.matches("\\[\\d+\\]"))
+                    continue;
 
                 String href = a.attr("href");
-                if (href == null || href.isEmpty()) continue;
+                if (href == null || href.isEmpty())
+                    continue;
 
                 // Split "file.xhtml#fragment"
                 String file = href;
@@ -408,12 +444,13 @@ public final class EpubGutenbergHelper {
                     frag = href.substring(hash + 1);
                 }
 
-                if (file == null || file.isEmpty()) continue;
+                if (file == null || file.isEmpty())
+                    continue;
 
                 TocEntry te = new TocEntry();
-                te.filePath   = normalizePath(resolve(basePath, file));
+                te.filePath = normalizePath(resolve(basePath, file));
                 te.fragmentId = (frag != null && !frag.isEmpty()) ? frag : null;
-                te.title      = title;
+                te.title = title;
 
                 result.add(te);
             }
@@ -444,7 +481,7 @@ public final class EpubGutenbergHelper {
     private static Map<String, byte[]> readZip(Uri uri, Context ctx) throws Exception {
         Map<String, byte[]> map = new LinkedHashMap<>();
         try (InputStream in = new BufferedInputStream(ctx.getContentResolver().openInputStream(uri));
-             ZipInputStream zin = new ZipInputStream(in)) {
+                ZipInputStream zin = new ZipInputStream(in)) {
             byte[] buf = new byte[8192];
             ZipEntry e;
             while ((e = zin.getNextEntry()) != null) {
@@ -452,7 +489,8 @@ public final class EpubGutenbergHelper {
                     ByteArrayOutputStream bos = new ByteArrayOutputStream(
                             (int) Math.max(0, e.getSize()));
                     int n;
-                    while ((n = zin.read(buf)) != -1) bos.write(buf, 0, n);
+                    while ((n = zin.read(buf)) != -1)
+                        bos.write(buf, 0, n);
                     map.put(e.getName(), bos.toByteArray());
                 }
                 zin.closeEntry();
@@ -468,7 +506,8 @@ public final class EpubGutenbergHelper {
         while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
             if (t == XmlPullParser.START_TAG && "rootfile".equals(x.getName())) {
                 String p = attr(x, "full-path");
-                if (p != null) return p;
+                if (p != null)
+                    return p;
             }
         }
         return null;
@@ -493,21 +532,24 @@ public final class EpubGutenbergHelper {
                     String prop = attr(x, "property");
                     if ("cover".equalsIgnoreCase(nm) || "cover".equalsIgnoreCase(prop)) {
                         String content = attr(x, "content");
-                        if (content != null && !content.isEmpty()) o.coverId = content;
+                        if (content != null && !content.isEmpty())
+                            o.coverId = content;
                     }
                 } else if ("item".equalsIgnoreCase(name)) {
-                    String id   = attr(x, "id");
+                    String id = attr(x, "id");
                     String href = attr(x, "href");
-                    String mt   = attr(x, "media-type");
-                    String props= attr(x, "properties");
+                    String mt = attr(x, "media-type");
+                    String props = attr(x, "properties");
                     if (id != null && href != null) {
                         o.manifestHref.put(id, href);
                         o.manifestType.put(id, mt != null ? mt : "");
-                        if (props != null) o.manifestProps.put(id, props);
+                        if (props != null)
+                            o.manifestProps.put(id, props);
                     }
                 } else if ("itemref".equalsIgnoreCase(name)) {
                     String idref = attr(x, "idref");
-                    if (idref != null) o.spine.add(idref);
+                    if (idref != null)
+                        o.spine.add(idref);
                 }
             } else if (t == XmlPullParser.END_TAG && "metadata".equalsIgnoreCase(x.getName())) {
                 inMetadata = false;
@@ -526,10 +568,12 @@ public final class EpubGutenbergHelper {
 
     private static String attr(XmlPullParser x, String name) {
         String v = x.getAttributeValue(null, name);
-        if (v == null) v = x.getAttributeValue("", name);
+        if (v == null)
+            v = x.getAttributeValue("", name);
         if (v == null && x.getAttributeCount() > 0) {
             for (int i = 0; i < x.getAttributeCount(); i++) {
-                if (name.equals(x.getAttributeName(i))) return x.getAttributeValue(i);
+                if (name.equals(x.getAttributeName(i)))
+                    return x.getAttributeValue(i);
             }
         }
         return v;
@@ -539,40 +583,50 @@ public final class EpubGutenbergHelper {
         StringBuilder sb = new StringBuilder();
         int t;
         while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
-            if (t == XmlPullParser.TEXT) sb.append(x.getText());
-            else if (t == XmlPullParser.END_TAG) break;
+            if (t == XmlPullParser.TEXT)
+                sb.append(x.getText());
+            else if (t == XmlPullParser.END_TAG)
+                break;
         }
         return sb.toString();
     }
 
     private static String opfBase(String opfPath) {
-        if (opfPath == null) return "";
+        if (opfPath == null)
+            return "";
         int i = opfPath.lastIndexOf('/');
         return i >= 0 ? opfPath.substring(0, i + 1) : "";
     }
 
     private static String resolve(String base, String href) {
-        if (href == null) return null;
-        if (href.startsWith("/")) return href.substring(1);
-        if (base == null || base.isEmpty()) return normalizePath(href);
+        if (href == null)
+            return null;
+        if (href.startsWith("/"))
+            return href.substring(1);
+        if (base == null || base.isEmpty())
+            return normalizePath(href);
         return normalizePath(base + href);
     }
 
     private static String normalizePath(String p) {
-        if (p == null) return null;
+        if (p == null)
+            return null;
         String[] parts = p.split("/");
         Deque<String> stack = new ArrayDeque<>();
         for (String part : parts) {
-            if (part.isEmpty() || ".".equals(part)) continue;
+            if (part.isEmpty() || ".".equals(part))
+                continue;
             if ("..".equals(part)) {
-                if (!stack.isEmpty()) stack.removeLast();
+                if (!stack.isEmpty())
+                    stack.removeLast();
             } else {
                 stack.addLast(part);
             }
         }
         StringBuilder sb = new StringBuilder();
         for (String s : stack) {
-            if (sb.length() > 0) sb.append('/');
+            if (sb.length() > 0)
+                sb.append('/');
             sb.append(s);
         }
         return sb.toString();
@@ -593,11 +647,13 @@ public final class EpubGutenbergHelper {
                 String mt = e.getValue();
                 if (mt != null && mt.startsWith("image/")) {
                     coverHref = opf.manifestHref.get(e.getKey());
-                    if (coverHref != null) break;
+                    if (coverHref != null)
+                        break;
                 }
             }
         }
-        if (coverHref == null) return null;
+        if (coverHref == null)
+            return null;
 
         String resolved = normalizePath(resolve(basePath, coverHref));
         byte[] imgBytes = zip.get(resolved);
@@ -609,12 +665,14 @@ public final class EpubGutenbergHelper {
                 }
             }
         }
-        if (imgBytes == null) return null;
+        if (imgBytes == null)
+            return null;
         return BitmapFactory.decodeByteArray(imgBytes, 0, imgBytes.length);
     }
 
     private static String bytesToStringWithXmlGuess(byte[] data) {
-        if (data == null) return "";
+        if (data == null)
+            return "";
 
         String sniff = new String(data, 0, Math.min(data.length, 256), Charset.forName("ISO-8859-1"));
         String enc = null;
@@ -624,8 +682,10 @@ public final class EpubGutenbergHelper {
             int q2 = sniff.indexOf('"', q1 + 1);
             int a1 = sniff.indexOf('\'', i);
             int a2 = sniff.indexOf('\'', a1 + 1);
-            if (q1 > 0 && q2 > q1) enc = sniff.substring(q1 + 1, q2);
-            else if (a1 > 0 && a2 > a1) enc = sniff.substring(a1 + 1, a2);
+            if (q1 > 0 && q2 > q1)
+                enc = sniff.substring(q1 + 1, q2);
+            else if (a1 > 0 && a2 > a1)
+                enc = sniff.substring(a1 + 1, a2);
         }
         Charset cs;
         try {
@@ -639,7 +699,8 @@ public final class EpubGutenbergHelper {
     // ---------- HTML → text ----------
 
     private static String xhtmlToPlain(String xhtml) {
-        if (xhtml == null) return "";
+        if (xhtml == null)
+            return "";
         Document doc = Jsoup.parse(xhtml);
         doc.outputSettings(new Document.OutputSettings().prettyPrint(false));
 
@@ -653,7 +714,8 @@ public final class EpubGutenbergHelper {
                 if (node instanceof org.jsoup.nodes.TextNode) {
                     String text = ((org.jsoup.nodes.TextNode) node).text();
                     if (!text.trim().isEmpty()) {
-                        if (!atLineStart) out.append(' ');
+                        if (!atLineStart)
+                            out.append(' ');
                         out.append(text.trim());
                         atLineStart = false;
                     }
@@ -692,15 +754,19 @@ public final class EpubGutenbergHelper {
 
             private void newLine(StringBuilder b) {
                 int len = b.length();
-                if (len == 0 || b.charAt(len - 1) == '\n') return;
+                if (len == 0 || b.charAt(len - 1) == '\n')
+                    return;
                 b.append('\n');
             }
 
             private void ensureBlankLine(StringBuilder b) {
                 int len = b.length();
-                if (len == 0) return;
-                if (len >= 2 && b.charAt(len - 1) == '\n' && b.charAt(len - 2) == '\n') return;
-                if (len >= 1 && b.charAt(len - 1) != '\n') b.append('\n');
+                if (len == 0)
+                    return;
+                if (len >= 2 && b.charAt(len - 1) == '\n' && b.charAt(len - 2) == '\n')
+                    return;
+                if (len >= 1 && b.charAt(len - 1) != '\n')
+                    b.append('\n');
                 b.append('\n');
             }
         }, doc.body() != null ? doc.body() : doc);
@@ -713,10 +779,14 @@ public final class EpubGutenbergHelper {
     }
 
     private static String ensureParagraphs(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         int nl = 0;
-        for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '\n') nl++;
-        if (nl >= 2) return s;
+        for (int i = 0; i < s.length(); i++)
+            if (s.charAt(i) == '\n')
+                nl++;
+        if (nl >= 2)
+            return s;
 
         String t = s.replace("\r", "").replace('\u00A0', ' ')
                 .replaceAll("[ \\t]{2,}", " ").trim();
@@ -724,14 +794,14 @@ public final class EpubGutenbergHelper {
         // crude sentence-based paragraphing
         t = t.replaceAll(
                 "(?<=[.!?…])[ ]+(?=[\"“‘'\\(\\[]?[A-ZÀ-ÖØ-Þ0-9])",
-                "\n\n"
-        );
+                "\n\n");
         t = t.replaceAll("[ ]*\\*\\*\\*[ ]*", "\n\n***\n\n");
         return t;
     }
 
     private static String cleanText(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         String t = s.replace('\u00A0', ' ');
         t = t.replace("\r\n", "\n").replace("\r", "\n");
         t = t.replaceAll("[\\t ]{2,}", " ");
@@ -742,7 +812,8 @@ public final class EpubGutenbergHelper {
     // ---------- Naming helpers ----------
 
     private static String basenameNoExt(String href) {
-        if (href == null) return "chapter";
+        if (href == null)
+            return "chapter";
         int slash = href.lastIndexOf('/');
         String name = (slash >= 0) ? href.substring(slash + 1) : href;
         int dot = name.lastIndexOf('.');
@@ -750,7 +821,8 @@ public final class EpubGutenbergHelper {
     }
 
     private static String humanChapterTitle(String navTitle) {
-        if (navTitle == null) return "chapter";
+        if (navTitle == null)
+            return "chapter";
         String t = navTitle.trim();
         // If nav title is pure roman numeral, prefix with "chapter "
         if (t.matches("(?i)^[IVXLCDM]+$")) {
@@ -760,26 +832,30 @@ public final class EpubGutenbergHelper {
     }
 
     private static String safeName(String s) {
-        if (s == null) return "untitled";
+        if (s == null)
+            return "untitled";
         String out = s.replaceAll("[^A-Za-z0-9._ -]", "_").trim();
-        if (out.isEmpty()) out = "untitled";
-        if (out.length() > 60) out = out.substring(0, 60).trim();
+        if (out.isEmpty())
+            out = "untitled";
+        if (out.length() > 60)
+            out = out.substring(0, 60).trim();
         return out;
     }
 
-    private static String makeSafeFilename(String baseTitle, int index, boolean isZz) {
+    private static String makeSafeFilename(String baseTitle, int index, boolean isZz, int padWidth) {
         String cleaned = baseTitle;
         // Remove illegal filename chars
         cleaned = cleaned.replaceAll("[\\\\/:*?\"<>|]", " ");
         // Collapse whitespace
         cleaned = cleaned.replaceAll("\\s+", " ").trim();
-        if (cleaned.isEmpty()) cleaned = "chapter";
+        if (cleaned.isEmpty())
+            cleaned = "chapter";
         if (cleaned.length() > MAX_FILENAME_CHARS) {
             cleaned = cleaned.substring(0, MAX_FILENAME_CHARS).trim();
         }
 
         // Always add numeric prefix for proper ordering, even for zz_ files
-        String prefix = String.format(Locale.US, "%03d_", Math.max(1, index));
+        String prefix = String.format(Locale.US, "%0" + padWidth + "d_", Math.max(1, index));
         return prefix + cleaned;
     }
 }

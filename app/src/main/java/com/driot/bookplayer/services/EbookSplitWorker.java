@@ -44,7 +44,8 @@ public class EbookSplitWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_ebook_split) + " "
+                + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
         final String ebookPath = ImportHelper.getSourceFilePathForWorker(j);
@@ -55,7 +56,8 @@ public class EbookSplitWorker extends ImportWorker {
         myLog("ebookPath = " + ebookPath);
         myLog("destinationFolderPath = " + destinationFolderPath);
         myLog("-------------------------------------");
-        final String ebookType = guessTypeFromPath(ebookPath); //keep that line here to get some log if null => throw...
+        final String ebookType = guessTypeFromPath(ebookPath); // keep that line here to get some log if null =>
+                                                               // throw...
         myLog("computed ebookType = " + ebookType);
         myLog("source Location = " + sourceLocation);
         myLogD("--------------------------------------------------------------------------");
@@ -63,8 +65,10 @@ public class EbookSplitWorker extends ImportWorker {
         // Optionally enter foreground:
         // setForegroundEarly(buildForegroundInfo());
 
-        if (ebookPath==null || destinationFolderPath==null || String.valueOf(ebookPath).isEmpty() || String.valueOf(destinationFolderPath).isEmpty()) {
-            emitFailed(TASK_NAME, "Missing input data for EbookSplitWorker", getApplicationContext().getString(R.string.invalid_resource));
+        if (ebookPath == null || destinationFolderPath == null || String.valueOf(ebookPath).isEmpty()
+                || String.valueOf(destinationFolderPath).isEmpty()) {
+            emitFailed(TASK_NAME, "Missing input data for EbookSplitWorker",
+                    getApplicationContext().getString(R.string.invalid_resource));
             myLogEE(null, "Missing input data for EbookSplitWorker");
             return Result.failure();
         }
@@ -75,14 +79,14 @@ public class EbookSplitWorker extends ImportWorker {
         return ok ? Result.success() : Result.failure();
     }
 
-    private boolean splitEbook(String ebookPath, String destinationFolderPath, String ebookType, String sourceLocation) {
+    private boolean splitEbook(String ebookPath, String destinationFolderPath, String ebookType,
+            String sourceLocation) {
         Context ctx = getApplicationContext();
         try {
             File outFolder = new File(destinationFolderPath);
             if (!outFolder.exists() && !outFolder.mkdirs()) {
-                emitFailed(TASK_NAME
-                        , "failed_to_create_destination_folder : " + destinationFolderPath
-                        , context.getString(R.string.failed_to_create_destination_folder) + ": " + destinationFolderPath);
+                emitFailed(TASK_NAME, "failed_to_create_destination_folder : " + destinationFolderPath,
+                        context.getString(R.string.failed_to_create_destination_folder) + ": " + destinationFolderPath);
                 return false;
             }
 
@@ -98,33 +102,33 @@ public class EbookSplitWorker extends ImportWorker {
             if ("fb2".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing FB2…");
                 Fb2LowLevelHelper.ExtractResult result = Fb2LowLevelHelper.extractAll(ctx, uri);
-                cover    = result.coverBitmap;
+                cover = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else if ("epub".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
                 if (Var.SOURCE_LOCATION_EBOOK_GUTENDEX.equals(sourceLocation)) {
                     EpubGutenbergHelper.ExtractResult result = EpubGutenbergHelper.extractAll(ctx, uri);
-                    cover    = result.coverBitmap;
+                    cover = result.coverBitmap;
                     chapters = result.chapterFiles;
                 } else {
                     EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
-                    cover    = result.coverBitmap;
+                    cover = result.coverBitmap;
                     chapters = result.chapterFiles;
                 }
             } else if ("odt".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing ODT…");
                 OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);
-                cover    = result.coverBitmap;
+                cover = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {
-                emitFailed(TASK_NAME, "unsupported_ebook_type: [" + ebookType + "]", ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")");
+                emitFailed(TASK_NAME, "unsupported_ebook_type: [" + ebookType + "]",
+                        ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")");
                 return false;
             }
 
             if (chapters == null || chapters.isEmpty()) {
-                emitFailed(TASK_NAME
-                        , "no_chapters_found : [" + ebookType + "]"
-                        , ctx.getString(R.string.No_chapters_found));
+                emitFailed(TASK_NAME, "no_chapters_found : [" + ebookType + "]",
+                        ctx.getString(R.string.No_chapters_found));
                 return false;
             }
 
@@ -185,7 +189,8 @@ public class EbookSplitWorker extends ImportWorker {
             }
 
             // Reuse existing completion hook for EPUB (keeps app logic unchanged)
-            emitTaskCompleted(TASK_NAME, outFolder.getAbsolutePath(), ctx.getString(R.string.import_task_ebook_split) + " " + context.getString(R.string.import_task_complete));
+            emitTaskCompleted(TASK_NAME, outFolder.getAbsolutePath(), ctx.getString(R.string.import_task_ebook_split)
+                    + " " + context.getString(R.string.import_task_complete));
             return true;
 
         } catch (Exception e) {
@@ -202,22 +207,28 @@ public class EbookSplitWorker extends ImportWorker {
         int dot = name.lastIndexOf('.');
         String ext = dot > 0 ? name.substring(dot + 1) : "";
         switch (ext) {
-            case "epub": return "epub";
-            case "fb2":  return "fb2";
-            // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add unzip
-            default:     return "epub"; // safe default if you mostly import EPUBs
+            case "epub":
+                return "epub";
+            case "fb2":
+                return "fb2";
+            // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add
+            // unzip
+            default:
+                return "epub"; // safe default if you mostly import EPUBs
         }
     }
 
     private static String readUtf8File(File f) {
         try (java.io.BufferedInputStream in = new java.io.BufferedInputStream(new java.io.FileInputStream(f));
-             java.io.InputStreamReader isr = new java.io.InputStreamReader(in, java.nio.charset.StandardCharsets.UTF_8);
-             java.io.BufferedReader br = new java.io.BufferedReader(isr, 64 * 1024)) {
+                java.io.InputStreamReader isr = new java.io.InputStreamReader(in,
+                        java.nio.charset.StandardCharsets.UTF_8);
+                java.io.BufferedReader br = new java.io.BufferedReader(isr, 64 * 1024)) {
 
             StringBuilder sb = new StringBuilder((int) Math.min(Math.max(f.length(), 128_000L), 2_000_000));
             char[] buf = new char[8192];
             int n;
-            while ((n = br.read(buf)) != -1) sb.append(buf, 0, n);
+            while ((n = br.read(buf)) != -1)
+                sb.append(buf, 0, n);
             return sb.toString();
         } catch (Exception e) {
             return "";
@@ -226,7 +237,8 @@ public class EbookSplitWorker extends ImportWorker {
 
     /** Preserve paragraphs; do only safe cleanup. */
     private static String cleanTextKeepParagraphs(String raw) {
-        if (raw == null) return "";
+        if (raw == null)
+            return "";
         String s = raw.replace("\r\n", "\n").replace("\r", "\n");
         // Remove control chars except \n and \t
         s = s.replaceAll("[\\p{Cntrl}&&[^\n\t]]", "");
@@ -237,38 +249,46 @@ public class EbookSplitWorker extends ImportWorker {
 
     /** From file like "003_chapter-title.txt" → "chapter-title". */
     private static String titleFromFileName(String name) {
-        if (name == null) return null;
+        if (name == null)
+            return null;
         String base = name;
         int dot = base.lastIndexOf('.');
-        if (dot > 0) base = base.substring(0, dot);
-        // drop leading "###_" index if present
-        if (base.length() >= 4 && Character.isDigit(base.charAt(0)) && Character.isDigit(base.charAt(1))
-                && Character.isDigit(base.charAt(2)) && base.charAt(3) == '_') {
-            base = base.substring(4);
+        if (dot > 0)
+            base = base.substring(0, dot);
+
+        // drop leading "###_" index if present (3 or more digits)
+        // regex: starts with digits + underscore
+        if (base.matches("^\\d{3,}_.*")) {
+            int u = base.indexOf('_');
+            if (u > 0)
+                base = base.substring(u + 1);
         }
         return base;
     }
 
     /** From file like "003_chapter-title.txt" → "003" (or null if no prefix). */
     private static String leadingIndexFromFileName(String name) {
-        if (name == null) return null;
+        if (name == null)
+            return null;
         String base = name;
         int dot = base.lastIndexOf('.');
-        if (dot > 0) base = base.substring(0, dot);
-        if (base.length() >= 4
-                && Character.isDigit(base.charAt(0))
-                && Character.isDigit(base.charAt(1))
-                && Character.isDigit(base.charAt(2))
-                && base.charAt(3) == '_') {
-            return base.substring(0, 3);
+        if (dot > 0)
+            base = base.substring(0, dot);
+
+        // check for digits + underscore
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d{3,})_").matcher(base);
+        if (m.find()) {
+            return m.group(1);
         }
         return null;
     }
 
     private static String toSafeFilename(String s) {
         String cleaned = s.replaceAll("[\\\\/:*?\"<>|]", " ").replaceAll("\\s+", " ").trim();
-        if (cleaned.length() > 80) cleaned = cleaned.substring(0, 80).trim();
-        if (cleaned.isEmpty()) cleaned = "chapter";
+        if (cleaned.length() > 80)
+            cleaned = cleaned.substring(0, 80).trim();
+        if (cleaned.isEmpty())
+            cleaned = "chapter";
         return cleaned;
     }
 

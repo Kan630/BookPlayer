@@ -30,12 +30,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 31/10/2020
  */
 public class Tonio {
-
 
     public static String getReadableSize(String size) {
         try {
@@ -47,14 +45,17 @@ public class Tonio {
     }
 
     public static String getReadableSize(long sizeBytes) {
-        if (sizeBytes <= 0) return "0 B";
-        if (sizeBytes < 1024) return sizeBytes + " B";
-        if (sizeBytes < 1024 * 1024) return String.format(Locale.US, "%.1f KB", sizeBytes / 1024.0);
+        if (sizeBytes <= 0)
+            return "0 B";
+        if (sizeBytes < 1024)
+            return sizeBytes + " B";
+        if (sizeBytes < 1024 * 1024)
+            return String.format(Locale.US, "%.1f KB", sizeBytes / 1024.0);
         return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
     }
 
     public static String getReadableSizeForCleanActivity(long sizeBytes) {
-        //if (sizeBytes <= 0) return "0 B";
+        // if (sizeBytes <= 0) return "0 B";
 
         double value;
         String unit;
@@ -77,9 +78,8 @@ public class Tonio {
         return String.format(Locale.US, "%5.3g %s", value, unit);
     }
 
-
     public static String formatTime(double doubleTimeMS) {
-        return formatTime(doubleTimeMS,false, true);
+        return formatTime(doubleTimeMS, false, true);
     }
 
     public static String formatTime(double doubleTimeMS, boolean doDisplaySec) {
@@ -129,7 +129,6 @@ public class Tonio {
         return s;
     }
 
-
     public static String formatPercentStringForSpeed(Double d) {
         String str = "";
         if (d != null) {
@@ -139,8 +138,10 @@ public class Tonio {
     }
 
     public static String formatPercentString(Double d) {
-        if (d == null || d == 0.0) return "";
-        if (d == 100.0) return "100 %";
+        if (d == null || d == 0.0)
+            return "";
+        if (d == 100.0)
+            return "100 %";
         return String.format(Locale.US, "%.1f %%", d);
     }
 
@@ -167,7 +168,7 @@ public class Tonio {
 
     public static String formatLastAccess(Long lastAccess, Context context) {
         String s;
-        if (lastAccess!= null && lastAccess > 0) {
+        if (lastAccess != null && lastAccess > 0) {
             Date accessDate = new Date(lastAccess);
             Date today = new Date(System.currentTimeMillis());
 
@@ -200,7 +201,8 @@ public class Tonio {
     public static String formatLastAccessInDays(Long lastAccess) {
         String zeReturn = "Never accessed";
         try {
-            if (lastAccess!=null && lastAccess <= 0) return zeReturn;
+            if (lastAccess != null && lastAccess <= 0)
+                return zeReturn;
 
             long now = System.currentTimeMillis();
             long diffInMillis = now - lastAccess;
@@ -245,15 +247,16 @@ public class Tonio {
     }
 
     public static String formatNameForDisplay(String s, boolean stripExtension) {
-        if (stripExtension) s = stripExtension(s);
-        s = removeLongDuplicates(s,10);
-        
-        // Format numbered prefixes like "002_" as "[002] - " for better readability
-        if (s != null && s.length() >= 4 && 
-            Character.isDigit(s.charAt(0)) && Character.isDigit(s.charAt(1)) && 
-            Character.isDigit(s.charAt(2)) && s.charAt(3) == '_') {
-            String prefix = s.substring(0, 3);
-            String rest = s.substring(4).trim();
+        if (stripExtension)
+            s = stripExtension(s);
+        s = removeLongDuplicates(s, 10);
+
+        // Format numbered prefixes like "002_" or "0002_" as "[002] - " for better
+        // readability
+        Matcher matcher = Pattern.compile("^(\\d{3,})_(.*)").matcher(s);
+        if (matcher.matches()) {
+            String prefix = matcher.group(1);
+            String rest = matcher.group(2).trim();
             s = "[" + prefix + "] - " + rest;
         } else {
             s = s.replace("_", " ");
@@ -263,13 +266,14 @@ public class Tonio {
 
     public static String formatDateForDisplay(long timestamp) {
         Date date = new Date(timestamp);
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US); //any local would work, just digits here
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US); // any local would work, just digits
+                                                                                    // here
         return sdf.format(date);
     }
 
     public static String FormatNameForDisplay_withUnderscore(String s) {
         s = stripExtension(s);
-        s = removeLongDuplicates(s,10);
+        s = removeLongDuplicates(s, 10);
         s = s.replace(" ", "_");
         return s;
     }
@@ -297,9 +301,9 @@ public class Tonio {
         String s = fileName;
         int pos = s.lastIndexOf(".");
         if (pos > 0) {
-            s = s.substring(pos+1);
+            s = s.substring(pos + 1);
         } else {
-            s="";
+            s = "";
         }
         return s.toLowerCase();
     }
@@ -309,7 +313,7 @@ public class Tonio {
         String ret = strPath;
         ret = Tonio.stripFileName(ret);
         int pos = ret.indexOf(strFrom);
-        if (pos>0) {
+        if (pos > 0) {
             ret = ret.substring(pos + strFrom.length());
         } else {
             ret = "";
@@ -323,7 +327,7 @@ public class Tonio {
             String ret = strFolderPath;
             myLog("getLastFolder - Path = " + ret);
             int pos = ret.lastIndexOf("/");
-            if (pos>0) {
+            if (pos > 0) {
                 ret = ret.substring(pos + 1);
             } else {
                 ret = "";
@@ -331,20 +335,22 @@ public class Tonio {
             myLog("getLastFolder => " + ret);
             return ret;
         } catch (Exception e) {
-            myLogEE(e,"getLastFolder()");
+            myLogEE(e, "getLastFolder()");
             return "";
         }
     }
 
     @NonNull
     public static String getMimeType(String fileName) {
-        //other possibility : library that read the beggining of file like "Apache Tika"
-        //DocumentContract
-        //DocumentFile.fromSingleUri(this, uri_given).getType;
+        // other possibility : library that read the beggining of file like "Apache
+        // Tika"
+        // DocumentContract
+        // DocumentFile.fromSingleUri(this, uri_given).getType;
         String type;
         final String extension = getExtension(fileName);
-            type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
-        if (type == null) type = "*/*";
+        type = MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension.toLowerCase());
+        if (type == null)
+            type = "*/*";
         return type;
     }
 
@@ -354,13 +360,13 @@ public class Tonio {
             return "xxx";
         }
         myLog("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
-        if (!Objects.isNull(uri) &&  !Objects.isNull(uri.getAuthority())) {
+        if (!Objects.isNull(uri) && !Objects.isNull(uri.getAuthority())) {
             String uriAuthority = uri.getAuthority();
             Set<String> cloudAuthorities = new HashSet<>();
             cloudAuthorities.add("com.google.android.apps.docs.storage"); // Google Drive
-            cloudAuthorities.add("com.microsoft.skydrive.content");       // OneDrive
-            cloudAuthorities.add("com.microsoft.skydrive.content.StorageAccessProvider");       // OneDrive
-            cloudAuthorities.add("com.dropbox.product.android.dbapp.document_provider.documents");  // DropBox
+            cloudAuthorities.add("com.microsoft.skydrive.content"); // OneDrive
+            cloudAuthorities.add("com.microsoft.skydrive.content.StorageAccessProvider"); // OneDrive
+            cloudAuthorities.add("com.dropbox.product.android.dbapp.document_provider.documents"); // DropBox
             if (uriAuthority != null && cloudAuthorities.contains(uriAuthority)) {
                 return "cloud";
             } else if (uri.toString().startsWith("http")) {
@@ -384,7 +390,8 @@ public class Tonio {
 
         try {
             mime = context.getContentResolver().getType(uri);
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
 
         // If null, fallback using extension
         if (mime == null) {
@@ -425,7 +432,7 @@ public class Tonio {
                     }
                 }
             } catch (Exception e) {
-                myLogEE(e,"getMimeType");
+                myLogEE(e, "getMimeType");
             }
         }
 
@@ -437,7 +444,7 @@ public class Tonio {
         try {
             m = DocumentFile.fromFile(f).getType();
         } catch (Exception e) {
-            myLogEE(e,"getMimeType");
+            myLogEE(e, "getMimeType");
         }
         return m;
     }
@@ -451,7 +458,7 @@ public class Tonio {
             File file = new File(applicationInfo.publicSourceDir);
             size = file.length();
         } catch (Exception e) {
-            myLogEE(e,"Error getting size taken by app");
+            myLogEE(e, "Error getting size taken by app");
         }
         return size;
     }
@@ -463,7 +470,8 @@ public class Tonio {
 
     public static long getFolderSize(File dir) {
         long size = 0;
-        //myLog("getFolderSize for [" + dir.getAbsolutePath() + "]  (from File object)");
+        // myLog("getFolderSize for [" + dir.getAbsolutePath() + "] (from File
+        // object)");
 
         File[] files = dir.listFiles();
 
@@ -485,18 +493,20 @@ public class Tonio {
         return size;
     }
 
-    public static String formatMemPadding(long mem){
-        return formatMemPadding(mem,9);
+    public static String formatMemPadding(long mem) {
+        return formatMemPadding(mem, 9);
     }
-    public static String formatMemPadding(long mem, int padding){
+
+    public static String formatMemPadding(long mem, int padding) {
         // %3s => left padding
-        if (padding<1) {
+        if (padding < 1) {
             return String.valueOf(mem);
         } else {
             try {
-                return String.format("%" + padding + "s", NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
+                return String.format("%" + padding + "s",
+                        NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
             } catch (Exception e) {
-                myLogEE(e,"formatMem");
+                myLogEE(e, "formatMem");
                 return String.valueOf(mem);
             }
         }
@@ -520,7 +530,7 @@ public class Tonio {
 
     public static String formatHhMmSs(long ms) {
         long totalSeconds = ms / 1000;
-        long hours   = totalSeconds / 3600;
+        long hours = totalSeconds / 3600;
         long minutes = (totalSeconds % 3600) / 60;
         long seconds = totalSeconds % 60;
 
@@ -543,6 +553,7 @@ public class Tonio {
         long millis = ms % 1000;
         return String.format(java.util.Locale.US, "%d:%02d.%03d", m, sec, millis);
     }
+
     public static String formatHhMmSsMs(long ms) {
         long s = ms / 1000;
         long m = s / 60;
@@ -559,8 +570,9 @@ public class Tonio {
     }
 
     public static String removeLongDuplicates(String input, int duplicate_min_length) {
-        // Define a regex pattern to match duplicate substrings longer than 10 characters
-        Pattern pattern = Pattern.compile("(.{"+duplicate_min_length+",}).*\\1");
+        // Define a regex pattern to match duplicate substrings longer than 10
+        // characters
+        Pattern pattern = Pattern.compile("(.{" + duplicate_min_length + ",}).*\\1");
 
         Matcher matcher = pattern.matcher(input);
         while (matcher.find()) {
@@ -572,16 +584,19 @@ public class Tonio {
     }
 
     public static String cleanSearchString(String query) {
-        if (query == null) return "";
+        if (query == null)
+            return "";
         String cleanedString = query.replaceAll("[\\r\\n\\t\\u0000-\\u001F\\u007F]+", "").trim();
-        if (!cleanedString.equals(query)) myLog("cleanSearchString : [" + query + "] => [" + cleanedString + "]");
+        if (!cleanedString.equals(query))
+            myLog("cleanSearchString : [" + query + "] => [" + cleanedString + "]");
         return cleanedString;
     }
 
     public static String getStringFromFloatArray2digits2decimals(float[] values) {
         StringBuilder sb = new StringBuilder("[");
         for (int i = 0; i < values.length; i++) {
-            if (i > 0) sb.append(", ");
+            if (i > 0)
+                sb.append(", ");
             // %5.2f means: total width 5 chars, 2 decimals
             // numbers <10 get a leading space
             sb.append(String.format(Locale.US, "%5.2f", values[i]));
@@ -593,10 +608,10 @@ public class Tonio {
     public static String lpad(int value, int width) {
         return String.format(Locale.US, "%" + width + "d", value);
     }
+
     public static String lpad(long value, int width) {
         return String.format(Locale.US, "%" + width + "d", value);
     }
-
 
     @Nullable
     public static String getParentFolder(@Nullable String fullPath) {
@@ -610,14 +625,11 @@ public class Tonio {
             return null;
         }
     }
+
     @NonNull
     public static String getParentFolderOrEmpty(@Nullable String fullPath) {
         String parent = getParentFolder(fullPath);
         return parent != null ? parent : "";
     }
-
-
-
-
 
 }
