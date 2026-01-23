@@ -58,6 +58,7 @@ public class ModifyFolderActivity extends LoggingActivity {
 
     private Folder folder;
     private View blockingOverlay;
+    private TextView tvBlockingText;
     private Button bDelete, bReset, bExport;
     private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch;
     private LinearLayout ll_zikfile_resolve_error;
@@ -79,6 +80,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         bReset = findViewById(R.id.bReset);
         bExport = findViewById(R.id.bExport);
         blockingOverlay = findViewById(R.id.blockingOverlay);
+        tvBlockingText = findViewById(R.id.tvBlockingText);
         bDeleteCover = findViewById(R.id.bDeleteCover);
         bGenerateCover = findViewById(R.id.bGenerateCover);
         bChangeCover = findViewById(R.id.bChangeCover);
@@ -623,7 +625,16 @@ public class ModifyFolderActivity extends LoggingActivity {
                 case RUNNING:
                     isDeleting = true;
                     setUiDeleting(true);
-                    // (optional) update progress text from active.getProgress()
+                    // Update progress text from active.getProgress()
+                    Data progress = active.getProgress();
+                    int count = progress.getInt("p_count", 0);
+                    String name = progress.getString("p_name");
+                    if (count > 0 && name != null) {
+                        String txt = getString(R.string.Deleting) + " item N°" + count + " : " + name + "....";
+                        tvBlockingText.setText(txt);
+                    } else {
+                        tvBlockingText.setText(R.string.Deleting);
+                    }
                     break;
 
                 case SUCCEEDED:

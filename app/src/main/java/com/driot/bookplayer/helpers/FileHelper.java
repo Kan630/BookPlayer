@@ -20,13 +20,19 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.Locale;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class FileHelper {
+    public interface DeletionListener {
+        public void onProgress(int count, String itemName);
+    }
+
     public static String getRealPathFromURI(final Context context, final Uri uri) {
         String path = "";
         try {
             path = processUri(context, uri);
         } catch (Exception e) {
-            myLogEE(e,"error in getRealPathFromURI");
+            myLogEE(e, "error in getRealPathFromURI");
             e.printStackTrace();
         }
         if (TextUtils.isEmpty(path)) {
@@ -38,7 +44,9 @@ public class FileHelper {
     }
 
     private static String processUri(Context context, Uri uri) {
-        @SuppressLint("ObsoleteSdkInt") final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT; // unecessary but keeping for later reuse....
+        @SuppressLint("ObsoleteSdkInt")
+        final boolean isKitKat = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT; // unecessary but keeping for
+                                                                                      // later reuse....
         myLog("processUri - isKitKat : " + String.valueOf(isKitKat));
         String path = "";
         // DocumentProvider
@@ -57,13 +65,13 @@ public class FileHelper {
                 myLog("processUri DownloadsProvider");
                 final String id = DocumentsContract.getDocumentId(uri);
                 myLog("DocumentsContract.getDocumentId(uri) : [" + id + "]");
-                //Starting with Android O, this "id" is not necessarily a long (row number),
-                //but might also be a "raw:/some/file/path" URL
+                // Starting with Android O, this "id" is not necessarily a long (row number),
+                // but might also be a "raw:/some/file/path" URL
                 if (id != null && id.startsWith("raw:/")) {
                     Uri rawuri = Uri.parse(id);
                     path = rawuri.getPath();
                 } else {
-                    String[] contentUriPrefixesToTry = new String[]{
+                    String[] contentUriPrefixesToTry = new String[] {
                             "content://downloads/public_downloads",
                             "content://downloads/my_downloads"
                     };
@@ -96,7 +104,7 @@ public class FileHelper {
                 };
 
                 path = getDataColumn(context, contentUri, selection, selectionArgs);
-            }  else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            } else if ("content".equalsIgnoreCase(uri.getScheme())) {
                 myLog("processUri content");
                 path = getDataColumn(context, uri, null, null);
             }
@@ -111,6 +119,7 @@ public class FileHelper {
     }
 
     private static String destFilePath;
+
     static String copyFile(Context context, Uri uri) {
         Thread thread_one;
         thread_one = new Thread() {
@@ -133,11 +142,11 @@ public class FileHelper {
                         }
                     }
                 } catch (Exception e) {
-                    myLogEE(e,"ERR copyFile");
+                    myLogEE(e, "ERR copyFile");
                 }
             }
 
-        }    ;
+        };
         thread_one.start();
         myLog("copy started (finding uri) to : [" + destFilePath + "]");
         return destFilePath;
@@ -161,14 +170,14 @@ public class FileHelper {
      * Get the value of the data column for this Uri. This is useful for
      * MediaStore Uris, and other file-based ContentProviders.
      *
-     * @param context The context.
-     * @param uri The Uri to query.
-     * @param selection (Optional) Filter used in the query.
+     * @param context       The context.
+     * @param uri           The Uri to query.
+     * @param selection     (Optional) Filter used in the query.
      * @param selectionArgs (Optional) Selection arguments used in the query.
      * @return The value of the _data column, which is typically a file path.
      */
     public static String getDataColumn(Context context, Uri uri, String selection,
-                                       String[] selectionArgs) {
+            String[] selectionArgs) {
         Cursor cursor = null;
         String result = null;
         final String column = "_data";
@@ -181,7 +190,7 @@ public class FileHelper {
                 result = cursor.getString(index);
             }
         } catch (Exception e) {
-            myLogEE(e,"error with getDataColumn");
+            myLogEE(e, "error with getDataColumn");
             return null;
         } finally {
             if (cursor != null)
@@ -189,7 +198,6 @@ public class FileHelper {
         }
         return result;
     }
-
 
     /**
      * @param uri The Uri to check.
@@ -215,14 +223,14 @@ public class FileHelper {
         return "com.android.providers.media.documents".equals(uri.getAuthority());
     }
 
-
     public static boolean exists(String path) {
         try {
             File f = new File(path);
             if (f.exists()) {
                 return true;
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
         return false;
     }
 
@@ -240,7 +248,8 @@ public class FileHelper {
 
     private static void listFilesRecursive(File dir, String indent) {
         File[] files = dir.listFiles();
-        if (files == null) return;
+        if (files == null)
+            return;
 
         for (File file : files) {
             if (file.isDirectory()) {
@@ -253,17 +262,18 @@ public class FileHelper {
     }
 
     public static String sanitizeFilename(String input) {
-        if (input==null) return null;
+        if (input == null)
+            return null;
         return input.replaceAll("[\\\\/:*?\"<>|]", "_");
     }
 
     public static boolean deleteFolderRecursive(String strPath) {
         String starter = "file:///";
-        if (strPath.length()>5) {
-            strPath = strPath.replace(starter,"");
+        if (strPath.length() > 5) {
+            strPath = strPath.replace(starter, "");
             try {
                 File zikFileToDelete = new File(strPath);
-                if(zikFileToDelete.exists()) {
+                if (zikFileToDelete.exists()) {
                     if (recursiveRemove(zikFileToDelete)) {
                         myLog("Deleted from Disk : [" + strPath + "]");
                         return true;
@@ -276,7 +286,7 @@ public class FileHelper {
                     return false;
                 }
             } catch (Exception e) {
-                myLogEE(e,"Error remove ZikFile from Disk : [" + strPath + "]");
+                myLogEE(e, "Error remove ZikFile from Disk : [" + strPath + "]");
                 return false;
             }
         } else {
@@ -287,10 +297,17 @@ public class FileHelper {
 
     public static boolean recursiveRemove(File file) {
         String callerInfo = captureExternalCaller();
-        return recursiveRemoveInternal(file, callerInfo);
+        return recursiveRemoveInternal(file, callerInfo, new AtomicInteger(0), null);
     }
 
-    private static boolean recursiveRemoveInternal(File file, String callerInfo) {
+    public static boolean recursiveRemove(File file, DeletionListener listener) {
+        String callerInfo = captureExternalCaller();
+        return recursiveRemoveInternal(file, callerInfo, new AtomicInteger(0), listener);
+    }
+
+    private static boolean recursiveRemoveInternal(File file, String callerInfo, AtomicInteger count,
+            DeletionListener listener) {
+
         if (file == null || !file.exists()) {
             myLogE("recursiveRemove() by " + callerInfo + " => File does not exist [" + file + "]");
             return false;
@@ -300,13 +317,16 @@ public class FileHelper {
             File[] list = file.listFiles();
             if (list != null) {
                 for (File item : list) {
-                    recursiveRemove(item);
+                    recursiveRemoveInternal(item, callerInfo, count, listener);
                 }
             }
         }
 
         if (file.exists()) {
             if (file.delete()) {
+                if (listener != null) {
+                    listener.onProgress(count.incrementAndGet(), file.getName());
+                }
                 myLog("recursiveRemove() by " + callerInfo + " => delete OK [" + file + "]");
             } else {
                 myLogE("recursiveRemove() by " + callerInfo + " => delete KO [" + file + "]");
@@ -314,11 +334,13 @@ public class FileHelper {
         }
         return !file.exists();
     }
+
     public static void RemoveCachedImages(Context context, File file) {
         AppDatabase.databaseReadExecutor.execute(() -> {
             recursiveRemoveCachedImages(context, file);
         });
     }
+
     private static void recursiveRemoveCachedImages(Context context, File file) {
         if (file == null || !file.exists()) {
             myLogE("recursiveRemoveImages() => File does not exist.... [" + file + "]");
@@ -338,44 +360,49 @@ public class FileHelper {
                 if (exists) {
                     myLogD("image is in DB book covers - bypassing : " + name);
                 }
-                    if (file.delete()) {
-                        myLogD("recursiveRemoveImages() => delete OK.... [" + file + "]");
-                    } else {
-                        myLogE("recursiveRemoveImages() => delete KO.... [" + file + "]");
-                    }
+                if (file.delete()) {
+                    myLogD("recursiveRemoveImages() => delete OK.... [" + file + "]");
+                } else {
+                    myLogE("recursiveRemoveImages() => delete KO.... [" + file + "]");
+                }
             }
         }
     }
 
     public static boolean deleteFile(Context context, String path) {
-        if (path == null) return false;
+        if (path == null)
+            return false;
 
         try {
             if (path.startsWith("file://")) {
                 path = Uri.parse(path).getPath();
             }
-            if (path == null) return false;
+            if (path == null)
+                return false;
             File file = new File(path);
             if (file.exists()) {
                 return file.delete();
             }
         } catch (Exception e) {
-            myLogEE(e,"error in deleteFile for path [" + path + "]");
+            myLogEE(e, "error in deleteFile for path [" + path + "]");
         }
         return false;
     }
 
     public static void deleteFolderChildren(File dir) {
         File[] files = dir.listFiles();
-        if (files == null) return;
+        if (files == null)
+            return;
         for (File f : files) {
             try {
-                if (f.isDirectory()) deleteFolderRecursive(f.getAbsolutePath());
-                else f.delete();
-            } catch (Throwable ignored) {}
+                if (f.isDirectory())
+                    deleteFolderRecursive(f.getAbsolutePath());
+                else
+                    f.delete();
+            } catch (Throwable ignored) {
+            }
         }
     }
-
 
     private static String captureExternalCaller() {
         try {
@@ -383,7 +410,7 @@ public class FileHelper {
             // st[0] = new Throwable
             // st[1] = captureExternalCaller
             // st[2] = recursiveRemove (public)
-            // st[3] = <external caller>  <-- usually this one
+            // st[3] = <external caller> <-- usually this one
             for (int i = 2; i < st.length; i++) {
                 StackTraceElement e = st[i];
                 String cn = e.getClassName();
@@ -395,7 +422,8 @@ public class FileHelper {
                 }
                 return cn + "#" + e.getMethodName() + ":" + e.getLineNumber();
             }
-        } catch (Throwable ignored) { }
+        } catch (Throwable ignored) {
+        }
         return "unknown";
     }
 

@@ -46,7 +46,8 @@ public class DeleteFolderWorker extends LoggingWorker {
         return sw.toString();
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public Result doWorkBody() {
         long folderId = getInputData().getLong(KEY_FOLDER_ID, -1L);
         String folderName = getInputData().getString(KEY_FOLDER_NAME);
@@ -86,7 +87,8 @@ public class DeleteFolderWorker extends LoggingWorker {
             Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
             if (podcast == null) {
                 Folder f = db.folderDao().getById(folderId); // ensure DAO exists
-                if (f != null) ImageHelper.deleteImage(appCtx, f);
+                if (f != null)
+                    ImageHelper.deleteImage(appCtx, f);
             }
 
             List<ZikFile> zikFileList = db.zikFileDao().getZikFiles(folderId);
@@ -101,7 +103,7 @@ public class DeleteFolderWorker extends LoggingWorker {
 
             db.folderDao().delete((int) folderId);
             db.zikFileDao().deleteAllZikFilesInFolder((int) folderId);
-            com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload(appCtx,(int) folderId);
+            com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload(appCtx, (int) folderId);
 
             myLog("delete finished");
 
@@ -118,16 +120,17 @@ public class DeleteFolderWorker extends LoggingWorker {
 
     private ForegroundInfo createForegroundInfo(String folderName) {
         String title = getApplicationContext().getString(R.string.app_name);
-        String text  = "Deleting \"" + folderName + "\"…";
+        String text = "Deleting \"" + folderName + "\"…";
 
-        NotificationManager nm =
-                (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+        NotificationManager nm = (NotificationManager) getApplicationContext()
+                .getSystemService(Context.NOTIFICATION_SERVICE);
         NotificationChannel ch = new NotificationChannel(
                 CHANNEL_ID, "Deletions", NotificationManager.IMPORTANCE_LOW);
         nm.createNotificationChannel(ch);
 
         int smallIcon = R.drawable.ic_delete_24;
-        if (smallIcon == 0) smallIcon = R.mipmap.ic_launcher;
+        if (smallIcon == 0)
+            smallIcon = R.mipmap.ic_launcher;
 
         Notification notif = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID)
                 .setSmallIcon(smallIcon)
@@ -143,30 +146,42 @@ public class DeleteFolderWorker extends LoggingWorker {
             svcType = ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC;
         }
 
-        // IMPORTANT: use the 3-arg constructor so WorkManager starts FGS with the declared type
+        // IMPORTANT: use the 3-arg constructor so WorkManager starts FGS with the
+        // declared type
         return new ForegroundInfo(NOTIF_ID, notif, svcType);
     }
 
     private boolean eraseFolderAndFiles(Context ctx, String strPath) {
         myLogD("erasing [" + strPath + "]");
-        if (strPath == null) return false;
+        if (strPath == null)
+            return false;
 
         if (strPath.endsWith("files/unzipped") || strPath.endsWith("files/unzipped/")) {
             // guard-rail
             return false;
         }
-        if (strPath.length() <= 5) return false;
+        if (strPath.length() <= 5)
+            return false;
 
         String starter = "file:///";
         if (!StorageHelper.isInInternalMemory(strPath)) {
-            // Not in app user-data zone: don't delete from disk, but consider DB cleanup OK.
+            // Not in app user-data zone: don't delete from disk, but consider DB cleanup
+            // OK.
             myLogD("not in app memory => no disk delete");
             return true;
         } else {
             strPath = strPath.replace(starter, "");
             try {
                 File folderToDelete = new File(strPath);
-                FileHelper.recursiveRemove(folderToDelete);
+
+                FileHelper.recursiveRemove(folderToDelete, (count, itemName) -> {
+                    // Update progress
+                    // We can throttle if needed, but for now reporting all
+                    setProgressAsync(new Data.Builder()
+                            .putInt("p_count", count)
+                            .putString("p_name", itemName)
+                            .build());
+                });
                 return true;
             } catch (Exception e) {
                 return false;
