@@ -122,7 +122,10 @@
             android:textColor="?attr/colorOnSurface"
             app:layout_constraintTop_toBottomOf="@id/tvBookName"
             app:layout_constraintLeft_toLeftOf="parent"
-            android:text="..." />
+            android:text="..."
+            app:layout_constraintRight_toLeftOf="@+id/textViewFilePercent"
+            android:maxLines="1"
+            android:ellipsize="end" />
 
         <TextView
             android:id="@+id/textViewFileLastAccess"
