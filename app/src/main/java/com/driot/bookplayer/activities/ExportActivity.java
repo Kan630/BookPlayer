@@ -25,6 +25,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.services.ExportService;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
@@ -40,7 +41,7 @@ public class ExportActivity extends LoggingActivity {
     private Uri exportTreeUri = null; // user-chosen folder (tree) Uri
 
     Folder folder;
-    File fileFolder;
+    // File fileFolder;
     private ProgressBar progressBar;
     private TextView progressText, tvCurrentTrack, tvExportAudioBookName;
     private EditText etDestinationFileName;
@@ -145,14 +146,15 @@ public class ExportActivity extends LoggingActivity {
             startActivityForResult(intent, REQUEST_CODE_destinationFolder);
         });
 
-        //String destinationFileName = "BookplayerExport_" + fileFolder.getName();
+        // String destinationFileName = "BookplayerExport_" + fileFolder.getName();
         String destinationFileName = folder.getName();
         etDestinationFileName = findViewById(R.id.etDestinationFileName);
         etDestinationFileName.setText(destinationFileName);
 
         myLog("folderPath : " + folder.getPath());
-        fileFolder = new File(folder.getPath());
-        if (!fileFolder.exists() || !fileFolder.isDirectory()) {
+        // fileFolder = new File(folder.getPath());
+        // if (!fileFolder.exists() || !fileFolder.isDirectory()) {
+        if (!UriHelper.isFolder(this, Uri.parse(folder.getPath()))) {
             myLogEE(null, "export folderPath : " + folder.getPath());
             tvExportAudioBookName.setText(getString(R.string.Export_display_no_valid_audiobook));
             tvExportAudioBookName.setTextColor(getColor(R.color.red_700));
@@ -236,7 +238,7 @@ public class ExportActivity extends LoggingActivity {
                 serviceIntent.putExtra(EXTRA_DEST_URI, zipDoc.getUri().toString());
 
             } else {
-                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { //Android 10
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) { // Android 10
                     // Legacy: real path + WRITE_EXTERNAL_STORAGE
                     File downloadsDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
                     File targetDir = downloadsDir;
@@ -332,10 +334,8 @@ public class ExportActivity extends LoggingActivity {
             if (tree != null) {
                 myLogI("--- user chooses folder ---, " + tree.getPath());
                 // Persist access so we can use it later (and from the service)
-                final int takeFlags = (data.getFlags()
-                        & (Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION));
                 try {
-                    getContentResolver().takePersistableUriPermission(tree, takeFlags);
+                    getContentResolver().takePersistableUriPermission(tree, Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                 } catch (SecurityException ignore) {
                     /* some OEMs can throw if you already have it */ }
 
@@ -348,7 +348,9 @@ public class ExportActivity extends LoggingActivity {
                 b_destinationFolder.setText(name);
 
                 // If everything else is ready, you can enable export here as well
-                if (fileFolder != null && fileFolder.exists())
+                // If everything else is ready, you can enable export here as well
+                // if (fileFolder != null && fileFolder.exists()) btnExport.setEnabled(true);
+                if (UriHelper.isFolder(this, Uri.parse(folder.getPath())))
                     btnExport.setEnabled(true);
             }
         }

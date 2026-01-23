@@ -16,17 +16,22 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingService;
 
+import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.services.ExportService;
+
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileOutputStream; // Keep for legacy
+import java.io.InputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import androidx.documentfile.provider.DocumentFile;
 
 public class ExportService extends LoggingService {
 
@@ -45,7 +50,7 @@ public class ExportService extends LoggingService {
             return START_NOT_STICKY;
         }
         String destFileFullPath = intent.getStringExtra(ExportActivity.EXTRA_DEST_FILE_FULL_PATH); // legacy path
-        String destUriStr = intent.getStringExtra(ExportActivity.EXTRA_DEST_URI);                  // SAF Uri (preferred)
+        String destUriStr = intent.getStringExtra(ExportActivity.EXTRA_DEST_URI); // SAF Uri (preferred)
 
         myLogD("------------------------------------------------------------------------------------------------");
         myLog("folderPath: " + folder.getName());
@@ -64,36 +69,92 @@ public class ExportService extends LoggingService {
 
     private void zipFolder(Folder folder, String destFileFullPath, String destUriStr) {
         String folderPath = folder.getPath();
-        File fileFolder = new File(folderPath);
-        if (!fileFolder.exists() || !fileFolder.isDirectory()) {
-            myLogEE(null, "Export aborted: invalid folderPath: " + folderPath);
-            sendFail( "invalid folder path: " + folderPath);
-            return;
+        Uri folderUri = Uri.parse(folderPath);
+
+        // abstraction for "files to zip"
+        List<Uri> filesToZip = new ArrayList<>();
+        List<String> fileNames = new ArrayList<>();
+        List<Long> fileSizes = new ArrayList<>();
+
+        // 1. Resolve source files
+        if (UriHelper.isFolder(this, folderUri)) {
+            // Is it a SAF folder or File folder?
+            DocumentFile docFolder = UriHelper.getDocumentFileFromAnyUri(this, folderUri);
+            if (docFolder != null && docFolder.exists()) {
+                // SAF or mixed
+                DocumentFile[] docs = docFolder.listFiles();
+                for (DocumentFile doc : docs) {
+                    if (doc.isFile()) {
+                        filesToZip.add(doc.getUri());
+                        fileNames.add(doc.getName());
+                        fileSizes.add(doc.length());
+                    }
+                }
+            } else {
+                // Fallback legacy "File" check if UriHelper said true but docFolder failed
+                // (unlikely)
+                File fileFolder = new File(folderPath);
+                if (fileFolder.exists() && fileFolder.isDirectory()) {
+                    File[] audioFiles = fileFolder.listFiles(File::isFile);
+                    if (audioFiles != null) {
+                        for (File f : audioFiles) {
+                            filesToZip.add(Uri.fromFile(f));
+                            fileNames.add(f.getName());
+                            fileSizes.add(f.length());
+                        }
+                    }
+                }
+            }
+        } else {
+            // Check if it was just a raw path that needed file://
+            File fileFolder = new File(folderPath);
+            if (fileFolder.exists() && fileFolder.isDirectory()) {
+                File[] audioFiles = fileFolder.listFiles(File::isFile);
+                if (audioFiles != null) {
+                    for (File f : audioFiles) {
+                        filesToZip.add(Uri.fromFile(f));
+                        fileNames.add(f.getName());
+                        fileSizes.add(f.length());
+                    }
+                }
+            } else {
+                myLogEE(null, "Export aborted: invalid folderPath: " + folderPath);
+                sendFail("invalid folder path: " + folderPath);
+                return;
+            }
         }
 
-        File[] audioFiles = fileFolder.listFiles(File::isFile);
-        List<File> filesList = new ArrayList<>();
-        if (audioFiles == null || audioFiles.length == 0) {
+        if (filesToZip.isEmpty()) {
             myLogEE(null, "no audio file found in folder");
             sendFail("no audio file found in folder");
             return;
         }
-        Collections.addAll(filesList, audioFiles);
 
-        totalFiles = filesList.size();
+        totalFiles = filesToZip.size();
         totalSize = 0L;
+        for (Long s : fileSizes)
+            totalSize += s;
 
-        for (File f : filesList) {
-            totalSize += f.length();
-        }
         myLog("total audio size = " + Tonio.getReadableSize(totalSize));
 
+        // Image handling (legacy path string in DB?)
         String pathImage = folder.image;
         if (pathImage != null && !pathImage.isEmpty()) {
-            File fileImage = new File(pathImage);
-            if (fileImage.exists()) {
-                myLog("image found : " + Tonio.getFileNameFromPath(pathImage));
-                filesList.add(fileImage);
+            // Try to resolve image
+            Uri imageUri = UriHelper.resolveUriFromPath(this, pathImage);
+            if (imageUri != null) {
+                // We need a name and size.
+                // For simplicity, let's try to get them.
+                long iSize = UriHelper.getSize(this, imageUri);
+                String iName = Tonio.getFileNameFromPath(pathImage); // fallback name
+                // if SAF, maybe query name? simpler to trust generic helper or just use
+                // filename
+                filesToZip.add(imageUri);
+                fileNames.add(iName);
+                fileSizes.add(iSize);
+                totalSize += iSize;
+                totalFiles++;
+                myLog("image added: " + iName);
             }
         }
 
@@ -107,14 +168,16 @@ public class ExportService extends LoggingService {
             if (useSaf) {
                 safDestUri = Uri.parse(destUriStr);
                 rawOut = getContentResolver().openOutputStream(safDestUri, "w");
-                if (rawOut == null) throw new IOException("openOutputStream returned null for " + safDestUri);
+                if (rawOut == null)
+                    throw new IOException("openOutputStream returned null for " + safDestUri);
             } else {
                 if (destFileFullPath == null) {
                     throw new IOException("Destination path is null (no SAF Uri, no legacy path)");
                 }
                 outputFile = new File(destFileFullPath);
                 File parent = outputFile.getParentFile();
-                if (parent != null && !parent.exists()) parent.mkdirs();
+                if (parent != null && !parent.exists())
+                    parent.mkdirs();
                 rawOut = new FileOutputStream(outputFile);
             }
 
@@ -122,25 +185,33 @@ public class ExportService extends LoggingService {
                 long zippedSoFar = 0;
                 int currentIndex = 0;
 
-                for (File file : filesList) {
+                for (int i = 0; i < filesToZip.size(); i++) {
+                    Uri fileUri = filesToZip.get(i);
+                    String fileName = fileNames.get(i);
                     currentIndex++;
-                    sendProgress(file.getName(), zippedSoFar, currentIndex);
+                    sendProgress(fileName, zippedSoFar, currentIndex);
 
-                    try (FileInputStream fis = new FileInputStream(file)) {
-                        ZipEntry entry = new ZipEntry(file.getName());
+                    try (InputStream fis = getContentResolver().openInputStream(fileUri)) {
+                        if (fis == null) {
+                            myLogE("Could not open stream for " + fileUri);
+                            continue;
+                        }
+
+                        ZipEntry entry = new ZipEntry(fileName);
                         zos.putNextEntry(entry);
 
-                        byte[] buffer = new byte[4096];
+                        byte[] buffer = new byte[8192];
                         int length;
                         while ((length = fis.read(buffer)) != -1) {
                             zos.write(buffer, 0, length);
                             zippedSoFar += length;
-                            sendProgress(file.getName(), zippedSoFar, currentIndex);
+                            sendProgress(fileName, zippedSoFar, currentIndex);
                         }
                         zos.closeEntry();
+                    } catch (Exception e) {
+                        myLogEE(e, "Error zipping file " + fileName);
                     }
                 }
-
 
                 zos.flush();
                 sendProgress(getString(R.string.Export_done_Excl), totalSize, totalFiles);
@@ -160,8 +231,7 @@ public class ExportService extends LoggingService {
                     Uri zipUri = FileProvider.getUriForFile(
                             this,
                             BuildConfig.APPLICATION_ID + ".FileProvider",
-                            outputFile
-                    );
+                            outputFile);
                     Intent done = new Intent("EXPORT_DONE");
                     done.putExtra("zipUri", zipUri);
                     done.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -177,7 +247,7 @@ public class ExportService extends LoggingService {
             }
 
         } catch (Throwable e) {
-            myLogEE(e,"export general error");
+            myLogEE(e, "export general error");
             e.printStackTrace();
             sendFail(getString(R.string.Export_error) + ": " + e.getMessage());
         }
@@ -204,7 +274,8 @@ public class ExportService extends LoggingService {
             LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
             lastUpdateTime = now;
         }
-        // (Optional) you can promote this to a foreground service with a progress notification if exports are large.
+        // (Optional) you can promote this to a foreground service with a progress
+        // notification if exports are large.
     }
 
     @Override
