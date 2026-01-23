@@ -274,7 +274,7 @@
     <string name="help_storage_text"><![CDATA[
     <font color="#BA68C8"><b>Where Files Are Stored</b></font>
     <br><br>
-    By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space.
+    By default, BookPlayer uses the <font color="#81C784">SD card</font> if available, to save space. <i>(Note that SD card access is a bit slower than main memory)</i>.
     <br><br>
     To switch to internal storage, change the setting in the <font color="#64B5F6">Settings</font> menu.
     ]]></string>
