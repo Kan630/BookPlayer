@@ -2329,37 +2329,46 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             // call on background thread = Important
             if (pl.isZikFile()) {
+                ZikFile zikFile = pl.getZikFile();
+                if (zikFile == null) {
+                    myLogEE(null, "null zikfile in createFromStorage");
+                    return;
+                }
                 AppDatabase.databaseReadExecutor.execute(() -> {
-                    boolean ok = loadAndPlayTrack(pl.getZikFile());
+                    boolean ok = loadAndPlayTrack(zikFile);
                     if (!ok) {
                         myLogEE(null, "loadAndPlayFromStorage(): playback failed");
                     }
                 });
 
             } else if (pl.isStream()) {
-
+                String url = pl.getUrl();
+                if (url == null || url.isEmpty()) {
+                    myLogEE(null, "null url in createFromStorage");
+                    return;
+                }
                 AppDatabase.databaseReadExecutor.execute(()->{
-                    RadioStation rs = AppDatabase.getDatabase(this).radioStationDao().getFromUrl(pl.getUrl());
+                    RadioStation rs = AppDatabase.getDatabase(this).radioStationDao().getFromUrl(url);
                     if (rs != null) {
                         String title = rs.name;
                         String imageUrl = rs.favicon;
                         broadcastUiState("loadAndPlay");
                         main.post(() -> {
-                            boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);
+                            boolean ok = playStream(Var.PLAY_MODE_RADIO, url, title, imageUrl);
                             if (!ok) {
                                 myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio");
                             }
                         });
                         return;
                     }
-                    Episode episode = AppDatabase.getDatabase(this).episodeDao().getFromUrl(pl.getUrl());
+                    Episode episode = AppDatabase.getDatabase(this).episodeDao().getFromUrl(url);
                     if (episode != null) {
                         String title = episode.title;
                         String imageUrl = episode.image;
                         //TODO => we need a position, or it will start the episode from the beggining....
                         broadcastUiState("loadAndPlay");
                         main.post(() -> {
-                            boolean ok = playStream(pl.getPlayMode(), pl.getUrl(), title, imageUrl);
+                            boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
                             if (!ok) {
                                 myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
                             }
