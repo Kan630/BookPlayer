@@ -45,6 +45,7 @@ public class PodcastHelper {
 
     public interface Callback {
         void onSuccess(List<PodcastFeed> feeds);
+
         void onError(Exception e);
     }
 
@@ -64,22 +65,22 @@ public class PodcastHelper {
 
     public static String buildPodcastEpisodeName(PodcastEpisode episode) {
         String safeTitle = sanitizeFilename(episode.title);
-        String safeDate = sanitizeFilename(episode.datePublishedPretty.replace(":","h"));
+        String safeDate = sanitizeFilename(episode.datePublishedPretty.replace(":", "h"));
         return safeTitle + " - [" + safeDate + "].mp3";
     }
 
     public static String buildPodcastEpisodeName(DisplayableEpisode episode) {
         String safeTitle = sanitizeFilename(episode.title);
-        String safeDate = sanitizeFilename(episode.datePublishedPretty.replace(":","h"));
+        String safeDate = sanitizeFilename(episode.datePublishedPretty.replace(":", "h"));
         return safeTitle + " - [" + safeDate + "].mp3";
     }
 
     public static String buildPodcastEpisodeFileName(PodcastEpisode episode) {
-        return Var.PODCAST_SOURCE + "_" +  episode.id + ".mp3";
+        return Var.PODCAST_SOURCE + "_" + episode.id + ".mp3";
     }
 
     public static String buildPodcastEpisodeFileName(DisplayableEpisode episode) {
-        return Var.PODCAST_SOURCE + "_" +  episode.idEpisode + ".mp3";
+        return Var.PODCAST_SOURCE + "_" + episode.idEpisode + ".mp3";
     }
 
     public static long getEpisodeIdFromName(String fileName) {
@@ -97,11 +98,11 @@ public class PodcastHelper {
         }
     }
 
-
     public static File findPodcastEpisodeFileIfExists(Context context, String podcastTitle, String episodeFileName) {
         // Try internal storage first
         File file = new File(buildPodcastPath(context, podcastTitle, false), episodeFileName);
-        if (file.exists()) return file;
+        if (file.exists())
+            return file;
 
         // Then try SD card
         file = new File(buildPodcastPath(context, podcastTitle, true), episodeFileName);
@@ -127,12 +128,12 @@ public class PodcastHelper {
                 .addInterceptor(logging)
                 .addInterceptor(appTokenInterceptor)
                 // (optional) timeouts if you want:
-                //.connectTimeout(8, java.util.concurrent.TimeUnit.SECONDS)
-                //.readTimeout(12, java.util.concurrent.TimeUnit.SECONDS)
+                // .connectTimeout(8, java.util.concurrent.TimeUnit.SECONDS)
+                // .readTimeout(12, java.util.concurrent.TimeUnit.SECONDS)
                 .build();
 
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(BASE_URL)   // e.g. https://<worker>.workers.dev/podcastindex/
+                .baseUrl(BASE_URL) // e.g. https://<worker>.workers.dev/podcastindex/
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -140,36 +141,35 @@ public class PodcastHelper {
         return retrofit.create(PodcastIndexApi.class);
     }
 
-
     public static void searchPodcasts(String query, String lang, Callback callback) {
         PodcastIndexApi api = buildApi();
-        api.searchPodcasts(query, Option.getPodcastIndexOrgApiNbResults(), lang).enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
-        @Override
-        public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
-            if (response.isSuccessful() && response.body() != null) {
-                myLogD("response.isSuccessful() && response.body() != null");
-                callback.onSuccess(response.body().feeds);
-            } else {
-                String errorBody = "Unknown error";
-                try {
-                    if (response.errorBody() != null) {
-                        errorBody = response.errorBody().string();
+        api.searchPodcasts(query, Option.getPodcastIndexOrgApiNbResults(), lang)
+                .enqueue(new retrofit2.Callback<PodcastIndexResponse>() {
+                    @Override
+                    public void onResponse(Call<PodcastIndexResponse> call, Response<PodcastIndexResponse> response) {
+                        if (response.isSuccessful() && response.body() != null) {
+                            myLogD("response.isSuccessful() && response.body() != null");
+                            callback.onSuccess(response.body().feeds);
+                        } else {
+                            String errorBody = "Unknown error";
+                            try {
+                                if (response.errorBody() != null) {
+                                    errorBody = response.errorBody().string();
+                                }
+                            } catch (Exception ex) {
+                                ex.printStackTrace();
+                            }
+
+                            String message = "HTTP " + response.code() + ": " + errorBody;
+                            callback.onError(new Exception(message));
+                        }
                     }
-                } catch (Exception ex) {
-                    ex.printStackTrace();
-                }
 
-                String message = "HTTP " + response.code() + ": " + errorBody;
-                callback.onError(new Exception(message));
-            }
-        }
-
-
-            @Override
-            public void onFailure(Call<PodcastIndexResponse> call, Throwable t) {
-                callback.onError(new Exception(t));
-            }
-        });
+                    @Override
+                    public void onFailure(Call<PodcastIndexResponse> call, Throwable t) {
+                        callback.onError(new Exception(t));
+                    }
+                });
     }
 
     public static void getTrendingPodcasts(String lang, int max, Callback callback) {
@@ -185,7 +185,8 @@ public class PodcastHelper {
                         if (response.errorBody() != null) {
                             error = response.errorBody().string();
                         }
-                    } catch (Exception ignored) {}
+                    } catch (Exception ignored) {
+                    }
                     callback.onError(new Exception("HTTP " + response.code() + ": " + error));
                 }
             }
@@ -197,7 +198,8 @@ public class PodcastHelper {
         });
     }
 
-    public static void getEpisodesByFeedId(Context context, long feedId, long since, int max, boolean fullText, EpisodeCallback callback) {
+    public static void getEpisodesByFeedId(Context context, long feedId, long since, int max, boolean fullText,
+            EpisodeCallback callback) {
         PodcastIndexApi api = buildApi();
         myLog("API call");
         api.getEpisodesByFeedId(feedId, since, max, fullText).enqueue(new retrofit2.Callback<PodcastEpisodeResponse>() {
@@ -220,14 +222,15 @@ public class PodcastHelper {
 
     public interface EpisodeCallback {
         void onSuccess(List<PodcastEpisode> episodes);
+
         void onError(Exception e);
     }
 
     public static void checkForEpisodesToAutoDelete(Context context) {
         if (Option.getPodcastAutoDelete()) {
-            //myLogD("AutoDelete On");
+            // myLogD("AutoDelete On");
         } else {
-            //myLogD("AutoDelete Off");
+            // myLogD("AutoDelete Off");
             return;
         }
 
@@ -249,7 +252,8 @@ public class PodcastHelper {
 
             List<ZikFile> filesToDelete = zikFileDao.getListenedPodcastEpisodesToDelete(percent, thresholdTime);
             long deleteListSize = filesToDelete.size();
-            myLogD("AutoDelete : " + deleteListSize + " Episodes to delete ... (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+            myLogD("AutoDelete : " + deleteListSize + " Episodes to delete ... (thresholdTime=" + thresholdTime
+                    + " from " + days + " days) + " + percent + "% completion");
 
             int fsDeleted = 0;
             int dbDeleted = 0;
@@ -266,18 +270,18 @@ public class PodcastHelper {
 
                 File file = new File(path);
                 if (!file.exists() || !file.isFile()) {
-                    //legacy
+                    // legacy
                     file = new File(path + "/" + zikFile.getName());
                     if (!file.exists() || !file.isFile()) {
                         myLogE("AutoDelete => Failed to locate file: " + path);
                         continue;
                     } else {
-                        myLogW("legacy paths : path/name"); //2025-10-09 (some 2 months old podcasts stays in my phone)
+                        myLogW("legacy paths : path/name"); // 2025-10-09 (some 2 months old podcasts stays in my phone)
                     }
                 }
 
                 if (!file.delete()) {
-                    myLogE("AutoDelete => Failed to delete file " + fsDeleted+1 + "/" + deleteListSize + ": " + path);
+                    myLogE("AutoDelete => Failed to delete file " + fsDeleted + 1 + "/" + deleteListSize + ": " + path);
                     continue;
                 }
 
@@ -287,7 +291,7 @@ public class PodcastHelper {
 
                 long fileId = zikFile.getId();
 
-                //update before delete because onCascade null
+                // update before delete because onCascade null
                 int updated = episodeDao.updateDateDeleteForZikFileId(fileId, System.currentTimeMillis());
                 if (updated == 0) {
                     myLogE("AutoDelete => Failed to update in DB Episode: " + fileId);
@@ -304,8 +308,10 @@ public class PodcastHelper {
                 foldersToUpdate.add((long) zikFile.getIdFolder());
             }
 
-            if (dbDeleted!=0) {
-                myLogI("AutoDelete => " + fsDeleted + "/" + dbDeleted + "/" + dbUpdated + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from " + days + " days) + " + percent + "% completion");
+            if (dbDeleted != 0) {
+                myLogI("AutoDelete => " + fsDeleted + "/" + dbDeleted + "/" + dbUpdated
+                        + " old listened podcast episodes were deleted (thresholdTime=" + thresholdTime + " from "
+                        + days + " days) + " + percent + "% completion");
                 for (Long idFolder : foldersToUpdate) {
                     if (idFolder != null) {
                         Sql.updateFolderTable(context, idFolder.intValue());
@@ -317,15 +323,16 @@ public class PodcastHelper {
     }
 
     public static void checkForNewEpisodesToAutoDownload(Context context, long since) {
-        if (Option.getNetworkPolicyAutoDownload().equals(NetworkHelper.NetworkPolicyAuto.NETWORK_POLICY_UNMETERED) && !NetworkHelper.isUnmeteredConnected(context)) {
+        if (Option.getNetworkPolicyAutoDownload().equals(NetworkHelper.NetworkPolicyAuto.NETWORK_POLICY_UNMETERED)
+                && !NetworkHelper.isUnmeteredConnected(context)) {
             myLogD("Network policy prevents auto-download (Unmetered)");
             return;
         }
         AppDatabase.databaseWriteExecutor.execute(() -> {
             List<Podcast> autoList = AppDatabase.getDatabase(context).podcastDao().getAutoDownloads();
-            int i=0;
+            int i = 0;
             for (Podcast podcast : autoList) {
-                i=i+1;
+                i = i + 1;
                 myLogD("checking new episodes for podcast " + i + " [" + podcast.title + "]");
                 if (i > Option.getPodcastAutoDownloadMaxNbPodcast()) {
                     myLogW("Max number of podcasts to auto download reached, bypassing...");
@@ -335,6 +342,7 @@ public class PodcastHelper {
             }
         });
     }
+
     public static void checkForNewEpisodesToAutoDownloadForPodcast(Context context, Podcast podcast, long since) {
         int maxEpisode = Option.getPodcastAutoDownloadLastNbEpisode();
         getEpisodesByFeedId(context, podcast.feedId, since, maxEpisode, true, new EpisodeCallback() {
@@ -342,7 +350,8 @@ public class PodcastHelper {
             public void onSuccess(List<PodcastEpisode> podcastEpisodes) {
 
                 File podcastFolder = buildPodcastPath(context, podcast);
-                if (!podcastFolder.exists()) podcastFolder.mkdirs();
+                if (!podcastFolder.exists())
+                    podcastFolder.mkdirs();
 
                 List<PodcastEpisode> newEpisodes = new ArrayList<>();
                 int i = 0;
@@ -350,26 +359,31 @@ public class PodcastHelper {
                 for (PodcastEpisode episode : podcastEpisodes) {
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                     i++;
-                    if (i > maxEpisode) break;
+                    if (i > maxEpisode)
+                        break;
 
                     String episodeLabel = buildPodcastEpisodeName(episode);
                     String fileName = buildPodcastEpisodeFileName(episode);
                     File destFile = new File(podcastFolder, fileName);
 
                     if (!destFile.exists()) {
-                        myLogD("Auto-download episode n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - [" + episodeLabel + "] - [" + fileName + "]");
+                        myLogD("Auto-download episode n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - ["
+                                + episodeLabel + "] - [" + fileName + "]");
                         newEpisodes.add(episode);
                     } else {
-                        myLogD("episode already exists - n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - [" + episodeLabel + "] - [" + fileName + "]");
+                        myLogD("episode already exists - n°" + i + "/" + maxEpisode + " for [" + podcast.title + "] - ["
+                                + episodeLabel + "] - [" + fileName + "]");
                     }
                     /// EPISODES LOOP ////////////////////////////////////////////////////////
                 }
 
                 if (!newEpisodes.isEmpty()) {
-                    AppDatabase.databaseWriteExecutor.execute(() -> {  //maybe Executors.newSingleThreadExecutor() will be better, or some background thread
+                    AppDatabase.databaseWriteExecutor.execute(() -> { // maybe Executors.newSingleThreadExecutor() will
+                                                                      // be better, or some background thread
                         List<Episode> toSave = PodcastHelper.convertToEpisodes(podcastEpisodes, podcast.getId());
                         AppDatabase.getDatabase(context).episodeDao().insertAll(toSave);
-                        PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder, null);
+                        PodcastDownloadManager.enqueueDownloads(context, podcast.feedId, newEpisodes, podcastFolder,
+                                null);
                     });
                 }
                 updateLastCheck(context, podcast.feedId);
@@ -382,7 +396,6 @@ public class PodcastHelper {
             }
         });
     }
-
 
     public static void cancelAutoDownload(Context c, int folderId) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -406,6 +419,7 @@ public class PodcastHelper {
             myLogD("Podcast added to DB: " + podcast.feedId + " " + podcast.title);
         }
     }
+
     public static Podcast fromPodcastFeed(PodcastFeed feed) {
         Podcast p = new Podcast();
         p.feedId = feed.id;
@@ -446,8 +460,7 @@ public class PodcastHelper {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase.getDatabase(context).podcastDao().updateLastCheck(
                     feedId,
-                    System.currentTimeMillis()
-            );
+                    System.currentTimeMillis());
         });
     }
 
