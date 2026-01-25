@@ -1239,4 +1239,57 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="sort_last_played">Dernières écoutes</string>
     <string name="to">vers</string>
     <string name="vote_too_many">Vous avez trop voté pour cette station — réessayez plus tard.</string>
+    <string name="export_start_button">Démarrer l\'export</string>
+    <string name="export_title_label">Exporter le livre en ZIP :</string>
+    <string name="export_zipping_label">Compression : </string>
+
+    <string name="http_code_400">Mauvaise requête</string>
+    <string name="http_code_401">Non autorisé</string>
+    <string name="http_code_403">Interdit</string>
+    <string name="http_code_404">Introuvable</string>
+    <string name="http_code_408">Délai d\'attente dépassé</string>
+    <string name="http_code_429">Trop de requêtes</string>
+    <string name="http_code_500">Erreur interne du serveur</string>
+    <string name="http_code_502">Mauvaise passerelle</string>
+    <string name="http_code_503">Service indisponible</string>
+    <string name="http_code_504">Délai passerelle dépassé</string>
+
+    <string name="id_label">ID : </string>
+    <string name="import_started_for">Import démarré pour</string>
+    <string name="imported_as">importé sous</string>
+
+    <string name="mass_import_all_imported">Les %1$d éléments sont déjà importés.</string>
+    <string name="mass_import_found_items">Trouvé %1$d éléments (%2$s)</string>
+    <string name="mass_import_found_items_mixed">Trouvé %1$d éléments (%2$s) - %3$d déjà importés</string>
+    <string name="massimport_all_aready_imported">Aucun élément à importer (tous sont déjà là)</string>
+
+    <string name="max_value_label">Max = </string>
+    <string name="no_backup_found">❌ Aucune sauvegarde trouvée dans : </string>
+    <string name="no_ebook_found">aucun ebook trouvé</string>
+    <string name="no_ebooks_found_search">Aucun ebook trouvé \npour la recherche [%1$s] \navec la langue [%2$s]</string>
+    <string name="no_episode_downloaded">Aucun épisode téléchargé</string>
+    <string name="no_favorite_podcasts_found">Aucun podcast favori trouvé</string>
+    <string name="no_items_found">aucun élément trouvé</string>
+    <string name="nothing">rien</string>
+
+    <string name="option_epub_split_mode_auto">Auto (TOC si dispo, sinon séquence)</string>
+    <string name="option_epub_split_mode_explain_text">Basé sur la TOC (table des matières) : Crée plus de chapitres mais préserve la structure. Basé sur la séquence : Plus simple et crée moins de chapitres.</string>
+    <string name="option_epub_split_mode_spine">Séquence (un chapitre par entrée)</string>
+    <string name="option_epub_split_mode_text">Comment découper les fichiers EPUB en chapitres :</string>
+    <string name="option_epub_split_mode_title">Découpage de chapitres EPUB</string>
+    <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
+
+    <string name="permission_read_storage_not_granted">permission de lecture du stockage non accordée</string>
+    <string name="please_select_email_app">Veuillez sélectionner une application de messagerie</string>
+
+    <string name="share_radio_body">Découvrez cette radio web en direct sur BookPlayer</string>
+    <string name="share_radio_head">Partage radio BookPlayer</string>
+    <string name="share_title">Partager via</string>
+
+    <string name="skippring_already_imported_item">Élément déjà importé ignoré</string>
+    <string name="tracks">pistes</string>
+    <string name="vote_rejected">Vote rejeté : </string>
+    <string name="vote_send_error">Erreur lors de l\'envoi du vote au serveur.</string>
+    <string name="vote_sent_success">Vote envoyé au serveur, merci.</string>
+
 </resources>

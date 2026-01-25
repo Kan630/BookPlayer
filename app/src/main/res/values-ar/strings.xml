@@ -1238,4 +1238,57 @@
     <string name="sort_last_played">آخر تشغيل</string>
     <string name="to">إلى</string>
     <string name="vote_too_many">لقد قمت بالتصويت كثيرًا لنفس المحطة — حاول مرة أخرى لاحقًا.</string>
+    <string name="export_start_button">بدء التصدير</string>
+    <string name="export_title_label">تصدير الكتاب كـ ZIP:</string>
+    <string name="export_zipping_label">جاري الضغط: </string>
+
+    <string name="http_code_400">طلب غير صالح</string>
+    <string name="http_code_401">غير مصرح</string>
+    <string name="http_code_403">ممنوع</string>
+    <string name="http_code_404">غير موجود</string>
+    <string name="http_code_408">انتهاء وقت الطلب</string>
+    <string name="http_code_429">طلبات كثيرة جدا</string>
+    <string name="http_code_500">خطأ داخلي في الخادم</string>
+    <string name="http_code_502">بوابة غير صالحة</string>
+    <string name="http_code_503">الخدمة غير متوفرة</string>
+    <string name="http_code_504">انتهت مهلة البوابة</string>
+
+    <string name="id_label">المعرف: </string>
+    <string name="import_started_for">بدأ الاستيراد لـ</string>
+    <string name="imported_as">تم استيراده كـ</string>
+
+    <string name="mass_import_all_imported">تم استيراد جميع العناصر الـ %1$d بالفعل.</string>
+    <string name="mass_import_found_items">تم العثور على %1$d عنصر (%2$s)</string>
+    <string name="mass_import_found_items_mixed">تم العثور على %1$d عنصر (%2$s) - %3$d تم استيرادها بالفعل</string>
+    <string name="massimport_all_aready_imported">لا توجد عناصر للاستيراد (الكل موجود بالفعل)</string>
+
+    <string name="max_value_label">الحد الأقصى = </string>
+    <string name="no_backup_found">❌ لم يتم العثور على نسخة احتياطية في: </string>
+    <string name="no_ebook_found">لم يتم العثور على كتاب إلكتروني</string>
+    <string name="no_ebooks_found_search">لم يتم العثور على كتب إلكترونية \nللبحث [%1$s] \nباللغة [%2$s]</string>
+    <string name="no_episode_downloaded">لم يتم تنزيل أي حلقة</string>
+    <string name="no_favorite_podcasts_found">لم يتم العثور على ملفات بودكاست مفضلة</string>
+    <string name="no_items_found">لم يتم العثور على عناصر</string>
+    <string name="nothing">لا شيء</string>
+
+    <string name="option_epub_split_mode_auto">تلقائي (جدول المحتويات إذا كان متاحًا، وإلا Spine)</string>
+    <string name="option_epub_split_mode_explain_text">يعتمد على جدول المحتويات لإنشاء المزيد من الفصول ولكنه يحافظ على البنية. Spine أبسط وينشئ فصولًا أقل.</string>
+    <string name="option_epub_split_mode_spine">Spine (فصل واحد لكل إدخال كتاب)</string>
+    <string name="option_epub_split_mode_text">كيفية تقسيم ملفات EPUB إلى فصول:</string>
+    <string name="option_epub_split_mode_title">تقسيم فصول EPUB</string>
+    <string name="option_epub_split_mode_toc">يعتمد على جدول المحتويات (فصل واحد لكل إدخال جدول محتويات)</string>
+
+    <string name="permission_read_storage_not_granted">لم يتم منح إذن قراءة التخزين</string>
+    <string name="please_select_email_app">يرجى اختيار تطبيق بريد إلكتروني</string>
+
+    <string name="share_radio_body">تحقق من راديو الويب المباشر هذا على BookPlayer</string>
+    <string name="share_radio_head">مشاركة راديو BookPlayer</string>
+    <string name="share_title">مشاركة عبر</string>
+
+    <string name="skippring_already_imported_item">تخطي العنصر الذي تم استيراده بالفعل</string>
+    <string name="tracks">المسارات</string>
+    <string name="vote_rejected">تم رفض التصويت: </string>
+    <string name="vote_send_error">خطأ في إرسال التصويت إلى الخادم.</string>
+    <string name="vote_sent_success">تم إرسال التصويت إلى الخادم، شكرًا لك.</string>
+
 </resources>

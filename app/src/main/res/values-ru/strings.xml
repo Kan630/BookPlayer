@@ -1248,4 +1248,57 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="sort_last_played">Недавно прослушанные</string>
     <string name="to">до</string>
     <string name="vote_too_many">Вы слишком часто голосовали за эту станцию — попробуйте позже.</string>
+    <string name="export_start_button">Начать экспорт</string>
+    <string name="export_title_label">Экспорт книги в ZIP:</string>
+    <string name="export_zipping_label">Сжатие: </string>
+
+    <string name="http_code_400">Неверный запрос</string>
+    <string name="http_code_401">Не авторизовано</string>
+    <string name="http_code_403">Запрещено</string>
+    <string name="http_code_404">Не найдено</string>
+    <string name="http_code_408">Тайм-аут запроса</string>
+    <string name="http_code_429">Слишком много запросов</string>
+    <string name="http_code_500">Внутренняя ошибка сервера</string>
+    <string name="http_code_502">Неверный шлюз</string>
+    <string name="http_code_503">Сервис недоступен</string>
+    <string name="http_code_504">Тайм-аут шлюза</string>
+
+    <string name="id_label">ID: </string>
+    <string name="import_started_for">Импорт начат для</string>
+    <string name="imported_as">импортировано как</string>
+
+    <string name="mass_import_all_imported">Все элементы (%1$d) уже импортированы.</string>
+    <string name="mass_import_found_items">Найдено %1$d элементов (%2$s)</string>
+    <string name="mass_import_found_items_mixed">Найдено %1$d элементов (%2$s) - %3$d уже импортировано</string>
+    <string name="massimport_all_aready_imported">Нет элементов для импорта (все уже есть)</string>
+
+    <string name="max_value_label">Макс = </string>
+    <string name="no_backup_found">❌ Не найдено резервной копии в: </string>
+    <string name="no_ebook_found">электронная книга не найдена</string>
+    <string name="no_ebooks_found_search">Электронные книги не найдены \nпо запросу [%1$s] \nс языком [%2$s]</string>
+    <string name="no_episode_downloaded">Нет загруженных эпизодов</string>
+    <string name="no_favorite_podcasts_found">Избранные подкасты не найдены</string>
+    <string name="no_items_found">элементы не найдены</string>
+    <string name="nothing">ничего</string>
+
+    <string name="option_epub_split_mode_auto">Авто (Оглавление если есть, иначе Spine)</string>
+    <string name="option_epub_split_mode_explain_text">По оглавлению создает больше глав, но сохраняет структуру. По Spine проще и меньше глав.</string>
+    <string name="option_epub_split_mode_spine">Spine (одна глава на элемент книги)</string>
+    <string name="option_epub_split_mode_text">Как разбивать EPUB на главы:</string>
+    <string name="option_epub_split_mode_title">Разбивка глав EPUB</string>
+    <string name="option_epub_split_mode_toc">По оглавлению (одна глава на пункт)</string>
+
+    <string name="permission_read_storage_not_granted">разрешение на чтение памяти не предоставлено</string>
+    <string name="please_select_email_app">Пожалуйста, выберите почтовое приложение</string>
+
+    <string name="share_radio_body">Послушайте это веб-радио в BookPlayer</string>
+    <string name="share_radio_head">Поделиться радио BookPlayer</string>
+    <string name="share_title">Поделиться через</string>
+
+    <string name="skippring_already_imported_item">Пропуск уже импортированного элемента</string>
+    <string name="tracks">треки</string>
+    <string name="vote_rejected">Голос отклонен: </string>
+    <string name="vote_send_error">Ошибка отправки голоса на сервер.</string>
+    <string name="vote_sent_success">Голос отправлен, спасибо.</string>
+
 </resources>

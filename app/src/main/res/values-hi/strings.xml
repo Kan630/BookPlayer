@@ -1293,4 +1293,57 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="sort_last_played">अंतिम बार चलाया गया</string>
     <string name="to">तक</string>
     <string name="vote_too_many">आपने एक ही स्टेशन के लिए बहुत बार वोट दिया - बाद में पुनः प्रयास करें।</string>
+    <string name="export_start_button">निर्यात शुरू करें</string>
+    <string name="export_title_label">किताब को ZIP के रूप में निर्यात करें:</string>
+    <string name="export_zipping_label">ज़िप किया जा रहा है: </string>
+
+    <string name="http_code_400">खराब अनुरोध</string>
+    <string name="http_code_401">अनधिकृत</string>
+    <string name="http_code_403">निषिद्ध</string>
+    <string name="http_code_404">नहीं मिला</string>
+    <string name="http_code_408">अनुरोध समय समाप्त</string>
+    <string name="http_code_429">बहुत सारे अनुरोध</string>
+    <string name="http_code_500">आंतरिक सर्वर त्रुटि</string>
+    <string name="http_code_502">खराब गेटवे</string>
+    <string name="http_code_503">सेवा अनुपलब्ध</string>
+    <string name="http_code_504">गेटवे समय समाप्त</string>
+
+    <string name="id_label">आईडी: </string>
+    <string name="import_started_for">आयात शुरू हुआ</string>
+    <string name="imported_as">इस रूप में आयातित</string>
+
+    <string name="mass_import_all_imported">सभी %1$d आइटम पहले ही आयात किए जा चुके हैं।</string>
+    <string name="mass_import_found_items">%1$d आइटम मिले (%2$s)</string>
+    <string name="mass_import_found_items_mixed">%1$d आइटम मिले (%2$s) - %3$d पहले से आयातित</string>
+    <string name="massimport_all_aready_imported">आयात करने के लिए कोई आइटम नहीं (सभी पहले से मौजूद हैं)</string>
+
+    <string name="max_value_label">अधिकतम = </string>
+    <string name="no_backup_found">❌ कोई बैकअप नहीं मिला: </string>
+    <string name="no_ebook_found">कोई ईबुक नहीं मिली</string>
+    <string name="no_ebooks_found_search">कोई ईबुक नहीं मिली \nखोज के लिए [%1$s] \nभाषा के साथ [%2$s]</string>
+    <string name="no_episode_downloaded">कोई एपिसोड डाउनलोड नहीं हुआ</string>
+    <string name="no_favorite_podcasts_found">कोई पसंदीदा पॉडकास्ट नहीं मिला</string>
+    <string name="no_items_found">कोई आइटम नहीं मिला</string>
+    <string name="nothing">कुछ नहीं</string>
+
+    <string name="option_epub_split_mode_auto">ऑटो (विषय-सूची यदि उपलब्ध हो, अन्यथा Spine)</string>
+    <string name="option_epub_split_mode_explain_text">विषय-सूची पर आधारित अधिक अध्याय बनाता है लेकिन संरचना को सुरक्षित रखता है। Spine पर आधारित सरल है और कम अध्याय बनाता है।</string>
+    <string name="option_epub_split_mode_spine">Spine (प्रति पुस्तक प्रविष्टि एक अध्याय)</string>
+    <string name="option_epub_split_mode_text">EPUB फ़ाइलों को अध्यायों में कैसे विभाजित करें:</string>
+    <string name="option_epub_split_mode_title">EPUB अध्याय विभाजन</string>
+    <string name="option_epub_split_mode_toc">विषय-सूची पर आधारित (प्रति सामग्री तालिका प्रविष्टि एक अध्याय)</string>
+
+    <string name="permission_read_storage_not_granted">भंडारण पढ़ने की अनुमति नहीं दी गई</string>
+    <string name="please_select_email_app">कृपया एक ईमेल ऐप चुनें</string>
+
+    <string name="share_radio_body">BookPlayer पर इस लाइव वेब रेडियो को देखें</string>
+    <string name="share_radio_head">BookPlayer रेडियो शेयर</string>
+    <string name="share_title">शेयर करें</string>
+
+    <string name="skippring_already_imported_item">पहले से आयातित आइटम को छोड़ रहा है</string>
+    <string name="tracks">ट्रैक</string>
+    <string name="vote_rejected">वोट अस्वीकार कर दिया गया: </string>
+    <string name="vote_send_error">सर्वर पर वोट भेजने में त्रुटि।</string>
+    <string name="vote_sent_success">सर्वर पर वोट भेजा गया, धन्यवाद।</string>
+
 </resources>

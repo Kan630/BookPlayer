@@ -1243,4 +1243,57 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="sort_last_played">Zuletzt gespielt</string>
     <string name="to">bis</string>
     <string name="vote_too_many">Sie haben zu oft für denselben Sender abgestimmt — versuchen Sie es später.</string>
+    <string name="export_start_button">Export starten</string>
+    <string name="export_title_label">Buch als ZIP exportieren:</string>
+    <string name="export_zipping_label">Komprimierung: </string>
+
+    <string name="http_code_400">Ungültige Anfrage</string>
+    <string name="http_code_401">Nicht autorisiert</string>
+    <string name="http_code_403">Verboten</string>
+    <string name="http_code_404">Nicht gefunden</string>
+    <string name="http_code_408">Zeitüberschreitung der Anforderung</string>
+    <string name="http_code_429">Zu viele Anfragen</string>
+    <string name="http_code_500">Interner Serverfehler</string>
+    <string name="http_code_502">Bad Gateway</string>
+    <string name="http_code_503">Dienst nicht verfügbar</string>
+    <string name="http_code_504">Gateway-Zeitüberschreitung</string>
+
+    <string name="id_label">ID: </string>
+    <string name="import_started_for">Import gestartet für</string>
+    <string name="imported_as">importiert als</string>
+
+    <string name="mass_import_all_imported">Alle %1$d Elemente sind bereits importiert.</string>
+    <string name="mass_import_found_items">%1$d Elemente gefunden (%2$s)</string>
+    <string name="mass_import_found_items_mixed">%1$d Elemente gefunden (%2$s) - %3$d bereits importiert</string>
+    <string name="massimport_all_aready_imported">Keine Elemente zum Importieren (alle bereits vorhanden)</string>
+
+    <string name="max_value_label">Max = </string>
+    <string name="no_backup_found">❌ Kein Backup gefunden in: </string>
+    <string name="no_ebook_found">kein E-Book gefunden</string>
+    <string name="no_ebooks_found_search">Keine E-Books gefunden \nfür Suche [%1$s] \nmit Sprache [%2$s]</string>
+    <string name="no_episode_downloaded">Keine Episode heruntergeladen</string>
+    <string name="no_favorite_podcasts_found">Keine Lieblingspodcasts gefunden</string>
+    <string name="no_items_found">keine Elemente gefunden</string>
+    <string name="nothing">nichts</string>
+
+    <string name="option_epub_split_mode_auto">Auto (Inhaltsverzeichnis falls verf., sonst Spine)</string>
+    <string name="option_epub_split_mode_explain_text">Auf Inhaltsverzeichnis basierend erstellt mehr Kapitel, bewahrt aber die Struktur. Spine-basiert ist einfacher und erstellt weniger Kapitel.</string>
+    <string name="option_epub_split_mode_spine">Spine (ein Kapitel pro Buch-Eintrag)</string>
+    <string name="option_epub_split_mode_text">Wie EPUB-Dateien in Kapitel unterteilt werden:</string>
+    <string name="option_epub_split_mode_title">EPUB-Kapitelteilung</string>
+    <string name="option_epub_split_mode_toc">TOC-basiert (ein Kapitel pro Inhaltsverzeichnis-Eintrag)</string>
+
+    <string name="permission_read_storage_not_granted">Speicherlesezugriff nicht gewährt</string>
+    <string name="please_select_email_app">Bitte wählen Sie eine E-Mail-App</string>
+
+    <string name="share_radio_body">Schau dir dieses Live-Web-Radio auf BookPlayer an</string>
+    <string name="share_radio_head">BookPlayer Radio teilen</string>
+    <string name="share_title">Teilen via</string>
+
+    <string name="skippring_already_imported_item">Überspringe bereits importiertes Element</string>
+    <string name="tracks">Titel</string>
+    <string name="vote_rejected">Stimme abgelehnt: </string>
+    <string name="vote_send_error">Fehler beim Senden der Stimme an den Server.</string>
+    <string name="vote_sent_success">Stimme an Server gesendet, danke.</string>
+
 </resources>

@@ -1241,4 +1241,57 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="sort_last_played">最近播放</string>
     <string name="to">至</string>
     <string name="vote_too_many">您为同一电台投票太频繁 — 请稍后再试。</string>
+    <string name="export_start_button">开始导出</string>
+    <string name="export_title_label">导出书本为 ZIP：</string>
+    <string name="export_zipping_label">压缩中： </string>
+
+    <string name="http_code_400">错误的请求</string>
+    <string name="http_code_401">未授权</string>
+    <string name="http_code_403">禁止访问</string>
+    <string name="http_code_404">未找到</string>
+    <string name="http_code_408">请求超时</string>
+    <string name="http_code_429">请求过多</string>
+    <string name="http_code_500">内部服务器错误</string>
+    <string name="http_code_502">网关错误</string>
+    <string name="http_code_503">服务不可用</string>
+    <string name="http_code_504">网关超时</string>
+
+    <string name="id_label">ID： </string>
+    <string name="import_started_for">开始导入</string>
+    <string name="imported_as">导入为</string>
+
+    <string name="mass_import_all_imported">所有 %1$d 个项目已导入。</string>
+    <string name="mass_import_found_items">找到 %1$d 个项目 (%2$s)</string>
+    <string name="mass_import_found_items_mixed">找到 %1$d 个项目 (%2$s) - %3$d 个已导入</string>
+    <string name="massimport_all_aready_imported">没有可导入的项目（都已存在）</string>
+
+    <string name="max_value_label">最大值 = </string>
+    <string name="no_backup_found">❌ 在以下位置未找到备份： </string>
+    <string name="no_ebook_found">未找到电子书</string>
+    <string name="no_ebooks_found_search">未找到电子书 \n搜索 [%1$s] \n语言 [%2$s]</string>
+    <string name="no_episode_downloaded">未下载剧集</string>
+    <string name="no_favorite_podcasts_found">未找到收藏的播客</string>
+    <string name="no_items_found">未找到项目</string>
+    <string name="nothing">无</string>
+
+    <string name="option_epub_split_mode_auto">自动 (目录优先，否则Spine)</string>
+    <string name="option_epub_split_mode_explain_text">基于目录创建更多章节但保留结构。基于Spine更简单，章节更少。</string>
+    <string name="option_epub_split_mode_spine">Spine (每本书籍条目一章)</string>
+    <string name="option_epub_split_mode_text">如何将EPUB分割为章节：</string>
+    <string name="option_epub_split_mode_title">EPUB章节分割</string>
+    <string name="option_epub_split_mode_toc">基于目录 (每个目录条目一章)</string>
+
+    <string name="permission_read_storage_not_granted">未授予存储读取权限</string>
+    <string name="please_select_email_app">请选择邮件应用</string>
+
+    <string name="share_radio_body">在 BookPlayer 上收听这个直播网络电台</string>
+    <string name="share_radio_head">分享 BookPlayer 电台</string>
+    <string name="share_title">分享方式</string>
+
+    <string name="skippring_already_imported_item">跳过已导入的项目</string>
+    <string name="tracks">曲目</string>
+    <string name="vote_rejected">投票被拒绝： </string>
+    <string name="vote_send_error">向服务器发送投票时出错。</string>
+    <string name="vote_sent_success">投票已发送，谢谢。</string>
+
 </resources>
