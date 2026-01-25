@@ -17,7 +17,7 @@ import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
+import com.driot.bookplayer.views.EditText1lineWithSearch;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -25,12 +25,11 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class GetPodcastActivity extends BaseBottomNavActivity {
 
     String query, lang;
-    EditText1lineWithPasteDelete editTextPodcast;
+    EditText1lineWithSearch editTextPodcast;
     Button bFavorite;
     ImageButton ibFavorite;
     ImageButton ibSettings;
     Button buttonTrending;
-    Button buttonPodcastSearch;
     Spinner spinnerLang;
 
     @Override
@@ -54,7 +53,6 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
         InsetHelper.apply(this);
 
         editTextPodcast = findViewById(R.id.etPodcast);
-        buttonPodcastSearch = findViewById(R.id.bPodcastSearch);
         bFavorite = findViewById(R.id.bFavorite);
         ibFavorite = findViewById(R.id.ibFavorite);
         ibSettings = findViewById(R.id.ibSettings);
@@ -79,17 +77,10 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
             editTextPodcast.setSuggestOnFocus(true);
         });
 
-        buttonPodcastSearch.setOnClickListener(v -> {
+        editTextPodcast.getSearchButton().setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");
-            query = Tonio.cleanSearchString(editTextPodcast.getText());
-            LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
-            lang = selectedLang.getTwoLetterCode().toLowerCase();
-
-            Intent intent = new Intent(this, PodcastSearchResultsActivity.class);
-            intent.putExtra("query", query);
-            intent.putExtra("lang", lang);
-            startActivity(intent);
-            FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(query, lang);
+            doSearch();
+            editTextPodcast.saveCurrentTextToHistory();
         });
 
         buttonTrending.setOnClickListener(v -> {
@@ -106,9 +97,14 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
         });
         // Keyboard "done/search"
         editTextPodcast.getEditText().setOnEditorActionListener((v, actionId, event) -> {
-            if (actionId == EditorInfo.IME_ACTION_SEARCH
-                    || actionId == EditorInfo.IME_ACTION_DONE) {
+            boolean isEnterKey = event != null
+                    && event.getAction() == android.view.KeyEvent.ACTION_DOWN
+                    && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER;
+
+            if (actionId == EditorInfo.IME_ACTION_SEARCH || isEnterKey) {
                 doSearch();
+                editTextPodcast.saveCurrentTextToHistory();
+                editTextPodcast.getEditText().dismissDropDown();
                 return true;
             }
             return false;
@@ -130,7 +126,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
-        query = editTextPodcast.getText();
+        query = Tonio.cleanSearchString(editTextPodcast.getText());
         lang = spinnerLang.getSelectedItem().toString().toLowerCase();
 
         if (lang.isEmpty()) {
@@ -140,7 +136,7 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
 
         openPodcastResultsActivity();
 
-        FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(query, lang);
+        FirebaseAnalyticsHelper.tellAnalyticsPodcastSearch(query, lang);
     }
 
     private void openPodcastResultsActivity() {

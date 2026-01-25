@@ -131,21 +131,12 @@
                     android:text="@string/podcast_search_edittext_title"
                     style="@style/GetResourceTextTopOfButton" />
 
-                <com.driot.bookplayer.views.EditText1lineWithPasteDelete
+                <com.driot.bookplayer.views.EditText1lineWithSearch
                     android:id="@+id/etPodcast"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:scrollOnFocus="true"
                     android:layout_marginTop="30dp" />
-
-                <Button
-                    android:id="@+id/bPodcastSearch"
-                    android:text="@string/Search"
-                    style="@style/GetResourceButton"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginEnd="4dp" />
 
             </LinearLayout>
         </ScrollView>
