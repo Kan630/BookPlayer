@@ -35,7 +35,7 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
 
     static class VH {
         ImageView ivLang, ivVoice, ivSource;
-        TextView tvName;
+        TextView tvCounter, tvName;
         View rootView;
     }
 
@@ -59,6 +59,7 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
             vh.ivLang = v.findViewById(R.id.iv_LanguageFlag);
             vh.ivVoice = v.findViewById(R.id.iv_VoiceFlag);
             vh.ivSource = v.findViewById(R.id.iv_sourceFlag);
+            vh.tvCounter = v.findViewById(R.id.tv_Counter);
             vh.tvName = v.findViewById(R.id.tv_VoiceName);
             vh.rootView = v;
             v.setTag(vh);
@@ -69,27 +70,35 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
         boolean isSelected = (selectedPosition >= 0 && position == selectedPosition);
 
         if (item != null) {
+            // Set counter (3-digit format, 1-indexed: 001, 002, 003, ...)
+            int counterValue = position + 1;
+            vh.tvCounter.setText(String.format("%03d", counterValue));
+            
             vh.tvName.setText(item.displayName);
+            
+            // Get default text color from theme (used for both selected and non-selected)
+            TypedValue typedValue = new TypedValue();
+            boolean resolved = context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
+            int textColor;
+            if (resolved && typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+                textColor = typedValue.data;
+            } else {
+                // Fallback: try to get color from resources or use default
+                try {
+                    textColor = ContextCompat.getColor(context, android.R.color.primary_text_light);
+                } catch (Exception e) {
+                    // Final fallback
+                    textColor = Color.parseColor("#1C1B1F"); // Default dark text color
+                }
+            }
             
             // Apply visual styling for selected item
             if (isSelected) {
-                // Make text bold and use primary color
+                // Make text bold (both counter and name), keep normal text color
                 vh.tvName.setTypeface(null, android.graphics.Typeface.BOLD);
-                // Get primary color from theme
-                TypedValue typedValue = new TypedValue();
-                boolean resolved = context.getTheme().resolveAttribute(android.R.attr.colorPrimary, typedValue, true);
-                if (resolved && typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
-                    vh.tvName.setTextColor(typedValue.data);
-                } else {
-                    // Fallback to purple_200 or a visible color
-                    try {
-                        int primaryColor = ContextCompat.getColor(context, R.color.purple_200);
-                        vh.tvName.setTextColor(primaryColor);
-                    } catch (Exception e) {
-                        // Final fallback
-                        vh.tvName.setTextColor(Color.parseColor("#BB86FC"));
-                    }
-                }
+                vh.tvCounter.setTypeface(null, android.graphics.Typeface.BOLD);
+                vh.tvName.setTextColor(textColor);
+                vh.tvCounter.setTextColor(textColor);
                 // Add subtle background highlight for selected item in dropdown
                 if (!isSelectedView) {
                     vh.rootView.setBackgroundColor(Color.parseColor("#1A000000")); // Very light gray
@@ -97,21 +106,9 @@ public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {
             } else {
                 // Reset to normal styling
                 vh.tvName.setTypeface(null, android.graphics.Typeface.NORMAL);
-                // Get default text color from theme
-                TypedValue typedValue = new TypedValue();
-                boolean resolved = context.getTheme().resolveAttribute(android.R.attr.textColorPrimary, typedValue, true);
-                if (resolved && typedValue.type >= TypedValue.TYPE_FIRST_COLOR_INT && typedValue.type <= TypedValue.TYPE_LAST_COLOR_INT) {
-                    vh.tvName.setTextColor(typedValue.data);
-                } else {
-                    // Fallback: try to get color from resources or use default
-                    try {
-                        int defaultColor = ContextCompat.getColor(context, android.R.color.primary_text_light);
-                        vh.tvName.setTextColor(defaultColor);
-                    } catch (Exception e) {
-                        // Final fallback
-                        vh.tvName.setTextColor(Color.parseColor("#1C1B1F")); // Default dark text color
-                    }
-                }
+                vh.tvCounter.setTypeface(null, android.graphics.Typeface.NORMAL);
+                vh.tvName.setTextColor(textColor);
+                vh.tvCounter.setTextColor(textColor);
                 if (!isSelectedView) {
                     vh.rootView.setBackgroundColor(Color.TRANSPARENT);
                 }

@@ -6,6 +6,16 @@
     android:gravity="center_vertical"
     android:color="?colorSecondary"
     >
+    <TextView
+        android:id="@+id/tv_Counter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="4dp"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:text="000"
+        android:minWidth="32dp"
+        android:gravity="center" />
     <ImageView
         android:id="@+id/iv_LanguageFlag"
         android:layout_width="24dp"
