@@ -13,8 +13,8 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.objects.LanguageItem;
+import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
 
@@ -52,6 +52,8 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         spinnerEbookLang = findViewById(R.id.spinnerEbookLang);
         editTextEbook = findViewById(R.id.etEbook);
         bMostDownloaded = findViewById(R.id.bMostDownloaded);
+
+        findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
         editTextEbook.setHistoryKey("ebook_search");
         editTextEbook.setCompletionThreshold(1);
@@ -120,5 +122,9 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         startActivity(intent);
     }
 
+    private void clickSettings() {
+        myLogI("--- User clicks SETTINGS ---");
+        SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
+    }
 
 }

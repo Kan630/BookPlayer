@@ -38,12 +38,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <TextView
-                        android:id="@+id/txtLibrivoxSearch_title"
-                        android:text="@string/Ebooks"
-                        android:layout_marginTop="10dp"
-                        android:layout_marginBottom="20dp"
-                        style="@style/GetResourceTextSectionTitle" />
                     <ImageButton
                         android:layout_width="48dp"
                         android:layout_height="48dp"
@@ -51,7 +45,28 @@
                         android:scaleType="centerInside"
                         android:background="@android:color/transparent"
                         app:tint="?attr/colorOnSurface"
-                        android:layout_marginEnd="20dp" />
+                        android:layout_marginStart="10dp"
+                        />
+                    <TextView
+                        android:id="@+id/txtLibrivoxSearch_title"
+                        android:text="@string/Ebooks"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="20dp"
+                        style="@style/GetResourceTextSectionTitle"
+                        android:layout_marginStart="0dp"
+                        />
+
+                    <!-- Spacer pushes the next item to the right -->
+                    <View style="@style/spacer"/>
+
+                    <ImageButton
+                        android:id="@+id/ibSettings"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:contentDescription="@string/settings"
+                        android:src="@drawable/ic_settings_24"
+                        android:background="@android:color/transparent"
+                        />
 
                 </LinearLayout>
 

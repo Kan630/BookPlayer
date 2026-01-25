@@ -45,13 +45,16 @@
                         android:scaleType="centerInside"
                         android:background="@android:color/transparent"
                         app:tint="?attr/colorOnSurface"
+                        android:layout_marginStart="10dp"
                         />
                     <TextView
                         android:id="@+id/txtLibrivoxSearch_title"
                         android:text="@string/LibrivoxSearch_title"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="20dp"
-                        style="@style/GetResourceTextSectionTitle" />
+                        style="@style/GetResourceTextSectionTitle"
+                        android:layout_marginStart="0dp"
+                        />
 
                     <!-- Spacer pushes the next item to the right -->
                     <View style="@style/spacer"/>
