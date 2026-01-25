@@ -3,19 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    style="@style/MainContainer"
     tools:context=".activities.TtsReaderActivity">
-
-    <!-- Your BaseBottomNavActivity likely expects some fragment/host container as root,
-         but since it already handles bottom nav + playback fragment internally,
-         we can just have our text view here. -->
 
     <TextView
         android:id="@+id/tvTtsFullText"
+        style="@style/textColor"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:padding="16dp"
-        android:textColor="@android:color/white"
-        android:background="@android:color/black"
+        android:background="?attr/colorSurface"
         android:textSize="18sp"
         android:gravity="top|start"
         android:scrollbars="vertical"
