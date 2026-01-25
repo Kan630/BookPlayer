@@ -1301,4 +1301,23 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="vote_send_error">Ошибка отправки голоса на сервер.</string>
     <string name="vote_sent_success">Голос отправлен, спасибо.</string>
 
+    <string name="already_imported_under_name">Уже импортировано под именем: </string>
+    <string name="api_paging_size">Размер страницы API</string>
+    <string name="app_reset_done">Сброс приложения выполнен</string>
+    <string name="Deleting">Удаление</string>
+    <string name="error_file_not_found_attach">Файл не найден, невозможно прикрепить.</string>
+    <string name="error_label_multiline">Ошибка : \n</string>
+    <string name="error_network_not_available">Ой. Сеть недоступна.</string>
+    <string name="error_no_folder_selected">Ошибка: Папка не выбрана.</string>
+    <string name="error_reading_backup">Ошибка чтения резервной копии: </string>
+    <string name="error_server_not_reachable">Ой. bookplayer.driot.com недоступен.</string>
+    <string name="export_audiobook_name_placeholder">имя аудиокниги</string>
+    <string name="export_base_destination_folder_label">базовая папка назначения :</string>
+    <string name="export_click_to_change_label">нажмите, чтобы изменить</string>
+    <string name="export_destination_filename_label">имя файла назначения :</string>
+    <string name="export_download_folder_button">Папка Загрузки</string>
+    <string name="export_edit_name_hint">вы можете изменить это имя</string>
+    <string name="export_inside_subfolder_label">и внутри подпапки \'BookPlayer\'</string>
+    <string name="export_progress_info_placeholder">Инфо о прогрессе…</string>
+
 </resources>

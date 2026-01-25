@@ -1296,4 +1296,23 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="vote_send_error">Fehler beim Senden der Stimme an den Server.</string>
     <string name="vote_sent_success">Stimme an Server gesendet, danke.</string>
 
+    <string name="already_imported_under_name">Bereits importiert unter dem Namen: </string>
+    <string name="api_paging_size">API-Paginierungsgröße</string>
+    <string name="app_reset_done">App-Reset durchgeführt</string>
+    <string name="Deleting">Löschen</string>
+    <string name="error_file_not_found_attach">Datei nicht gefunden, kann nicht angehängt werden.</string>
+    <string name="error_label_multiline">Fehler : \n</string>
+    <string name="error_network_not_available">Autsch. Netzwerk nicht verfügbar.</string>
+    <string name="error_no_folder_selected">Fehler: Kein Ordner ausgewählt.</string>
+    <string name="error_reading_backup">Fehler beim Lesen des Backups: </string>
+    <string name="error_server_not_reachable">Autsch. bookplayer.driot.com nicht erreichbar.</string>
+    <string name="export_audiobook_name_placeholder">Hörbuchname</string>
+    <string name="export_base_destination_folder_label">Basis-Zielordner :</string>
+    <string name="export_click_to_change_label">klicken zum Ändern</string>
+    <string name="export_destination_filename_label">Zieldateiname :</string>
+    <string name="export_download_folder_button">Download-Ordner</string>
+    <string name="export_edit_name_hint">Sie können diesen Namen bearbeiten</string>
+    <string name="export_inside_subfolder_label">und in einem \'BookPlayer\'-Unterordner</string>
+    <string name="export_progress_info_placeholder">Fortschrittsinfo…</string>
+
 </resources>

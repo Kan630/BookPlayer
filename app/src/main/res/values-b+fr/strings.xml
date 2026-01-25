@@ -1292,4 +1292,23 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="vote_send_error">Erreur lors de l\'envoi du vote au serveur.</string>
     <string name="vote_sent_success">Vote envoyé au serveur, merci.</string>
 
+    <string name="already_imported_under_name">Déjà importé sous le nom : </string>
+    <string name="api_paging_size">Taille de pagination API</string>
+    <string name="app_reset_done">Réinitialisation de l\'app effectuée</string>
+    <string name="Deleting">Suppression</string>
+    <string name="error_file_not_found_attach">Fichier introuvable, impossible de joindre.</string>
+    <string name="error_label_multiline">Erreur : \n</string>
+    <string name="error_network_not_available">Aïe. Réseau indisponible.</string>
+    <string name="error_no_folder_selected">Erreur : Aucun dossier sélectionné.</string>
+    <string name="error_reading_backup">Erreur de lecture de la sauvegarde : </string>
+    <string name="error_server_not_reachable">Aïe. bookplayer.driot.com injoignable.</string>
+    <string name="export_audiobook_name_placeholder">nom du livre audio</string>
+    <string name="export_base_destination_folder_label">dossier de destination de base :</string>
+    <string name="export_click_to_change_label">cliquer pour changer</string>
+    <string name="export_destination_filename_label">nom du fichier de destination :</string>
+    <string name="export_download_folder_button">Dossier Téléchargements</string>
+    <string name="export_edit_name_hint">vous pouvez modifier ce nom</string>
+    <string name="export_inside_subfolder_label">et dans un sous-dossier \'BookPlayer\'</string>
+    <string name="export_progress_info_placeholder">Info de progression…</string>
+
 </resources>

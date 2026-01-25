@@ -1291,4 +1291,23 @@
     <string name="vote_send_error">خطأ في إرسال التصويت إلى الخادم.</string>
     <string name="vote_sent_success">تم إرسال التصويت إلى الخادم، شكرًا لك.</string>
 
+    <string name="already_imported_under_name">تم الاستيراد بالفعل تحت الاسم: </string>
+    <string name="api_paging_size">حجم صفحة API</string>
+    <string name="app_reset_done">تمت إعادة تعيين التطبيق</string>
+    <string name="Deleting">جاري الحذف</string>
+    <string name="error_file_not_found_attach">لم يتم العثور على الملف، لا يمكن إرفاقه.</string>
+    <string name="error_label_multiline">خطأ : \n</string>
+    <string name="error_network_not_available">عذراً. الشبكة غير متوفرة.</string>
+    <string name="error_no_folder_selected">خطأ: لم يتم تحديد مجلد.</string>
+    <string name="error_reading_backup">خطأ في قراءة النسخة الاحتياطية: </string>
+    <string name="error_server_not_reachable">عذراً. bookplayer.driot.com لا يمكن الوصول إليه.</string>
+    <string name="export_audiobook_name_placeholder">اسم الكتاب الصوتي</string>
+    <string name="export_base_destination_folder_label">مجلد الوجهة الأساسي :</string>
+    <string name="export_click_to_change_label">انقر للتغيير</string>
+    <string name="export_destination_filename_label">اسم ملف الوجهة :</string>
+    <string name="export_download_folder_button">مجلد التنزيلات</string>
+    <string name="export_edit_name_hint">يمكنك تعديل هذا الاسم</string>
+    <string name="export_inside_subfolder_label">وداخل مجلد فرعي \'BookPlayer\'</string>
+    <string name="export_progress_info_placeholder">معلومات التقدم…</string>
+
 </resources>

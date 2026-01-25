@@ -1292,16 +1292,16 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="nothing">niente</string>
 
     <string name="option_epub_split_mode_auto">Auto (Indice se disp., altrimenti sequenza)</string>
-    <string name="option_epub_split_mode_explain_text">Basato sull'Indice crea più capitoli ma preserva struttura. Sequenza è più semplice e crea meno capitoli.</string>
+    <string name="option_epub_split_mode_explain_text">Basato sull\'Indice crea più capitoli ma preserva struttura. Sequenza è più semplice e crea meno capitoli.</string>
     <string name="option_epub_split_mode_spine">Sequenza (un capitolo per voce libro)</string>
     <string name="option_epub_split_mode_text">Come dividere file EPUB in capitoli:</string>
     <string name="option_epub_split_mode_title">Divisione capitoli EPUB</string>
-    <string name="option_epub_split_mode_toc">Basato sull'Indice (un capitolo per voce indice)</string>
+    <string name="option_epub_split_mode_toc">Basato sull\'Indice (un capitolo per voce indice)</string>
 
     <string name="permission_read_storage_not_granted">permesso di lettura memoria non concesso</string>
-    <string name="please_select_email_app">Seleziona un'app di posta</string>
+    <string name="please_select_email_app">Seleziona un\'app di posta</string>
 
-    <string name="share_radio_body">Dai un'occhiata a questa web radio live su BookPlayer</string>
+    <string name="share_radio_body">Dai un\'occhiata a questa web radio live su BookPlayer</string>
     <string name="share_radio_head">Condivisione radio BookPlayer</string>
     <string name="share_title">Condividi con</string>
 
@@ -1310,5 +1310,24 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="vote_rejected">Voto rifiutato: </string>
     <string name="vote_send_error">Errore invio voto al server.</string>
     <string name="vote_sent_success">Voto inviato al server, grazie.</string>
+
+    <string name="already_imported_under_name">Già importato con il nome: </string>
+    <string name="api_paging_size">Dimensione paginazione API</string>
+    <string name="app_reset_done">Ripristino app completato</string>
+    <string name="Deleting">Eliminazione</string>
+    <string name="error_file_not_found_attach">File non trovato, impossibile allegare.</string>
+    <string name="error_label_multiline">Errore : \n</string>
+    <string name="error_network_not_available">Ahi. Rete non disponibile.</string>
+    <string name="error_no_folder_selected">Errore: Nessuna cartella selezionata.</string>
+    <string name="error_reading_backup">Errore lettura backup: </string>
+    <string name="error_server_not_reachable">Ahi. bookplayer.driot.com non raggiungibile.</string>
+    <string name="export_audiobook_name_placeholder">nome audiolibro</string>
+    <string name="export_base_destination_folder_label">cartella destinazione base :</string>
+    <string name="export_click_to_change_label">clicca per cambiare</string>
+    <string name="export_destination_filename_label">nome file destinazione :</string>
+    <string name="export_download_folder_button">Cartella Download</string>
+    <string name="export_edit_name_hint">puoi modificare questo nome</string>
+    <string name="export_inside_subfolder_label">e dentro una sottocartella \'BookPlayer\'</string>
+    <string name="export_progress_info_placeholder">Info progresso…</string>
 
 </resources>

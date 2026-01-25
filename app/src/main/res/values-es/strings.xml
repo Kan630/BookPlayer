@@ -1285,4 +1285,23 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="vote_send_error">Error al enviar voto al servidor.</string>
     <string name="vote_sent_success">Voto enviado al servidor, gracias.</string>
 
+    <string name="already_imported_under_name">Ya importado con el nombre: </string>
+    <string name="api_paging_size">Tamaño de paginación API</string>
+    <string name="app_reset_done">Reinicio de la aplicación realizado</string>
+    <string name="Deleting">Eliminando</string>
+    <string name="error_file_not_found_attach">Archivo no encontrado, no se puede adjuntar.</string>
+    <string name="error_label_multiline">Error : \n</string>
+    <string name="error_network_not_available">Ay. Red no disponible.</string>
+    <string name="error_no_folder_selected">Error: Ninguna carpeta seleccionada.</string>
+    <string name="error_reading_backup">Error al leer la copia de seguridad: </string>
+    <string name="error_server_not_reachable">Ay. bookplayer.driot.com no accesible.</string>
+    <string name="export_audiobook_name_placeholder">nombre del audiolibro</string>
+    <string name="export_base_destination_folder_label">carpeta de destino base :</string>
+    <string name="export_click_to_change_label">clic para cambiar</string>
+    <string name="export_destination_filename_label">nombre del archivo de destino :</string>
+    <string name="export_download_folder_button">Carpeta Descargas</string>
+    <string name="export_edit_name_hint">puedes editar este nombre</string>
+    <string name="export_inside_subfolder_label">y dentro de una subcarpeta \'BookPlayer\'</string>
+    <string name="export_progress_info_placeholder">Info de progreso…</string>
+
 </resources>

@@ -1346,4 +1346,23 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="vote_send_error">सर्वर पर वोट भेजने में त्रुटि।</string>
     <string name="vote_sent_success">सर्वर पर वोट भेजा गया, धन्यवाद।</string>
 
+    <string name="already_imported_under_name">इस नाम से पहले ही आयातित: </string>
+    <string name="api_paging_size">API पेजिंग आकार</string>
+    <string name="app_reset_done">ऐप रीसेट हो गया</string>
+    <string name="Deleting">हटाया जा रहा है</string>
+    <string name="error_file_not_found_attach">फ़ाइल नहीं मिली, संलग्न नहीं किया जा सकता।</string>
+    <string name="error_label_multiline">त्रुटि : \n</string>
+    <string name="error_network_not_available">उफ़. नेटवर्क उपलब्ध नहीं है।</string>
+    <string name="error_no_folder_selected">त्रुटि: कोई फ़ोल्डर नहीं चुना गया।</string>
+    <string name="error_reading_backup">बैकअप पढ़ने में त्रुटि: </string>
+    <string name="error_server_not_reachable">उफ़. bookplayer.driot.com तक नहीं पहुँचा जा सकता।</string>
+    <string name="export_audiobook_name_placeholder">ऑडियोबुक का नाम</string>
+    <string name="export_base_destination_folder_label">मूल गंतव्य फ़ोल्डर :</string>
+    <string name="export_click_to_change_label">बदलने के लिए क्लिक करें</string>
+    <string name="export_destination_filename_label">गंतव्य फ़ाइल का नाम :</string>
+    <string name="export_download_folder_button">डाउनलोड फ़ोल्डर</string>
+    <string name="export_edit_name_hint">आप इस नाम को संपादित कर सकते हैं</string>
+    <string name="export_inside_subfolder_label">और \'BookPlayer\' उप-फ़ोल्डर के अंदर</string>
+    <string name="export_progress_info_placeholder">प्रगति जानकारी…</string>
+
 </resources>
