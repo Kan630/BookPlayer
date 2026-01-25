@@ -783,6 +783,7 @@ public class PlayActivity extends LoggingActivity {
             suppressFlag[0] = true;
             myLog("selectVoiceByNameWithoutCallback : " + target);
             spinner.setSelection(target, false);
+            va.setSelectedPosition(target);
             spinner.post(() -> suppressFlag[0] = false);
         } catch (Throwable ignored) {}
     }

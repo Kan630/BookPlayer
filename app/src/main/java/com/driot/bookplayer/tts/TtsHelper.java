@@ -268,8 +268,9 @@ public class TtsHelper {
 
         final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui_context, all);
         spinner.setAdapter(adapter);
-        if (currentSelected>0) {
+        if (currentSelected >= 0) {
             spinner.setSelection(currentSelected);
+            adapter.setSelectedPosition(currentSelected);
         }
         spinner.setEnabled(true);
 
@@ -277,6 +278,7 @@ public class TtsHelper {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 myLog("spinner : on item selected " + position + " - " + id);
+                adapter.setSelectedPosition(position);
                 VoiceItem selected = (VoiceItem) parent.getItemAtPosition(position);
                 myLog("callback : " + selected.name);
                 callback.onSelected(selected);
@@ -382,15 +384,19 @@ public class TtsHelper {
                         @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                             if (suppressSelection[0]) {
                                 myLog("setupTtsVoiceSpinner.onTtsReady.onItemSelected suppressed during init (pos=" + pos + ")");
+                                // Still update adapter position even during init
+                                adapter.setSelectedPosition(pos);
                                 return;
                             }
                             myLogI("----  User picked a VOICE ---- onItemSelected => callback.onSelected ");
+                            adapter.setSelectedPosition(pos);
                             callback.onSelected(all.get(pos));
                         }
                         @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
                     });
 
                     spinner.setSelection(pre, false);
+                    adapter.setSelectedPosition(pre);
 
                     myLog("setupTtsVoiceSpinner.onTtsReady => callback.onSelected");
                     callback.onSelected(all.get(pre));
