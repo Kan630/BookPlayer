@@ -31,7 +31,6 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     private List<PodcastFeed> items = new ArrayList<>();
     private final OnItemClickListener listener;
 
-
     private String headerQuery = "";
     private String headerLang = "";
     private int headerCount = 0;
@@ -40,11 +39,9 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
         void onItemClick(PodcastFeed item);
     }
 
-
     public PodcastSearchResultsRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
-
 
     public void setHeaderInfo(String query, String lang, int count) {
         this.headerQuery = query;
@@ -111,7 +108,10 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             LanguageItem langItem = LanguageHelper.getLanguageForPodcastsByCode(lang);
             String language = "Language: " + (langItem != null ? langItem.displayName : "");
             tvLanguage.setText(language);
-            String resultsCount = "Results: " + count + (count == Option.getPodcastIndexOrgApiNbResults() ? " (" + context.getString(R.string.max_number_of_results_reached) + ")" : "");
+            String resultsCount = "Results: " + count
+                    + (count == Option.getPodcastIndexOrgApiNbResults()
+                            ? " (" + context.getString(R.string.max_number_of_results_reached) + ")"
+                            : "");
             tvResultsCount.setText(resultsCount);
         }
     }
@@ -132,7 +132,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             title.setText(item.title);
             folderStats.setVisibility(View.GONE);
             if (item.description != null) {
-                desc.setText(Html.fromHtml(item.description, Html.FROM_HTML_MODE_LEGACY));
+                desc.setText(Html.fromHtml(item.description, Html.FROM_HTML_MODE_LEGACY).toString().trim());
             }
             Glide.with(image.getContext()).load(item.image).into(image);
             itemView.setOnClickListener(v -> listener.onItemClick(item));
