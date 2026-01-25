@@ -21,6 +21,7 @@ import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -236,11 +237,45 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         viewModel.loadFavorites(this);
         viewModel.getFavoriteUuids().observe(this, uuids -> adapter.setFavorites(uuids));
         viewModel.getResults().observe(this, stations -> {
-            adapter.setItems(stations);
+            if (stations != null) {
+                int currentAdapterSize = adapter.getItemCount() - 1; // -1 for header
+                if (currentAdapterSize == 0 || stations.size() <= currentAdapterSize) {
+                    // Initial load or reset - replace all items
+                    adapter.setItems(stations);
+                } else {
+                    // Pagination - only append new items
+                    List<Station> newItems = stations.subList(currentAdapterSize, stations.size());
+                    adapter.appendItems(newItems);
+                }
+            }
             progressBar.setVisibility(View.GONE);
+        });
+        viewModel.getIsLoadingMore().observe(this, isLoading -> {
+            // Could show a bottom loading indicator here if needed
         });
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
             if (Boolean.TRUE.equals(shouldFinish)) finish();
+        });
+        
+        // Add scroll listener for infinite scrolling
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+                if (layoutManager != null) {
+                    int visibleItemCount = layoutManager.getChildCount();
+                    int totalItemCount = layoutManager.getItemCount();
+                    int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
+                    
+                    // Load more when user is near the bottom (within 5 items)
+                    if (!viewModel.isLoading() && viewModel.hasMore() && hasInternet) {
+                        if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
+                            loadNextPage();
+                        }
+                    }
+                }
+            }
         });
 
         // ---- Read intent params ----
@@ -272,10 +307,24 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         );
 
         // ---- Search ----
-        progressBar.setVisibility(View.VISIBLE);
         String station_search_mode = getIntent().getStringExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE);
         if (station_search_mode==null) station_search_mode = "NO_MODE";
+        viewModel.setLastSearchMode(station_search_mode);
 
+        // Check if we already have results (orientation change scenario)
+        List<Station> existingResults = viewModel.getResults().getValue();
+        if (existingResults != null && !existingResults.isEmpty()) {
+            // We have existing results, don't reload - observer will update adapter
+            myLog("Using existing results from ViewModel (orientation change), count: " + existingResults.size());
+            progressBar.setVisibility(View.GONE);
+            // Don't return - let the observer handle it, but skip the API call below
+            // Actually, we should return to avoid making the API call
+            return;
+        }
+
+        // No existing results, perform initial search
+        progressBar.setVisibility(View.VISIBLE);
+        viewModel.resetPagination();
         myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country + " - tag=" + tag);
 
         switch (station_search_mode) {
@@ -363,10 +412,73 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
     }
 
+    private void loadNextPage() {
+        if (viewModel.isLoading() || !viewModel.hasMore() || !hasInternet) {
+            return;
+        }
+        
+        viewModel.setLoading(true);
+        String searchMode = viewModel.getLastSearchMode();
+        if (searchMode == null || searchMode.isEmpty()) {
+            searchMode = "NO_MODE";
+        }
+        
+        String q = viewModel.getLastQuery();
+        String lang = viewModel.getLastLang();
+        String country = viewModel.getLastCountry();
+        String tag = viewModel.getLastTag();
+        int offset = viewModel.getCurrentOffset();
+        int limit = Option.getRadioApiNbResults();
+        
+        myLog("Loading next page - offset: " + offset + ", mode: " + searchMode);
+        
+        switch (searchMode) {
+            case "MODE_TOP_VOTE":
+                repo.topVoted(limit, offset, resultsCb("topVote", true));
+                break;
+            case "MODE_TOP_CLICK":
+                repo.topClicked(limit, offset, resultsCb("topClick", true));
+                break;
+            case "MODE_LAST_CLICK":
+                repo.lastClicked(limit, offset, resultsCb("lastClick", true));
+                break;
+            case "MODE_LAST_CHANGE":
+                repo.lastChanged(limit, offset, resultsCb("lastChange", true));
+                break;
+            case "MODE_TAG":
+                if (!tag.isEmpty()) {
+                    repo.byTag(tag, limit, offset, resultsCb("tag", true));
+                }
+                break;
+            case "MODE_COUNTRY":
+                if (!country.isEmpty()) {
+                    repo.byCountry(country, limit, offset, resultsCb("country", true));
+                }
+                break;
+            case "MODE_LANGUAGE":
+                if (!lang.isEmpty()) {
+                    repo.byLanguage(lang, limit, offset, resultsCb("language", true));
+                }
+                break;
+            case "MODE_SEARCH":
+            default:
+                if (!q.isEmpty()) {
+                    repo.byName(q, limit, offset, resultsCb("byname", true));
+                }
+                break;
+        }
+    }
+
     private Callback<List<Station>> resultsCb(String source) {
+        return resultsCb(source, false);
+    }
+
+    private Callback<List<Station>> resultsCb(String source, boolean isPagination) {
         return new Callback<>() {
             @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
-                progressBar.setVisibility(View.GONE);
+                if (!isPagination) {
+                    progressBar.setVisibility(View.GONE);
+                }
                 List<Station> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
 
@@ -417,23 +529,54 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         }
                     }
 
-                    viewModel.setResults(body);
-                    adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
-                    myLog("radio results (" + source + ") = " + body.size());
+                    if (isPagination) {
+                        viewModel.appendResults(body);
+                        // If we got fewer results than requested, no more pages
+                        if (body.size() < Option.getRadioApiNbResults()) {
+                            viewModel.setLoading(false);
+                            // hasMore will be set to false in appendResults if body is empty
+                            // but we should also check if size < limit
+                            // Actually, let's add a method to explicitly set hasMore
+                        }
+                        List<Station> allResults = viewModel.getResults().getValue();
+                        if (allResults != null) {
+                            adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + allResults.size() + headerTxt);
+                        }
+                        myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: " + (allResults != null ? allResults.size() : 0));
+                    } else {
+                        viewModel.setResults(body);
+                        adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
+                        myLog("radio results (" + source + ") = " + body.size());
+                    }
                 } else {
-                    myToast(getString(R.string.no_result));
-                    viewModel.requestFinish();
+                    if (!isPagination) {
+                        myToast(getString(R.string.no_result));
+                        viewModel.requestFinish();
+                    } else {
+                        // No more results for pagination
+                        viewModel.setLoading(false);
+                        // Empty response means no more
+                        List<Station> empty = new ArrayList<>();
+                        viewModel.appendResults(empty); // This will set hasMore to false
+                    }
                 }
             }
             @Override public void onFailure(Call<List<Station>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
+                if (!isPagination) {
+                    progressBar.setVisibility(View.GONE);
+                }
+                viewModel.setLoading(false);
                 if (NetworkHelper.isUnknownHost(t)) {
-                    myToastE(getString(R.string.no_internet_connection));
+                    if (!isPagination) {
+                        myToastE(getString(R.string.no_internet_connection));
+                    }
                 } else {
                     myLogEE(t, "radio search failed (" + source + ")");
-                    myToastE(getString(R.string.an_error_occurred));
+                    if (!isPagination) {
+                        myToastE(getString(R.string.an_error_occurred));
+                        viewModel.requestFinish();
+                    }
                 }
-                viewModel.requestFinish();
             }
         };
     }

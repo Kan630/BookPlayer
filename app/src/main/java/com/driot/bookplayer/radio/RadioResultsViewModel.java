@@ -19,22 +19,77 @@ public class RadioResultsViewModel extends LoggingViewModel {
 
     private final MutableLiveData<List<Station>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isLoadingMore = new MutableLiveData<>(false);
 
     private final MutableLiveData<Boolean> showingHistory = new MutableLiveData<>(false);
     private boolean historyMode = false;
 
     public LiveData<Boolean> getShowingHistory() { return showingHistory; }
+    public LiveData<Boolean> getIsLoadingMore() { return isLoadingMore; }
 
     private String lastQuery = "";
     private String lastLang = "";
     private String lastCountry = "";
     private String lastTag = "";
+    private String lastSearchMode = "";
+    
+    // Pagination state
+    private int currentOffset = 0;
+    private boolean hasMore = true;
+    private boolean isLoading = false;
 
     public LiveData<List<Station>> getResults() { return results; }
     public LiveData<Boolean> getShouldFinish() { return shouldFinish; }
 
-    public void setResults(List<Station> stations) { results.postValue(stations); }
+    public void setResults(List<Station> stations) { 
+        results.postValue(stations);
+        // Reset pagination state when setting new results (first page)
+        currentOffset = stations != null ? stations.size() : 0;
+        hasMore = stations != null && stations.size() > 0;
+        isLoading = false;
+        isLoadingMore.postValue(false);
+    }
+    
+    public void appendResults(List<Station> stations) {
+        List<Station> current = results.getValue();
+        if (current == null) {
+            current = new ArrayList<>();
+        }
+        if (stations != null && !stations.isEmpty()) {
+            current.addAll(stations);
+            currentOffset += stations.size();
+            // If we got fewer results than requested, assume no more pages
+            // Note: This is a heuristic - the actual limit is passed from the activity
+            // For now, we'll rely on empty response to indicate no more
+            hasMore = true;
+        } else {
+            hasMore = false; // No more results
+        }
+        results.postValue(current);
+        isLoading = false;
+        isLoadingMore.postValue(false);
+    }
+    
     public void requestFinish() { shouldFinish.postValue(true); }
+    
+    public int getCurrentOffset() { return currentOffset; }
+    public boolean hasMore() { return hasMore; }
+    public boolean isLoading() { return isLoading; }
+    
+    public void setLoading(boolean loading) { 
+        isLoading = loading;
+        isLoadingMore.postValue(loading);
+    }
+    
+    public void setLastSearchMode(String mode) { lastSearchMode = mode != null ? mode : ""; }
+    public String getLastSearchMode() { return lastSearchMode; }
+    
+    public void resetPagination() {
+        currentOffset = 0;
+        hasMore = true;
+        isLoading = false;
+        isLoadingMore.postValue(false);
+    }
 
     public String getLastQuery() { return lastQuery; }
     public String getLastLang() { return lastLang; }

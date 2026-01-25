@@ -1178,8 +1178,8 @@
     <string name="Import_Progress_chapter_title">"Track title"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"exported file name should have at least 3 characters"</string>
     <string name="option_radio_renew_url_title">Play from favorites</string>
-    <string name="option_radio_renew_url">check for best mirror before playing</string>
-    <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensure you are playing from the best source available, but can take some time (current timeout is 10sec.)</string>
+    <string name="option_radio_renew_url">always check for best mirror before playing</string>
+    <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensure you are playing from the best source available, but can take some time (current timeout is 10sec.) This usually should be let unchecked.</string>
     <string name="checking_for_best_mirror">checking for best mirror</string>
     <string name="error_radio_renew_url">error getting radio mirror link</string>
     <string name="no_review">no review</string>
@@ -1286,7 +1286,7 @@
     <string name="Engine_buffer">Engine buffer</string>
     <string name="option_radio_sleep_copy">copy general settings value</string>
     <string name="option_radio_use_cloudfare">use caching ( cloudfare )</string>
-    <string name="option_radio_use_cloudfare_subtitle">use caching should improve speed</string>
+    <string name="option_radio_use_cloudfare_subtitle">use caching could improve speed</string>
     <string name="Performance">Performance</string>
     <string name="by_genre">by genre</string>
     <string name="by_author">by author</string>
@@ -1303,7 +1303,7 @@
     <string name="Spam">Spam</string>
     <string name="option_radio_remove_duplicates">remove duplicates</string>
     <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>
-    <string name="option_radio_sleep_copy_subtitle">Here you can specify a custom value for the radio auto-sleep. Since we don’t save progress for radio, it doesn’t matter if you fall asleep!</string>
+    <string name="option_radio_sleep_copy_subtitle">If checked, the auto-sleep value will be the same as in the general settings. If unchecked, you can specify a custom value for radio. Since there is no progress saving here, it doesn’t matter if you fall asleep and you could set a huge value.</string>
     <string name="Radio">Radio</string>
 
     <string name="loading_more">loading more</string>
@@ -1379,6 +1379,8 @@
 
     <string name="Deleting">Deleting</string>
     <string name="tracks">tracks</string>
+
+    <string name="api_paging_size">api paging size</string>
 
 
 

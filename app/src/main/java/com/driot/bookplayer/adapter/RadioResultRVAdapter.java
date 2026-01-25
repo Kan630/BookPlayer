@@ -84,6 +84,14 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         if (newItems != null) items.addAll(newItems);
         notifyDataSetChanged();
     }
+    
+    public void appendItems(List<Station> newItems) {
+        if (newItems != null && !newItems.isEmpty()) {
+            int startPosition = items.size() + 1; // +1 for header
+            items.addAll(newItems);
+            notifyItemRangeInserted(startPosition, newItems.size());
+        }
+    }
 
     // --- ViewHolders ---
     public static class HeaderVH extends RecyclerView.ViewHolder {

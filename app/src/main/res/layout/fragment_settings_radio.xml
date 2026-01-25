@@ -18,41 +18,6 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-        <LinearLayout
-            android:id="@+id/ll_Search"
-            style="@style/LinearLayoutOptionsVertical">
-
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/Search"
-                android:layout_marginTop="0dp" />
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
-                <TextView
-                    style="@style/OptionPodcastTextBeforeEditText"
-                    android:text="@string/return_max"
-                    />
-                <EditText
-                    style="@style/OptionPodcastEditText"
-                    android:layout_width="70dp"
-                    android:id="@+id/et_api_nb_results"
-                    />
-                <TextView
-                    style="@style/OptionPodcastTextAfterEditText"
-                    android:text="@string/stations"
-                    />
-            </LinearLayout>
-            <TextView
-                android:text="Min = 20"
-                style="@style/OptionMiniText" />
-            <TextView
-                android:text="Max = 1000"
-                style="@style/OptionMiniText" />
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <!-- Time before sleep -->
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
@@ -140,9 +105,47 @@
         <TextView
             style="@style/OptionTitle"
             android:text="@string/Technical"/>
+
+        <LinearLayout
+            android:id="@+id/ll_Search"
+            style="@style/LinearLayoutOptionsVertical">
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_width="match_parent"
+                android:layout_marginTop="0dp"
+                >
+                <TextView
+                    style="@style/OptionPodcastTextBeforeEditText"
+                    android:textSize="16sp"
+                    android:text="@string/api_paging_size"
+                    android:layout_marginStart="10dp"
+
+                    />
+                <EditText
+                    style="@style/OptionPodcastEditText"
+                    android:layout_width="70dp"
+                    android:textSize="16sp"
+                    android:id="@+id/et_api_nb_results"
+                    />
+            </LinearLayout>
+            <TextView
+                android:text="Min = 20"
+                style="@style/OptionMiniText"
+                android:layout_marginStart="10dp"/>
+
+            <TextView
+                android:text="Max = 1000"
+                style="@style/OptionMiniText"
+                android:layout_marginStart="10dp"/>
+        </LinearLayout>
+
+
+
         <LinearLayout
             android:id="@+id/ll_radio_renew_url"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="0dp">
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_radio_renew_url"
@@ -150,21 +153,20 @@
                 android:layout_height="match_parent" />
             <TextView
                 style="@style/OptionCheckBoxText"
-                android:text="@string/option_radio_renew_url" />
+                android:text="@string/option_radio_renew_url"
+                />
         </LinearLayout>
         <TextView
             style="@style/OptionSubTitle"
-            android:text="@string/option_radio_renew_url_subtitle" />
+            android:text="@string/option_radio_renew_url_subtitle"
+            android:textStyle="italic"
+            />
 
 
-        <TextView
-            android:layout_marginTop="30dp"
-            style="@style/warningTextView"
-            android:text="@string/beta_test" />
         <LinearLayout
             android:id="@+id/ll_radio_use_cloudfare"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="10dp"
+            android:layout_marginTop="20dp"
             >
 
         <com.google.android.material.checkbox.MaterialCheckBox
@@ -175,6 +177,11 @@
             style="@style/OptionCheckBoxText"
             android:text="@string/option_radio_use_cloudfare" />
     </LinearLayout>
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_radio_use_cloudfare_subtitle"
+            android:textStyle="italic"
+            />
         <!--
     <TextView
         style="@style/OptionSubTitle"

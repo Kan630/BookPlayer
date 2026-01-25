@@ -48,6 +48,18 @@ public class RadioBrowserRepository {
             int limit,
             Callback<List<Station>> cb
     ) {
+        search(name, tag, countryCode, language, limit, null, cb);
+    }
+
+    public void search(
+            @Nullable String name,
+            @Nullable String tag,
+            @Nullable String countryCode,
+            @Nullable String language,
+            int limit,
+            @Nullable Integer offset,
+            Callback<List<Station>> cb
+    ) {
         // sensible defaults: order by clickcount desc, hide broken
         api.searchStations(
                 emptyIfNull(name),
@@ -57,6 +69,7 @@ public class RadioBrowserRepository {
                 "clickcount",
                 true,
                 limit,
+                offset,
                 true
         ).enqueue(new LoggingCallback<>(cb, "searchStations"));
     }
@@ -66,35 +79,67 @@ public class RadioBrowserRepository {
     }
 
     public void topVoted(int limit, Callback<List<Station>> cb) {
-        listsApi().topVoted(limit, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
+        topVoted(limit, null, cb);
+    }
+
+    public void topVoted(int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        listsApi().topVoted(limit, offset, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
     }
 
     public void topClicked(int limit, Callback<List<Station>> cb) {
-        listsApi().topClicked(limit, true).enqueue(new LoggingCallback<>(cb, "topClicked"));
+        topClicked(limit, null, cb);
+    }
+
+    public void topClicked(int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        listsApi().topClicked(limit, offset, true).enqueue(new LoggingCallback<>(cb, "topClicked"));
     }
 
     public void lastClicked(int limit, Callback<List<Station>> cb) {
-        listsApi().lastClicked(limit, true).enqueue(new LoggingCallback<>(cb, "lastClicked"));
+        lastClicked(limit, null, cb);
+    }
+
+    public void lastClicked(int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        listsApi().lastClicked(limit, offset, true).enqueue(new LoggingCallback<>(cb, "lastClicked"));
     }
 
     public void lastChanged(int limit, Callback<List<Station>> cb) {
-        listsApi().lastAddedChanged(limit, true).enqueue(new LoggingCallback<>(cb, "lastAddedChanged"));
+        lastChanged(limit, null, cb);
+    }
+
+    public void lastChanged(int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        listsApi().lastAddedChanged(limit, offset, true).enqueue(new LoggingCallback<>(cb, "lastAddedChanged"));
     }
 
     public void byTag(String tag, int limit, Callback<List<Station>> cb) {
-        api.byTag(tag, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byTag"));
+        byTag(tag, limit, null, cb);
+    }
+
+    public void byTag(String tag, int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        api.byTag(tag, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byTag"));
     }
 
     public void byCountry(String country, int limit, Callback<List<Station>> cb) {
-        api.byCountry(country, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byCountry"));
+        byCountry(country, limit, null, cb);
+    }
+
+    public void byCountry(String country, int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        api.byCountry(country, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byCountry"));
     }
 
     public void byLanguage(String language, int limit, Callback<List<Station>> cb) {
-        api.byLanguage(language, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byLanguage"));
+        byLanguage(language, limit, null, cb);
+    }
+
+    public void byLanguage(String language, int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        api.byLanguage(language, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byLanguage"));
     }
 
     public void byName(String name, int limit, Callback<List<Station>> cb) {
-        api.byName(name, limit, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
+        byName(name, limit, null, cb);
+    }
+
+    public void byName(String name, int limit, @Nullable Integer offset, Callback<List<Station>> cb) {
+        api.byName(name, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byName"));
     }
 
     // ---- LISTES (pays / tags / langues) → passent par Cloudflare si dispo ----

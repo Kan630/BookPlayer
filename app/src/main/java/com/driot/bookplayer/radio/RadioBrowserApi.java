@@ -24,6 +24,7 @@ public interface RadioBrowserApi {
             @Query("order") String order,     // e.g. "clickcount"
             @Query("reverse") boolean reverse,
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
@@ -31,6 +32,7 @@ public interface RadioBrowserApi {
     Call<List<Station>> byName(
             @Path("name") String name,
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("order") String order,
             @Query("hidebroken") boolean hideBroken
     );
@@ -49,24 +51,28 @@ public interface RadioBrowserApi {
     @GET("json/stations/topclick")
     Call<List<Station>> topClicked(
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
     @GET("json/stations/topvote")
     Call<List<Station>> topVoted(
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
     @GET("json/stations/lastclick")
     Call<List<Station>> lastClicked(
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
     @GET("json/stations/lastchange")
     Call<List<Station>> lastAddedChanged(
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
@@ -79,6 +85,7 @@ public interface RadioBrowserApi {
     Call<List<Station>> byTag(
             @Path("tag") String tag,
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("order") String order,
             @Query("hidebroken") boolean hideBroken
     );
@@ -86,6 +93,7 @@ public interface RadioBrowserApi {
     Call<List<Station>> byCountry(
             @Path("country") String country,
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("order") String order,
             @Query("hidebroken") boolean hideBroken
     );
@@ -93,6 +101,7 @@ public interface RadioBrowserApi {
     Call<List<Station>> byLanguage(
             @Path("language") String language,
             @Query("limit") int limit,
+            @Query("offset") Integer offset,
             @Query("order") String order,
             @Query("hidebroken") boolean hideBroken
     );
