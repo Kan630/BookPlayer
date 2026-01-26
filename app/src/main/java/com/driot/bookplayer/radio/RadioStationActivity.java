@@ -176,12 +176,13 @@ public class RadioStationActivity extends BaseBottomNavActivity {
             }
         }
 
-        // Tags
+// Tags
         String tags = safe(radioStation.tags);
         if (!tags.isEmpty()) {
-            tvTags.setText(tags);
+            tvTags.setText(tags.replace(",", " • "));
             tvTagLine.setVisibility(View.VISIBLE);
             tvTags.setVisibility(View.VISIBLE);
+
         } else {
             tvTags.setText("");
             tvTagLine.setVisibility(View.GONE);
