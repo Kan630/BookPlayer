@@ -57,11 +57,6 @@
             style="@style/OptionTitle"
             android:text="@string/Specific_view" />
 
-        <TextView
-            style="@style/OptionSubTitle"
-            android:text="@string/option_podcast_open_specific_view_subtitle"
-            android:layout_marginBottom="5dp" />
-
         <LinearLayout
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
             android:id="@+id/ll_podcast_open_specific_view"
@@ -75,6 +70,14 @@
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_podcast_open_specific_view" />
         </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_podcast_open_specific_view_subtitle"
+            android:layout_marginBottom="5dp" />
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_podcast_open_specific_view_subtitle2"
+            android:layout_marginBottom="5dp" />
 
         <LinearLayout
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"

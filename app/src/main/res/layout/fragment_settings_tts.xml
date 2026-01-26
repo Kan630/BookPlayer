@@ -81,7 +81,7 @@
         <TextView android:text="Min = 1200" style="@style/OptionMiniText" />
         <TextView android:id="@+id/tv_tts_chunk_size_max" android:text="Max = 7000" style="@style/OptionMiniText" />
         <TextView
-            style="@style/OptionSubTitle"
+            style="@style/OptionExplainText"
             android:text="@string/option_tts_chunk_size_explain_text"
             />
 
@@ -125,7 +125,7 @@
         <TextView android:text="Min = 0" style="@style/OptionMiniText" />
         <TextView android:text="Max = 400" style="@style/OptionMiniText" />
         <TextView
-            style="@style/OptionSubTitle"
+            style="@style/OptionExplainText"
             android:text="@string/option_tts_highlight_delay_explain_text"
             />
 
@@ -153,7 +153,7 @@
             android:layout_marginBottom="15dp" />
 
         <TextView
-            style="@style/OptionSubTitle"
+            style="@style/OptionExplainText"
             android:text="@string/option_epub_split_mode_explain_text"
             />
 

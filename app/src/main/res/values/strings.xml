@@ -348,9 +348,9 @@
     <string name="option_orientation_lock">Lock the screen orientation when playing (better to keep it on)</string>
 
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
-    <string name="option_delete_source_file_subtitle"><i>After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
+    <string name="option_delete_source_file_subtitle">After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
         \nNote that this is only possible for zip or if the option just above is ticked (if audios are copied in Bookplayer reserved memory).
-        </i></string>
+        </string>
     <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into Bookplayer.</string>
     <string name="option_alert_delete_source_file_title">!! Warning - Auto-Delete !!</string>
     <string name="option_alert_delete_source_file_message">Every file loaded into Bookplayer will be wiped out from device memory.\n\nAre you sure ?.</string>
@@ -380,7 +380,7 @@
 
 
     <string name="option_open_with_title">Open With / Share</string>
-    <string name="option_open_with_subtitle"><i>Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</i></string>
+    <string name="option_open_with_subtitle">Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</string>
     <string name="option_open_with_text">For zip and most audio files.</string>
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
     <string name="option_on_load_use_SD_card">Use SD card</string>">
@@ -388,7 +388,7 @@
     <string name="option_split_m4b">.m4b splitting</string>
     <string name="option_split_m4b_text">Extract chapters from m4b.</string>
 
-    <string name="option_copy_file_special_zip"><i>zip and split m4b are always copied</i></string>
+    <string name="option_copy_file_special_zip">zip and split m4b are always copied</string>
 
     <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
     <string name="option_alert_delete_picked_source_file_message">"This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?."</string>
@@ -398,7 +398,7 @@
 
     <string name="option_sdcard_title">SD card</string>">
     <string name="option_sdcard_text">when copying audio in reserved space, use SD card instead of device storage</string>">
-    <string name="option_sdcard_text_caution"><i>please note that if you remove or erase the sd card, you will loose your audios</i></string>">
+    <string name="option_sdcard_text_caution">please note that if you remove or erase the sd card, you will loose your audios</string>">
 
     <string name="option_copy_file_subtitle">Pros :
         \n* [Read Audio] permission is not needed.
@@ -418,8 +418,9 @@
     <string name="option_font_family">Font</string>
     <string name="option_text_size">Size</string>
 
-    <string name="option_podcast_open_specific_view_subtitle">When clicking a \'podcast\' item, should it open the stream podcast view with all episodes, or the \'book\' view with downloaded ones?</string>
-    <string name="option_podcast_open_specific_view">Open the live view</string>
+    <string name="option_podcast_open_specific_view">Live view is default</string>
+    <string name="option_podcast_open_specific_view_subtitle">If checked, when you click a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf uncheckd, it opens the \'book\' view with the downloaded ones.</string>
+    <string name="option_podcast_open_specific_view_subtitle2">Note that you can switch between these views by clicking/dbl-clicking on the cover image.</string>
     <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
 
@@ -926,7 +927,7 @@
     <string name="action_web_search">🔎 Web search</string>
 
 
-    <string name="Specific_view">Specific view</string>
+    <string name="Specific_view">Live podcast page</string>
     <string name="Classic_book_view">Classic book view</string>
 
     <string name="toast_tts_not_ready">"Text-to-Speech not ready !"</string>

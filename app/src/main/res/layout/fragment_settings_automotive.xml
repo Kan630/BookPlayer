@@ -44,9 +44,8 @@
                     android:text="@string/option_automotive_on" />
             </LinearLayout>
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_automotive_on_explain_text"
-                android:textStyle="italic"
                 />
 
 
@@ -85,7 +84,7 @@
                     android:text="@string/option_automotive_let_car_autoplay" />
             </LinearLayout>
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_automotive_let_car_autoplay_explain_text"
                 android:textStyle="italic"
                 />

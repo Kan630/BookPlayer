@@ -38,9 +38,8 @@
                     android:text="@string/option_radio_sleep_copy" />
             </LinearLayout>
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_radio_sleep_copy_subtitle"
-                android:textStyle="italic"
                 />
 
             <LinearLayout
@@ -94,9 +93,8 @@
                 android:text="@string/option_radio_remove_duplicates" />
         </LinearLayout>
         <TextView
-            style="@style/OptionSubTitle"
+            style="@style/OptionExplainText"
             android:text="@string/option_radio_remove_duplicates_subtitle"
-            android:textStyle="italic"
             />
 
 
@@ -157,9 +155,8 @@
                 />
         </LinearLayout>
         <TextView
-            style="@style/OptionSubTitle"
+            style="@style/OptionExplainText"
             android:text="@string/option_radio_renew_url_subtitle"
-            android:textStyle="italic"
             />
 
 
@@ -178,9 +175,8 @@
             android:text="@string/option_radio_use_cloudfare" />
     </LinearLayout>
         <TextView
-            style="@style/OptionSubTitle"
+            style="@style/OptionExplainText"
             android:text="@string/option_radio_use_cloudfare_subtitle"
-            android:textStyle="italic"
             />
         <!--
     <TextView

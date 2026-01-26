@@ -40,7 +40,7 @@
             </LinearLayout>
 
             <TextView
-                style="@style/OptionCheckBoxText"
+                style="@style/OptionExplainText"
                 android:textSize="14sp"
                 android:text="@string/option_sdcard_text_caution" />
         </LinearLayout>
@@ -72,11 +72,12 @@
             </LinearLayout>
 
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_copy_file_special_zip" />
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_copy_file_subtitle" />
+
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -125,10 +126,10 @@
                     android:text="@string/option_split_m4b_text" />
             </LinearLayout>
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_split_m4b_subtitle" />
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_split_m4b_subtitle_note"
                 android:textStyle="italic" />
         </LinearLayout>
@@ -147,7 +148,7 @@
                 android:layout_marginTop="0dp" />
 
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_delete_source_file_subtitle" />
 
             <LinearLayout
@@ -172,7 +173,7 @@
                 android:text="@string/option_open_with_title" />
 
             <TextView
-                style="@style/OptionSubTitle"
+                style="@style/OptionExplainText"
                 android:text="@string/option_open_with_subtitle" />
 
             <LinearLayout

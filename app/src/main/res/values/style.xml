@@ -186,6 +186,10 @@
         <item name="android:textSize">14sp</item>
     </style>
 
+    <style name="OptionExplainText" parent="OptionSubTitle">
+        <item name="android:textStyle">italic</item>
+    </style>
+
     <style name="OptionCheckBox">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
