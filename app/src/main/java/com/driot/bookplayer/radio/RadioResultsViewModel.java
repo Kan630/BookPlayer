@@ -24,24 +24,34 @@ public class RadioResultsViewModel extends LoggingViewModel {
     private final MutableLiveData<Boolean> showingHistory = new MutableLiveData<>(false);
     private boolean historyMode = false;
 
-    public LiveData<Boolean> getShowingHistory() { return showingHistory; }
-    public LiveData<Boolean> getIsLoadingMore() { return isLoadingMore; }
+    public LiveData<Boolean> getShowingHistory() {
+        return showingHistory;
+    }
+
+    public LiveData<Boolean> getIsLoadingMore() {
+        return isLoadingMore;
+    }
 
     private String lastQuery = "";
     private String lastLang = "";
     private String lastCountry = "";
     private String lastTag = "";
     private String lastSearchMode = "";
-    
+
     // Pagination state
     private int currentOffset = 0;
     private boolean hasMore = true;
     private boolean isLoading = false;
 
-    public LiveData<List<Station>> getResults() { return results; }
-    public LiveData<Boolean> getShouldFinish() { return shouldFinish; }
+    public LiveData<List<Station>> getResults() {
+        return results;
+    }
 
-    public void setResults(List<Station> stations) { 
+    public LiveData<Boolean> getShouldFinish() {
+        return shouldFinish;
+    }
+
+    public void setResults(List<Station> stations) {
         results.postValue(stations);
         // Reset pagination state when setting new results (first page)
         currentOffset = stations != null ? stations.size() : 0;
@@ -49,19 +59,38 @@ public class RadioResultsViewModel extends LoggingViewModel {
         isLoading = false;
         isLoadingMore.postValue(false);
     }
-    
+
     public void appendResults(List<Station> stations) {
         List<Station> current = results.getValue();
         if (current == null) {
             current = new ArrayList<>();
         }
         if (stations != null && !stations.isEmpty()) {
-            current.addAll(stations);
-            currentOffset += stations.size();
-            // If we got fewer results than requested, assume no more pages
-            // Note: This is a heuristic - the actual limit is passed from the activity
-            // For now, we'll rely on empty response to indicate no more
-            hasMore = true;
+            // Deduplicate: remove stations already in 'current'
+            Set<String> existingUuids = new HashSet<>();
+            for (Station s : current) {
+                if (s.stationuuid != null)
+                    existingUuids.add(s.stationuuid);
+            }
+
+            List<Station> uniqueStations = new ArrayList<>();
+            for (Station s : stations) {
+                if (s.stationuuid != null && !existingUuids.contains(s.stationuuid)) {
+                    uniqueStations.add(s);
+                    existingUuids.add(s.stationuuid); // avoid dupes within the new batch too
+                }
+            }
+
+            if (!uniqueStations.isEmpty()) {
+                current.addAll(uniqueStations);
+                currentOffset += stations.size(); // Keep offset logic based on API batch size
+                hasMore = true;
+            } else {
+                // We got results but they were all duplicates.
+                // We should probably still increment offset to try next page?
+                currentOffset += stations.size();
+                hasMore = true;
+            }
         } else {
             hasMore = false; // No more results
         }
@@ -69,21 +98,36 @@ public class RadioResultsViewModel extends LoggingViewModel {
         isLoading = false;
         isLoadingMore.postValue(false);
     }
-    
-    public void requestFinish() { shouldFinish.postValue(true); }
-    
-    public int getCurrentOffset() { return currentOffset; }
-    public boolean hasMore() { return hasMore; }
-    public boolean isLoading() { return isLoading; }
-    
-    public void setLoading(boolean loading) { 
+
+    public void requestFinish() {
+        shouldFinish.postValue(true);
+    }
+
+    public int getCurrentOffset() {
+        return currentOffset;
+    }
+
+    public boolean hasMore() {
+        return hasMore;
+    }
+
+    public boolean isLoading() {
+        return isLoading;
+    }
+
+    public void setLoading(boolean loading) {
         isLoading = loading;
         isLoadingMore.postValue(loading);
     }
-    
-    public void setLastSearchMode(String mode) { lastSearchMode = mode != null ? mode : ""; }
-    public String getLastSearchMode() { return lastSearchMode; }
-    
+
+    public void setLastSearchMode(String mode) {
+        lastSearchMode = mode != null ? mode : "";
+    }
+
+    public String getLastSearchMode() {
+        return lastSearchMode;
+    }
+
     public void resetPagination() {
         currentOffset = 0;
         hasMore = true;
@@ -91,10 +135,21 @@ public class RadioResultsViewModel extends LoggingViewModel {
         isLoadingMore.postValue(false);
     }
 
-    public String getLastQuery() { return lastQuery; }
-    public String getLastLang() { return lastLang; }
-    public String getLastCountry() { return lastCountry; }
-    public String getLastTag() { return lastTag; }
+    public String getLastQuery() {
+        return lastQuery;
+    }
+
+    public String getLastLang() {
+        return lastLang;
+    }
+
+    public String getLastCountry() {
+        return lastCountry;
+    }
+
+    public String getLastTag() {
+        return lastTag;
+    }
 
     public void setLastParams(String query, String lang, String country, String tag) {
         lastQuery = query == null ? "" : query;
@@ -105,15 +160,18 @@ public class RadioResultsViewModel extends LoggingViewModel {
 
     // ---- Favorites state exposed to UI ----
 
-    private final MutableLiveData<Set<String>> favoriteUuids =
-            new MutableLiveData<>(new HashSet<>());
-    private final MutableLiveData<List<RadioFavoriteItem>> favoriteItems =
-            new MutableLiveData<>(Collections.emptyList());
-    private final MutableLiveData<Boolean> hasFavorites =
-            new MutableLiveData<>(false);
+    private final MutableLiveData<Set<String>> favoriteUuids = new MutableLiveData<>(new HashSet<>());
+    private final MutableLiveData<List<RadioFavoriteItem>> favoriteItems = new MutableLiveData<>(
+            Collections.emptyList());
+    private final MutableLiveData<Boolean> hasFavorites = new MutableLiveData<>(false);
 
-    public LiveData<Set<String>> getFavoriteUuids() { return favoriteUuids; }
-    public LiveData<List<RadioFavoriteItem>> getFavoriteItems() { return favoriteItems; }
+    public LiveData<Set<String>> getFavoriteUuids() {
+        return favoriteUuids;
+    }
+
+    public LiveData<List<RadioFavoriteItem>> getFavoriteItems() {
+        return favoriteItems;
+    }
 
     // ---- Helpers ----
 
@@ -122,30 +180,29 @@ public class RadioResultsViewModel extends LoggingViewModel {
     }
 
     private void copyFromStationToRadioStation(RadioStation r, Station s) {
-        r.stationuuid  = s.stationuuid;
-        r.name         = s.name;
-        r.url          = s.url;
+        r.stationuuid = s.stationuuid;
+        r.name = s.name;
+        r.url = s.url;
         r.url_resolved = s.url_resolved;
-        r.codec        = s.codec;
-        r.bitrate      = s.bitrate;
-        r.hls          = s.hls;
-        r.favicon      = s.favicon;
-        r.country      = s.country;
-        r.countrycode  = s.countrycode;
-        r.language     = s.language;
-        r.tags         = s.tags;
-        r.clickcount   = s.clickcount;
-        r.lastcheckok  = s.lastcheckok;
+        r.codec = s.codec;
+        r.bitrate = s.bitrate;
+        r.hls = s.hls;
+        r.favicon = s.favicon;
+        r.country = s.country;
+        r.countrycode = s.countrycode;
+        r.language = s.language;
+        r.tags = s.tags;
+        r.clickcount = s.clickcount;
+        r.lastcheckok = s.lastcheckok;
         // do not touch date_added / date_last_played / display_order here
     }
-
 
     public void initMode(Context ctx) {
         Context appCtx = ctx.getApplicationContext();
         new Thread(() -> {
             RadioStationDao d = dao(appCtx);
 
-            int favCount  = d.countFavorites();
+            int favCount = d.countFavorites();
             int histCount = d.countHistory();
             myLogD("init - favorites : " + favCount + " - history : " + histCount);
 
@@ -162,14 +219,14 @@ public class RadioResultsViewModel extends LoggingViewModel {
     // ---- Load favorites from Room ----
 
     public void loadFavorites(Context ctx) {
-        historyMode = false;                 // <--- update field
-        showingHistory.postValue(false);     // notify UI
+        historyMode = false; // <--- update field
+        showingHistory.postValue(false); // notify UI
         refreshFromDb(ctx);
     }
 
     public void loadHistory(Context ctx) {
-        historyMode = true;                  // <--- update field
-        showingHistory.postValue(true);      // notify UI
+        historyMode = true; // <--- update field
+        showingHistory.postValue(true); // notify UI
         refreshFromDb(ctx);
     }
 
@@ -185,24 +242,24 @@ public class RadioResultsViewModel extends LoggingViewModel {
                 if (existing.isFavorite) {
                     // remove from favorites, keep row for history
                     existing.isFavorite = false;
-                    existing.date_maj   = now;
+                    existing.date_maj = now;
                     dao.update(existing);
                 } else {
                     // re-favorite an existing station
                     copyFromStationToRadioStation(existing, s);
                     existing.isFavorite = true;
-                    existing.date_maj   = now;
+                    existing.date_maj = now;
                     dao.update(existing);
                 }
             } else {
                 // brand new favorite
                 RadioStation r = new RadioStation();
-                r.stationuuid      = s.stationuuid;
+                r.stationuuid = s.stationuuid;
                 copyFromStationToRadioStation(r, s);
-                r.isFavorite       = true;
-                r.display_order    = 0; // new favorites at top; you can tweak this
-                r.date_added       = now;
-                r.date_maj         = now;
+                r.isFavorite = true;
+                r.display_order = 0; // new favorites at top; you can tweak this
+                r.date_added = now;
+                r.date_maj = now;
                 r.date_last_played = null;
 
                 dao.insert(r);
@@ -231,7 +288,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
             RadioStation existing = dao.findByUuid(uuid);
             if (existing != null && existing.isFavorite) {
                 existing.isFavorite = false;
-                existing.date_maj   = System.currentTimeMillis();
+                existing.date_maj = System.currentTimeMillis();
                 dao.update(existing);
             }
             refreshFromDb(appCtx);
@@ -265,11 +322,11 @@ public class RadioResultsViewModel extends LoggingViewModel {
     }
 
     public void updateFavoriteLastUrl(@NonNull Context ctx,
-                                      @NonNull String stationuuid,
-                                      @NonNull String newUrl) {
+            @NonNull String stationuuid,
+            @NonNull String newUrl) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase.getDatabase(ctx)
-                    .radioStationDao()          // or radioFavoriteDao(), adapt to your naming
+                    .radioStationDao() // or radioFavoriteDao(), adapt to your naming
                     .updateLastUrl(stationuuid, newUrl);
         });
     }
