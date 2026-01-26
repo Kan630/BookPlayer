@@ -49,6 +49,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private volatile boolean preparing = false;
     private volatile boolean prepared  = false;
     private volatile boolean playing   = false;
+    private volatile boolean completionTriggered = false; // Prevent double-triggering of completion
 
     private String text = "";
     private int lastCharSpoken = 0;
@@ -87,6 +88,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     public void setDataSource(@NonNull Context ctx, @NonNull Uri uri, @NonNull String displayName) {
         prepared = false; preparing = false; playing = false;
         lastCharSpoken = 0; resumeOffsetChars = 0; estPositionMs = 0;
+        completionTriggered = false; // Reset completion flag for new track
 
         String raw = TextExtractor.getPlainText(ctx, uri, displayName);
         // Normalize newlines
@@ -153,6 +155,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         stop();
         prepared = false; preparing = false;
         resumeOffsetChars = 0; estPositionMs = 0;
+        completionTriggered = false;
         text = "";
     }
 
@@ -166,6 +169,30 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     public void seekTo(long positionMs) {
         if (estDurationMs <= 0 || text.isEmpty()) return;
         long clamped = Math.max(0, Math.min(positionMs, estDurationMs));
+        
+        // If seeking to or near the end (within 500ms threshold), trigger completion
+        // This matches ExoPlayer behavior where seeking to end triggers next track
+        final long END_THRESHOLD_MS = 500;
+        if (clamped >= estDurationMs - END_THRESHOLD_MS || clamped >= estDurationMs) {
+            if (completionTriggered) {
+                myLogD("seekTo: completion already triggered, ignoring");
+                return;
+            }
+            myLogD("seekTo: seeking to end, triggering completion");
+            completionTriggered = true;
+            playing = false;
+            if (tts != null) {
+                tts.stop();
+            }
+            // Set position to end
+            resumeOffsetChars = text.length();
+            lastCharSpoken = text.length();
+            estPositionMs = estDurationMs;
+            // Trigger completion to move to next track
+            listener.onCompletion(gen);
+            return;
+        }
+        
         int charPos = (int) ((clamped / (double) estDurationMs) * Math.max(1, text.length()));
         resumeOffsetChars = charPos;
         estPositionMs = clamped;
@@ -209,7 +236,15 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed) return;
 
         // End of logical text?
-        if (lastCharSpoken >= logicalTextEndIndex()) {
+        // Use >= to ensure we catch cases where we're at or past the end
+        int logicalEnd = logicalTextEndIndex();
+        if (lastCharSpoken >= logicalEnd) {
+            if (completionTriggered) {
+                myLogD("onDone: completion already triggered, ignoring");
+                return;
+            }
+            myLogD("onDone: reached end (lastCharSpoken=" + lastCharSpoken + ", logicalEnd=" + logicalEnd + "), triggering completion");
+            completionTriggered = true;
             playing = false;
             listener.onCompletion(gen);
             return;
@@ -246,6 +281,25 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
         }
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
+        
+        // Check if we've reached the end of the text and trigger completion
+        // This ensures completion is triggered even if onDone doesn't fire reliably
+        // Only trigger if we're at or past the logical end and still playing
+        int logicalEnd = logicalTextEndIndex();
+        if (playing && lastCharSpoken >= logicalEnd && logicalEnd > 0 && !completionTriggered) {
+            myLogD("onUtteranceRange: reached end of text (lastCharSpoken=" + lastCharSpoken + ", logicalEnd=" + logicalEnd + "), triggering completion");
+            completionTriggered = true;
+            playing = false;
+            // Post to main thread to avoid calling listener callbacks from TTS callback thread
+            main.post(() -> {
+                if (!disposed && tts != null) {
+                    tts.stop();
+                }
+                if (!disposed) {
+                    listener.onCompletion(gen);
+                }
+            });
+        }
     }
 
     @Override

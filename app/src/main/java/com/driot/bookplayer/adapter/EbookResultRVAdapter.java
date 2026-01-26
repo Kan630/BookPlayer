@@ -202,7 +202,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             holder.image.setTag(item.gutendexId);
 
             if (item.coverUrl != null && !item.coverUrl.isEmpty()) {
-                Glide.with(viewContext.getApplicationContext())
+                // Use viewContext directly (not getApplicationContext()) for proper Glide lifecycle in RecyclerView
+                Glide.with(viewContext)
                         .load(item.coverUrl)
                         .placeholder(R.drawable.placeholder_cover)
                         .error(R.drawable.placeholder_cover)
