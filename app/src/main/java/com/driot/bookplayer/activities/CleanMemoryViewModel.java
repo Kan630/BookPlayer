@@ -137,13 +137,14 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
             String sourceLocation = summary != null ? summary.sourceLocation : "";
             String playType = summary != null ? summary.playType : "";
             String image = summary != null ? summary.image : "";
+            String folderName = (summary != null && summary.name != null) ? summary.name : null;
 
             long folderSizeBytes = folderSizeCache.containsKey(file.getPath())
                     ? folderSizeCache.get(file.getPath())
                     : (Tonio.getFolderSize(file));
             folderSizeCache.putIfAbsent(file.getPath(), folderSizeBytes);
 
-            enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image));
+            enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image, folderName));
         }
         enriched.sort(Comparator.comparingLong(f -> f.folderSizeInBytes));
         Collections.reverse(enriched);

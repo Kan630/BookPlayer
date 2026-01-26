@@ -11,6 +11,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -62,7 +63,13 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
         File file = item.file;
         String zeSize = Tonio.getReadableSizeForCleanActivity(item.folderSizeInBytes);
 
-        holder.fileName.setText(file.getName());
+        boolean hasFolder = item.folderName != null && !item.folderName.isEmpty();
+        String displayName = hasFolder ? item.folderName : file.getName();
+        holder.bookName.setText(displayName);
+        int nameColor = hasFolder
+                ? ContextCompat.getColor(context, R.color.bp_onSurface)
+                : ContextCompat.getColor(context, R.color.red_500);
+        holder.bookName.setTextColor(nameColor);
         String percentDone = (int) item.percentDone + "%";
         holder.audioStatus.setText(percentDone);
         holder.fileSize.setText(zeSize);
@@ -89,7 +96,7 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
     }
 
     static class FileViewHolder extends RecyclerView.ViewHolder {
-        TextView fileName;
+        TextView bookName;
         TextView fileSize;
         TextView fileDate;
         ImageButton deleteButton;
@@ -98,7 +105,7 @@ public class CleanMemoryRVAdapter extends LoggingRVAdapter<CleanMemoryRVAdapter.
 
         public FileViewHolder(@NonNull View itemView) {
             super(itemView);
-            fileName = itemView.findViewById(R.id.file_name);
+            bookName = itemView.findViewById(R.id.book_name);
             fileSize = itemView.findViewById(R.id.file_size);
             fileDate = itemView.findViewById(R.id.file_date);
             deleteButton = itemView.findViewById(R.id.delete_button);

@@ -22,7 +22,7 @@
             android:contentDescription="@string/audio_book_cover"
             />
         <TextView
-            android:id="@+id/file_name"
+            android:id="@+id/book_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="4"
