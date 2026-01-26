@@ -17,7 +17,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.views.EditText1lineWithPasteDelete;
+import com.driot.bookplayer.views.EditText1lineWithSearch;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -30,26 +30,35 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_RADIO_STATION_SEARCH_MODE = "EXTRA_RADIO_STATION_SEARCH_MODE";
 
-
     Spinner spinnerLang;
-    Spinner spinnerCountry;   // optional: country filter (2-letter codes like FR/US…)
-    Spinner spinnerTag;       // optional: tag/genre (e.g., "jazz", "news", …)
+    Spinner spinnerCountry; // optional: country filter (2-letter codes like FR/US…)
+    Spinner spinnerTag; // optional: tag/genre (e.g., "jazz", "news", …)
 
-    EditText1lineWithPasteDelete etRadio;
+    EditText1lineWithSearch etRadio;
     Button bFavorite;
     ImageButton ibFavorite;
     ImageButton ibSettings;
     Button bTopClick, bTopVote, bLastClick, bLastChange;
-    Button buttonSearch;
 
     String query, lang, country, tag;
 
     TagCardAdapter tagAdapter;
     RadioBrowserRepository repo;
 
-    @Override protected int getNavId() { return R.id.nav_radio; }
-    @Override protected int getLayoutResId() { return R.layout.activity_get_radio; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_radio;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_get_radio;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -59,19 +68,18 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         repo = new RadioBrowserRepository(
                 this,
                 /* discoverMirrors */ false,
-                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
-        bTopClick      = findViewById(R.id.bTopClick);
-        bTopVote       = findViewById(R.id.bTopVote);
-        bLastClick     = findViewById(R.id.blastClick);
-        bLastChange    = findViewById(R.id.blastChange);
+        bTopClick = findViewById(R.id.bTopClick);
+        bTopVote = findViewById(R.id.bTopVote);
+        bLastClick = findViewById(R.id.blastClick);
+        bLastChange = findViewById(R.id.blastChange);
 
-        etRadio        = findViewById(R.id.etRadio);
-        buttonSearch   = findViewById(R.id.bRadioSearch);
-        bFavorite      = findViewById(R.id.bFavorite);
-        ibFavorite     = findViewById(R.id.ibFavorite);
-        ibSettings     = findViewById(R.id.ibSettings);
+        etRadio = findViewById(R.id.etRadio);
+        // buttonSearch = findViewById(R.id.bRadioSearch); // Removed
+        bFavorite = findViewById(R.id.bFavorite);
+        ibFavorite = findViewById(R.id.ibFavorite);
+        ibSettings = findViewById(R.id.ibSettings);
 
         // ---- open recyclerviews ----
         bFavorite.setOnClickListener(v -> clickFavorite());
@@ -94,7 +102,7 @@ public class GetRadioActivity extends BaseBottomNavActivity {
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_LANGUAGE);
         });
 
-        etRadio.setHistoryKey("radio_search");     // keep histories separate
+        etRadio.setHistoryKey("radio_search"); // keep histories separate
         etRadio.setCompletionThreshold(1);
         etRadio.setSuggestOnFocus(true);
 
@@ -130,7 +138,7 @@ public class GetRadioActivity extends BaseBottomNavActivity {
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lastChange");
         });
 
-        buttonSearch.setOnClickListener(v -> {
+        etRadio.getSearchButton().setOnClickListener(v -> {
             myLogI("--- User clicks RADIO SEARCH ---");
             etRadio.saveCurrentTextToHistory();
             doSearch();
@@ -161,21 +169,22 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     private void clickSettings() {
         myLogI("--- User clicks RADIO SETTINGS ---");
-        // Reuse your SettingsHostActivity with a RadioSettingsFragment (build like LibrivoxSettingsFragment)
+        // Reuse your SettingsHostActivity with a RadioSettingsFragment (build like
+        // LibrivoxSettingsFragment)
 
         SettingsHostActivity.start(this, RadioSettingsFragment.class, true, R.string.Radio_Settings);
     }
 
     private void doSearch() {
-        query   = Tonio.cleanSearchString(etRadio.getText());
+        query = Tonio.cleanSearchString(etRadio.getText());
         /*
-        lang    = safeSpinnerStr(spinnerLang);
-        country = safeSpinnerStr(spinnerCountry);
-        tag     = safeSpinnerStr(spinnerTag);
+         * lang = safeSpinnerStr(spinnerLang);
+         * country = safeSpinnerStr(spinnerCountry);
+         * tag = safeSpinnerStr(spinnerTag);
          */
-        lang    = null;
+        lang = null;
         country = null;
-        tag     = null;
+        tag = null;
 
         Intent intent = new Intent(this, RadioResultsActivity.class)
                 .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_SEARCH")
@@ -188,9 +197,11 @@ public class GetRadioActivity extends BaseBottomNavActivity {
     }
 
     private static String safeSpinnerStr(Spinner sp) {
-        if (sp == null || sp.getSelectedItem() == null) return "";
+        if (sp == null || sp.getSelectedItem() == null)
+            return "";
         return String.valueOf(sp.getSelectedItem()).trim().toLowerCase();
     }
+
     /** 2-letter language from LanguageItem. */
     private static String safeLang(Spinner sp) {
         Object it = (sp == null) ? null : sp.getSelectedItem();
@@ -200,13 +211,16 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         return "";
     }
 
-    /** If you use a real CountryItem model, mirror safeLang; else keep "" until you wire one. */
+    /**
+     * If you use a real CountryItem model, mirror safeLang; else keep "" until you
+     * wire one.
+     */
     private static String safeCountry(Spinner sp) {
-        if (sp == null || sp.getSelectedItem() == null) return "";
+        if (sp == null || sp.getSelectedItem() == null)
+            return "";
         String s = String.valueOf(sp.getSelectedItem()).trim();
         // Expect values like "FR", "US" or "" – normalize to upper
         return s.length() == 2 ? s.toUpperCase() : "";
     }
-
 
 }

@@ -186,20 +186,12 @@
 
                 <!-- Search box -->
                 <!-- scrollOnFocus = custom defined in attrs.xml -->
-                <com.driot.bookplayer.views.EditText1lineWithPasteDelete
+    <com.driot.bookplayer.views.EditText1lineWithSearch
                     android:id="@+id/etRadio"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:scrollOnFocus="true"
                     android:layout_marginTop="12dp" />
-
-                <Button
-                    android:id="@+id/bRadioSearch"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:text="@string/Search"
-                    style="@style/GetResourceButton" />
 
             </LinearLayout>
         </ScrollView>
