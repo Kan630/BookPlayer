@@ -8,12 +8,12 @@ import com.driot.bookplayer.R;
 
 public class ShareHelper {
 
-    public static void shareRadioStation(Context context, String url, String uuid) {
+    public static void shareRadioStation(Context context, String url, String uuid, String name) {
         //String customLink = "bookplayer://share/radio?url=" + Uri.encode(url) + "&uuid=" + Uri.encode(uuid);
         String radioLink = "https://bookplayer.driot.com/share/radio?url=" + Uri.encode(url) + "&uuid=" + Uri.encode(uuid);
 
         //String sharedMessageBody = "!! BETA TEST !! Check out this radio on BookPlayer: " + customLink + "\n\nOr visit: " + webLink;
-        String sharedMessageBody = context.getString(R.string.share_radio_body) + ": \n" + radioLink;
+        String sharedMessageBody = context.getString(R.string.share_radio_body) + ": \n" + name + "\n" + radioLink;
         String sharedMessageHead = context.getString(R.string.share_radio_head);
 
         shareContent(context, sharedMessageBody, sharedMessageHead);

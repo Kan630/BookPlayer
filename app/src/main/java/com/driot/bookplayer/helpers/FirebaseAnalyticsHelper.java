@@ -269,9 +269,9 @@ public final class FirebaseAnalyticsHelper {
         bundle.putString("sourceLocation", trimFA(sourceLocation));
         logBundleEvent("ebook_worker", bundle);
     }
-    public static void tellAnalyticsStartStreaming(String podcastName, String stream_url, String play_mode) {
+    public static void tellAnalyticsStartStreaming(String stream_name, String stream_url, String play_mode) {
         Bundle bundle = new Bundle();
-        bundle.putString("podcastName", trimFA(podcastName));
+        bundle.putString("stream_name", trimFA(stream_name));
         bundle.putString("stream_url", trimFA(stream_url));
         bundle.putString("play_mode", trimFA(play_mode));
         logBundleEvent("start_streaming", bundle);
