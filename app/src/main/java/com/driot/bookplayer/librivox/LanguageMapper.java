@@ -64,7 +64,9 @@ public final class LanguageMapper {
         m.put("polish", new Mapping("pol", "pl", R.drawable.flag_pl));
         m.put("czech", new Mapping("ces", "cs", R.drawable.flag_cz));
         m.put("greek", new Mapping("ell", "el", R.drawable.flag_gr));
+        m.put("greek, ancient", new Mapping("grc", "", R.drawable.flag_gr));
         m.put("hebrew", new Mapping("heb", "he", R.drawable.flag_il));
+        m.put("yiddish", new Mapping("yid", "yi", R.drawable.flag_il));
         m.put("romanian", new Mapping("ron", "ro", R.drawable.flag_ro));
         m.put("hungarian", new Mapping("hun", "hu", R.drawable.flag_hu));
         m.put("ukrainian", new Mapping("ukr", "uk", R.drawable.flag_ua));
@@ -77,7 +79,10 @@ public final class LanguageMapper {
         m.put("marathi", new Mapping("mar", "mr", R.drawable.flag_in));
         m.put("urdu", new Mapping("urd", "ur", R.drawable.flag_pk));
         m.put("persian/farsi", new Mapping("fas", "fa", R.drawable.flag_ir));
+        m.put("farsi", new Mapping("fas", "fa", R.drawable.flag_ir));
         m.put("persian", new Mapping("fas", "fa", R.drawable.flag_ir));
+        m.put("frisian", new Mapping("fry", "fy", R.drawable.flag_de));
+        m.put("frysk", new Mapping("fry", "fy", R.drawable.flag_de));
 
         // Variants and close matches present in JSON
         m.put("ancient greek", new Mapping("grc", "", R.drawable.flag_gr));
@@ -87,8 +92,10 @@ public final class LanguageMapper {
         m.put("galician", new Mapping("glg", "gl", R.drawable.flag_es));
         m.put("basque", new Mapping("eus", "eu", R.drawable.flag_es));
         m.put("scottish gaelic", new Mapping("gla", "gd", R.drawable.flag_uk));
+        m.put("gaelic", new Mapping("gla", "gd", R.drawable.flag_uk));
         m.put("irish", new Mapping("gle", "ga", R.drawable.flag_ie));
         m.put("welsh", new Mapping("cym", "cy", R.drawable.flag_uk));
+        m.put("breton", new Mapping("bre", "br", R.drawable.flag_breton));
         m.put("slovenian", new Mapping("slv", "sl", R.drawable.flag_si));
         m.put("slovak", new Mapping("slk", "sk", R.drawable.flag_sk));
         m.put("bulgarian", new Mapping("bul", "bg", R.drawable.flag_bg));
@@ -103,6 +110,8 @@ public final class LanguageMapper {
         m.put("norwegian nynorsk", new Mapping("nno", "nn", R.drawable.flag_no));
         m.put("nynorsk", new Mapping("nno", "nn", R.drawable.flag_no));
         m.put("dutch", new Mapping("nld", "nl", R.drawable.flag_nl));
+        m.put("icelandic", new Mapping("isl", "is", R.drawable.flag_is));
+        m.put("afrikaans", new Mapping("afr", "af", R.drawable.flag_za));
 
         // Additional single-country heuristics
         m.put("javanese", new Mapping("jav", "", R.drawable.flag_id));
@@ -145,7 +154,7 @@ public final class LanguageMapper {
                 "aleut","braj","buginese","gamilaraay","garo","gascon/occitan",
                 "faroese","friulano","kapampangan","khasi","kurdish","minangkabau",
                 "nahuatl","neapolitan-calabrian","palatine german","rajasthani","volapük","walloon",
-                "western frisian","yiddish","occitan","neapolitan-calabrian","low german","ileoko",
+                "western frisian","occitan","neapolitan-calabrian","low german","ileoko",
                 "iroquoian","mayan languages"
         };
         for (String gl : noFlagLangs) {

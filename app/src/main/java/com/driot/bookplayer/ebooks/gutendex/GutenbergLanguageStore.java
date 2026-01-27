@@ -43,7 +43,18 @@ public class GutenbergLanguageStore {
                 String code3 = (m.threeLetterCode != null && !m.threeLetterCode.isEmpty()) 
                         ? m.threeLetterCode 
                         : (r.code3 != null ? r.code3 : "");
-                int flagRes = m.flagRes != 0 ? m.flagRes : R.drawable.no_flag;
+                // If mapping is fallback (empty codes), use no_flag for unknown languages
+                // Otherwise use the mapper's flag (even if it's flag_globe for legitimate cases like multilingual)
+                boolean isFallback = (m.twoLetterCode == null || m.twoLetterCode.isEmpty()) 
+                        && (m.threeLetterCode == null || m.threeLetterCode.isEmpty());
+                int flagRes;
+                if (isFallback) {
+                    // Unknown language - use no_flag instead of flag_globe
+                    flagRes = R.drawable.no_flag;
+                } else {
+                    // Known language - use mapper's flag (or no_flag if flagRes is 0)
+                    flagRes = m.flagRes != 0 ? m.flagRes : R.drawable.no_flag;
+                }
                 
                 String bookCount = r.book_count != null ? r.book_count : "+0";
                 
