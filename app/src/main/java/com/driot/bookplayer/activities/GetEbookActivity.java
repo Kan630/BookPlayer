@@ -139,7 +139,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
     /**
      * Get the appropriate language code for Gutendex API.
-     * Some languages like Scottish Gaelic need code3 (gla) instead of code2 (gd).
+     * Some languages need code3 instead of code2 for Gutendex API.
      */
     private String getGutendexLanguageCode(GutenbergLanguageItem langItem) {
         if (langItem == null) return null;
