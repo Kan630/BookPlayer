@@ -22,7 +22,7 @@
 
 
 
-    <string name="Warning">Warning</string>
+    <string name="Warning">Warning</string>   //attention
     <string name="beta_test">beta test</string>
     <string name="warning_beta_test">Beta Feature – May be unstable</string>">
     <string name="three_dots" translatable="false">…</string>
@@ -41,7 +41,7 @@
     <string name="delete_logs">Delete Logs</string>
     <string name="Delete">Delete</string>
 
-    <string name="favorites">favorites</string>
+    <string name="favorites">favorites</string> //mean saved item for quick access
 
     <string name="Pause">Pause</string>
     <string name="Resume">Resume</string>
@@ -51,20 +51,20 @@
     <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">Surf the vast Internet Archive for audio files, and download some !</string>
     <string name="Please_enter_a_URL">Please enter a URL.</string>
     <string name="Permission_Required">Permission Required</string>
-    <string name="Settings">Settings</string>
-    <string name="App_Info">App Info</string>
-    <string name="reset_app">Reset App</string>
+    <string name="Settings">Settings</string> //means preferences, options
+    <string name="App_Info">App Info</string> //to access Android Device App Settings
+    <string name="reset_app">Reset App</string> //means cancel ongoing operations
     <string name="Exit">Exit</string>
     <string name="Finished">Finished</string>
     <string name="add_book">add book</string>   //stay below 10/12 chars.
 
 
-    <string name="Not_enough_memory">Not enough memory</string>
+    <string name="Not_enough_memory">Not enough memory</string> //not enough storage
     <string name="unexpected_error">Unexpected error</string>
     <string name="Error_checking_file">Error checking file</string>
     <string name="an_error_occurred">An error occurred</string>
     <string name="no_internet_connection">No internet connection</string>
-    <string name="no_metadata_available">No metadata available</string>
+    <string name="no_metadata_available">No metadata available</string>  //metadata of audio files, like author, date, band, etc...
 
     <string name="Import_in_progress">Import in progress</string>
 
@@ -89,17 +89,17 @@
     <string name="Audio">Audio</string>
     <string name="Video">Video</string>
     <string name="Text">Text</string>
-    <string name="Bundle">Bundle</string> //means compressed file like zip
-    <string name="Generate">Generate</string>
+    <string name="Bundle">Bundle</string> //means compressed file like zip, 7z, rar
+    <string name="Generate">Generate</string> //means create, make
 
     <string name="language">language</string>">
     <string name="download">download</string>
     <string name="refresh">refresh</string>
-    <string name="collapse">collapse</string>
-    <string name="expand">expand</string>
-    <string name="flag">flag</string>
+    <string name="collapse">collapse</string>  //to show/hide details, like podcast episode description
+    <string name="expand">expand</string>  //to show/hide details, like podcast episode description
+    <string name="flag">flag</string>   //like country flag
     <string name="settings">settings</string>
-    <string name="sort">sort</string>
+    <string name="sort">sort</string>  //means order
     <string name="default_">default</string>
     <string name="reviews">reviews</string>
 
@@ -113,40 +113,40 @@
     <string name="podcasts">podcasts</string>
     <string name="Auto_Download">Auto-Download</string>
     <string name="Auto_Delete">Auto-Delete</string>
-    <string name="min.">min.</string>
+    <string name="min.">min.</string>  //minutes
     <string name="after">after</string>
     <string name="days">days</string>
     <string name="hours">hours</string>
     <string name="minutes">minutes</string>
     <string name="seconds">seconds</string>
 
-    <string name="left_on">left on</string>">
+    <string name="left_on">left on</string>">  //for remaining space on device
     <string name="memory">memory</string>"> //in the storage space sense
-    <string name="device">device</string>">
+    <string name="device">device</string>">  //mean android phone, tablet...
     <string name="sd_card">sd card</string>">
     <string name="SD_card">SD card</string>">
-    <string name="audios_in_app">audios in app</string>">
+    <string name="audios_in_app">audios in app</string>">   //means audio files in storage
     <string name="Change">"Change"</string>
     <string name="listened">"listened"</string>
     <string name="audio_tracks">"audio tracks"</string>
     <string name="Added">"Added"</string>
     <string name="Favorites">Favorites</string>
-    <string name="Set">Set</string>">
+    <string name="Set">Set</string>">  //mean set auto-sleep value
     <string name="MB">MB</string>"> //means MegaBytes
     <string name="ms">ms.</string> //means milliseconds
-    <string name="Export">"Export…"</string>
+    <string name="Export">"Export…"</string>  //to create a zipped book
     <string name="version">Version</string>
-    <string name="miscellaneous">Miscellaneous</string>
+    <string name="miscellaneous">Miscellaneous</string>   //means diverse, other settings
     <string name="Processing">"Processing"</string>
     <string name="StillExperimental">"- Still Experimental -"</string>
     <string name="downloaded">"downloaded"</string>">
     <string name="Downloading">"Downloading"</string>">
-    <string name="book_cover">"book cover"</string>">
+    <string name="book_cover">"book cover"</string>">   // picture, favicon
     <string name="Search">"Search"</string>
     <string name="Creator">Creator</string>
     <string name="Available_since">Available since</string>
     <string name="default_for">default for</string>
-    <string name="streaming">streaming</string>
+    <string name="streaming">streaming</string>   //as opposed to playing local downloaded files
     <string name="metadata">metadata</string>
     <string name="artist">Artist</string>
     <string name="album">Album</string>
@@ -154,9 +154,9 @@
     <string name="year">Year</string>
     <string name="track">Track</string>
     <string name="disc">Disc</string>
-    <string name="bitrate">Bitrate</string>
-    <string name="sample_rate">Sample rate</string>
-    <string name="channels">Channels</string>
+    <string name="bitrate">Bitrate</string> //among audio metadata
+    <string name="sample_rate">Sample rate</string> //among audio metadata
+    <string name="channels">Channels</string> //among audio metadata
 
 
 
@@ -325,7 +325,7 @@
     <string name="option_hide_advanced_options">"Hide Advanced Settings"</string>
     <string name="option_show_advanced_options">"Show Advanced Settings"</string>
 
-    <string name="option_timeBeforeSleep">Automatic Pause</string>
+    <string name="option_timeBeforeSleep">Automatic Pause</string> //mean auto-sleep
     <string name="option_timeBeforeSleep_text">after :</string>
     <string name="option_timeBeforeSleep_min">min.</string>
     <string name="option_timeBeforeSleep_outOfBound">Argg : automatic pause duration out of bounds, reset back to default</string>
@@ -398,7 +398,7 @@
 
     <string name="option_sdcard_title">SD card</string>">
     <string name="option_sdcard_text">when copying audio in reserved space, use SD card instead of device storage</string>">
-    <string name="option_sdcard_text_caution">please note that if you remove or erase the sd card, you will loose your audios</string>">
+    <string name="option_sdcard_text_caution">please note that if you remove or erase the sd card, you will lose your audios</string>">
 
     <string name="option_copy_file_subtitle">Pros :
         \n* [Read Audio] permission is not needed.
@@ -1056,7 +1056,7 @@
     <string name="delay">delay</string>
     <string name="Design">Design</string>  //meaning changing colors, text font
     <string name="Import">Import</string>
-    <string name="Utilities">Utilities</string>
+    <string name="Utilities">Utilities</string> //meaning : tools, general preferences
     <string name="candidates">candidates</string>
     <string name="found">found</string>
     <string name="from">from</string>
