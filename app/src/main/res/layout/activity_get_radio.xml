@@ -193,6 +193,12 @@
                     app:scrollOnFocus="true"
                     android:layout_marginTop="12dp" />
 
+                <TextView
+                    android:layout_marginTop="50dp"
+                    android:text="@string/radio_thanks"
+                    style="@style/OptionExplainText" />
+
+
             </LinearLayout>
         </ScrollView>
     </androidx.constraintlayout.widget.ConstraintLayout>

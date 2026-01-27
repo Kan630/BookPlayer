@@ -81,16 +81,7 @@
                     android:layout_marginTop="20dp"
                     android:text="@string/GutendexSearch_desc"
                     style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginBottom="10dp"
                     />
-
-                <TextView
-                    android:layout_marginTop="20dp"
-                    android:text="@string/Ebooks_special"
-                    style="@style/GetResourceTextTopOfButton"
-                    android:layout_marginBottom="20dp"
-                    />
-
 
                 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
                     android:orientation="vertical"
@@ -100,6 +91,7 @@
 
                     <Spinner
                         android:id="@+id/spinnerEbookLang"
+                        style="@style/GetResourceSpinner"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content" />
 

@@ -1168,7 +1168,7 @@
     <string name="browse_ebooks">تصفح الكتب الإلكترونية</string>
     <string name="GutendexSearch_desc">"تصفح كتب مشروع غوتنبرغ في الملكية العامة. آلاف الأعمال الكلاسيكية المجانية بتنسيق EPUB."</string>
     <string name="Ebooks">كتب إلكترونية</string>
-    <string name="Ebooks_special">سيتم بعد ذلك قراءة هذا الكتاب بصوت عالٍ بواسطة محرك تحويل النص إلى كلام المدمج في جهازك.</string>
+    <string name="deprecated_Ebooks_special">سيتم بعد ذلك قراءة هذا الكتاب بصوت عالٍ بواسطة محرك تحويل النص إلى كلام المدمج في جهازك.</string>
     <string name="full_screen_mode">وضع ملء الشاشة</string>
 
     <string name="tts_voice_seems_incompatible">الصوت يبدو غير متوافق</string>

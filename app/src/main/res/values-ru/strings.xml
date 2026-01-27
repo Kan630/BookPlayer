@@ -1175,7 +1175,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="browse_ebooks">Просмотр электронных книг</string>
         <string name="GutendexSearch_desc">"Просматривайте книги общественного достояния Project Gutenberg. Тысячи бесплатных классических произведений в формате EPUB."</string>
         <string name="Ebooks">Электронные книги</string>
-        <string name="Ebooks_special">Эта электронная книга будет прочитана вслух встроенным синтезатором речи вашего устройства.</string>
+        <string name="deprecated_Ebooks_special">Эта электронная книга будет прочитана вслух встроенным синтезатором речи вашего устройства.</string>
         <string name="full_screen_mode">полноэкранный режим</string>
 
         <string name="tts_voice_seems_incompatible">голос кажется несовместимым</string>

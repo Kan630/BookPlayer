@@ -1054,7 +1054,7 @@
     <string name="icon">icon</string>
     <string name="Engine">Engine</string>
     <string name="delay">delay</string>
-    <string name="Design">Design</string>
+    <string name="Design">Design</string>  //meaning changing colors, text font
     <string name="Import">Import</string>
     <string name="Utilities">Utilities</string>
     <string name="candidates">candidates</string>
@@ -1279,8 +1279,8 @@
 
     <string name="import_warning_lot_of_file_and_subfolders">It looks like there are a lot of audio files in that folder and its subfolders. Are you sure you want to import all of them into a single book?</string>
     <string name="browse_ebooks">Browse Ebooks</string>
-    <string name="GutendexSearch_desc">"Browse Project Gutenberg’s public-domain ebooks. Thousands of free classic works available in EPUB format."</string>
-    <string name="Ebooks_special">This ebook will then be read aloud by your device\'s built-in text-to-speech engine.</string>
+    <string name="GutendexSearch_desc">"Browse Project Gutenberg’s public-domain ebooks.\nDownloaded ebooks will then be read aloud by your device\'s built-in text-to-speech engine.</string>
+    <string name="deprecated_Ebooks_special">This ebook will then be read aloud by your device\'s built-in text-to-speech engine.</string>
     <string name="full_screen_mode">full screen mode</string>
 
     <string name="tts_voice_seems_incompatible">voice seems incompatible</string>
@@ -1385,6 +1385,6 @@
 
     <string name="api_paging_size">Api paging size</string>
 
-
+    <string name="radio_thanks">Thanks to radio-browser.info for providing a free repository of world radio stations</string>
 
 </resources>

@@ -1169,7 +1169,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="browse_ebooks">浏览电子书</string>
     <string name="GutendexSearch_desc">"浏览古登堡计划的公共领域电子书。数千本免费的经典作品提供 EPUB 格式。"</string>
     <string name="Ebooks">电子书</string>
-    <string name="Ebooks_special">此电子书将由设备内置的文本转语音引擎朗读。</string>
+    <string name="deprecated_Ebooks_special">此电子书将由设备内置的文本转语音引擎朗读。</string>
     <string name="full_screen_mode">全屏模式</string>
 
     <string name="tts_voice_seems_incompatible">语音似乎不兼容</string>

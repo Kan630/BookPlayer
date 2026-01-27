@@ -1162,7 +1162,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="browse_ebooks">Explorar ebooks</string>
     <string name="GutendexSearch_desc">"Explora los ebooks de dominio público de Project Gutenberg. Miles de clásicos gratuitos disponibles en EPUB."</string>
     <string name="Ebooks">Ebooks</string>
-    <string name="Ebooks_special">Este ebook será leído en voz alta por el motor de texto a voz integrado de tu dispositivo.</string>
+    <string name="deprecated_Ebooks_special">Este ebook será leído en voz alta por el motor de texto a voz integrado de tu dispositivo.</string>
     <string name="full_screen_mode">modo de pantalla completa</string>
 
     <string name="tts_voice_seems_incompatible">voz parece incompatible</string>

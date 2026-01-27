@@ -955,7 +955,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="icon">icône</string>
     <string name="Engine">Moteur</string>
     <string name="delay">délai</string>
-    <string name="Design">Conception</string>
+    <string name="Design">Design</string>
     <string name="Import">Importer</string>
     <string name="Utilities">Utilitaires</string>
     <string name="option_tts_highlight_delay_outOfBounds">Délai de surbrillance</string>
@@ -1169,7 +1169,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="browse_ebooks">Parcourir les ebooks</string>
     <string name="GutendexSearch_desc">"Parcourez les ebooks du domaine public de Project Gutenberg. Des milliers de classiques gratuits disponibles en EPUB."</string>
     <string name="Ebooks">Ebooks</string>
-    <string name="Ebooks_special">Cet ebook sera ensuite lu à voix haute par le moteur de synthèse vocale intégré de votre appareil.</string>
+    <string name="deprecated_Ebooks_special">Cet ebook sera ensuite lu à voix haute par le moteur de synthèse vocale intégré de votre appareil.</string>
     <string name="full_screen_mode">mode plein écran</string>
 
     <string name="tts_voice_seems_incompatible">la voix semble incompatible</string>

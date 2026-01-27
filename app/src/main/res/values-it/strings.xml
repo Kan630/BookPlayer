@@ -1187,7 +1187,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="browse_ebooks">Sfoglia gli ebook</string>
     <string name="GutendexSearch_desc">"Sfoglia gli ebook di pubblico dominio di Project Gutenberg. Migliaia di classici gratuiti in formato EPUB."</string>
     <string name="Ebooks">Ebook</string>
-    <string name="Ebooks_special">Questo ebook verrà poi letto ad alta voce dal motore di sintesi vocale integrato del tuo dispositivo.</string>
+    <string name="deprecated_Ebooks_special">Questo ebook verrà poi letto ad alta voce dal motore di sintesi vocale integrato del tuo dispositivo.</string>
     <string name="full_screen_mode">modalità a schermo intero</string>
 
     <string name="tts_voice_seems_incompatible">voce sembra incompatibile</string>
