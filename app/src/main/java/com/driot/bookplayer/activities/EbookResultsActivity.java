@@ -255,8 +255,16 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 List<GutendexBook> books = resp.results;
 
                 if (books == null || books.isEmpty()) {
-                    String errMsg = getString(R.string.no_ebooks_found_search, query,
-                            LanguageMapper.getNameFromTwoLetters(lang));
+                    String errMsg;
+                    if (!topic.isEmpty() && query.isEmpty()) {
+                        // Bookshelf search
+                        errMsg = getString(R.string.no_ebooks_found_bookshelf, topic,
+                                LanguageMapper.getNameFromTwoLetters(lang));
+                    } else {
+                        // Regular search
+                        errMsg = getString(R.string.no_ebooks_found_search, query,
+                                LanguageMapper.getNameFromTwoLetters(lang));
+                    }
                     myLogW(errMsg);
                     tvEmptyMessage.setText(errMsg);
                     tvEmptyMessage.setVisibility(View.VISIBLE);
@@ -293,6 +301,17 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
                 if (mapped.isEmpty()) {
                     myLogW("Gutendex: all results filtered out (no EPUB).");
+                    String errMsg;
+                    if (!topic.isEmpty() && query.isEmpty()) {
+                        // Bookshelf search
+                        errMsg = getString(R.string.no_ebooks_found_bookshelf, topic,
+                                LanguageMapper.getNameFromTwoLetters(lang));
+                    } else {
+                        // Regular search
+                        errMsg = getString(R.string.no_ebooks_found_search, query,
+                                LanguageMapper.getNameFromTwoLetters(lang));
+                    }
+                    tvEmptyMessage.setText(errMsg);
                     tvEmptyMessage.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
                     adapter.setHeaderCount(getString(R.string.Results_2pt) + " 0");

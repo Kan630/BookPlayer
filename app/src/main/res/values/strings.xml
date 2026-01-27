@@ -1378,6 +1378,7 @@
     <string name="error_label_multiline">"Error : \n"</string>
 
     <string name="no_ebooks_found_search">No ebooks found \nfor search [%1$s] \nwith language [%2$s]</string>
+    <string name="no_ebooks_found_bookshelf">No ebooks found \nfor bookshelf [%1$s] \nwith language [%2$s]</string>
 
     <string name="Deleting">Deleting</string>
     <string name="tracks">tracks</string>

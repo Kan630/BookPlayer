@@ -13,13 +13,15 @@ import com.driot.bookplayer.ebooks.gutendex.GetEbookBookshelfListActivity;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.objects.LanguageItem;
+import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageItem;
+import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
 
 import dagger.hilt.android.AndroidEntryPoint;
+
+import java.util.List;
 
 @AndroidEntryPoint
 public class GetEbookActivity extends BaseBottomNavActivity {
@@ -62,15 +64,16 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         editTextEbook.setCompletionThreshold(1);
         editTextEbook.setSuggestOnFocus(true);
 
-        // Reuse Librivox language pref & list for now (you can make a dedicated one
-        // later)
-        LanguageHelper.setupLanguageSpinner(
+        // Load Gutenberg languages from JSON file
+        GutenbergLanguageStore store = new GutenbergLanguageStore(this);
+        List<GutenbergLanguageItem> gutenbergLanguages = store.loadLanguages(R.raw.gutenberg_languages);
+        
+        GutenbergLanguageStore.setupLanguageSpinner(
                 this,
                 spinnerEbookLang,
                 Pref.get_Audio_Language_Ebook(this),
-                LanguageHelper.getLibrivoxLanguages(),
-                langItem -> Pref.set_Audio_Language_Ebook(this, langItem.twoLetterCode),
-                false);
+                gutenbergLanguages,
+                langItem -> Pref.set_Audio_Language_Ebook(this, langItem.code2));
 
         bMostDownloaded.setOnClickListener(v -> {
             myLogI("--- User clicks MOST DOWNLOADED ---");
@@ -80,8 +83,8 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
         bBookshelves.setOnClickListener(v -> {
             myLogI("--- User clicks BOOKSHELVES ---");
-            LanguageItem selected = (LanguageItem) spinnerEbookLang.getSelectedItem();
-            String selectedLang = selected != null ? selected.twoLetterCode : "";
+            GutenbergLanguageItem selected = (GutenbergLanguageItem) spinnerEbookLang.getSelectedItem();
+            String selectedLang = selected != null ? selected.code2 : "";
             if (selectedLang == null || selectedLang.isEmpty()) {
                 myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
                 return;
@@ -114,13 +117,14 @@ public class GetEbookActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
-        // Here we expect spinner entries like "en", "fr", ...
-        LanguageItem selected = (LanguageItem) spinnerEbookLang.getSelectedItem();
-        lang = selected.twoLetterCode; // "en", "fr", etc.
-        if (lang == null)
-            lang = "";
-
-        if (lang.isEmpty()) {
+        // Get selected language from spinner
+        GutenbergLanguageItem selected = (GutenbergLanguageItem) spinnerEbookLang.getSelectedItem();
+        if (selected == null) {
+            myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
+            return;
+        }
+        lang = selected.code2; // "en", "fr", etc.
+        if (lang == null || lang.isEmpty()) {
             myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
             return;
         }
