@@ -84,7 +84,11 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         bBookshelves.setOnClickListener(v -> {
             myLogI("--- User clicks BOOKSHELVES ---");
             GutenbergLanguageItem selected = (GutenbergLanguageItem) spinnerEbookLang.getSelectedItem();
-            String selectedLang = selected != null ? selected.code2 : "";
+            if (selected == null) {
+                myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
+                return;
+            }
+            String selectedLang = getGutendexLanguageCode(selected);
             if (selectedLang == null || selectedLang.isEmpty()) {
                 myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
                 return;
@@ -123,7 +127,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
             myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
             return;
         }
-        lang = selected.code2; // "en", "fr", etc.
+        lang = getGutendexLanguageCode(selected);
         if (lang == null || lang.isEmpty()) {
             myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
             return;
@@ -131,6 +135,24 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         FirebaseAnalyticsHelper.tellAnalyticsGutendexSearch(query, lang);
 
         openEbookResultsActivity();
+    }
+
+    /**
+     * Get the appropriate language code for Gutendex API.
+     * Some languages like Scottish Gaelic need code3 (gla) instead of code2 (gd).
+     */
+    private String getGutendexLanguageCode(GutenbergLanguageItem langItem) {
+        if (langItem == null) return null;
+        
+        // Special case: Scottish Gaelic - Gutendex uses 'gla' (code3) instead of 'gd' (code2)
+        if ("gd".equals(langItem.code2) && langItem.code3 != null && !langItem.code3.isEmpty()) {
+            return langItem.code3; // Use 'gla' for Scottish Gaelic
+        }
+        
+        // Use code2 if available, otherwise fall back to code3
+        return langItem.code2 != null && !langItem.code2.isEmpty() 
+                ? langItem.code2 
+                : langItem.code3;
     }
 
     private void openEbookResultsActivity() {
