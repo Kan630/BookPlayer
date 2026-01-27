@@ -71,7 +71,8 @@ public interface BookSourceDao {
             0.0 AS avg_rating,
             0 AS num_reviews,
             idFolder,
-            is_favorite
+            is_favorite,
+            '' AS author
         FROM BookSource
         WHERE repoType = :repoType 
           AND repoName = :repoName
