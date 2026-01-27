@@ -18,6 +18,8 @@ import com.driot.bookplayer.ebooks.gutendex.GutendexApiService;
 import com.driot.bookplayer.ebooks.gutendex.GutendexBook;
 import com.driot.bookplayer.ebooks.gutendex.GutendexMapper;
 import com.driot.bookplayer.ebooks.gutendex.GutendexResponse;
+import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageItem;
+import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
@@ -155,7 +157,9 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         // Header text, reuse your strings
         CharSequence searchLine = getString(R.string.Search_2pt)
                 + (query.isEmpty() ? (topic.isEmpty() ? getString(R.string.search_nothing_specified) : topic) : query);
-        CharSequence langLine = getString(R.string.Language_2pt) + lang;
+        
+        // Get language name from Gutenberg languages (like LibriVox does)
+        CharSequence langLine = getLanguageDisplayName(lang);
         adapter.setHeader(searchLine, langLine);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
@@ -449,5 +453,42 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             countText = getString(R.string.Results_2pt) + " " + loadedCount;
         }
         adapter.setHeaderCount(countText);
+    }
+
+    /**
+     * Get the display name for a language code, formatted like LibriVox:
+     * nativeName (name) if they differ, or just nativeName if they're the same.
+     */
+    private CharSequence getLanguageDisplayName(String langCode) {
+        if (langCode == null || langCode.isEmpty()) {
+            return getString(R.string.Language_2pt) + langCode;
+        }
+        
+        // Load Gutenberg languages and find matching one
+        GutenbergLanguageStore store = new GutenbergLanguageStore(this);
+        List<GutenbergLanguageItem> languages = store.loadLanguages(R.raw.gutenberg_languages);
+        
+        for (GutenbergLanguageItem langItem : languages) {
+            if (langCode.equalsIgnoreCase(langItem.code2)) {
+                // Format like LibriVox: nativeName (name) if different, or just nativeName
+                String nativeName = langItem.nativeName != null && !langItem.nativeName.isEmpty() 
+                        ? langItem.nativeName 
+                        : langItem.name;
+                String displayName = nativeName;
+                if (!nativeName.equals(langItem.name)) {
+                    displayName = nativeName + " (" + langItem.name + ")";
+                }
+                return getString(R.string.Language_2pt) + displayName;
+            }
+        }
+        
+        // Fallback: use LanguageMapper to get name from code
+        String langName = LanguageMapper.getNameFromTwoLetters(langCode);
+        if (langName != null && !langName.equals(langCode)) {
+            return getString(R.string.Language_2pt) + langName;
+        }
+        
+        // Last resort: just show the code
+        return getString(R.string.Language_2pt) + langCode;
     }
 }

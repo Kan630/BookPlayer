@@ -80,15 +80,15 @@ public final class LanguageMapper {
         m.put("persian", new Mapping("fas", "fa", R.drawable.flag_ir));
 
         // Variants and close matches present in JSON
-        m.put("ancient greek", new Mapping("grc", "", R.drawable.no_flag));
-        m.put("latin", new Mapping("lat", "la", R.drawable.no_flag));
-        m.put("esperanto", new Mapping("epo", "", R.drawable.no_flag));
-        m.put("catalan", new Mapping("cat", "ca", R.drawable.no_flag));
+        m.put("ancient greek", new Mapping("grc", "", R.drawable.flag_gr));
+        m.put("latin", new Mapping("lat", "la", R.drawable.flag_spqr));
+        m.put("esperanto", new Mapping("epo", "", R.drawable.flag_esperanto));
+        m.put("catalan", new Mapping("cat", "ca", R.drawable.flag_es));
         m.put("galician", new Mapping("glg", "gl", R.drawable.flag_es));
         m.put("basque", new Mapping("eus", "eu", R.drawable.flag_es));
-        m.put("scottish gaelic", new Mapping("gla", "gd", R.drawable.no_flag));
+        m.put("scottish gaelic", new Mapping("gla", "gd", R.drawable.flag_uk));
         m.put("irish", new Mapping("gle", "ga", R.drawable.flag_ie));
-        m.put("welsh", new Mapping("cym", "cy", R.drawable.no_flag));
+        m.put("welsh", new Mapping("cym", "cy", R.drawable.flag_uk));
         m.put("slovenian", new Mapping("slv", "sl", R.drawable.flag_si));
         m.put("slovak", new Mapping("slk", "sk", R.drawable.flag_sk));
         m.put("bulgarian", new Mapping("bul", "bg", R.drawable.flag_bg));
@@ -117,9 +117,9 @@ public final class LanguageMapper {
         m.put("multilingual", new Mapping("mul", "", R.drawable.flag_globe));
         m.put("cantonese chinese", new Mapping("yue", "", R.drawable.flag_cn));
         m.put("church slavonic", new Mapping("chu", "", R.drawable.no_flag));
-        m.put("old english", new Mapping("ang", "", R.drawable.no_flag));
-        m.put("middle english", new Mapping("enm", "", R.drawable.no_flag));
-        m.put("old norse", new Mapping("non", "", R.drawable.no_flag));
+        m.put("old english", new Mapping("ang", "", R.drawable.flag_uk));
+        m.put("middle english", new Mapping("enm", "", R.drawable.flag_uk));
+        m.put("old norse", new Mapping("non", "", R.drawable.flag_no));
         m.put("old javanese", new Mapping("jav", "", R.drawable.flag_id));
         m.put("old sundanese", new Mapping("", "", R.drawable.flag_id));
         m.put("old tupi", new Mapping("", "", R.drawable.no_flag));
@@ -128,9 +128,8 @@ public final class LanguageMapper {
         m.put("north american indian (undetermined dialect)", new Mapping("", "", R.drawable.no_flag));
 
         // Languages with limited presence -> globe/fallback, but codes when known
-        m.put("sanskrit", new Mapping("san", "sa", R.drawable.no_flag));
+        m.put("sanskrit", new Mapping("san", "sa", R.drawable.flag_in));
         m.put("sindhi", new Mapping("snd", "sd", R.drawable.no_flag));
-        m.put("braj", new Mapping("bra", "", R.drawable.no_flag));
         m.put("braj", new Mapping("bra", "", R.drawable.no_flag));
         m.put("assamese", new Mapping("asm", "as", R.drawable.flag_in));
         m.put("oriya", new Mapping("ori", "or", R.drawable.flag_in));
@@ -142,14 +141,14 @@ public final class LanguageMapper {
         m.put("dholuo/luo", new Mapping("luo", "", R.drawable.flag_ke));
 
         // Many small or uncommon languages default to globe: add them explicitly to allow later edits
-        String[] globeLangs = new String[]{
+        String[] noFlagLangs = new String[]{
                 "aleut","braj","buginese","gamilaraay","garo","gascon/occitan",
                 "faroese","friulano","kapampangan","khasi","kurdish","minangkabau",
                 "nahuatl","neapolitan-calabrian","palatine german","rajasthani","volapük","walloon",
                 "western frisian","yiddish","occitan","neapolitan-calabrian","low german","ileoko",
                 "iroquoian","mayan languages"
         };
-        for (String gl : globeLangs) {
+        for (String gl : noFlagLangs) {
             m.put(gl, new Mapping("", "", R.drawable.no_flag));
         }
 
