@@ -9,6 +9,7 @@ import android.widget.Spinner;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.ebooks.gutendex.GetEbookBookshelfListActivity;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -26,6 +27,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
     Spinner spinnerEbookLang;
     EditText1lineWithSearch editTextEbook;
     Button bMostDownloaded;
+    Button bBookshelves;
 
     String query, lang;
 
@@ -52,6 +54,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         spinnerEbookLang = findViewById(R.id.spinnerEbookLang);
         editTextEbook = findViewById(R.id.etEbook);
         bMostDownloaded = findViewById(R.id.bMostDownloaded);
+        bBookshelves = findViewById(R.id.bBookshelves);
 
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
@@ -73,6 +76,17 @@ public class GetEbookActivity extends BaseBottomNavActivity {
             myLogI("--- User clicks MOST DOWNLOADED ---");
             query = "";
             doSearch();
+        });
+
+        bBookshelves.setOnClickListener(v -> {
+            myLogI("--- User clicks BOOKSHELVES ---");
+            LanguageItem selected = (LanguageItem) spinnerEbookLang.getSelectedItem();
+            String selectedLang = selected != null ? selected.twoLetterCode : "";
+            if (selectedLang == null || selectedLang.isEmpty()) {
+                myToast(getString(com.driot.bookplayer.R.string.selected_language_error));
+                return;
+            }
+            GetEbookBookshelfListActivity.start(this, selectedLang);
         });
 
         editTextEbook.getSearchButton().setOnClickListener(v -> {

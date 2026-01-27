@@ -50,12 +50,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     private int totalCount = 0;
     private String query;
     private String lang;
+    private String topic; // bookshelf/topic filter
 
     private static final String STATE_ITEMS = "state_items";
     private static final String STATE_NEXT_PAGE_URL = "state_next_page_url";
     private static final String STATE_TOTAL_COUNT = "state_total_count";
     private static final String STATE_QUERY = "state_query";
     private static final String STATE_LANG = "state_lang";
+    private static final String STATE_TOPIC = "state_topic";
 
     @Override
     protected int getNavId() {
@@ -127,15 +129,18 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             }
         });
 
-        // Get query and lang from Intent (or saved state if available)
+        // Get query, lang, and topic from Intent (or saved state if available)
         if (savedInstanceState != null) {
             query = savedInstanceState.getString(STATE_QUERY);
             lang = savedInstanceState.getString(STATE_LANG);
+            topic = savedInstanceState.getString(STATE_TOPIC);
         }
         if (query == null)
             query = getIntent().getStringExtra("query");
         if (lang == null)
             lang = getIntent().getStringExtra("lang");
+        if (topic == null)
+            topic = getIntent().getStringExtra("topic");
 
         if (lang == null || lang.isEmpty()) {
             myLogE("EbookResultsActivity: missing/empty lang extra");
@@ -144,15 +149,17 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         }
         if (query == null)
             query = "";
+        if (topic == null)
+            topic = "";
 
         // Header text, reuse your strings
         CharSequence searchLine = getString(R.string.Search_2pt)
-                + (query.isEmpty() ? getString(R.string.search_nothing_specified) : query);
+                + (query.isEmpty() ? (topic.isEmpty() ? getString(R.string.search_nothing_specified) : topic) : query);
         CharSequence langLine = getString(R.string.Language_2pt) + lang;
         adapter.setHeader(searchLine, langLine);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
-        myLogD("EbookResultsActivity - query=[" + query + "], lang=[" + lang + "]");
+        myLogD("EbookResultsActivity - query=[" + query + "], lang=[" + lang + "], topic=[" + topic + "]");
 
         // Restore state if available (e.g., after screen rotation)
         if (savedInstanceState != null && savedInstanceState.containsKey(STATE_ITEMS)) {
@@ -160,6 +167,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             if (savedItems != null && !savedItems.isEmpty()) {
                 nextPageUrl = savedInstanceState.getString(STATE_NEXT_PAGE_URL);
                 totalCount = savedInstanceState.getInt(STATE_TOTAL_COUNT, 0);
+                topic = savedInstanceState.getString(STATE_TOPIC);
 
                 adapter.setItems(savedItems);
                 updateCountDisplay(savedItems.size());
@@ -172,7 +180,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         }
 
         // No saved state, make API call
-        callGutendex(query, lang);
+        callGutendex(query, lang, topic);
     }
 
     @Override
@@ -188,11 +196,12 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             outState.putInt(STATE_TOTAL_COUNT, totalCount);
             outState.putString(STATE_QUERY, query);
             outState.putString(STATE_LANG, lang);
+            outState.putString(STATE_TOPIC, topic);
             myLogD("EbookResultsActivity - Saved state with " + items.size() + " items");
         }
     }
 
-    private void callGutendex(String query, String lang) {
+    private void callGutendex(String query, String lang, String topic) {
         // Reset pagination state
         nextPageUrl = null;
         isLoadingMore = false;
@@ -219,11 +228,12 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         GutendexApiService api = retrofit.create(GutendexApiService.class);
 
         String searchParam = query.isEmpty() ? null : query;
+        String topicParam = topic.isEmpty() ? null : topic;
 
         Call<GutendexResponse> call = api.searchBooks(
                 searchParam,
                 lang, // languages
-                null, // topic
+                topicParam, // topic/bookshelf
                 "application/epub+zip", // epub only
                 null // first page
         );
