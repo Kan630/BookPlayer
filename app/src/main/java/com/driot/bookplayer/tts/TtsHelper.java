@@ -30,18 +30,22 @@ import java.util.List;
 public class TtsHelper {
     private TextToSpeech tts;
 
-    public static final int READY=0, SET_VOICE_FAILED=1, MISSING_DATA=2, SYNTH_FAIL=3, ERROR=4, TIMEOUT=5;
+    public static final int READY = 0, SET_VOICE_FAILED = 1, MISSING_DATA = 2, SYNTH_FAIL = 3, ERROR = 4, TIMEOUT = 5;
 
     private static final int MIN_FIRST_UTT_CHARS = 25;
 
     // optional raw access
-    public TextToSpeech raw() { return tts; }
-
-    public TtsHelper(@NonNull Context ctx, @NonNull TextToSpeech sharedTts) {
-        this.tts = sharedTts;   // do NOT new TextToSpeech here
+    public TextToSpeech raw() {
+        return tts;
     }
 
-    public boolean isReady() { return tts != null; }
+    public TtsHelper(@NonNull Context ctx, @NonNull TextToSpeech sharedTts) {
+        this.tts = sharedTts; // do NOT new TextToSpeech here
+    }
+
+    public boolean isReady() {
+        return tts != null;
+    }
 
     // ======== SPEAK API ========
     public void speakFromOffset(String text, int startOffset, float volume) {
@@ -85,11 +89,36 @@ public class TtsHelper {
         p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
 
         // Hard flush once to clear any stale queue
-        try { tts.stop(); } catch (Throwable ignore) {}
+        try {
+            tts.stop();
+        } catch (Throwable ignore) {
+        }
 
-        // 1) First utterance: either slice mid-chunk, or speak the whole chunk
+        // 1) First utterance: find a safe sentence start if possible
         final Chunk first = chunks.get(idx);
-        int firstStart = Math.max(safeOffset, first.start);
+        int clampedStart = Math.max(safeOffset, first.start);
+
+        // Snap to preceding sentence start to avoid partial words/sentences
+        int snapStart = clampedStart;
+        if (clampedStart > first.start) {
+            // Find start of sentence containing clampedStart within the chunk text
+            int relStart = clampedStart - first.start;
+            // Use simple heuristic: back up to punctuation or start
+            BreakIterator bi = BreakIterator.getSentenceInstance();
+            bi.setText(first.text);
+            if (bi.isBoundary(relStart)) {
+                // already on boundary
+            } else {
+                int preceding = bi.preceding(relStart);
+                if (preceding != BreakIterator.DONE) {
+                    snapStart = first.start + preceding;
+                    myLog("speakFromOffset : snapped start from " + clampedStart + " to " + snapStart + " (rel "
+                            + preceding + ")");
+                }
+            }
+        }
+
+        int firstStart = Math.max(snapStart, first.start);
 
         if (first.end - firstStart < MIN_FIRST_UTT_CHARS && idx + 1 < chunks.size()) {
             // Too small → skip to next full chunk instead
@@ -97,7 +126,8 @@ public class TtsHelper {
         } else {
             // Speak [firstStart, first.end)
             String id = com.driot.bookplayer.tts.TtsIds.utt(firstStart, first.end);
-            int r = tts.speak(text.substring(firstStart, first.end), TextToSpeech.QUEUE_ADD, p, id);
+            int r = tts.speak(first.text.substring(firstStart - first.start, first.end - first.start),
+                    TextToSpeech.QUEUE_ADD, p, id);
             TtsErrorUtils.logOperationResult("TTS", "speak(first)", r);
             idx++; // next chunks follow
         }
@@ -111,17 +141,34 @@ public class TtsHelper {
         }
     }
 
+    public void setSpeechRate(float rate) {
+        if (tts != null)
+            tts.setSpeechRate(rate);
+    }
 
-    public void setSpeechRate(float rate) { if (tts != null) tts.setSpeechRate(rate); }
-    public void stop()  { if (tts != null) tts.stop(); }
-    public void pause() { if (tts != null) tts.playSilentUtterance(250, TextToSpeech.QUEUE_ADD, "pause"); }
-    //public void shutdown() { if (tts != null) { tts.stop(); tts.shutdown(); tts = null; } }
+    public void stop() {
+        if (tts != null)
+            tts.stop();
+    }
+
+    public void pause() {
+        if (tts != null)
+            tts.playSilentUtterance(250, TextToSpeech.QUEUE_ADD, "pause");
+    }
+    // public void shutdown() { if (tts != null) { tts.stop(); tts.shutdown(); tts =
+    // null; } }
 
     // ======== CHUNKING / UTILS ========
 
     private static final class Chunk {
-        final int start, end; final String text;
-        Chunk(int s, int e, String t) { start = s; end = e; text = t; }
+        final int start, end;
+        final String text;
+
+        Chunk(int s, int e, String t) {
+            start = s;
+            end = e;
+            text = t;
+        }
     }
 
     private static List<Chunk> buildChunks(String text, int maxLen) {
@@ -162,47 +209,64 @@ public class TtsHelper {
     }
 
     private static int findChunkIndexForOffset(List<Chunk> chunks, int offset) {
-        if (chunks.isEmpty()) return 0;
+        if (chunks.isEmpty())
+            return 0;
         // Binary search: smallest i with offset < chunks[i].end
         int lo = 0, hi = chunks.size() - 1, ans = chunks.size(); // default = after last
         while (lo <= hi) {
             int mid = (lo + hi) >>> 1;
             Chunk c = chunks.get(mid);
-            if (offset < c.end) { ans = mid; hi = mid - 1; }
-            else { lo = mid + 1; }
+            if (offset < c.end) {
+                ans = mid;
+                hi = mid - 1;
+            } else {
+                lo = mid + 1;
+            }
         }
-        if (ans >= chunks.size()) return chunks.size(); // signals "past end"
-        // If we're *extremely* close to boundary (e.g., < 25 chars left), prefer the next chunk
+        if (ans >= chunks.size())
+            return chunks.size(); // signals "past end"
+        // If we're *extremely* close to boundary (e.g., < 25 chars left), prefer the
+        // next chunk
         final int MIN_FIRST_UTT_CHARS = 25;
         Chunk c = chunks.get(ans);
-        if (offset >= c.end - MIN_FIRST_UTT_CHARS && ans + 1 < chunks.size()) return ans + 1;
+        if (offset >= c.end - MIN_FIRST_UTT_CHARS && ans + 1 < chunks.size())
+            return ans + 1;
         return ans;
     }
 
-    /** Very small, allocation-free-ish word-bound finder used to snap the highlight immediately. */
+    /**
+     * Very small, allocation-free-ish word-bound finder used to snap the highlight
+     * immediately.
+     */
     /** Returns [wordStart, wordEnd] for a given offset. */
     public static int[] findWordBounds(CharSequence text, int off) {
         int n = text.length();
-        if (n == 0) return new int[]{0,0};
+        if (n == 0)
+            return new int[] { 0, 0 };
         // if we're on whitespace/punct, shift right to next letter/digit
         int i = off;
-        while (i < n && !Character.isLetterOrDigit(text.charAt(i))) i++;
-        if (i >= n) i = Math.max(0, off - 1);
+        while (i < n && !Character.isLetterOrDigit(text.charAt(i)))
+            i++;
+        if (i >= n)
+            i = Math.max(0, off - 1);
         // go left to start
         int s = i;
-        while (s > 0 && Character.isLetterOrDigit(text.charAt(s - 1))) s--;
+        while (s > 0 && Character.isLetterOrDigit(text.charAt(s - 1)))
+            s--;
         // go right to end
         int e = i;
-        while (e < n && Character.isLetterOrDigit(text.charAt(e))) e++;
-        if (s < 0) s = 0;
-        if (e < s) e = s;
-        return new int[]{s, e};
+        while (e < n && Character.isLetterOrDigit(text.charAt(e)))
+            e++;
+        if (s < 0)
+            s = 0;
+        if (e < s)
+            e = s;
+        return new int[] { s, e };
     }
+
     public static int[] findWordBounds(@NonNull String s, int off) {
         return findWordBounds((CharSequence) s, off);
     }
-
-
 
     public interface OnVoiceSelected {
         void onSelected(@Nullable VoiceItem voice);
@@ -211,10 +275,10 @@ public class TtsHelper {
     public static void setupTtsVoiceSpinnerForSettings(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
-            @Nullable String savedCode,          // "system" or exact engine voice name
-            @NonNull OnVoiceSelected callback
-    ) {
-        myLog("setupTtsVoiceSpinnerForSettings - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode + "]");
+            @Nullable String savedCode, // "system" or exact engine voice name
+            @NonNull OnVoiceSelected callback) {
+        myLog("setupTtsVoiceSpinnerForSettings - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode
+                + "]");
         final Context app = ui_context.getApplicationContext();
 
         final AppTtsManager mgr = AppTtsManager.get(app);
@@ -249,7 +313,7 @@ public class TtsHelper {
         final ArrayList<VoiceItem> all = new ArrayList<>();
         VoiceItem system = VoiceItem.makeSystemDefault(tts);
         if (system != null) {
-            //myLog("setupTtsVoiceSpinnerForSettings => system default = " + system);
+            // myLog("setupTtsVoiceSpinnerForSettings => system default = " + system);
             all.add(system);
         } else {
             myLogE("setupTtsVoiceSpinnerForSettings => no system default");
@@ -263,7 +327,7 @@ public class TtsHelper {
                 currentSelected = i;
                 break;
             }
-            i=i+1;
+            i = i + 1;
         }
 
         final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui_context, all);
@@ -292,19 +356,19 @@ public class TtsHelper {
 
     }
 
-
-        /**
-         * Wires the spinner, builds voice list, preselects from savedCode ("system" or engine voice name),
-         * applies the TTS voice internally, and invokes the callback. Returns a handle you should close() in onDestroy.
-         */
+    /**
+     * Wires the spinner, builds voice list, preselects from savedCode ("system" or
+     * engine voice name),
+     * applies the TTS voice internally, and invokes the callback. Returns a handle
+     * you should close() in onDestroy.
+     */
     public static @NonNull AutoCloseable setupTtsVoiceSpinner(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
-            @Nullable String savedCode,          // "system" or exact engine voice name
-            @NonNull OnVoiceSelected callback
-    ) {
+            @Nullable String savedCode, // "system" or exact engine voice name
+            @NonNull OnVoiceSelected callback) {
         myLog("setupTtsVoiceSpinner - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode + "]");
-        final Context ui  = ui_context;                       // themed
+        final Context ui = ui_context; // themed
         final Context app = ui_context.getApplicationContext();
         final Handler main = new Handler(Looper.getMainLooper());
 
@@ -321,13 +385,16 @@ public class TtsHelper {
         final AppTtsManager mgr = AppTtsManager.get(app);
         mgr.setPreferredVoiceName(savedCode);
 
-        final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(false);
-        final boolean[] suppressSelection = new boolean[]{true}; // suppress spurious onItemSelected during/just-after init
+        final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(
+                false);
+        final boolean[] suppressSelection = new boolean[] { true }; // suppress spurious onItemSelected
+                                                                    // during/just-after init
 
         myLogD("recreating a final AppTts manager ????");
         // 2) Listener to (re)populate once TTS is ready
         final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
-            @Override public void onTtsReady(TextToSpeech tts) {
+            @Override
+            public void onTtsReady(TextToSpeech tts) {
                 // avoid double-populating if listener is invoked twice
                 if (!populatedOnce.compareAndSet(false, true)) {
                     myLogW("setupTtsVoiceSpinner.onTtsReady => ignored (already populated)");
@@ -381,9 +448,11 @@ public class TtsHelper {
                     // Wire selection changes
                     // Wire listener but keep it suppressed initially
                     spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+                        @Override
+                        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                             if (suppressSelection[0]) {
-                                myLog("setupTtsVoiceSpinner.onTtsReady.onItemSelected suppressed during init (pos=" + pos + ")");
+                                myLog("setupTtsVoiceSpinner.onTtsReady.onItemSelected suppressed during init (pos="
+                                        + pos + ")");
                                 // Still update adapter position even during init
                                 adapter.setSelectedPosition(pos);
                                 return;
@@ -392,7 +461,10 @@ public class TtsHelper {
                             adapter.setSelectedPosition(pos);
                             callback.onSelected(all.get(pos));
                         }
-                        @Override public void onNothingSelected(AdapterView<?> parent) { /* no-op */ }
+
+                        @Override
+                        public void onNothingSelected(AdapterView<?> parent) {
+                            /* no-op */ }
                     });
 
                     spinner.setSelection(pre, false);
@@ -417,12 +489,14 @@ public class TtsHelper {
         // 5) Return a release handle (does NOT shutdown the engine)
         return () -> {
             main.post(() -> {
-                try { spinner.setOnItemSelectedListener(null); } catch (Throwable ignored) {}
+                try {
+                    spinner.setOnItemSelectedListener(null);
+                } catch (Throwable ignored) {
+                }
             });
             mgr.removeListener(mgrListener);
         };
     }
-
 
     // ---- INTERNALS ----
 
@@ -433,7 +507,8 @@ public class TtsHelper {
             for (Voice v : tts.getVoices()) {
                 out.add(new VoiceItem(v));
             }
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
 
         // Sort: language → embedded first → quality desc → latency asc → name
         out.sort(Comparator
@@ -446,17 +521,20 @@ public class TtsHelper {
         return out;
     }
 
-
     public static int countNewlines(String s) {
         int n = 0;
-        for (int i = 0; i < s.length(); i++) if (s.charAt(i) == '\n') n++;
+        for (int i = 0; i < s.length(); i++)
+            if (s.charAt(i) == '\n')
+                n++;
         return n;
     }
 
     // Simple, safe paragraphizer for totally-flat text.
-// Inserts blank line after sentence-ending punctuation when next token looks like sentence start.
+    // Inserts blank line after sentence-ending punctuation when next token looks
+    // like sentence start.
     public static String smartParagraphize(String s) {
-        if (s == null) return "";
+        if (s == null)
+            return "";
         String t = s.replace('\u00A0', ' ')
                 .replace("\r", "")
                 .replaceAll("[ \\t]{2,}", " ")

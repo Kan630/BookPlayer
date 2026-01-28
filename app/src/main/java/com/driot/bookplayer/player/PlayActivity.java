@@ -78,9 +78,7 @@ public class PlayActivity extends LoggingActivity {
 
     private View ttsContainer;
     private TextView tvTtsText;
-    private Spannable spannableText;
-    private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
-    private final ForegroundColorSpan ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
+    // State moved to TtsHighlighter
 
     private String tvListeningTimeBaseText;
 
@@ -91,17 +89,10 @@ public class PlayActivity extends LoggingActivity {
     private int touchSlop;
     private float downY;
 
-    @Nullable private String lastTtsTextString = null;
-    private int lastTtsTrackId = -1;
-    @Nullable private String lastTtsPlayMode = null;
-    @Nullable private String lastTtsPhase = null;
-    private boolean lastTtsPlaying = false;
-    private long lastTtsPositionMs = -1; // Track last position to detect seeks
-
-
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
-        @Override public void onReceive(Context c, Intent i) {
+        @Override
+        public void onReceive(Context c, Intent i) {
             final String action = i.getAction();
             if (MediaService.NOTIFICATION_ERROR.equals(action)) {
                 // If it’s a TTS error, it’s recoverable → UI is already driven by phases
@@ -123,7 +114,8 @@ public class PlayActivity extends LoggingActivity {
         }
     };
 
-    @Override protected void onCreate(Bundle b) {
+    @Override
+    protected void onCreate(Bundle b) {
         super.onCreate(b);
         setContentView(R.layout.activity_play);
         InsetHelper.apply(this);
@@ -132,9 +124,17 @@ public class PlayActivity extends LoggingActivity {
             setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LOCKED);
         }
 
-        if (PlayList.getInstance() == null) { finish(); myLogEE(null, "PlayList.getInstance() == null"); return; }
+        if (PlayList.getInstance() == null) {
+            finish();
+            myLogEE(null, "PlayList.getInstance() == null");
+            return;
+        }
         Folder folder = PlayList.getInstance().getFolder();
-        if (folder == null )  { finish(); myLogEE(null, "PlayList.getInstance().getFolder() == null"); return; }
+        if (folder == null) {
+            finish();
+            myLogEE(null, "PlayList.getInstance().getFolder() == null");
+            return;
+        }
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
@@ -145,22 +145,22 @@ public class PlayActivity extends LoggingActivity {
         touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
 
         progressOverlay = findViewById(R.id.progress_overlay);
-        messageOverlay  = findViewById(R.id.message_overlay);
+        messageOverlay = findViewById(R.id.message_overlay);
 
         bPlayPause = findViewById(R.id.ibPlayPause);
-        bRewind    = findViewById(R.id.mbRewind);
-        bForward   = findViewById(R.id.mbForward);
-        bSpeedUp   = findViewById(R.id.bSpeedUp);
+        bRewind = findViewById(R.id.mbRewind);
+        bForward = findViewById(R.id.mbForward);
+        bSpeedUp = findViewById(R.id.bSpeedUp);
         bSpeedDown = findViewById(R.id.bSpeedDown);
-        bSetSleep  = findViewById(R.id.bSetSleep);
+        bSetSleep = findViewById(R.id.bSetSleep);
 
         tvCurTime = findViewById(R.id.textViewSeekBar);
         tvTotalTime = findViewById(R.id.textViewTempsTotal);
-        tvTitle     = findViewById(R.id.textviewTitle);
-        tvSubTitle  = findViewById(R.id.textViewSubTitle);
-        tvSpeed     = findViewById(R.id.textViewSpeed);
+        tvTitle = findViewById(R.id.textviewTitle);
+        tvSubTitle = findViewById(R.id.textViewSubTitle);
+        tvSpeed = findViewById(R.id.textViewSpeed);
         tvListeningTime = findViewById(R.id.tv_ListeningTime);
-        tvTimeLeft      = findViewById(R.id.tv_TimeLeft);
+        tvTimeLeft = findViewById(R.id.tv_TimeLeft);
         tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
 
         sbSeek = findViewById(R.id.sbSeek);
@@ -169,13 +169,14 @@ public class PlayActivity extends LoggingActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
-// Re-enable TTS auto-follow when user finishes a seek
+        // Re-enable TTS auto-follow when user finishes a seek
         sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override
             public void onStartTrackingTouch(@NonNull Slider slider) {
                 // (optional) while user drags, you can temporarily stop auto-scroll if you want
                 // suppressAutoScroll = true;
             }
+
             @Override
             public void onStopTrackingTouch(@NonNull Slider slider) {
                 // User picked a new position → let TTS word tracking resume
@@ -183,8 +184,9 @@ public class PlayActivity extends LoggingActivity {
             }
         });
 
-        ttsContainer   = findViewById(R.id.ttsContainer);
-        tvTtsText      = findViewById(R.id.tvTtsText);
+        ttsContainer = findViewById(R.id.ttsContainer);
+        tvTtsText = findViewById(R.id.tvTtsText);
+        ttsHighlighter = new TtsHighlighter(this, tvTtsText);
 
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
@@ -195,12 +197,31 @@ public class PlayActivity extends LoggingActivity {
         bForward.setText("+" + nbSec + " " + getString(R.string.sec));
 
         // Clicks
-        bPlayPause.setOnClickListener(v -> {myLogI("--- user press PLAY/PAUSE ---"); vm.playPause(); suppressAutoScroll = false;});
-        bForward  .setOnClickListener(v -> {myLogI("--- user press FORWARD ---"); vm.next(); });
-        bRewind   .setOnClickListener(v -> {myLogI("--- user press REWIND ---"); vm.prev(); });
-        bSpeedUp  .setOnClickListener(v -> {myLogI("--- user press SPEED+ ---"); setSpeedViaVm(+Var.PLAY_SPEED_STEP); });
-        bSpeedDown.setOnClickListener(v -> {myLogI("--- user press SPEED- ---"); setSpeedViaVm(-Var.PLAY_SPEED_STEP); });
-        bSetSleep .setOnClickListener(v -> {myLogI("--- user press SLEEP- ---"); showSleepDialog(); });
+        bPlayPause.setOnClickListener(v -> {
+            myLogI("--- user press PLAY/PAUSE ---");
+            vm.playPause();
+            suppressAutoScroll = false;
+        });
+        bForward.setOnClickListener(v -> {
+            myLogI("--- user press FORWARD ---");
+            vm.next();
+        });
+        bRewind.setOnClickListener(v -> {
+            myLogI("--- user press REWIND ---");
+            vm.prev();
+        });
+        bSpeedUp.setOnClickListener(v -> {
+            myLogI("--- user press SPEED+ ---");
+            setSpeedViaVm(+Var.PLAY_SPEED_STEP);
+        });
+        bSpeedDown.setOnClickListener(v -> {
+            myLogI("--- user press SPEED- ---");
+            setSpeedViaVm(-Var.PLAY_SPEED_STEP);
+        });
+        bSetSleep.setOnClickListener(v -> {
+            myLogI("--- user press SLEEP- ---");
+            showSleepDialog();
+        });
 
         ImageButton btnToggleTtsViewFullScreen = findViewById(R.id.btnToggleTtsView);
         btnToggleTtsViewFullScreen.setOnClickListener(v -> {
@@ -215,11 +236,15 @@ public class PlayActivity extends LoggingActivity {
 
         ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
         container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
-            @Override public void onSingleTap() {
+            @Override
+            public void onSingleTap() {
                 myLogD("ClickInterceptFrameLayout - single tap");
-                if (Option.getClickMainContainerPlayPause()) vm.playPause();
+                if (Option.getClickMainContainerPlayPause())
+                    vm.playPause();
             }
-            @Override public void onDoubleTap() {
+
+            @Override
+            public void onDoubleTap() {
                 myLogD("ClickInterceptFrameLayout - double tap");
                 PlaybackUiState s = vm.getState().getValue();
                 if (s == null) {
@@ -229,7 +254,7 @@ public class PlayActivity extends LoggingActivity {
                 if (Var.PLAY_MODE_TTS.equals(s.playMode)) {
                     applyTtsToggleUi(s);
                 }
-                if (Var.PLAY_MODE_BOOK.equals(s.playMode)) { //open podcast view.
+                if (Var.PLAY_MODE_BOOK.equals(s.playMode)) { // open podcast view.
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         PodcastDao dao = AppDatabase.getDatabase(getApplicationContext()).podcastDao();
                         Podcast podcast = dao.getPodcastByFolderId(folder.getId());
@@ -241,10 +266,13 @@ public class PlayActivity extends LoggingActivity {
                     });
                 }
             }
-            @Override public void onLongPress() {
+
+            @Override
+            public void onLongPress() {
                 myLogD("ClickInterceptFrameLayout - long press");
                 ZikFile z = PlayList.getInstance() != null ? PlayList.getInstance().getZikFile() : null;
-                if (z != null) MetadataUi.showMetadataDialog(PlayActivity.this, z);
+                if (z != null)
+                    MetadataUi.showMetadataDialog(PlayActivity.this, z);
             }
         });
 
@@ -254,7 +282,7 @@ public class PlayActivity extends LoggingActivity {
                 myLogD("observe : s == null");
                 return;
             }
-            //myLog("observe : " + s);
+            // myLog("observe : " + s);
 
             Double speed = null;
             if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
@@ -266,64 +294,25 @@ public class PlayActivity extends LoggingActivity {
             reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
             // Title/sub
-            UiHelper.FillUiBasic(s,null, null, tvTitle, tvSubTitle, null, null, sbSeek, null, null);
+            UiHelper.FillUiBasic(s, null, null, tvTitle, tvSubTitle, null, null, sbSeek, null, null);
 
             // Seek/progress: sliderBinding handles slider + current time label
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
-            
-            // Detect seeks: if position jumps significantly, it's a seek
+
             boolean isTts = "tts".equals(s.playMode);
-            if (isTts && lastTtsPositionMs >= 0 && s.positionMs > 0) {
-                long positionDelta = Math.abs(s.positionMs - lastTtsPositionMs);
-                // If position changed by more than 2 seconds, it's likely a seek
-                if (positionDelta > 2000 && s.playing) {
-                    myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
-                    lastSeekTime = System.currentTimeMillis();
-                    // Reset tracking but keep ttsActuallyStarted=true since we're already playing
-                    resetHighlightTracking(false);
-                }
-            }
-            if (isTts) lastTtsPositionMs = s.positionMs;
-
-            String p = s.loadPhase;
-            boolean isStarting = (Intents.PHASE_STARTING.equals(p));
-
-            // TTS
-            boolean trackChanged = isTts && (s.trackId != lastTtsTrackId);
-            boolean becameReady  = isTts
-                    && !Intents.PHASE_READY.equals(lastTtsPhase)
-                    && Intents.PHASE_READY.equals(p);
-            boolean playStateChanged = isTts && (s.playing != lastTtsPlaying);
+            boolean isStarting = Intents.PHASE_STARTING.equals(s.loadPhase);
+            boolean trackChanged = isTts && (s.trackId != ttsHighlighter.getLastTtsTrackId());
+            boolean becameReady = isTts
+                    && !Intents.PHASE_READY.equals(ttsHighlighter.getLastTtsPhase())
+                    && Intents.PHASE_READY.equals(s.loadPhase);
 
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
-                lastTtsTextString = null;
-                // Reset highlight tracking when track changes
-                if (trackChanged) {
-                    resetHighlightTracking();
-                    vm.resetTtsTextRequestFlag();
-                }
-                vm.requestTtsTextOnce();
-            }
-            
-            // Reset highlight tracking when TTS actually starts playing (enters SPEAKING phase)
-            if (isTts && Intents.PHASE_SPEAKING.equals(p) && !Intents.PHASE_SPEAKING.equals(lastTtsPhase)) {
-                myLogD("TTS entering SPEAKING phase, resetting highlight tracking");
-                resetHighlightTracking();
-                ttsActuallyStarted = false; // Will be set to true when first callback arrives
-            }
-            
-            // Reset when paused
-            if (isTts && playStateChanged && !s.playing && lastTtsPlaying) {
-                myLogD("TTS paused, resetting highlight tracking");
-                ttsActuallyStarted = false;
             }
 
-            lastTtsTrackId  = s.trackId;
-            lastTtsPlayMode = s.playMode;
-            lastTtsPhase    = p;
-            if (isTts) lastTtsPlaying = s.playing;
+            // Delegate logic to highlighter
+            ttsHighlighter.onPlaybackStateChanged(s, vm);
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -356,8 +345,10 @@ public class PlayActivity extends LoggingActivity {
             // TTS vs Audio UI
             applyTtsToggleUi(s);
 
-            if (p == null) return;
-            //myLog("Phase observer : " + p);
+            String p = s.loadPhase;
+            if (p == null)
+                return;
+            // myLog("Phase observer : " + p);
 
             // Pull the latest playback state to know if we’re in TTS or audio mode
             final boolean tts = ("tts".equals(s.playMode));
@@ -369,7 +360,8 @@ public class PlayActivity extends LoggingActivity {
                 progressOverlay.setVisibility(View.GONE);
                 if (showError) {
                     progressTitle.setText("");
-                    //progressMessage.setText(p.message != null ? p.message : getString(R.string.error_generic));
+                    // progressMessage.setText(p.message != null ? p.message :
+                    // getString(R.string.error_generic));
                     messageOverlay.setVisibility(View.VISIBLE);
                 } else {
                     messageOverlay.setVisibility(View.GONE);
@@ -378,74 +370,77 @@ public class PlayActivity extends LoggingActivity {
             }
 
             // TTS mode: show spinner during busy phases, otherwise hide overlays
-            //final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
-            //        || Intents.PHASE_STARTING.equals(p.phase);
-            //progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
-
-
+            // final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
+            // || Intents.PHASE_STARTING.equals(p.phase);
+            // progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
 
             String label;
             switch (p) {
-                case Intents.PHASE_LOADING_TEXT: label = getString(R.string.tts_phase_loading_text); break;
-                case Intents.PHASE_STARTING:     label = getString(R.string.tts_phase_starting);     break;
-                case Intents.PHASE_READY:        label = getString(R.string.tts_phase_ready);        break;
-                case Intents.PHASE_SPEAKING:     label = getString(R.string.tts_phase_speaking);     break;
-                case Intents.PHASE_ERROR:        label = getString(R.string.tts_phase_error);        break;
-                default:                         label = "";                                         break;
+                case Intents.PHASE_LOADING_TEXT:
+                    label = getString(R.string.tts_phase_loading_text);
+                    break;
+                case Intents.PHASE_STARTING:
+                    label = getString(R.string.tts_phase_starting);
+                    break;
+                case Intents.PHASE_READY:
+                    label = getString(R.string.tts_phase_ready);
+                    break;
+                case Intents.PHASE_SPEAKING:
+                    label = getString(R.string.tts_phase_speaking);
+                    break;
+                case Intents.PHASE_ERROR:
+                    label = getString(R.string.tts_phase_error);
+                    break;
+                default:
+                    label = "";
+                    break;
             }
             // Prefer explicit message from service if present
-            //if (p.message != null && !p.message.isEmpty()) label = p.message;
-            //progressMessage.setText(label);
+            // if (p.message != null && !p.message.isEmpty()) label = p.message;
+            // progressMessage.setText(label);
 
             // Error message overlay (non-blocking)
             if (Intents.PHASE_ERROR.equals(p)) {
-                //progressMessage.setText(p.message != null ? p.message : getString(R.string.tts_phase_error));
-                //messageOverlay.setVisibility(View.VISIBLE);
+                // progressMessage.setText(p.message != null ? p.message :
+                // getString(R.string.tts_phase_error));
+                // messageOverlay.setVisibility(View.VISIBLE);
                 myLogW("TTS is in PHASE_ERROR – keeping spinner and controls usable");
                 myToast(getString(R.string.tts_phase_error));
             } else {
-                //messageOverlay.setVisibility(View.GONE);
+                // messageOverlay.setVisibility(View.GONE);
             }
 
             // Optionally soften main controls during busy phases
             /*
-            boolean controlsEnabled = !busy;
-            bRewind.setEnabled(controlsEnabled);
-            bForward.setEnabled(controlsEnabled);
-            seekbar.setEnabled(controlsEnabled);
+             * boolean controlsEnabled = !busy;
+             * bRewind.setEnabled(controlsEnabled);
+             * bForward.setEnabled(controlsEnabled);
+             * seekbar.setEnabled(controlsEnabled);
              */
 
         });
 
         vm.getTtsRange().observe(this, p -> {
-            //myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
-            if (p != null) scheduleTtsHighlight(p.first, p.second);
+            // myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
+            if (p != null)
+                ttsHighlighter.scheduleHighlight(p.first, p.second);
         });
 
         vm.getTtsText().observe(this, txt -> {
-            //myLog("observe Tts Text : [" + txt + "]");
-            if (txt == null) txt = "";
-            if (!txt.equals(lastTtsTextString)) {
-                lastTtsTextString = txt;
-                SpannableStringBuilder sb = new SpannableStringBuilder(txt);
-                tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
-                spannableText = (Spannable) tvTtsText.getText();
-                tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
-                tvTtsText.setVerticalScrollBarEnabled(true);
-                // Reset highlight tracking when text changes (new track)
-                resetHighlightTracking();
-            }
+            // myLog("observe Tts Text : [" + txt + "]");
+            ttsHighlighter.onTextReady(txt);
         });
 
         // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
-            @Override public void handleOnBackPressed() {
+            @Override
+            public void handleOnBackPressed() {
                 PlaybackUiState s = vm.getState().getValue();
-                if (s == null ) {
+                if (s == null) {
                     myLog("s == null");
                     vm.stop();
                 } else {
-                    if (!s.playing ) {
+                    if (!s.playing) {
                         myLog("!s.playing");
                         vm.stop();
                     }
@@ -461,12 +456,18 @@ public class PlayActivity extends LoggingActivity {
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYBACK_MAXTIMEREACH));
     }
 
-    @Override protected void onDestroy() {
-        try { LocalBroadcastManager.getInstance(this).unregisterReceiver(uiReceiver); } catch (Throwable ignored) {}
+    @Override
+    protected void onDestroy() {
+        try {
+            LocalBroadcastManager.getInstance(this).unregisterReceiver(uiReceiver);
+        } catch (Throwable ignored) {
+        }
         if (sbSeek != null) {
             UiHelper.unbindSeekBar(sbSeek);
             sliderBinding = null;
         }
+        if (ttsHighlighter != null)
+            ttsHighlighter.onDestroy();
         super.onDestroy();
     }
 
@@ -477,11 +478,12 @@ public class PlayActivity extends LoggingActivity {
         PlaybackUiState s = vm.getState().getValue();
         Double cur = null;
         try {
-            cur = Double.parseDouble(tvSpeed.getText().toString().replace('\u00A0', ' ').replaceAll("[^0-9,.\\s]", "").replace(',', '.').trim())/100;
+            cur = Double.parseDouble(tvSpeed.getText().toString().replace('\u00A0', ' ').replaceAll("[^0-9,.\\s]", "")
+                    .replace(',', '.').trim()) / 100;
         } catch (Throwable t) {
             myLogEE(t, "could not read speed : [" + tvSpeed.getText() + "]");
         }
-        if (cur==null && s != null && s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
+        if (cur == null && s != null && s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
             cur = s.extras.getDouble(Intents.EXTRA_SPEED);
         }
         myLogD("current speed = " + cur);
@@ -490,7 +492,6 @@ public class PlayActivity extends LoggingActivity {
         vm.setSpeed(next);
         tvSpeed.setText(Tonio.formatPercentStringForSpeed(next * 100));
     }
-
 
     private void showSleepDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this)
@@ -506,24 +507,28 @@ public class PlayActivity extends LoggingActivity {
         Button btn4 = dialogView.findViewById(R.id.btn_preset_04);
         Button btn5 = dialogView.findViewById(R.id.btn_preset_05);
         Button btn6 = dialogView.findViewById(R.id.btn_preset_06);
-        Button[] presets = {btn1,btn2,btn3,btn4,btn5,btn6};
+        Button[] presets = { btn1, btn2, btn3, btn4, btn5, btn6 };
 
         DialogInterface.OnClickListener setSleepAction = (d, w) -> {
             String txt = inputMinutes.getText().toString().trim();
             if (!txt.isEmpty()) {
-                try { vm.updateSleepTimer(Integer.parseInt(txt)); }
-                catch (NumberFormatException e) { myToastE(getString(R.string.SleepTimerWrongInt)); }
-                catch (Throwable e) { myToastE(getString(R.string.SleepTimerGeneralError)); }
+                try {
+                    vm.updateSleepTimer(Integer.parseInt(txt));
+                } catch (NumberFormatException e) {
+                    myToastE(getString(R.string.SleepTimerWrongInt));
+                } catch (Throwable e) {
+                    myToastE(getString(R.string.SleepTimerGeneralError));
+                }
             }
         };
 
         builder.setPositiveButton(getString(R.string.Set), setSleepAction)
-                .setNegativeButton(getString(R.string.Cancel), (d,w) -> d.cancel());
+                .setNegativeButton(getString(R.string.Cancel), (d, w) -> d.cancel());
 
         AlertDialog dialog = builder.create();
         dialog.show();
 
-        for (int i=0;i<SLEEP_PRESET_VALUES.length;i++) {
+        for (int i = 0; i < SLEEP_PRESET_VALUES.length; i++) {
             final int m = SLEEP_PRESET_VALUES[i];
             String presetButtonText = m + " " + getString(R.string.min_);
             presets[i].setText(presetButtonText);
@@ -540,15 +545,15 @@ public class PlayActivity extends LoggingActivity {
         try {
             PlaybackUiState s = vm.getState().getValue();
             long timeLeftMs = (s != null ? s.sleepLeftMS : 0);
-            long timePassedMs = (long) customSleepMinutes*60*1000 - timeLeftMs;
+            long timePassedMs = (long) customSleepMinutes * 60 * 1000 - timeLeftMs;
 
-            //myLog("timeLeftMs : " + timeLeftMs + " - timePassedMs : " + timePassedMs);
+            // myLog("timeLeftMs : " + timeLeftMs + " - timePassedMs : " + timePassedMs);
 
             String timeLeftText = getString(R.string.tv_TimeLeft) + " : " + Tonio.formatTime(timeLeftMs, true);
-            tvTimeLeft.setText(timeLeftMs>0 && timePassedMs>0 ? timeLeftText : "");
+            tvTimeLeft.setText(timeLeftMs > 0 && timePassedMs > 0 ? timeLeftText : "");
 
             String timePassedText = tvListeningTimeBaseText + " " + Tonio.formatTime(timePassedMs, true);
-            tvListeningTime.setText(timeLeftMs>0 && timePassedMs>0 ? timePassedText : "");
+            tvListeningTime.setText(timeLeftMs > 0 && timePassedMs > 0 ? timePassedText : "");
 
         } catch (Throwable t) {
             myLogEE(t, "reDrawSleepTextViews(" + customSleepMinutes + ")");
@@ -567,7 +572,8 @@ public class PlayActivity extends LoggingActivity {
     }
 
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
-        if (s == null) return;
+        if (s == null)
+            return;
         final boolean tts = "tts".equals(s.playMode);
 
         if (!tts) {
@@ -581,11 +587,12 @@ public class PlayActivity extends LoggingActivity {
             }
             if (Option.getVisualizerOn() && isRecordAudioPermissionGranted(this) && sessionId != null) {
                 try {
-                    //myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
+                    // myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
                     frequencyVisualizerView.setMode(Option.getVisualizerType());
                     frequencyVisualizerView.link_toto(sessionId);
                     frequencyVisualizerView.setVisibility(View.VISIBLE);
-                } catch (Throwable ignored) {}
+                } catch (Throwable ignored) {
+                }
             } else {
                 frequencyVisualizerView.setVisibility(View.GONE);
             }
@@ -597,41 +604,41 @@ public class PlayActivity extends LoggingActivity {
             ttsContainer.setVisibility(View.VISIBLE);
             ivCover.setVisibility(View.GONE);
 
-            if (lastTtsTextString == null || lastTtsTextString.isEmpty()) {
+            if (ttsHighlighter.getLastTtsTextString() == null || ttsHighlighter.getLastTtsTextString().isEmpty()) {
                 vm.requestTtsTextOnce();
             }
 
             // Tap-to-seek within text
-            final android.view.GestureDetector tapDetector =
-                    new android.view.GestureDetector(tvTtsText.getContext(),
-                            new android.view.GestureDetector.SimpleOnGestureListener() {
-                                @Override public boolean onDown(@NonNull MotionEvent e) {
-                                    // must return true so we keep receiving events
-                                    return true;
-                                }
-                                @Override public boolean onSingleTapUp(@NonNull MotionEvent e) {
-                                    // Only on real tap, not on scroll/fling
-                                    Layout layout = tvTtsText.getLayout();
-                                    if (layout == null || spannableText == null) return false;
+            final android.view.GestureDetector tapDetector = new android.view.GestureDetector(tvTtsText.getContext(),
+                    new android.view.GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onDown(@NonNull MotionEvent e) {
+                            // must return true so we keep receiving events
+                            return true;
+                        }
 
-                                    int x = (int)e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
-                                    int y = (int)e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
-                                    int line = layout.getLineForVertical(y);
-                                    int off  = layout.getOffsetForHorizontal(line, x);
-                                    off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
+                        @Override
+                        public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                            // Only on real tap, not on scroll/fling
+                            // tap logic
+                            Layout layout = tvTtsText.getLayout();
+                            Spannable sp = ttsHighlighter.getSpannableText();
+                            if (layout == null || sp == null)
+                                return false;
 
-                                    int[] word = TtsHelper.findWordBounds(spannableText, off);
-                                    try {
-                                        spannableText.removeSpan(ttsBgSpan);
-                                        spannableText.removeSpan(ttsFgSpan);
-                                        spannableText.setSpan(ttsBgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                        spannableText.setSpan(ttsFgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                    } catch (Throwable ignored) {}
+                            int x = (int) e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
+                            int y = (int) e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
+                            int line = layout.getLineForVertical(y);
+                            int off = layout.getOffsetForHorizontal(line, x);
+                            off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
 
-                                    vm.setTtsStartOffsetChars(word[0]);
-                                    return true; // we handled the tap
-                                }
-                            });
+                            int[] word = TtsHelper.findWordBounds(sp, off);
+                            ttsHighlighter.updateHighlightForManualSeek(word[0], word[1]);
+
+                            vm.setTtsStartOffsetChars(word[0]);
+                            return true; // we handled the tap
+                        }
+                    });
             // Scroll
             tvTtsText.setOnTouchListener((v, ev) -> {
                 switch (ev.getActionMasked()) {
@@ -668,143 +675,24 @@ public class PlayActivity extends LoggingActivity {
         }
     }
 
-    private int pendingStart = -1, pendingEnd = -1;
-    private boolean highlightScheduled = false;
-    private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
-    private Runnable pendingHighlightRunnable = null;
-    private int lastAppliedHighlightEnd = -1; // Track last applied highlight position
-    private long lastHighlightTime = 0; // Track time of last highlight for throttling
-    private boolean ttsActuallyStarted = false; // Track if TTS has actually started speaking
-    private long lastSeekTime = 0; // Track when last seek happened
-    private static final long MIN_HIGHLIGHT_INTERVAL_MS = 50; // Minimum 50ms between highlights
-    private static final long SEEK_COOLDOWN_MS = 500; // Ignore callbacks for 500ms after seek
-    
-    private void resetHighlightTracking() {
-        resetHighlightTracking(true);
-    }
-    
-    private void resetHighlightTracking(boolean resetStartedFlag) {
-        lastAppliedHighlightEnd = -1;
-        lastHighlightTime = 0;
-        if (resetStartedFlag) {
-            ttsActuallyStarted = false; // Reset flag when tracking is reset
-        }
-        // Don't reset lastSeekTime here - let it expire naturally
-        if (highlightScheduled && pendingHighlightRunnable != null) {
-            uiH.removeCallbacks(pendingHighlightRunnable);
-            highlightScheduled = false;
-            pendingHighlightRunnable = null;
-        }
-        pendingStart = -1;
-        pendingEnd = -1;
-    }
+    // --- Refactored TTS Highlighter ---
+    private TtsHighlighter ttsHighlighter;
 
-    private void scheduleTtsHighlight(int s, int e) {
-        long now = System.currentTimeMillis();
-        
-        // Ignore callbacks during seek cooldown period to prevent racing ahead
-        if (lastSeekTime > 0 && (now - lastSeekTime) < SEEK_COOLDOWN_MS) {
-            myLogD("TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
+    // Callbacks from TtsHighlighter
+    public void onTtsHighlightApplied(TextView tv, int startPos) {
+        if (suppressAutoScroll)
             return;
-        }
-        // Clear cooldown once it expires
-        if (lastSeekTime > 0 && (now - lastSeekTime) >= SEEK_COOLDOWN_MS) {
-            lastSeekTime = 0;
-        }
-        
-        // Mark that TTS has actually started when we receive the first callback
-        if (!ttsActuallyStarted) {
-            ttsActuallyStarted = true;
-            myLogD("TTS HIGHLIGHT: first callback received, marking TTS as started");
-            // Reset tracking when TTS actually starts to avoid stale highlights
-            // But don't reset the started flag (pass false) since we just set it to true
-            resetHighlightTracking(false);
-        }
-        
-        // Detect large jumps (seeks) - if new position is far ahead, reset tracking
-        // But don't reset ttsActuallyStarted if we're already playing (it's a seek, not a restart)
-        if (lastAppliedHighlightEnd >= 0 && s > lastAppliedHighlightEnd + 1000) {
-            myLogD("TTS HIGHLIGHT: large jump detected [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd + "), resetting tracking");
-            // Keep ttsActuallyStarted=true since we're seeking while playing
-            resetHighlightTracking(false);
-            lastSeekTime = now; // Start cooldown period
-        }
-        
-        // Ignore if this highlight is behind the last applied one (prevents going backwards)
-        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: ignoring backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd + ")");
-            return;
-        }
-        
-        // Throttle: don't schedule if we just applied a highlight very recently
-        if (highlightScheduled && (now - lastHighlightTime) < MIN_HIGHLIGHT_INTERVAL_MS) {
-            // Update pending position but don't reschedule yet - wait for current one to apply
-            pendingStart = s; pendingEnd = e;
-            return;
-        }
-        
-        pendingStart = s; pendingEnd = e;
-        
-        // Cancel any pending highlight and reschedule with latest position
-        // This prevents highlighting from racing ahead when multiple callbacks come quickly
-        if (highlightScheduled && pendingHighlightRunnable != null) {
-            uiH.removeCallbacks(pendingHighlightRunnable);
-            highlightScheduled = false;
-        }
-        
-        // Create new runnable for this highlight
-        pendingHighlightRunnable = this::applyTtsHighlight;
-        highlightScheduled = true;
-        uiH.postDelayed(pendingHighlightRunnable, Option.getTtsHighlightDelayMs());
-    }
-    private void applyTtsHighlight() {
-        highlightScheduled = false;
-        pendingHighlightRunnable = null; // Clear reference after applying
-        if (spannableText == null || pendingStart < 0) return;
-        int len = spannableText.length();
-        int s = Math.max(0, Math.min(pendingStart, len));
-        int e = Math.max(s + 1, Math.min(pendingEnd, len));
-        
-        // Final check: don't apply if this is behind the last applied highlight
-        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: skipping backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd + ")");
-            return;
-        }
-        
-        try {
-            // TEMP LOG: Log the highlighted word for debugging seekbar issues
-            String highlightedWord = "";
-            if (spannableText != null && s < len && e <= len && s < e) {
-                highlightedWord = spannableText.subSequence(s, e).toString();
-                // Extract just the word (in case it includes spaces/punctuation)
-                String[] words = highlightedWord.trim().split("\\s+");
-                if (words.length > 0) {
-                    highlightedWord = words[0];
-                }
-            }
-            myLogI("TTS HIGHLIGHT: pos=[" + s + "-" + e + "] word=[" + highlightedWord + "]");
-            
-            spannableText.removeSpan(ttsBgSpan);
-            spannableText.removeSpan(ttsFgSpan);
-            spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            
-            // Update tracking
-            lastAppliedHighlightEnd = e;
-            lastHighlightTime = System.currentTimeMillis();
-        } catch (Throwable ignored) {}
-
-        if (suppressAutoScroll) return;
         tvTtsText.post(() -> {
             try {
                 Layout layout = tvTtsText.getLayout();
                 if (layout != null) {
-                    int line = layout.getLineForOffset(s);
+                    int line = layout.getLineForOffset(startPos);
                     int y = layout.getLineTop(line);
                     int targetY = Math.max(0, y - tvTtsText.getHeight() / 3);
                     tvTtsText.scrollTo(0, targetY);
                 }
-            } catch (Throwable ignored) {}
+            } catch (Throwable ignored) {
+            }
         });
     }
 
@@ -816,27 +704,30 @@ public class PlayActivity extends LoggingActivity {
         } else {
             myLog("initTtsVoiceSpinner - book saved voice = [" + saved + "]");
         }
-        final String[] currentVoiceName = { saved };  // track last good value
+        final String[] currentVoiceName = { saved }; // track last good value
 
-        final boolean[] first = {true};
-        final boolean[] touched = {false};
-        final boolean[] suppressSelect = {false};
+        final boolean[] first = { true };
+        final boolean[] touched = { false };
+        final boolean[] suppressSelect = { false };
 
-        Spinner spinnerTtsVoice= findViewById(R.id.spinnerTtsVoice);
+        Spinner spinnerTtsVoice = findViewById(R.id.spinnerTtsVoice);
 
-        spinnerTtsVoice.setOnTouchListener((v,e) -> {
-            if (e.getAction()==MotionEvent.ACTION_UP) { touched[0]=true; v.performClick(); }
+        spinnerTtsVoice.setOnTouchListener((v, e) -> {
+            if (e.getAction() == MotionEvent.ACTION_UP) {
+                touched[0] = true;
+                v.performClick();
+            }
             return false;
         });
 
         spinnerTtsVoice.setEnabled(true);
         // Re-enable spinner when phase is not busy
         /*
-        vm.getPhase().observe(this, p -> {
-            if (p == null) return;
-            boolean busy = p.isBusyPhase(); // you already have this helper
-
-        });
+         * vm.getPhase().observe(this, p -> {
+         * if (p == null) return;
+         * boolean busy = p.isBusyPhase(); // you already have this helper
+         * 
+         * });
          */
 
         vm.setupTtsVoiceSpinner(
@@ -844,12 +735,20 @@ public class PlayActivity extends LoggingActivity {
                 spinnerTtsVoice,
                 saved,
                 voice -> {
-                    myLogD("setupTtsVoiceSpinner callback : first=[" + first[0] + "] - touched=[" + touched[0] + "] - suppressSelect=[" + suppressSelect[0] + "]");
-                    if (first[0]) { first[0]=false; return; }
-                    if (!touched[0]) return;
-                    if (suppressSelect[0]) return;
+                    myLogD("setupTtsVoiceSpinner callback : first=[" + first[0] + "] - touched=[" + touched[0]
+                            + "] - suppressSelect=[" + suppressSelect[0] + "]");
+                    if (first[0]) {
+                        first[0] = false;
+                        return;
+                    }
+                    if (!touched[0])
+                        return;
+                    if (suppressSelect[0])
+                        return;
 
-                    final String picked = (voice==null || voice.name==null || voice.name.isEmpty()) ? Option.DEFAULT_VOICE : voice.name;
+                    final String picked = (voice == null || voice.name == null || voice.name.isEmpty())
+                            ? Option.DEFAULT_VOICE
+                            : voice.name;
                     myLogI("--- user picks a VOICE in SPINNER ---     [" + picked + "]");
 
                     if (picked.equalsIgnoreCase(currentVoiceName[0])) {
@@ -858,12 +757,13 @@ public class PlayActivity extends LoggingActivity {
                     }
 
                     Pref.setBookTtsVoiceName(this, folderId, picked);
-                    spinnerTtsVoice.setEnabled(false);  // Disable immediately (guard against rapid taps)
+                    spinnerTtsVoice.setEnabled(false); // Disable immediately (guard against rapid taps)
                     myLogD("spinnerTtsVoice disabled");
 
                     boolean wasPlaying = false;
                     PlaybackUiState s = vm.getState().getValue();
-                    if (s != null) wasPlaying = s.playing;
+                    if (s != null)
+                        wasPlaying = s.playing;
 
                     final boolean wasPlayingFinal = wasPlaying;
                     final String prevGood = currentVoiceName[0];
@@ -899,31 +799,38 @@ public class PlayActivity extends LoggingActivity {
                         myLogD("spinnerTtsVoice enabled");
                         spinnerTtsVoice.setEnabled(true);
                     }
-                }
-        );
+                });
     }
-    /** Finds a voice by engine name and selects it without firing the spinner listener. */
+
+    /**
+     * Finds a voice by engine name and selects it without firing the spinner
+     * listener.
+     */
     private void selectVoiceByNameWithoutCallback(Spinner spinner, String name, boolean[] suppressFlag) {
         myLog("selectVoiceByNameWithoutCallback");
         try {
             android.widget.SpinnerAdapter a = spinner.getAdapter();
-            if (!(a instanceof com.driot.bookplayer.adapter.VoiceSpinnerAdapter)) return;
+            if (!(a instanceof com.driot.bookplayer.adapter.VoiceSpinnerAdapter))
+                return;
             com.driot.bookplayer.adapter.VoiceSpinnerAdapter va = (com.driot.bookplayer.adapter.VoiceSpinnerAdapter) a;
 
             int target = 0; // 0 = "system"
             for (int i = 0; i < va.getCount(); i++) {
                 VoiceItem vi = va.getItem(i);
                 String n = (vi == null || vi.name == null || vi.name.isEmpty()) ? Option.DEFAULT_VOICE : vi.name;
-                if (n.equalsIgnoreCase(name)) { target = i; break; }
+                if (n.equalsIgnoreCase(name)) {
+                    target = i;
+                    break;
+                }
             }
             suppressFlag[0] = true;
             myLog("selectVoiceByNameWithoutCallback : " + target);
             spinner.setSelection(target, false);
             va.setSelectedPosition(target);
             spinner.post(() -> suppressFlag[0] = false);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
     }
-
 
     private void finishAndShowFatalError(String errMessage) {
         ErrorUi.showPlayAudioErrorMessage(this, errMessage, null);
@@ -944,14 +851,16 @@ public class PlayActivity extends LoggingActivity {
         }
     }
 
-    @Override protected void onStart() {
+    @Override
+    protected void onStart() {
         super.onStart();
         // Bind controller to this Activity and ensure the browser is up
         MediaControllerHolder.attachTo(this);
         MediaControllerHolder.ensureConnected(getApplicationContext());
     }
 
-    @Override protected void onStop() {
+    @Override
+    protected void onStop() {
         MediaControllerHolder.detachFrom(this);
         super.onStop();
     }
