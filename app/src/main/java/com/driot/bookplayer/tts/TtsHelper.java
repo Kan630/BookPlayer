@@ -29,6 +29,7 @@ import java.util.List;
 
 public class TtsHelper {
     private TextToSpeech tts;
+    private float currentSpeechRate = 1.0f;
 
     public static final int READY = 0, SET_VOICE_FAILED = 1, MISSING_DATA = 2, SYNTH_FAIL = 3, ERROR = 4, TIMEOUT = 5;
 
@@ -59,8 +60,10 @@ public class TtsHelper {
         }
 
         final int maxLen = Option.getTtsChunkSize();
-        myLog("speakFromOffset : text length = [" + Tonio.getReadableSize(text.length()) +
-                "] - start = [" + Tonio.getReadableSize(startOffset) + "] - chunk buffer = [" + maxLen + "] chars");
+        int txtHash = text.hashCode();
+        myLog("speakFromOffset : speed=" + currentSpeechRate + " text len=" + text.length() + " hash="
+                + Integer.toHexString(txtHash) +
+                " start=" + startOffset + " chunkBuf=" + maxLen);
 
         // Clamp and short-circuit if at end
         final int N = text.length();
@@ -76,6 +79,7 @@ public class TtsHelper {
             myLogD("speakFromOffset : no chunks built");
             return;
         }
+        myLogD("speakFromOffset : built " + chunks.size() + " chunks");
 
         // Find first chunk to use (never returns a microscopic tail)
         int idx = findChunkIndexForOffset(chunks, safeOffset);
@@ -142,6 +146,7 @@ public class TtsHelper {
     }
 
     public void setSpeechRate(float rate) {
+        this.currentSpeechRate = rate;
         if (tts != null)
             tts.setSpeechRate(rate);
     }

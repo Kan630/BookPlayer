@@ -571,6 +571,19 @@ public class PlayActivity extends LoggingActivity {
         podcastLastClickTime = now;
     }
 
+    public void showTtsLoading(boolean show) {
+        if (progressOverlay == null)
+            return;
+        if (show) {
+            TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
+            if (tv != null)
+                tv.setText(R.string.loading_voice);
+            progressOverlay.setVisibility(View.VISIBLE);
+        } else {
+            progressOverlay.setVisibility(View.GONE);
+        }
+    }
+
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
         if (s == null)
             return;

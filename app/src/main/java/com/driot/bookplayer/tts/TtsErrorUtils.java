@@ -11,13 +11,14 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public final class TtsErrorUtils {
     private static final String TAG = "TtsErrorUtils";
-    private TtsErrorUtils() {}
 
+    private TtsErrorUtils() {
+    }
 
     // Categories so caller can decide how to react
-    public static final int CATEGORY_TRANSIENT = 1;   // network / audio / engine hiccup
-    public static final int CATEGORY_CONFIG    = 2;   // bad voice / missing data / unsupported
-    public static final int CATEGORY_UNKNOWN   = 3;   // we don't know
+    public static final int CATEGORY_TRANSIENT = 1; // network / audio / engine hiccup
+    public static final int CATEGORY_CONFIG = 2; // bad voice / missing data / unsupported
+    public static final int CATEGORY_UNKNOWN = 3; // we don't know
 
     // ---------- Public helpers ----------
 
@@ -42,11 +43,16 @@ public final class TtsErrorUtils {
         }
     }
 
-    /** Interpret generic TTS API return (e.g., speak(), stop(), synthesizeToFile()). */
+    /**
+     * Interpret generic TTS API return (e.g., speak(), stop(), synthesizeToFile()).
+     */
     public static String describeOperationResult(String opName, int result) {
-        if (result == TextToSpeech.SUCCESS) return ok(opName + " succeeded");
-        if (result == TextToSpeech.ERROR)   return error(opName + " failed (generic ERROR). See onError() callback for details.");
-        // Some engines may return hidden negative values directly (rare). Handle them too:
+        if (result == TextToSpeech.SUCCESS)
+            return ok(opName + " succeeded");
+        if (result == TextToSpeech.ERROR)
+            return error(opName + " failed (generic ERROR). See onError() callback for details.");
+        // Some engines may return hidden negative values directly (rare). Handle them
+        // too:
         return mapEngineError(opName, result);
     }
 
@@ -54,33 +60,45 @@ public final class TtsErrorUtils {
     public static String describeOnErrorCode(int errorCode) {
         switch (errorCode) {
             // Hidden/engine codes used by Google TTS & others
-            case -4:  return error("Invalid request (bad params/null text/engine busy).");
-            case -5:  return error("Network error while fetching voice/data.");
-            case -6:  return error("Network timeout while fetching voice/data.");
-            case -7:  return error("Audio output error (route/device/focus).");
-            case -8:  return error("Service error (engine crashed or unresponsive).");
-            case -9:  return error("Synthesis error (failed to generate audio).");
-            case -10: return error("Feature unsupported by this engine.");
+            case -4:
+                return error("Invalid request (bad params/null text/engine busy).");
+            case -5:
+                return error("Network error while fetching voice/data.");
+            case -6:
+                return error("Network timeout while fetching voice/data.");
+            case -7:
+                return error("Audio output error (route/device/focus).");
+            case -8:
+                return error("Service error (engine crashed or unresponsive).");
+            case -9:
+                return error("Synthesis error (failed to generate audio).");
+            case -10:
+                return error("Feature unsupported by this engine.");
             // Public ones (older path)
-            case TextToSpeech.ERROR: return error("Generic error.");
-            default:  return error("Unknown TTS error code (" + errorCode + ").");
+            case TextToSpeech.ERROR:
+                return error("Generic error.");
+            default:
+                return error("Unknown TTS error code (" + errorCode + ").");
         }
     }
 
-    /** Categorize the error so caller can decide if it's likely transient or config-related. */
+    /**
+     * Categorize the error so caller can decide if it's likely transient or
+     * config-related.
+     */
     public static int classifyOnErrorCode(int errorCode) {
         switch (errorCode) {
             // Bad parameters / not supported → configuration problem
-            case -4:  // invalid request
+            case -4: // invalid request
             case -10: // unsupported feature
                 return CATEGORY_CONFIG;
 
             // Network / audio / engine / synthesis → typically transient
-            case -5:  // network error
-            case -6:  // network timeout
-            case -7:  // audio output
-            case -8:  // service error
-            case -9:  // synthesis error
+            case -5: // network error
+            case -6: // network timeout
+            case -7: // audio output
+            case -8: // service error
+            case -9: // synthesis error
                 return CATEGORY_TRANSIENT;
 
             // 0 and generic ERROR: we don't know → treat as transient-ish
@@ -121,12 +139,18 @@ public final class TtsErrorUtils {
     public static String checkLanguageAvailability(TextToSpeech tts, Locale locale) {
         int avail = tts.isLanguageAvailable(locale);
         switch (avail) {
-            case TextToSpeech.LANG_AVAILABLE:             return "Available";
-            case TextToSpeech.LANG_COUNTRY_AVAILABLE:     return "Country available";
-            case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE: return "Country+variant available";
-            case TextToSpeech.LANG_MISSING_DATA:          return "Missing data";
-            case TextToSpeech.LANG_NOT_SUPPORTED:         return "Not supported";
-            default:                                      return "Unknown (" + avail + ")";
+            case TextToSpeech.LANG_AVAILABLE:
+                return "Available";
+            case TextToSpeech.LANG_COUNTRY_AVAILABLE:
+                return "Country available";
+            case TextToSpeech.LANG_COUNTRY_VAR_AVAILABLE:
+                return "Country+variant available";
+            case TextToSpeech.LANG_MISSING_DATA:
+                return "Missing data";
+            case TextToSpeech.LANG_NOT_SUPPORTED:
+                return "Not supported";
+            default:
+                return "Unknown (" + avail + ")";
         }
     }
 
@@ -135,23 +159,40 @@ public final class TtsErrorUtils {
     private static String mapEngineError(String opName, int code) {
         // Interpret hidden codes if they leak via result
         switch (code) {
-            case -4:  return error(opName + " failed: Invalid request.");
-            case -5:  return error(opName + " failed: Network error.");
-            case -6:  return error(opName + " failed: Network timeout.");
-            case -7:  return error(opName + " failed: Audio output error.");
-            case -8:  return error(opName + " failed: Service error.");
-            case -9:  return error(opName + " failed: Synthesis error.");
-            case -10: return error(opName + " failed: Feature unsupported.");
-            default:  return error(opName + " failed with unknown code (" + code + ").");
+            case -4:
+                return error(opName + " failed: Invalid request.");
+            case -5:
+                return error(opName + " failed: Network error.");
+            case -6:
+                return error(opName + " failed: Network timeout.");
+            case -7:
+                return error(opName + " failed: Audio output error.");
+            case -8:
+                return error(opName + " failed: Service error.");
+            case -9:
+                return error(opName + " failed: Synthesis error.");
+            case -10:
+                return error(opName + " failed: Feature unsupported.");
+            default:
+                return error(opName + " failed with unknown code (" + code + ").");
         }
     }
 
-    private static String ok(String s)   { return "✓ " + s; }
-    private static String warn(String s) { return "⚠ " + s; }
-    private static String error(String s){ return "✗ " + s; }
+    private static String ok(String s) {
+        return "✓ " + s;
+    }
+
+    private static String warn(String s) {
+        return "⚠ " + s;
+    }
+
+    private static String error(String s) {
+        return "✗ " + s;
+    }
 
     private static String localeToString(Locale l) {
-        if (l == null) return "null";
+        if (l == null)
+            return "null";
         String bcp47 = l.toLanguageTag();
         return bcp47 + " (" + l.toString() + ")";
     }
@@ -172,10 +213,10 @@ public final class TtsErrorUtils {
     public static boolean isProbablyConfigProblem(int errorCode) {
         // "this voice/text combination is probably never going to work"
         switch (errorCode) {
-            case -4:                  // invalid request
-            case -9:                  // synthesis error
-            case -10:                 // unsupported feature
-            case TextToSpeech.ERROR:  // generic error (legacy path)
+            case -4: // invalid request
+            case -9: // synthesis error
+            case -10: // unsupported feature
+            case TextToSpeech.ERROR: // generic error (legacy path)
                 return true;
             default:
                 return false;
@@ -183,4 +224,3 @@ public final class TtsErrorUtils {
     }
 
 }
-

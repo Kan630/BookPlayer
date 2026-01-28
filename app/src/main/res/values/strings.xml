@@ -598,6 +598,7 @@
 
     <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
+    <string name="loading_voice">Loading voice…</string>
 
     <string name="Import_Progress_copying_zip_file">"copying source file \n- from Device General Storage\n- to Bookplayer app internal memory"</string>
     <string name="Import_Progress_copying_zip_file_cloud">"copying source file \n- from Cloud\n- to Bookplayer app internal memory"</string>

@@ -65,6 +65,12 @@ public class TtsHighlighter {
     public TtsHighlighter(LoggingActivity activity, TextView tvTtsText) {
         this.activityRef = new WeakReference<>(activity);
         this.tvTtsText = tvTtsText;
+        this.loadingRunnable = () -> {
+            LoggingActivity act = activityRef.get();
+            if (act instanceof PlayActivity) {
+                ((PlayActivity) act).showTtsLoading(true);
+            }
+        };
     }
 
     public void setAutoScroll(boolean enabled) {
@@ -114,61 +120,117 @@ public class TtsHighlighter {
         }
         if (isTts)
             lastTtsPositionMs = s.positionMs;
-
-        String p = s.loadPhase;
-        boolean trackChanged = isTts && (s.trackId != lastTtsTrackId);
-        boolean becameReady = isTts
-                && !Intents.PHASE_READY.equals(lastTtsPhase)
-                && Intents.PHASE_READY.equals(p);
-        boolean playStateChanged = isTts && (s.playing != lastTtsPlaying);
-
-        if (isTts && (trackChanged || becameReady)) {
-            // Let PlayActivity know to enable auto-scroll?
-            // We'll return a status or PlayActivity can just handle its own flags.
-            // For now, we replicate logic that affects internal state.
-
-            lastTtsTextString = null; // Forces text refresh
-            if (trackChanged) {
-                resetHighlightTracking(true);
-                vm.resetTtsTextRequestFlag();
+        // Overlay Logic
+        if (s.loadPhase.equals(Intents.PHASE_SPEAKING) || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
+                || s.loadPhase.equals(Intents.PHASE_WARMING_UP)) {
+            // Start loading timer if we are in a "working" phase but audio hasn't started
+            if (!ttsActuallyStarted) {
+                startLoadingTimer();
             }
-            vm.requestTtsTextOnce();
+        } else {
+            // Not speaking/loading (Paused, Stopped, etc) -> hide overlay
+            stopLoadingTimer();
         }
 
-        // Reset highlight tracking when TTS actually starts playing (enters SPEAKING
-        // phase)
-        if (isTts && Intents.PHASE_SPEAKING.equals(p) && !Intents.PHASE_SPEAKING.equals(lastTtsPhase)) {
-            myLogD("TTS entering SPEAKING phase, resetting highlight tracking");
+        // Detect track change
+        if (s.trackId != lastTtsTrackId) {
+            lastTtsTrackId = s.trackId;
             resetHighlightTracking(true);
-            ttsActuallyStarted = false;
+
+            // Text fetching logic
+            if (isTts) {
+                vm.resetTtsTextRequestFlag();
+                vm.requestTtsTextOnce();
+            }
+        } else {
+            // If track didn't change but we became ready/speaking and haven't requested
+            // text?
+            // Usually handled by PlayActivity logic but we moved it here.
+            // If we don't have text, request it.
+            if (isTts && (spannableText == null || spannableText.length() == 0)) {
+                vm.requestTtsTextOnce();
+            }
         }
 
-        // Reset when paused
-        if (isTts && playStateChanged && !s.playing && lastTtsPlaying) {
-            myLogD("TTS paused, resetting highlight tracking");
-            ttsActuallyStarted = false;
+        // Detect Play/Pause state change to reset tracking if needed
+        boolean isSpeak = Intents.PHASE_SPEAKING.equals(s.loadPhase);
+
+        if (isSpeak != lastTtsPlaying) {
+            lastTtsPlaying = isSpeak;
+            if (!isSpeak) {
+                resetHighlightTracking(false);
+            }
         }
 
-        lastTtsTrackId = s.trackId;
-        lastTtsPhase = p;
-        if (isTts)
-            lastTtsPlaying = s.playing;
+        // Detect large jumps
+        long pos = s.positionMs;
+        if (lastTtsPositionMs >= 0) {
+            long diff = Math.abs(pos - lastTtsPositionMs);
+            if (diff > SEEK_DETECTION_THRESHOLD_MS) {
+                android.util.Log.i(TAG, "TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + pos);
+                resetHighlightTracking(false);
+            }
+        }
+        lastTtsPositionMs = pos;
+
+        lastTtsPhase = s.loadPhase;
+    }
+
+    // ---- Loading Overlay Helpers ----
+
+    private final Runnable loadingRunnable;
+
+    private void startLoadingTimer() {
+        // Only schedule if not already scheduled (or reset)
+        // Check if overlay is already visible? No, just rely on timer.
+        uiH.removeCallbacks(loadingRunnable);
+        uiH.postDelayed(loadingRunnable, 300);
+    }
+
+    private void stopLoadingTimer() {
+        uiH.removeCallbacks(loadingRunnable);
+        LoggingActivity act = activityRef.get();
+        if (act instanceof PlayActivity) {
+            ((PlayActivity) act).showTtsLoading(false);
+        }
     }
 
     public void scheduleHighlight(int s, int e) {
         long now = System.currentTimeMillis();
 
+        // Paranoid logging for diagnosing sync drift
+        if (spannableText != null && s < spannableText.length() && e <= spannableText.length()) {
+            // Limit log length if range is huge (shouldn't be for words)
+            try {
+                CharSequence seq = spannableText.subSequence(s, e);
+                String txt = seq.toString().replace("\n", "\\n");
+                // Only log periodically or if it looks weird?
+                // For now, log everything as user requested more logging.
+                android.util.Log.v(TAG, "TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
+            } catch (Exception ignored) {
+            }
+        } else {
+            android.util.Log.w(TAG, "TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
+                    + (spannableText == null ? "null" : spannableText.length()) + ")");
+        }
+
+        // Ignore callbacks during seek cooldown period to prevent racing ahead
         if (lastSeekTime > 0 && (now - lastSeekTime) < SEEK_COOLDOWN_MS) {
-            myLogD("TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
+            android.util.Log.d(TAG, "TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
             return;
         }
+        // Clear cooldown once it expires
         if (lastSeekTime > 0 && (now - lastSeekTime) >= SEEK_COOLDOWN_MS) {
             lastSeekTime = 0;
         }
 
+        // Mark that TTS has actually started when we receive the first callback
         if (!ttsActuallyStarted) {
             ttsActuallyStarted = true;
-            myLogD("TTS HIGHLIGHT: first callback received, marking TTS as started");
+            stopLoadingTimer(); // <--- Hide overlay immediately
+            android.util.Log.i(TAG, "TTS HIGHLIGHT: first callback received, marking TTS as started");
+            // Reset tracking when TTS actually starts to avoid stale highlights
+            // But don't reset the started flag (pass false) since we just set it to true
             resetHighlightTracking(false);
         }
 
