@@ -441,6 +441,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private double speed = 1.0;
     private boolean ErrorLoadingFile = false;
+    private int lastPausedTrackId = -1; // Track ID that was last paused, to detect track changes
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
@@ -1672,6 +1673,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void enginePause() {
         myLogD("mediaPlayerPause()");
         if (engine != null) engine.pause();
+        // Track which track was paused for rewind-after-pause logic
+        PlayList pl = PlayList.getInstance();
+        if (pl != null && pl.isZikFile()) {
+            ZikFile zf = pl.getZikFile();
+            if (zf != null) {
+                lastPausedTrackId = zf.getId();
+            }
+        }
         updateSessionState(false);
         Pref.setPauseTime();
     }
@@ -1978,7 +1987,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogE("failsafe - at end or near end, reset position to 0");
                 engine.seekTo(0);
             } else { // Rewind-after-pause
-                if (Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
+                // Only apply rewind-after-pause if it's the same track that was paused
+                // This prevents incorrect rewind when switching to a different track
+                boolean isSameTrack = (lastPausedTrackId == zikFile.getId());
+                if (Option.getRewindAfterPause() && zikFile.lLastAccess != null && isSameTrack) {
                     long minutes = (System.currentTimeMillis() - zikFile.lLastAccess) / (60 * 1000);
                     int rewindMs = 0;
                     for (int[] rule : Var.REWIND_AFTER_PAUSE) {
@@ -1989,6 +2001,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         myLogD("Rewind " + (rewindMs / 1000) + "sec. after a [" + Tonio.formatTime(minutes*60*1000)  + "] pause.");
                         backwardAudio(rewindMs);
                     }
+                } else if (!isSameTrack && Option.getRewindAfterPause() && zikFile.lLastAccess != null) {
+                    myLogD("Skipping rewind-after-pause: different track (paused=" + lastPausedTrackId + ", current=" + zikFile.getId() + ")");
                 }
             }
 

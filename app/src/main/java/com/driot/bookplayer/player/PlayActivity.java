@@ -95,6 +95,8 @@ public class PlayActivity extends LoggingActivity {
     private int lastTtsTrackId = -1;
     @Nullable private String lastTtsPlayMode = null;
     @Nullable private String lastTtsPhase = null;
+    private boolean lastTtsPlaying = false;
+    private long lastTtsPositionMs = -1; // Track last position to detect seeks
 
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
@@ -269,30 +271,59 @@ public class PlayActivity extends LoggingActivity {
             // Seek/progress: sliderBinding handles slider + current time label
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
+            
+            // Detect seeks: if position jumps significantly, it's a seek
+            boolean isTts = "tts".equals(s.playMode);
+            if (isTts && lastTtsPositionMs >= 0 && s.positionMs > 0) {
+                long positionDelta = Math.abs(s.positionMs - lastTtsPositionMs);
+                // If position changed by more than 2 seconds, it's likely a seek
+                if (positionDelta > 2000 && s.playing) {
+                    myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
+                    lastSeekTime = System.currentTimeMillis();
+                    // Reset tracking but keep ttsActuallyStarted=true since we're already playing
+                    resetHighlightTracking(false);
+                }
+            }
+            if (isTts) lastTtsPositionMs = s.positionMs;
 
             String p = s.loadPhase;
             boolean isStarting = (Intents.PHASE_STARTING.equals(p));
 
             // TTS
-            boolean isTts = "tts".equals(s.playMode);
             boolean trackChanged = isTts && (s.trackId != lastTtsTrackId);
             boolean becameReady  = isTts
                     && !Intents.PHASE_READY.equals(lastTtsPhase)
                     && Intents.PHASE_READY.equals(p);
+            boolean playStateChanged = isTts && (s.playing != lastTtsPlaying);
 
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
                 lastTtsTextString = null;
-                // Reset the request flag to allow requesting text for the new track
+                // Reset highlight tracking when track changes
                 if (trackChanged) {
+                    resetHighlightTracking();
                     vm.resetTtsTextRequestFlag();
                 }
                 vm.requestTtsTextOnce();
+            }
+            
+            // Reset highlight tracking when TTS actually starts playing (enters SPEAKING phase)
+            if (isTts && Intents.PHASE_SPEAKING.equals(p) && !Intents.PHASE_SPEAKING.equals(lastTtsPhase)) {
+                myLogD("TTS entering SPEAKING phase, resetting highlight tracking");
+                resetHighlightTracking();
+                ttsActuallyStarted = false; // Will be set to true when first callback arrives
+            }
+            
+            // Reset when paused
+            if (isTts && playStateChanged && !s.playing && lastTtsPlaying) {
+                myLogD("TTS paused, resetting highlight tracking");
+                ttsActuallyStarted = false;
             }
 
             lastTtsTrackId  = s.trackId;
             lastTtsPlayMode = s.playMode;
             lastTtsPhase    = p;
+            if (isTts) lastTtsPlaying = s.playing;
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -401,6 +432,8 @@ public class PlayActivity extends LoggingActivity {
                 spannableText = (Spannable) tvTtsText.getText();
                 tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
                 tvTtsText.setVerticalScrollBarEnabled(true);
+                // Reset highlight tracking when text changes (new track)
+                resetHighlightTracking();
             }
         });
 
@@ -638,24 +671,127 @@ public class PlayActivity extends LoggingActivity {
     private int pendingStart = -1, pendingEnd = -1;
     private boolean highlightScheduled = false;
     private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
+    private Runnable pendingHighlightRunnable = null;
+    private int lastAppliedHighlightEnd = -1; // Track last applied highlight position
+    private long lastHighlightTime = 0; // Track time of last highlight for throttling
+    private boolean ttsActuallyStarted = false; // Track if TTS has actually started speaking
+    private long lastSeekTime = 0; // Track when last seek happened
+    private static final long MIN_HIGHLIGHT_INTERVAL_MS = 50; // Minimum 50ms between highlights
+    private static final long SEEK_COOLDOWN_MS = 500; // Ignore callbacks for 500ms after seek
+    
+    private void resetHighlightTracking() {
+        resetHighlightTracking(true);
+    }
+    
+    private void resetHighlightTracking(boolean resetStartedFlag) {
+        lastAppliedHighlightEnd = -1;
+        lastHighlightTime = 0;
+        if (resetStartedFlag) {
+            ttsActuallyStarted = false; // Reset flag when tracking is reset
+        }
+        // Don't reset lastSeekTime here - let it expire naturally
+        if (highlightScheduled && pendingHighlightRunnable != null) {
+            uiH.removeCallbacks(pendingHighlightRunnable);
+            highlightScheduled = false;
+            pendingHighlightRunnable = null;
+        }
+        pendingStart = -1;
+        pendingEnd = -1;
+    }
 
     private void scheduleTtsHighlight(int s, int e) {
+        long now = System.currentTimeMillis();
+        
+        // Ignore callbacks during seek cooldown period to prevent racing ahead
+        if (lastSeekTime > 0 && (now - lastSeekTime) < SEEK_COOLDOWN_MS) {
+            myLogD("TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
+            return;
+        }
+        // Clear cooldown once it expires
+        if (lastSeekTime > 0 && (now - lastSeekTime) >= SEEK_COOLDOWN_MS) {
+            lastSeekTime = 0;
+        }
+        
+        // Mark that TTS has actually started when we receive the first callback
+        if (!ttsActuallyStarted) {
+            ttsActuallyStarted = true;
+            myLogD("TTS HIGHLIGHT: first callback received, marking TTS as started");
+            // Reset tracking when TTS actually starts to avoid stale highlights
+            // But don't reset the started flag (pass false) since we just set it to true
+            resetHighlightTracking(false);
+        }
+        
+        // Detect large jumps (seeks) - if new position is far ahead, reset tracking
+        // But don't reset ttsActuallyStarted if we're already playing (it's a seek, not a restart)
+        if (lastAppliedHighlightEnd >= 0 && s > lastAppliedHighlightEnd + 1000) {
+            myLogD("TTS HIGHLIGHT: large jump detected [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd + "), resetting tracking");
+            // Keep ttsActuallyStarted=true since we're seeking while playing
+            resetHighlightTracking(false);
+            lastSeekTime = now; // Start cooldown period
+        }
+        
+        // Ignore if this highlight is behind the last applied one (prevents going backwards)
+        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
+            myLogD("TTS HIGHLIGHT: ignoring backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd + ")");
+            return;
+        }
+        
+        // Throttle: don't schedule if we just applied a highlight very recently
+        if (highlightScheduled && (now - lastHighlightTime) < MIN_HIGHLIGHT_INTERVAL_MS) {
+            // Update pending position but don't reschedule yet - wait for current one to apply
+            pendingStart = s; pendingEnd = e;
+            return;
+        }
+        
         pendingStart = s; pendingEnd = e;
-        if (highlightScheduled) return;
+        
+        // Cancel any pending highlight and reschedule with latest position
+        // This prevents highlighting from racing ahead when multiple callbacks come quickly
+        if (highlightScheduled && pendingHighlightRunnable != null) {
+            uiH.removeCallbacks(pendingHighlightRunnable);
+            highlightScheduled = false;
+        }
+        
+        // Create new runnable for this highlight
+        pendingHighlightRunnable = this::applyTtsHighlight;
         highlightScheduled = true;
-        uiH.postDelayed(this::applyTtsHighlight, Option.getTtsHighlightDelayMs());
+        uiH.postDelayed(pendingHighlightRunnable, Option.getTtsHighlightDelayMs());
     }
     private void applyTtsHighlight() {
         highlightScheduled = false;
+        pendingHighlightRunnable = null; // Clear reference after applying
         if (spannableText == null || pendingStart < 0) return;
         int len = spannableText.length();
         int s = Math.max(0, Math.min(pendingStart, len));
         int e = Math.max(s + 1, Math.min(pendingEnd, len));
+        
+        // Final check: don't apply if this is behind the last applied highlight
+        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
+            myLogD("TTS HIGHLIGHT: skipping backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd + ")");
+            return;
+        }
+        
         try {
+            // TEMP LOG: Log the highlighted word for debugging seekbar issues
+            String highlightedWord = "";
+            if (spannableText != null && s < len && e <= len && s < e) {
+                highlightedWord = spannableText.subSequence(s, e).toString();
+                // Extract just the word (in case it includes spaces/punctuation)
+                String[] words = highlightedWord.trim().split("\\s+");
+                if (words.length > 0) {
+                    highlightedWord = words[0];
+                }
+            }
+            myLogI("TTS HIGHLIGHT: pos=[" + s + "-" + e + "] word=[" + highlightedWord + "]");
+            
             spannableText.removeSpan(ttsBgSpan);
             spannableText.removeSpan(ttsFgSpan);
             spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            
+            // Update tracking
+            lastAppliedHighlightEnd = e;
+            lastHighlightTime = System.currentTimeMillis();
         } catch (Throwable ignored) {}
 
         if (suppressAutoScroll) return;

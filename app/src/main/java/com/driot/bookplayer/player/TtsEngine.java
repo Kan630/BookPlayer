@@ -197,6 +197,28 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         resumeOffsetChars = charPos;
         estPositionMs = clamped;
         lastCharSpoken = resumeOffsetChars;
+        
+        // TEMP LOG: Log seekbar position and corresponding word
+        String wordAtPos = "";
+        if (!text.isEmpty() && charPos < text.length()) {
+            int wordStart = charPos;
+            int wordEnd = charPos;
+            // Find word start (go backwards to find start of word)
+            while (wordStart > 0 && !Character.isWhitespace(text.charAt(wordStart - 1)) && 
+                   Character.isLetterOrDigit(text.charAt(wordStart - 1))) {
+                wordStart--;
+            }
+            // Find word end (go forwards to find end of word)
+            while (wordEnd < text.length() && !Character.isWhitespace(text.charAt(wordEnd)) && 
+                   Character.isLetterOrDigit(text.charAt(wordEnd))) {
+                wordEnd++;
+            }
+            if (wordStart < wordEnd && wordEnd <= text.length()) {
+                wordAtPos = text.substring(wordStart, wordEnd);
+            }
+        }
+        myLog("TTS SEEK: posMs=" + clamped + " charPos=" + charPos + " word=[" + wordAtPos + "] playing=" + playing);
+        
         if (playing) {
             if (tts != null) {
                 tts.stop();
@@ -311,10 +333,30 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     @Override
     public void onUtteranceRange(int start, int end) {
         if (disposed) return;
+        
+        // Ignore callbacks when not playing - prevents highlighting from racing ahead after pause/resume
+        if (!playing) {
+            myLogD("TTS RANGE: ignoring callback (not playing) [" + start + "-" + end + "]");
+            return;
+        }
+        
         lastCharSpoken = Math.min(Math.max(0, end), text.length());
         if (!text.isEmpty() && estDurationMs > 0) {
             estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
         }
+        
+        // TEMP LOG: Log the word being spoken from TTS callbacks
+        String wordAtRange = "";
+        if (!text.isEmpty() && start < text.length() && end <= text.length() && start < end) {
+            wordAtRange = text.substring(start, Math.min(end, text.length()));
+            // Extract just the word
+            String[] words = wordAtRange.trim().split("\\s+");
+            if (words.length > 0) {
+                wordAtRange = words[0];
+            }
+        }
+        myLogD("TTS RANGE: [" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
+        
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
         
         // Don't trigger completion here - onUtteranceRange fires DURING speaking, not after
