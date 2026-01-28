@@ -185,10 +185,12 @@ public class TtsHighlighter {
         // Check if overlay is already visible? No, just rely on timer.
         uiH.removeCallbacks(loadingRunnable);
         uiH.postDelayed(loadingRunnable, 300);
+        myLogD("startLoadingTimer: scheduled in 300ms");
     }
 
     private void stopLoadingTimer() {
         uiH.removeCallbacks(loadingRunnable);
+        myLogD("stopLoadingTimer: canceled");
         LoggingActivity act = activityRef.get();
         if (act instanceof PlayActivity) {
             ((PlayActivity) act).showTtsLoading(false);

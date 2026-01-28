@@ -572,13 +572,17 @@ public class PlayActivity extends LoggingActivity {
     }
 
     public void showTtsLoading(boolean show) {
-        if (progressOverlay == null)
+        if (progressOverlay == null) {
+            myLogE("showTtsLoading: progressOverlay is null!");
             return;
+        }
+        myLogD("showTtsLoading: " + show);
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
                 tv.setText(R.string.loading_voice);
             progressOverlay.setVisibility(View.VISIBLE);
+            progressOverlay.bringToFront(); // Ensure it's on top
         } else {
             progressOverlay.setVisibility(View.GONE);
         }

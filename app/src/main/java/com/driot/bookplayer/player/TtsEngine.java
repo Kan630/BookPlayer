@@ -336,7 +336,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         
         // Ignore callbacks when not playing - prevents highlighting from racing ahead after pause/resume
         if (!playing) {
-            myLogD("TTS RANGE: ignoring callback (not playing) [" + start + "-" + end + "]");
+            myLogD("TTS RANGE....: pos= ignoring callback (not playing) [" + start + "-" + end + "]");
             return;
         }
         
@@ -355,7 +355,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 wordAtRange = words[0];
             }
         }
-        myLogD("TTS RANGE: [" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
+        myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
         
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
         
