@@ -133,7 +133,9 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             // Progress listener (multiplexed to all registered listeners)
             tts.setOnUtteranceProgressListener(new UtteranceProgressListener() {
                 @Override public void onStart(String utteranceId) {
-                    myLogD("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
+                    myLogD("----------------------------------------------------------------------------------------");
+                    myLog("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
+                    myLogD("----------------------------------------------------------------------------------------");
                     int[] se = TtsIds.parseUtt(utteranceId);
                     if (se != null) {
                         final int s = se[0];
@@ -144,7 +146,9 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 }
 
                 @Override public void onDone(String utteranceId) {
-                    myLogD("setOnUtteranceProgressListener.onDone - utteranceId=" + utteranceId);
+                    myLogD("----------------------------------------------------------------------------------------");
+                    myLog("setOnUtteranceProgressListener.onDone - utteranceId=" + utteranceId);
+                    myLogD("----------------------------------------------------------------------------------------");
                     forEachListener(l -> l.onDone(utteranceId));
                 }
 
