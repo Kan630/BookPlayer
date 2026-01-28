@@ -207,11 +207,32 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void setSpeed(float speed) {
-        this.speechRate = Math.max(0.1f, speed);
+        float newRate = Math.max(0.1f, speed);
+        if (Math.abs(newRate - speechRate) < 0.01f) {
+            // Speed hasn't meaningfully changed, skip update
+            return;
+        }
+        
+        this.speechRate = newRate;
         long old = estDurationMs;
         estDurationMs = estimateDurationMs(text, speechRate);
         if (old > 0) estPositionMs = (int) (estPositionMs * (estDurationMs / (double) old));
-        if (playing && tts != null) tts.setSpeechRate(speechRate);
+        
+        // If playing, restart from current position with new speed for real-time effect
+        if (playing && tts != null && !text.isEmpty()) {
+            // Resume from last audible boundary we tracked
+            int start = Math.max(0, Math.min(lastCharSpoken, text.length()));
+            resumeOffsetChars = start;
+            tts.stop();
+            // Restart without immediate broadcast - let TTS callbacks drive highlighting naturally
+            // This prevents highlighting from jumping incorrectly
+            tts.setSpeechRate(speechRate);
+            tts.speakFromOffset(text, start, volume);
+            // Don't broadcast range here - let onUtteranceRange callbacks handle it
+        } else if (tts != null) {
+            // Not playing, just update the rate for next time
+            tts.setSpeechRate(speechRate);
+        }
     }
 
     // --------------------- AppTtsManager.Listener ---------------------
@@ -235,15 +256,29 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         myLogD("onDone " + utteranceId);
         if (disposed) return;
 
-        // End of logical text?
-        // Use >= to ensure we catch cases where we're at or past the end
+        // Check if this utterance reached the end by examining both lastCharSpoken and utterance ID
         int logicalEnd = logicalTextEndIndex();
-        if (lastCharSpoken >= logicalEnd) {
+        boolean reachedEnd = false;
+        
+        // Check 1: lastCharSpoken (updated by onUtteranceRange callbacks)
+        if (lastCharSpoken >= logicalEnd && logicalEnd > 0) {
+            reachedEnd = true;
+        }
+        
+        // Check 2: utterance ID end position (more reliable - checks actual utterance boundaries)
+        int[] uttBounds = com.driot.bookplayer.tts.TtsIds.parseUtt(utteranceId);
+        if (uttBounds != null && uttBounds[1] >= logicalEnd && logicalEnd > 0) {
+            reachedEnd = true;
+            // Update lastCharSpoken to match utterance end for consistency
+            lastCharSpoken = Math.max(lastCharSpoken, Math.min(uttBounds[1], text.length()));
+        }
+        
+        if (reachedEnd) {
             if (completionTriggered) {
                 myLogD("onDone: completion already triggered, ignoring");
                 return;
             }
-            myLogD("onDone: reached end (lastCharSpoken=" + lastCharSpoken + ", logicalEnd=" + logicalEnd + "), triggering completion");
+            myLogD("onDone: reached end (lastCharSpoken=" + lastCharSpoken + ", logicalEnd=" + logicalEnd + ", uttEnd=" + (uttBounds != null ? uttBounds[1] : "N/A") + "), triggering completion");
             completionTriggered = true;
             playing = false;
             listener.onCompletion(gen);
@@ -282,24 +317,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         }
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
         
-        // Check if we've reached the end of the text and trigger completion
-        // This ensures completion is triggered even if onDone doesn't fire reliably
-        // Only trigger if we're at or past the logical end and still playing
-        int logicalEnd = logicalTextEndIndex();
-        if (playing && lastCharSpoken >= logicalEnd && logicalEnd > 0 && !completionTriggered) {
-            myLogD("onUtteranceRange: reached end of text (lastCharSpoken=" + lastCharSpoken + ", logicalEnd=" + logicalEnd + "), triggering completion");
-            completionTriggered = true;
-            playing = false;
-            // Post to main thread to avoid calling listener callbacks from TTS callback thread
-            main.post(() -> {
-                if (!disposed && tts != null) {
-                    tts.stop();
-                }
-                if (!disposed) {
-                    listener.onCompletion(gen);
-                }
-            });
-        }
+        // Don't trigger completion here - onUtteranceRange fires DURING speaking, not after
+        // Completion should only be triggered from onDone when the utterance actually finishes
+        // This prevents premature track switching when the seekbar reaches the end but text isn't fully spoken
     }
 
     @Override
