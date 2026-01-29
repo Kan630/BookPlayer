@@ -85,7 +85,8 @@ public final class TaskUiState {
 
         public static TaskUiState scanFinished(int count) {
                 return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_SUCCEEDED, true, false, false, "Scan Complete",
-                                "Found " + count + " items", 100, null, null, null, null, null, false);
+                                "Found " + count + " book candidates, click to open", 100, null, null, null, null, null,
+                                false);
         }
 
         public static TaskUiState from(@NonNull ImportJob j) {

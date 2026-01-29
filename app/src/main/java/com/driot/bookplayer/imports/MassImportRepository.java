@@ -139,6 +139,19 @@ public class MassImportRepository {
         }
         isScanning.setValue(false);
         isScanFinished.setValue(false);
+        candidates.setValue(Collections.emptyList());
+
+        // Clean up temp images
+        executor.execute(() -> {
+            com.driot.bookplayer.helpers.ImageHelper.deleteAllTempImages(context);
+        });
+    }
+
+    public void consumeScanState() {
+        isScanning.setValue(false);
+        isScanFinished.setValue(false);
+        candidates.setValue(Collections.emptyList());
+        // Do NOT delete temp images here, they are needed for import
     }
 
     // Clean up if needed, though Singleton lives forever

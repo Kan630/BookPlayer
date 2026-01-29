@@ -323,6 +323,23 @@ public class ImageHelper {
         }
     }
 
+    public static void deleteAllTempImages(Context context) {
+        File imageDir = StorageHelper.getImageFolder(context, true);
+        File[] tempFiles = imageDir.listFiles((dir, name) -> name.startsWith(IMAGE_PREFIX_FOR_TEMP_FILE));
+
+        if (tempFiles != null) {
+            for (File file : tempFiles) {
+                try {
+                    if (file.delete()) {
+                        myLog("Deleted temp image: " + file.getName());
+                    }
+                } catch (Exception e) {
+                    myLogE("Failed to delete temp image: " + file.getName());
+                }
+            }
+        }
+    }
+
     public static void finalizeTempFolderImage(Context context, int folderId) {
         finalizeTempFolderImage(context, folderId, "");
     }

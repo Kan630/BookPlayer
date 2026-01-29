@@ -45,6 +45,10 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         repository.cancelScan();
     }
 
+    public void consumeScanState() {
+        repository.consumeScanState();
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();

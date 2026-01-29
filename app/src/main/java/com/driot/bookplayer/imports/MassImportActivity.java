@@ -86,7 +86,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
             finish();
         });
 
-        findViewById(R.id.btnCancel).setOnClickListener(v -> finish());
+        findViewById(R.id.btnCancel).setOnClickListener(v -> {
+            viewModel.cancelScan();
+            finish();
+        });
 
         btnConfirmImport.setOnClickListener(v -> {
             startImport();
@@ -258,18 +261,25 @@ public class MassImportActivity extends BaseBottomNavActivity {
                             + "] (hash computation may have failed during scanning)");
                 }
 
+                // Pass the cover image path if one was detected during scanning
+                s.imagePath = candidate.coverImagePath;
+
                 myLog("Launching import task for [" + s.title + "]:");
                 myLog(" - type: " + s.dynamicType);
                 myLog(" - uri: " + s.dynamicUri);
                 myLog(" - futurePath: " + s.futureFolderPath);
                 myLog(" - copy: " + s.optionCopy);
                 myLog(" - originalHash: " + s.originalHash);
+                myLog(" - imagePath: " + s.imagePath);
 
                 // Launch sequential to prevent cover association issues and mixed progress
                 // messages
                 // Books will be processed one after another in a queue
                 BookLoadingWorkLauncher.launch(getApplicationContext(), s, true);
             }
+
+            // Clean up the scan state (fragment) but keep files
+            viewModel.consumeScanState();
 
             runOnUiThread(() -> {
                 int importableCount = 0;
