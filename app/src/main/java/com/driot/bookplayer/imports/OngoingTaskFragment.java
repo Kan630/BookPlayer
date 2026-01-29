@@ -92,8 +92,8 @@ public class OngoingTaskFragment extends LoggingFragment {
             // text - add counter if available (for mass import)
             String titleText = ui.title.isEmpty() ? getString(R.string.Import_in_progress) : ui.title;
             if (ui.currentPosition >= 0 && ui.totalCount > 0) {
-                // Format: "5/12 Medee"
-                titleText = (ui.currentPosition + 1) + "/" + ui.totalCount + " " + titleText;
+                // Format: "5/12 Medee" - currentPosition is already 1-based
+                titleText = ui.currentPosition + "/" + ui.totalCount + " " + titleText;
             }
             tvTitle.setText(titleText);
             tvProgressText.setText(ui.progressText.isEmpty() ? "---" : ui.progressText);
