@@ -416,25 +416,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 finalCoverPath = result.imagePath;
                 sourceMessage = "Original cover image restored from folder";
             } else {
-                // Step 2: No image found, try to create fallback pastel cover
-                myLogI("No cover image found in folder, attempting to create fallback cover");
-
-                if (CoverPictureDetection.shouldCreateFallbackCover()) {
-                    // Create fallback cover with folder name as title
-                    String fallbackPath = CoverPictureDetection.createFallbackCover(
-                            this,
-                            folder.getName(),
-                            folderUri,
-                            Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS);
-
-                    if (fallbackPath != null) {
-                        finalCoverPath = fallbackPath;
-                        sourceMessage = "Auto-generated pastel cover created";
-                    }
-                } else {
-                    runOnUiThread(() -> myToast("No cover found and auto-generation is disabled"));
-                    return;
-                }
+                // Step 2: No image found
+                myLogI("No cover image found in folder");
             }
 
             // Update database if we have a cover
@@ -450,7 +433,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                     myLogI("Cover reset to: " + coverPathForLog);
                 });
             } else {
-                runOnUiThread(() -> myToast("Failed to create cover"));
+                runOnUiThread(() -> myToast("No original cover found"));
             }
         } catch (Exception e) {
             myLogEE(e, "Error detecting original cover");
@@ -550,7 +533,18 @@ public class ModifyFolderActivity extends LoggingActivity {
     private void deleteCover() {
         new Thread(() -> {
             try {
-                FileHelper.deleteFile(this, folder.image);
+                // Check if the current cover is the original one
+                String originalPath = ImageHelper.getOriginalCoverPath(this, folder.getId());
+                boolean isOriginal = folder.image != null && folder.image.equals(originalPath);
+
+                // Only delete the file if it conflicts with original or is a custom/temp image
+                // specified instructions: "should not actually delete the original cover"
+                if (!isOriginal) {
+                    FileHelper.deleteFile(this, folder.image);
+                } else {
+                    myLogI("Preserving original cover file on disk: " + folder.image);
+                }
+
                 folder.image = null;
                 AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
                 runOnUiThread(() -> ivCoverPreview.setImageResource(R.drawable.no_image_icon));
