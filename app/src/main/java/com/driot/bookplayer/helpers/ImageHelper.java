@@ -496,16 +496,16 @@ public class ImageHelper {
     public static Bitmap createInitialsBitmap(String title, int sizePx, boolean rounded) {
         String initials = getInitials(title);
         int bg = getColorFromTitle(title);
-        return createInitialsBitmapCustom(initials, bg, sizePx, rounded);
+        return createInitialsBitmapCustom(initials, bg, sizePx, rounded, 16);
     }
 
     /** Same rendering but with explicit initials & color for the generator UI. */
-    public static Bitmap createInitialsBitmapCustom(String initials, int bgColor, int sizePx, boolean rounded) {
+    public static Bitmap createInitialsBitmapCustom(String initials, int bgColor, int sizePx, boolean rounded,
+            int textSizeVal) {
         if (initials == null)
             initials = "";
         initials = initials.trim();
-        if (initials.length() > 5)
-            initials = initials.substring(0, 5); // hard cap
+        // REMOVED 5 chars limit
 
         Bitmap bmp = Bitmap.createBitmap(sizePx, sizePx, Bitmap.Config.ARGB_8888);
         Canvas c = new Canvas(bmp);
@@ -525,12 +525,44 @@ public class ImageHelper {
         p.setColor(Color.WHITE);
         p.setTextAlign(Paint.Align.CENTER);
         p.setTypeface(Typeface.create(Typeface.DEFAULT, Typeface.BOLD));
-        p.setTextSize(sizePx * (initials.length() <= 1 ? 0.55f : 0.42f));
 
+        // TEXT SIZE logic
+        // base logic was: sizePx * (initials.length() <= 1 ? 0.55f : 0.42f)
+        // New logic: map textSizeVal (8..30) to a scale factor.
+        // Let's say 16 is "standard" -> 0.45f
+        // 8 -> 0.20f
+        // 30 -> 0.80f
+        // Linear mapping:
+        // min=8, max=30, range=22.
+        // scaleMin=0.20f, scaleMax=0.80f, range=0.60f.
+        // factor = 0.20f + ((val - 8) / 22.0f) * 0.60f
+        float factor = 0.20f + ((textSizeVal - 8) / 22.0f) * 0.60f;
+        p.setTextSize(sizePx * factor);
+
+        // MULTI-LINE LOGIC
+        // We respect the actual newlines in 'initials' first.
+        // If 'nbLines' implies we should force split, we could, but better to trust the
+        // input string now that it is multi-line.
+        // "I mean how many line user can write" -> handled by UI.
+
+        String[] lines = initials.split("\n");
+        // Center the block of lines vertically
         Paint.FontMetrics fm = p.getFontMetrics();
+        float lineHeight = fm.descent - fm.ascent;
+        float totalHeight = lines.length * lineHeight;
+
         float x = sizePx / 2f;
-        float y = sizePx / 2f - (fm.ascent + fm.descent) / 2f;
-        c.drawText(initials, x, y, p);
+
+        // Start Y: center - half total height + ascent correction for first line?
+        // Usually drawText y is baseline.
+        // Top of block is (sizePx - totalHeight) / 2
+        // First baseline = Top + (-fm.ascent)
+
+        float startY = (sizePx - totalHeight) / 2f + (-fm.ascent);
+
+        for (int i = 0; i < lines.length; i++) {
+            c.drawText(lines[i], x, startY + (i * lineHeight), p);
+        }
 
         return bmp;
     }
@@ -617,10 +649,10 @@ public class ImageHelper {
 
     public static String saveGeneratedInitialsCoverVersioned(
             Context context, long folderId,
-            String initials, int color, boolean rounded, Bitmap bmp) throws IOException {
+            String initials, int color, boolean rounded, int textSize, Bitmap bmp) throws IOException {
 
         // Build a short, stable suffix for current settings
-        String signature = initials + "|" + color + "|" + (rounded ? 1 : 0);
+        String signature = initials + "|" + color + "|" + (rounded ? 1 : 0) + "|" + textSize;
         String hash = shortHash(signature); // 6–8 hex chars is enough
 
         String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";

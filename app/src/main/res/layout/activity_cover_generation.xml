@@ -40,9 +40,10 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:hint="AB"
-                android:maxLength="5"
-                android:singleLine="true"
-                android:inputType="textCapCharacters"
+                android:minLines="1"
+                android:maxLines="4"
+                android:gravity="center_vertical"
+                android:inputType="textMultiLine|textCapCharacters"
                 android:imeOptions="actionDone" />
         </LinearLayout>
 
@@ -53,19 +54,43 @@
             android:layout_marginTop="8dp"
             android:orientation="horizontal"
             android:gravity="center_vertical">
-
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/rounded_corners"
                 android:layout_marginEnd="12dp" />
-
             <Switch
                 android:id="@+id/switchRounded"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true" />
         </LinearLayout>
+
+        <!-- Text Size -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
+            <TextView
+                android:layout_width="90dp"
+                android:layout_height="wrap_content"
+                android:text="Text Size" />
+            <TextView
+                android:id="@+id/tvTextSizeVal"
+                android:layout_width="30dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="16" />
+            <SeekBar
+                android:id="@+id/seekTextSize"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="22" />
+        </LinearLayout>
+
 
         <!-- RGB Rows -->
         <!-- R -->
