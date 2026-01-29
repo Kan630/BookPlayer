@@ -129,9 +129,11 @@ public class MassImportScanner extends LoggerHelper {
                 String hash = computeHash(file.getUri());
                 String existingBookName = checkHashExists(hash);
                 String coverPath = detectCoverForFile(file, type);
+                // Calculate track count for archives (ZIP/7Z/TAR)
+                int tracksCount = calculateTrackCountForArchive(file);
 
                 BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                        fileName, file.length(), hash, existingBookName, 1, coverPath);
+                        fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
                 addCandidate(candidate, candidates);
             }
         }
@@ -273,6 +275,132 @@ public class MassImportScanner extends LoggerHelper {
             count += calculateTrackCount(child);
         }
         return count;
+    }
+
+    /**
+     * Counts audio tracks inside an archive (ZIP, 7Z, TAR).
+     * Returns 0 if archive cannot be read or if no audio files are found.
+     */
+    private int calculateTrackCountForArchive(DocumentFile archiveFile) {
+        if (isCancelled)
+            return 0;
+
+        String fileName = safeName(archiveFile).toLowerCase();
+        String ext = getExt(fileName);
+
+        try {
+            // 1. 7Z Files (Requires seeking via FileChannel)
+            if (ext.equals("7z")) {
+                return calculateTrackCountFor7Z(archiveFile);
+            }
+            // 2. TAR Files (including compressed variants)
+            else if (ext.equals("tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
+                    || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
+                    || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
+                return calculateTrackCountForTar(archiveFile);
+            }
+            // 3. ZIP Files (default)
+            else {
+                return calculateTrackCountForZip(archiveFile);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error counting tracks in archive: " + safeName(archiveFile));
+            return 0;
+        }
+    }
+
+    private int calculateTrackCountForZip(DocumentFile archiveFile) {
+        int count = 0;
+        try {
+            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
+            if (inputStream != null) {
+                try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream)) {
+                    java.util.zip.ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        if (isCancelled)
+                            return count;
+                        if (!entry.isDirectory()) {
+                            String entryName = entry.getName();
+                            if (isAudioFileName(entryName)) {
+                                count++;
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error counting tracks in ZIP: " + safeName(archiveFile));
+        }
+        return count;
+    }
+
+    private int calculateTrackCountFor7Z(DocumentFile archiveFile) {
+        int count = 0;
+        try {
+            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
+                    .openFileDescriptor(archiveFile.getUri(), "r")) {
+                if (pfd != null) {
+                    try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
+                            pfd.getFileDescriptor()).getChannel()) {
+                        try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
+                                channel)) {
+                            org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
+                            while ((entry = sevenZFile.getNextEntry()) != null) {
+                                if (isCancelled)
+                                    return count;
+                                if (!entry.isDirectory()) {
+                                    String entryName = entry.getName();
+                                    if (isAudioFileName(entryName)) {
+                                        count++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error counting tracks in 7Z: " + safeName(archiveFile));
+        }
+        return count;
+    }
+
+    private int calculateTrackCountForTar(DocumentFile archiveFile) {
+        int count = 0;
+        try {
+            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
+            if (inputStream != null) {
+                try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
+                        java.io.InputStream cis = maybeWrapCompressor(bis);
+                        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+                                cis)) {
+                    org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+                    while ((entry = tis.getNextTarEntry()) != null) {
+                        if (isCancelled)
+                            return count;
+                        if (!entry.isDirectory()) {
+                            String entryName = entry.getName();
+                            if (isAudioFileName(entryName)) {
+                                count++;
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error counting tracks in TAR: " + safeName(archiveFile));
+        }
+        return count;
+    }
+
+    /**
+     * Checks if a file name (from archive entry) represents an audio file.
+     * Uses the same logic as isAudio() but works with just the filename string.
+     */
+    private boolean isAudioFileName(String fileName) {
+        String ext = getExt(fileName);
+        return Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext);
     }
 
     private String safeName(DocumentFile f) {

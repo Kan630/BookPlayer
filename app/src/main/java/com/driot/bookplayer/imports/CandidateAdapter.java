@@ -42,10 +42,9 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         BookCandidate item = items.get(position);
         holder.tvName.setText(Tonio.formatNameForDisplay(item.name));
         String tracksPart = "";
-        // Only show track count for Folders or generic Audio Files (where we know the
-        // count)
-        // For ZIP, M4B, Ebook, we don't know the count yet, so don't show it.
-        if ("Folder".equals(item.type) || "Audio File".equals(item.type)) {
+        // Show track count for Folders, generic Audio Files, and ZIP archives (where we know the count)
+        // For M4B and Ebook, we don't know the count yet, so don't show it.
+        if ("Folder".equals(item.type) || "Audio File".equals(item.type) || "ZIP".equals(item.type)) {
             tracksPart = " - " + holder.ivCover.getContext().getResources()
                     .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
         }
