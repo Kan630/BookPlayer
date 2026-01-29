@@ -118,5 +118,9 @@ public interface FolderDao {
     @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE playType = 'text')")
     boolean hasSomeTtsBook();
 
+    // Get folders created since a specific timestamp (for testing/debugging)
+    @Query("SELECT * FROM Folder WHERE date_added >= :sinceTimestamp ORDER BY date_added DESC")
+    List<Folder> getFoldersCreatedSince(long sinceTimestamp);
+
 }
 

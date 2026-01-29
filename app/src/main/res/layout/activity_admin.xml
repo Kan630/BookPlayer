@@ -54,6 +54,33 @@
     </LinearLayout>
     <View style="@style/GetResourceHorizontalBar" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+        <Button
+            android:id="@+id/bDeleteRecentBooks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Delete books imported since"/>
+        <EditText
+            android:id="@+id/etMinutesAgo"
+            android:layout_width="80dp"
+            android:layout_height="wrap_content"
+            android:inputType="number"
+            android:padding="8dp"
+            android:layout_marginStart="10dp"
+            android:hint="minutes"
+            android:text="10"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="5dp"
+            android:text="minutes ago"/>
+    </LinearLayout>
+    <View style="@style/GetResourceHorizontalBar" />
+
 
     <!-- Technical log -->
     <LinearLayout

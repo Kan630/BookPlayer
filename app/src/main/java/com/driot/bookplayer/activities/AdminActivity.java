@@ -15,12 +15,20 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import androidx.work.Data;
+import androidx.work.ExistingWorkPolicy;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -105,11 +113,83 @@ public class AdminActivity extends LoggingActivity {
         findViewById(R.id.bCarConnect)
                 .setOnClickListener(v -> myToast(getString(com.driot.bookplayer.R.string.nothing)));
 
+        findViewById(R.id.bDeleteRecentBooks).setOnClickListener(v -> {
+            EditText etMinutes = findViewById(R.id.etMinutesAgo);
+            String minutesStr = etMinutes.getText().toString();
+            if (minutesStr.isEmpty()) {
+                Toast.makeText(this, "Please enter number of minutes", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            try {
+                int minutes = Integer.parseInt(minutesStr);
+                if (minutes < 0) {
+                    Toast.makeText(this, "Minutes must be >= 0", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                deleteBooksSinceMinutes(minutes);
+            } catch (NumberFormatException e) {
+                Toast.makeText(this, "Invalid number", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         // auto stuff
         btnContainer = findViewById(R.id.btnContainer);
         listActivities = findViewById(R.id.listActivities);
         addDynamicButtons();
         populateLaunchableActivitiesList();
+    }
+
+    private void deleteBooksSinceMinutes(int minutesAgo) {
+        new Thread(() -> {
+            try {
+                long cutoffTime = System.currentTimeMillis() - (minutesAgo * 60L * 1000L);
+                AppDatabase db = AppDatabase.getDatabase(this);
+                List<Folder> foldersToDelete = db.folderDao().getFoldersCreatedSince(cutoffTime);
+                
+                runOnUiThread(() -> {
+                    if (foldersToDelete.isEmpty()) {
+                        Toast.makeText(this, "No books found imported in the last " + minutesAgo + " minutes", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    // Show confirmation dialog
+                    new android.app.AlertDialog.Builder(this)
+                            .setTitle("Delete Recent Books")
+                            .setMessage("Delete " + foldersToDelete.size() + " book(s) imported in the last " + minutesAgo + " minutes?")
+                            .setPositiveButton("Delete", (dialog, which) -> {
+                                // Delete each folder using DeleteFolderWorker (same logic as ModifyFolderActivity)
+                                WorkManager wm = WorkManager.getInstance(getApplicationContext());
+                                int count = 0;
+                                for (Folder folder : foldersToDelete) {
+                                    Data input = new Data.Builder()
+                                            .putLong(DeleteFolderWorker.KEY_FOLDER_ID, folder.getId())
+                                            .putString(DeleteFolderWorker.KEY_FOLDER_NAME, folder.getName())
+                                            .build();
+
+                                    OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(DeleteFolderWorker.class)
+                                            .addTag("delete_folder_" + folder.getId())
+                                            .setInputData(input)
+                                            .build();
+
+                                    // Use unique work name to prevent duplicates
+                                    wm.enqueueUniqueWork(
+                                            "delete_folder_unique_" + folder.getId(),
+                                            ExistingWorkPolicy.KEEP,
+                                            req);
+                                    count++;
+                                }
+                                Toast.makeText(this, "Deleting " + count + " book(s)...", Toast.LENGTH_SHORT).show();
+                            })
+                            .setNegativeButton("Cancel", null)
+                            .show();
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    Toast.makeText(this, "Error: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    myLogEE(e, "deleteBooksSinceMinutes");
+                });
+            }
+        }).start();
     }
 
     private void addDynamicButtons() {
