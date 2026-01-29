@@ -96,6 +96,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
         });
 
         btnConfirmImport.setOnClickListener(v -> {
+            myLogI("user clicked CONFIRM");
             startImport();
         });
 
