@@ -9,8 +9,14 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.log.LoggerHelper;
+import com.googlecode.mp4parser.DataSource;
+import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
+import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Track;
+import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -92,9 +98,14 @@ public class MassImportScanner extends LoggerHelper {
                         String hash = computeHash(file.getUri());
                         String existingBookName = checkHashExists(hash);
                         String coverPath = detectCoverForFile(file, type);
+                        // Calculate track count for M4B files (chapters)
+                        int tracksCount = 1; // Default for non-M4B files
+                        if ("M4B".equals(type)) {
+                            tracksCount = calculateTrackCountForM4B(file);
+                        }
 
                         BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                                fileName, file.length(), hash, existingBookName, 1, coverPath);
+                                fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
                         addCandidate(candidate, candidates);
                     }
                 }
@@ -401,6 +412,101 @@ public class MassImportScanner extends LoggerHelper {
     private boolean isAudioFileName(String fileName) {
         String ext = getExt(fileName);
         return Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext);
+    }
+
+    /**
+     * Counts chapters/tracks in an M4B file.
+     * Returns 1 if no chapters are found or if the file cannot be parsed.
+     */
+    private int calculateTrackCountForM4B(DocumentFile m4bFile) {
+        if (isCancelled)
+            return 1;
+
+        java.io.File tempFile = null;
+        try {
+            // Try to get a file path from URI (prefer direct access)
+            String filePath = UriHelper.getPathFromUri(context, m4bFile.getUri());
+            if (filePath != null) {
+                java.io.File directFile = new java.io.File(filePath);
+                if (directFile.exists() && directFile.isFile()) {
+                    return countM4BChapters(directFile.getAbsolutePath());
+                }
+            }
+
+            // Fallback: copy to temp file for SAF URIs
+            // Note: This might be slow for large files, but necessary for SAF access
+            tempFile = UriHelper.getFileFromUri(context, m4bFile.getUri());
+            if (tempFile != null && tempFile.exists()) {
+                int count = countM4BChapters(tempFile.getAbsolutePath());
+                // Clean up temp file if we created it (check if it's in cache dir)
+                if (tempFile.getParentFile() != null
+                        && tempFile.getParentFile().equals(context.getCacheDir())
+                        && (tempFile.getName().startsWith("uri_tmp_") || tempFile.getName().startsWith("uri_temp_"))) {
+                    // Delete temp file after use
+                    try {
+                        tempFile.delete();
+                    } catch (Exception e) {
+                        myLogE("Could not delete temp file: " + tempFile.getAbsolutePath());
+                    }
+                }
+                return count;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error counting chapters in M4B: " + safeName(m4bFile));
+            // Clean up temp file on error
+            if (tempFile != null && tempFile.exists()) {
+                try {
+                    tempFile.delete();
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        return 1; // Default: single track
+    }
+
+    /**
+     * Counts chapters in an M4B file using MP4Parser.
+     * Returns 1 if no chapters found or parsing fails.
+     */
+    private int countM4BChapters(String m4bFilePath) {
+        DataSource dataSource = null;
+        try {
+            // Use FileDataSourceViaHeapImpl (same as M4bSplitWorker) to avoid mmap issues
+            dataSource = new FileDataSourceViaHeapImpl(m4bFilePath);
+            Movie movie = MovieCreator.build(dataSource);
+
+            // Find the chapter track
+            Track chapterTrack = null;
+            for (Track track : movie.getTracks()) {
+                if (isCancelled)
+                    return 1;
+                String handler = track.getHandler();
+                if ("text".equals(handler) || "sbtl".equals(handler)) {
+                    chapterTrack = track;
+                    break;
+                }
+            }
+
+            if (chapterTrack != null) {
+                int chapterCount = chapterTrack.getSamples().size();
+                myLogD("M4B chapter count: " + chapterCount + " for file: " + m4bFilePath);
+                return chapterCount > 0 ? chapterCount : 1;
+            } else {
+                // No chapter track found - it's a single-track M4B
+                myLogD("No chapter track found in M4B, treating as single track: " + m4bFilePath);
+                return 1;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error parsing M4B for chapter count: " + m4bFilePath);
+            return 1; // Default: single track
+        } finally {
+            if (dataSource != null) {
+                try {
+                    dataSource.close();
+                } catch (Exception ignored) {
+                }
+            }
+        }
     }
 
     private String safeName(DocumentFile f) {
