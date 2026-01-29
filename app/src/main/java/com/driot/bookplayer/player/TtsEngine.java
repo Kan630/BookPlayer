@@ -395,6 +395,13 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         main.post(() -> {
             if (disposed || !playing)
                 return;
+            
+            // Safety check: ensure we haven't reached the end
+            if (text == null || text.isEmpty() || lastCharSpoken >= text.length()) {
+                myLogD("onDone: reached end of text, not continuing");
+                return;
+            }
+            
             resumeOffsetChars = lastCharSpoken;
             speakFromOffset(resumeOffsetChars);
         });
@@ -403,10 +410,30 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     @Override
     public void onError(String utteranceId, int errorCode) {
         String desc = TtsErrorUtils.describeOnErrorCode(errorCode);
-        myLogD("onError " + utteranceId + ", code = " + errorCode + " -> " + desc);
+        myLogE("onError " + utteranceId + ", code = " + errorCode + " -> " + desc);
         if (disposed)
             return;
+        
+        // Stop TTS immediately to prevent infinite error loops
         playing = false;
+        if (tts != null) {
+            try {
+                tts.stop();
+            } catch (Exception e) {
+                myLogEE(e, "Error stopping TTS in onError");
+            }
+        }
+        
+        // Also stop at the manager level to ensure complete stop
+        try {
+            if (mgr != null) {
+                mgr.stop();
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error stopping TTS manager in onError");
+        }
+        
+        // Prevent further synthesis attempts
         if (listener != null) {
             // msg starts with "TTS" so MediaService knows it's a TTS error
             listener.onError(gen,
@@ -507,6 +534,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private void speakFromOffset(int offsetChars) {
         if (disposed || tts == null)
             return;
+        
+        // Safety check: ensure text is not empty
+        if (text == null || text.isEmpty() || text.trim().isEmpty()) {
+            myLogW("speakFromOffset: text is empty, stopping");
+            playing = false;
+            return;
+        }
+        
         tts.setSpeechRate(speechRate);
         final int off = Math.max(0, Math.min(offsetChars, text.length()));
         LocalBroadcastManager.getInstance(app).sendBroadcast(

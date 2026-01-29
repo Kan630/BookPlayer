@@ -1288,6 +1288,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             } catch (Throwable ignored) {
             } // ok to be a no-op after release
         }
+        
+        // Also stop TTS engine to prevent infinite loops
+        try {
+            com.driot.bookplayer.tts.AppTtsManager ttsMgr = com.driot.bookplayer.tts.AppTtsManager.get(this);
+            if (ttsMgr != null) {
+                ttsMgr.stop();
+            }
+        } catch (Throwable ignored) {
+        }
         try {
             if (sleepTimer != null) sleepTimer.stop();
         } catch (Throwable ignored) {

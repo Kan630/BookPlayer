@@ -58,6 +58,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     private final Handler main = new Handler(Looper.getMainLooper());
     private volatile boolean ready = false;
     private TextToSpeech tts;
+    private int consecutiveErrorCount = 0;
+    private static final int MAX_CONSECUTIVE_ERRORS = 5; // Emergency shutdown after 5 consecutive errors
 
     // Weak listener list (no owner concept anymore)
     private final List<WeakReference<Listener>> listeners = new CopyOnWriteArrayList<>();
@@ -136,6 +138,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     myLogD("----------------------------------------------------------------------------------------");
                     myLog("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
                     myLogD("----------------------------------------------------------------------------------------");
+                    // Reset error count on successful start
+                    consecutiveErrorCount = 0;
                     int[] se = TtsIds.parseUtt(utteranceId);
                     if (se != null) {
                         final int s = se[0];
@@ -159,6 +163,26 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
                 @Override public void onError(String utteranceId, int errorCode) {
                     myLogE("onError " + utteranceId + " -> " + TtsErrorUtils.describeOnErrorCode(errorCode));
+                    
+                    consecutiveErrorCount++;
+                    myLogE("TTS consecutive error count: " + consecutiveErrorCount);
+                    
+                    // Emergency shutdown if we get repeated errors (likely infinite loop)
+                    if (consecutiveErrorCount >= MAX_CONSECUTIVE_ERRORS) {
+                        myLogE("TTS ERROR LOOP DETECTED - triggering emergency shutdown");
+                        emergencyShutdown();
+                        return; // Don't notify listeners, engine is dead
+                    }
+                    
+                    // Stop TTS immediately to prevent further errors
+                    try {
+                        if (tts != null) {
+                            tts.stop();
+                        }
+                    } catch (Exception e) {
+                        myLogEE(e, "Error stopping TTS in onError callback");
+                    }
+                    
                     forEachListener(l -> l.onError(utteranceId, errorCode));
                 }
 
@@ -272,7 +296,37 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     public void stop() {
         TextToSpeech t = tts;
-        if (t != null) t.stop();
+        if (t != null) {
+            try {
+                t.stop();
+            } catch (Exception e) {
+                myLogEE(e, "Error stopping TTS");
+            }
+        }
+    }
+
+    /**
+     * Forcefully shutdown TTS engine to prevent infinite loops.
+     * Should be called when TTS is in a bad state.
+     */
+    public void emergencyShutdown() {
+        myLogE("EMERGENCY TTS SHUTDOWN - stopping and resetting engine");
+        TextToSpeech t = tts;
+        if (t != null) {
+            try {
+                t.stop();
+            } catch (Exception e) {
+                myLogEE(e, "Error stopping TTS in emergency shutdown");
+            }
+            try {
+                t.shutdown();
+            } catch (Exception e) {
+                myLogEE(e, "Error shutting down TTS in emergency shutdown");
+            }
+        }
+        ready = false;
+        tts = null;
+        consecutiveErrorCount = 0;
     }
 
     public int setVoice(Voice v) {

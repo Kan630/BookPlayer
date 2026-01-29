@@ -58,6 +58,13 @@ public class TtsHelper {
             myLogD("speakFromOffset : not ready");
             return;
         }
+        
+        // Safety check: ensure text is not just whitespace
+        String trimmed = text.trim();
+        if (trimmed.isEmpty()) {
+            myLogW("speakFromOffset : text is only whitespace, skipping");
+            return;
+        }
 
         final int maxLen = Option.getTtsChunkSize();
         int txtHash = text.hashCode();
