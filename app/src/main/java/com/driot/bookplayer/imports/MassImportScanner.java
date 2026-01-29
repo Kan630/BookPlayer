@@ -41,17 +41,24 @@ public class MassImportScanner extends LoggerHelper {
 
     public List<BookCandidate> scan(Uri rootUri) {
         List<BookCandidate> candidates = new ArrayList<>();
+        List<DocumentFile> deferredArchives = new ArrayList<>();
+
         DocumentFile root = DocumentFile.fromTreeUri(context, rootUri);
         if (root == null || !root.isDirectory()) {
             myLogE("Root is not a directory or null: " + rootUri);
             return candidates;
         }
 
-        scanRecursive(root, candidates);
+        // Scan files and folders (archives are deferred)
+        scanRecursive(root, candidates, deferredArchives);
+
+        // Process deferred archives
+        processDeferredFiles(deferredArchives, candidates);
+
         return candidates;
     }
 
-    private void scanRecursive(DocumentFile dir, List<BookCandidate> candidates) {
+    private void scanRecursive(DocumentFile dir, List<BookCandidate> candidates, List<DocumentFile> deferredArchives) {
         if (isCancelled)
             return;
 
@@ -59,7 +66,6 @@ public class MassImportScanner extends LoggerHelper {
         myLogD("Scanning directory: " + dir.getName());
 
         DocumentFile[] files = dir.listFiles();
-        boolean hasAudio = false;
 
         for (DocumentFile file : files) {
             if (isCancelled)
@@ -79,23 +85,29 @@ public class MassImportScanner extends LoggerHelper {
                     int tracksCount = calculateTrackCount(file);
                     // Detect cover for folder
                     String coverPath = detectCoverForFolder(file);
-                    candidates.add(new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(dir) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath));
+                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
+                            safeName(dir) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath);
+                    addCandidate(candidate, candidates);
                 } else {
                     myLogD("-> Ignored folder (no audio): " + fileName);
                 }
 
             } else {
                 String type = detectBookType(file);
-                if (type != null) {
+                if ("ZIP".equals(type)) {
+                    // Defer archive processing
+                    myLogD("-> Deferring archive: " + fileName);
+                    deferredArchives.add(file);
+                } else if (type != null) {
                     myLogD("-> Found File candidate [" + type + "]: " + fileName);
                     // Compute hash for file and check if already imported
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     // Detect cover for file
                     String coverPath = detectCoverForFile(file, type);
-                    candidates.add(new BookCandidate(file.getUri(), fileName, type,
-                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath));
+                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
+                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath);
+                    addCandidate(candidate, candidates);
                 } else {
                     myLogD("-> Ignored file (unsupported type): " + fileName);
                 }
@@ -103,12 +115,43 @@ public class MassImportScanner extends LoggerHelper {
         }
     }
 
-    // We only scan the immediate children of the root provided in `scan`.
-    // Wait, `scanRecursive` suggests recursion.
-    // Let's follow the requirement: "add multiple books by selecting only a master
-    // folder".
-    // "take any kind of object in that master folder".
-    // This implies iterating over `root.listFiles()`.
+    // Process deferred archives at the end
+    private void processDeferredFiles(List<DocumentFile> deferredArchives, List<BookCandidate> candidates) {
+        if (deferredArchives.isEmpty())
+            return;
+
+        myLog("Processing " + deferredArchives.size() + " deferred archives...");
+        int count = 0;
+        int total = deferredArchives.size();
+
+        for (DocumentFile file : deferredArchives) {
+            if (isCancelled)
+                return;
+            count++;
+            String fileName = safeName(file);
+            callback.onProgress("Processing archive " + count + "/" + total + ": " + fileName);
+
+            // Re-detect type (we know it is ZIP/7Z/Archive)
+            String type = detectBookType(file);
+            // Should be "ZIP"
+
+            if (type != null) {
+                myLogD("-> Processing deferred archive: " + fileName);
+                String hash = computeHash(file.getUri());
+                String existingBookName = checkHashExists(hash);
+                String coverPath = detectCoverForFile(file, type);
+
+                BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
+                        fileName, file.length(), hash, existingBookName, 1, coverPath);
+                addCandidate(candidate, candidates);
+            }
+        }
+    }
+
+    private void addCandidate(BookCandidate candidate, List<BookCandidate> list) {
+        list.add(candidate);
+        callback.onFound(candidate);
+    }
 
     public void scanImmediateChildren(Uri rootUri, List<BookCandidate> candidates) {
         DocumentFile root = DocumentFile.fromTreeUri(context, rootUri);
@@ -119,50 +162,48 @@ public class MassImportScanner extends LoggerHelper {
         int total = files.length;
         int count = 0;
 
+        List<DocumentFile> deferredArchives = new ArrayList<>();
+
         for (DocumentFile file : files) {
             if (isCancelled)
                 break;
             count++;
-            // callback.onProgress based on count?
-            // Or just report name
             callback.onProgress("Scanning " + count + "/" + total + ": " + safeName(file));
 
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
-                    long size = com.driot.bookplayer.utils.Tonio
-                            .getFolderSize(new java.io.File(file.getUri().getPath())); // This might not work for
-                                                                                       // TreeUri content://
-                    // Tonio.getFolderSize(File) only works for java.io.File.
-                    // For DocumentFile, we need a recursive calculation distinct from java.io.File
-                    // if it's not a raw file path.
-                    // However, Tonio.getFolderSize(String) exists but might expect a path.
-                    // Let's implement a recursive size for DocumentFile here or reuse Tonio if
-                    // possible,
-                    // BUT Tonio.getFolderSize uses File.
-                    // Let's rely on a local helper for DocumentFile size.
-                    size = calculateSize(file);
+                    long size = calculateSize(file);
 
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     int tracksCount = calculateTrackCount(file);
                     // Detect cover for folder
                     String coverPath = detectCoverForFolder(file);
-                    candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size,
-                            hash, existingBookName, tracksCount, coverPath));
+                    BookCandidate candidate = new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file),
+                            size,
+                            hash, existingBookName, tracksCount, coverPath);
+                    addCandidate(candidate, candidates);
                 }
             } else {
                 String type = detectBookType(file);
-                if (type != null) {
+
+                if ("ZIP".equals(type)) {
+                    deferredArchives.add(file);
+                } else if (type != null) {
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     // Detect cover for file
                     String coverPath = detectCoverForFile(file, type);
-                    candidates
-                            .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length(),
-                                    hash, existingBookName, 1, coverPath));
+                    BookCandidate candidate = new BookCandidate(file.getUri(), safeName(file), type, safeName(file),
+                            file.length(),
+                            hash, existingBookName, 1, coverPath);
+                    addCandidate(candidate, candidates);
                 }
             }
         }
+
+        // Process deferred for immediate children scan as well
+        processDeferredFiles(deferredArchives, candidates);
     }
 
     private String detectBookType(DocumentFile file) {
@@ -471,7 +512,7 @@ public class MassImportScanner extends LoggerHelper {
             }
         }
 
-        // Extract cover from ZIP and 7Z files (audiobook archives)
+        // Extract cover from ZIP, 7Z and TAR files
         if ("ZIP".equals(type)) {
             String fileName = safeName(file).toLowerCase();
 
@@ -481,16 +522,12 @@ public class MassImportScanner extends LoggerHelper {
                     try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
                             .openFileDescriptor(file.getUri(), "r")) {
                         if (pfd != null) {
-                            // Convert to SeekableByteChannel properly
-                            // SevenZFile requires a SeekableByteChannel
                             try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
                                     pfd.getFileDescriptor()).getChannel()) {
-
                                 try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
                                         channel)) {
 
                                     org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
-
                                     byte[] largestImage = null;
                                     long largestSize = 0;
                                     String largestName = null;
@@ -500,14 +537,10 @@ public class MassImportScanner extends LoggerHelper {
                                             String entryName = entry.getName().toLowerCase();
                                             if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
                                                     entryName.endsWith(".png") || entryName.endsWith(".webp")) {
-
                                                 long size = entry.getSize();
                                                 if (size > largestSize || (size == -1 && largestImage == null)) {
-                                                    // Read image content
-                                                    // Limit to reasonable size (e.g. 10MB) to avoid OOM
                                                     if (size > 10 * 1024 * 1024)
                                                         continue;
-
                                                     int contentSize = (int) size;
                                                     byte[] content = new byte[contentSize];
                                                     int bytesRead = 0;
@@ -518,7 +551,6 @@ public class MassImportScanner extends LoggerHelper {
                                                             break;
                                                         bytesRead += read;
                                                     }
-
                                                     if (bytesRead == contentSize) {
                                                         byte[] imageBytes = content;
                                                         if (imageBytes.length > largestSize) {
@@ -531,16 +563,13 @@ public class MassImportScanner extends LoggerHelper {
                                             }
                                         }
                                     }
-
                                     if (largestImage != null) {
                                         android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
                                                 largestImage, 0, largestImage.length);
-
                                         if (bitmap != null) {
                                             String suffix = "_" + file.getUri().hashCode();
                                             String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(
-                                                    context,
-                                                    bitmap, suffix);
+                                                    context, bitmap, suffix);
                                             if (tempPath != null) {
                                                 myLogD("Cover extracted from 7Z: " + safeName(file) + " -> "
                                                         + largestName);
@@ -556,7 +585,74 @@ public class MassImportScanner extends LoggerHelper {
                     myLogEE(e, "Error extracting 7Z cover: " + safeName(file));
                 }
             }
-            // 2. ZIP Files (Streamable)
+            // 2. TAR Files (inc. tgz, tbz2, txz)
+            else if (fileName.endsWith(".tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
+                    || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
+                    || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
+
+                try {
+                    java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
+                    if (inputStream != null) {
+                        try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
+                                java.io.InputStream cis = maybeWrapCompressor(bis);
+                                org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+                                        cis)) {
+
+                            org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+                            byte[] largestImage = null;
+                            long largestSize = 0;
+                            String largestName = null;
+
+                            while ((entry = tis.getNextTarEntry()) != null) {
+                                if (!entry.isDirectory()) {
+                                    String entryName = entry.getName().toLowerCase();
+                                    if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
+                                            entryName.endsWith(".png") || entryName.endsWith(".webp")) {
+
+                                        long size = entry.getSize();
+                                        if (size > largestSize || (size == -1 && largestImage == null)) {
+                                            if (size > 10 * 1024 * 1024)
+                                                continue; // Skip huge images to avoid OOM
+
+                                            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                            byte[] buffer = new byte[8192];
+                                            int len;
+                                            // TarInputStream reads until end of entry
+                                            while ((len = tis.read(buffer)) > 0) {
+                                                baos.write(buffer, 0, len);
+                                            }
+                                            byte[] imageBytes = baos.toByteArray();
+
+                                            if (imageBytes.length > largestSize) {
+                                                largestImage = imageBytes;
+                                                largestSize = imageBytes.length;
+                                                largestName = entry.getName();
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (largestImage != null) {
+                                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                        largestImage, 0, largestImage.length);
+                                if (bitmap != null) {
+                                    String suffix = "_" + file.getUri().hashCode();
+                                    String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                            bitmap, suffix);
+                                    if (tempPath != null) {
+                                        myLogD("Cover extracted from TAR: " + safeName(file) + " -> " + largestName);
+                                        return tempPath;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error extracting TAR cover: " + safeName(file));
+                }
+            }
+            // 3. ZIP Files (Streamable) - Default fallback
             else {
                 try {
                     // Stream through ZIP entries to find largest image file
@@ -625,5 +721,18 @@ public class MassImportScanner extends LoggerHelper {
         }
 
         return null;
+    }
+
+    private static java.io.InputStream maybeWrapCompressor(java.io.InputStream in)
+            throws org.apache.commons.compress.compressors.CompressorException {
+        // auto-detect gzip/bzip2/xz by magic bytes
+        org.apache.commons.compress.compressors.CompressorStreamFactory f = new org.apache.commons.compress.compressors.CompressorStreamFactory(
+                true);
+        try {
+            return f.createCompressorInputStream(in); // compressed tar
+        } catch (org.apache.commons.compress.compressors.CompressorException notCompressed) {
+            // plain .tar (no compression)
+            return in;
+        }
     }
 }

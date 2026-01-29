@@ -47,8 +47,9 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         // Don't restart scan if already scanning
         if (Boolean.TRUE.equals(isScanning.getValue()))
             return;
-        
-        // If we already have candidates for this URI, don't rescan (prevents recomputation on rotation)
+
+        // If we already have candidates for this URI, don't rescan (prevents
+        // recomputation on rotation)
         if (rootUri.equals(lastScannedUri) && candidates.getValue() != null && !candidates.getValue().isEmpty()) {
             myLogD("Scan already completed for this URI, skipping rescan. Candidates: " + candidates.getValue().size());
             return;
@@ -58,23 +59,26 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         isScanning.setValue(true);
         candidates.setValue(Collections.emptyList());
 
+        // List to accumulate results for real-time updates
+        final List<BookCandidate> runningList = new java.util.concurrent.CopyOnWriteArrayList<>();
+
         scanner = new MassImportScanner(getApplication(), new MassImportScanner.Callback() {
             @Override
             public void onProgress(String currentPath) {
+                // Throttle progress updates if needed, but for now direct post is okay
                 mainHandler.post(() -> progressText.setValue("Scanning: " + currentPath));
             }
 
             @Override
             public void onFound(BookCandidate candidate) {
-                // Determine if we should update LiveData immediately or batch.
-                // For now, let's just collect in the background list and update at the end
-                // OR update progressively.
-                // Since user might want to see them appearing, let's just not update LiveData
-                // on every item to avoid UI lag
-                // if there are thousands.
-                // But MassImportScanner returns the full list at the end.
-                // The callback onFound is extra.
-                // Let's rely on the final list for the full update, or update periodically.
+                runningList.add(candidate);
+
+                // Update LiveData incrementally
+                // We create a copy to ensure thread safety when posting to Main Thread
+                // but CopyOnWriteArrayList makes iteration safe, though a simple ArrayList copy
+                // is better for the UI adapter
+                final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
+                mainHandler.post(() -> candidates.setValue(update));
             }
         });
 
@@ -85,6 +89,8 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
                 myLogD("Candidate: " + c.name + " [" + c.type + "] -> " + c.uri);
             }
             mainHandler.post(() -> {
+                // specific "scan complete" message, but list is already up to date via onFound
+                // just ensuring consistency
                 candidates.setValue(result);
                 isScanning.setValue(false);
                 progressText.setValue("Scan complete. Found " + result.size() + " items.");
