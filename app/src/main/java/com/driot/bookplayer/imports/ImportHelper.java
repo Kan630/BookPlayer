@@ -8,7 +8,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.objects.AppViewModelStoreOwner;
+
 import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -23,14 +23,13 @@ import java.util.concurrent.Executors;
 
 public class ImportHelper {
 
-
     public static String getSourceFilePathForWorker(ImportJob j) {
         myLog(j.importId + " - getSourceFilePathForWorker");
         String returnedPath;
         if (Objects.equals(j.dynamicType, "INSTRUMENTED_TESTS")) {
             myLog("getSourceFilePathForWorker() : INSTRUMENTED_TESTS");
             returnedPath = j.dynamicSourceFilePath;
-        } else if  (j.downloadFileUrl != null && !j.downloadFileUrl.isEmpty()) {
+        } else if (j.downloadFileUrl != null && !j.downloadFileUrl.isEmpty()) {
             myLog("downloaded file");
             final String downloadedFileName = Tonio.getFileNameFromUrl(j.downloadFileUrl);
             final File outFile = new File(j.downloadDestinationFolder, downloadedFileName);
@@ -54,7 +53,8 @@ public class ImportHelper {
         Executors.newSingleThreadExecutor().execute(() -> {
             ImportJobDao dao = db.importJobDao();
             // Add this DAO method (see below)
-            ImportJob job = dao.getUniqueJob();  //getMostRecentActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+            ImportJob job = dao.getUniqueJob(); // getMostRecentActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED,
+                                                // ImportJob.S_PAUSED);
             if (job == null) {
                 myLogW("No active import to cancel");
                 return;
@@ -73,7 +73,7 @@ public class ImportHelper {
             // Reflect cancellation in Room (so UI updates immediately)
             new ImportJobRepository(app).cancel(job.importId);
 
-            cleanUp(app,true, job.futureFolderPath);
+            cleanUp(app, true, job.futureFolderPath);
         });
     }
 
@@ -86,9 +86,6 @@ public class ImportHelper {
         });
     }
 
-
-
-
     public static void setShowToUser(Context ctx, boolean showToUser) {
         Context app = ctx.getApplicationContext();
         AppDatabase db = AppDatabase.getInstance(app);
@@ -96,7 +93,8 @@ public class ImportHelper {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             ImportJobDao dao = db.importJobDao();
             // Add this DAO method (see below)
-            ImportJob job = dao.getUniqueJob();  //getMostRecentActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED, ImportJob.S_PAUSED);
+            ImportJob job = dao.getUniqueJob(); // getMostRecentActive(ImportJob.S_RUNNING, ImportJob.S_QUEUED,
+                                                // ImportJob.S_PAUSED);
             if (job == null) {
                 myLogW("No active import to deal with");
             } else {
@@ -117,19 +115,17 @@ public class ImportHelper {
         return nbActive > 0;
     }
 
-
     public static LiveData<Boolean> observeAnyImportActive(Context ctx) {
         AppDatabase db = AppDatabase.getInstance(ctx.getApplicationContext());
         return Transformations.map(
                 db.importJobDao().observeActiveCount(),
-                c -> c != null && c > 0
-        );
+                c -> c != null && c > 0);
     }
-
 
     public static void cleanUp(Context context, boolean deleteBook, String futureFolderPath) {
         Thread.currentThread().setPriority(Thread.NORM_PRIORITY - 1);
-        myLogD("Cleanup starting (bg)…   - deleteBook = [" + deleteBook + "] - futureFolderPath = [" + futureFolderPath + "]");
+        myLogD("Cleanup starting (bg)…   - deleteBook = [" + deleteBook + "] - futureFolderPath = [" + futureFolderPath
+                + "]");
 
         // 3) Delete the unzip/working folder iff it's internal AND not referenced in DB
         if (deleteBook) {
@@ -139,14 +135,16 @@ public class ImportHelper {
                         if (FileHelper.exists(futureFolderPath)) {
                             // DB check on DB executor, then delete in THIS bg thread.
                             AppDatabase.databaseReadExecutor.execute(() -> {
-                                boolean safeToDelete =
-                                        AppDatabase.getDatabase(context)
-                                                .folderDao()
-                                                .folderAlreadyExist_checkFolderPath(futureFolderPath) == 0;
+                                boolean safeToDelete = AppDatabase.getDatabase(context)
+                                        .folderDao()
+                                        .folderAlreadyExist_checkFolderPath(futureFolderPath) == 0;
                                 if (safeToDelete) {
                                     myLogI("cleanup - deleting internal audio folder [" + futureFolderPath + "]");
-                                    try { FileHelper.deleteFolderRecursive(futureFolderPath); }
-                                    catch (Exception e) { myLogEE(e, "delete internal audio folder"); }
+                                    try {
+                                        FileHelper.deleteFolderRecursive(futureFolderPath);
+                                    } catch (Exception e) {
+                                        myLogEE(e, "delete internal audio folder");
+                                    }
                                 } else {
                                     myLogW("cleanup - folder still in DB : [" + futureFolderPath + "]");
                                 }
@@ -158,7 +156,7 @@ public class ImportHelper {
                         myLogD("cleanup - no delete for non internal folder : [" + futureFolderPath + "]");
                     }
                 } else {
-                    myLogEE(null,"cleanup - no futureFolderPath - no disk delete");
+                    myLogEE(null, "cleanup - no futureFolderPath - no disk delete");
                 }
             } catch (Exception e) {
                 myLogEE(e, "cleanup - delete Internal (unzip) Folder : [" + futureFolderPath + "]");
@@ -173,39 +171,43 @@ public class ImportHelper {
                 FileHelper.deleteFolderChildren(dl); // implement: deletes children only
             } else if (!dl.exists()) {
                 // Create if your pipeline assumes existence (still background, so OK)
-                if (!dl.mkdirs()) myLogW("cleanup - mkdirs deleteBook for " + dl.getAbsolutePath());
+                if (!dl.mkdirs())
+                    myLogW("cleanup - mkdirs deleteBook for " + dl.getAbsolutePath());
             }
         } catch (Exception e) {
             myLogEE(e, "cleanup - tidy Download folder");
         }
 
         // 4) Temp image
-        try { ImageHelper.deleteTempImportImage(context); }
-        catch (Exception e) { myLogEE(e, "cleanup - delete Temp Import Image"); }
+        try {
+            ImageHelper.deleteTempImportImage(context);
+        } catch (Exception e) {
+            myLogEE(e, "cleanup - delete Temp Import Image");
+        }
 
         // 5) Final fast things (prefs/viewmodels) — still safe in bg
-        //try { Pref.clearLoadBookTaskState(context); } catch (Exception e) { myLogEE(e, "cleanup - clearLoadBookTaskState (bg)"); }
+        // try { Pref.clearLoadBookTaskState(context); } catch (Exception e) {
+        // myLogEE(e, "cleanup - clearLoadBookTaskState (bg)"); }
 
-        try { AppViewModelStoreOwner.clear(); } catch (Exception e) { myLogEE(e, "cleanup - clear AppViewModelStoreOwner"); }
-/*
-        myLogI("Cleanup finished (bg), sending signal to UI (ShowUser=False in DB) in 3sec.");
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            try {
-                AppDatabase.databaseWriteExecutor.execute(() -> {
-                    AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
-                    ImportJobDao dao = db.importJobDao();
-                    ImportJob job = dao.getUniqueJob();
-                    job.showToUser = false;
-                    dao.update(job);
-                });
-
-            } catch (Exception e) {
-                myLogEE(e, "showToUser set false ko");
-            }
-        }, 3000);
-
- */
-
+        /*
+         * myLogI("Cleanup finished (bg), sending signal to UI (ShowUser=False in DB) in 3sec."
+         * );
+         * new Handler(Looper.getMainLooper()).postDelayed(() -> {
+         * try {
+         * AppDatabase.databaseWriteExecutor.execute(() -> {
+         * AppDatabase db = AppDatabase.getInstance(context.getApplicationContext());
+         * ImportJobDao dao = db.importJobDao();
+         * ImportJob job = dao.getUniqueJob();
+         * job.showToUser = false;
+         * dao.update(job);
+         * });
+         * 
+         * } catch (Exception e) {
+         * myLogEE(e, "showToUser set false ko");
+         * }
+         * }, 3000);
+         * 
+         */
 
     }
 }

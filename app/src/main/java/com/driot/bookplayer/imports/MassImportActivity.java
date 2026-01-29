@@ -55,23 +55,28 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
     @Override
     protected boolean enableOngoingTaskOverlay() {
-        return true;
+        return false;
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        viewModel = new ViewModelProvider(this).get(MassImportViewModel.class);
+
         rootUri = getIntent().getParcelableExtra(EXTRA_URI);
-        if (rootUri == null) {
+        // If we don't have a URI, check if we already have results (re-entry from
+        // notification/banner)
+        boolean hasState = viewModel.getCandidates().getValue() != null
+                && !viewModel.getCandidates().getValue().isEmpty();
+
+        if (rootUri == null && !hasState) {
             myToast(getString(com.driot.bookplayer.R.string.error_no_folder_selected));
             finish();
             return;
         }
 
         initializeViews();
-
-        viewModel = new ViewModelProvider(this).get(MassImportViewModel.class);
 
         setupRecyclerView();
         observeViewModel();
@@ -89,7 +94,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
         // Start scanning automatically only if not already done
         // This prevents recomputation on rotation
-        viewModel.startScan(rootUri);
+        // Start scanning automatically only if not already done and we have a URI
+        if (rootUri != null) {
+            viewModel.startScan(rootUri);
+        }
     }
 
     private void initializeViews() {

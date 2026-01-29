@@ -7,30 +7,63 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.imports.BookCandidate;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
+import java.util.List;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
     private final MediatorLiveData<TaskUiState> ui = new MediatorLiveData<>();
 
-    public OngoingTaskViewModel(@NonNull Application app) {
+    @Inject
+    public OngoingTaskViewModel(@NonNull Application app, MassImportRepository massImportRepo) {
         super(app);
         ui.setValue(TaskUiState.idle());
 
         AppDatabase db = AppDatabase.getInstance(app);
-        LiveData<ImportJob> src = db.importJobDao().observeUniqueJob();
+        LiveData<ImportJob> dbSrc = db.importJobDao().observeUniqueJob();
 
-        ui.addSource(src, job -> {
-            //myLog("ui.addSource => src = " + job.toString());
+        LiveData<Boolean> scanRunningSrc = massImportRepo.getIsScanning();
+        LiveData<Boolean> scanFinishedSrc = massImportRepo.getIsScanFinished();
+        LiveData<String> scanProgressSrc = massImportRepo.getProgressText();
+        LiveData<List<BookCandidate>> scanCandidatesSrc = massImportRepo.getCandidates();
 
-            //if (job == null) return; // 👈 no "idle" emission
-            //TaskUiState next = TaskUiState.from(job);
-            TaskUiState next = (job == null) ? TaskUiState.idle() : TaskUiState.from(job);
-
-            TaskUiState prev = ui.getValue();
-            if (!next.equals(prev)) ui.setValue(next); // distinctUntilChanged
-        });
+        ui.addSource(dbSrc, job -> updateUi(job, scanRunningSrc.getValue(), scanFinishedSrc.getValue(),
+                scanProgressSrc.getValue(), scanCandidatesSrc.getValue()));
+        ui.addSource(scanRunningSrc, isScanning -> updateUi(dbSrc.getValue(), isScanning, scanFinishedSrc.getValue(),
+                scanProgressSrc.getValue(), scanCandidatesSrc.getValue()));
+        ui.addSource(scanFinishedSrc, isFinished -> updateUi(dbSrc.getValue(), scanRunningSrc.getValue(), isFinished,
+                scanProgressSrc.getValue(), scanCandidatesSrc.getValue()));
+        ui.addSource(scanProgressSrc, progress -> updateUi(dbSrc.getValue(), scanRunningSrc.getValue(),
+                scanFinishedSrc.getValue(), progress, scanCandidatesSrc.getValue()));
+        ui.addSource(scanCandidatesSrc, candidates -> updateUi(dbSrc.getValue(), scanRunningSrc.getValue(),
+                scanFinishedSrc.getValue(), scanProgressSrc.getValue(), candidates));
     }
 
-    public LiveData<TaskUiState> getUi() { return ui; }
+    private void updateUi(ImportJob job, Boolean isScanning, Boolean isScanFinished, String scanProgress,
+            List<BookCandidate> candidates) {
+        if (Boolean.TRUE.equals(isScanning)) {
+            // Priority 1: Scanning
+            ui.setValue(TaskUiState.scanning(scanProgress != null ? scanProgress : "Scanning..."));
+        } else if (Boolean.TRUE.equals(isScanFinished)) {
+            // Priority 2: Scan Finished (waiting for user confirmation)
+            int count = candidates != null ? candidates.size() : 0;
+            ui.setValue(TaskUiState.scanFinished(count));
+        } else if (job != null) {
+            // Priority 3: Import Job
+            ui.setValue(TaskUiState.from(job));
+        } else {
+            ui.setValue(TaskUiState.idle());
+        }
+    }
+
+    public LiveData<TaskUiState> getUi() {
+        return ui;
+    }
 }

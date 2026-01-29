@@ -25,7 +25,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class AddResourceActivity extends BaseBottomNavActivity {
 
-    private static final int DELAY_END_WAIT_WARNINGS = 5*60_000;
+    private static final int DELAY_END_WAIT_WARNINGS = 5 * 60_000;
     private static final int DELAY_END_WAIT_NO_ERROR = 2_000;
 
     private TextView tvTitle;
@@ -40,12 +40,23 @@ public class AddResourceActivity extends BaseBottomNavActivity {
     private Handler delayedFinishHandler;
     private Runnable delayedFinishRunnable;
 
-    private OngoingTaskViewModel viewModel;   // keep reference
+    private OngoingTaskViewModel viewModel; // keep reference
     private boolean didEnterExitMode = false;
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_add_resource; }
-    @Override protected boolean enableOngoingTaskOverlay() { return false; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_add_resource;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return false;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,15 +77,14 @@ public class AddResourceActivity extends BaseBottomNavActivity {
         bPauseResume = findViewById(R.id.bPauseResume);
         bPauseResume.setOnClickListener(v -> performPauseOrResume());
 
-        viewModel = new ViewModelProvider(
-                AppViewModelStoreOwner.getInstance(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication())
-        ).get(OngoingTaskViewModel.class);
+        viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
 
-        //myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
+        // myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
-            //myLog("observing UI state [" + ui.title + "] - showToUser=[" + ui.showToUser + "] - result=[" + ui.result + "] - progressPercent=[" + ui.progressPercent + "]");
+            // myLog("observing UI state [" + ui.title + "] - showToUser=[" + ui.showToUser
+            // + "] - result=[" + ui.result + "] - progressPercent=[" + ui.progressPercent +
+            // "]");
             // Bind UI
             tvTitle.setText(ui.title);
             progressBarText.setText(ui.progressText);
@@ -123,7 +133,8 @@ public class AddResourceActivity extends BaseBottomNavActivity {
 
         enterExitMode(); // buttons → Exit mode
 
-        // Failure => keep activity visible until user exits (or you can auto-close later)
+        // Failure => keep activity visible until user exits (or you can auto-close
+        // later)
         if (Var.IMPORT_STATUS_FAILED.equals(ui.status)) {
             return;
         }
@@ -143,7 +154,8 @@ public class AddResourceActivity extends BaseBottomNavActivity {
             return;
         }
 
-        // Other Cases (should only be SUCCESS) Briefly show, then hide banner + return to Main (ask scroll)
+        // Other Cases (should only be SUCCESS) Briefly show, then hide banner + return
+        // to Main (ask scroll)
         scheduleFinish(DELAY_END_WAIT_NO_ERROR);
     }
 
@@ -187,6 +199,5 @@ public class AddResourceActivity extends BaseBottomNavActivity {
             myLog("Delayed finish runnable cancelled in onPause()");
         }
     }
-
 
 }

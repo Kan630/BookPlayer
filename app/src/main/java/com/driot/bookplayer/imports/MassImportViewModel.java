@@ -2,116 +2,53 @@ package com.driot.bookplayer.imports;
 
 import android.app.Application;
 import android.net.Uri;
-import android.os.Handler;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.lifecycle.HiltViewModel;
+
+@HiltViewModel
 public class MassImportViewModel extends LoggingAndroidViewModel {
 
-    private final MutableLiveData<List<BookCandidate>> candidates = new MutableLiveData<>();
-    private final MutableLiveData<String> progressText = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> isScanning = new MutableLiveData<>(false);
+    private final MassImportRepository repository;
 
-    private MassImportScanner scanner;
-    private Uri lastScannedUri; // Store the last scanned URI to prevent rescanning on rotation
-    private final ExecutorService executor = Executors.newSingleThreadExecutor();
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-
-    public MassImportViewModel(@NonNull Application application) {
+    @Inject
+    public MassImportViewModel(@NonNull Application application, MassImportRepository repository) {
         super(application);
+        this.repository = repository;
     }
 
     public LiveData<List<BookCandidate>> getCandidates() {
-        return candidates;
+        return repository.getCandidates();
     }
 
     public LiveData<String> getProgressText() {
-        return progressText;
+        return repository.getProgressText();
     }
 
     public LiveData<Boolean> getIsScanning() {
-        return isScanning;
+        return repository.getIsScanning();
     }
 
     public void startScan(Uri rootUri) {
-        // Don't restart scan if already scanning
-        if (Boolean.TRUE.equals(isScanning.getValue()))
-            return;
-
-        // If we already have candidates for this URI, don't rescan (prevents
-        // recomputation on rotation)
-        if (rootUri.equals(lastScannedUri) && candidates.getValue() != null && !candidates.getValue().isEmpty()) {
-            myLogD("Scan already completed for this URI, skipping rescan. Candidates: " + candidates.getValue().size());
-            return;
-        }
-
-        lastScannedUri = rootUri;
-        isScanning.setValue(true);
-        candidates.setValue(Collections.emptyList());
-
-        // List to accumulate results for real-time updates
-        // Use ArrayList (single threaded scanner) instead of CopyOnWriteArrayList
-        // (O(N^2) on adds)
-        final List<BookCandidate> runningList = new java.util.ArrayList<>();
-
-        // Throttling mechanism
-        final long[] lastUpdate = { 0 };
-        final long UPDATE_INTERVAL_MS = 250;
-
-        scanner = new MassImportScanner(getApplication(), new MassImportScanner.Callback() {
-            @Override
-            public void onProgress(int current, int total, String currentPath) {
-                // Throttle progress updates if needed, but for now direct post is okay
-                // Optimization: use postValue which drops intermediate values if too fast
-                // Display: "Scanning 5/13: filename.mp3"
-                progressText.postValue("Scanning " + current + "/" + total + ": " + currentPath);
-            }
-
-            @Override
-            public void onFound(BookCandidate candidate) {
-                runningList.add(candidate);
-
-                long now = System.currentTimeMillis();
-                if (now - lastUpdate[0] > UPDATE_INTERVAL_MS) {
-                    lastUpdate[0] = now;
-                    // Create copy for LiveData
-                    final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
-                    candidates.postValue(update);
-                }
-            }
-        });
-
-        executor.execute(() -> {
-            List<BookCandidate> result = scanner.scan(rootUri);
-            mainHandler.post(() -> {
-                candidates.setValue(result);
-                isScanning.setValue(false);
-                progressText.setValue("Scan complete. Found " + result.size() + " items.");
-            });
-        });
+        repository.startScan(rootUri);
     }
 
     public void cancelScan() {
-        if (scanner != null) {
-            scanner.cancel();
-        }
-        isScanning.setValue(false);
+        repository.cancelScan();
     }
 
     @Override
     protected void onCleared() {
         super.onCleared();
-        cancelScan();
-        executor.shutdown();
+        // Do NOT cancel scan on clear, to allow background scanning
+        // repository.cancelScan();
     }
 }

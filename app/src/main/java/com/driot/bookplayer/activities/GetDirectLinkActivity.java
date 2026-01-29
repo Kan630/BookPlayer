@@ -70,10 +70,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 View.IMPORTANT_FOR_ACCESSIBILITY_YES);
         importDimScrim.setContentDescription(getString(R.string.Import_in_progress));
 
-        viewModel = new ViewModelProvider(
-                com.driot.bookplayer.objects.AppViewModelStoreOwner.getInstance(),
-                ViewModelProvider.AndroidViewModelFactory.getInstance(getApplication()))
-                .get(OngoingTaskViewModel.class);
+        viewModel = new ViewModelProvider(this).get(OngoingTaskViewModel.class);
         // myLogD("ViewModel instance: " + System.identityHashCode(viewModel));
 
         viewModel.getUi().observe(this, ui -> {
