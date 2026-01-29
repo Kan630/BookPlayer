@@ -72,7 +72,7 @@ public class MassImportScanner extends LoggerHelper {
                     String coverPath = detectCoverForFolder(file);
 
                     BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(root) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath);
+                            fileName, size, hash, existingBookName, tracksCount, coverPath);
                     addCandidate(candidate, candidates);
                 }
             } else {
@@ -94,7 +94,7 @@ public class MassImportScanner extends LoggerHelper {
                         String coverPath = detectCoverForFile(file, type);
 
                         BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                                safeName(root) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath);
+                                fileName, file.length(), hash, existingBookName, 1, coverPath);
                         addCandidate(candidate, candidates);
                     }
                 }
@@ -168,7 +168,7 @@ public class MassImportScanner extends LoggerHelper {
                     int tracksCount = calculateTrackCount(file);
                     String coverPath = detectCoverForFolder(file);
                     BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(root) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath);
+                            fileName, size, hash, existingBookName, tracksCount, coverPath);
                     addCandidate(candidate, candidates);
                 }
             } else {
@@ -187,7 +187,7 @@ public class MassImportScanner extends LoggerHelper {
                     String coverPath = detectCoverForFile(file, type);
 
                     BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                            safeName(root) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath);
+                                fileName, file.length(), hash, existingBookName, 1, coverPath);
                     addCandidate(candidate, candidates);
                 }
             }

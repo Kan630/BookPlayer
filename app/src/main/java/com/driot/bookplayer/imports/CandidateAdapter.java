@@ -46,8 +46,8 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         // count)
         // For ZIP, M4B, Ebook, we don't know the count yet, so don't show it.
         if ("Folder".equals(item.type) || "Audio File".equals(item.type)) {
-            tracksPart = " - " + item.tracksCount + " "
-                    + holder.ivCover.getContext().getString(com.driot.bookplayer.R.string.tracks);
+            tracksPart = " - " + holder.ivCover.getContext().getResources()
+                    .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
         }
         String txtInfo = item.type
                 + " - " + Tonio.getReadableSize(item.size)

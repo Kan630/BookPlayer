@@ -1277,6 +1277,10 @@
         <item quantity="one">%d folder</item>
         <item quantity="other">%d folders</item>
     </plurals>
+    <plurals name="tracks_count"> //ex : 1 track, 2 tracks
+        <item quantity="one">%d track</item>
+        <item quantity="other">%d tracks</item>
+    </plurals>
     <string name="count_status">%1$s (%2$s)</string> //15 audio files (3 subfolders)
 
     <string name="import_warning_lot_of_file_and_subfolders">It looks like there are a lot of audio files in that folder and its subfolders. Are you sure you want to import all of them into a single book?</string>
