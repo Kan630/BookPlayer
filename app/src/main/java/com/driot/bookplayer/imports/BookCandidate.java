@@ -12,9 +12,10 @@ public class BookCandidate {
     public int tracksCount;
     public String originalHash; // Computed during scanning
     public String existingBookName; // Name of book if hash already exists in DB (null if not imported)
+    public String coverImagePath; // Path to detected cover image (null if none)
 
     public BookCandidate(Uri uri, String name, String type, String path, long size, String originalHash,
-            String existingBookName, int tracksCount) {
+            String existingBookName, int tracksCount, String coverImagePath) {
         this.uri = uri;
         this.name = name;
         this.type = type;
@@ -23,6 +24,7 @@ public class BookCandidate {
         this.originalHash = originalHash;
         this.existingBookName = existingBookName;
         this.tracksCount = tracksCount;
+        this.coverImagePath = coverImagePath;
     }
 
     public boolean isAlreadyImported() {

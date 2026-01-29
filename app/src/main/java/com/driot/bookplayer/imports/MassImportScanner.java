@@ -7,6 +7,7 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
@@ -75,8 +76,10 @@ public class MassImportScanner extends LoggerHelper {
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     int tracksCount = calculateTrackCount(file);
+                    // Detect cover for folder
+                    String coverPath = detectCoverForFolder(file);
                     candidates.add(new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(dir) + "/" + fileName, size, hash, existingBookName, tracksCount));
+                            safeName(dir) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath));
                 } else {
                     myLogD("-> Ignored folder (no audio): " + fileName);
                 }
@@ -88,8 +91,10 @@ public class MassImportScanner extends LoggerHelper {
                     // Compute hash for file and check if already imported
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
+                    // Detect cover for file
+                    String coverPath = detectCoverForFile(file, type);
                     candidates.add(new BookCandidate(file.getUri(), fileName, type,
-                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName, 1));
+                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath));
                 } else {
                     myLogD("-> Ignored file (unsupported type): " + fileName);
                 }
@@ -139,17 +144,21 @@ public class MassImportScanner extends LoggerHelper {
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     int tracksCount = calculateTrackCount(file);
+                    // Detect cover for folder
+                    String coverPath = detectCoverForFolder(file);
                     candidates.add(new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file), size,
-                            hash, existingBookName, tracksCount));
+                            hash, existingBookName, tracksCount, coverPath));
                 }
             } else {
                 String type = detectBookType(file);
                 if (type != null) {
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
+                    // Detect cover for file
+                    String coverPath = detectCoverForFile(file, type);
                     candidates
                             .add(new BookCandidate(file.getUri(), safeName(file), type, safeName(file), file.length(),
-                                    hash, existingBookName, 1));
+                                    hash, existingBookName, 1, coverPath));
                 }
             }
         }
@@ -276,5 +285,100 @@ public class MassImportScanner extends LoggerHelper {
             myLogEE(e, "Error checking if hash exists in DB: " + hash);
             return null;
         }
+    }
+
+    /**
+     * Detects cover image for a folder by scanning for image files.
+     * If no image found, tries to extract embedded cover from audio files.
+     * 
+     * @param folder DocumentFile representing the folder
+     * @return Path to detected cover image, or null if none found
+     */
+    private String detectCoverForFolder(DocumentFile folder) {
+        try {
+            // Step 1: Try to find image files in folder
+            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(context,
+                    folder, null);
+
+            if (result != null && result.imagePath != null) {
+                myLogD("Cover image detected for folder: " + safeName(folder) + " -> " + result.imagePath);
+                return result.imagePath;
+            }
+
+            // Step 2: No image found - try to extract embedded cover from audio files
+            myLogD("No image file found, checking audio metadata for folder: " + safeName(folder));
+            String embeddedCover = extractEmbeddedCoverFromFolder(folder);
+            if (embeddedCover != null) {
+                myLogD("Embedded cover extracted from audio for folder: " + safeName(folder) + " -> " + embeddedCover);
+                return embeddedCover;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error detecting cover for folder: " + safeName(folder));
+        }
+        return null;
+    }
+
+    /**
+     * Extracts embedded cover from the first audio file found in folder.
+     * 
+     * @param folder DocumentFile representing the folder
+     * @return Path to extracted cover, or null if none found
+     */
+    private String extractEmbeddedCoverFromFolder(DocumentFile folder) {
+        try {
+            // Scan folder for audio files
+            for (DocumentFile file : folder.listFiles()) {
+                if (file.isFile() && isAudio(file)) {
+                    // Try to extract embedded cover from this audio file
+                    android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+                    try {
+                        mmr.setDataSource(context, file.getUri());
+                        CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
+                                .extractEmbeddedCover(mmr);
+
+                        if (result != null && result.bitmap != null) {
+                            // Save bitmap to temp file
+                            String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                    result.bitmap);
+                            if (tempPath != null) {
+                                myLogD("Embedded cover saved from audio file: " + safeName(file));
+                                return tempPath;
+                            }
+                        }
+                    } finally {
+                        try {
+                            mmr.release();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error extracting embedded cover from folder: " + safeName(folder));
+        }
+        return null;
+    }
+
+    /**
+     * Detects cover image for a file (M4B, EPUB, etc).
+     * Note: Embedded cover extraction is complex and not performed during mass
+     * import scan.
+     * Covers will be extracted during actual import process.
+     * 
+     * @param file DocumentFile representing the file
+     * @param type Type of file (M4B, Ebook, etc)
+     * @return Path to detected cover image, or null (not extracted during scan)
+     */
+    private String detectCoverForFile(DocumentFile file, String type) {
+        // Embedded cover extraction requires:
+        // - M4B: MediaMetadataRetriever setup with file path/URI
+        // - EPUB: Unzipping and parsing OPF metadata
+        //
+        // This is too complex and slow for mass import scanning.
+        // Covers will be extracted during the actual import process instead.
+        //
+        // For now, return null - files will show placeholder in candidate list.
+        myLogD("Skipping embedded cover extraction for file during scan: " + safeName(file));
+        return null;
     }
 }

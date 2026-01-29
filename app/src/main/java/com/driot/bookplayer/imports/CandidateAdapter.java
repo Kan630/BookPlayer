@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -46,7 +47,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         // For ZIP, M4B, Ebook, we don't know the count yet, so don't show it.
         if ("Folder".equals(item.type) || "Audio File".equals(item.type)) {
             tracksPart = " - " + item.tracksCount + " "
-                    + holder.ivIcon.getContext().getString(com.driot.bookplayer.R.string.tracks);
+                    + holder.ivCover.getContext().getString(com.driot.bookplayer.R.string.tracks);
         }
         String txtInfo = item.type
                 + " - " + Tonio.getReadableSize(item.size)
@@ -55,7 +56,19 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
         holder.tvType.setText(txtInfo);
 
-        // Simple icon logic
+        // Load cover image if available
+        if (item.coverImagePath != null && !item.coverImagePath.isEmpty()) {
+            Glide.with(holder.itemView.getContext())
+                    .load(item.coverImagePath)
+                    .placeholder(R.drawable.no_image_icon)
+                    .centerCrop()
+                    .into(holder.ivCover);
+        } else {
+            // No cover - show placeholder
+            holder.ivCover.setImageResource(R.drawable.no_image_icon);
+        }
+
+        // Set type icon (smaller, overlaid in top-left)
         int iconRes;
         if ("Folder".equals(item.type)) {
             iconRes = R.drawable.ic_folder_24px;
@@ -68,19 +81,20 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         } else {
             iconRes = R.drawable.ic_audio_file_24px;
         }
-        holder.ivIcon.setImageResource(iconRes);
+        holder.ivTypeIcon.setImageResource(iconRes);
 
         // Check if already imported
         if (item.isAlreadyImported()) {
-            // Apply red tint to icon
-            holder.ivIcon.setColorFilter(0xFFFF0000); // Red color
+            // Apply red tint to type icon
+            holder.ivTypeIcon.setColorFilter(0xFFFF0000); // Red color
             // Show "already imported" message
             holder.tvAlreadyImported.setVisibility(android.view.View.VISIBLE);
-            String txtError = holder.itemView.getContext().getString(com.driot.bookplayer.R.string.already_imported_under_name) + item.existingBookName;
+            String txtError = holder.itemView.getContext()
+                    .getString(com.driot.bookplayer.R.string.already_imported_under_name) + item.existingBookName;
             holder.tvAlreadyImported.setText(txtError);
         } else {
             // Clear color filter (normal icon)
-            holder.ivIcon.clearColorFilter();
+            holder.ivTypeIcon.clearColorFilter();
             // Hide "already imported" message
             holder.tvAlreadyImported.setVisibility(android.view.View.GONE);
         }
@@ -95,14 +109,16 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         TextView tvName;
         TextView tvType;
         TextView tvAlreadyImported;
-        ImageView ivIcon;
+        ImageView ivCover;
+        ImageView ivTypeIcon;
 
         ViewHolder(View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvName);
             tvType = itemView.findViewById(R.id.tvType);
             tvAlreadyImported = itemView.findViewById(R.id.tvAlreadyImported);
-            ivIcon = itemView.findViewById(R.id.ivIcon);
+            ivCover = itemView.findViewById(R.id.ivCover);
+            ivTypeIcon = itemView.findViewById(R.id.ivTypeIcon);
         }
     }
 }
