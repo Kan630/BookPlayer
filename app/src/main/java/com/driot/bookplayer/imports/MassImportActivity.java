@@ -290,10 +290,11 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 BookLoadingWorkLauncher.launch(getApplicationContext(), s, true);
             }
 
-            // Clean up the scan state (fragment) but keep files
-            viewModel.consumeScanState();
-
             runOnUiThread(() -> {
+                // Clean up the scan state (fragment) but keep files
+                // Must be called on main thread since it updates LiveData
+                viewModel.consumeScanState();
+
                 int importableCount = 0;
                 for (BookCandidate c : candidates) {
                     if (!c.isAlreadyImported()) {
