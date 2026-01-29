@@ -6,6 +6,7 @@ import android.net.Uri;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.utils.HashWorker;
@@ -337,9 +338,10 @@ public class MassImportScanner extends LoggerHelper {
                                 .extractEmbeddedCover(mmr);
 
                         if (result != null && result.bitmap != null) {
-                            // Save bitmap to temp file
+                            // Save bitmap to temp file with unique suffix to avoid collision
+                            String suffix = "_" + file.getUri().hashCode();
                             String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                    result.bitmap);
+                                    result.bitmap, suffix);
                             if (tempPath != null) {
                                 myLogD("Embedded cover saved from audio file: " + safeName(file));
                                 return tempPath;
@@ -361,24 +363,114 @@ public class MassImportScanner extends LoggerHelper {
 
     /**
      * Detects cover image for a file (M4B, EPUB, etc).
-     * Note: Embedded cover extraction is complex and not performed during mass
-     * import scan.
-     * Covers will be extracted during actual import process.
+     * Extracts embedded covers from M4B/audio files.
+     * EPUB extraction skipped (too complex for scan).
      * 
      * @param file DocumentFile representing the file
      * @param type Type of file (M4B, Ebook, etc)
-     * @return Path to detected cover image, or null (not extracted during scan)
+     * @return Path to detected cover image, or null if none found
      */
     private String detectCoverForFile(DocumentFile file, String type) {
-        // Embedded cover extraction requires:
-        // - M4B: MediaMetadataRetriever setup with file path/URI
-        // - EPUB: Unzipping and parsing OPF metadata
-        //
-        // This is too complex and slow for mass import scanning.
-        // Covers will be extracted during the actual import process instead.
-        //
-        // For now, return null - files will show placeholder in candidate list.
-        myLogD("Skipping embedded cover extraction for file during scan: " + safeName(file));
+        // Extract embedded cover from M4B and audio files
+        if ("M4B".equals(type) || "Audio File".equals(type)) {
+            try {
+                android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+                try {
+                    mmr.setDataSource(context, file.getUri());
+                    CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.extractEmbeddedCover(mmr);
+
+                    if (result != null && result.bitmap != null) {
+                        // Save bitmap to temp file with unique suffix to avoid collision
+                        String suffix = "_" + file.getUri().hashCode();
+                        String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                result.bitmap, suffix);
+                        if (tempPath != null) {
+                            myLogD("Embedded cover extracted from M4B/audio file: " + safeName(file));
+                            return tempPath;
+                        }
+                    }
+                } finally {
+                    try {
+                        mmr.release();
+                    } catch (Exception ignored) {
+                    }
+                }
+            } catch (Exception e) {
+                myLogEE(e, "Error extracting embedded cover from file: " + safeName(file));
+            }
+        }
+
+        // Extract cover from EPUB and FB2 files
+        if ("Ebook".equals(type)) {
+            String fileName = safeName(file).toLowerCase();
+
+            if (fileName.endsWith(".epub")) {
+                try {
+                    // Unzip EPUB
+                    java.util.Map<String, byte[]> zip = com.driot.bookplayer.ebooks.EpubCommonHelper.readZip(
+                            file.getUri(), context);
+
+                    // Find and parse OPF
+                    byte[] containerXml = zip.get("META-INF/container.xml");
+                    if (containerXml != null) {
+                        String opfPath = com.driot.bookplayer.ebooks.EpubCommonHelper.findOpfPath(containerXml);
+                        byte[] opfBytes = zip.get(opfPath);
+
+                        if (opfBytes != null) {
+                            // Parse OPF using EpubLowLevelHelper
+                            com.driot.bookplayer.ebooks.EpubLowLevelHelper.OpfInfo opf = com.driot.bookplayer.ebooks.EpubLowLevelHelper
+                                    .parseOpf(opfBytes);
+                            opf.opfPath = opfPath; // Set the OPF path
+
+                            // Extract cover
+                            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
+                                    .detectCoverFromEpub(zip, opf);
+
+                            if (result != null && result.bitmap != null) {
+                                String suffix = "_" + file.getUri().hashCode();
+                                String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                        result.bitmap, suffix);
+                                if (tempPath != null) {
+                                    myLogD("Cover extracted from EPUB: " + safeName(file));
+                                    return tempPath;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error extracting EPUB cover: " + safeName(file));
+                }
+            } else if (fileName.endsWith(".fb2")) {
+                // Extract cover from FB2 files
+                try {
+                    String xml = com.driot.bookplayer.ebooks.Fb2LowLevelHelper.readAllText(context, file.getUri());
+                    Fb2LowLevelHelper.Meta meta = com.driot.bookplayer.ebooks.Fb2LowLevelHelper
+                            .parseMetaAndBinaries(xml);
+
+                    // Extract cover bitmap
+                    if (meta.coverImageId != null && !meta.coverImageId.isEmpty()) {
+                        byte[] imageBytes = meta.binaries.get(meta.coverImageId);
+                        if (imageBytes != null) {
+                            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                    imageBytes, 0, imageBytes.length);
+
+                            if (bitmap != null) {
+                                String suffix = "_" + file.getUri().hashCode();
+                                String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                        bitmap, suffix);
+                                if (tempPath != null) {
+                                    myLogD("Cover extracted from FB2: " + safeName(file));
+                                    return tempPath;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error extracting FB2 cover: " + safeName(file));
+                }
+            }
+        }
+
         return null;
     }
 }

@@ -315,7 +315,7 @@ public final class EpubLowLevelHelper {
 
     // ===== EPUB parsing =====
 
-    private static OpfInfo parseOpf(byte[] opfXml) throws Exception {
+    public static OpfInfo parseOpf(byte[] opfXml) throws Exception {
         OpfInfo o = new OpfInfo();
         XmlPullParser x = EpubCommonHelper.newPull(opfXml);
         int t;

@@ -24,15 +24,17 @@ import java.util.Locale;
 
 /**
  * FB2 low-level extractor:
- *  - One chapter file per top-level <section> in the main <body>.
- *  - Paragraphs preserved (blank lines between blocks).
- *  - Cover image extracted from <description><title-info><coverpage><image xlink:href="#id">
- *    and decoded from corresponding <binary id="..."> base64.
+ * - One chapter file per top-level <section> in the main <body>.
+ * - Paragraphs preserved (blank lines between blocks).
+ * - Cover image extracted from
+ * <description><title-info><coverpage><image xlink:href="#id">
+ * and decoded from corresponding <binary id="..."> base64.
  *
  * No external libraries required.
  */
 public final class Fb2LowLevelHelper {
-    private Fb2LowLevelHelper() {}
+    private Fb2LowLevelHelper() {
+    }
 
     // ---------------- Types ----------------
 
@@ -41,17 +43,21 @@ public final class Fb2LowLevelHelper {
         public final java.io.File outDir;
         public final List<java.io.File> chapterFiles;
         public final Bitmap coverBitmap;
+
         ExtractResult(String t, java.io.File d, List<java.io.File> f, Bitmap c) {
-            bookTitle = t; outDir = d; chapterFiles = f; coverBitmap = c;
+            bookTitle = t;
+            outDir = d;
+            chapterFiles = f;
+            coverBitmap = c;
         }
     }
 
-    private static final class Meta {
-        String title;                 // <description><title-info><book-title>
-        String coverImageId;          // id without '#' from coverpage image (original case)
+    public static final class Meta {
+        public String title; // <description><title-info><book-title>
+        public String coverImageId; // id without '#' from coverpage image (original case)
         // Store binaries keyed by LOWERCASE id for robust lookup
-        final java.util.Map<String, byte[]> binaries = new LinkedHashMap<>();
-        final java.util.Map<String, String> binaryTypes = new LinkedHashMap<>(); // LOWERCASE id -> content-type
+        public final java.util.Map<String, byte[]> binaries = new LinkedHashMap<>();
+        public final java.util.Map<String, String> binaryTypes = new LinkedHashMap<>(); // LOWERCASE id -> content-type
     }
 
     // ---------------- Public API ----------------
@@ -82,7 +88,7 @@ public final class Fb2LowLevelHelper {
             }
         }
 
-// Fallback: choose the first image/* binary if no explicit cover
+        // Fallback: choose the first image/* binary if no explicit cover
         if (coverBytes == null && !meta.binaryTypes.isEmpty()) {
             // sort ids alphabetically for deterministic selection
             List<String> ids = new ArrayList<>(meta.binaryTypes.keySet());
@@ -107,10 +113,9 @@ public final class Fb2LowLevelHelper {
             }
         }
 
-
         Bitmap cover = null;
         if (coverBytes != null) {
-            cover = decodeDownsampled(coverBytes, /*maxDim*/ 2048); // safe decode
+            cover = decodeDownsampled(coverBytes, /* maxDim */ 2048); // safe decode
             if (cover != null) {
                 myLog("Cover decoded OK (" + Tonio.getReadableSize(coverBytes.length) + " bytes)");
             } else {
@@ -124,14 +129,17 @@ public final class Fb2LowLevelHelper {
 
         // Write out
         java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null), "fb2_" + safe(bookTitle));
-        if (!outDir.exists() && !outDir.mkdirs()) throw new IllegalStateException("Cannot create " + outDir);
+        if (!outDir.exists() && !outDir.mkdirs())
+            throw new IllegalStateException("Cannot create " + outDir);
 
         List<java.io.File> outFiles = new ArrayList<>();
         int idx = 0;
         for (Chapter ch : chapters) {
-            if (ch == null) continue;
+            if (ch == null)
+                continue;
             String title = (ch.title != null && !ch.title.trim().isEmpty())
-                    ? ch.title.trim() : deriveTitleFromText(ch.text);
+                    ? ch.title.trim()
+                    : deriveTitleFromText(ch.text);
             String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, safeSlug(title));
             java.io.File f = new java.io.File(outDir, fname);
             try (java.io.FileOutputStream fos = new java.io.FileOutputStream(f)) {
@@ -147,7 +155,7 @@ public final class Fb2LowLevelHelper {
 
     // ---------------- Parsing: meta + binaries ----------------
 
-    private static Meta parseMetaAndBinaries(String xml) throws Exception {
+    public static Meta parseMetaAndBinaries(String xml) throws Exception {
         Meta meta = new Meta();
 
         XmlPullParserFactory f = XmlPullParserFactory.newInstance();
@@ -158,10 +166,10 @@ public final class Fb2LowLevelHelper {
         final String XLINK = "http://www.w3.org/1999/xlink";
 
         boolean inDescription = false;
-        boolean inTitleInfo   = false;
-        boolean inCoverpage   = false;   // NEW: ensure image is from <coverpage>
-        boolean inBookTitle   = false;
-        boolean inBinary      = false;
+        boolean inTitleInfo = false;
+        boolean inCoverpage = false; // NEW: ensure image is from <coverpage>
+        boolean inBookTitle = false;
+        boolean inBinary = false;
 
         String currentBinaryId = null;
         String currentBinaryType = null;
@@ -184,8 +192,10 @@ public final class Fb2LowLevelHelper {
                 } else if (inCoverpage && "image".equalsIgnoreCase(tag)) {
                     // Only treat image under coverpage as the cover
                     String href = attrNs(x, XLINK, "href");
-                    if (href == null) href = attr(x, "href");
-                    if (href != null && href.startsWith("#")) href = href.substring(1);
+                    if (href == null)
+                        href = attr(x, "href");
+                    if (href != null && href.startsWith("#"))
+                        href = href.substring(1);
                     if (href != null && !href.isEmpty()) {
                         meta.coverImageId = href;
                         myLogD("Cover image id: " + href);
@@ -195,7 +205,7 @@ public final class Fb2LowLevelHelper {
                 // Binary (base64)
                 if ("binary".equalsIgnoreCase(tag)) {
                     inBinary = true;
-                    currentBinaryId   = attr(x, "id");
+                    currentBinaryId = attr(x, "id");
                     currentBinaryType = attr(x, "content-type");
                     binBuf = new StringBuilder(64 * 1024);
                 }
@@ -208,7 +218,8 @@ public final class Fb2LowLevelHelper {
                     }
                 } else if (inBinary && binBuf != null) {
                     String s = x.getText();
-                    if (s != null) binBuf.append(s);
+                    if (s != null)
+                        binBuf.append(s);
                 }
 
             } else if (t == XmlPullParser.END_TAG) {
@@ -226,14 +237,15 @@ public final class Fb2LowLevelHelper {
                     inBinary = false;
                     if (currentBinaryId != null && binBuf != null) {
                         try {
-                            String base64 = binBuf.toString().replaceAll("\\s+",""); // strip whitespace for safety
+                            String base64 = binBuf.toString().replaceAll("\\s+", ""); // strip whitespace for safety
                             byte[] data = android.util.Base64.decode(base64, android.util.Base64.DEFAULT);
                             String key = currentBinaryId.toLowerCase(Locale.ROOT);
                             meta.binaries.put(key, data);
                             if (currentBinaryType != null) {
                                 meta.binaryTypes.put(key, currentBinaryType);
                             }
-                            myLogD("Captured <binary> id=" + currentBinaryId + " bytes=" + Tonio.getReadableSize(data.length) + " (" + currentBinaryType + ")");
+                            myLogD("Captured <binary> id=" + currentBinaryId + " bytes="
+                                    + Tonio.getReadableSize(data.length) + " (" + currentBinaryType + ")");
                         } catch (Throwable e) {
                             myLogEE(e, "decode <binary> id=" + currentBinaryId);
                         }
@@ -245,7 +257,8 @@ public final class Fb2LowLevelHelper {
             }
         }
 
-        if (meta.title != null) meta.title = meta.title.trim();
+        if (meta.title != null)
+            meta.title = meta.title.trim();
         return meta;
     }
 
@@ -266,8 +279,8 @@ public final class Fb2LowLevelHelper {
         x.setInput(new StringReader(xml));
 
         boolean inBody = false;
-        boolean chosenBody = false;  // we've selected the main body
-        int bodyDepth = 0;           // depth from the chosen <body>
+        boolean chosenBody = false; // we've selected the main body
+        int bodyDepth = 0; // depth from the chosen <body>
         int t;
 
         while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
@@ -279,7 +292,9 @@ public final class Fb2LowLevelHelper {
                     if (!chosenBody) {
                         String name = attr(x, "name");
                         if (isMainBodyName(name)) {
-                            inBody = true; chosenBody = true; bodyDepth = 0;
+                            inBody = true;
+                            chosenBody = true;
+                            bodyDepth = 0;
                             myLogD("Selected main <body> (name=" + name + ")");
                         }
                     } else if (inBody) {
@@ -296,9 +311,11 @@ public final class Fb2LowLevelHelper {
             } else if (t == XmlPullParser.END_TAG) {
                 String tag = x.getName();
                 if ("body".equalsIgnoreCase(tag) && chosenBody) {
-                    if (!inBody) { /* noop */ }
-                    else if (bodyDepth == 0) { inBody = false; }
-                    else bodyDepth--;
+                    if (!inBody) {
+                        /* noop */ } else if (bodyDepth == 0) {
+                        inBody = false;
+                    } else
+                        bodyDepth--;
                 }
             }
         }
@@ -306,7 +323,10 @@ public final class Fb2LowLevelHelper {
         return out;
     }
 
-    /** Parse one <section> including nested sections (concatenate content). Assumes parser is positioned on START_TAG section. */
+    /**
+     * Parse one <section> including nested sections (concatenate content). Assumes
+     * parser is positioned on START_TAG section.
+     */
     private static Chapter parseSection(XmlPullParser x) throws Exception {
         Chapter ch = new Chapter();
         StringBuilder text = new StringBuilder(8 * 1024);
@@ -337,7 +357,8 @@ public final class Fb2LowLevelHelper {
                         continue; // parser has consumed nested section
                     }
                 } else if ("title".equalsIgnoreCase(tag) && depth == 0) {
-                    inTitle = true; titleBuf = new StringBuilder(256);
+                    inTitle = true;
+                    titleBuf = new StringBuilder(256);
                 } else if (inTitle && "p".equalsIgnoreCase(tag)) {
                     inTitleP = true;
                 } else if (isParagraphish(tag)) {
@@ -365,8 +386,9 @@ public final class Fb2LowLevelHelper {
                     inTitleP = false;
                 } else if ("title".equalsIgnoreCase(tag) && inTitle) {
                     inTitle = false;
-                    String ttxt = titleBuf == null ? null : titleBuf.toString().replaceAll("\\s+"," ").trim();
-                    if (ttxt != null && !ttxt.isEmpty()) ch.title = ttxt;
+                    String ttxt = titleBuf == null ? null : titleBuf.toString().replaceAll("\\s+", " ").trim();
+                    if (ttxt != null && !ttxt.isEmpty())
+                        ch.title = ttxt;
                     titleBuf = null;
                 } else if (isParagraphish(tag)) {
                     ensureBlankLine(text);
@@ -388,11 +410,16 @@ public final class Fb2LowLevelHelper {
 
     // --------------- Helpers: tags / body selection / cleaning ---------------
 
-    /** FB2 may name the main body "book" or leave @name empty; skip "notes", "comments", etc. */
+    /**
+     * FB2 may name the main body "book" or leave @name empty; skip "notes",
+     * "comments", etc.
+     */
     private static boolean isMainBodyName(String name) {
-        if (name == null || name.trim().isEmpty()) return true;
+        if (name == null || name.trim().isEmpty())
+            return true;
         String n = name.toLowerCase(Locale.ROOT);
-        if (n.equals("book") || n.equals("main") || n.equals("text")) return true;
+        if (n.equals("book") || n.equals("main") || n.equals("text"))
+            return true;
         return !(n.equals("notes") || n.equals("comments") || n.equals("footnotes")
                 || n.equals("images") || n.equals("title") || n.equals("cover"));
     }
@@ -401,7 +428,7 @@ public final class Fb2LowLevelHelper {
         String t = tag.toLowerCase(Locale.ROOT);
         return t.equals("p") || t.equals("subtitle") || t.equals("text-author")
                 || t.equals("epigraph") || t.equals("cite")
-                || t.equals("stanza")  || t.equals("v")      // poem lines/stanzas
+                || t.equals("stanza") || t.equals("v") // poem lines/stanzas
                 || t.equals("poem");
     }
 
@@ -412,20 +439,25 @@ public final class Fb2LowLevelHelper {
 
     private static void ensureBlankLine(StringBuilder b) {
         int len = b.length();
-        if (len == 0) return;
+        if (len == 0)
+            return;
         // end with exactly two newlines between blocks
-        if (len >= 2 && b.charAt(len-1) == '\n' && b.charAt(len-2) == '\n') return;
-        if (b.charAt(len-1) != '\n') b.append('\n');
+        if (len >= 2 && b.charAt(len - 1) == '\n' && b.charAt(len - 2) == '\n')
+            return;
+        if (b.charAt(len - 1) != '\n')
+            b.append('\n');
         b.append('\n');
     }
 
     private static String deriveTitleFromText(String text) {
-        if (text == null) return "chapter";
-        String[] lines = text.replace("\r","").split("\n");
+        if (text == null)
+            return "chapter";
+        String[] lines = text.replace("\r", "").split("\n");
         for (String line : lines) {
             String t = line.trim();
             if (!t.isEmpty()) {
-                if (t.length() > 60) t = t.substring(0, 60);
+                if (t.length() > 60)
+                    t = t.substring(0, 60);
                 return t;
             }
         }
@@ -433,9 +465,10 @@ public final class Fb2LowLevelHelper {
     }
 
     private static String clean(String s) {
-        if (s == null) return "";
-        String t = s.replace('\u00A0',' ')
-                .replace("\r\n","\n").replace("\r","\n")
+        if (s == null)
+            return "";
+        String t = s.replace('\u00A0', ' ')
+                .replace("\r\n", "\n").replace("\r", "\n")
                 .replaceAll("[\\t ]{2,}", " ")
                 .replaceAll("\\n{3,}", "\n\n")
                 .trim();
@@ -444,24 +477,28 @@ public final class Fb2LowLevelHelper {
 
     private static String safe(String s) {
         String out = s.replaceAll("[^A-Za-z0-9._ -]", "_").trim();
-        if (out.isEmpty()) out = "untitled";
-        return out.length() > 60 ? out.substring(0,60) : out;
+        if (out.isEmpty())
+            out = "untitled";
+        return out.length() > 60 ? out.substring(0, 60) : out;
     }
 
     private static String safeSlug(String s) {
         String out = s.toLowerCase(Locale.US)
-                .replaceAll("[^a-z0-9]+","-")
-                .replaceAll("^-+|-+$","");
-        if (out.isEmpty()) out = "chapter";
-        return out.length()>40 ? out.substring(0,40) : out;
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (out.isEmpty())
+            out = "chapter";
+        return out.length() > 40 ? out.substring(0, 40) : out;
     }
 
     private static String attr(XmlPullParser x, String name) {
         String v = x.getAttributeValue(null, name);
-        if (v == null) v = x.getAttributeValue("", name);
+        if (v == null)
+            v = x.getAttributeValue("", name);
         if (v == null && x.getAttributeCount() > 0) {
-            for (int i=0;i<x.getAttributeCount();i++) {
-                if (name.equals(x.getAttributeName(i))) return x.getAttributeValue(i);
+            for (int i = 0; i < x.getAttributeCount(); i++) {
+                if (name.equals(x.getAttributeName(i)))
+                    return x.getAttributeValue(i);
             }
         }
         return v;
@@ -473,9 +510,12 @@ public final class Fb2LowLevelHelper {
 
     // ---------------- Bitmap decode helper ----------------
 
-    /** Decode with down-sampling if needed to keep the largest dimension <= maxDim. */
+    /**
+     * Decode with down-sampling if needed to keep the largest dimension <= maxDim.
+     */
     private static Bitmap decodeDownsampled(byte[] bytes, int maxDim) {
-        if (bytes == null) return null;
+        if (bytes == null)
+            return null;
         BitmapFactory.Options o = new BitmapFactory.Options();
         o.inJustDecodeBounds = true;
         BitmapFactory.decodeByteArray(bytes, 0, bytes.length, o);
@@ -496,13 +536,14 @@ public final class Fb2LowLevelHelper {
 
     // ---------------- IO ----------------
 
-    private static String readAllText(Context ctx, Uri uri) throws Exception {
+    public static String readAllText(Context ctx, Uri uri) throws Exception {
         try (InputStream in0 = ctx.getContentResolver().openInputStream(uri);
-             BufferedInputStream in = new BufferedInputStream(in0)) {
+                BufferedInputStream in = new BufferedInputStream(in0)) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(Math.max(128 * 1024, 8192));
             byte[] buf = new byte[8192];
             int n;
-            while ((n = in.read(buf)) != -1) bos.write(buf, 0, n);
+            while ((n = in.read(buf)) != -1)
+                bos.write(buf, 0, n);
             // FB2 is XML; most files are UTF-8; if BOM present, this handles it fine
             return bos.toString(StandardCharsets.UTF_8.name());
         }
