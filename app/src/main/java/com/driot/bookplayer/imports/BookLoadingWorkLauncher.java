@@ -1,6 +1,8 @@
 package com.driot.bookplayer.imports;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
@@ -8,7 +10,9 @@ import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
+import androidx.work.Operation;
 import androidx.work.WorkContinuation;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -199,12 +203,96 @@ public class BookLoadingWorkLauncher {
 
             String uniqueName = sequential ? "bookload-queue" : "bookload:" + importId;
             myLogD("uniqueName = " + uniqueName);
-            ExistingWorkPolicy policy = sequential ? ExistingWorkPolicy.APPEND : ExistingWorkPolicy.REPLACE;
+            
+            // Check if there's active work in the queue before deciding policy
+            ExistingWorkPolicy policy;
+            if (sequential) {
+                // For sequential work, check if there's any active (RUNNING or ENQUEUED) work
+                try {
+                    java.util.List<WorkInfo> existingInfos = wm.getWorkInfosForUniqueWork(uniqueName).get();
+                    boolean hasActiveWork = false;
+                    if (existingInfos != null && !existingInfos.isEmpty()) {
+                        for (WorkInfo wi : existingInfos) {
+                            if (wi.getState() == WorkInfo.State.RUNNING || wi.getState() == WorkInfo.State.ENQUEUED) {
+                                hasActiveWork = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!hasActiveWork && existingInfos != null && !existingInfos.isEmpty()) {
+                        // All work is finished (SUCCEEDED/FAILED), prune it before appending
+                        myLogD("Pruning finished work from queue before appending new work");
+                        wm.pruneWork();
+                    }
+                    policy = ExistingWorkPolicy.APPEND;
+                } catch (Exception e) {
+                    myLogEE(e, "Error checking existing work, using APPEND");
+                    policy = ExistingWorkPolicy.APPEND;
+                }
+            } else {
+                policy = ExistingWorkPolicy.REPLACE;
+            }
             myLogD("ExistingWorkPolicy = " + policy);
+
+            if (steps.isEmpty()) {
+                myLogE("BookLoadingWorkLauncher: No steps to enqueue! This should not happen.");
+                return;
+            }
+
+            myLogD("BookLoadingWorkLauncher: Enqueuing " + steps.size() + " steps");
+            for (int i = 0; i < steps.size(); i++) {
+                String className = steps.get(i).getClass().getSimpleName();
+                myLogD("  Step[" + i + "]: " + className);
+            }
 
             WorkContinuation cont = wm.beginUniqueWork(uniqueName, policy, steps.get(0));
             for (int i = 1; i < steps.size(); i++) cont = cont.then(steps.get(i));
-            cont.enqueue();
+            
+            myLogD("BookLoadingWorkLauncher: Calling enqueue() for importId=" + importId);
+            Operation result = cont.enqueue();
+            myLogD("BookLoadingWorkLauncher: Enqueue operation submitted");
+            
+            // Log work info after a short delay to see if it starts
+            Handler main = new Handler(Looper.getMainLooper());
+            final String checkImportId = importId; // Capture for lambda
+            main.postDelayed(() -> {
+                try {
+                    java.util.List<WorkInfo> infos = wm.getWorkInfosForUniqueWork(uniqueName).get();
+                    if (infos != null && !infos.isEmpty()) {
+                        myLogD("WM unique '" + uniqueName + "' -> Found " + infos.size() + " work items:");
+                        int newWorkCount = 0;
+                        int activeWorkCount = 0;
+                        for (WorkInfo wi : infos) {
+                            boolean isNewWork = wi.getTags().contains("import:" + checkImportId);
+                            boolean isActive = wi.getState() == WorkInfo.State.RUNNING || 
+                                            wi.getState() == WorkInfo.State.ENQUEUED ||
+                                            wi.getState() == WorkInfo.State.BLOCKED;
+                            if (isNewWork) newWorkCount++;
+                            if (isActive) activeWorkCount++;
+                            
+                            if (isNewWork || isActive) {
+                                myLogD("  - " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags() + 
+                                    (isNewWork ? " [NEW]" : "") + (isActive ? " [ACTIVE]" : ""));
+                            }
+                            if (wi.getState() == WorkInfo.State.BLOCKED) {
+                                myLogW("  Work is BLOCKED - may be waiting for previous work to complete");
+                            } else if (wi.getState() == WorkInfo.State.ENQUEUED) {
+                                myLogD("  Work is ENQUEUED - should start soon");
+                            } else if (wi.getState() == WorkInfo.State.RUNNING) {
+                                myLogD("  Work is RUNNING");
+                            }
+                        }
+                        myLogD("Summary: " + newWorkCount + " new work items, " + activeWorkCount + " active work items");
+                        if (newWorkCount == 0) {
+                            myLogE("ERROR: No new work items found for importId=" + checkImportId + " - work may not have been enqueued!");
+                        }
+                    } else {
+                        myLogW("WM unique '" + uniqueName + "' -> No work found!");
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error checking work status");
+                }
+            }, 2000); // Increased delay to 2 seconds to give WorkManager more time
 
             // some logging
             /*
