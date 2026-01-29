@@ -70,11 +70,11 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
 
         scanner = new MassImportScanner(getApplication(), new MassImportScanner.Callback() {
             @Override
-            public void onProgress(String currentPath) {
+            public void onProgress(int current, int total, String currentPath) {
                 // Throttle progress updates if needed, but for now direct post is okay
-                // mainHandler.post(() -> progressText.setValue("Scanning: " + currentPath));
                 // Optimization: use postValue which drops intermediate values if too fast
-                progressText.postValue("Scanning: " + currentPath);
+                // Display: "Scanning 5/13: filename.mp3"
+                progressText.postValue("Scanning " + current + "/" + total + ": " + currentPath);
             }
 
             @Override
@@ -83,24 +83,16 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
 
                 long now = System.currentTimeMillis();
                 if (now - lastUpdate[0] > UPDATE_INTERVAL_MS) {
-                    myLogD("ViewModel: Throttled update triggered. Posting " + runningList.size() + " candidates.");
                     lastUpdate[0] = now;
                     // Create copy for LiveData
                     final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
                     candidates.postValue(update);
-                } else {
-                    // myLogD("ViewModel: Update throttled (buffer: " + runningList.size() + ")");
                 }
             }
         });
 
         executor.execute(() -> {
             List<BookCandidate> result = scanner.scan(rootUri);
-            myLog("Scan complete. Items found: " + result.size());
-            for (BookCandidate c : result) {
-                myLogD("Candidate: " + c.name + " [" + c.type + "] -> " + c.uri);
-            }
-            // Final update ensures we show everything at the end
             mainHandler.post(() -> {
                 candidates.setValue(result);
                 isScanning.setValue(false);

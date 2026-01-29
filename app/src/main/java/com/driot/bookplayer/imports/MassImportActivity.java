@@ -127,8 +127,6 @@ public class MassImportActivity extends BaseBottomNavActivity {
         });
 
         viewModel.getCandidates().observe(this, candidates -> {
-            myLog("Activity: Received " + (candidates != null ? candidates.size() : "null")
-                    + " candidates from ViewModel.");
             adapter.setItems(candidates);
 
             // Filter out already-imported items for count and size

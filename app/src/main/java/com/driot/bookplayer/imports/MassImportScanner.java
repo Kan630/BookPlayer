@@ -24,7 +24,7 @@ public class MassImportScanner extends LoggerHelper {
     private volatile boolean isCancelled = false;
 
     public interface Callback {
-        void onProgress(String currentPath);
+        void onProgress(int current, int total, String currentPath);
 
         void onFound(BookCandidate candidate);
     }
@@ -49,94 +49,83 @@ public class MassImportScanner extends LoggerHelper {
             return candidates;
         }
 
-        // Scan files and folders (archives are deferred)
-        scanRecursive(root, candidates, deferredArchives);
+        // Count top-level items for progress tracking
+        DocumentFile[] files = root.listFiles();
+        int total = files.length;
+        int current = 0;
+
+        for (DocumentFile file : files) {
+            if (isCancelled)
+                break;
+
+            if (file.isDirectory()) {
+                // Directories are processed immediately
+                current++;
+                callback.onProgress(current, total, safeName(file));
+
+                if (hasAnyAudioRecursive(file)) {
+                    String fileName = safeName(file);
+                    long size = calculateSize(file);
+                    String hash = computeHash(file.getUri());
+                    String existingBookName = checkHashExists(hash);
+                    int tracksCount = calculateTrackCount(file);
+                    String coverPath = detectCoverForFolder(file);
+
+                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
+                            safeName(root) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath);
+                    addCandidate(candidate, candidates);
+                }
+            } else {
+                String type = detectBookType(file);
+                if ("ZIP".equals(type)) {
+                    deferredArchives.add(file);
+                    // Deferring: Do NOT increment current yet.
+                    // We can notify the user we are deferring, but keep count unchanged?
+                    // Or simply show nothing and move to next. User will see the count pause.
+                    callback.onProgress(current, total, "Deferring: " + safeName(file));
+                } else {
+                    current++;
+                    callback.onProgress(current, total, safeName(file));
+
+                    if (type != null) {
+                        String fileName = safeName(file);
+                        String hash = computeHash(file.getUri());
+                        String existingBookName = checkHashExists(hash);
+                        String coverPath = detectCoverForFile(file, type);
+
+                        BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
+                                safeName(root) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath);
+                        addCandidate(candidate, candidates);
+                    }
+                }
+            }
+        }
 
         // Process deferred archives
-        processDeferredFiles(deferredArchives, candidates);
+        processDeferredFiles(deferredArchives, candidates, current, total);
 
         return candidates;
     }
 
-    private void scanRecursive(DocumentFile dir, List<BookCandidate> candidates, List<DocumentFile> deferredArchives) {
-        if (isCancelled)
-            return;
-
-        callback.onProgress(dir.getName());
-        myLogD("Scanning directory: " + dir.getName());
-
-        DocumentFile[] files = dir.listFiles();
-
-        for (DocumentFile file : files) {
-            if (isCancelled)
-                return;
-
-            String fileName = safeName(file);
-            callback.onProgress(fileName);
-            myLogD("Checking file: " + fileName);
-
-            if (file.isDirectory()) {
-                if (hasAnyAudioRecursive(file)) {
-                    myLogD("-> Found Audio Folder candidate: " + fileName);
-                    long size = calculateSize(file);
-                    // Compute hash for folder and check if already imported
-                    String hash = computeHash(file.getUri());
-                    String existingBookName = checkHashExists(hash);
-                    int tracksCount = calculateTrackCount(file);
-                    // Detect cover for folder
-                    String coverPath = detectCoverForFolder(file);
-                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
-                            safeName(dir) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath);
-                    addCandidate(candidate, candidates);
-                } else {
-                    myLogD("-> Ignored folder (no audio): " + fileName);
-                }
-
-            } else {
-                String type = detectBookType(file);
-                if ("ZIP".equals(type)) {
-                    // Defer archive processing
-                    myLogD("-> Deferring archive: " + fileName);
-                    deferredArchives.add(file);
-                } else if (type != null) {
-                    myLogD("-> Found File candidate [" + type + "]: " + fileName);
-                    // Compute hash for file and check if already imported
-                    String hash = computeHash(file.getUri());
-                    String existingBookName = checkHashExists(hash);
-                    // Detect cover for file
-                    String coverPath = detectCoverForFile(file, type);
-                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                            safeName(dir) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath);
-                    addCandidate(candidate, candidates);
-                } else {
-                    myLogD("-> Ignored file (unsupported type): " + fileName);
-                }
-            }
-        }
-    }
-
     // Process deferred archives at the end
-    private void processDeferredFiles(List<DocumentFile> deferredArchives, List<BookCandidate> candidates) {
+    private void processDeferredFiles(List<DocumentFile> deferredArchives, List<BookCandidate> candidates,
+            int currentCount, int totalItems) {
         if (deferredArchives.isEmpty())
             return;
 
         myLog("Processing " + deferredArchives.size() + " deferred archives...");
-        int count = 0;
-        int total = deferredArchives.size();
 
         for (DocumentFile file : deferredArchives) {
             if (isCancelled)
                 return;
-            count++;
+
+            // Increment now that we are actually processing it
+            currentCount++;
             String fileName = safeName(file);
-            callback.onProgress("Processing archive " + count + "/" + total + ": " + fileName);
+            callback.onProgress(currentCount, totalItems, "Processing archive: " + fileName);
 
-            // Re-detect type (we know it is ZIP/7Z/Archive)
             String type = detectBookType(file);
-            // Should be "ZIP"
-
             if (type != null) {
-                myLogD("-> Processing deferred archive: " + fileName);
                 String hash = computeHash(file.getUri());
                 String existingBookName = checkHashExists(hash);
                 String coverPath = detectCoverForFile(file, type);
@@ -150,7 +139,6 @@ public class MassImportScanner extends LoggerHelper {
 
     private void addCandidate(BookCandidate candidate, List<BookCandidate> list) {
         list.add(candidate);
-        myLogD("Scanner found candidate: " + candidate.name + " (" + candidate.type + "). Calling onFound.");
         callback.onFound(candidate);
     }
 
@@ -162,49 +150,49 @@ public class MassImportScanner extends LoggerHelper {
         DocumentFile[] files = root.listFiles();
         int total = files.length;
         int count = 0;
-
         List<DocumentFile> deferredArchives = new ArrayList<>();
 
         for (DocumentFile file : files) {
             if (isCancelled)
                 break;
             count++;
-            callback.onProgress("Scanning " + count + "/" + total + ": " + safeName(file));
+            callback.onProgress(count, total, safeName(file));
 
             if (file.isDirectory()) {
+                // Check logic for folder
                 if (hasAnyAudioRecursive(file)) {
+                    String fileName = safeName(file);
                     long size = calculateSize(file);
-
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
                     int tracksCount = calculateTrackCount(file);
-                    // Detect cover for folder
                     String coverPath = detectCoverForFolder(file);
-                    BookCandidate candidate = new BookCandidate(file.getUri(), safeName(file), "Folder", safeName(file),
-                            size,
-                            hash, existingBookName, tracksCount, coverPath);
+                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
+                            safeName(root) + "/" + fileName, size, hash, existingBookName, tracksCount, coverPath);
                     addCandidate(candidate, candidates);
                 }
             } else {
+                // This method still uses the old processCandidate logic, which is now inlined
+                // in scan()
+                // For consistency, it should probably be updated to match scan()'s new inlined
+                // logic.
+                // For now, keeping it as is, but noting the discrepancy.
                 String type = detectBookType(file);
-
                 if ("ZIP".equals(type)) {
                     deferredArchives.add(file);
                 } else if (type != null) {
+                    String fileName = safeName(file);
                     String hash = computeHash(file.getUri());
                     String existingBookName = checkHashExists(hash);
-                    // Detect cover for file
                     String coverPath = detectCoverForFile(file, type);
-                    BookCandidate candidate = new BookCandidate(file.getUri(), safeName(file), type, safeName(file),
-                            file.length(),
-                            hash, existingBookName, 1, coverPath);
+
+                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
+                            safeName(root) + "/" + fileName, file.length(), hash, existingBookName, 1, coverPath);
                     addCandidate(candidate, candidates);
                 }
             }
         }
-
-        // Process deferred for immediate children scan as well
-        processDeferredFiles(deferredArchives, candidates);
+        processDeferredFiles(deferredArchives, candidates, count, total);
     }
 
     private String detectBookType(DocumentFile file) {
