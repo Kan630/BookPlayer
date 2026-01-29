@@ -73,7 +73,9 @@ public class MassImportScanner extends LoggerHelper {
                     String fileName = safeName(file);
                     long size = calculateSize(file);
                     String hash = computeHash(file.getUri());
-                    String existingBookName = checkHashExists(hash);
+                    // For folders, check both hash and path (like LoadBookActivity does)
+                    // Folders can be imported "in place" without copying, so path is the identifier
+                    String existingBookName = checkFolderAlreadyImported(file.getUri().toString(), hash);
                     int tracksCount = calculateTrackCount(file);
                     String coverPath = detectCoverForFolder(file);
 
@@ -549,6 +551,41 @@ public class MassImportScanner extends LoggerHelper {
         } catch (Exception e) {
             myLogEE(e, "Error checking if hash exists in DB: " + hash);
             return null;
+        }
+    }
+
+    /**
+     * Check if a folder is already imported by checking both path and hash.
+     * This matches the logic in LoadBookActivity.checkPathDoesNotAlreadyExist().
+     * For folders imported "in place" (without copying), the path is the identifier.
+     */
+    private String checkFolderAlreadyImported(String folderPath, String hash) {
+        if (folderPath == null || folderPath.isEmpty())
+            return checkHashExists(hash); // Fallback to hash only
+        
+        try {
+            AppDatabase db = AppDatabase.getDatabase(context);
+            // First check by path (like LoadBookActivity does for folders)
+            String existingByPath = db.folderDao().folderAlreadyExist_checkFolderPath_getBookName(folderPath);
+            if (existingByPath != null && !existingByPath.isEmpty()) {
+                myLogD("Folder already imported (by path): " + folderPath + " -> " + existingByPath);
+                return existingByPath;
+            }
+            
+            // Also check by hash (in case it was imported with a different path or copied)
+            if (hash != null && !hash.isEmpty()) {
+                String existingByHash = db.folderDao().originalHashAlreadyExist_getBookName(hash);
+                if (existingByHash != null && !existingByHash.isEmpty()) {
+                    myLogD("Folder already imported (by hash): " + hash + " -> " + existingByHash);
+                    return existingByHash;
+                }
+            }
+            
+            return null;
+        } catch (Exception e) {
+            myLogEE(e, "Error checking folder import status");
+            // Fallback to hash check only
+            return checkHashExists(hash);
         }
     }
 
