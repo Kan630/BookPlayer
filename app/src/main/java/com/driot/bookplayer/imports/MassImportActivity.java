@@ -41,7 +41,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
     private TextView tvProgress;
     private TextView tvCount;
     private Button btnConfirmImport;
-    private Button btnCancelScan;
+    // btnCancelScan removed
 
     @Override
     protected int getNavId() {
@@ -81,14 +81,18 @@ public class MassImportActivity extends BaseBottomNavActivity {
         setupRecyclerView();
         observeViewModel();
 
-        btnCancelScan.setOnClickListener(v -> {
-            viewModel.cancelScan();
-            finish();
+        // Override back press to navigate directly to MainActivity (bypassing
+        // AddBookActivity)
+        getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {
+            @Override
+            public void handleOnBackPressed() {
+                // Do NOT (longer) cancel scan on back press. Just navigate back.
+                navigateBackToMain();
+            }
         });
-
         findViewById(R.id.btnCancel).setOnClickListener(v -> {
             viewModel.cancelScan();
-            finish();
+            navigateBackToMain();
         });
 
         btnConfirmImport.setOnClickListener(v -> {
@@ -103,13 +107,21 @@ public class MassImportActivity extends BaseBottomNavActivity {
         }
     }
 
+    private void navigateBackToMain() {
+        android.content.Intent intent = new android.content.Intent(this,
+                com.driot.bookplayer.activities.MainActivity.class);
+        intent.addFlags(
+                android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+        finish();
+    }
+
     private void initializeViews() {
         llScanning = findViewById(R.id.llScanning);
         clReport = findViewById(R.id.clReport);
         tvProgress = findViewById(R.id.tvProgress);
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
-        btnCancelScan = findViewById(R.id.btnCancelScan);
     }
 
     private void setupRecyclerView() {
@@ -152,17 +164,17 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
             int importableCount = importableCandidates.size();
             int totalCount = candidates.size();
-            String countText = importableCount + (importableCount > 1 ? " books" : " book");
+
+            String sizeStr = com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize);
+
             if (importableCount < totalCount) {
-                // If some items are hidden/filtered, mention it? Or just show importable count.
-                // User logic in previous code showed mixed.
-                // Let's stick to "X books (Total Size) (+ Y already imported)" or simpler.
-                // User said "3 books" instead of "Found 3 items".
-                // I'll make it: "3 books ({size}) (+ 2 already imported)"
-                tvCount.setText(countText + " (" + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ") (+ "
-                        + (totalCount - importableCount) + " already imported)");
+                // Mixed: some new, some imported
+                int importedCount = totalCount - importableCount;
+                tvCount.setText(
+                        getString(R.string.mass_import_found_items_mixed, importableCount, sizeStr, importedCount));
             } else {
-                tvCount.setText(countText + " (" + com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize) + ")");
+                // All new
+                tvCount.setText(getString(R.string.mass_import_found_items, importableCount, sizeStr));
             }
 
             if (importableCount == 0 && Boolean.FALSE.equals(viewModel.getIsScanning().getValue())) {

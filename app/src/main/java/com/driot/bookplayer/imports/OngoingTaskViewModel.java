@@ -50,11 +50,11 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
             List<BookCandidate> candidates) {
         if (Boolean.TRUE.equals(isScanning)) {
             // Priority 1: Scanning
-            ui.setValue(TaskUiState.scanning(scanProgress != null ? scanProgress : "Scanning..."));
+            ui.setValue(TaskUiState.scanning(getApplication(), scanProgress != null ? scanProgress : "Scanning..."));
         } else if (Boolean.TRUE.equals(isScanFinished)) {
             // Priority 2: Scan Finished (waiting for user confirmation)
             int count = candidates != null ? candidates.size() : 0;
-            ui.setValue(TaskUiState.scanFinished(count));
+            ui.setValue(TaskUiState.scanFinished(getApplication(), count));
         } else if (job != null) {
             // Priority 3: Import Job
             ui.setValue(TaskUiState.from(job));

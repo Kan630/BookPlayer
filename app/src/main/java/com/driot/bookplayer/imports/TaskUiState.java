@@ -77,15 +77,19 @@ public final class TaskUiState {
                                 null, null, false);
         }
 
-        public static TaskUiState scanning(String progressText) {
-                return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_RUNNING, true, false, false, "Scanning...",
+        public static TaskUiState scanning(android.content.Context context, String progressText) {
+                return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_RUNNING, true, false, false,
+                                context.getString(com.driot.bookplayer.R.string.mass_import_scanning_title),
                                 progressText, 0,
                                 null, null, null, null, null, false);
         }
 
-        public static TaskUiState scanFinished(int count) {
-                return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_SUCCEEDED, true, false, false, "Scan Complete",
-                                "Found " + count + " book candidates, click to open", 100, null, null, null, null, null,
+        public static TaskUiState scanFinished(android.content.Context context, int count) {
+                return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_SUCCEEDED, true, false, false,
+                                context.getString(com.driot.bookplayer.R.string.mass_import_scan_complete),
+                                context.getString(com.driot.bookplayer.R.string.mass_import_found_candidates_click,
+                                                count),
+                                100, null, null, null, null, null,
                                 false);
         }
 

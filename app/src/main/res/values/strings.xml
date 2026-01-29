@@ -1389,4 +1389,8 @@
 
     <string name="radio_thanks">Thanks to radio-browser.info for providing a free repository of world radio stations</string>
 
+    <string name="mass_import_scanning_title">Mass Import Scanning...</string>
+    <string name="mass_import_scan_complete">Mass Import Scan Complete.</string>
+    <string name="mass_import_found_candidates_click">Found %1$d book candidates, click to open.</string>
+
 </resources>

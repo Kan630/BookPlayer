@@ -123,6 +123,21 @@ public class NavHelper {
 
         } else if (navId == R.id.nav_add) {
             myLogD("NavAdd clicked");
+
+            com.driot.bookplayer.imports.MassImportRepository repo = com.driot.bookplayer.imports.MassImportRepository
+                    .getInstance();
+            if (repo != null) {
+                Boolean scanning = repo.getIsScanning().getValue();
+                Boolean finished = repo.getIsScanFinished().getValue();
+
+                if (Boolean.TRUE.equals(scanning) || Boolean.TRUE.equals(finished)) {
+                    Intent intent = new Intent(activity, com.driot.bookplayer.imports.MassImportActivity.class);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                    activity.startActivity(intent);
+                    return true;
+                }
+            }
+
             activity.startActivity(new Intent(activity, GetActivity.class));
             return true;
 

@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -39,9 +40,17 @@ public class MassImportRepository {
     private MassImportScanner scanner;
     private Uri lastScannedUri;
 
+    private static MassImportRepository instance;
+    private volatile int scanId = 0;
+
     @Inject
     public MassImportRepository(@ApplicationContext Context context) {
         this.context = context;
+        instance = this;
+    }
+
+    public static MassImportRepository getInstance() {
+        return instance;
     }
 
     public LiveData<List<BookCandidate>> getCandidates() {
@@ -85,23 +94,31 @@ public class MassImportRepository {
             return;
         }
 
-        lastScannedUri = rootUri;
+        int currentScanId = ++scanId;
+
         isScanning.setValue(true);
         isScanFinished.setValue(false);
-        candidates.setValue(Collections.emptyList());
+        progressText.setValue("Initializing scan...");
         progressCurrent.setValue(0);
         progressTotal.setValue(0);
-        progressText.setValue("Initializing scan...");
+        // Do NOT clear candidates immediately if we want to support resume later?
+        // But for now, clear them.
+        candidates.setValue(new ArrayList<>());
+        lastScannedUri = rootUri;
 
-        final List<BookCandidate> runningList = new java.util.ArrayList<>();
-        final long[] lastUpdate = { 0 };
-        final long UPDATE_INTERVAL_MS = 250;
-
+        // Reset scanner cancelled state if reused? No, we create new one.
         scanner = new MassImportScanner(context, new MassImportScanner.Callback() {
+            private long[] lastUpdate = new long[] { 0 };
+            private List<BookCandidate> runningList = new ArrayList<>();
+            final long UPDATE_INTERVAL_MS = 250;
+
             @Override
             public void onProgress(int current, int total, String currentPath) {
-                // Throttle progress text updates?
+                if (scanId != currentScanId)
+                    return;
                 mainHandler.post(() -> {
+                    if (scanId != currentScanId)
+                        return;
                     progressText.setValue("Scanning " + current + "/" + total + ": " + currentPath);
                     progressCurrent.setValue(current);
                     progressTotal.setValue(total);
@@ -110,12 +127,16 @@ public class MassImportRepository {
 
             @Override
             public void onFound(BookCandidate candidate) {
+                if (scanId != currentScanId)
+                    return;
                 runningList.add(candidate);
                 long now = System.currentTimeMillis();
                 if (now - lastUpdate[0] > UPDATE_INTERVAL_MS) {
                     lastUpdate[0] = now;
                     final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
-                    candidates.postValue(update);
+                    if (scanId == currentScanId) {
+                        candidates.postValue(update);
+                    }
                 }
             }
         });
@@ -123,17 +144,24 @@ public class MassImportRepository {
         executor.execute(() -> {
             List<BookCandidate> result = scanner.scan(rootUri);
             mainHandler.post(() -> {
+                // Robust cancellation check using scanId
+                if (scanId != currentScanId) {
+                    LoggerStaticHelper.myLogD("Scan result ignored because scanId mismatch (cancelled?)");
+                    return;
+                }
+
                 candidates.setValue(result);
                 isScanning.setValue(false);
                 isScanFinished.setValue(true);
                 progressText.setValue("Scan complete. Found " + result.size() + " items.");
-                progressCurrent.setValue(0); // Reset or keep? Resetting hides progress bar
+                progressCurrent.setValue(0);
                 progressTotal.setValue(0);
             });
         });
     }
 
     public void cancelScan() {
+        scanId++; // Invalidate current scan
         if (scanner != null) {
             scanner.cancel();
         }
