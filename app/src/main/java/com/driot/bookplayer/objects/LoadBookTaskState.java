@@ -49,7 +49,9 @@ public class LoadBookTaskState implements Parcelable {
     public String uniqueChainName;
     public int addToExistingFolderId;
 
-
+    // --- Batch tracking (for MassImport) ---
+    public int batchIndex = -1;      // 1-based position in batch, -1 if not part of a batch
+    public int batchTotal = -1;       // Total count in batch, -1 if not part of a batch
 
     public LoadBookTaskState() {
         myLog("LoadBookTaskState() constructor - creating new Workflow");
@@ -94,6 +96,8 @@ public class LoadBookTaskState implements Parcelable {
         downloadWorkId = in.readString();
         uniqueChainName = in.readString();
         addToExistingFolderId = in.readInt();
+        batchIndex = in.readInt();
+        batchTotal = in.readInt();
     }
 
     public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
@@ -148,6 +152,8 @@ public class LoadBookTaskState implements Parcelable {
         dest.writeString(downloadWorkId);
         dest.writeString(uniqueChainName);
         dest.writeInt(addToExistingFolderId);
+        dest.writeInt(batchIndex);
+        dest.writeInt(batchTotal);
     }
 
     @Override

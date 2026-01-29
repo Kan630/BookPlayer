@@ -72,6 +72,10 @@ public class ImportJob {
 
     public int addToExistingFolderId;
 
+    // --- Batch tracking (for MassImport) ---
+    public int batchIndex = -1;      // 1-based position in batch, -1 if not part of a batch
+    public int batchTotal = -1;       // Total count in batch, -1 if not part of a batch
+
     // --- Control / lifecycle ---
     public String status = Var.IMPORT_STATUS_QUEUED;
     public boolean showToUser;
@@ -136,6 +140,8 @@ public class ImportJob {
                 ", downloadWorkId='" + downloadWorkId + '\'' +
                 ", uniqueChainName='" + uniqueChainName + '\'' +
                 ", addToExistingFolderId=" + addToExistingFolderId +
+                ", batchIndex=" + batchIndex +
+                ", batchTotal=" + batchTotal +
                 ", status='" + status + '\'' +
                 ", showToUser=" + showToUser +
                 ", createdAt=" + createdAt +

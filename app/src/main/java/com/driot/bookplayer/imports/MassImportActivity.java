@@ -204,6 +204,15 @@ public class MassImportActivity extends BaseBottomNavActivity {
         btnConfirmImport.setEnabled(false);
 
         new Thread(() -> {
+            // Count non-skipped candidates for batch tracking
+            int batchTotal = 0;
+            for (BookCandidate candidate : candidates) {
+                if (!candidate.isAlreadyImported()) {
+                    batchTotal++;
+                }
+            }
+            
+            int batchIndex = 0;
             for (BookCandidate candidate : candidates) {
                 // Skip already-imported items
                 if (candidate.isAlreadyImported()) {
@@ -211,8 +220,13 @@ public class MassImportActivity extends BaseBottomNavActivity {
                             + getString(R.string.imported_as) + ": " + candidate.existingBookName + ")");
                     continue;
                 }
+                
+                batchIndex++; // Increment before creating job (1-based)
 
                 LoadBookTaskState s = new LoadBookTaskState();
+                // Set batch tracking info
+                s.batchIndex = batchIndex;
+                s.batchTotal = batchTotal;
                 // Format the name for display (remove underscores, extension, etc.)
                 String formattedName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(candidate.name);
 

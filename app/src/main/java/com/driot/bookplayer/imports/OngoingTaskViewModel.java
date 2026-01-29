@@ -5,16 +5,12 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
-import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.imports.BookCandidate;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
 
@@ -24,7 +20,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
     private final MediatorLiveData<TaskUiState> ui = new MediatorLiveData<>();
-    private final Executor executor = Executors.newSingleThreadExecutor();
 
     @Inject
     public OngoingTaskViewModel(@NonNull Application app, MassImportRepository massImportRepo) {
@@ -69,80 +64,12 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
     }
 
     private void calculateQueuePosition(ImportJob job) {
-        executor.execute(() -> {
-            try {
-                AppDatabase db = AppDatabase.getInstance(getApplication());
-                
-                if ("MassImport".equals(job.sourceLocation)) {
-                    long timeWindow = 60_000; // 60 seconds
-                    long batchStartTime = job.createdAt - timeWindow;
-                    long batchEndTime = job.createdAt; // Only include jobs created up to current job
-                    
-                    List<ImportJob> allJobs = db.importJobDao().getAll();
-                    if (allJobs == null || allJobs.isEmpty()) {
-                        ui.postValue(TaskUiState.from(job, -1, -1));
-                        return;
-                    }
-                    
-                    List<ImportJob> batchJobs = new java.util.ArrayList<>();
-                    int allMassImportCount = 0;
-                    for (ImportJob j : allJobs) {
-                        if ("MassImport".equals(j.sourceLocation)) {
-                            allMassImportCount++;
-                            if (j.createdAt >= batchStartTime && j.createdAt <= batchEndTime) {
-                                batchJobs.add(j);
-                            }
-                        }
-                    }
-                    
-                    myLogD("calculateQueuePosition: Found " + allMassImportCount + " total MassImport jobs, " + 
-                           batchJobs.size() + " in time window [" + batchStartTime + " to " + batchEndTime + "]");
-                    
-                    if (batchJobs.isEmpty()) {
-                        ui.postValue(TaskUiState.from(job, -1, -1));
-                        return;
-                    }
-                    
-                    batchJobs.sort((a, b) -> Long.compare(a.createdAt, b.createdAt));
-                    
-                    int currentPosition = -1;
-                    for (int i = 0; i < batchJobs.size(); i++) {
-                        ImportJob j = batchJobs.get(i);
-                        myLogD("calculateQueuePosition: batchJobs[" + i + "] = " + j.title + 
-                               " (importId=" + j.importId + ", createdAt=" + j.createdAt + ")");
-                        if (j.importId.equals(job.importId)) {
-                            currentPosition = i; // 0-based
-                            myLogD("calculateQueuePosition: Found current job at index " + i);
-                            break;
-                        }
-                    }
-                    
-                    if (currentPosition < 0) {
-                        myLogW("calculateQueuePosition: Current job not found in batch. job.importId=" + job.importId + 
-                               ", batchJobs.size()=" + batchJobs.size());
-                        ui.postValue(TaskUiState.from(job, -1, -1));
-                        return;
-                    }
-                    
-                    int totalCount = batchJobs.size();
-                    // Convert to 1-based for display
-                    currentPosition = currentPosition + 1;
-                    
-                    myLogD("calculateQueuePosition: FINAL - job=" + job.title + 
-                           ", totalCount=" + totalCount +
-                           ", currentPosition(0-based)=" + (currentPosition - 1) +
-                           ", currentPosition(1-based)=" + currentPosition +
-                           ", result=" + currentPosition + "/" + totalCount);
-                    
-                    ui.postValue(TaskUiState.from(job, currentPosition, totalCount));
-                } else {
-                    ui.postValue(TaskUiState.from(job, -1, -1));
-                }
-            } catch (Exception e) {
-                myLogEE(e, "Error calculating queue position");
-                ui.postValue(TaskUiState.from(job, -1, -1));
-            }
-        });
+        // Simply read batch info directly from the job - no calculation needed!
+        if ("MassImport".equals(job.sourceLocation) && job.batchIndex > 0 && job.batchTotal > 0) {
+            ui.setValue(TaskUiState.from(job, job.batchIndex, job.batchTotal));
+        } else {
+            ui.setValue(TaskUiState.from(job, -1, -1));
+        }
     }
 
     public LiveData<TaskUiState> getUi() {

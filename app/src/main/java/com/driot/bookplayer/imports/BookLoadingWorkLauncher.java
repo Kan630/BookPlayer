@@ -162,6 +162,9 @@ public class BookLoadingWorkLauncher {
 
             j.addToExistingFolderId = s.addToExistingFolderId;
 
+            j.batchIndex = s.batchIndex;
+            j.batchTotal = s.batchTotal;
+
             j.status = Var.IMPORT_STATUS_RUNNING; //_QUEUED;
             j.createdAt = j.updatedAt = System.currentTimeMillis();
             //j.showToUser = true;

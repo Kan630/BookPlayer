@@ -405,5 +405,14 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_21_22 = new Migration(21, 22) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 21 => 22"); // 2026-01-29
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN batchIndex INTEGER NOT NULL DEFAULT -1");
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN batchTotal INTEGER NOT NULL DEFAULT -1");
+        }
+    };
+
 
 }
