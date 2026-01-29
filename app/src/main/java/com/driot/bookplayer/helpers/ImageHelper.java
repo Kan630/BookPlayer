@@ -655,14 +655,21 @@ public class ImageHelper {
         String signature = initials + "|" + color + "|" + (rounded ? 1 : 0) + "|" + textSize;
         String hash = shortHash(signature); // 6–8 hex chars is enough
 
-        String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".jpg";
+        String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + hash + ".png";
 
-        // Encode once (same as your existing saver)
+        // Encode as PNG to preserve transparency
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
+        bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
         byte[] bytes = out.toByteArray();
 
-        String absPath = compressAndSaveImage(context, bytes, fileName, /* isCached= */false);
+        String absPath;
+        // If small enough, save directly as PNG logic (bypass JPEG compression)
+        if (bytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
+            absPath = saveBytesToFile(context, bytes, fileName, /* isCached= */false);
+        } else {
+            // Fallback to compression if too huge (should be rare for vector-like covers)
+            absPath = compressAndSaveImage(context, bytes, fileName, /* isCached= */false);
+        }
 
         // Delete older versions for this folder to avoid accumulation
         File dir = StorageHelper.getImageFolder(context, false);
