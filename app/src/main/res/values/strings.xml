@@ -923,10 +923,11 @@
     <string name="weird_behavior_could_happen">weird behavior could happen</string>
 
     <string name="DeleteCoverImage_AskDelete">"You are about to delete this cover image.\nAre you sure ?"</string>
-    <string name="action_generate">✨ Generate</string>
-    <string name="action_delete">🗑️ Delete</string>
     <string name="action_change">📂 Change</string>
-    <string name="action_web_search">🔎 Web search</string>
+    <string name="action_delete">🗑️ Delete</string>
+    <string name="action_generate">🎨 Generate</string>
+    <string name="action_web_search">🌐 Web Search</string>
+    <string name="action_reset_to_original">↩️ Reset to Original</string>
 
 
     <string name="Specific_view">Live podcast page</string>

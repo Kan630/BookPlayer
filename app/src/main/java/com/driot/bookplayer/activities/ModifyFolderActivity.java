@@ -40,6 +40,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.services.DeleteFolderWorker;
@@ -60,7 +61,7 @@ public class ModifyFolderActivity extends LoggingActivity {
     private View blockingOverlay;
     private TextView tvBlockingText;
     private Button bDelete, bReset, bExport;
-    private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch;
+    private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch, bResetToOriginal;
     private LinearLayout ll_zikfile_resolve_error;
 
     EditText etIntroCut;
@@ -85,6 +86,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         bGenerateCover = findViewById(R.id.bGenerateCover);
         bChangeCover = findViewById(R.id.bChangeCover);
         bWebSearch = findViewById(R.id.bWebSearch);
+        bResetToOriginal = findViewById(R.id.bResetToOriginal);
         ll_zikfile_resolve_error = findViewById(R.id.ll_zikfile_resolve_error);
 
         ll_zikfile_resolve_error.setVisibility(View.GONE);
@@ -183,6 +185,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         bDeleteCover.setOnClickListener(view -> clickDeleteCover());
         bGenerateCover.setOnClickListener(view -> clickGenerateCover());
         bWebSearch.setOnClickListener(view -> clickWebSearch());
+        bResetToOriginal.setOnClickListener(view -> clickResetToOriginal());
 
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
 
@@ -332,6 +335,121 @@ public class ModifyFolderActivity extends LoggingActivity {
         Intent intent = new Intent(this, ExportActivity.class);
         intent.putExtra(Intents.EXTRA_FOLDER, folder);
         this.startActivity(intent);
+    }
+
+    private void clickResetToOriginal() {
+        myLogI("user clicks - reset to original cover");
+
+        // Run in background to avoid blocking UI
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                // Try to get the original cover file
+                String originalPath = ImageHelper.getOriginalCoverPath(this, folder.getId());
+
+                if (originalPath != null) {
+                    // Original cover exists - simple pointer swap
+                    folder.image = originalPath;
+                    AppDatabase.getDatabase(this).folderDao().update(folder);
+
+                    runOnUiThread(() -> {
+                        myToast("Original cover restored");
+                        myLogI("Cover reset to original: " + originalPath);
+                    });
+                } else {
+                    // No original cover file found - need to detect/create one
+                    myLogI("No original cover file found, detecting from folder");
+                    detectAndSaveOriginalCover();
+                }
+            } catch (Exception e) {
+                myLogEE(e, "Error resetting cover to original");
+                runOnUiThread(() -> myToast("Error resetting cover"));
+            }
+        });
+    }
+
+    /**
+     * Detects cover from folder and saves it as the original.
+     * This is a fallback for books imported before the original cover preservation
+     * feature.
+     */
+    private void detectAndSaveOriginalCover() {
+        try {
+            // Get the folder URI to scan for images
+            String folderUri = folder.getUri();
+            if (folderUri == null || folderUri.isEmpty()) {
+                runOnUiThread(() -> myToast("Cannot detect original cover: folder location not found"));
+                return;
+            }
+
+            // Parse the URI and get DocumentFile
+            androidx.documentfile.provider.DocumentFile docFolder = null;
+            if (folderUri.startsWith("content://")) {
+                docFolder = androidx.documentfile.provider.DocumentFile.fromTreeUri(this, Uri.parse(folderUri));
+            } else {
+                // File path
+                java.io.File file = new java.io.File(folderUri);
+                if (file.exists() && file.isDirectory()) {
+                    docFolder = androidx.documentfile.provider.DocumentFile.fromFile(file);
+                }
+            }
+
+            if (docFolder == null || !docFolder.exists()) {
+                runOnUiThread(() -> myToast("Cannot access folder to detect cover"));
+                return;
+            }
+
+            // Step 1: Try to detect cover from folder images
+            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(this,
+                    docFolder, null);
+
+            String finalCoverPath = null;
+            String sourceMessage = null;
+
+            if (result.imagePath != null) {
+                // Found an image in the folder
+                finalCoverPath = result.imagePath;
+                sourceMessage = "Original cover image restored from folder";
+            } else {
+                // Step 2: No image found, try to create fallback pastel cover
+                myLogI("No cover image found in folder, attempting to create fallback cover");
+
+                if (CoverPictureDetection.shouldCreateFallbackCover()) {
+                    // Create fallback cover with folder name as title
+                    String fallbackPath = CoverPictureDetection.createFallbackCover(
+                            this,
+                            folder.getName(),
+                            folderUri,
+                            Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS);
+
+                    if (fallbackPath != null) {
+                        finalCoverPath = fallbackPath;
+                        sourceMessage = "Auto-generated pastel cover created";
+                    }
+                } else {
+                    runOnUiThread(() -> myToast("No cover found and auto-generation is disabled"));
+                    return;
+                }
+            }
+
+            // Update database if we have a cover
+            if (finalCoverPath != null) {
+                folder.image = finalCoverPath;
+                AppDatabase.getDatabase(this).folderDao().update(folder);
+
+                // Create final copies for lambda
+                final String messageForUser = sourceMessage;
+                final String coverPathForLog = finalCoverPath;
+                runOnUiThread(() -> {
+                    myToast(messageForUser);
+                    myLogI("Cover reset to: " + coverPathForLog);
+                });
+            } else {
+                runOnUiThread(() -> myToast("Failed to create cover"));
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error detecting original cover");
+            runOnUiThread(() -> myToast("Error detecting original cover"));
+        }
     }
 
     private void resetFolder() {

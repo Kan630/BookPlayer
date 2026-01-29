@@ -1046,4 +1046,127 @@ public class ImageHelper {
         return null;
     }
 
+    // ===== Original Cover Preservation Helpers =====
+
+    /**
+     * Gets the path to the original cover for a folder.
+     * Original covers are saved as folder_id_{id}.png or folder_id_{id}.jpg
+     * (without hash suffix).
+     * 
+     * @param context  Android context
+     * @param folderId Database ID of the folder
+     * @return Absolute path to original cover, or null if not found
+     */
+    @Nullable
+    public static String getOriginalCoverPath(Context context, int folderId) {
+        File dir = StorageHelper.getImageFolder(context, false);
+
+        // Check for PNG first (preferred format for transparency)
+        File pngFile = new File(dir, IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".png");
+        if (pngFile.exists()) {
+            return pngFile.getAbsolutePath();
+        }
+
+        // Fallback to JPG
+        File jpgFile = new File(dir, IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".jpg");
+        if (jpgFile.exists()) {
+            return jpgFile.getAbsolutePath();
+        }
+
+        return null;
+    }
+
+    /**
+     * Saves a modified cover (user changed via UI) with a versioned filename.
+     * Preserves the original cover file (folder_id_{id}.png/jpg).
+     * Creates new file: folder_id_{id}_{timestamp}.png
+     * 
+     * @param context  Android context
+     * @param folderId Database ID of the folder
+     * @param bitmap   Cover bitmap to save
+     * @return Absolute path to saved modified cover, or null on error
+     */
+    @Nullable
+    public static String saveModifiedCover(Context context, int folderId, Bitmap bitmap) {
+        try {
+            // Generate versioned filename with timestamp
+            long timestamp = System.currentTimeMillis();
+            String fileName = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_" + timestamp + ".png";
+
+            // Encode as PNG to preserve quality/transparency
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
+            byte[] bytes = out.toByteArray();
+
+            String absPath;
+            if (bytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
+                absPath = saveBytesToFile(context, bytes, fileName, false);
+            } else {
+                // Compress if too large
+                absPath = compressAndSaveImage(context, bytes, fileName, false);
+            }
+
+            // Clean up old modified covers (but NOT the original)
+            cleanupOldModifiedCovers(context, folderId, fileName);
+
+            return absPath;
+        } catch (Exception e) {
+            myLogEE(e, "saveModifiedCover failed");
+            return null;
+        }
+    }
+
+    /**
+     * Deletes old modified cover files for a folder, preserving the original.
+     * Original format: folder_id_{id}.png or folder_id_{id}.jpg
+     * Modified format: folder_id_{id}_{hash/timestamp}.png
+     * 
+     * @param context         Android context
+     * @param folderId        Database ID of the folder
+     * @param currentFileName Current modified cover filename to keep
+     */
+    private static void cleanupOldModifiedCovers(Context context, int folderId, String currentFileName) {
+        try {
+            File dir = StorageHelper.getImageFolder(context, false);
+            String prefix = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_";
+
+            File[] oldFiles = dir.listFiles((d, name) -> {
+                // Match files like: folder_id_{id}_{something}.png/jpg
+                // But NOT: folder_id_{id}.png or folder_id_{id}.jpg (original)
+                if (!name.startsWith(prefix)) {
+                    return false;
+                }
+
+                // Skip the current file
+                if (name.equals(currentFileName)) {
+                    return false;
+                }
+
+                // Extract the part after prefix
+                String suffix = name.substring(prefix.length());
+
+                // If suffix is just ".png" or ".jpg", it's the original - don't delete
+                if (suffix.equals(".png") || suffix.equals(".jpg")) {
+                    return false;
+                }
+
+                // Otherwise it's a modified version - mark for deletion
+                return true;
+            });
+
+            if (oldFiles != null) {
+                for (File old : oldFiles) {
+                    try {
+                        if (old.delete()) {
+                            myLogD("Deleted old modified cover: " + old.getName());
+                        }
+                    } catch (Throwable ignored) {
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "cleanupOldModifiedCovers failed");
+        }
+    }
+
 }

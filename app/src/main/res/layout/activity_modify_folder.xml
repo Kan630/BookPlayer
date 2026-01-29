@@ -193,6 +193,11 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/action_web_search" />
+                    <Button
+                        android:id="@+id/bResetToOriginal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/action_reset_to_original" />
                 </LinearLayout>
             </LinearLayout>
 
