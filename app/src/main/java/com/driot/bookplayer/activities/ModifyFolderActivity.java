@@ -187,6 +187,12 @@ public class ModifyFolderActivity extends LoggingActivity {
         bWebSearch.setOnClickListener(view -> clickWebSearch());
         bResetToOriginal.setOnClickListener(view -> clickResetToOriginal());
 
+        // Hide Reset to Original for old books (imported before feature launch ~Jan 29
+        // 2026)
+        if (folder.date_added < 1769644800000L) {
+            bResetToOriginal.setVisibility(View.GONE);
+        }
+
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN); // Avoid keyboard on opening
 
         AppDatabase.getDatabase(this).folderDao()
