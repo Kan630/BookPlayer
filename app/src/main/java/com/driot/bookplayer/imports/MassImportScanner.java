@@ -150,6 +150,7 @@ public class MassImportScanner extends LoggerHelper {
 
     private void addCandidate(BookCandidate candidate, List<BookCandidate> list) {
         list.add(candidate);
+        myLogD("Scanner found candidate: " + candidate.name + " (" + candidate.type + "). Calling onFound.");
         callback.onFound(candidate);
     }
 

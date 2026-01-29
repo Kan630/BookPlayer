@@ -21,6 +21,8 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
     private List<BookCandidate> items = new ArrayList<>();
 
     public void setItems(List<BookCandidate> items) {
+        com.driot.bookplayer.utils.log.LoggerStaticHelper
+                .myLog("Adapter: setItems called with " + (items != null ? items.size() : "null") + " items.");
         this.items = items;
         notifyDataSetChanged();
     }

@@ -60,25 +60,37 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         candidates.setValue(Collections.emptyList());
 
         // List to accumulate results for real-time updates
-        final List<BookCandidate> runningList = new java.util.concurrent.CopyOnWriteArrayList<>();
+        // Use ArrayList (single threaded scanner) instead of CopyOnWriteArrayList
+        // (O(N^2) on adds)
+        final List<BookCandidate> runningList = new java.util.ArrayList<>();
+
+        // Throttling mechanism
+        final long[] lastUpdate = { 0 };
+        final long UPDATE_INTERVAL_MS = 250;
 
         scanner = new MassImportScanner(getApplication(), new MassImportScanner.Callback() {
             @Override
             public void onProgress(String currentPath) {
                 // Throttle progress updates if needed, but for now direct post is okay
-                mainHandler.post(() -> progressText.setValue("Scanning: " + currentPath));
+                // mainHandler.post(() -> progressText.setValue("Scanning: " + currentPath));
+                // Optimization: use postValue which drops intermediate values if too fast
+                progressText.postValue("Scanning: " + currentPath);
             }
 
             @Override
             public void onFound(BookCandidate candidate) {
                 runningList.add(candidate);
 
-                // Update LiveData incrementally
-                // We create a copy to ensure thread safety when posting to Main Thread
-                // but CopyOnWriteArrayList makes iteration safe, though a simple ArrayList copy
-                // is better for the UI adapter
-                final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
-                mainHandler.post(() -> candidates.setValue(update));
+                long now = System.currentTimeMillis();
+                if (now - lastUpdate[0] > UPDATE_INTERVAL_MS) {
+                    myLogD("ViewModel: Throttled update triggered. Posting " + runningList.size() + " candidates.");
+                    lastUpdate[0] = now;
+                    // Create copy for LiveData
+                    final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
+                    candidates.postValue(update);
+                } else {
+                    // myLogD("ViewModel: Update throttled (buffer: " + runningList.size() + ")");
+                }
             }
         });
 
@@ -88,9 +100,8 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
             for (BookCandidate c : result) {
                 myLogD("Candidate: " + c.name + " [" + c.type + "] -> " + c.uri);
             }
+            // Final update ensures we show everything at the end
             mainHandler.post(() -> {
-                // specific "scan complete" message, but list is already up to date via onFound
-                // just ensuring consistency
                 candidates.setValue(result);
                 isScanning.setValue(false);
                 progressText.setValue("Scan complete. Found " + result.size() + " items.");

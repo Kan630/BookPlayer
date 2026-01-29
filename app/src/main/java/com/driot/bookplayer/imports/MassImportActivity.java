@@ -112,12 +112,13 @@ public class MassImportActivity extends BaseBottomNavActivity {
         viewModel.getIsScanning().observe(this, isScanning -> {
             if (isScanning) {
                 llScanning.setVisibility(View.VISIBLE);
-                clReport.setVisibility(View.GONE);
+                // Keep list visible to show progress
+                clReport.setVisibility(View.VISIBLE);
                 btnConfirmImport.setEnabled(false);
             } else {
                 llScanning.setVisibility(View.GONE);
                 clReport.setVisibility(View.VISIBLE);
-                btnConfirmImport.setEnabled(true);
+                // Button state is handled by candidates observer
             }
         });
 
@@ -126,6 +127,8 @@ public class MassImportActivity extends BaseBottomNavActivity {
         });
 
         viewModel.getCandidates().observe(this, candidates -> {
+            myLog("Activity: Received " + (candidates != null ? candidates.size() : "null")
+                    + " candidates from ViewModel.");
             adapter.setItems(candidates);
 
             // Filter out already-imported items for count and size
@@ -161,7 +164,9 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 }
                 btnConfirmImport.setEnabled(false);
             } else {
-                btnConfirmImport.setEnabled(importableCount > 0);
+                // Only enable if not scanning
+                boolean scanning = Boolean.TRUE.equals(viewModel.getIsScanning().getValue());
+                btnConfirmImport.setEnabled(importableCount > 0 && !scanning);
             }
         });
     }
