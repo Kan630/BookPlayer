@@ -150,8 +150,10 @@ public class MassImportRepository {
                     return;
                 }
 
-                candidates.setValue(result);
+                // Update scanning state FIRST so observers who check it (like candidates
+                // observer) see the correct state
                 isScanning.setValue(false);
+                candidates.setValue(result);
                 isScanFinished.setValue(true);
                 progressText.setValue("Scan complete. Found " + result.size() + " items.");
                 progressCurrent.setValue(0);
