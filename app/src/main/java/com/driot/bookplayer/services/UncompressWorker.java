@@ -102,7 +102,11 @@ public class UncompressWorker extends ImportWorker {
                 for (File f : unzipFolder.listFiles()) {
                     String mime = getMimeType(f);
                     String ext = getExtension(f.getName());
-                    if (!(mime.startsWith(ONLY_MIME_AUDIO) || SUPPORTED_AUDIO_EXTENSIONS.contains(ext) || SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(ext))) {
+                    // Check if mime is null before calling startsWith
+                    boolean isAudioOrImage = (mime != null && mime.startsWith(ONLY_MIME_AUDIO))
+                            || SUPPORTED_AUDIO_EXTENSIONS.contains(ext)
+                            || SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(ext);
+                    if (!isAudioOrImage) {
                         if (!f.delete()) myLogE("Could not delete non-audio/image: " + f.getName());
                     }
                 }
