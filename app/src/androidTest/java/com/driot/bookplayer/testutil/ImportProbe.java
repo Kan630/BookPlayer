@@ -37,7 +37,7 @@ public final class ImportProbe {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             src = db.importJobDao().observeUniqueJob();
             obs = job -> {
-                TaskUiState ui = (job == null) ? TaskUiState.idle() : TaskUiState.from(job);
+                TaskUiState ui = (job == null) ? TaskUiState.idle() : TaskUiState.from(job, -1, -1);
                 last.set(ui);
                 if (ui.isFinished()) {
                     // ensure latch countDown happens even if this callback reenters

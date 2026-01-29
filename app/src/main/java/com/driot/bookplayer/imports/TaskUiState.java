@@ -20,6 +20,10 @@ public final class TaskUiState {
         @NonNull
         public final String progressText;
         public final int progressPercent;
+        
+        // Position in queue (for mass import)
+        public final int currentPosition; // 0-based, -1 if not applicable
+        public final int totalCount; // Total items in queue, -1 if not applicable
 
         @Nullable
         public final String warningText;
@@ -53,7 +57,9 @@ public final class TaskUiState {
                         @Nullable String extension,
                         @Nullable String originalUri,
                         @Nullable String currentOperation,
-                        boolean doDownload) {
+                        boolean doDownload,
+                        int currentPosition,
+                        int totalCount) {
                 this.tag = tag;
                 this.status = status;
                 this.showToUser = showToUser;
@@ -69,19 +75,21 @@ public final class TaskUiState {
                 this.originalUri = originalUri;
                 this.currentOperation = currentOperation;
                 this.doDownload = doDownload;
+                this.currentPosition = currentPosition;
+                this.totalCount = totalCount;
         }
 
         public static TaskUiState idle() {
                 return new TaskUiState(TAG_IMPORT, Var.IMPORT_STATUS_IDLE, false, false, false, "", "", 0, null, null,
                                 null,
-                                null, null, false);
+                                null, null, false, -1, -1);
         }
 
         public static TaskUiState scanning(android.content.Context context, String progressText) {
                 return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_RUNNING, true, false, false,
                                 context.getString(com.driot.bookplayer.R.string.mass_import_scanning_title),
                                 progressText, 0,
-                                null, null, null, null, null, false);
+                                null, null, null, null, null, false, -1, -1);
         }
 
         public static TaskUiState scanFinished(android.content.Context context, int count) {
@@ -90,10 +98,10 @@ public final class TaskUiState {
                                 context.getString(com.driot.bookplayer.R.string.mass_import_found_candidates_click,
                                                 count),
                                 100, null, null, null, null, null,
-                                false);
+                                false, -1, -1);
         }
 
-        public static TaskUiState from(@NonNull ImportJob j) {
+        public static TaskUiState from(@NonNull ImportJob j, int currentPosition, int totalCount) {
 
                 String status = j.status;
                 boolean finished = Var.IMPORT_STATUS_SUCCEEDED.equals(status) ||
@@ -130,7 +138,9 @@ public final class TaskUiState {
                                 j.fileExtension,
                                 j.originalUri,
                                 j.currentOperation,
-                                j.doDownload);
+                                j.doDownload,
+                                currentPosition,
+                                totalCount);
         }
 
         public boolean isFinished() {
@@ -155,6 +165,8 @@ public final class TaskUiState {
                                 pauseAvailable == that.pauseAvailable &&
                                 paused == that.paused &&
                                 progressPercent == that.progressPercent &&
+                                currentPosition == that.currentPosition &&
+                                totalCount == that.totalCount &&
                                 status.equals(that.status) &&
                                 title.equals(that.title) &&
                                 progressText.equals(that.progressText) &&
@@ -165,6 +177,6 @@ public final class TaskUiState {
         @Override
         public int hashCode() {
                 return Objects.hash(status, showToUser, pauseAvailable, paused, title, progressText, progressPercent,
-                                warningText, errorText);
+                                warningText, errorText, currentPosition, totalCount);
         }
 }

@@ -216,4 +216,8 @@ public interface ImportJobDao {
             "AND warningText IS NOT NULL " +
             "AND TRIM(warningText) != '')")
     boolean hasWarnings(String id);
+
+    // Get all jobs (for batch position calculation)
+    @Query("SELECT * FROM ImportJob ORDER BY createdAt ASC")
+    List<ImportJob> getAll();
 }
