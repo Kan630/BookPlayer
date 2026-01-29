@@ -20,8 +20,11 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.CoverPictureDetection;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
@@ -193,7 +196,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                 addAudioFileRecursive(dfPickedDir);
             }
             myLogD("Recursive done, sorting now...");
-            
+
             // Check if files have numeric prefixes (like "001_", "002_") at the start
             // If so, use numeric prefix sorting instead of content-based sorting
             boolean hasNumericPrefixes = hasNumericPrefixes(audioFileInfoArrayList);
@@ -313,12 +316,9 @@ public class FinalParseFolderWorker extends ImportWorker {
 
                 } else if (SupportedFilesHelper.isImage(f1)) {
                     if (!hadImageBefore) {
-                        long imageSize = f1.length();
-                        if (importJob.imagePath == null
-                                || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
-                            myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - ["
-                                    + f1.getUri() + "]");
-                            importJob.imagePath = f1.getUri().toString();
+                        String newBestCover = CoverPictureDetection.selectBestCover(context, importJob.imagePath, f1);
+                        if (newBestCover != null && !newBestCover.equals(importJob.imagePath)) {
+                            importJob.imagePath = newBestCover;
                             hadImageBefore = true;
                         }
                     } else {
@@ -388,12 +388,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                             context.getString(R.string.scanning_tracks) + " " + nbAudioScanned + "..... \n["
                                     + displayPath + ']');
                 } else if (!hadImageBefore && (SupportedFilesHelper.isImage(f1))) {
-                    long imageSize = f1.length();
-                    if (importJob.imagePath == null
-                            || imageSize > UriHelper.getSize(context, Uri.parse(importJob.imagePath))) {
-                        myLogD("New biggest Picture Found, size = [" + Tonio.formatMemPadding(imageSize) + "] - ["
-                                + f1.getUri() + "]");
-                        importJob.imagePath = f1.getUri().toString();
+                    String newBestCover = CoverPictureDetection.selectBestCover(context, importJob.imagePath, f1);
+                    if (newBestCover != null && !newBestCover.equals(importJob.imagePath)) {
+                        importJob.imagePath = newBestCover;
                         hadImageBefore = true;
                     }
                 } else {
@@ -422,11 +419,11 @@ public class FinalParseFolderWorker extends ImportWorker {
         if (audioFileInfoArrayList != null) {
             if (!audioFileInfoArrayList.isEmpty()) {
                 myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
-                if (Option.getCreateCover()) {
+                if (CoverPictureDetection.shouldCreateFallbackCover()) {
                     try {
                         if (importJob.imagePath == null || importJob.imagePath.isEmpty()) {
                             myLog("creating fallback bitmap as cover");
-                            String path = ImageHelper.createFallbackManualFolderImagePreInsert(
+                            String path = CoverPictureDetection.createFallbackCover(
                                     context,
                                     importJob.title,
                                     importJob.futureFolderPath,
@@ -749,7 +746,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     /**
-     * Checks if files have numeric prefixes (like "1_", "002_", "0003_") at the start of filenames.
+     * Checks if files have numeric prefixes (like "1_", "002_", "0003_") at the
+     * start of filenames.
      * This indicates files have explicit numeric ordering that should be preserved.
      * Returns true if 100% of files have numeric prefixes.
      */
@@ -773,7 +771,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     /**
-     * Checks if a filename starts with a numeric prefix pattern like "1_", "02_", "003_", "0004_", etc.
+     * Checks if a filename starts with a numeric prefix pattern like "1_", "02_",
+     * "003_", "0004_", etc.
      * Pattern: starts with 1-4 digits followed by underscore.
      */
     private static boolean hasNumericPrefix(String fileName) {
@@ -785,7 +784,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     /**
-     * Creates a comparator that sorts by numeric prefix (e.g., "001_", "002_") if present,
+     * Creates a comparator that sorts by numeric prefix (e.g., "001_", "002_") if
+     * present,
      * otherwise falls back to natural filename order.
      * This preserves explicit numeric ordering when present in filenames.
      */
@@ -794,8 +794,10 @@ public class FinalParseFolderWorker extends ImportWorker {
             String name1 = getFileNameFromPath(a1.getDisplayPath());
             String name2 = getFileNameFromPath(a2.getDisplayPath());
 
-            if (name1 == null) name1 = "";
-            if (name2 == null) name2 = "";
+            if (name1 == null)
+                name1 = "";
+            if (name2 == null)
+                name2 = "";
 
             Integer prefix1 = extractNumericPrefix(name1);
             Integer prefix2 = extractNumericPrefix(name2);
@@ -803,12 +805,15 @@ public class FinalParseFolderWorker extends ImportWorker {
             // If both have numeric prefixes, sort by prefix
             if (prefix1 != null && prefix2 != null) {
                 int cmp = Integer.compare(prefix1, prefix2);
-                if (cmp != 0) return cmp;
+                if (cmp != 0)
+                    return cmp;
             }
 
             // If only one has a prefix, it comes first
-            if (prefix1 != null && prefix2 == null) return -1;
-            if (prefix2 != null && prefix1 == null) return 1;
+            if (prefix1 != null && prefix2 == null)
+                return -1;
+            if (prefix2 != null && prefix1 == null)
+                return 1;
 
             // Fallback to natural order
             return name1.compareTo(name2);
@@ -816,7 +821,8 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     /**
-     * Extracts numeric prefix from filename (e.g., "1_Chapter.txt" -> 1, "002_Chapter.txt" -> 2).
+     * Extracts numeric prefix from filename (e.g., "1_Chapter.txt" -> 1,
+     * "002_Chapter.txt" -> 2).
      * Returns null if no prefix found.
      * Supports 1-4 digit prefixes.
      */

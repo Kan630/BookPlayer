@@ -9,6 +9,7 @@ import android.os.Parcelable;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
@@ -16,25 +17,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AudioInfo extends LoggerHelper implements Parcelable {
-    public static final String K_TITLE  = "title";
+    public static final String K_TITLE = "title";
     public static final String K_ARTIST = "artist";
-    public static final String K_ALBUM  = "album";
-    public static final String K_GENRE  = "genre";
-    public static final String K_YEAR   = "year";
+    public static final String K_ALBUM = "album";
+    public static final String K_GENRE = "genre";
+    public static final String K_YEAR = "year";
 
     public final Uri uri;
-    public final String displayName;   // best-effort name shown to the user (file name or MediaStore DISPLAY_NAME)
-    public final long durationMs;      // 0 if unknown
-    @Nullable public final Bitmap cover; // may be null
-    public Map<String,String> metadata;
-    public final String sourceHint;    // e.g. "content://media", "file://", "temp-copy"
+    public final String displayName; // best-effort name shown to the user (file name or MediaStore DISPLAY_NAME)
+    public final long durationMs; // 0 if unknown
+    @Nullable
+    public final Bitmap cover; // may be null
+    public Map<String, String> metadata;
+    public final String sourceHint; // e.g. "content://media", "file://", "temp-copy"
 
     public AudioInfo(Uri uri,
-                     String displayName,
-                     long durationMs,
-                     @Nullable Bitmap cover,
-                     String sourceHint,
-                     @Nullable Map<String, String> metadata) {
+            String displayName,
+            long durationMs,
+            @Nullable Bitmap cover,
+            String sourceHint,
+            @Nullable Map<String, String> metadata) {
         super(AudioInfo.class);
         this.uri = uri;
         this.displayName = displayName;
@@ -43,16 +45,23 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
         this.sourceHint = sourceHint;
         this.metadata = (metadata == null) ? new HashMap<>() : new HashMap<>(metadata);
     }
-/*
-    @Nullable public String getTitle()  { return metadata.get(K_TITLE); }
-    @Nullable public String getArtist() { return metadata.get(K_ARTIST); }
-    @Nullable public String getAlbum()  { return metadata.get(K_ALBUM); }
-    @Nullable public String getGenre()  { return metadata.get(K_GENRE); }
-    @Nullable public String getYear()   { return metadata.get(K_YEAR); }
-    @Nullable public String getTrack()  { return metadata.get("track"); }
-    @Nullable public String getDisc()   { return metadata.get("disc"); }
-    @Nullable public String getBitrate() { return metadata.get("bitrate"); }
- */
+    /*
+     * @Nullable public String getTitle() { return metadata.get(K_TITLE); }
+     * 
+     * @Nullable public String getArtist() { return metadata.get(K_ARTIST); }
+     * 
+     * @Nullable public String getAlbum() { return metadata.get(K_ALBUM); }
+     * 
+     * @Nullable public String getGenre() { return metadata.get(K_GENRE); }
+     * 
+     * @Nullable public String getYear() { return metadata.get(K_YEAR); }
+     * 
+     * @Nullable public String getTrack() { return metadata.get("track"); }
+     * 
+     * @Nullable public String getDisc() { return metadata.get("disc"); }
+     * 
+     * @Nullable public String getBitrate() { return metadata.get("bitrate"); }
+     */
 
     // ---- Parcelable ----
     protected AudioInfo(Parcel in) {
@@ -67,13 +76,24 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
     }
 
     public static final Creator<AudioInfo> CREATOR = new Creator<AudioInfo>() {
-        @Override public AudioInfo createFromParcel(Parcel in) { return new AudioInfo(in); }
-        @Override public AudioInfo[] newArray(int size) { return new AudioInfo[size]; }
+        @Override
+        public AudioInfo createFromParcel(Parcel in) {
+            return new AudioInfo(in);
+        }
+
+        @Override
+        public AudioInfo[] newArray(int size) {
+            return new AudioInfo[size];
+        }
     };
 
-    @Override public int describeContents() { return 0; }
+    @Override
+    public int describeContents() {
+        return 0;
+    }
 
-    @Override public void writeToParcel(Parcel dest, int flags) {
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(uri, flags);
         dest.writeString(displayName);
         dest.writeLong(durationMs);
@@ -83,12 +103,13 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
     }
 
     @NonNull
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "AudioInfo{" +
                 "uri=" + uri +
                 ", displayName='" + displayName + '\'' +
                 ", durationMs=" + durationMs +
-                ", cover=" + (cover != null ? ("bitmap@" + cover.getWidth()+"x"+cover.getHeight()) : "null") +
+                ", cover=" + (cover != null ? ("bitmap@" + cover.getWidth() + "x" + cover.getHeight()) : "null") +
                 ", sourceHint='" + sourceHint + '\'' +
                 ", metadata=" + metadata +
                 '}';
@@ -97,7 +118,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
     public void saveCover(Context context) {
         if (cover != null) {
             myLogD("save temp cover image");
-            ImageHelper.saveTempBitmap(context, cover);
+            CoverPictureDetection.saveCoverToTemp(context, cover);
         } else {
             myLogD("no cover");
         }

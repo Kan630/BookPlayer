@@ -479,13 +479,25 @@ public class ImageHelper {
     private static String createAndSaveFallbackImage(Context context, String fileName, String title, int sizePx) {
         try {
             Bitmap bmp = createInitialsBitmap(title, sizePx, /* rounded= */true);
-            // Encode once to JPEG, then let your existing compressor enforce
-            // MAX_IMAGE_SIZE_KB
+
+            // Use PNG to preserve transparency in rounded corners
+            // This is the same approach as saveGeneratedInitialsCoverVersioned
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-            bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
+            bmp.compress(Bitmap.CompressFormat.PNG, 100, out);
             bmp.recycle();
             byte[] bytes = out.toByteArray();
-            return compressAndSaveImage(context, bytes, fileName, false);
+
+            // If small enough, save directly as PNG (bypass JPEG compression)
+            // Generated covers are typically small (vector-like), so this should work
+            if (bytes.length / 1024 <= MAX_IMAGE_SIZE_KB) {
+                return saveBytesToFile(context, bytes, fileName, false);
+            } else {
+                // If somehow too large, we still need to save it
+                // Log warning but save anyway - better to have a large PNG than broken JPEG
+                myLogW("Fallback cover is large (" + bytes.length / 1024
+                        + "KB), saving anyway to preserve transparency");
+                return saveBytesToFile(context, bytes, fileName, false);
+            }
         } catch (Exception e) {
             myLogEE(e, "createAndSaveFallbackImage failed");
             return null;
