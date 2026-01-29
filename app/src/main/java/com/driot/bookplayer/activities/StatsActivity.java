@@ -1,12 +1,6 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
-import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMemorySize;
-import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
-import static com.driot.bookplayer.helpers.StorageHelper.getTotaLInternalMemorySize;
-import static com.driot.bookplayer.helpers.StorageHelper.getTotalRemovableSDCardSize;
-import static com.driot.bookplayer.utils.Tonio.getAppSize;
-import static com.driot.bookplayer.utils.Tonio.getFolderSize;
 
 import android.content.Context;
 import android.content.Intent;
@@ -17,9 +11,13 @@ import android.os.Bundle;
 import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
+import android.view.View;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
+import androidx.lifecycle.ViewModelProvider;
+
+import com.driot.bookplayer.widgets.StorageBarView;
 import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import com.driot.bookplayer.BuildConfig;
@@ -41,6 +39,12 @@ import java.util.TimeZone;
 
 public class StatsActivity extends LoggingActivity {
 
+    private StatsViewModel viewModel;
+    private StorageBarView storageBarInternal;
+    private StorageBarView storageBarSDCard;
+    private TextView tv1_body_internal;
+    private TextView tv1_body_sdcard;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -50,58 +54,58 @@ public class StatsActivity extends LoggingActivity {
         String strPowerManagement = getStringPowerManagement();
         myLogI("Power Management :" + strPowerManagement);
 
-        String zeText;
-        TextView tv_head;
-        TextView tv_body;
+        // Initialize ViewModel
+        viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
 
-        long totalMemory = getTotaLInternalMemorySize() / 1048576L;
-        long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
-        long currentAppSize = getAppSize(this) / 1048576L;
-
-        // Hard Coded => "/data/data/com.driot.bookplayer/files/"
-        // Context.getFilesDir().getPath() => /data/user/0/com.driot.bookplayer/files/
-
-        long currentAudiosSizeInternal = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, false)) / 1048576L;
-        long sizeImages = getFolderSize(this.getFilesDir().getPath() + "/images") / 1048576L;
-        long sizeLogs = getFolderSize(this.getFilesDir().getPath() + "/log") / 1048576L;
-        long sizeDB = 0;
-        if (getFilesDir().getParentFile() != null) {
-            sizeDB = getFolderSize(this.getFilesDir().getParentFile().getPath() + "/databases") / 1048576L;
-        }
-        // TODO asynch... livedata (cause reading the SD is slow)
-        long sizeCachedImages = getFolderSize(this.getFilesDir().getPath() + "/cached_images") / 1048576L;
-
-        zeText = Tonio.formatMemPadding(totalMemory) + getString(R.string.MB_device_memory)
-                + "\n" + "\n" + Tonio.formatMemPadding(availableMegs2) + getString(R.string.MB_available_on_device)
-                + "\n" + "\n" + Tonio.formatMemPadding(currentAudiosSizeInternal)
-                + getString(R.string.MB_taken_by_audio_files)
-                + "\n" + "\n" + Tonio.formatMemPadding(currentAppSize) + getString(R.string.MB_taken_by_BookPlayer_app)
-                + "\n" + "\n" + Tonio.formatMemPadding(sizeImages) + getString(R.string.MB_taken_by_images)
-                + "\n" + "\n" + Tonio.formatMemPadding(sizeLogs) + getString(R.string.MB_taken_by_logs)
-                + "\n" + "\n" + Tonio.formatMemPadding(sizeDB) + getString(R.string.MB_taken_by_databases);
-        long total = getTotalRemovableSDCardSize(this) / 1048576L;
-        ;
-        if (total > 0) {
-            long available = getAvailableRemovableSDCardSize(this) / 1048576L;
-            ;
-            long currentAudiosSizeSD = Tonio.getFolderSize(StorageHelper.getUnzipFolder(this, true)) / 1048576L;
-            zeText = zeText
-                    + "\n\n----"
-                    + "\n\n" + Tonio.formatMemPadding(total) + getString(R.string.MB_SD_card_memory)
-                    + "\n\n" + Tonio.formatMemPadding(available) + getString(R.string.MB_available_on_SD_card)
-                    + "\n\n" + Tonio.formatMemPadding(currentAudiosSizeSD)
-                    + getString(R.string.MB_taken_by_audio_files);
-
-        }
-
-        tv_head = findViewById(R.id.tv1_head);
-        tv_body = findViewById(R.id.tv1_body);
+        // Setup UI references
+        TextView tv_head = findViewById(R.id.tv1_head);
         tv_head.setText(R.string.physical_storage_memory);
-        tv_body.setText(zeText);
+        tv1_body_internal = findViewById(R.id.tv1_body_internal);
+        tv1_body_sdcard = findViewById(R.id.tv1_body_sdcard);
+        storageBarInternal = findViewById(R.id.storageBarInternal);
+        storageBarSDCard = findViewById(R.id.storageBarSDCard);
+
+        // Observe internal storage data
+        viewModel.getInternalStorageText().observe(this, text -> {
+            if (text != null && tv1_body_internal != null) {
+                tv1_body_internal.setText(text);
+            }
+        });
+
+        viewModel.getInternalStorageInfo().observe(this, storageInfo -> {
+            if (storageInfo != null && storageBarInternal != null) {
+                storageBarInternal.setStorageValues(
+                    storageInfo.totalStorageBytes,
+                    storageInfo.usedByOthersBytes,
+                    storageInfo.usedByBookPlayerBytes
+                );
+            }
+        });
+
+        // Observe SD card storage data
+        viewModel.getSdCardStorageText().observe(this, text -> {
+            if (text != null && tv1_body_sdcard != null) {
+                tv1_body_sdcard.setText(text);
+                tv1_body_sdcard.setVisibility(View.VISIBLE);
+            }
+        });
+
+        viewModel.getSdCardStorageInfo().observe(this, storageInfo -> {
+            if (storageInfo != null && storageBarSDCard != null) {
+                storageBarSDCard.setStorageValues(
+                    storageInfo.totalStorageBytes,
+                    storageInfo.usedByOthersBytes,
+                    storageInfo.usedByBookPlayerBytes
+                );
+                storageBarSDCard.setVisibility(View.VISIBLE);
+                // Force redraw to ensure the bar updates
+                storageBarSDCard.invalidate();
+            }
+        });
 
         // ----------------------------------------
 
-        zeText = "Android SDK version = " + Build.VERSION.SDK_INT
+        String zeText2 = "Android SDK version = " + Build.VERSION.SDK_INT
                 + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
                 + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
                 + "\n" + "\n" + "SQL lite version = " + getSqlLiteVersion()
@@ -110,27 +114,27 @@ public class StatsActivity extends LoggingActivity {
                 + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
                 + "\n" + "\n" + "Bookplayer db version = " + APP_DATABASE_VERSION;
 
-        tv_head = findViewById(R.id.tv2_head);
-        tv_body = findViewById(R.id.tv2_body);
-        tv_head.setText(R.string.version);
-        tv_body.setText(zeText);
+        TextView tv_head2 = findViewById(R.id.tv2_head);
+        TextView tv_body2 = findViewById(R.id.tv2_body);
+        tv_head2.setText(R.string.version);
+        tv_body2.setText(zeText2);
 
         // ----------------------------------------
 
-        zeText = "Region Locale = " + Locale.getDefault().getCountry()
+        String zeText3 = "Region Locale = " + Locale.getDefault().getCountry()
                 + "\n" + "\n" + "Region TimeZone = " + TimeZone.getDefault().getID()
                 + "\n" + "\n" + "Region SimCard = " + getCountryFromTelephonyManager(this)
                 + "\n" + "\n" + "---"
                 + "\n" + "\n" + "Theme = " + getKindOfTheme();
 
-        tv_head = findViewById(R.id.tv3_head);
-        tv_body = findViewById(R.id.tv3_body);
-        tv_head.setText(R.string.miscellaneous);
-        tv_body.setText(zeText);
+        TextView tv_head3 = findViewById(R.id.tv3_head);
+        TextView tv_body3 = findViewById(R.id.tv3_body);
+        tv_head3.setText(R.string.miscellaneous);
+        tv_body3.setText(zeText3);
 
         // ----------------------------------------
 
-        zeText = "Install Date = " + Pref.getFirstOpenDate()
+        String zeText4 = "Install Date = " + Pref.getFirstOpenDate()
                 + "\n" + "\n" + "Audio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed())
                 + "\n" + "* Book Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK))
                 + "\n" + "* TTS Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS))
@@ -138,10 +142,10 @@ public class StatsActivity extends LoggingActivity {
                 + "\n" + "* Podcast Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST))
                 + "\n" + "\n" + "(These stats started in 2025 (oct-nov)";
 
-        tv_head = findViewById(R.id.tv4_head);
-        tv_body = findViewById(R.id.tv4_body);
-        tv_head.setText(R.string.menu_stats);
-        tv_body.setText(zeText);
+        TextView tv_head4 = findViewById(R.id.tv4_head);
+        TextView tv_body4 = findViewById(R.id.tv4_body);
+        tv_head4.setText(R.string.menu_stats);
+        tv_body4.setText(zeText4);
 
         // ----------------------------------------
 
@@ -185,8 +189,8 @@ public class StatsActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteLogs_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteLogs())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(R.string.ok, (dialog, which) -> deleteLogs())
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
@@ -203,8 +207,8 @@ public class StatsActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteImages_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteCachedImages())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(R.string.ok, (dialog, which) -> deleteCachedImages())
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
@@ -306,9 +310,9 @@ public class StatsActivity extends LoggingActivity {
         String strPowerManagement = "";
         PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
         if (powerManager != null && powerManager.isIgnoringBatteryOptimizations(getPackageName())) {
-            strPowerManagement = "App is exempt from battery optimizations (good)";
+            strPowerManagement = getString(R.string.power_management_exempt);
         } else {
-            strPowerManagement = "App is subject to battery optimizations (may be killed in background)";
+            strPowerManagement = getString(R.string.power_management_subject);
             // Consider prompting the user to disable optimizations
         }
         return strPowerManagement;

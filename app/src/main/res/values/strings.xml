@@ -67,6 +67,9 @@
     <string name="no_metadata_available">No metadata available</string>  //metadata of audio files, like author, date, band, etc...
 
     <string name="Import_in_progress">Import in progress</string>
+    <string name="calculating_storage">Calculating…</string>
+    <string name="power_management_exempt">App is exempt from battery optimizations (good)</string>
+    <string name="power_management_subject">App is subject to battery optimizations (may be killed in background)</string>
 
     <string name="confirm">confirm</string>
     <string name="proceed">proceed</string> //keep it relatively short, it is for a dialog button

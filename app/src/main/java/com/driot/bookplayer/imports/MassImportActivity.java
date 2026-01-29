@@ -16,13 +16,15 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.BaseBottomNavActivity;
-import com.driot.bookplayer.objects.LoadBookTaskState;
-
-import java.util.List;
-
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.widgets.StorageBarView;
+
 import java.io.File;
+import java.util.List;
+
+import com.driot.bookplayer.activities.StorageInfo;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -41,6 +43,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
     private TextView tvProgress;
     private TextView tvCount;
     private Button btnConfirmImport;
+    private StorageBarView storageBar;
     // btnCancelScan removed
 
     @Override
@@ -80,6 +83,11 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
         setupRecyclerView();
         observeViewModel();
+        
+        // If we already have candidates (re-entry), calculate storage once
+        if (hasState) {
+            recalculateStorageBar();
+        }
 
         // Override back press to navigate directly to MainActivity (bypassing
         // AddBookActivity)
@@ -123,6 +131,47 @@ public class MassImportActivity extends BaseBottomNavActivity {
         tvProgress = findViewById(R.id.tvProgress);
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
+        storageBar = findViewById(R.id.storageBar);
+        
+        // Observe storage info from ViewModel
+        viewModel.getStorageInfo().observe(this, storageInfo -> {
+            if (storageInfo != null && storageBar != null) {
+                // Only show if we have valid storage data
+                if (storageInfo.totalStorageBytes > 0) {
+                    storageBar.setStorageValues(
+                        storageInfo.totalStorageBytes,
+                        storageInfo.usedByOthersBytes,
+                        storageInfo.usedByBookPlayerBytes,
+                        storageInfo.expectedAddedMemoryBytes
+                    );
+                    storageBar.setVisibility(View.VISIBLE);
+                } else {
+                    storageBar.setVisibility(View.GONE);
+                }
+            }
+        });
+        
+        // Don't load initial storage info here - it will be calculated once when scanning completes
+    }
+    
+    private void recalculateStorageBar() {
+        if (adapter == null) return;
+        
+        List<BookCandidate> candidates = adapter.getItems();
+        
+        // Calculate expected memory - all files except Folders need copying
+        long expectedSize = 0;
+        for (BookCandidate c : candidates) {
+            if (!c.isAlreadyImported()) {
+                // All files except Folders need copying
+                if (!"Folder".equals(c.type)) {
+                    expectedSize += c.size;
+                }
+            }
+        }
+        
+        // Update storage info directly (no debouncing, just calculate once)
+        viewModel.updateStorageInfo(expectedSize);
     }
 
     private void setupRecyclerView() {
@@ -143,6 +192,9 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 llScanning.setVisibility(View.GONE);
                 clReport.setVisibility(View.VISIBLE);
                 // Button state is handled by candidates observer
+                
+                // Calculate storage once when scanning completes
+                recalculateStorageBar();
             }
         });
 
@@ -190,6 +242,8 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 boolean scanning = Boolean.TRUE.equals(viewModel.getIsScanning().getValue());
                 btnConfirmImport.setEnabled(importableCount > 0 && !scanning);
             }
+            
+            // Don't recalculate storage here - it's calculated once when scanning completes
         });
     }
 
@@ -237,6 +291,9 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 s.dynamicType = candidate.type; // Folder, ZIP, M4B, Ebook
                 s.sourceLocation = "MassImport"; // Prevent NPE
 
+                // Use global copy file preference
+                boolean copyEnabled = Option.getCopyFile();
+
                 // Correctly configure path and options based on type
                 if ("Folder".equals(candidate.type)) {
                     s.futureFolderName = formattedName;
@@ -258,13 +315,16 @@ public class MassImportActivity extends BaseBottomNavActivity {
                     if ("ZIP".equals(candidate.type)) {
                         s.fileExtension = "zip";
                         s.playType = "Folder";
-                        s.optionCopy = true;
+                        s.optionCopy = true; // ZIP always requires copy
                     } else {
                         // Single file (M4B, Ebook)
                         s.fileExtension = com.driot.bookplayer.utils.Tonio.getExtension(candidate.name);
-                        s.optionCopy = true;
-                        if ("m4b".equalsIgnoreCase(s.fileExtension)) {
+                        // M4B always requires copy, other types only if checkbox is enabled
+                        if ("M4B".equals(candidate.type) || "m4b".equalsIgnoreCase(s.fileExtension)) {
+                            s.optionCopy = true; // M4B always requires copy
                             s.optionSplit = Option.getSplitM4b();
+                        } else {
+                            s.optionCopy = copyEnabled; // Ebook and other types only copy if checkbox enabled
                         }
                     }
 

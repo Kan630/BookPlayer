@@ -68,6 +68,9 @@ public class MassImportScanner extends LoggerHelper {
                 // Directories are processed immediately
                 current++;
                 callback.onProgress(current, total, safeName(file));
+                myLogD("--------------------------------------------------------");
+                myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
+                myLogD("--------------------------------------------------------");
 
                 if (hasAnyAudioRecursive(file)) {
                     String fileName = safeName(file);
@@ -94,6 +97,9 @@ public class MassImportScanner extends LoggerHelper {
                 } else {
                     current++;
                     callback.onProgress(current, total, safeName(file));
+                    myLogD("--------------------------------------------------------");
+                    myLog("Scanning File n°" + current + "/" + total + " : " + safeName(file));
+                    myLogD("--------------------------------------------------------");
 
                     if (type != null) {
                         String fileName = safeName(file);
@@ -113,6 +119,7 @@ public class MassImportScanner extends LoggerHelper {
                 }
             }
         }
+        myLogD("--------------------------------------------------------");
 
         // Process deferred archives
         processDeferredFiles(deferredArchives, candidates, current, total);
@@ -126,8 +133,6 @@ public class MassImportScanner extends LoggerHelper {
         if (deferredArchives.isEmpty())
             return;
 
-        myLog("Processing " + deferredArchives.size() + " deferred archives...");
-
         for (DocumentFile file : deferredArchives) {
             if (isCancelled)
                 return;
@@ -136,6 +141,9 @@ public class MassImportScanner extends LoggerHelper {
             currentCount++;
             String fileName = safeName(file);
             callback.onProgress(currentCount, totalItems, "Processing archive: " + fileName);
+            myLogD("--------------------------------------------------------");
+            myLog("Scanning Bundle " + currentCount + "/" + totalItems + " : " + fileName);
+            myLogD("--------------------------------------------------------");
 
             String type = detectBookType(file);
             if (type != null) {

@@ -57,8 +57,22 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/llButtons"
+            app:layout_constraintBottom_toTopOf="@+id/storageBar"
             tools:listitem="@layout/item_candidate"/>
+
+        <!-- Storage Bar -->
+        <com.driot.bookplayer.widgets.StorageBarView
+            android:id="@+id/storageBar"
+            android:layout_width="match_parent"
+            android:layout_height="24dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/rvCandidates"
+            app:layout_constraintBottom_toTopOf="@id/llButtons"
+            />
+
 
         <LinearLayout
             android:id="@+id/llButtons"
@@ -93,5 +107,6 @@
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
+
 
 </LinearLayout>

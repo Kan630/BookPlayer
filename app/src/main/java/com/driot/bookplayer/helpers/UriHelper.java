@@ -421,7 +421,7 @@ public class UriHelper {
                     outputStream.close();
                     pfd.close();
 
-                    myLogD("getFileFromUri: fallback copy success: " + tempFile.getAbsolutePath());
+                    myLogW("getFileFromUri: fallback copy success: " + tempFile.getAbsolutePath());
                     return tempFile;
                 }
             }
