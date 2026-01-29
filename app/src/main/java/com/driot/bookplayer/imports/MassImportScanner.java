@@ -471,70 +471,157 @@ public class MassImportScanner extends LoggerHelper {
             }
         }
 
-        // Extract cover from ZIP files (audiobook archives)
+        // Extract cover from ZIP and 7Z files (audiobook archives)
         if ("ZIP".equals(type)) {
-            try {
-                // Stream through ZIP entries to find largest image file
-                java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
-                if (inputStream != null) {
-                    java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream);
-                    java.util.zip.ZipEntry entry;
+            String fileName = safeName(file).toLowerCase();
 
-                    byte[] largestImage = null;
-                    long largestSize = 0;
-                    String largestName = null;
+            // 1. 7Z Files (Requires seeking)
+            if (fileName.endsWith(".7z")) {
+                try {
+                    try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
+                            .openFileDescriptor(file.getUri(), "r")) {
+                        if (pfd != null) {
+                            // Convert to SeekableByteChannel properly
+                            // SevenZFile requires a SeekableByteChannel
+                            try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
+                                    pfd.getFileDescriptor()).getChannel()) {
 
-                    while ((entry = zis.getNextEntry()) != null) {
-                        if (!entry.isDirectory()) {
-                            String entryName = entry.getName().toLowerCase();
-                            // Check if it's an image file
-                            if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
-                                    entryName.endsWith(".png") || entryName.endsWith(".webp")) {
+                                try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
+                                        channel)) {
 
-                                long size = entry.getSize();
-                                // If size unknown or larger than current largest
-                                if (size > largestSize || (size == -1 && largestImage == null)) {
-                                    // Read this image
-                                    java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                    byte[] buffer = new byte[8192];
-                                    int len;
-                                    while ((len = zis.read(buffer)) > 0) {
-                                        baos.write(buffer, 0, len);
+                                    org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
+
+                                    byte[] largestImage = null;
+                                    long largestSize = 0;
+                                    String largestName = null;
+
+                                    while ((entry = sevenZFile.getNextEntry()) != null) {
+                                        if (!entry.isDirectory()) {
+                                            String entryName = entry.getName().toLowerCase();
+                                            if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
+                                                    entryName.endsWith(".png") || entryName.endsWith(".webp")) {
+
+                                                long size = entry.getSize();
+                                                if (size > largestSize || (size == -1 && largestImage == null)) {
+                                                    // Read image content
+                                                    // Limit to reasonable size (e.g. 10MB) to avoid OOM
+                                                    if (size > 10 * 1024 * 1024)
+                                                        continue;
+
+                                                    int contentSize = (int) size;
+                                                    byte[] content = new byte[contentSize];
+                                                    int bytesRead = 0;
+                                                    while (bytesRead < contentSize) {
+                                                        int read = sevenZFile.read(content, bytesRead,
+                                                                contentSize - bytesRead);
+                                                        if (read == -1)
+                                                            break;
+                                                        bytesRead += read;
+                                                    }
+
+                                                    if (bytesRead == contentSize) {
+                                                        byte[] imageBytes = content;
+                                                        if (imageBytes.length > largestSize) {
+                                                            largestImage = imageBytes;
+                                                            largestSize = imageBytes.length;
+                                                            largestName = entry.getName();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
-                                    byte[] imageBytes = baos.toByteArray();
 
-                                    // Update if this is larger
-                                    if (imageBytes.length > largestSize) {
-                                        largestImage = imageBytes;
-                                        largestSize = imageBytes.length;
-                                        largestName = entry.getName();
+                                    if (largestImage != null) {
+                                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                                largestImage, 0, largestImage.length);
+
+                                        if (bitmap != null) {
+                                            String suffix = "_" + file.getUri().hashCode();
+                                            String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(
+                                                    context,
+                                                    bitmap, suffix);
+                                            if (tempPath != null) {
+                                                myLogD("Cover extracted from 7Z: " + safeName(file) + " -> "
+                                                        + largestName);
+                                                return tempPath;
+                                            }
+                                        }
                                     }
                                 }
-                                zis.closeEntry();
                             }
                         }
                     }
-                    zis.close();
-
-                    // Decode largest image if found
-                    if (largestImage != null) {
-                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                largestImage, 0, largestImage.length);
-
-                        if (bitmap != null) {
-                            String suffix = "_" + file.getUri().hashCode();
-                            String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                    bitmap, suffix);
-                            if (tempPath != null) {
-                                myLogD("Cover extracted from ZIP: " + safeName(file) + " -> " + largestName);
-                                return tempPath;
-                            }
-                        }
-                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error extracting 7Z cover: " + safeName(file));
                 }
-            } catch (Exception e) {
-                myLogEE(e, "Error extracting ZIP cover: " + safeName(file));
             }
+            // 2. ZIP Files (Streamable)
+            else {
+                try {
+                    // Stream through ZIP entries to find largest image file
+                    java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
+                    if (inputStream != null) {
+                        java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream);
+                        java.util.zip.ZipEntry entry;
+
+                        byte[] largestImage = null;
+                        long largestSize = 0;
+                        String largestName = null;
+
+                        while ((entry = zis.getNextEntry()) != null) {
+                            if (!entry.isDirectory()) {
+                                String entryName = entry.getName().toLowerCase();
+                                // Check if it's an image file
+                                if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
+                                        entryName.endsWith(".png") || entryName.endsWith(".webp")) {
+
+                                    long size = entry.getSize();
+                                    // If size unknown or larger than current largest
+                                    if (size > largestSize || (size == -1 && largestImage == null)) {
+                                        // Read this image
+                                        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                        byte[] buffer = new byte[8192];
+                                        int len;
+                                        while ((len = zis.read(buffer)) > 0) {
+                                            baos.write(buffer, 0, len);
+                                        }
+                                        byte[] imageBytes = baos.toByteArray();
+
+                                        // Update if this is larger
+                                        if (imageBytes.length > largestSize) {
+                                            largestImage = imageBytes;
+                                            largestSize = imageBytes.length;
+                                            largestName = entry.getName();
+                                        }
+                                    }
+                                    zis.closeEntry();
+                                }
+                            }
+                        }
+                        zis.close();
+
+                        // Decode largest image if found
+                        if (largestImage != null) {
+                            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                    largestImage, 0, largestImage.length);
+
+                            if (bitmap != null) {
+                                String suffix = "_" + file.getUri().hashCode();
+                                String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                        bitmap, suffix);
+                                if (tempPath != null) {
+                                    myLogD("Cover extracted from ZIP: " + safeName(file) + " -> " + largestName);
+                                    return tempPath;
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    myLogEE(e, "Error extracting ZIP cover: " + safeName(file));
+                }
+            }
+
         }
 
         return null;
