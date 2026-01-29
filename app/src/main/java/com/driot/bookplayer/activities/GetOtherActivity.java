@@ -82,11 +82,11 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
                     if (type.equals("MassImport")) {
 
-                        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-                            Intent intent = new Intent(this, com.driot.bookplayer.imports.MassImportActivity.class);
-                            intent.putExtra(com.driot.bookplayer.imports.MassImportActivity.EXTRA_URI, uri);
-                            startActivity(intent);
-                        }, 0);
+                        Intent intent = new Intent(this, com.driot.bookplayer.imports.MassImportActivity.class);
+                        intent.putExtra(com.driot.bookplayer.imports.MassImportActivity.EXTRA_URI, uri);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                        startActivity(intent);
+                        overridePendingTransition(0, 0);
 
                     } else {
                         Intent intent = new Intent(this, LoadBookActivity.class);
