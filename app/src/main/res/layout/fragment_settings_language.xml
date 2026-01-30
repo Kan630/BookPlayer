@@ -18,32 +18,20 @@
         <!-- App language -->
         <LinearLayout
             style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
+            android:layout_marginTop="0dp"
+            android:layout_marginStart="20dp"
+            >
 
             <TextView
-                style="@style/OptionTitle"
+                style="@style/simpleTextWrap"
+                android:layout_marginBottom="8dp"
                 android:text="@string/app_language" />
 
-            <TextView
-                style="@style/OptionSubTitle"
-                android:text="@string/option_app_language_subtitle"
-                android:textStyle="italic" />
-
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/app_language"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginTop="0dp" />
-
-                <Spinner
-                    android:id="@+id/spinner_app_language"
-                    style="@style/Spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
+            <Spinner
+                android:id="@+id/spinner_app_language"
+                style="@style/Spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>

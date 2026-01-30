@@ -44,8 +44,15 @@ public class LanguageSettingsFragment extends LoggingFragment {
                 lang -> {
                     String value = lang.twoLetterCode;
                     myLogD("App language chosen: " + value);
+                    String current = Option.getAppLanguage();
                     Option.setAppLanguage(value);
                     LocaleHelper.applyAppLocale(value);
+                    // Only recreate when language actually changed; avoids recreate on initial spinner set.
+                    // Force recreate so UI updates on Oppo/Samsung Android 9–12 where
+                    // setApplicationLocales alone often does not trigger recreate.
+                    if (!value.equals(current) && getActivity() != null) {
+                        getActivity().recreate();
+                    }
                 }, false);
 
         return root;

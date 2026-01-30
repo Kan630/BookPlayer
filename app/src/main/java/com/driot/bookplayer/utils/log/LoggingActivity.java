@@ -17,6 +17,7 @@ package com.driot.bookplayer.utils.log;
  *
  */
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -28,6 +29,7 @@ import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.LocaleHelper;
 //import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 
@@ -44,6 +46,10 @@ public abstract class LoggingActivity extends AppCompatActivity {
 
     //protected final LoggerHelper logger = new LoggerHelper(getClass());
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(newBase));
+    }
 
     @Override
     public void onBackPressed() {

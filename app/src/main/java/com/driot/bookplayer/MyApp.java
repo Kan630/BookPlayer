@@ -40,6 +40,11 @@ public class MyApp extends Application {
 
     private static InAppPeriodicTaskManager periodicTaskManager;
 
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(base));
+    }
+
     public static InAppPeriodicTaskManager getPeriodicTaskManager(Context context) {
         if (periodicTaskManager == null) {
             periodicTaskManager = new InAppPeriodicTaskManager(context, Var.PERIODIC_TASK_MANAGER_DELAY_IN_MINUTES);
