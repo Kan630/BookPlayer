@@ -81,6 +81,8 @@
     <string name="done.">done.</string>
     <string name="download">download</string>
     <string name="Download">Download</string>
+    <string name="download_verb">Download</string>
+    <string name="download_noun">Download</string>
     <string name="downloaded">"downloaded"</string>
     <string name="Downloading">"Downloading"</string>
     <string name="downloads">downloads</string>

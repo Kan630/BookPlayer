@@ -95,7 +95,7 @@ public class DownloadWorker extends ImportWorker {
     @Override
     public Result doWorkBody() {
         emitTaskStart(TASK_NAME,
-                context.getString(R.string.Download) + " " + context.getString(R.string.import_task_start));
+                context.getString(R.string.download_noun) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         final String urlStr = j.downloadFileUrl;
         final String destFolder = j.downloadDestinationFolder;
@@ -373,7 +373,7 @@ public class DownloadWorker extends ImportWorker {
                 }
 
                 // Success
-                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath(), ctx.getString(R.string.Download)
+                emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath(), ctx.getString(R.string.download_noun)
                         + " " + ctx.getString(R.string.done_));
                 setProgressAsync(new Data.Builder()
                         .putInt(PROG_PERCENT, 100)

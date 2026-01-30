@@ -144,7 +144,7 @@
 
             <TextView
                 style="@style/OptionTitle"
-                android:text="@string/Download"
+                android:text="@string/download_noun"
                 android:layout_marginTop="0dp" />
         </LinearLayout>
 

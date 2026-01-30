@@ -67,7 +67,7 @@
     <string name="confirm">confirmer</string>
     <string name="copied">copié</string>
     <string name="Copy">Copie</string>
-    <string name="count">compteur</string>
+    <string name="count">Total</string>
     <string name="Creator">Créateur</string>
     <string name="days">jours</string>
     <string name="Delete">Supprimer</string>
@@ -81,6 +81,8 @@
     <string name="done.">terminé.</string>
     <string name="download">télécharger</string>
     <string name="Download">Télécharger</string>
+    <string name="download_verb">Télécharger</string>
+    <string name="download_noun">Téléchargement</string>
     <string name="downloaded">téléchargé</string>
     <string name="Downloading">Téléchargement</string>
     <string name="downloads">téléchargements</string>
@@ -108,7 +110,7 @@
     <string name="Genre">Genre</string> //About a book
     <string name="get">obtenir</string>
     <string name="granted">autorisée</string>
-    <string name="History">Histoire</string> //means already listened, used for radio stations
+    <string name="History">Historique</string> //means already listened, used for radio stations
     <string name="homepage">page d\'accueil</string>
     <string name="icon">icône</string>
     <string name="id_label">ID : </string>
@@ -162,7 +164,7 @@
     <string name="Search_2pt">Recherche : </string>
     <string name="sec">sec</string> //short for second
     <string name="Set">Définir</string>
-    <string name="Settings">Options</string>
+    <string name="Settings">Paramètres</string>
     <string name="settings">paramètres</string>
     <string name="sort">trier</string>
     <string name="Spam">Spam</string>
