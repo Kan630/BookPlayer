@@ -175,7 +175,7 @@ public final class InAppMsgManager {
         AlertDialog dlg = new AlertDialog.Builder(activity)
                 .setTitle(title)
                 .setMessage(sp)
-                .setPositiveButton(android.R.string.OK, (d, w) -> {
+                .setPositiveButton(android.R.string.ok, (d, w) -> {
                     markSeen(activity, msg);
                     d.dismiss();
                 })

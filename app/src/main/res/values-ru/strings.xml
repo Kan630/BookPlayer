@@ -893,7 +893,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="load_multiple_book">загрузить несколько</string>
 
         <string name="reset_track_order">сбросить порядок треков</string>
-        <string name="tracks_order_has_been_reset">порядок треков сброшен</string>
+        <string name="Tracks_order_has_been_reset">порядок треков сброшен</string>
         <string name="add_new_tracks">добавить новые треки</string>
 
         <string name="m4b_error_non_standard_chapter_format">"""
@@ -1008,9 +1008,9 @@ BookPlayer будет использовать <font color="#81C784">встро�
     Используйте <font color="#EF9A9A">сердце</font> для добавления в <font color="#BA68C8">избранное</font>.]]></string>
     <string name="help_radio_title">Мировое радио</string>
     <string name="live_podcast">живой подкаст</string>
-    <string name="new_location_better">Папка исправляет все битые пути</string>
-    <string name="new_location_better_and_worse">Папка исправляет некоторые битые пути</string>
-    <string name="new_location_not_better">Папка не исправляет битые пути</string>
+    <string name="newlocation_better">Папка исправляет все битые пути</string>
+    <string name="newlocation_better_and_worse">Папка исправляет некоторые битые пути</string>
+    <string name="newlocation_not_better">Папка не исправляет битые пути</string>
     <string name="open_audiobook">Открыть аудиокнигу</string>
     <string name="pick_a_new_location">выбрать новое место</string>
     <string name="proceed">далее</string>

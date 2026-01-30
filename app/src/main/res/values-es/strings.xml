@@ -883,7 +883,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="load_multiple_book">cargar varios</string>
 
     <string name="reset_track_order">restablecer orden</string>
-    <string name="tracks_order_has_been_reset">el orden de pistas ha sido restablecido</string>
+    <string name="Tracks_order_has_been_reset">el orden de pistas ha sido restablecido</string>
     <string name="add_new_tracks">añadir nuevas pistas</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -995,9 +995,9 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     Use el <font color="#EF9A9A">corazón</font> para añadir a <font color="#BA68C8">favoritos</font>.]]></string>
     <string name="help_radio_title">Radios del Mundo</string>
     <string name="live_podcast">podcast en vivo</string>
-    <string name="new_location_better">La carpeta corrige todas las rutas rotas</string>
-    <string name="new_location_better_and_worse">La carpeta corrige algunas rutas rotas</string>
-    <string name="new_location_not_better">La carpeta no corrige ninguna ruta</string>
+    <string name="newlocation_better">La carpeta corrige todas las rutas rotas</string>
+    <string name="newlocation_better_and_worse">La carpeta corrige algunas rutas rotas</string>
+    <string name="newlocation_not_better">La carpeta no corrige ninguna ruta</string>
     <string name="open_audiobook">Abrir el audiolibro</string>
     <string name="pick_a_new_location">elegir nueva ubicación</string>
     <string name="proceed">proceder</string>

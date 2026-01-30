@@ -902,7 +902,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="load_multiple_book">carregar vários</string>
 
     <string name="reset_track_order">redefinir ordem</string>
-    <string name="tracks_order_has_been_reset">a ordem das faixas foi redefinida</string>
+    <string name="Tracks_order_has_been_reset">a ordem das faixas foi redefinida</string>
     <string name="add_new_tracks">adicionar novas faixas</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -1015,9 +1015,9 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     Use o <font color="#EF9A9A">coração</font> para adicionar aos <font color="#BA68C8">favoritos</font>.]]></string>
     <string name="help_radio_title">Rádios do Mundo</string>
     <string name="live_podcast">podcast ao vivo</string>
-    <string name="new_location_better">A pasta corrige todos os caminhos quebrados</string>
-    <string name="new_location_better_and_worse">A pasta corrige alguns caminhos quebrados</string>
-    <string name="new_location_not_better">A pasta não corrige nenhum caminho</string>
+    <string name="newlocation_better">A pasta corrige todos os caminhos quebrados</string>
+    <string name="newlocation_better_and_worse">A pasta corrige alguns caminhos quebrados</string>
+    <string name="newlocation_not_better">A pasta não corrige nenhum caminho</string>
     <string name="open_audiobook">Abrir o audiolivro</string>
     <string name="pick_a_new_location">escolher novo local</string>
     <string name="proceed">prosseguir</string>

@@ -904,7 +904,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="load_multiple_book">carica libri</string>
 
     <string name="reset_track_order">reimposta ordine tracce</string>
-    <string name="tracks_order_has_been_reset">l\'ordine delle tracce è stato reimpostato</string>
+    <string name="Tracks_order_has_been_reset">l\'ordine delle tracce è stato reimpostato</string>
     <string name="add_new_tracks">aggiungi nuove tracce</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -1017,9 +1017,9 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     Usa il <font color="#EF9A9A">cuore</font> per aggiungere ai <font color="#BA68C8">preferiti</font>.]]></string>
     <string name="help_radio_title">Radio dal Mondo</string>
     <string name="live_podcast">podcast live</string>
-    <string name="new_location_better">La cartella corregge tutti i percorsi rotti</string>
-    <string name="new_location_better_and_worse">La cartella corregge alcuni percorsi rotti</string>
-    <string name="new_location_not_better">La cartella non corregge alcun percorso</string>
+    <string name="newlocation_better">La cartella corregge tutti i percorsi rotti</string>
+    <string name="newlocation_better_and_worse">La cartella corregge alcuni percorsi rotti</string>
+    <string name="newlocation_not_better">La cartella non corregge alcun percorso</string>
     <string name="open_audiobook">Apri l\'audiolibro</string>
     <string name="pick_a_new_location">scegli nuova posizione</string>
     <string name="proceed">procedi</string>

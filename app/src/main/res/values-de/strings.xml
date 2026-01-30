@@ -896,7 +896,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="load_multiple_book">mehrere laden</string>
 
     <string name="reset_track_order">Titelreihenfolge zurücksetzen</string>
-    <string name="tracks_order_has_been_reset">Titelreihenfolge wurde zurückgesetzt</string>
+    <string name="Tracks_order_has_been_reset">Titelreihenfolge wurde zurückgesetzt</string>
     <string name="add_new_tracks">neue Titel hinzufügen</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -1008,9 +1008,9 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     Nutzen Sie das <font color="#EF9A9A">Herz</font>, um Sender zu <font color="#BA68C8">Favoriten</font> hinzuzufügen.]]></string>
     <string name="help_radio_title">Weltweite Radiosender</string>
     <string name="live_podcast">Live-Podcast</string>
-    <string name="new_location_better">Ordner repariert alle defekten Pfade</string>
-    <string name="new_location_better_and_worse">Ordner repariert einige defekte Pfade</string>
-    <string name="new_location_not_better">Ordner repariert keine defekten Pfade</string>
+    <string name="newlocation_better">Ordner repariert alle defekten Pfade</string>
+    <string name="newlocation_better_and_worse">Ordner repariert einige defekte Pfade</string>
+    <string name="newlocation_not_better">Ordner repariert keine defekten Pfade</string>
     <string name="open_audiobook">Das Hörbuch öffnen</string>
     <string name="pick_a_new_location">neuen Ort wählen</string>
     <string name="proceed">weiter</string>

@@ -44,6 +44,7 @@
 
     <string name="Yes">Yes</string>
     <string name="No">No</string>
+    <string name="OK">OK</string>
     <string name="Cancel">Cancel</string>
     <string name="yesterday">"yesterday"</string>
     <string name="Delete">Delete</string>
@@ -96,7 +97,6 @@
 
     <string name="reviews">reviews</string>
     <string name="Also">Also</string>
-    <string name="OK">OK</string>
     <string name="title">title</string>
     <string name="subtitle">subtitle</string>
     <string name="last">last</string>
@@ -942,7 +942,7 @@
     <string name="load_one_book">load 1 book</string>
     <string name="load_multiple_book">load multiple books</string>
     <string name="reset_track_order">reset track order</string>
-    <string name="tracks_order_has_been_reset">tracks order has been reset</string>
+    <string name="Tracks_order_has_been_reset">tracks order has been reset</string>
     <string name="add_new_tracks">add new tracks</string>
     <string name="m4b_error_non_standard_chapter_format">"""
                         This M4B file uses a non-standard chapter format.
@@ -1018,9 +1018,9 @@
     <string name="All_modes_except_Legacy_are_in_beta">All modes except Legacy are in beta.</string>
     <string name="reset_progress_only_for_this_track">reset progress only for this track</string>
     <string name="pick_a_new_location">pick a new location</string>
-    <string name="new_location_better">The selected folder fixes all broken paths</string>
-    <string name="new_location_better_and_worse">The selected folder fixes some broken paths</string>
-    <string name="new_location_not_better">The selected folder does not fix any broken paths</string>
+    <string name="newlocation_better">The selected folder fixes all broken paths</string>
+    <string name="newlocation_better_and_worse">The selected folder fixes some broken paths</string>
+    <string name="newlocation_not_better">The selected folder does not fix any broken paths</string>
     <string name="AskChangeSource_popupTitle">Confirm location change</string>
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>

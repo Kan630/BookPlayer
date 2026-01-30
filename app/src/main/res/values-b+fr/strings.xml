@@ -890,7 +890,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="load_multiple_book">charger plusieurs livres</string>
 
     <string name="reset_track_order">réinitialiser l\'ordre des pistes</string>
-    <string name="tracks_order_has_been_reset">l\'ordre des pistes a été réinitialisé</string>
+    <string name="Tracks_order_has_been_reset">l\'ordre des pistes a été réinitialisé</string>
     <string name="add_new_tracks">ajouter de nouvelles pistes</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -1002,9 +1002,9 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     Utilisez <font color="#EF9A9A">le cœur</font> pour ajouter aux <font color="#BA68C8">favoris</font>.]]></string>
     <string name="help_radio_title">Radios du Monde</string>
     <string name="live_podcast">podcast en direct</string>
-    <string name="new_location_better">Ce dossier corrige tous les chemins rompus</string>
-    <string name="new_location_better_and_worse">Ce dossier corrige certains chemins rompus</string>
-    <string name="new_location_not_better">Ce dossier ne corrige aucun chemin</string>
+    <string name="newlocation_better">Ce dossier corrige tous les chemins rompus</string>
+    <string name="newlocation_better_and_worse">Ce dossier corrige certains chemins rompus</string>
+    <string name="newlocation_not_better">Ce dossier ne corrige aucun chemin</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>
     <string name="pick_a_new_location">choisir un nouvel emplacement</string>
     <string name="proceed">continuer</string>

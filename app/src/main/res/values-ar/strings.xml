@@ -890,7 +890,7 @@
     <string name="load_multiple_book">تحميل كتب</string>
 
     <string name="reset_track_order">إعادة ترتيب المقاطع</string>
-    <string name="tracks_order_has_been_reset">تمت إعادة ترتيب المقاطع</string>
+    <string name="Tracks_order_has_been_reset">تمت إعادة ترتيب المقاطع</string>
     <string name="add_new_tracks">إضافة مقاطع جديدة</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -1002,9 +1002,9 @@
     استخدم <font color="#EF9A9A">القلب</font> للإضافة إلى <font color="#BA68C8">المفضلة</font>.]]></string>
     <string name="help_radio_title">بث راديو العالم</string>
     <string name="live_podcast">بودكاست مباشر</string>
-    <string name="new_location_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
-    <string name="new_location_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
-    <string name="new_location_not_better">المجلد المحدد لا يصلح أي مسارات معطلة</string>
+    <string name="newlocation_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
+    <string name="newlocation_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
+    <string name="newlocation_not_better">المجلد المحدد لا يصلح أي مسارات معطلة</string>
     <string name="open_audiobook">فتح الكتاب الصوتي</string>
     <string name="pick_a_new_location">اختر موقعًا جديدًا</string>
     <string name="proceed">متابعة</string>

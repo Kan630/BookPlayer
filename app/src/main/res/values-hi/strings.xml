@@ -928,7 +928,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="load_multiple_book">किताबें लोड</string>
 
     <string name="reset_track_order">ट्रैक क्रम रीसेट</string>
-    <string name="tracks_order_has_been_reset">ट्रैक क्रम रीसेट किया गया</string>
+    <string name="Tracks_order_has_been_reset">ट्रैक क्रम रीसेट किया गया</string>
     <string name="add_new_tracks">नए ट्रैक जोड़ें</string>
 
     <string name="m4b_error_non_standard_chapter_format">"""
@@ -1040,9 +1040,9 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <font color="#BA68C8">पसंदीदा</font> में जोड़ने के लिए <font color="#EF9A9A">दिल आइकन</font> का उपयोग करें।]]></string>
     <string name="help_radio_title">दुनिया के रेडियो</string>
     <string name="live_podcast">लाइव पॉडकास्ट</string>
-    <string name="new_location_better">चयनित फ़ोल्डर सभी टूटे हुए रास्तों को ठीक करता है</string>
-    <string name="new_location_better_and_worse">चयनित फ़ोल्डर कुछ टूटे हुए रास्तों को ठीक करता है</string>
-    <string name="new_location_not_better">चयनित फ़ोल्डर कोई टूटे रास्ते ठीक नहीं करता</string>
+    <string name="newlocation_better">चयनित फ़ोल्डर सभी टूटे हुए रास्तों को ठीक करता है</string>
+    <string name="newlocation_better_and_worse">चयनित फ़ोल्डर कुछ टूटे हुए रास्तों को ठीक करता है</string>
+    <string name="newlocation_not_better">चयनित फ़ोल्डर कोई टूटे रास्ते ठीक नहीं करता</string>
     <string name="open_audiobook">ऑडियोबुक खोलें</string>
     <string name="pick_a_new_location">नया स्थान चुनें</string>
     <string name="proceed">आगे बढ़ें</string>
