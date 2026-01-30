@@ -1,66 +1,256 @@
 <resources>
+    <!-- ********************************** -->
+    <!-- NO TRANSLATION (translatable=false) -->
+
+
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
-
-    <string name="title_FolderContent">قائمة الملفات</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
-
     <string name="asset_statements" translatable="false">
     [{
       \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
     }]
     </string>
-
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
     <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
+    <string name="Librivox" translatable="false">LibriVox</string>
+
+    <string name="three_dots" translatable="false">…</string>
+
+
+    <string name="play" translatable="false"><![CDATA[>]]></string>
+    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
+    <string name="forward" translatable="false"><![CDATA[>>]]></string>
+    <string name="pause" translatable="false">||</string>
+    <string name="btnSleepSet" translatable="false">Sleep</string>
+    <string name="menu_seeLog" translatable="false">See Logs</string>
+
+    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
+    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
+    <string name="otherApp_scanner" translatable="false">Scanner</string>
+    <string name="permissions_ok_button" translatable="false">OK</string>
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="emoji_paste" translatable="false">📋</string>
+    <string name="emoji_clear" translatable="false">🗑️</string>
+    <string name="librivox" translatable="false">LibriVox</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
 
     <!-- ********************************** -->
-    <!-- GENERAL -->
+    <!-- SINGLE WORDS -->
 
-    <string name="Yes">نعم</string>
+    <string name="Added">"تمت الإضافة"</string>
+    <string name="after">بعد</string>
+    <string name="Album">الألبوم</string>
+    <string name="Alphabetically">أبجديا</string>
+    <string name="Also">أيضًا</string>
+    <string name="Artist">الفنان</string>
+    <string name="Audio">صوت</string>
+    <string name="AudioBooks">"كتب صوتية"</string>
+    <string name="Auto_Delete">الحذف التلقائي</string>
+    <string name="Auto_Download">التنزيل التلقائي</string>
+    <string name="auto_download">تنزيل تلقائي</string>
+    <string name="Automotive">السيارة</string> //Auto section of settings
+    <string name="bars">أعمدة</string>
+    <string name="Bitrate">معدل البت</string>
+    <string name="Bookshelves">"رفوف الكتب"</string>
+    <string name="Bundle">أرشيف</string> //means zip, tar, 7z etc..
+    <string name="calculating_storage">جاري الحساب…</string>
+    <string name="Cancelled">أُلغي</string>
+    <string name="candidates">مرشحون</string> //for books scanned in massive import
+    <string name="Channels">القنوات</string>
+    <string name="chars">أحرف</string>
+    <string name="Cleaning">تنظيف</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clear">مسح</string>
+    <string name="Close">إغلاق</string>
+    <string name="collapse">طي</string> //opposite of expand, used for "enlarge" or "show description"
+    <string name="confirm">تأكيد</string>
+    <string name="copied">منسوخ</string>
+    <string name="Copy">نسخ</string>
+    <string name="count">العدد</string>
+    <string name="Creator">المنشئ</string>
+    <string name="days">أيام</string>
+    <string name="Delete">حذف</string>
+    <string name="Deleting">جاري الحذف</string>
+    <string name="denied">مرفوض</string>
+    <string name="Design">تصميم</string> //used as the settings title for the section where user can choose color, text font
+    <string name="destination">الوجهة</string>
+    <string name="device">الجهاز</string>
+    <string name="Disc">القرص</string>
+    <string name="done">تم</string>
+    <string name="done.">تم.</string>
+    <string name="download">تنزيل</string>
+    <string name="Download">تنزيل</string>
+    <string name="download_verb">تنزيل</string>
+    <string name="download_noun">تنزيل</string>
+    <string name="downloaded">"تم التنزيل"</string>
+    <string name="Downloading">"جاري التنزيل"</string>
+    <string name="downloads">التنزيلات</string>
+    <string name="Duration">المدة</string>
+    <string name="Ebooks">كتب إلكترونية</string>
+    <string name="Engine">المحرك</string>
+    <string name="ep">"حل"</string> //short for episode
+    <string name="episodes">الحلقات</string>
+    <string name="error">خطأ</string>
+    <string name="Exit">خروج</string>
+    <string name="expand">توسيع</string> //opposite of collapse, used for "enlarge" or "show description"
+    <string name="Export_3pt">"تصدير…"</string>
+    <string name="favorite">مفضل</string>
+    <string name="favorites">المفضلة</string>
+    <string name="Favorites">المفضلة</string>
+    <string name="File">ملف</string>
+    <string name="flag">علم</string> //means country flag
+    <string name="Folder">مجلد</string>
+    <string name="folder">مجلد</string>
+    <string name="Font">الخط</string>
+    <string name="Forbidden">ممنوع</string>
+    <string name="found">تم العثور</string>
+    <string name="from">من</string>
+    <string name="General">عام</string>
+    <string name="Genre">النوع</string> //About a book
+    <string name="get">احصل</string>
+    <string name="granted">مسموح</string>
+    <string name="History">التاريخ</string> //means already listened, used for radio stations
+    <string name="homepage">الصفحة الرئيسية</string>
+    <string name="icon">رمز</string>
+    <string name="id_label">المعرف: </string>
+    <string name="Import">استيراد</string>
+    <string name="in">في</string>
+    <string name="Integration">دمج</string>
+    <string name="items">عناصر</string>
+    <string name="language">لغة</string>
+    <string name="Language">اللغة</string>
+    <string name="Language_2pt">"اللغة: "</string>
+    <string name="last">الأخيرة</string>
+    <string name="legacy">قديم</string>
+    <string name="library">المكتبة</string>
+    <string name="linked">مرتبط</string>
+    <string name="links">روابط</string>
+    <string name="listened">"تم الاستماع"</string>
+    <string name="loading">جار التحميل</string>
+    <string name="Logging">تسجيل الأخطاء</string>
+    <string name="manual">دليل</string>
+    <string name="MB">ميغابايت</string> //short for MegaByte
+    <string name="memory">الذاكرة</string> //in the storage sense
+    <string name="Menu">قائمة</string>
+    <string name="metadata">البيانات الوصفية</string> //in audio file context
+    <string name="min.">دقيقة</string>
+    <string name="Miscellaneous">متنوع</string>
+    <string name="ms.">مللي ثانية.</string> //short for milliseconds
+    <string name="new_label">جديد</string>
     <string name="No">لا</string>
-    <string name="are_you_sure">هل أنت متأكد؟</string>
+    <string name="nothing">لا شيء</string>
+    <string name="open">فتح</string>
+    <string name="others">أخرى</string>
+    <string name="paste">لصق</string>
+    <string name="Pause">إيقاف مؤقت</string> //means pause audio playback
+    <string name="Permission">إذن</string>
+    <string name="Podcasts">البودكاست</string>
+    <string name="podcasts">البودكاست</string>
+    <string name="proceed">متابعة</string>
+    <string name="Processing">"جارٍ المعالجة"</string>
+    <string name="radial">دائري</string> //for graphic vizualizer
+    <string name="radio">راديو</string>
+    <string name="Radio">راديو</string>
+    <string name="Ready">جاهز</string>
+    <string name="refresh">تحديث</string>
+    <string name="reorder">إعادة الترتيب</string>
+    <string name="Results_2pt">"النتائج: "</string>
+    <string name="Resume">استئناف</string>
+    <string name="reviews">مراجعات</string> //for book reviews
+    <string name="Roaming">تجوال</string>
+    <string name="save">حفظ</string>
+    <string name="Search">"بحث"</string>
+    <string name="Search_2pt">"بحث: "</string>
+    <string name="sec">ث</string> //short for second
+    <string name="Set">تعيين</string>
+    <string name="Settings">خيارات</string>
+    <string name="settings">الإعدادات</string>
+    <string name="sort">فرز</string>
+    <string name="Spam">رسائل مزعجة</string>
+    <string name="Speaking">جارٍ التحدث</string>
+    <string name="Speed">السرعة</string>
+    <string name="import_task_start">جارٍ البدء...</string>
+    <string name="Stats">إحصائيات</string>
+    <string name="stop">إيقاف</string>
+    <string name="Storage">التخزين</string>
+    <string name="subtitle">عنوان فرعي</string>
+    <string name="tags">وسوم</string>
+    <string name="Technical">تقني</string>
+    <string name="Text">نص</string>
+    <string name="text_to_speech">التحويل النصي إلى كلام</string>
+    <string name="Text_To_Speech">تحويل النص إلى كلام</string>
+    <string name="title">عنوان</string>
+    <string name="to">إلى</string>
+    <string name="Track">المسار</string>
+    <string name="Trending">الشائع</string>
+    <string name="Unauthorized">غير مصرح</string>
+    <string name="Uncompress">فك الضغط</string>
+    <string name="Utilities">أدوات</string>
+    <string name="Version">الإصدار</string>
+    <string name="Video">فيديو</string>
+    <string name="Warning">تحذير</string>
+    <string name="wave">موجة</string>
+    <string name="Website">الموقع الإلكتروني</string>
+    <string name="Year">السنة</string>
+    <string name="Yes">نعم</string>
     <string name="yesterday">"أمس"</string>
+    <string name="export_zipping_label">جاري الضغط: </string>
+
+        <!-- OTHER (multi-word strings, plurals, etc.) -->
+
+    <string name="title_FolderContent">قائمة الملفات</string>
+
+    <string name="beta_test">اختبار تجريبي</string>
+    <string name="are_you_sure">هل أنت متأكد؟</string>
     <string name="app_info">معلومات التطبيق</string>
     <string name="delete_logs">حذف السجلات</string>
-    <string name="Delete">حذف</string>
+    <string name="Import_failed">فشل الاستيراد</string>
+    <string name="About_to_start_download">على وشك بدء التنزيل…</string>
+    <string name="Please_enter_a_URL">يرجى إدخال عنوان URL.</string>
+    <string name="Permission_Required">الإذن مطلوب</string>
+
+    <string name="App_Info">معلومات التطبيق</string>
+
+    <string name="reset_app">إعادة تعيين التطبيق</string>
+    <string name="add_book">إضافة كتاب</string>
+
+
+    <string name="Not_enough_memory">الذاكرة غير كافية</string>
+
+    <string name="unexpected_error">خطأ غير متوقع</string>
+    <string name="an_error_occurred">حدث خطأ</string>
+    <string name="no_internet_connection">لا يوجد اتصال بالإنترنت</string>
+    <string name="no_metadata_available">لا توجد بيانات وصفية متاحة</string>
+
+
+    <string name="Import_in_progress">الاستيراد قيد التنفيذ</string>
+    <string name="storage_device">تخزين الجهاز</string>
+    <string name="storage_sd_card">تخزين بطاقة SD</string>
+    <string name="storage_legend_new_books">كتب جديدة</string>
+    <string name="power_management_exempt">التطبيق معفى من تحسينات البطارية (جيد)</string>
+    <string name="power_management_subject">التطبيق خاضع لتحسينات البطارية (قد يُغلق في الخلفية)</string>
+    <string name="left_on">المتبقي في</string>
+
+    <string name="SD_card">بطاقة SD</string>
+
+    <string name="audios_in_app">ملفات صوتية في التطبيق</string>
+    <string name="audio_tracks">"مقاطع صوتية"</string>
+
+    <string name="book_cover">"غلاف الكتاب"</string>
+    <string name="Available_since">متاح منذ</string>
+    <string name="default_for">الافتراضي لـ</string>
+
+    <string name="sample_rate">معدل العينة</string>
+
 
     <string name="DeleteLogs_AskConfirm">"أنت على وشك حذف جميع السجلات.\nهل أنت متأكد؟"</string>
     <string name="ModifyFolder_AskDelete">"أنت على وشك حذف هذا المجلد وجميع المقاطع الصوتية\nهل أنت متأكد؟"</string>
     <string name="ModifyFolder_AskReset">"أنت على وشك إعادة تعيين التقدم لهذا المجلد\nهل أنت متأكد؟"</string>
     <string name="ModifyZikFile_AskDelete">"أنت على وشك حذف هذا المقطع الصوتي\nهل أنت متأكد؟"</string>
 
-    <string name="left_on">المتبقي في</string>
-    <string name="memory">الذاكرة</string>
-    <string name="device">الجهاز</string>
-    <string name="SD_card">بطاقة SD</string>
-    <string name="audios_in_app">ملفات صوتية في التطبيق</string>
-    <string name="listened">"تم الاستماع"</string>
-    <string name="audio_tracks">"مقاطع صوتية"</string>
-    <string name="Added">"تمت الإضافة"</string>
-    <string name="Favorites">المفضلة</string>
-    <string name="Set">تعيين</string>
-    <string name="MB">ميغابايت</string>
-    <string name="Export_3pt">"تصدير…"</string>
-    <string name="Version">الإصدار</string>
-    <string name="Miscellaneous">متنوع</string>
-    <string name="Processing">"جارٍ المعالجة"</string>
-    <string name="downloaded">"تم التنزيل"</string>
-    <string name="Downloading">"جاري التنزيل"</string>
-    <string name="book_cover">"غلاف الكتاب"</string>
-    <string name="Search">"بحث"</string>
-    <string name="Creator">المنشئ</string>
-    <string name="Available_since">متاح منذ</string>
-    <string name="default_for">الافتراضي لـ</string>
 
-
-    <!-- ********************************** -->
-    <!-- HELP Screen -->
-
-    <string name="help_title">دليل BookPlayer</string>
-
-    <string name="General">عام</string>
+        <string name="help_title">دليل BookPlayer</string>
     <string name="help_text_general"><![CDATA[
     عند فتح التطبيق، سترى قائمة من <font color="#90D8E8">المجلدات</font> — تمثل كتبك أو دروسك أو بودكاستاتك.
     <br><br>
@@ -72,7 +262,6 @@
     <br>
     ضغطة عادية تبدأ التشغيل.
 ]]></string>
-
     <string name="help_title_manual_import">الاستيراد اليدوي :</string>
     <string name="help_text_manual_import"><![CDATA[
     عند <font color="#81C784"><b>استيرادك يدويًا</b></font> لكتاب، تبدأ باختيار <font color="#64B5F6">ملف</font> أو <font color="#64B5F6">مجلد</font>.
@@ -95,7 +284,6 @@
     <br><br>
     فعّل <font color="#F48FB1"><b>الحذف التلقائي</b></font> من قائمة الخيارات لحذف الملف الأصلي بعد الاستيراد.
 ]]></string>
-
     <string name="help_librivox_title">استيراد Librivox :</string>
     <string name="help_librivox_text"><![CDATA[
     <font color="#BA68C8"><b>استيراد كتب صوتية في النطاق العام</b></font>
@@ -106,7 +294,6 @@
     <br><br>
     يمكنك <font color="#81C784"><b>الاستماع فورًا</b></font>.
 ]]></string>
-
     <string name="help_podcast_title">استيراد بودكاست :</string>
     <string name="help_podcast_text"><![CDATA[
     <font color="#BA68C8"><b>اكتشف البودكاستات</b></font>
@@ -119,7 +306,6 @@
     <br><br>
     يتم التحقق بانتظام، خاصة عند فتح BookPlayer.
 ]]></string>
-
     <string name="help_url_title">الاستيراد من رابط :</string>
     <string name="help_url_text"><![CDATA[
     <font color="#BA68C8"><b>الاستيراد عبر رابط</b></font>
@@ -130,16 +316,12 @@
     <br><br>
     يتم التعامل مع كل شيء تلقائيًا — فك الضغط، الإضافة، والتشغيل.
 ]]></string>
-
-    <string name="help_storage_title">موقع التخزين :</string>
-    <string name="help_storage_text"><![CDATA[
-    <font color="#BA68C8"><b>أين يتم تخزين الملفات</b></font>
+    <string name="help_radio_title">بث راديو العالم</string>
+    <string name="help_radio_text"><![CDATA[تصفح المحطات حسب <font color="#81C784">البلد</font> أو <font color="#FFCC80">الشعبية</font> أو فئات أخرى، أو <font color="#64B5F6">ابحث</font> عن محطة بالاسم.
     <br><br>
-    بشكل افتراضي، يستخدم BookPlayer <font color="#81C784">بطاقة SD</font> إن كانت متوفرة لتوفير المساحة.
+    اضغط على محطة <font color="#81C784"><b>للبدء فورًا</b></font>.
     <br><br>
-    لتغيير التخزين إلى الداخلي، قم بتعديل الإعداد في قائمة <font color="#64B5F6">الخيارات</font>.
-]]></string>
-
+    استخدم <font color="#EF9A9A">القلب</font> للإضافة إلى <font color="#BA68C8">المفضلة</font>.]]></string>
     <string name="help_memory_cleaning_title">تنظيف الذاكرة :</string>
     <string name="help_memory_cleaning_text"><![CDATA[
     <font color="#BA68C8"><b>إدارة التخزين الداخلي</b></font>
@@ -155,16 +337,14 @@
     </ul>
     لا يشمل المحتوى من التخزين المشترك.
 ]]></string>
-
-    <string name="help_tellme_title">اتصل بالمطور :</string>
-    <string name="help_tellme_text"><![CDATA[
-    هل تواجه مشاكل أو وجدت خطأ؟
+    <string name="help_storage_title">موقع التخزين :</string>
+    <string name="help_storage_text"><![CDATA[
+    <font color="#BA68C8"><b>أين يتم تخزين الملفات</b></font>
     <br><br>
-    من فضلك <font color="#81C784">أعلمني</font> لكي أتمكن من تحسين التطبيق!
+    بشكل افتراضي، يستخدم BookPlayer <font color="#81C784">بطاقة SD</font> إن كانت متوفرة لتوفير المساحة.
     <br><br>
-    استخدم خيار <font color="#90D8E8">"مراسلة المطور"</font> من القائمة.
+    لتغيير التخزين إلى الداخلي، قم بتعديل الإعداد في قائمة <font color="#64B5F6">الخيارات</font>.
 ]]></string>
-
     <string name="help_permission_title">الأذونات :</string>
     <string name="help_permission_text"><![CDATA[
     يعمل BookPlayer <font color="#81C784">حتى بدون أذونات</font>.
@@ -176,7 +356,14 @@
     </ul>
     رفض الأذونات لن يعطل التطبيق — BookPlayer يتأقلم.
 ]]></string>
-
+    <string name="help_tellme_title">اتصل بالمطور :</string>
+    <string name="help_tellme_text"><![CDATA[
+    هل تواجه مشاكل أو وجدت خطأ؟
+    <br><br>
+    من فضلك <font color="#81C784">أعلمني</font> لكي أتمكن من تحسين التطبيق!
+    <br><br>
+    استخدم خيار <font color="#90D8E8">"مراسلة المطور"</font> من القائمة.
+]]></string>
     <string name="help_forum_title">المنتدى :</string>
     <string name="help_forum_text"><![CDATA[
     <font color="#BA68C8"><b>انضم إلى مجتمع BookPlayer</b></font>
@@ -192,62 +379,55 @@
     كل المشاركات متاحة للقراءة العامة. سجّل للمشاركة.
 ]]></string>
 
-    <string name="option_timeBeforeSleep">إيقاف تلقائي</string>
-    <string name="option_timeBeforeSleep_text">بعد :</string>
-<string name="option_copy_file_title">نسخ الملفات داخليًا</string>
 
+    <string name="option_timeBeforeSleep">إيقاف تلقائي</string>
+
+    <string name="option_timeBeforeSleep_text">بعد :</string>
+    <string name="option_copy_file_title">نسخ الملفات داخليًا</string>
     <string name="option_backward_forward_title">أزرار الرجوع/التقديم</string>
     <string name="option_backward_forward_text">الفاصل الزمني :</string>
     <string name="option_rewind_after_pause_text">"إرجاع الصوت بضع ثوانٍ قبل استئناف التشغيل (توقف لمدة 5 دقائق يعيد 3 ثوانٍ، وتوقف لمدة ساعة يعيد 5 ثوانٍ، …)"</string>
-
     <string name="option_pick_theme_color_title">اختر سمة الألوان للتطبيق</string>
-
     <string name="option_delete_source_file_title">حذف الملف الأصلي تلقائيًا</string>
     <string name="option_delete_source_file_subtitle"><i>بعد تحميل كتاب صوتي داخل BookPlayer، يمكن حذف الملف أو المجلد الأصلي تلقائيًا.
         \nيرجى ملاحظة أن ذلك ممكن فقط لملفات zip أو إذا تم تفعيل الخيار أعلاه (في حال تم نسخ الملفات داخل ذاكرة BookPlayer).</i></string>
     <string name="option_delete_source_file_text">احذف الملف/المجلد المحدد تلقائيًا بعد تحميله داخل BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">!! تحذير - حذف تلقائي !!</string>
     <string name="option_alert_delete_source_file_message">سيتم حذف كل ملف يتم تحميله داخل BookPlayer من ذاكرة الجهاز.\n\nهل أنت متأكد؟</string>
-
     <string name="option_beep_title">صوت تنبيهي</string>
     <string name="option_beep_between_chapters">أصدر صوتًا في نهاية الفصول.</string>
     <string name="option_beep_for_autostop">أصدر صوتًا طويلًا عند الدخول في وضع الإيقاف المؤقت <i>(بعد عدد دقائق معين)</i></string>
     <string name="option_beep_at_the_end">أصدر ثلاث صفارات في نهاية الكتاب.</string>
     <string name="option_visualizer_text_01">عارض تردد بسيط يظهر عند تشغيل الصوت.</string>
     <string name="option_visualizer_text_02">يتطلب إذن [تسجيل الصوت]/[الميكروفون]</string>
-    <string name="granted">مسموح</string>
-    <string name="denied">مرفوض</string>
     <string name="option_visualizer_permissions_denied_02">اضغط مرة أخرى على خانة الاختيار لطلب الإذن</string>
-
-    <string name="Logging">تسجيل الأخطاء</string>
     <string name="option_tech_log_subtitle"><i>
         هل يجب أن ينشئ التطبيق ملفات سجل تقنية لتصحيح الأخطاء؟
     </i></string>
     <string name="option_tech_log_text">تسجيل تقني.</string>
-
     <string name="option_mail_method">إرسال البريد</string>
     <string name="option_mail_method_default">استخدم تطبيق البريد الافتراضي.\n<i>قم بإلغاء التحديد ليُطلب منك اختيار التطبيق.</i></string>
-
     <string name="option_open_with_title">فتح باستخدام / مشاركة</string>
     <string name="option_open_with_subtitle"><i>يجعل Android يعرض BookPlayer من بين الخيارات عند اختيار [مشاركة] أو [فتح باستخدام] بعد النقر (نقرة طويلة) على ملف من مدير الملفات أو التنزيلات</i></string>
     <string name="option_open_with_text">لملفات zip ومعظم ملفات الصوت.</string>
     <string name="option_open_with_text_all">لأي نوع من الملفات (وضع آمن).</string>
     <string name="option_on_load_use_SD_card">استخدم بطاقة SD</string>
 
+
     <string name="option_split_m4b">تقسيم .m4b</string>
     <string name="option_split_m4b_text">استخراج الفصول من m4b</string>
-
     <string name="option_copy_file_special_zip"><i>يتم دائمًا نسخ ملفات zip وm4b المقسمة</i></string>
-
     <string name="option_alert_delete_picked_source_file_title">!! تحذير - حذف المصدر !!</string>
     <string name="option_alert_delete_picked_source_file_message">"سيتم حذف الملف المحدد من ذاكرة الجهاز بعد تحميله داخل ذاكرة BookPlayer.\n\nهل أنت متأكد؟"</string>
     <string name="option_on_load_copy_internal">"نسخ إلى ذاكرة BookPlayer الداخلية"</string>
     <string name="option_on_load_split_m4b">"تقسيم M4B إلى فصول"</string>
     <string name="option_on_load_delete_source">"حذف الملف المصدر بعد الاستيراد"</string>
-
     <string name="option_sdcard_title">بطاقة SD</string>
+
     <string name="option_sdcard_text">عند نسخ الصوت إلى مساحة محجوزة، استخدم بطاقة SD بدلاً من تخزين الجهاز</string>
+
     <string name="option_sdcard_text_caution"><i>يرجى ملاحظة أنه إذا قمت بإزالة أو حذف بطاقة SD، فستفقد ملفاتك الصوتية</i></string>
+
 
     <string name="option_copy_file_subtitle">الإيجابيات :
         \n* لا حاجة لإذن [قراءة الصوت].
@@ -256,53 +436,71 @@
         \n* ستحتاج إلى مزيد من الذاكرة إذا لم تحذف الملف المصدر.
 </string>
     <string name="option_copy_file_text">انسخ ملفات الصوت إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
+    <string name="option_night_mode_title">وضع السمة  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ النظام</string>
+    <string name="option_night_mode_light">☀️ فاتح</string>
+    <string name="option_night_mode_dark">🌙 داكن</string>
+    <string name="option_night_mode_dialog_title">اختر وضع السمة</string>
+    <string name="option_text_appearance_title">مظهر النص</string>
+    <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
+    <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
+    <string name="option_podcast_open_specific_view_subtitle2">يمكنك التبديل بين هذه العروض بالنقر المزدوج على الغلاف.</string>
+    <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
+    <string name="option_podcast_autodownload_subtitle">"إذا قمت بوضع علامة على بودكاست كمفضل، يمكنك أيضًا تفعيل خيار \'التنزيل التلقائي\'.\nسيتحقق BookPlayer بعد ذلك من الحلقات الجديدة — دوريًا وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
+    <string name="option_playing_behaviour_title">سلوك التشغيل</string>
 
-    <!-- ********************************** -->
-    <!-- Get Resources -->
+    <string name="option_start_next_track_at_zero_title_text">ابدأ دائمًا المقطع التالي من البداية، حتى إذا تم الاستماع إليه جزئيًا من قبل.</string>
+    <string name="option_stop_audio_if_user_closes_app_text">إيقاف الصوت عند إغلاق التطبيق.</string>
+    <string name="option_network_preference_subtext">"يعني الاتصال غير المقاس أنك لا تستخدم بيانات الجوّال (مثل Wi-Fi أو Ethernet أو بعض شبكات VPN).\nالتجوال يعني أنك في الخارج - حتى Wi-Fi في الفندق أثناء السفر يُعد تجوالاً."</string>
+    <string name="option_automotive_let_car_autoplay">السماح لـ Android Auto بتشغيل الصوت تلقائيًا (عادةً عند الاتصال بالسيارة).</string>
+    <string name="option_open_play_activity">فتح شاشة التشغيل عند بدء التشغيل.</string>
+    <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
+    <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
+    <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
+    <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
+    <string name="option_epub_split_mode_title">تقسيم فصول EPUB</string>
+    <string name="option_epub_split_mode_text">كيفية تقسيم ملفات EPUB إلى فصول:</string>
+    <string name="option_epub_split_mode_auto">تلقائي (جدول المحتويات إذا كان متاحًا، وإلا Spine)</string>
+    <string name="option_epub_split_mode_toc">يعتمد على جدول المحتويات (فصل واحد لكل إدخال جدول محتويات)</string>
+    <string name="option_epub_split_mode_spine">Spine (فصل واحد لكل إدخال كتاب)</string>
+    <string name="option_epub_split_mode_explain_text">يعتمد على جدول المحتويات لإنشاء المزيد من الفصول ولكنه يحافظ على البنية. Spine أبسط وينشئ فصولًا أقل.</string>
+    <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
+
 
     <string name="AutoTest_title">اختبار تلقائي</string>
-
-    <string name="File">ملف</string>
-    <string name="Folder">مجلد</string>
     <string name="bOpenZipFile">ملف مضغوط</string>
     <string name="bOpenM4bFile">ملف صوتي</string>
-
     <string name="TextHeaderOpen">افتح ملفاً صوتياً من جهازي</string>
     <string name="bOpenFile_desc">اختر أي ملف.</string>
     <string name="bOpenZipFile_desc">فلتر: فقط ملفات zip</string>
     <string name="bOpenM4bFile_desc">فلتر: فقط ملفات الصوت
         \n<i>انتبه: هذا الفلتر ليس مثالياً، استخدم الزر العلوي [أي ملف] إذا واجهت مشاكل.</i></string>
-
     <string name="DirectDownload_title">تحميل مباشر</string>
     <string name="DirectDownload_desc">الصق الرابط أدناه واضغط على الزر لتنزيل ودمج كتاب صوتي مباشرة.</string>
     <string name="DirectDownload_button">حمّله فقط</string>
-
-    <string name="AudioBooks">"كتب صوتية"</string>
     <string name="LibrivoxSearch_desc">"ابحث مباشرة في LibriVox للعثور على كتابك الصوتي. إنه أرشيف مجاني في الملكية العامة، يضم بشكل أساسي أعمالاً باللغة الإنجليزية وبعضها بلغات أخرى."</string>
-<string name="PodcastSearch_desc">استعرض البودكاستات عبر قاعدة البيانات المفتوحة podcastindex.org</string>
+    <string name="PodcastSearch_desc">استعرض البودكاستات عبر قاعدة البيانات المفتوحة podcastindex.org</string>
     <string name="podcast_image_desc">صورة البودكاست</string>
     <string name="podcast_no_results">لم يتم العثور على بودكاست</string>
-
-    <string name="Search_2pt">"بحث: "</string>
-    <string name="Language_2pt">"اللغة: "</string>
-    <string name="Results_2pt">"النتائج: "</string>
     <string name="search_nothing_specified">لم يتم تحديد شيء</string>
+
     <string name="Librivox_bGetAudioBook">"تحميل الكتاب الصوتي"</string>
+
     <string name="librivox_no_audiobook_found_for_search">لم يتم العثور على كتب صوتية لمصطلحات البحث</string>
     <string name="librivox_invalid_response">استجابة غير صالحة من خادم Librivox</string>
     <string name="loading_details">جاري تحميل التفاصيل…</string>
     <string name="loading_detail_failed">فشل في تحميل التفاصيل</string>
     <string name="librivox_zip_mp3_available">ملف ZIP-MP3 متاح</string>
     <string name="librivox_zip_mp3_not_found">لم يتم العثور على ملف ZIP-MP3</string>
+
     <string name="librivox_cover_desc">غلاف Librivox</string>
+
 
     <string name="podcast_favorite_add">تمت الإضافة إلى المفضلة</string>
     <string name="podcast_autodownload_add">تم تفعيل التحميل التلقائي</string>
     <string name="podcast_new_episodes">حلقات جديدة</string>
 
-
-    <!-- ********************************** -->
-    <!-- Add Resources -->
 
     <string name="Error_Import_IsNotFolder">هذا لا يبدو كمجلد</string>
     <string name="Error_Import_IsNotFile">هذا لا يبدو كملف</string>
@@ -311,15 +509,12 @@
     <string name="Error_Import_CannotReadFolder">خطأ في قراءة المجلد المحدد</string>
     <string name="Error_Import_CannotSaveInDB">حدث خطأ أثناء حفظ الملف الصوتي في قاعدة البيانات المحلية</string>
     <string name="Import_nMediaInFolder">تم العثور على وسائط في هذا المجلد</string>
-
     <string name="Import_Progress_unzipping_file">"جارٍ فك ضغط الملف : "</string>
-
     <string name="Error_Import_Creating_Folders">"تعذر إنشاء المجلدات"</string>
     <string name="Error_Import_track_duration_extraction">"خطأ في الحصول على مدة المقطع"</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">"المساحة المتوفرة : "</string>
     <string name="Error_Import_NotEnoughMemory_line3">"حجم المصدر المطلوب نسخه : "</string>
     <string name="Error_NameTooShort">"هذا الاسم قصير جداً"</string>
-
     <string name="Import_Success">تم الاستيراد بنجاح</string>
     <string name="Import_Experimental_M4B_warning">تحذير : <b>استخراج فصول m4b</b> لا يزال <b>تجريبياً</b>.</string>
     <string name="Import_Experimental_M4B_iferror">إذا واجهت أخطاء</string>
@@ -330,18 +525,13 @@
     <string name="init_please_wait">جارٍ التهيئة… الرجاء الانتظار…</string>
     <string name="init_check_already_imported_please_wait">"جارٍ التحقق مما إذا تم استيراده مسبقاً، الرجاء الانتظار…"</string>
     <string name="init_check_complementary_checks_please_wait">"جارٍ إجراء التحقق التكميلي، الرجاء الانتظار…"</string>
-
     <string name="error_media_already_loaded_samePath">تم تحميل هذا الملف مسبقاً</string>
-
     <string name="ErrorCouldNotLoadAudios">خطأ - تعذر تحميل الملفات الصوتية.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">خطأ - لم يتم العثور على ملفات صوتية في هذا المجلد.</string>
-
+    <string name="loading_voice_3pt">جاري تحميل الصوت…</string>
     <string name="Error_Import_OutOfMemory">خطأ عام : الذاكرة غير كافية</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">قد يحتوي هذا المجلد على عدد كبير جداً من الكتب أو المجلدات الفرعية لتحميله دفعة واحدة.</string>
-
-    <!-- ********************************** -->
-    <!-- FolderModifyActivity -->
-<string name="bMove">"تغيير الموضع"</string>
+    <string name="bMove">"تغيير الموضع"</string>
     <string name="bReset">"إعادة تعيين التقدم"</string>
     <string name="Folder_Deleted_DB">"تم حذف الكتاب!"</string>
     <string name="Folder_Renamed">"تمت إعادة تسمية المجلد"</string>
@@ -349,17 +539,13 @@
     <string name="Folder_Reset">"تمت إعادة تعيين تقدم المجلد"</string>
     <string name="ZikFile_Renamed">"تمت إعادة تسمية المقطع"</string>
     <string name="ZikFile_Deleted">"تم حذف المقطع"</string>
-
     <string name="AskDelete_popupTitle">تأكيد الحذف</string>
     <string name="AskReset_popupTitle">تأكيد إعادة التعيين</string>
-
     <string name="You_are_about_to_delete_this_audio_book">"أنت على وشك حذف هذا الكتاب الصوتي"</string>
     <string name="LastAccess">"آخر وصول"</string>
     <string name="AudioLocation">"موقع الملف الصوتي"</string>
-
     <string name="Change_cover_image">"تغيير صورة الغلاف"</string>
     <string name="AskRename_Track">إعادة تسمية هذا المقطع إلى</string>
-
     <string name="IntroCut">"قص المقدمة"</string>
     <string name="Rename_book">"إعادة تسمية الكتاب"</string>
     <string name="AskRename_Book">"هل تريد حقًا إعادة تسمية الكتاب إلى"</string>
@@ -369,46 +555,43 @@
     <string name="Export_display_text_preparing_export">"جارٍ التحضير للتصدير…"</string>
     <string name="Export_display_no_valid_audiobook">"حدث خطأ في تحميل ملفات الكتاب الصوتي."</string>
     <string name="Export_error">"خطأ في التصدير"</string>
+    <string name="export_title_label">تصدير الكتاب كـ ZIP:</string>
+    <string name="export_audiobook_name_placeholder">اسم الكتاب الصوتي</string>
+    <string name="export_base_destination_folder_label">مجلد الوجهة الأساسي :</string>
+    <string name="export_click_to_change_label">انقر للتغيير</string>
+    <string name="export_download_folder_button">مجلد التنزيلات</string>
+    <string name="export_destination_filename_label">اسم ملف الوجهة :</string>
+    <string name="export_edit_name_hint">يمكنك تعديل هذا الاسم</string>
+    <string name="export_progress_info_placeholder">معلومات التقدم…</string>
+    <string name="export_start_button">بدء التصدير</string>
+    <string name="export_inside_subfolder_label">وداخل مجلد فرعي \'BookPlayer\'</string>
 
-    <!-- ********************************** -->
-    <!-- Zik File Adapter -->
 
     <string name="Progression_reset_done">"تمت إعادة تعيين التقدم"</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"تأكيد إعادة التعيين"</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"أنت على وشك إعادة تعيين تقدم هذا الملف الصوتي\nهل أنت متأكد؟"</string>
-
-    <!-- ********************************** -->
-    <!-- PlayActivity -->
-
-    <string name="play" translatable="false"><![CDATA[>]]></string>
-    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
-    <string name="forward" translatable="false"><![CDATA[>>]]></string>
-    <string name="pause" translatable="false">||</string>
-    <string name="Speed">السرعة</string>
-    <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">لا توجد تفاعلات من المستخدم منذ</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>لاحظ أن هذه القيمة ستُستخدم فقط لجلسة الاستماع الحالية.\nالقيمة العامة لمؤقت النوم موجودة في قسم الخيارات (في القائمة على صفحة بدء التطبيق)</i>"</string>
     <string name="tv_TimeLeft">الوقت المتبقي قبل النوم</string>
     <string name="error_reading_track">"خطأ في قراءة المقطع!"</string>
     <string name="current_position">الموضع الحالي</string>
-<string name="source_not_found">تعذر العثور على الملف المصدر أو قراءته.</string>
+    <string name="source_not_found">تعذر العثور على الملف المصدر أو قراءته.</string>
     <string name="source_not_found_deleted">تعذر العثور على الملف المصدر. قد يكون قد تم حذفه.</string>
     <string name="source_file_path">مسار الملف المصدر</string>
     <string name="permission_not_set">لم يتم تعيين الإذن.</string>
     <string name="notification_playlist_finished">"انتهى الكتاب!"</string>
     <string name="notification_auto_sleep">"النوم التلقائي!"</string>
-
     <string name="SleepTimer">مؤقت النوم</string>
     <string name="SleepTimerWrongInt">إدخال غير صالح. الرجاء إدخال رقم صحيح.</string>
     <string name="SleepTimerGeneralError">حدث خطأ أثناء ضبط مؤقت النوم.</string>
 
 
-    <!-- ********************************** -->
-    <!-- STORAGE -->
-
     <string name="physical_storage_memory">ذاكرة التخزين الفعلية</string>
+    <string name="device_storage_memory">ذاكرة تخزين الجهاز</string>
+    <string name="sd_card_storage">ذاكرة بطاقة SD</string>
     <string name="MB_taken_by_BookPlayer_app">" ميغابايت مشغولة بواسطة تطبيق BookPlayer"</string>
     <string name="MB_taken_by_audio_files">" ميغابايت مشغولة بواسطة ملفات الصوت"</string>
+    <string name="MB_taken_by_linked_audios">" ميجابايت: الصوتيات المرتبطة"</string>
     <string name="MB_taken_by_logs">" ميغابايت مشغولة بواسطة السجلات"</string>
     <string name="MB_available_on_device">" ميغابايت: المتاحة على الجهاز"</string>
     <string name="MB_device_memory">" ميغابايت: ذاكرة الجهاز"</string>
@@ -417,39 +600,17 @@
     <string name="audio_location_sdcard">بطاقة SD</string>
     <string name="custom_value_in_minutes">قيمة مخصصة بالدقائق</string>
 
+
     <string name="audio_location_sdcard_reserved_storage">بطاقة SD (مساحة محجوزة للتطبيق)</string>
     <string name="audio_location_bookplayer_reserved_storage">مساحة محجوزة لـ BookPlayer</string>
     <string name="audio_location_smartphone_shared_storage">مساحة مشتركة للهاتف الذكي</string>
     <string name="audio_location_audiobook_not_found">لم يتم العثور على الكتاب الصوتي</string>
-
-        <!-- ********************************** -->
-        <!-- Menus -->
-
-    <string name="Menu">قائمة</string>
-    <string name="open">فتح</string>
-    <string name="manual">دليل</string>
     <string name="menu_sendmail">مراسلة المطور</string>
-    <string name="Stats">إحصائيات</string>
-    <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="Cleaning">تنظيف</string>
-    <string name="Website">الموقع الإلكتروني</string>
 
-        <!-- ********************************** -->
-        <!-- OTHER APPS -->
-    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_scanner" translatable="false">Scanner</string>
-
-        <!-- Action Bar -->
-
-        <!-- ********************************** -->
-        <!-- PERMISSIONS -->
 
     <string name="permission_rationale">يتطلب هذا النشاط الأذونات التالية:</string>
     <string name="permissions_granted">تم منح الأذونات.</string>
     <string name="permissions_denied">لم يتم منح الأذونات.</string>
-    <string name="permissions_ok_button" translatable="false">OK</string>
-
     <string name="permission_read_write_rationale">BookPlayer يحتاج إلى إذن [قراءة الصوت] (أو قم بتفعيل خيار [نسخ الملف]).</string>
     <string name="permission_read_write_denied">تم رفض إذن [قراءة الصوت].
             \n\nاضغط على [معلومات التطبيق] لتفعيل الأذونات يدوياً.
@@ -459,73 +620,49 @@
     </string>
     <string name="permission_record_audio_rationale">مقياس الطيف يتطلب إذن [تسجيل الصوت].</string>
     <string name="permission_record_audio_denied">لن يتم عرض مقياس الطيف. تم رفض إذن [تسجيل الصوت].</string>
-
-    <string name="Permission">إذن</string>
     <string name="permission_read_denied_short_text_on_load">تم رفض إذن [الموسيقى والصوت] مسبقاً.
             \n\nستحتاج إلى النقر على [معلومات التطبيق] وتفعيل الإذن يدوياً.
             \n\n<i>هذا ضروري إذا كنت تريد تشغيل الملفات الصوتية من ذاكرة الهاتف العامة (خيار النسخ معطل).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">إذن [الموسيقى والصوت] مطلوب لتشغيل الملفات من الذاكرة العامة للهاتف.</string>
-
-    <string name="Close">إغلاق</string>
     <string name="Episode_description">وصف الحلقة</string>
-    <string name="Trending">الشائع</string>
     <string name="max_number_of_results_reached">تم الوصول إلى الحد الأقصى للنتائج</string>
-
+    <string name="librivox_books_loaded">تم تحميل %1$s كتب</string>
+    <string name="librivox_books_loaded_of">%1$s / %2$s كتب</string>
     <string name="network_preferences_title">تفضيلات الشبكة</string>
     <string name="option_download_auto_title">تنزيل تلقائي</string>
     <string name="option_download_user_title">تنزيل يدوي</string>
     <string name="download_any">📶 أي اتصال</string>
-
-    <!-- Network download prompts -->
+    <string name="download_bis_unmetered">🆓 فقط بدون عداد</string>
+    <string name="download_not_roaming">🏠 غير تجوال</string>
     <string name="download_warning_title_unmetered">غير محدود</string>
     <string name="download_warning_message_unmetered">أنت لست على اتصال غير محدود. هل تريد المتابعة في التنزيل؟</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">استخدم HTTPS أو اسمح بالنص الصريح لهذا المضيف في إعداد أمان الشبكة للتطبيق.</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">تم حظر HTTP (نص صريح) بواسطة سياسة أمان شبكة أندرويد.</string>
+    <string name="http_cleartext_to">HTTP (نص صريح) إلى</string>
+    <string name="is_blocked_by_android_s_network_security_policy">محظور بواسطة سياسة أمان شبكة أندرويد</string>
 
-    <string name="no_internet_connection">لا يوجد اتصال بالإنترنت</string>
-    <string name="an_error_occurred">حدث خطأ</string>
 
     <string name="Add_to_favorite">أضف إلى المفضلة</string>
     <string name="Auto_Download_episodes">تنزيل الحلقات تلقائيًا</string>
-    <string name="favorites">المفضلة</string>
     <string name="Download_paused_by_user">تم إيقاف التنزيل مؤقتًا من قبل المستخدم</string>
     <string name="Download_finished">اكتمل التنزيل</string>
-
-    <string name="Pause">إيقاف مؤقت</string>
-    <string name="Resume">استئناف</string>
-    <string name="Import_failed">فشل الاستيراد</string>
-    <string name="About_to_start_download">على وشك بدء التنزيل…</string>
-    <string name="Please_enter_a_URL">يرجى إدخال عنوان URL.</string>
-    <string name="Permission_Required">الإذن مطلوب</string>
-    <string name="Settings">خيارات</string>
-    <string name="App_Info">معلومات التطبيق</string>
-    <string name="reset_app">إعادة تعيين التطبيق</string>
-    <string name="Exit">خروج</string>
-    <string name="add_book">إضافة كتاب</string>
-    <string name="Not_enough_memory">الذاكرة غير كافية</string>
-    <string name="Import_in_progress">الاستيراد قيد التنفيذ</string>
-
     <string name="Import_Progress_copying_file_from_general_storage">"نسخ الملف المصدر \n- من التخزين العام للجهاز"</string>
     <string name="Import_Progress_copying_file_from_cloud">"نسخ الملف المصدر \n- من السحابة"</string>
     <string name="Import_Progress_copying_file_to_internal_reserved">"\n- إلى الذاكرة الداخلية المخصصة لتطبيق Bookplayer"</string>
     <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- إلى الذاكرة المخصصة في بطاقة SD الخاصة بـ Bookplayer"</string>
-
     <string name="could_not_check_already_imported">تعذر التحقق مما إذا كان قد تم استيراده مسبقًا.</string>
     <string name="warning_url_already_loaded_under_the_name">تم استيراد نفس الرابط بالفعل! (لم يتم التحقق من المحتوى، هل هو نفسه؟). تم حفظه بالاسم:</string>
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">تم تحميل وسائط مختلفة بنفس الاسم مسبقًا</string>
-    <string name="Also">أيضًا</string>
     <string name="the_name_will_be_changed_to">، سيتم تغيير الاسم إلى: </string>
-
     <string name="listing_and_sorting_tracks">إدراج وفرز المقاطع</string>
     <string name="scanning_tracks">فحص المقاطع</string>
     <string name="saving_folder">حفظ المجلد</string>
     <string name="saving_track">حفظ المقطع</string>
-    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
     <string name="MB_taken_by_images">" ميغابايت مشغولة بالصور"</string>
-
     <string name="DeleteImages_AskConfirm">"أنت على وشك حذف جميع الصور.
        هل أنت متأكد؟"</string>
     <string name="delete_cached_images">حذف الصور المخزنة مؤقتًا</string>
-
     <string name="too_low">منخفض جدًا</string>
     <string name="too_high">مرتفع جدًا</string>
     <string name="delay_for_auto_deletion">تأخير الحذف التلقائي</string>
@@ -533,18 +670,9 @@
     <string name="auto_download_last_n_episode">تنزيل تلقائي لآخر xx حلقة</string>
     <string name="auto_download_max_n_podcast">تنزيل تلقائي بحد أقصى xx بودكاست</string>
     <string name="auto_download_delay_between_checks_in_min">تأخير التنزيل التلقائي بين الفحوصات بالدقائق</string>
-    <string name="last">الأخيرة</string>
-    <string name="episodes">الحلقات</string>
-    <string name="Podcasts">البودكاست</string>
-    <string name="podcasts">البودكاست</string>
-    <string name="Auto_Download">التنزيل التلقائي</string>
-    <string name="Auto_Delete">الحذف التلقائي</string>
     <string name="for_max">لحد أقصى</string>
     <string name="check_every">تحقق كل</string>
-    <string name="min.">دقيقة</string>
     <string name="auto_delete_episodes_once_listened_to">حذف الحلقات تلقائيًا بعد الاستماع</string>
-    <string name="after">بعد</string>
-    <string name="days">أيام</string>
     <string name="if_completion">إذا كانت النسبة</string>
     <string name="no_episode_all_deleted">لم يتم العثور على حلقات، هل تم حذفها جميعًا؟</string>
     <string name="podcast_api_unavailable_fallback">تعذر الحصول على حلقات جديدة، عرض الحلقات السابقة فقط</string>
@@ -552,94 +680,58 @@
     <string name="added_on">تمت الإضافة في</string>
     <string name="MB_taken_by_databases">" ميغابايت مشغولة بقاعدة البيانات"</string>
     <string name="bMassImport">استيراد جماعي</string>
-
     <string name="bOpenMassImport_desc">استيراد جماعي: أنشئ عددًا من الكتب الصوتية يساوي عدد العناصر في المجلد الذي ستختاره.</string>
     <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
-
     <string name="type_here_">اكتب هنا…</string>
+
 
     <string name="most_downloaded">"الأكثر تنزيلًا"</string>
     <string name="open_audiobooks">"تصفح الكتب الصوتية"</string>
     <string name="open_other">"فتح ملف صوتي"</string>
 
-    <string name="ep">"حل"</string>
     <string name="option_podcast_episodes_sort_order">أحدث حلقة في الأعلى</string>
-
     <string name="app_language">لغة التطبيق</string>
+
     <string name="tts_language">لغة TTS</string>
-    <string name="language">لغة</string>
-    <string name="download">تنزيل</string>
-    <string name="auto_download">تنزيل تلقائي</string>
-    <string name="refresh">تحديث</string>
-    <string name="collapse">طي</string>
-    <string name="expand">توسيع</string>
-    <string name="flag">علم</string>
     <string name="language_flag">علم اللغة</string>
     <string name="voice_flag">علم الصوت</string>
-    <string name="settings">الإعدادات</string>
     <string name="Podcast_Settings">إعدادات البودكاست</string>
     <string name="option_podcast_episodes_expand">عرض الأوصاف</string>
     <string name="option_create_cover">إنشاء أغلفة</string>
     <string name="option_create_cover_text">إذا لم يتم العثور على صورة غلاف عند تحميل الكتاب، سيتم إنشاء صورة باستيل مع الأحرف الأولى لعنوان الكتاب.</string>
     <string name="toggle_text_image">تبديل نص/صورة</string>
     <string name="reset_progress_from_this_track">إعادة تعيين التقدم من هذا المقطع</string>
+
     <string name="rename_track">إعادة تسمية المقطع</string>
-    <string name="sort">فرز</string>
     <string name="could_not_read_resource">تعذر قراءة المورد</string>
     <string name="mime_type_not_supported">الملف المحدد غير مدعوم</string>
+
     <string name="list_of_supported_extensions">قائمة الامتدادات المدعومة</string>
     <string name="audio_book_name">اسم الكتاب الصوتي</string>
-    <string name="audio_book_cover">غلاف الكتاب الصوتي</string>
-    <string name="title">عنوان</string>
-    <string name="subtitle">عنوان فرعي</string>
 
-    <string name="option_night_mode_title">وضع السمة  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ النظام</string>
-    <string name="option_night_mode_light">☀️ فاتح</string>
-    <string name="option_night_mode_dark">🌙 داكن</string>
-    <string name="option_night_mode_dialog_title">اختر وضع السمة</string>
-    <string name="text_to_speech">التحويل النصي إلى كلام</string>
+    <string name="audio_book_cover">غلاف الكتاب الصوتي</string>
     <string name="still_in_development">لا يزال قيد التطوير</string>
     <string name="weird_behavior_could_happen">قد يحدث سلوك غريب</string>
     <string name="DeleteCoverImage_AskDelete">"أنت على وشك حذف صورة الغلاف هذه.\nهل أنت متأكد؟"</string>
-    <string name="action_generate">✨ توليد</string>
-    <string name="action_delete">🗑️ حذف</string>
     <string name="action_change">🖼️ تغيير</string>
-
+    <string name="action_delete">🗑️ حذف</string>
+    <string name="action_generate">✨ توليد</string>
+    <string name="action_web_search">🔎 بحث في الويب</string>
+    <string name="action_reset_to_original">↩️ استعادة الأصلية</string>
     <string name="Specific_view">عرض خاص بالبودكاست</string>
-    <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
-    <string name="option_podcast_autodownload_subtitle">"إذا قمت بوضع علامة على بودكاست كمفضل، يمكنك أيضًا تفعيل خيار \'التنزيل التلقائي\'.\nسيتحقق BookPlayer بعد ذلك من الحلقات الجديدة — دوريًا وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
     <string name="Error_Import_No_Usable_item_Found">"لم يتم العثور على عنصر قابل للاستخدام"</string>
+
 
     <string name="Error_Import_could_not_delete_source">"تعذر حذف المصدر المحدد"</string>
 
-    <string name="option_text_appearance_title">مظهر النص</string>
-    <string name="Font">الخط</string>
-    <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
-    <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
-
-    <string name="option_playing_behaviour_title">سلوك التشغيل</string>
-    <string name="option_start_next_track_at_zero_title_text">ابدأ دائمًا المقطع التالي من البداية، حتى إذا تم الاستماع إليه جزئيًا من قبل.</string>
-    <string name="stop">إيقاف</string>
-    <string name="option_stop_audio_if_user_closes_app_text">إيقاف الصوت عند إغلاق التطبيق.</string>
-    <string name="Audio">صوت</string>
-    <string name="Video">فيديو</string>
-    <string name="Text">نص</string>
-    <string name="Bundle">أرشيف</string>
 
     <string name="could_not_identify_track_to_modify">تعذر تحديد المقطع لتعديله</string>
     <string name="could_not_identify_folder_to_modify">تعذر تحديد المجلد لتعديله</string>
-
-    <string name="Automotive">السيارة</string>
-    <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
     <string name="automotive_no_item_in_bookplayer">لا توجد عناصر. افتح BookPlayer على هاتفك واستورد كتابًا.</string>
     <string name="automotive_empty_book">كتاب فارغ</string>
     <string name="automotive_resume_play">استئناف التشغيل</string>
     <string name="nb_of_audios_found">عدد المقاطع الصوتية الموجودة</string>
-    <string name="reviews">مراجعات</string>
     <string name="average_rating">متوسط التقييم</string>
-
     <string name="help_tts_title">التحويل إلى كلام :</string>
     <string name="help_tts_text"><![CDATA[
 <font color="#BA68C8"><b>استمع إلى النص بأصوات اصطناعية</b></font>
@@ -652,36 +744,28 @@
 ]]></string>
     <string name="failed_to_create_destination_folder">فشل في إنشاء مجلد الوجهة</string>
     <string name="server_returned_http">أعاد الخادم HTTP</string>
+    <string name="http_code_400">طلب غير صالح</string>
+    <string name="http_code_404">غير موجود</string>
+    <string name="http_code_408">انتهاء وقت الطلب</string>
+    <string name="http_code_429">طلبات كثيرة جدا</string>
+    <string name="http_code_500">خطأ داخلي في الخادم</string>
+    <string name="http_code_502">بوابة غير صالحة</string>
+    <string name="http_code_503">الخدمة غير متوفرة</string>
+    <string name="http_code_504">انتهت مهلة البوابة</string>
     <string name="connection_aborted">تم قطع الاتصال</string>
     <string name="io_error">خطأ إدخال/إخراج</string>
-    <string name="unexpected_error">خطأ غير متوقع</string>
     <string name="starting_download">بدء التنزيل…</string>
     <string name="No_chapters_found">لم يتم العثور على فصول</string>
     <string name="Unsupported_ebook_type">نوع الكتاب الإلكتروني غير مدعوم</string>
     <string name="download_stopped_by_system_will_retry">تم إيقاف التنزيل من قبل النظام — ستتم إعادة المحاولة</string>
     <string name="download_resuming">استئناف التنزيل</string>
-    <string name="Cancelled">أُلغي</string>
     <string name="importing_book">جارٍ استيراد الكتاب</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">جارٍ التحقق من الحجم</string>
-    <string name="error">خطأ</string>
-    <string name="download_bis_unmetered">🆓 فقط بدون عداد</string>
-    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">استخدم HTTPS أو اسمح بالنص الصريح لهذا المضيف في إعداد أمان الشبكة للتطبيق.</string>
-    <string name="http_is_blocked_by_android_s_network_security_policy">تم حظر HTTP (نص صريح) بواسطة سياسة أمان شبكة أندرويد.</string>
-    <string name="http_cleartext_to">HTTP (نص صريح) إلى</string>
-    <string name="is_blocked_by_android_s_network_security_policy">محظور بواسطة سياسة أمان شبكة أندرويد</string>
-    <string name="save">حفظ</string>
     <string name="rounded_corners">زوايا مستديرة</string>
     <string name="cover_preview">معاينة الغلاف</string>
-    <string name="paste">لصق</string>
-    <string name="clear">مسح</string>
-    <string name="emoji_paste" translatable="false">📋</string>
-    <string name="emoji_clear" translatable="false">🗑️</string>
-    <string name="librivox" translatable="false">Librivox</string>
     <string name="return_max">الحد الأقصى للنتائج</string>
     <string name="maximum_number_of_results_for_">الحد الأقصى لعدد النتائج لـ </string>
     <string name="minimum_number_of_results_for_">الحد الأدنى لعدد النتائج لـ </string>
-    <string name="favorite">مفضل</string>
     <string name="librivox_settings">إعدادات Librivox</string>
     <string name="error_no_space_left">لا توجد مساحة كافية على الجهاز</string>
     <string name="solution_free_space">يرجى تحرير بعض مساحة التخزين ثم المحاولة مرة أخرى.</string>
@@ -690,100 +774,49 @@
     <string name="Error_Import_no_valid_media_found">خطأ: لم يتم العثور على وسائط صالحة</string>
     <string name="Error_Import_extract_audio_data_failed">خطأ: فشل استخراج بيانات الصوت</string>
     <string name="Error_Import_unsupported_file">خطأ: ملف غير مدعوم</string>
-
-    <string name="Warning">تحذير</string>
-    <string name="beta_test">اختبار تجريبي</string>
-
-    <string name="action_web_search">🔎 بحث في الويب</string>
-    <string name="confirm">تأكيد</string>
     <string name="use_this_image_as_cover">استخدم هذه الصورة كغلاف</string>
     <string name="search_title_hint">اكتب هنا...</string>
     <string name="failed_to_change_image">فشل تغيير الصورة</string>
     <string name="no_image_found">لم يتم العثور على صورة</string>
     <string name="parsing_metadata">جارٍ تحليل البيانات الوصفية</string>
-
-    <string name="download_not_roaming">🏠 غير تجوال</string>
     <string name="download_warning_title_roaming">اتصال تجوال</string>
     <string name="download_warning_message_roaming">أنت على اتصال تجوال (في الخارج). هل تريد المتابعة في التنزيل؟</string>
-    <string name="option_network_preference_subtext">"يعني الاتصال غير المقاس أنك لا تستخدم بيانات الجوّال (مثل Wi-Fi أو Ethernet أو بعض شبكات VPN).\nالتجوال يعني أنك في الخارج - حتى Wi-Fi في الفندق أثناء السفر يُعد تجوالاً."</string>
-
     <string name="please_wait_another_book_is_being_imported">يرجى الانتظار، ما زال يتم استيراد كتاب آخر.</string>
     <string name="download_stop_requested">طُلِب إيقاف التنزيل</string>
-
-    <string name="import_task_start">جارٍ البدء...</string>
-    <string name="done.">تم.</string>
-    <string name="Copy">نسخ</string>
-<string name="import_task_ebook_split">تحليل الكتاب الإلكتروني</string>
+    <string name="import_task_ebook_split">تحليل الكتاب الإلكتروني</string>
     <string name="import_task_m4b_split">استخراج M4b</string>
-    <string name="Uncompress">فك الضغط</string>
-    <string name="Integration">دمج</string>
     <string name="Import_Success_with_warnings">اكتمل الاستيراد مع تحذيرات</string>
-
-    <string name="metadata">البيانات الوصفية</string>
-    <string name="no_metadata_available">لا توجد بيانات وصفية متاحة</string>
-    <string name="Artist">الفنان</string>
-    <string name="Album">الألبوم</string>
-    <string name="Genre">النوع</string>
-    <string name="Year">السنة</string>
-    <string name="Track">المسار</string>
-    <string name="Disc">القرص</string>
-    <string name="Bitrate">معدل البت</string>
-    <string name="sample_rate">معدل العينة</string>
-    <string name="Channels">القنوات</string>
-
     <string name="frequency_visualizer">عارض التردد</string>
     <string name="counting_files">جارٍ عد الملفات</string>
-
-    <string name="option_automotive_let_car_autoplay">السماح لـ Android Auto بتشغيل الصوت تلقائيًا (عادةً عند الاتصال بالسيارة).</string>
-    <string name="option_open_play_activity">فتح شاشة التشغيل عند بدء التشغيل.</string>
-    <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
-    <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
-    <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
-    <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
-    <string name="ms.">مللي ثانية.</string> //means milliseconds
-
-    <string name="Text_To_Speech">تحويل النص إلى كلام</string>
     <string name="tts_phase_loading_text">جارٍ تحميل النص…</string>
     <string name="tts_phase_warming_up">جارٍ تحضير الصوت…</string>
     <string name="tts_phase_starting">جارٍ بدء النطق…</string>
-    <string name="Ready">جاهز</string>
-    <string name="Speaking">جارٍ التحدث</string>
     <string name="tts_phase_error">خطأ في محرك النطق</string>
     <string name="error_generic">حدث خطأ غير متوقع</string>
     <string name="tts_error_warmup_timeout">انتهت مهلة تحضير الصوت</string>
     <string name="tts_error_voice_set_failed">فشل في تطبيق الصوت</string>
     <string name="tts_error_synth_failed">فشل في توليد الصوت أثناء التحضير</string>
-
     <string name="source_flag">علم المصدر</string>
     <string name="voice_name">اسم الصوت</string>
     <string name="Clipboard_is_empty">الحافظة فارغة</string>
-
-    <string name="chars">أحرف</string>
-    <string name="reorder">إعادة الترتيب</string>
-    <string name="new_label">جديد</string>
-    <string name="icon">رمز</string>
-    <string name="Engine">المحرك</string>
-    <string name="Design">تصميم</string>
-    <string name="Import">استيراد</string>
-    <string name="Utilities">أدوات</string>
     <string name="option_tts_highlight_delay_outOfBounds">تأخير التمييز</string>
+
+
     <string name="option_tts_chunk_size_text">حجم المقطع:</string>
     <string name="tts_chunk_size">حجم المقطع</string>
     <string name="changeTracksOrder">تغيير ترتيب المقاطع</string>
     <string name="Failed_to_create_the_destionation_file">فشل في إنشاء ملف الوجهة.</string>
     <string name="Cannot_write_to_the_chosen_folder">لا يمكن الكتابة إلى المجلد المختار.</string>
     <string name="Export_done_Excl">"تم التصدير !"</string>
-
     <string name="option_play_view">عرض التشغيل</string>
     <string name="option_click_container_playpause_text">سيؤدي النقر على الصورة إلى إيقاف الصوت مؤقتًا أو استئنافه</string>
     <string name="Radio_Settings">إعدادات الراديو</string>
     <string name="live_radio">راديو مباشر</string>
-    <string name="radio">راديو</string>
+    <string name="live_podcast">بودكاست مباشر</string>
     <string name="no_result">لا توجد نتائج</string>
     <string name="radio_cover_desc">وصف غلاف الراديو</string>
     <string name="RadioSearch_title">راديو الويب</string>
     <string name="selected_language_error">خطأ في اللغة المحددة</string>
-
     <string name="media_button_action">إجراء زر الوسائط</string>
     <string name="by_tag">حسب الوسم</string>
     <string name="by_country">حسب البلد</string>
@@ -793,11 +826,9 @@
     <string name="remove_from_favorites">إزالة من المفضلة</string>
     <string name="search_by_station_name">بحث حسب اسم المحطة</string>
     <string name="play_pause">تشغيل إيقاف مؤقت</string>
-
     <string name="option_reset_settings_values">إعادة تعيين قيم الإعدادات</string>
     <string name="reset_to_default">إعادة إلى الوضع الافتراضي</string>
     <string name="reset_for_power_user">إعادة تعيين للمستخدم المتقدم</string>
-
     <string name="option_reset_for_power_user_explain_text">
 إعادة تعيين المستخدم المتقدم تسترجع الإعدادات الافتراضية، مع بعض الخيارات الخاصة:
 \nالاستيراد:
@@ -807,42 +838,29 @@
 \n* [لا تفتح واجهة التشغيل الخاصة]
 \n* [استمر في التشغيل عند مغادرة التطبيق]
 </string>
-
     <string name="cancel_ongoing_operation">إلغاء العمليات الجارية</string>
-
     <string name="option_reset_app_explain_text">
 أحيانًا يتوقف التطبيق بعد تعطل أثناء استيراد كتاب مما يمنع المزيد من العمليات.
 في هذه الحالة، اضغط على هذا الزر لإلغاء وإعادة تعيين أي عمليات قيد التنفيذ.
 </string>
-
     <string name="option_tts_chunk_size_explain_text">
 يحدد حجم الجزء مقدار النص المرسل إلى محرك TTS في المرة الواحدة. زيادته قد تجعل الصوت أكثر سلاسة وطبيعية.
 </string>
-
     <string name="option_tts_highlight_delay_explain_text">
 يمكنك ضبط تأخير التمييز لمزامنة الصوت مع الكلمات المعروضة بشكل أفضل.
 </string>
-
     <string name="option_automotive_on_explain_text">
 السماح لـ Android Auto بالاتصال بـ BookPlayer وعرض الكتالوج والتحكم في التشغيل.
 </string>
-
     <string name="option_automotive_auto_resume_on_car_connect_explain_text">
 السماح لـ Android Auto باستئناف التشغيل تلقائيًا عند الاتصال بالسيارة إذا كان الصوت قيد التشغيل مسبقًا.
 </string>
-
     <string name="option_automotive_let_car_autoplay_explain_text">
 السماح لـ Android Auto ببدء التشغيل تلقائيًا عند الاتصال بالسيارة حتى إن لم يكن هناك تشغيل سابق.
 </string>
-
     <string name="Mass_Import">استيراد ضخم</string>
+    <string name="massiveimport_title">استيراد كتب متعددة</string>
     <string name="scanning_folder">فحص المجلد</string>
-    <string name="candidates">مرشحون</string>
-    <string name="found">تم العثور</string>
-    <string name="from">من</string>
-    <string name="in">في</string>
-    <string name="items">عناصر</string>
-    <string name="folder">مجلد</string>
     <string name="Nothing_to_re_import_among">لا يوجد ما يمكن إعادة استيراده من بين</string>
     <string name="please_wait_another_book">يرجى الانتظار — لا يزال كتاب آخر قيد التنزيل أو التحميل.\nإذا لم يكن كذلك، استخدم زر إعادة تعيين التطبيق في [الإعدادات &gt; الأدوات &gt; إلغاء العملية الجارية].</string>
     <string name="Podcast_source_error">خطأ في مصدر البودكاست</string>
@@ -852,22 +870,14 @@
     <string name="import_settings">إعدادات الاستيراد</string>
     <string name="option_split_m4b_subtitle">إذا لم يتم التحديد، سيتم استيراد ملفات M4B كمسارات مفردة.</string>
     <string name="option_split_m4b_subtitle_note">ملاحظة: ميزة تقسيم الفصول تدعم حالياً فقط ملفات M4B القياسية جداً.</string>
-
     <string name="Import_Progress_chapter_title">"عنوان المقطع"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"يجب ان يحتوي اسم الملف المصدّر على 3 احرف على الاقل"</string>
     <string name="option_radio_renew_url">التحقق من افضل خادم قبل التشغيل</string>
     <string name="option_radio_renew_url_subtitle">التحقق من خوادم المرايا يضمن افضل مصدر ممكن، لكنه قد يستغرق بعض الوقت (المهلة الحالية 10 ثوان).</string>
     <string name="checking_for_best_mirror">جار التحقق من افضل خادم</string>
     <string name="error_radio_renew_url">خطا في الحصول على رابط خادم الراديو</string>
-    <string name="loading">جار التحميل</string>
-    <string name="library">المكتبة</string> <!-- stay below 10/12 chars -->
-    <string name="Download">تنزيل</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">اضافة تاريخ النشر الى اسم الحلقة</string>
 
-    <string name="legacy">قديم</string> <!-- <8 -->
-    <string name="wave">موجة</string> <!-- <8 -->
-    <string name="bars">أعمدة</string> <!-- <8 -->
-    <string name="radial">دائري</string> <!-- <8 -->
     <string name="option_play_view_explain">عرض التشغيل هو الشاشة التفصيلية — التي تحتوي على الغلاف الكبير في الوسط، الأزرار الكبيرة في الأسفل، وتحكمات مثل السرعة والمؤقت.</string>
     <string name="ChangeTrackOrder_Title">إرشادات للشاشة التالية</string>
     <string name="ChangeTrackOrder_Text">اسحب وافلت الصناديق.
@@ -886,11 +896,9 @@
     <string name="direct_link">رابط مباشر</string>
     <string name="load_one_book">تحميل كتاب</string>
     <string name="load_multiple_book">تحميل كتب</string>
-
     <string name="reset_track_order">إعادة ترتيب المقاطع</string>
     <string name="Tracks_order_has_been_reset">تمت إعادة ترتيب المقاطع</string>
     <string name="add_new_tracks">إضافة مقاطع جديدة</string>
-
     <string name="m4b_error_non_standard_chapter_format">"""
                         يستخدم ملف M4B هذا تنسيق فصول غير قياسي.
                         يمكن لـBookPlayer تقسيم ملفات M4B التي تحتوي على فصول نصية مضمنة فقط.
@@ -908,28 +916,118 @@
                         - أو قم بتقسيمه على الكمبيوتر ثم استيراد الفصول بشكل منفصل.
 
                         حالياً، سيقوم BookPlayer باستيراد ملف الـM4B الأصلي كملف صوتي واحد."""</string>
-
-    <string name="destination">الوجهة</string>
-    <string name="count">العدد</string>
-
     <string name="APPEND_MODE">إضافة إلى كتاب موجود</string>
     <string name="internet_status">حالة الإنترنت</string>
     <string name="net_status_initial">جارٍ فحص الشبكة…</string>
     <string name="net_status_unmetered">اتصال غير محدود</string>
-    <string name="Roaming">تجوال</string>
     <string name="AskReset_popupText_order">أنت على وشك إعادة تعيين ترتيب المقاطع.\nهل أنت متأكد؟</string>
     <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
     <string name="option_progress_heatmap_subtitle">ستُظهر أشرطة التقدّم في المقاطع الأجزاء التي تم الاستماع إليها بالضبط، ويتعمّق اللون كلما تكرّر التشغيل.</string>
     <string name="option_progress_heatmap">عرض خرائط الحرارة</string>
     <string name="option_lock_orientation_play_activity">قفل اتجاه الشاشة</string>
-
-    <string name="History">التاريخ</string>
     <string name="in_history">في السجل</string>
     <string name="radio_could_not_resolve_url">يبدو أنّ رابط المحطة معطّل.</string>
     <string name="clicks_2pt">نقرات: %1$d</string>
-    <string name="tags">وسوم</string>
-    <string name="homepage">الصفحة الرئيسية</string>
+
+    <string name="count_status">%1$s (%2$s)</string>
+
+
+    <string name="import_warning_lot_of_file_and_subfolders">يبدو أنّ هناك الكثير من الملفات الصوتية في هذا المجلد ومجلداته الفرعية. هل أنت متأكد أنّك تريد استيرادها جميعًا في كتاب واحد؟</string>
+    <string name="browse_ebooks">تصفح الكتب الإلكترونية</string>
+    <string name="GutendexSearch_desc">"تصفح كتب مشروع غوتنبرغ في الملكية العامة. آلاف الأعمال الكلاسيكية المجانية بتنسيق EPUB."</string>
+    <string name="full_screen_mode">وضع ملء الشاشة</string>
+    <string name="tts_voice_seems_incompatible">الصوت يبدو غير متوافق</string>
+    <string name="Engine_buffer">ذاكرة المحرك المؤقتة</string>
+    <string name="option_radio_sleep_copy">نسخ قيمة الإعدادات العامة</string>
+    <string name="option_radio_use_cloudfare">استخدام التخزين المؤقت ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">استخدام التخزين المؤقت يجب أن يحسن السرعة</string>
+    <string name="by_genre">حسب النوع</string>
+    <string name="by_author">حسب المؤلف</string>
+    <string name="librivox_no_audiobook_found_in_genre">لم يتم العثور على كتاب صوتي في</string>
+    <string name="last_added">آخر الإضافات</string>
+
+    <string name="by_genre_all_languages">حسب النوع (جميع اللغات)</string>
+    <string name="unsupported_language">لغة غير مدعومة</string>
+    <string name="spam_fake_stations_removed">تمت الإزالة (رسائل مزعجة؟)</string>
+    <string name="option_radio_remove_duplicates">إزالة التكرارات</string>
+    <string name="option_radio_remove_duplicates_subtitle">إذا ظهر اسم المحطة أكثر من 3 مرات، فلن نعرض النتائج التالية لتجنب ازدحام القائمة بالتكرارات.</string>
+    <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
+    <string name="no_results_found">لا توجد نتائج</string>
+    <string name="getting_first_results_from">أول النتائج من</string>
+    <string name="getting_more_from">المزيد من</string>
+    <string name="stream_url">رابط البث</string>
+    <string name="votes_2pt">التصويتات: %1$d</string>
+    <string name="top_click">الأكثر نقراً</string>
+
+    <string name="top_vote">الأكثر تصويتاً</string>
+
+    <string name="last_click">آخر نقر</string>
+
+    <string name="last_change">آخر تغيير</string>
+
+
+    <string name="vote_too_many">لقد قمت بالتصويت كثيرًا لنفس المحطة — حاول مرة أخرى لاحقًا.</string>
+    <string name="Offline_for">غير متصل لـ</string>
+    <string name="Track_View">عرض المسار</string>
+    <string name="All_modes_except_Legacy_are_in_beta">جميع الأوضاع باستثناء القديمة في مرحلة تجريبية.</string>
+    <string name="reset_progress_only_for_this_track">إعادة تعيين التقدم لهذا المسار فقط</string>
+    <string name="pick_a_new_location">اختر موقعًا جديدًا</string>
+    <string name="newlocation_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
+    <string name="newlocation_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
+    <string name="newlocation_not_better">المجلد المحدد لا يصلح أي مسارات معطلة</string>
+    <string name="AskChangeSource_popupTitle">تأكيد تغيير الموقع</string>
+    <string name="already_downloaded">تم التنزيل بالفعل</string>
+    <string name="open_audiobook">فتح الكتاب الصوتي</string>
+    <string name="sort_by">فرز حسب</string>
+    <string name="sort_last_played">آخر تشغيل</string>
+    <string name="sort_last_added">آخر إضافة</string>
+    <string name="share_title">مشاركة عبر</string>
+    <string name="share_radio_body">تحقق من راديو الويب المباشر هذا على BookPlayer</string>
+    <string name="share_radio_head">مشاركة راديو BookPlayer</string>
+
+
+    <string name="massimport_all_aready_imported">لا توجد عناصر للاستيراد (الكل موجود بالفعل)</string>
+    <string name="import_started_for">بدأ الاستيراد لـ</string>
+    <string name="skippring_already_imported_item">تخطي العنصر الذي تم استيراده بالفعل</string>
+    <string name="imported_as">تم استيراده كـ</string>
+    <string name="no_items_found">لم يتم العثور على عناصر</string>
+    <string name="mass_import_found_items_mixed">تم العثور على %1$d عنصر (%2$s) - %3$d تم استيرادها بالفعل</string>
+    <string name="mass_import_found_items">تم العثور على %1$d عنصر (%2$s)</string>
+    <string name="mass_import_all_imported">تم استيراد جميع العناصر الـ %1$d بالفعل.</string>
+    <string name="no_ebook_found">لم يتم العثور على كتاب إلكتروني</string>
+    <string name="please_select_email_app">يرجى اختيار تطبيق بريد إلكتروني</string>
+    <string name="app_reset_done">تمت إعادة تعيين التطبيق</string>
+    <string name="vote_rejected">تم رفض التصويت: </string>
+    <string name="vote_sent_success">تم إرسال التصويت إلى الخادم، شكرًا لك.</string>
+    <string name="vote_send_error">خطأ في إرسال التصويت إلى الخادم.</string>
+    <string name="error_no_folder_selected">خطأ: لم يتم تحديد مجلد.</string>
+    <string name="error_network_not_available">عذراً. الشبكة غير متوفرة.</string>
+    <string name="error_server_not_reachable">عذراً. bookplayer.driot.com لا يمكن الوصول إليه.</string>
+    <string name="no_favorite_podcasts_found">لم يتم العثور على ملفات بودكاست مفضلة</string>
+    <string name="permission_read_storage_not_granted">لم يتم منح إذن قراءة التخزين</string>
+    <string name="error_file_not_found_attach">لم يتم العثور على الملف، لا يمكن إرفاقه.</string>
+    <string name="max_value_label">الحد الأقصى = </string>
+    <string name="already_imported_under_name">تم الاستيراد بالفعل تحت الاسم: </string>
+    <string name="no_episode_downloaded">لم يتم تنزيل أي حلقة</string>
+    <string name="no_backup_found">❌ لم يتم العثور على نسخة احتياطية في: </string>
+    <string name="error_reading_backup">خطأ في قراءة النسخة الاحتياطية: </string>
+    <string name="error_label_multiline">خطأ : \n</string>
+    <string name="no_ebooks_found_search">لم يتم العثور على كتب إلكترونية \nللبحث [%1$s] \nباللغة [%2$s]</string>
+    <string name="no_ebooks_found_bookshelf">لم يتم العثور على كتب إلكترونية \nلرف [%1$s] \nباللغة [%2$s]</string>
+    <string name="gutenberg_contacting">جاري الاتصال بـ gutenberg.org…</string>
+    <string name="gutenberg_wait_elapsed">%1$d ثانية - %2$s - (المهلة %3$d ثانية)</string>
+    <string name="gutenberg_try_1st">المحاولة الأولى</string>
+    <string name="gutenberg_try_2nd">المحاولة الثانية</string>
+    <string name="api_paging_size">حجم صفحة API</string>
+    <string name="radio_thanks">شكراً لـ radio-browser.info على توفير مستودع مجاني لمحطات الراديو العالمية</string>
+    <string name="mass_import_scanning_title">مسح الاستيراد الجماعي…</string>
+    <string name="mass_import_scan_complete">اكتمل مسح الاستيراد الجماعي.</string>
+    <string name="mass_import_found_candidates_click">تم العثور على %1$d مرشح، انقر للفتح.</string>
+    <string name="select_at_least_one_item">يرجى اختيار عنصر واحد على الأقل للاستيراد.</string>
+    <string name="mass_import_selected_summary">تم اختيار %1$d مرشح للاستيراد (%2$s)</string>
+    <string name="option_mass_import_display_storage_bar">عرض شريط التخزين</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d ملف صوتي</item>
@@ -939,186 +1037,8 @@
         <item quantity="one">%d مجلد فرعي</item>
         <item quantity="other">%d مجلدات فرعية</item>
     </plurals>
-    <string name="count_status">%1$s (%2$s)</string>
-
-    <string name="import_warning_lot_of_file_and_subfolders">يبدو أنّ هناك الكثير من الملفات الصوتية في هذا المجلد ومجلداته الفرعية. هل أنت متأكد أنّك تريد استيرادها جميعًا في كتاب واحد؟</string>
-    <string name="done">تم</string>
-
-    <string name="downloads">التنزيلات</string>
-    <string name="get">احصل</string>
-    <string name="browse_ebooks">تصفح الكتب الإلكترونية</string>
-    <string name="GutendexSearch_desc">"تصفح كتب مشروع غوتنبرغ في الملكية العامة. آلاف الأعمال الكلاسيكية المجانية بتنسيق EPUB."</string>
-    <string name="Ebooks">كتب إلكترونية</string>
-    <string name="full_screen_mode">وضع ملء الشاشة</string>
-
-    <string name="tts_voice_seems_incompatible">الصوت يبدو غير متوافق</string>
-    <string name="Technical">تقني</string>
-    <string name="Engine_buffer">ذاكرة المحرك المؤقتة</string>
-    <string name="option_radio_sleep_copy">نسخ قيمة الإعدادات العامة</string>
-    <string name="option_radio_use_cloudfare">استخدام التخزين المؤقت ( cloudfare )</string>
-    <string name="option_radio_use_cloudfare_subtitle">استخدام التخزين المؤقت يجب أن يحسن السرعة</string>
-    <string name="by_genre">حسب النوع</string>
-    <string name="by_author">حسب المؤلف</string>
-    <string name="librivox_no_audiobook_found_in_genre">لم يتم العثور على كتاب صوتي في</string>
-    <string name="last_added">آخر الإضافات</string>
-    <string name="by_genre_all_languages">حسب النوع (جميع اللغات)</string>
-    <string name="unsupported_language">لغة غير مدعومة</string>
-    <string name="Internet_Archive" translatable="false">Internet Archive</string>
-    <string name="links">روابط</string>
-    <string name="Duration">المدة</string>
-    <string name="Language">اللغة</string>
-    <string name="spam_fake_stations_removed">تمت الإزالة (رسائل مزعجة؟)</string>
-    <string name="Spam">رسائل مزعجة</string>
-    <string name="option_radio_remove_duplicates">إزالة التكرارات</string>
-    <string name="option_radio_remove_duplicates_subtitle">إذا ظهر اسم المحطة أكثر من 3 مرات، فلن نعرض النتائج التالية لتجنب ازدحام القائمة بالتكرارات.</string>
-    <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
-    <string name="Radio">راديو</string>
-    <string name="no_results_found">لا توجد نتائج</string>
-    <string name="getting_first_results_from">أول النتائج من</string>
-    <string name="getting_more_from">المزيد من</string>
-
-    <string name="stream_url">رابط البث</string>
-    <string name="votes_2pt">التصويتات: %1$d</string>
-
-    <string name="top_click">الأكثر نقراً</string> <!-- keep short -->
-    <string name="top_vote">الأكثر تصويتاً</string> <!-- keep short -->
-    <string name="last_click">آخر نقر</string> <!-- keep short -->
-    <string name="last_change">آخر تغيير</string> <!-- keep short -->
-
-
-    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
-    <string name="All_modes_except_Legacy_are_in_beta">جميع الأوضاع باستثناء القديمة في مرحلة تجريبية.</string>
-    <string name="AskChangeSource_popupTitle">تأكيد تغيير الموقع</string>
-    <string name="Offline_for">غير متصل لـ</string>
-    <string name="Track_View">عرض المسار</string>
-    <string name="already_downloaded">تم التنزيل بالفعل</string>
-    <string name="help_radio_text"><![CDATA[تصفح المحطات حسب <font color="#81C784">البلد</font> أو <font color="#FFCC80">الشعبية</font> أو فئات أخرى، أو <font color="#64B5F6">ابحث</font> عن محطة بالاسم.
-    <br><br>
-    اضغط على محطة <font color="#81C784"><b>للبدء فورًا</b></font>.
-    <br><br>
-    استخدم <font color="#EF9A9A">القلب</font> للإضافة إلى <font color="#BA68C8">المفضلة</font>.]]></string>
-    <string name="help_radio_title">بث راديو العالم</string>
-    <string name="live_podcast">بودكاست مباشر</string>
-    <string name="newlocation_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
-    <string name="newlocation_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
-    <string name="newlocation_not_better">المجلد المحدد لا يصلح أي مسارات معطلة</string>
-    <string name="open_audiobook">فتح الكتاب الصوتي</string>
-    <string name="pick_a_new_location">اختر موقعًا جديدًا</string>
-    <string name="proceed">متابعة</string>
-    <string name="reset_progress_only_for_this_track">إعادة تعيين التقدم لهذا المسار فقط</string>
-    <string name="sec">ث</string>
-    <string name="Alphabetically">أبجديا</string>
-    <string name="sort_by">فرز حسب</string>
-    <string name="sort_last_added">آخر إضافة</string>
-    <string name="sort_last_played">آخر تشغيل</string>
-    <string name="to">إلى</string>
-    <string name="vote_too_many">لقد قمت بالتصويت كثيرًا لنفس المحطة — حاول مرة أخرى لاحقًا.</string>
-    <string name="export_start_button">بدء التصدير</string>
-    <string name="export_title_label">تصدير الكتاب كـ ZIP:</string>
-    <string name="export_zipping_label">جاري الضغط: </string>
-
-    <string name="http_code_400">طلب غير صالح</string>
-    <string name="Unauthorized">غير مصرح</string>
-    <string name="Forbidden">ممنوع</string>
-    <string name="http_code_404">غير موجود</string>
-    <string name="http_code_408">انتهاء وقت الطلب</string>
-    <string name="http_code_429">طلبات كثيرة جدا</string>
-    <string name="http_code_500">خطأ داخلي في الخادم</string>
-    <string name="http_code_502">بوابة غير صالحة</string>
-    <string name="http_code_503">الخدمة غير متوفرة</string>
-    <string name="http_code_504">انتهت مهلة البوابة</string>
-
-    <string name="id_label">المعرف: </string>
-    <string name="import_started_for">بدأ الاستيراد لـ</string>
-    <string name="imported_as">تم استيراده كـ</string>
-
-    <string name="mass_import_all_imported">تم استيراد جميع العناصر الـ %1$d بالفعل.</string>
-    <string name="mass_import_found_items">تم العثور على %1$d عنصر (%2$s)</string>
-    <string name="mass_import_found_items_mixed">تم العثور على %1$d عنصر (%2$s) - %3$d تم استيرادها بالفعل</string>
-    <string name="massimport_all_aready_imported">لا توجد عناصر للاستيراد (الكل موجود بالفعل)</string>
-
-    <string name="max_value_label">الحد الأقصى = </string>
-    <string name="no_backup_found">❌ لم يتم العثور على نسخة احتياطية في: </string>
-    <string name="no_ebook_found">لم يتم العثور على كتاب إلكتروني</string>
-    <string name="no_ebooks_found_search">لم يتم العثور على كتب إلكترونية \nللبحث [%1$s] \nباللغة [%2$s]</string>
-    <string name="no_episode_downloaded">لم يتم تنزيل أي حلقة</string>
-    <string name="no_favorite_podcasts_found">لم يتم العثور على ملفات بودكاست مفضلة</string>
-    <string name="no_items_found">لم يتم العثور على عناصر</string>
-    <string name="nothing">لا شيء</string>
-
-    <string name="option_epub_split_mode_auto">تلقائي (جدول المحتويات إذا كان متاحًا، وإلا Spine)</string>
-    <string name="option_epub_split_mode_explain_text">يعتمد على جدول المحتويات لإنشاء المزيد من الفصول ولكنه يحافظ على البنية. Spine أبسط وينشئ فصولًا أقل.</string>
-    <string name="option_epub_split_mode_spine">Spine (فصل واحد لكل إدخال كتاب)</string>
-    <string name="option_epub_split_mode_text">كيفية تقسيم ملفات EPUB إلى فصول:</string>
-    <string name="option_epub_split_mode_title">تقسيم فصول EPUB</string>
-    <string name="option_epub_split_mode_toc">يعتمد على جدول المحتويات (فصل واحد لكل إدخال جدول محتويات)</string>
-
-    <string name="permission_read_storage_not_granted">لم يتم منح إذن قراءة التخزين</string>
-    <string name="please_select_email_app">يرجى اختيار تطبيق بريد إلكتروني</string>
-
-    <string name="share_radio_body">تحقق من راديو الويب المباشر هذا على BookPlayer</string>
-    <string name="share_radio_head">مشاركة راديو BookPlayer</string>
-    <string name="share_title">مشاركة عبر</string>
-
-    <string name="skippring_already_imported_item">تخطي العنصر الذي تم استيراده بالفعل</string>
-    <string name="vote_rejected">تم رفض التصويت: </string>
-    <string name="vote_send_error">خطأ في إرسال التصويت إلى الخادم.</string>
-    <string name="vote_sent_success">تم إرسال التصويت إلى الخادم، شكرًا لك.</string>
-
-    <string name="already_imported_under_name">تم الاستيراد بالفعل تحت الاسم: </string>
-    <string name="api_paging_size">حجم صفحة API</string>
-    <string name="app_reset_done">تمت إعادة تعيين التطبيق</string>
-    <string name="Deleting">جاري الحذف</string>
-    <string name="error_file_not_found_attach">لم يتم العثور على الملف، لا يمكن إرفاقه.</string>
-    <string name="error_label_multiline">خطأ : \n</string>
-    <string name="error_network_not_available">عذراً. الشبكة غير متوفرة.</string>
-    <string name="error_no_folder_selected">خطأ: لم يتم تحديد مجلد.</string>
-    <string name="error_reading_backup">خطأ في قراءة النسخة الاحتياطية: </string>
-    <string name="error_server_not_reachable">عذراً. bookplayer.driot.com لا يمكن الوصول إليه.</string>
-    <string name="export_audiobook_name_placeholder">اسم الكتاب الصوتي</string>
-    <string name="export_base_destination_folder_label">مجلد الوجهة الأساسي :</string>
-    <string name="export_click_to_change_label">انقر للتغيير</string>
-    <string name="export_destination_filename_label">اسم ملف الوجهة :</string>
-    <string name="export_download_folder_button">مجلد التنزيلات</string>
-    <string name="export_edit_name_hint">يمكنك تعديل هذا الاسم</string>
-    <string name="export_inside_subfolder_label">وداخل مجلد فرعي \'BookPlayer\'</string>
-    <string name="export_progress_info_placeholder">معلومات التقدم…</string>
-
-    <string name="MB_taken_by_linked_audios">" ميجابايت: الصوتيات المرتبطة"</string>
-    <string name="action_reset_to_original">↩️ استعادة الأصلية</string>
-    <string name="Bookshelves">"رفوف الكتب"</string>
-    <string name="calculating_storage">جاري الحساب…</string>
-    <string name="device_storage_memory">ذاكرة تخزين الجهاز</string>
-    <string name="gutenberg_contacting">جاري الاتصال بـ gutenberg.org…</string>
-    <string name="gutenberg_try_1st">المحاولة الأولى</string>
-    <string name="gutenberg_try_2nd">المحاولة الثانية</string>
-    <string name="gutenberg_wait_elapsed">%1$d ثانية - %2$s - (المهلة %3$d ثانية)</string>
-    <string name="librivox_books_loaded">تم تحميل %1$s كتب</string>
-    <string name="librivox_books_loaded_of">%1$s / %2$s كتب</string>
-    <string name="loading_voice_3pt">جاري تحميل الصوت…</string>
-    <string name="mass_import_found_candidates_click">تم العثور على %1$d مرشح، انقر للفتح.</string>
-    <string name="mass_import_scan_complete">اكتمل مسح الاستيراد الجماعي.</string>
-    <string name="mass_import_scanning_title">مسح الاستيراد الجماعي…</string>
-    <string name="mass_import_selected_summary">تم اختيار %1$d مرشح للاستيراد (%2$s)</string>
-    <string name="massiveimport_title">استيراد كتب متعددة</string>
-    <string name="no_ebooks_found_bookshelf">لم يتم العثور على كتب إلكترونية \nلرف [%1$s] \nباللغة [%2$s]</string>
-    <string name="option_mass_import_display_storage_bar">عرض شريط التخزين</string>
-    <string name="option_podcast_open_specific_view_subtitle2">يمكنك التبديل بين هذه العروض بالنقر المزدوج على الغلاف.</string>
-    <string name="power_management_exempt">التطبيق معفى من تحسينات البطارية (جيد)</string>
-    <string name="power_management_subject">التطبيق خاضع لتحسينات البطارية (قد يُغلق في الخلفية)</string>
-    <string name="radio_thanks">شكراً لـ radio-browser.info على توفير مستودع مجاني لمحطات الراديو العالمية</string>
-    <string name="sd_card_storage">ذاكرة بطاقة SD</string>
-    <string name="select_at_least_one_item">يرجى اختيار عنصر واحد على الأقل للاستيراد.</string>
-    <string name="storage_device">تخزين الجهاز</string>
-    <string name="Storage">التخزين</string>
-    <string name="copied">منسوخ</string>
-    <string name="linked">مرتبط</string>
-    <string name="storage_legend_new_books">كتب جديدة</string>
-    <string name="others">أخرى</string>
-    <string name="storage_sd_card">تخزين بطاقة SD</string>
     <plurals name="tracks_count">
         <item quantity="one">%d مقطع</item>
         <item quantity="other">%d مقاطع</item>
     </plurals>
-
 </resources>

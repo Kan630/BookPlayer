@@ -1,65 +1,256 @@
 <resources>
+    <!-- ********************************** -->
+    <!-- NO TRANSLATION (translatable=false) -->
+
+
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
-
-    <string name="title_FolderContent">文件列表</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
-
     <string name="asset_statements" translatable="false">
-[{
-  \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
-}]
-</string>
-
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    </string>
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
     <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
+    <string name="Librivox" translatable="false">LibriVox</string>
+
+    <string name="three_dots" translatable="false">…</string>
+
+
+    <string name="play" translatable="false"><![CDATA[>]]></string>
+    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
+    <string name="forward" translatable="false"><![CDATA[>>]]></string>
+    <string name="pause" translatable="false">||</string>
+    <string name="btnSleepSet" translatable="false">Sleep</string>
+    <string name="menu_seeLog" translatable="false">See Logs</string>
+
+    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
+    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
+    <string name="otherApp_scanner" translatable="false">Scanner</string>
+    <string name="permissions_ok_button" translatable="false">OK</string>
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="emoji_paste" translatable="false">📋</string>
+    <string name="emoji_clear" translatable="false">🗑️</string>
+    <string name="librivox" translatable="false">LibriVox</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
 
     <!-- ********************************** -->
-    <!-- GENERAL -->
+    <!-- SINGLE WORDS -->
 
-    <string name="Yes">是</string>
+    <string name="Added">已添加</string>
+    <string name="after">在…之后</string>
+    <string name="Album">专辑</string>
+    <string name="Alphabetically">按字母</string>
+    <string name="Also">另外</string>
+    <string name="Artist">艺术家</string>
+    <string name="Audio">音频</string>
+    <string name="AudioBooks">"有声书"</string>
+    <string name="Auto_Delete">自动删除</string>
+    <string name="Auto_Download">自动下载</string>
+    <string name="auto_download">自动下载</string>
+    <string name="Automotive">车载</string> //Auto section of settings
+    <string name="bars">柱形</string>
+    <string name="Bitrate">比特率</string>
+    <string name="Bookshelves">"书架"</string>
+    <string name="Bundle">压缩文件</string> //means zip, tar, 7z etc..
+    <string name="calculating_storage">计算中…</string>
+    <string name="Cancelled">已取消</string>
+    <string name="candidates">候选项</string> //for books scanned in massive import
+    <string name="Channels">声道</string>
+    <string name="chars">字符</string>
+    <string name="Cleaning">清理</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clear">清除</string>
+    <string name="Close">关闭</string>
+    <string name="collapse">折叠</string> //opposite of expand, used for "enlarge" or "show description"
+    <string name="confirm">确认</string>
+    <string name="copied">已复制</string>
+    <string name="Copy">复制</string>
+    <string name="count">计数</string>
+    <string name="Creator">创作者</string>
+    <string name="days">天</string>
+    <string name="Delete">删除</string>
+    <string name="Deleting">正在删除</string>
+    <string name="denied">已拒绝</string>
+    <string name="Design">设计</string> //used as the settings title for the section where user can choose color, text font
+    <string name="destination">目标位置</string>
+    <string name="device">设备</string>
+    <string name="Disc">光盘</string>
+    <string name="done">完成</string>
+    <string name="done.">完成。</string>
+    <string name="download">下载</string>
+    <string name="Download">下载</string>
+    <string name="download_verb">下载</string>
+    <string name="download_noun">下载</string>
+    <string name="downloaded">已下载</string>
+    <string name="Downloading">正在下载</string>
+    <string name="downloads">下载</string>
+    <string name="Duration">时长</string>
+    <string name="Ebooks">电子书</string>
+    <string name="Engine">引擎</string>
+    <string name="ep">"集"</string> //short for episode
+    <string name="episodes">集</string>
+    <string name="error">错误</string>
+    <string name="Exit">退出</string>
+    <string name="expand">展开</string> //opposite of collapse, used for "enlarge" or "show description"
+    <string name="Export_3pt">导出…</string>
+    <string name="favorite">收藏</string>
+    <string name="favorites">收藏夹</string>
+    <string name="Favorites">收藏</string>
+    <string name="File">文件</string>
+    <string name="flag">旗帜</string> //means country flag
+    <string name="Folder">文件夹</string>
+    <string name="folder">文件夹</string>
+    <string name="Font">字体</string>
+    <string name="Forbidden">禁止访问</string>
+    <string name="found">已找到</string>
+    <string name="from">来自</string>
+    <string name="General">通用</string>
+    <string name="Genre">类型</string> //About a book
+    <string name="get">获取</string>
+    <string name="granted">已授予</string>
+    <string name="History">历史</string> //means already listened, used for radio stations
+    <string name="homepage">主页</string>
+    <string name="icon">图标</string>
+    <string name="id_label">ID： </string>
+    <string name="Import">导入</string>
+    <string name="in">在</string>
+    <string name="Integration">整合</string>
+    <string name="items">项目</string>
+    <string name="language">语言</string>
+    <string name="Language">语言</string>
+    <string name="Language_2pt">"语言: "</string>
+    <string name="last">最近</string>
+    <string name="legacy">旧式</string>
+    <string name="library">资料库</string>
+    <string name="linked">已链接</string>
+    <string name="links">链接</string>
+    <string name="listened">已播放</string>
+    <string name="loading">加载中</string>
+    <string name="Logging">日志记录</string>
+    <string name="manual">使用手册</string>
+    <string name="MB">MB</string> //short for MegaByte
+    <string name="memory">内存</string> //in the storage sense
+    <string name="Menu">菜单</string>
+    <string name="metadata">元数据</string> //in audio file context
+    <string name="min.">分钟</string>
+    <string name="Miscellaneous">其他</string>
+    <string name="ms.">毫秒。</string> //short for milliseconds
+    <string name="new_label">新的</string>
     <string name="No">否</string>
-    <string name="are_you_sure">您确定吗？</string>
+    <string name="nothing">无</string>
+    <string name="open">打开</string>
+    <string name="others">其他</string>
+    <string name="paste">粘贴</string>
+    <string name="Pause">暂停</string> //means pause audio playback
+    <string name="Permission">权限</string>
+    <string name="Podcasts">播客</string>
+    <string name="podcasts">播客</string>
+    <string name="proceed">继续</string>
+    <string name="Processing">处理中</string>
+    <string name="radial">径向</string> //for graphic vizualizer
+    <string name="radio">广播</string>
+    <string name="Radio">广播</string>
+    <string name="Ready">准备就绪</string>
+    <string name="refresh">刷新</string>
+    <string name="reorder">重新排序</string>
+    <string name="Results_2pt">"结果: "</string>
+    <string name="Resume">继续</string>
+    <string name="reviews">评论</string> //for book reviews
+    <string name="Roaming">漫游</string>
+    <string name="save">保存</string>
+    <string name="Search">搜索</string>
+    <string name="Search_2pt">"搜索: "</string>
+    <string name="sec">秒</string> //short for second
+    <string name="Set">设置</string>
+    <string name="Settings">选项</string>
+    <string name="settings">设置</string>
+    <string name="sort">排序</string>
+    <string name="Spam">垃圾</string>
+    <string name="Speaking">正在朗读</string>
+    <string name="Speed">播放速度</string>
+    <string name="import_task_start">正在启动...</string>
+    <string name="Stats">统计</string>
+    <string name="stop">停止</string>
+    <string name="Storage">存储</string>
+    <string name="subtitle">副标题</string>
+    <string name="tags">标签</string>
+    <string name="Technical">技术</string>
+    <string name="Text">文本</string>
+    <string name="text_to_speech">文字转语音</string>
+    <string name="Text_To_Speech">文字转语音</string>
+    <string name="title">标题</string>
+    <string name="to">至</string>
+    <string name="Track">曲目</string>
+    <string name="Trending">热门</string>
+    <string name="Unauthorized">未授权</string>
+    <string name="Uncompress">解压缩</string>
+    <string name="Utilities">实用程序</string>
+    <string name="Version">版本</string>
+    <string name="Video">视频</string>
+    <string name="Warning">警告</string>
+    <string name="wave">波形</string>
+    <string name="Website">网站</string>
+    <string name="Year">年份</string>
+    <string name="Yes">是</string>
     <string name="yesterday">昨天</string>
+    <string name="export_zipping_label">压缩中： </string>
+
+        <!-- OTHER (multi-word strings, plurals, etc.) -->
+
+    <string name="title_FolderContent">文件列表</string>
+
+    <string name="beta_test">测试版</string>
+    <string name="are_you_sure">您确定吗？</string>
     <string name="app_info">应用信息</string>
     <string name="delete_logs">删除日志</string>
-    <string name="Delete">删除</string>
+    <string name="Import_failed">导入失败</string>
+    <string name="About_to_start_download">即将开始下载…</string>
+    <string name="Please_enter_a_URL">请输入 URL。</string>
+    <string name="Permission_Required">需要权限</string>
+
+    <string name="App_Info">应用信息</string>
+
+    <string name="reset_app">重置应用</string>
+    <string name="add_book">添加书籍</string>
+
+
+    <string name="Not_enough_memory">内存不足</string>
+
+    <string name="unexpected_error">意外错误</string>
+    <string name="an_error_occurred">发生错误</string>
+    <string name="no_internet_connection">无网络连接</string>
+    <string name="no_metadata_available">无可用元数据</string>
+
+
+    <string name="Import_in_progress">正在导入</string>
+    <string name="storage_device">设备存储</string>
+    <string name="storage_sd_card">SD 卡存储</string>
+    <string name="storage_legend_new_books">新书</string>
+    <string name="power_management_exempt">应用已免除电池优化（推荐）</string>
+    <string name="power_management_subject">应用受电池优化影响（可能在后台被关闭）</string>
+    <string name="left_on">剩余</string>
+
+    <string name="SD_card">SD 卡</string>
+
+    <string name="audios_in_app">应用中的音频</string>
+    <string name="audio_tracks">音轨</string>
+
+    <string name="book_cover">书籍封面</string>
+    <string name="Available_since">上线日期</string>
+    <string name="default_for">默认用于</string>
+
+    <string name="sample_rate">采样率</string>
+
 
     <string name="DeleteLogs_AskConfirm">您即将删除所有日志。\n您确定吗？</string>
     <string name="ModifyFolder_AskDelete">您即将删除此文件夹及其所有音轨。\n您确定吗？</string>
     <string name="ModifyFolder_AskReset">您即将重置此文件夹的进度。\n您确定吗？</string>
     <string name="ModifyZikFile_AskDelete">您即将删除此音轨。\n您确定吗？</string>
 
-    <string name="left_on">剩余</string>
-    <string name="memory">内存</string>
-    <string name="device">设备</string>
-    <string name="SD_card">SD 卡</string>
-    <string name="audios_in_app">应用中的音频</string>
-    <string name="listened">已播放</string>
-    <string name="audio_tracks">音轨</string>
-    <string name="Added">已添加</string>
-    <string name="Favorites">收藏</string>
-    <string name="Set">设置</string>
-    <string name="MB">MB</string>
-    <string name="Export_3pt">导出…</string>
-    <string name="Version">版本</string>
-    <string name="Miscellaneous">其他</string>
-    <string name="Processing">处理中</string>
-    <string name="downloaded">已下载</string>
-    <string name="Downloading">正在下载</string>
-    <string name="book_cover">书籍封面</string>
-    <string name="Search">搜索</string>
-    <string name="Creator">创作者</string>
-    <string name="Available_since">上线日期</string>
-    <string name="default_for">默认用于</string>
 
-    <!-- ********************************** -->
-    <!-- HELP Screen -->
-
-    <string name="help_title">BookPlayer 使用手册</string>
-
-    <string name="General">通用</string>
+        <string name="help_title">BookPlayer 使用手册</string>
     <string name="help_text_general"><![CDATA[
 打开应用时，您会看到一个<font color="#90D8E8">文件夹</font>列表 —— 这些代表您的书籍、课程或播客。
 <br><br>
@@ -71,7 +262,6 @@
 <br>
 点击即可开始播放。
 ]]></string>
-
     <string name="help_title_manual_import">手动导入：</string>
     <string name="help_text_manual_import"><![CDATA[
 <font color="#81C784"><b>手动导入</b></font>书籍时，您需要先选择一个<font color="#64B5F6">文件</font>或<font color="#64B5F6">文件夹</font>。
@@ -94,7 +284,6 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 <br><br>
 在“选项”菜单中启用<font color="#F48FB1"><b>自动删除</b></font>，以便导入后删除源文件。
 ]]></string>
-
     <string name="help_librivox_title">Librivox 导入：</string>
     <string name="help_librivox_text"><![CDATA[
 <font color="#BA68C8"><b>导入公有领域有声书</b></font>
@@ -105,7 +294,6 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 <br><br>
 您可以<font color="#81C784"><b>立即开始收听</b></font>。
 ]]></string>
-
     <string name="help_podcast_title">播客导入：</string>
     <string name="help_podcast_text"><![CDATA[
 <font color="#BA68C8"><b>发现播客</b></font>
@@ -118,7 +306,6 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 <br><br>
 每次启动 BookPlayer 时都会自动检查更新。
 ]]></string>
-
     <string name="help_url_title">从 URL 导入：</string>
     <string name="help_url_text"><![CDATA[
 <font color="#BA68C8"><b>通过链接导入</b></font>
@@ -129,16 +316,12 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 <br><br>
 一切将自动处理 —— 解压、添加并可供播放。
 ]]></string>
-
-    <string name="help_storage_title">存储位置：</string>
-    <string name="help_storage_text"><![CDATA[
-<font color="#BA68C8"><b>文件存储位置</b></font>
-<br><br>
-默认情况下，BookPlayer 会使用<font color="#81C784">SD 卡</font>（如有），以节省空间。
-<br><br>
-若要切换至内部存储，请在<font color="#64B5F6">选项</font>菜单中更改设置。
-]]></string>
-
+    <string name="help_radio_title">流媒体世界广播</string>
+    <string name="help_radio_text"><![CDATA[按<font color="#81C784">国家</font>、<font color="#FFCC80">热度</font>浏览，或按名称<font color="#64B5F6">搜索</font>电台。
+    <br><br>
+    点击电台<font color="#81C784"><b>立即播放</b></font>。
+    <br><br>
+    使用<font color="#EF9A9A">爱心</font>添加到<font color="#BA68C8">收藏夹</font>。]]></string>
     <string name="help_memory_cleaning_title">内存清理：</string>
     <string name="help_memory_cleaning_text"><![CDATA[
 <font color="#BA68C8"><b>管理内部存储</b></font>
@@ -154,16 +337,14 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 </ul>
 不包括来自共享存储的内容。
 ]]></string>
-
-    <string name="help_tellme_title">联系开发者：</string>
-    <string name="help_tellme_text"><![CDATA[
-遇到问题或发现错误？
+    <string name="help_storage_title">存储位置：</string>
+    <string name="help_storage_text"><![CDATA[
+<font color="#BA68C8"><b>文件存储位置</b></font>
 <br><br>
-请<font color="#81C784">告诉我</font>，我会改进应用！
+默认情况下，BookPlayer 会使用<font color="#81C784">SD 卡</font>（如有），以节省空间。
 <br><br>
-使用菜单中的<font color="#90D8E8">“联系开发者”</font>选项发送邮件。
+若要切换至内部存储，请在<font color="#64B5F6">选项</font>菜单中更改设置。
 ]]></string>
-
     <string name="help_permission_title">权限：</string>
     <string name="help_permission_text"><![CDATA[
 BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行。
@@ -175,7 +356,14 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 </ul>
 拒绝权限不会使应用崩溃 —— BookPlayer 会自动适配。
 ]]></string>
-
+    <string name="help_tellme_title">联系开发者：</string>
+    <string name="help_tellme_text"><![CDATA[
+遇到问题或发现错误？
+<br><br>
+请<font color="#81C784">告诉我</font>，我会改进应用！
+<br><br>
+使用菜单中的<font color="#90D8E8">“联系开发者”</font>选项发送邮件。
+]]></string>
     <string name="help_forum_title">论坛：</string>
     <string name="help_forum_text"><![CDATA[
 <font color="#BA68C8"><b>加入 BookPlayer 社区</b></font>
@@ -192,65 +380,54 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 ]]></string>
 
 
-    <!-- ********************************** -->
-    <!-- Options Screen -->
-
     <string name="option_timeBeforeSleep">自动暂停</string>
-    <string name="option_timeBeforeSleep_text">在此之后：</string>
-<string name="option_copy_file_title">内部复制文件</string>
 
+    <string name="option_timeBeforeSleep_text">在此之后：</string>
+    <string name="option_copy_file_title">内部复制文件</string>
     <string name="option_backward_forward_title">快退/快进按钮</string>
     <string name="option_backward_forward_text">时间间隔：</string>
     <string name="option_rewind_after_pause_text">"在恢复播放前回退几秒（暂停5分钟回退3秒，暂停1小时回退5秒……）"</string>
-
     <string name="option_pick_theme_color_title">选择应用主题颜色</string>
-
     <string name="option_delete_source_file_title">自动删除源文件</string>
     <string name="option_delete_source_file_subtitle"><i>在将有声书加载到 BookPlayer 后，您选择的源文件/文件夹可被自动删除。
         \n请注意，仅当为 ZIP 文件或启用上述选项（将音频复制到 BookPlayer 保留内存）时才可用。</i></string>
     <string name="option_delete_source_file_text">在加载到 BookPlayer 后自动删除选中的文件/文件夹。</string>
     <string name="option_alert_delete_source_file_title">!! 警告 - 自动删除 !!</string>
     <string name="option_alert_delete_source_file_message">加载到 BookPlayer 的所有文件将从设备内存中清除。\n\n您确定吗？</string>
-
     <string name="option_beep_title">提示音</string>
     <string name="option_beep_between_chapters">每章结束时播放提示音。</string>
     <string name="option_beep_for_autostop">进入睡眠模式时播放长提示音<i>（自动暂停 XX 分钟后）</i></string>
     <string name="option_beep_at_the_end">在书籍结束时播放三声提示音。</string>
     <string name="option_visualizer_text_01">播放音频时显示的极简频率可视化图。</string>
     <string name="option_visualizer_text_02">需要 [录音]/[麦克风] 权限</string>
-    <string name="granted">已授予</string>
-    <string name="denied">已拒绝</string>
     <string name="option_visualizer_permissions_denied_02">再次点击复选框以请求权限</string>
-
-    <string name="Logging">日志记录</string>
     <string name="option_tech_log_subtitle"><i>
         应用是否应创建技术调试日志文件。
 </i></string>
     <string name="option_tech_log_text">技术日志记录。</string>
-
     <string name="option_mail_method">发送邮件</string>
     <string name="option_mail_method_default">使用默认邮件应用。\n<i>取消勾选以选择其他应用。</i></string>
-
     <string name="option_open_with_title">打开方式 / 分享</string>
     <string name="option_open_with_subtitle"><i>长按文件或从下载中点击 [分享] 或 [用其他应用打开] 时，Android 将建议使用 BookPlayer</i></string>
     <string name="option_open_with_text">适用于 ZIP 及大多数音频文件。</string>
     <string name="option_open_with_text_all">适用于所有文件类型（安全兜底）。</string>
     <string name="option_on_load_use_SD_card">使用 SD 卡</string>
 
+
     <string name="option_split_m4b">.m4b 拆分</string>
     <string name="option_split_m4b_text">从 m4b 中提取章节。</string>
-
     <string name="option_copy_file_special_zip"><i>ZIP 和拆分 m4b 文件始终会被复制</i></string>
-
     <string name="option_alert_delete_picked_source_file_title">!! 警告 - 删除源文件 !!</string>
     <string name="option_alert_delete_picked_source_file_message">"此文件将在被加载到 BookPlayer 内部存储后从设备内存中删除。\n\n您确定吗？"</string>
     <string name="option_on_load_copy_internal">"复制到 BookPlayer 内部存储"</string>
     <string name="option_on_load_split_m4b">"将 M4B 拆分为章节"</string>
     <string name="option_on_load_delete_source">"导入后删除源文件"</string>
-
     <string name="option_sdcard_title">SD 卡</string>
+
     <string name="option_sdcard_text">将音频复制到保留空间时，使用 SD 卡而非设备存储</string>
+
     <string name="option_sdcard_text_caution"><i>请注意：如果移除或格式化 SD 卡，音频文件将会丢失</i></string>
+
 
     <string name="option_copy_file_subtitle">优点：
         \n* 无需 [读取音频] 权限。
@@ -259,52 +436,71 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
         \n* 如果不删除源文件，则需要更多存储空间。
 </string>
     <string name="option_copy_file_text">将音频文件复制到 BookPlayer 应用的内部保留存储空间中。</string>
+    <string name="option_night_mode_title">主题模式  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ 系统</string>
+    <string name="option_night_mode_light">☀️ 浅色</string>
+    <string name="option_night_mode_dark">🌙 深色</string>
+    <string name="option_night_mode_dialog_title">选择主题模式</string>
+    <string name="option_text_appearance_title">文字外观</string>
+    <string name="option_podcast_open_specific_view">打开特定视图</string>
+    <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
+    <string name="option_podcast_open_specific_view_subtitle2">可通过双击封面在此视图间切换。</string>
+    <string name="option_podcast_autodownloaded_at_the_top">当下载新剧集时，将播客移动到有声书列表的顶部。</string>
+    <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>
+    <string name="option_playing_behaviour_title">播放行为</string>
 
-    <!-- ********************************** -->
-    <!-- Get Resources -->
+    <string name="option_start_next_track_at_zero_title_text">始终从头开始播放下一曲，即使之前已部分收听。</string>
+    <string name="option_stop_audio_if_user_closes_app_text">关闭应用时停止音频。</string>
+    <string name="option_network_preference_subtext">"未计费连接表示您未使用移动数据（例如 Wi-Fi、以太网或某些 VPN）。\n漫游表示您在国外 - 即使是在国外酒店的 Wi-Fi 也算作漫游。"</string>
+    <string name="option_automotive_let_car_autoplay">允许 Android Auto 自动开始播放（通常在连接到汽车时）。</string>
+    <string name="option_open_play_activity">播放开始时打开播放视图。</string>
+    <string name="tts_settings">TTS 设置</string>
+    <string name="option_tts_language_text">新电子书的默认 TTS 语言。</string>
+    <string name="option_tts_highlight_delay_title">单词高亮。</string>
+    <string name="option_tts_highlight_delay_text">引擎延迟：</string>
+    <string name="option_epub_split_mode_title">EPUB章节分割</string>
+    <string name="option_epub_split_mode_text">如何将EPUB分割为章节：</string>
+    <string name="option_epub_split_mode_auto">自动 (目录优先，否则Spine)</string>
+    <string name="option_epub_split_mode_toc">基于目录 (每个目录条目一章)</string>
+    <string name="option_epub_split_mode_spine">Spine (每本书籍条目一章)</string>
+    <string name="option_epub_split_mode_explain_text">基于目录创建更多章节但保留结构。基于Spine更简单，章节更少。</string>
+    <string name="option_automotive_on">连接到 Android Auto。</string>
+    <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
+
 
     <string name="AutoTest_title">自动测试</string>
-
-    <string name="File">文件</string>
-    <string name="Folder">文件夹</string>
     <string name="bOpenZipFile">Zip 文件</string>
     <string name="bOpenM4bFile">音频文件</string>
-
     <string name="TextHeaderOpen">打开设备上的音频</string>
     <string name="bOpenFile_desc">选择任意文件。</string>
     <string name="bOpenZipFile_desc">筛选：仅限 zip 文件</string>
     <string name="bOpenM4bFile_desc">筛选：仅限音频文件
         \n<i>注意：此筛选不完美，若遇问题请使用顶部按钮 [任意文件]。</i></string>
-
     <string name="DirectDownload_title">直接下载</string>
     <string name="DirectDownload_desc">在下方粘贴链接并点击按钮即可下载并集成有声书。</string>
     <string name="DirectDownload_button">直接获取</string>
-
-    <string name="AudioBooks">"有声书"</string>
     <string name="LibrivoxSearch_desc">"在 LibriVox 中直接搜索你想要的有声书。它是一个免费的公有领域资源库，主要为英文作品，也有其他语言的内容。"</string>
-<string name="PodcastSearch_desc">通过开源注册表 podcastindex.org 浏览播客</string>
+    <string name="PodcastSearch_desc">通过开源注册表 podcastindex.org 浏览播客</string>
     <string name="podcast_image_desc">播客图像</string>
     <string name="podcast_no_results">未找到播客</string>
-
-    <string name="Search_2pt">"搜索: "</string>
-    <string name="Language_2pt">"语言: "</string>
-    <string name="Results_2pt">"结果: "</string>
     <string name="search_nothing_specified">未指定内容</string>
+
     <string name="Librivox_bGetAudioBook">"获取有声书"</string>
+
     <string name="librivox_no_audiobook_found_for_search">未找到与搜索词匹配的有声书</string>
     <string name="librivox_invalid_response">来自 Librivox 服务器的响应无效</string>
     <string name="loading_details">正在加载详细信息…</string>
     <string name="loading_detail_failed">加载详细信息失败</string>
     <string name="librivox_zip_mp3_available">可用 ZIP-MP3 文件</string>
     <string name="librivox_zip_mp3_not_found">未找到 ZIP-MP3 文件</string>
+
     <string name="librivox_cover_desc">Librivox 封面</string>
+
 
     <string name="podcast_favorite_add">已添加到收藏</string>
     <string name="podcast_autodownload_add">已添加到自动下载</string>
     <string name="podcast_new_episodes">新剧集</string>
 
-    <!-- ********************************** -->
-    <!-- Add Resources -->
 
     <string name="Error_Import_IsNotFolder">这似乎不是一个文件夹</string>
     <string name="Error_Import_IsNotFile">这似乎不是一个文件</string>
@@ -313,15 +509,12 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="Error_Import_CannotReadFolder">读取所选文件夹时出错</string>
     <string name="Error_Import_CannotSaveInDB">将音频文件保存到本地数据库时出错</string>
     <string name="Import_nMediaInFolder">在该文件夹中找到媒体</string>
-
     <string name="Import_Progress_unzipping_file">"正在解压文件："</string>
-
     <string name="Error_Import_Creating_Folders">"无法创建文件夹"</string>
     <string name="Error_Import_track_duration_extraction">"获取音轨时长时出错"</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">可用空间：</string>
     <string name="Error_Import_NotEnoughMemory_line3">源文件大小：</string>
     <string name="Error_NameTooShort">名称太短</string>
-
     <string name="Import_Success">导入成功</string>
     <string name="Import_Experimental_M4B_warning">警告：<b>m4b 章节提取</b>仍为<b>实验功能</b>。</string>
     <string name="Import_Experimental_M4B_iferror">如果遇到错误</string>
@@ -332,19 +525,13 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="init_please_wait">初始化中… 请稍候…</string>
     <string name="init_check_already_imported_please_wait">"正在检查是否已导入，请稍候…"</string>
     <string name="init_check_complementary_checks_please_wait">"正在进行补充检查，请稍候…"</string>
-
     <string name="error_media_already_loaded_samePath">此媒体已被加载</string>
-
     <string name="ErrorCouldNotLoadAudios">错误 - 无法加载音频。</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">错误 - 此文件夹中未找到音频。</string>
-
+    <string name="loading_voice_3pt">正在加载语音…</string>
     <string name="Error_Import_OutOfMemory">通用错误：内存不足</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">该文件夹可能包含太多书籍或子文件夹，无法一次性加载。</string>
-
-
-    <!-- ********************************** -->
-    <!-- FolderModifyActivity -->
-<string name="bMove">"更改位置"</string>
+    <string name="bMove">"更改位置"</string>
     <string name="bReset">"重置进度"</string>
     <string name="Folder_Deleted_DB">"书籍已删除！"</string>
     <string name="Folder_Renamed">"文件夹已重命名"</string>
@@ -352,17 +539,13 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="Folder_Reset">"文件夹进度已重置"</string>
     <string name="ZikFile_Renamed">"音轨已重命名"</string>
     <string name="ZikFile_Deleted">"音轨已删除"</string>
-
     <string name="AskDelete_popupTitle">确认删除</string>
     <string name="AskReset_popupTitle">确认重置</string>
-
     <string name="You_are_about_to_delete_this_audio_book">"您即将删除此有声书"</string>
     <string name="LastAccess">"上次访问"</string>
     <string name="AudioLocation">"音频位置"</string>
-
     <string name="Change_cover_image">"更换封面图像"</string>
     <string name="AskRename_Track">将此音轨重命名为</string>
-
     <string name="IntroCut">"剪辑开头"</string>
     <string name="Rename_book">"重命名书籍"</string>
     <string name="AskRename_Book">"您确定要将书名更改为"</string>
@@ -372,46 +555,43 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="Export_display_text_preparing_export">"准备导出…"</string>
     <string name="Export_display_no_valid_audiobook">"获取有声书音频时出错"</string>
     <string name="Export_error">"导出错误"</string>
+    <string name="export_title_label">导出书本为 ZIP：</string>
+    <string name="export_audiobook_name_placeholder">有声书名称</string>
+    <string name="export_base_destination_folder_label">基本目标文件夹：</string>
+    <string name="export_click_to_change_label">点击更改</string>
+    <string name="export_download_folder_button">下载文件夹</string>
+    <string name="export_destination_filename_label">目标文件名：</string>
+    <string name="export_edit_name_hint">您可以编辑此名称</string>
+    <string name="export_progress_info_placeholder">进度信息…</string>
+    <string name="export_start_button">开始导出</string>
+    <string name="export_inside_subfolder_label">并在 \'BookPlayer\' 子文件夹内</string>
 
-        <!-- ********************************** -->
-        <!-- Zik File Adapter -->
 
     <string name="Progression_reset_done">"进度已重置"</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"确认重置"</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"您即将重置此音频的播放进度\n您确定吗？"</string>
-
-
-        <!-- ********************************** -->
-        <!-- PlayActivity -->
-
-    <string name="play" translatable="false"><![CDATA[>]]></string>
-    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
-    <string name="forward" translatable="false"><![CDATA[>>]]></string>
-    <string name="pause" translatable="false">||</string>
-    <string name="Speed">播放速度</string>
-    <string name="btnSleepSet" translatable="false">睡眠</string>
     <string name="tv_ListeningTimeWithNoUserAction">自上次操作以来</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>请注意，此值仅适用于当前播放会话。\n全局自动睡眠值位于“选项”菜单（应用启动页）中。</i>"</string>
     <string name="tv_TimeLeft">剩余时间</string>
     <string name="error_reading_track">"读取音轨出错！"</string>
     <string name="current_position">当前位置</string>
-<string name="source_not_found">找不到源文件或无法读取。</string>
+    <string name="source_not_found">找不到源文件或无法读取。</string>
     <string name="source_not_found_deleted">找不到源文件。它可能已被删除。</string>
     <string name="source_file_path">源文件路径</string>
     <string name="permission_not_set">权限未设置。</string>
     <string name="notification_playlist_finished">"书籍播放完成！"</string>
     <string name="notification_auto_sleep">"自动睡眠！"</string>
-
     <string name="SleepTimer">睡眠定时器</string>
     <string name="SleepTimerWrongInt">输入无效。请输入有效数字。</string>
     <string name="SleepTimerGeneralError">设置睡眠定时器时发生错误。</string>
 
-    <!-- ********************************** -->
-    <!-- STORAGE -->
 
     <string name="physical_storage_memory">设备物理存储</string>
+    <string name="device_storage_memory">设备存储</string>
+    <string name="sd_card_storage">SD 卡存储</string>
     <string name="MB_taken_by_BookPlayer_app">" MB 被 BookPlayer 应用占用"</string>
     <string name="MB_taken_by_audio_files">" MB 被音频文件占用"</string>
+    <string name="MB_taken_by_linked_audios">" MB：链接音频"</string>
     <string name="MB_taken_by_logs">" MB 被日志占用"</string>
     <string name="MB_available_on_device">" MB：设备可用"</string>
     <string name="MB_device_memory">" MB：设备内存"</string>
@@ -420,37 +600,17 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="audio_location_sdcard">SD 卡</string>
     <string name="custom_value_in_minutes">自定义分钟数</string>
 
+
     <string name="audio_location_sdcard_reserved_storage">SD 卡（应用专用）</string>
     <string name="audio_location_bookplayer_reserved_storage">BookPlayer 专用存储</string>
     <string name="audio_location_smartphone_shared_storage">智能手机共享存储</string>
     <string name="audio_location_audiobook_not_found">未找到有声书</string>
-
-    <!-- ********************************** -->
-    <!-- Menus -->
-
-    <string name="Menu">菜单</string>
-    <string name="open">打开</string>
-    <string name="manual">使用手册</string>
     <string name="menu_sendmail">联系开发者</string>
-    <string name="Stats">统计</string>
-    <string name="menu_seeLog" translatable="false">查看日志</string>
-    <string name="Cleaning">清理</string>
-    <string name="Website">网站</string>
 
-    <!-- ********************************** -->
-    <!-- OTHER APPS -->
-    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_scanner" translatable="false">Scanner</string>
-
-    <!-- ********************************** -->
-    <!-- PERMISSIONS -->
 
     <string name="permission_rationale">此功能需要以下权限：</string>
     <string name="permissions_granted">权限已授予。</string>
     <string name="permissions_denied">权限未授予。</string>
-    <string name="permissions_ok_button" translatable="false">OK</string>
-
     <string name="permission_read_write_rationale">BookPlayer 需要 [读取音频] 权限（或启用 [复制文件] 选项）。</string>
     <string name="permission_read_write_denied">[读取音频] 权限被拒绝。
     \n\n请点击 [应用信息] 手动启用权限。
@@ -460,73 +620,49 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 </string>
     <string name="permission_record_audio_rationale">频谱可视化需要 [录音] 权限。</string>
     <string name="permission_record_audio_denied">频谱可视化将不会显示。[录音] 权限已被拒绝。</string>
-
-    <string name="Permission">权限</string>
     <string name="permission_read_denied_short_text_on_load">[音乐和音频] 权限先前已被拒绝。
     \n\n您需要点击 [应用信息] 并手动启用该权限。
     \n\n<i>当禁用复制选项时，若要直接从智能手机的共享存储播放音频，该权限是必需的。</i>
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">需要 [音乐和音频] 权限以播放智能手机共享存储中的音频。</string>
-
-    <string name="Close">关闭</string>
     <string name="Episode_description">剧集简介</string>
-    <string name="Trending">热门</string>
     <string name="max_number_of_results_reached">已达到最大结果数</string>
-
+    <string name="librivox_books_loaded">已加载 %1$s 本书</string>
+    <string name="librivox_books_loaded_of">%1$s / %2$s 本书</string>
     <string name="network_preferences_title">网络偏好设置</string>
     <string name="option_download_auto_title">自动下载</string>
     <string name="option_download_user_title">手动下载</string>
     <string name="download_any">📶 任意网络</string>
-
-    <!-- Network download prompts -->
+    <string name="download_bis_unmetered">🆓 仅限无限制</string>
+    <string name="download_not_roaming">🏠 非漫游</string>
     <string name="download_warning_title_unmetered">无限网络</string>
     <string name="download_warning_message_unmetered">你当前不在无限网络上。是否继续下载？</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">请使用 HTTPS 或在应用的网络安全配置中允许此主机的明文通信。</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP（明文）已被 Android 网络安全策略阻止。</string>
+    <string name="http_cleartext_to">HTTP（明文）到</string>
+    <string name="is_blocked_by_android_s_network_security_policy">已被 Android 网络安全策略阻止</string>
 
-    <string name="no_internet_connection">无网络连接</string>
-    <string name="an_error_occurred">发生错误</string>
 
     <string name="Add_to_favorite">加入收藏</string>
     <string name="Auto_Download_episodes">自动下载剧集</string>
-    <string name="favorites">收藏夹</string>
     <string name="Download_paused_by_user">用户暂停下载</string>
     <string name="Download_finished">下载完成</string>
-
-    <string name="Pause">暂停</string>
-    <string name="Resume">继续</string>
-    <string name="Import_failed">导入失败</string>
-    <string name="About_to_start_download">即将开始下载…</string>
-    <string name="Please_enter_a_URL">请输入 URL。</string>
-    <string name="Permission_Required">需要权限</string>
-    <string name="Settings">选项</string>
-    <string name="App_Info">应用信息</string>
-    <string name="reset_app">重置应用</string>
-    <string name="Exit">退出</string>
-    <string name="add_book">添加书籍</string>
-    <string name="Not_enough_memory">内存不足</string>
-    <string name="Import_in_progress">正在导入</string>
-
     <string name="Import_Progress_copying_file_from_general_storage">"正在复制源文件 \n- 从设备常规存储"</string>
     <string name="Import_Progress_copying_file_from_cloud">"正在复制源文件 \n- 从云端"</string>
     <string name="Import_Progress_copying_file_to_internal_reserved">"\n- 到 Bookplayer 应用内部存储"</string>
     <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- 到 Bookplayer 预留的 SD 卡存储"</string>
-
     <string name="could_not_check_already_imported">无法检查是否已导入。</string>
     <string name="warning_url_already_loaded_under_the_name">相同的网页链接已被导入！（内容未检查，是否相同？）已保存为：</string>
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">已加载同名但不同的媒体</string>
-    <string name="Also">另外</string>
     <string name="the_name_will_be_changed_to">，名称将更改为： </string>
-
     <string name="listing_and_sorting_tracks">列出并排序音轨</string>
     <string name="scanning_tracks">扫描音轨</string>
     <string name="saving_folder">保存文件夹</string>
     <string name="saving_track">保存音轨</string>
-    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
     <string name="MB_taken_by_images">" MB 被图片占用"</string>
-
     <string name="DeleteImages_AskConfirm">"您将删除所有图片。
        确定吗？"</string>
     <string name="delete_cached_images">删除缓存图片</string>
-
     <string name="too_low">太低</string>
     <string name="too_high">太高</string>
     <string name="delay_for_auto_deletion">自动删除延迟</string>
@@ -534,18 +670,9 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="auto_download_last_n_episode">自动下载最近 xx 集</string>
     <string name="auto_download_max_n_podcast">自动下载最多 xx 个播客</string>
     <string name="auto_download_delay_between_checks_in_min">自动下载检查间隔（分钟）</string>
-    <string name="last">最近</string>
-    <string name="episodes">集</string>
-    <string name="Podcasts">播客</string>
-    <string name="podcasts">播客</string>
-    <string name="Auto_Download">自动下载</string>
-    <string name="Auto_Delete">自动删除</string>
     <string name="for_max">最多</string>
     <string name="check_every">检查间隔</string>
-    <string name="min.">分钟</string>
     <string name="auto_delete_episodes_once_listened_to">收听后自动删除剧集</string>
-    <string name="after">在…之后</string>
-    <string name="days">天</string>
     <string name="if_completion">如果完成度</string>
     <string name="no_episode_all_deleted">未找到剧集，是否全部删除？</string>
     <string name="podcast_api_unavailable_fallback">无法获取新剧集，仅显示以前的</string>
@@ -553,94 +680,58 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="added_on">添加于</string>
     <string name="MB_taken_by_databases">" MB 被数据库占用"</string>
     <string name="bMassImport">批量导入</string>
-
     <string name="bOpenMassImport_desc">批量导入：将根据你选择的文件夹中的项目数量创建相应数量的有声书。</string>
     <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的（如有））都会被导入到同一本书中。</string>
-
     <string name="type_here_">在此输入…</string>
+
 
     <string name="most_downloaded">"下载最多"</string>
     <string name="open_audiobooks">"浏览有声书"</string>
     <string name="open_other">"打开音频文件"</string>
 
-    <string name="ep">"集"</string>
     <string name="option_podcast_episodes_sort_order">最新一集在顶部</string>
-
     <string name="app_language">应用语言</string>
+
     <string name="tts_language">TTS 语言</string>
-    <string name="language">语言</string>
-    <string name="download">下载</string>
-    <string name="auto_download">自动下载</string>
-    <string name="refresh">刷新</string>
-    <string name="collapse">折叠</string>
-    <string name="expand">展开</string>
-    <string name="flag">旗帜</string>
     <string name="language_flag">语言旗帜</string>
     <string name="voice_flag">语音旗帜</string>
-    <string name="settings">设置</string>
     <string name="Podcast_Settings">播客设置</string>
     <string name="option_podcast_episodes_expand">显示描述</string>
     <string name="option_create_cover">创建封面</string>
     <string name="option_create_cover_text">如果在加载书籍时未找到封面图像，将会创建一张带有书名首字母的粉彩图像。</string>
     <string name="toggle_text_image">切换文字/图像</string>
     <string name="reset_progress_from_this_track">从此音轨重置进度</string>
+
     <string name="rename_track">重命名音轨</string>
-    <string name="sort">排序</string>
     <string name="could_not_read_resource">无法读取资源</string>
     <string name="mime_type_not_supported">所选文件不受支持</string>
+
     <string name="list_of_supported_extensions">支持的扩展名列表</string>
     <string name="audio_book_name">有声书名称</string>
-    <string name="audio_book_cover">有声书封面</string>
-    <string name="title">标题</string>
-    <string name="subtitle">副标题</string>
 
-    <string name="option_night_mode_title">主题模式  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ 系统</string>
-    <string name="option_night_mode_light">☀️ 浅色</string>
-    <string name="option_night_mode_dark">🌙 深色</string>
-    <string name="option_night_mode_dialog_title">选择主题模式</string>
-    <string name="text_to_speech">文字转语音</string>
+    <string name="audio_book_cover">有声书封面</string>
     <string name="still_in_development">仍在开发中</string>
     <string name="weird_behavior_could_happen">可能会出现异常行为</string>
     <string name="DeleteCoverImage_AskDelete">"您即将删除此封面图像。\n您确定吗？"</string>
-    <string name="action_generate">✨ 生成</string>
-    <string name="action_delete">🗑️ 删除</string>
     <string name="action_change">🖼️ 更改</string>
-
+    <string name="action_delete">🗑️ 删除</string>
+    <string name="action_generate">✨ 生成</string>
+    <string name="action_web_search">🔎 网络搜索</string>
+    <string name="action_reset_to_original">↩️ 恢复原样</string>
     <string name="Specific_view">播客专用视图</string>
-    <string name="option_podcast_autodownloaded_at_the_top">当下载新剧集时，将播客移动到有声书列表的顶部。</string>
-    <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>
     <string name="Error_Import_No_Usable_item_Found">"未找到可用项目"</string>
+
 
     <string name="Error_Import_could_not_delete_source">"无法删除所选来源"</string>
 
-    <string name="option_text_appearance_title">文字外观</string>
-    <string name="Font">字体</string>
-    <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
-    <string name="option_podcast_open_specific_view">打开特定视图</string>
-
-    <string name="option_playing_behaviour_title">播放行为</string>
-    <string name="option_start_next_track_at_zero_title_text">始终从头开始播放下一曲，即使之前已部分收听。</string>
-    <string name="stop">停止</string>
-    <string name="option_stop_audio_if_user_closes_app_text">关闭应用时停止音频。</string>
-    <string name="Audio">音频</string>
-    <string name="Video">视频</string>
-    <string name="Text">文本</string>
-    <string name="Bundle">压缩文件</string>
 
     <string name="could_not_identify_track_to_modify">无法识别要修改的音轨</string>
     <string name="could_not_identify_folder_to_modify">无法识别要修改的文件夹</string>
-
-    <string name="Automotive">车载</string>
-    <string name="option_automotive_on">连接到 Android Auto。</string>
-    <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
     <string name="automotive_no_item_in_bookplayer">没有项目。在手机上打开 BookPlayer 并导入一本书。</string>
     <string name="automotive_empty_book">空书</string>
     <string name="automotive_resume_play">继续播放</string>
     <string name="nb_of_audios_found">找到的音频数量</string>
-    <string name="reviews">评论</string>
     <string name="average_rating">平均评分</string>
-
     <string name="help_tts_title">文字转语音 :</string>
     <string name="help_tts_text"><![CDATA[
 <font color="#BA68C8"><b>使用合成语音收听文本</b></font>
@@ -653,36 +744,28 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 ]]></string>
     <string name="failed_to_create_destination_folder">创建目标文件夹失败</string>
     <string name="server_returned_http">服务器返回 HTTP</string>
+    <string name="http_code_400">错误的请求</string>
+    <string name="http_code_404">未找到</string>
+    <string name="http_code_408">请求超时</string>
+    <string name="http_code_429">请求过多</string>
+    <string name="http_code_500">内部服务器错误</string>
+    <string name="http_code_502">网关错误</string>
+    <string name="http_code_503">服务不可用</string>
+    <string name="http_code_504">网关超时</string>
     <string name="connection_aborted">连接中止</string>
     <string name="io_error">输入/输出错误</string>
-    <string name="unexpected_error">意外错误</string>
     <string name="starting_download">开始下载…</string>
     <string name="No_chapters_found">未找到章节</string>
     <string name="Unsupported_ebook_type">不支持的电子书类型</string>
     <string name="download_stopped_by_system_will_retry">下载被系统停止 — 将重试</string>
     <string name="download_resuming">正在恢复下载</string>
-    <string name="Cancelled">已取消</string>
     <string name="importing_book">正在导入书籍</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">正在检查大小</string>
-    <string name="error">错误</string>
-    <string name="download_bis_unmetered">🆓 仅限无限制</string>
-    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">请使用 HTTPS 或在应用的网络安全配置中允许此主机的明文通信。</string>
-    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP（明文）已被 Android 网络安全策略阻止。</string>
-    <string name="http_cleartext_to">HTTP（明文）到</string>
-    <string name="is_blocked_by_android_s_network_security_policy">已被 Android 网络安全策略阻止</string>
-    <string name="save">保存</string>
     <string name="rounded_corners">圆角</string>
     <string name="cover_preview">封面预览</string>
-    <string name="paste">粘贴</string>
-    <string name="clear">清除</string>
-    <string name="emoji_paste" translatable="false">📋</string>
-    <string name="emoji_clear" translatable="false">🗑️</string>
-    <string name="librivox" translatable="false">Librivox</string>
     <string name="return_max">最大返回</string>
     <string name="maximum_number_of_results_for_">最大结果数量： </string>
     <string name="minimum_number_of_results_for_">最小结果数量： </string>
-    <string name="favorite">收藏</string>
     <string name="librivox_settings">Librivox 设置</string>
     <string name="error_no_space_left">设备存储空间不足</string>
     <string name="solution_free_space">请释放一些存储空间后重试。</string>
@@ -691,100 +774,49 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Error_Import_no_valid_media_found">错误：未找到有效的媒体文件</string>
     <string name="Error_Import_extract_audio_data_failed">错误：无法提取音频数据</string>
     <string name="Error_Import_unsupported_file">错误：不支持的文件</string>
-
-    <string name="Warning">警告</string>
-    <string name="beta_test">测试版</string>
-
-    <string name="action_web_search">🔎 网络搜索</string>
-    <string name="confirm">确认</string>
     <string name="use_this_image_as_cover">使用此图片作为封面</string>
     <string name="search_title_hint">在此输入...</string>
     <string name="failed_to_change_image">更改图片失败</string>
     <string name="no_image_found">未找到图片</string>
     <string name="parsing_metadata">正在解析元数据</string>
-
-    <string name="download_not_roaming">🏠 非漫游</string>
     <string name="download_warning_title_roaming">漫游连接</string>
     <string name="download_warning_message_roaming">您正在使用漫游连接（国外）。是否继续下载？</string>
-    <string name="option_network_preference_subtext">"未计费连接表示您未使用移动数据（例如 Wi-Fi、以太网或某些 VPN）。\n漫游表示您在国外 - 即使是在国外酒店的 Wi-Fi 也算作漫游。"</string>
-
     <string name="please_wait_another_book_is_being_imported">请稍候，另一本书仍在导入中。</string>
     <string name="download_stop_requested">已请求停止下载</string>
-
-    <string name="import_task_start">正在启动...</string>
-    <string name="done.">完成。</string>
-    <string name="Copy">复制</string>
-<string name="import_task_ebook_split">电子书解析</string>
+    <string name="import_task_ebook_split">电子书解析</string>
     <string name="import_task_m4b_split">M4b 提取</string>
-    <string name="Uncompress">解压缩</string>
-    <string name="Integration">整合</string>
     <string name="Import_Success_with_warnings">导入完成（有警告）</string>
-
-    <string name="metadata">元数据</string>
-    <string name="no_metadata_available">无可用元数据</string>
-    <string name="Artist">艺术家</string>
-    <string name="Album">专辑</string>
-    <string name="Genre">类型</string>
-    <string name="Year">年份</string>
-    <string name="Track">曲目</string>
-    <string name="Disc">光盘</string>
-    <string name="Bitrate">比特率</string>
-    <string name="sample_rate">采样率</string>
-    <string name="Channels">声道</string>
-
     <string name="frequency_visualizer">频率可视化</string>
     <string name="counting_files">正在统计文件</string>
-
-    <string name="option_automotive_let_car_autoplay">允许 Android Auto 自动开始播放（通常在连接到汽车时）。</string>
-    <string name="option_open_play_activity">播放开始时打开播放视图。</string>
-    <string name="tts_settings">TTS 设置</string>
-    <string name="option_tts_language_text">新电子书的默认 TTS 语言。</string>
-    <string name="option_tts_highlight_delay_title">单词高亮。</string>
-    <string name="option_tts_highlight_delay_text">引擎延迟：</string>
-    <string name="ms.">毫秒。</string> //means milliseconds
-
-    <string name="Text_To_Speech">文字转语音</string>
     <string name="tts_phase_loading_text">正在加载文本…</string>
     <string name="tts_phase_warming_up">正在准备语音…</string>
     <string name="tts_phase_starting">正在开始语音…</string>
-    <string name="Ready">准备就绪</string>
-    <string name="Speaking">正在朗读</string>
     <string name="tts_phase_error">语音引擎错误</string>
     <string name="error_generic">发生意外错误</string>
     <string name="tts_error_warmup_timeout">语音预热超时</string>
     <string name="tts_error_voice_set_failed">应用语音失败</string>
     <string name="tts_error_synth_failed">预热合成失败</string>
-
     <string name="source_flag">来源标志</string>
     <string name="voice_name">语音名称</string>
     <string name="Clipboard_is_empty">剪贴板为空</string>
-
-    <string name="chars">字符</string> <!-- means : word character -->
-    <string name="reorder">重新排序</string>
-    <string name="new_label">新的</string>
-    <string name="icon">图标</string>
-    <string name="Engine">引擎</string>
-    <string name="Design">设计</string>
-    <string name="Import">导入</string>
-    <string name="Utilities">实用程序</string>
     <string name="option_tts_highlight_delay_outOfBounds">高亮延迟</string>
+
+
     <string name="option_tts_chunk_size_text">块大小：</string>
     <string name="tts_chunk_size">块大小</string>
     <string name="changeTracksOrder">更改曲目顺序</string>
     <string name="Failed_to_create_the_destionation_file">无法创建目标文件。</string>
     <string name="Cannot_write_to_the_chosen_folder">无法写入所选文件夹。</string>
     <string name="Export_done_Excl">"导出完成！"</string>
-
     <string name="option_play_view">播放视图</string>
     <string name="option_click_container_playpause_text">点击图片可暂停或继续播放音频</string>
     <string name="Radio_Settings">电台设置</string>
     <string name="live_radio">直播电台</string>
-    <string name="radio">广播</string>
+    <string name="live_podcast">直播播客</string>
     <string name="no_result">没有结果</string>
     <string name="radio_cover_desc">电台封面描述</string>
     <string name="RadioSearch_title">网络电台</string>
     <string name="selected_language_error">所选语言错误</string>
-
     <string name="media_button_action">媒体按钮操作</string>
     <string name="by_tag">按标签</string>
     <string name="by_country">按国家</string>
@@ -794,11 +826,9 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="remove_from_favorites">从收藏中移除</string>
     <string name="search_by_station_name">按电台名称搜索</string>
     <string name="play_pause">播放 暂停</string>
-
     <string name="option_reset_settings_values">重置设置值</string>
     <string name="reset_to_default">重置为默认值</string>
     <string name="reset_for_power_user">为高级用户重置</string>
-
     <string name="option_reset_for_power_user_explain_text">
 高级用户重置将恢复出厂设置，但保留某些特定选项：
 \n导入：
@@ -808,42 +838,29 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 \n* [不打开专用播放界面]
 \n* [退出应用时保持音频播放]
 </string>
-
     <string name="cancel_ongoing_operation">取消正在进行的操作</string>
-
     <string name="option_reset_app_explain_text">
 有时应用可能会卡住，例如在导入图书时崩溃后。
 此时请点击此按钮以取消并重置正在进行的导入。
 </string>
-
     <string name="option_tts_chunk_size_explain_text">
 块大小决定一次发送到TTS引擎的文本量。增大它可以让语音更自然流畅。
 </string>
-
     <string name="option_tts_highlight_delay_explain_text">
 您可以调整高亮延迟，以更好地同步语音与文字。
 </string>
-
     <string name="option_automotive_on_explain_text">
 允许Android Auto连接BookPlayer、显示目录并控制播放。
 </string>
-
     <string name="option_automotive_auto_resume_on_car_connect_explain_text">
 如果应用中音频已在播放，允许Android Auto连接汽车时自动恢复播放。
 </string>
-
     <string name="option_automotive_let_car_autoplay_explain_text">
 允许Android Auto在连接汽车时自动开始播放，即使之前没有播放任何内容。
 </string>
-
     <string name="Mass_Import">批量导入</string>
+    <string name="massiveimport_title">多本书导入</string>
     <string name="scanning_folder">正在扫描文件夹</string>
-    <string name="candidates">候选项</string>
-    <string name="found">已找到</string>
-    <string name="from">来自</string>
-    <string name="in">在</string>
-    <string name="items">项目</string>
-    <string name="folder">文件夹</string>
     <string name="Nothing_to_re_import_among">没有可重新导入的内容</string>
     <string name="please_wait_another_book">请稍候 — 另一本书仍在下载或加载中。\n如果不是这种情况，请使用 [设置 &gt; 工具 &gt; 取消正在进行的操作] 中的重置应用按钮。</string>
     <string name="Podcast_source_error">播客源错误</string>
@@ -853,22 +870,14 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="import_settings">导入设置</string>
     <string name="option_split_m4b_subtitle">如果未选中，M4B 文件将作为单个音轨导入。</string>
     <string name="option_split_m4b_subtitle_note">注意：章节拆分功能目前仅支持非常标准的 M4B 文件。</string>
-
     <string name="Import_Progress_chapter_title">"曲目标题"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"导出的文件名至少需要 3 个字符"</string>
     <string name="option_radio_renew_url">播放前检查最佳镜像</string>
     <string name="option_radio_renew_url_subtitle">检查镜像（电台服务器）可确保使用最佳来源，但可能需要一些时间（当前超时为 10 秒）。</string>
     <string name="checking_for_best_mirror">正在检查最佳镜像</string>
     <string name="error_radio_renew_url">获取电台镜像链接时出错</string>
-    <string name="loading">加载中</string>
-    <string name="library">资料库</string> <!-- stay below 10/12 chars -->
-    <string name="Download">下载</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">将发布日期添加到剧集名称中</string>
 
-    <string name="legacy">旧式</string> <!-- <8 -->
-    <string name="wave">波形</string> <!-- <8 -->
-    <string name="bars">柱形</string> <!-- <8 -->
-    <string name="radial">径向</string> <!-- <8 -->
     <string name="option_play_view_explain">播放视图是详细界面——中间有大封面，底部有大按钮，还有速度和睡眠定时等控制。</string>
     <string name="ChangeTrackOrder_Title">下一屏说明</string>
     <string name="ChangeTrackOrder_Text">拖放这些方框。
@@ -887,11 +896,9 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="direct_link">直链</string>
     <string name="load_one_book">加载 1 本</string>
     <string name="load_multiple_book">加载多本</string>
-
     <string name="reset_track_order">重置曲目顺序</string>
     <string name="Tracks_order_has_been_reset">曲目顺序已重置</string>
     <string name="add_new_tracks">添加新曲目</string>
-
     <string name="m4b_error_non_standard_chapter_format">"""
                         该 M4B 文件使用了非标准章节格式。
                         BookPlayer 只能分割包含嵌入式文本章节的 M4B 文件。
@@ -908,28 +915,118 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
                         - 或在电脑上拆分后分别导入章节。
 
                         目前，BookPlayer 会将原始 M4B 作为单个音频文件导入。"""</string>
-
-    <string name="destination">目标位置</string>
-    <string name="count">计数</string>
-
     <string name="APPEND_MODE">追加到现有书籍</string>
     <string name="internet_status">网络状态</string>
     <string name="net_status_initial">正在检查网络…</string>
     <string name="net_status_unmetered">不限量连接</string>
-    <string name="Roaming">漫游</string>
     <string name="AskReset_popupText_order">您即将重置曲目顺序。\n确定吗？</string>
     <string name="zikFiles_not_readable">部分音轨有错误，无法播放：</string>
     <string name="All_zikFiles_not_readable">本书已损坏。无法播放任何音轨。</string>
     <string name="option_progress_heatmap_subtitle">音轨的进度条会准确显示已收听的部分，某段播放次数越多，颜色就越深。</string>
     <string name="option_progress_heatmap">显示热力图</string>
     <string name="option_lock_orientation_play_activity">锁定屏幕方向</string>
-
-    <string name="History">历史</string>
     <string name="in_history">在历史记录中</string>
     <string name="radio_could_not_resolve_url">该电台链接似乎已失效。</string>
     <string name="clicks_2pt">点击：%1$d</string>
-    <string name="tags">标签</string>
-    <string name="homepage">主页</string>
+
+    <string name="count_status">%1$s (%2$s)</string>
+
+
+    <string name="import_warning_lot_of_file_and_subfolders">此文件夹及其子文件夹中似乎有很多音频文件。你确定要将它们全部导入到一本书中吗？</string>
+    <string name="browse_ebooks">浏览电子书</string>
+    <string name="GutendexSearch_desc">"浏览古登堡计划的公共领域电子书。数千本免费的经典作品提供 EPUB 格式。"</string>
+    <string name="full_screen_mode">全屏模式</string>
+    <string name="tts_voice_seems_incompatible">语音似乎不兼容</string>
+    <string name="Engine_buffer">引擎缓冲区</string>
+    <string name="option_radio_sleep_copy">复制通用设置值</string>
+    <string name="option_radio_use_cloudfare">使用缓存 ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare_subtitle">使用缓存应提高速度</string>
+    <string name="by_genre">按类别</string>
+    <string name="by_author">按作者</string>
+    <string name="librivox_no_audiobook_found_in_genre">在此类别未找到有声书</string>
+    <string name="last_added">最新添加</string>
+
+    <string name="by_genre_all_languages">按类别（所有语言）</string>
+    <string name="unsupported_language">不支持的语言</string>
+    <string name="spam_fake_stations_removed">已移除（疑似垃圾）</string>
+    <string name="option_radio_remove_duplicates">移除重复项</string>
+    <string name="option_radio_remove_duplicates_subtitle">如果某个电台名称出现超过 3 次，后续结果将不再显示，以避免列表被重复项淹没。</string>
+    <string name="option_radio_sleep_copy_subtitle">在这里可为电台的自动休眠设置自定义值。我们不会保存电台的收听进度，所以睡着了也没关系！</string>
+    <string name="no_results_found">无结果</string>
+    <string name="getting_first_results_from">首次结果来自</string>
+    <string name="getting_more_from">更多来自</string>
+    <string name="stream_url">流 URL</string>
+    <string name="votes_2pt">投票: %1$d</string>
+    <string name="top_click">最高点</string>
+
+    <string name="top_vote">最高票</string>
+
+    <string name="last_click">最近点</string>
+
+    <string name="last_change">最近改</string>
+
+
+    <string name="vote_too_many">您为同一电台投票太频繁 — 请稍后再试。</string>
+    <string name="Offline_for">离线时间</string>
+    <string name="Track_View">曲目视图</string>
+    <string name="All_modes_except_Legacy_are_in_beta">除经典模式外，所有模式均处于测试阶段。</string>
+    <string name="reset_progress_only_for_this_track">仅重置此曲目进度</string>
+    <string name="pick_a_new_location">选择新位置</string>
+    <string name="newlocation_better">所选文件夹修复了所有损坏路径</string>
+    <string name="newlocation_better_and_worse">所选文件夹修复了部分损坏路径</string>
+    <string name="newlocation_not_better">所选文件夹未修复任何路径</string>
+    <string name="AskChangeSource_popupTitle">确认位置更改</string>
+    <string name="already_downloaded">已下载</string>
+    <string name="open_audiobook">打开有声书</string>
+    <string name="sort_by">排序</string>
+    <string name="sort_last_played">最近播放</string>
+    <string name="sort_last_added">最近添加</string>
+    <string name="share_title">分享方式</string>
+    <string name="share_radio_body">在 BookPlayer 上收听这个直播网络电台</string>
+    <string name="share_radio_head">分享 BookPlayer 电台</string>
+
+
+    <string name="massimport_all_aready_imported">没有可导入的项目（都已存在）</string>
+    <string name="import_started_for">开始导入</string>
+    <string name="skippring_already_imported_item">跳过已导入的项目</string>
+    <string name="imported_as">导入为</string>
+    <string name="no_items_found">未找到项目</string>
+    <string name="mass_import_found_items_mixed">找到 %1$d 个项目 (%2$s) - %3$d 个已导入</string>
+    <string name="mass_import_found_items">找到 %1$d 个项目 (%2$s)</string>
+    <string name="mass_import_all_imported">所有 %1$d 个项目已导入。</string>
+    <string name="no_ebook_found">未找到电子书</string>
+    <string name="please_select_email_app">请选择邮件应用</string>
+    <string name="app_reset_done">应用重置完成</string>
+    <string name="vote_rejected">投票被拒绝： </string>
+    <string name="vote_sent_success">投票已发送，谢谢。</string>
+    <string name="vote_send_error">向服务器发送投票时出错。</string>
+    <string name="error_no_folder_selected">错误：未选择文件夹。</string>
+    <string name="error_network_not_available">哎呀。网络不可用。</string>
+    <string name="error_server_not_reachable">哎呀。bookplayer.driot.com 无法连接。</string>
+    <string name="no_favorite_podcasts_found">未找到收藏的播客</string>
+    <string name="permission_read_storage_not_granted">未授予存储读取权限</string>
+    <string name="error_file_not_found_attach">文件未找到，无法附加。</string>
+    <string name="max_value_label">最大值 = </string>
+    <string name="already_imported_under_name">已以此名称导入： </string>
+    <string name="no_episode_downloaded">未下载剧集</string>
+    <string name="no_backup_found">❌ 在以下位置未找到备份： </string>
+    <string name="error_reading_backup">读取备份时出错： </string>
+    <string name="error_label_multiline">错误：\n</string>
+    <string name="no_ebooks_found_search">未找到电子书 \n搜索 [%1$s] \n语言 [%2$s]</string>
+    <string name="no_ebooks_found_bookshelf">未找到电子书 \n书架 [%1$s] \n语言 [%2$s]</string>
+    <string name="gutenberg_contacting">正在连接 gutenberg.org…</string>
+    <string name="gutenberg_wait_elapsed">已过 %1$d 秒 - %2$s -（超时 %3$d 秒）</string>
+    <string name="gutenberg_try_1st">第1次尝试</string>
+    <string name="gutenberg_try_2nd">第2次尝试</string>
+    <string name="api_paging_size">API 分页大小</string>
+    <string name="radio_thanks">感谢 radio-browser.info 提供免费世界电台目录</string>
+    <string name="mass_import_scanning_title">批量导入扫描…</string>
+    <string name="mass_import_scan_complete">批量导入扫描完成。</string>
+    <string name="mass_import_found_candidates_click">找到 %1$d 个候选，点击打开。</string>
+    <string name="select_at_least_one_item">请至少选择一项以导入。</string>
+    <string name="mass_import_selected_summary">已选 %1$d 个候选用于导入（%2$s）</string>
+    <string name="option_mass_import_display_storage_bar">显示存储栏</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d 个音频文件</item>
@@ -939,187 +1036,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
         <item quantity="one">%d 个子文件夹</item>
         <item quantity="other">%d 个子文件夹</item>
     </plurals>
-    <string name="count_status">%1$s (%2$s)</string>
-
-    <string name="import_warning_lot_of_file_and_subfolders">此文件夹及其子文件夹中似乎有很多音频文件。你确定要将它们全部导入到一本书中吗？</string>
-    <string name="done">完成</string>
-
-    <string name="downloads">下载</string>
-    <string name="get">获取</string>
-    <string name="browse_ebooks">浏览电子书</string>
-    <string name="GutendexSearch_desc">"浏览古登堡计划的公共领域电子书。数千本免费的经典作品提供 EPUB 格式。"</string>
-    <string name="Ebooks">电子书</string>
-    <string name="full_screen_mode">全屏模式</string>
-
-    <string name="tts_voice_seems_incompatible">语音似乎不兼容</string>
-    <string name="Technical">技术</string>
-    <string name="Engine_buffer">引擎缓冲区</string>
-    <string name="option_radio_sleep_copy">复制通用设置值</string>
-    <string name="option_radio_use_cloudfare">使用缓存 ( cloudfare )</string>
-    <string name="option_radio_use_cloudfare_subtitle">使用缓存应提高速度</string>
-    <string name="by_genre">按类别</string>
-    <string name="by_author">按作者</string>
-    <string name="librivox_no_audiobook_found_in_genre">在此类别未找到有声书</string>
-    <string name="last_added">最新添加</string>
-    <string name="by_genre_all_languages">按类别（所有语言）</string>
-    <string name="unsupported_language">不支持的语言</string>
-    <string name="Internet_Archive" translatable="false">Internet Archive</string>
-    <string name="links">链接</string>
-    <string name="Duration">时长</string>
-    <string name="Language">语言</string>
-
-    <string name="spam_fake_stations_removed">已移除（疑似垃圾）</string>
-    <string name="Spam">垃圾</string>
-    <string name="option_radio_remove_duplicates">移除重复项</string>
-    <string name="option_radio_remove_duplicates_subtitle">如果某个电台名称出现超过 3 次，后续结果将不再显示，以避免列表被重复项淹没。</string>
-    <string name="option_radio_sleep_copy_subtitle">在这里可为电台的自动休眠设置自定义值。我们不会保存电台的收听进度，所以睡着了也没关系！</string>
-    <string name="Radio">广播</string>
-    <string name="no_results_found">无结果</string>
-    <string name="getting_first_results_from">首次结果来自</string>
-    <string name="getting_more_from">更多来自</string>
-
-    <string name="stream_url">流 URL</string>
-    <string name="votes_2pt">投票: %1$d</string>
-
-    <string name="top_click">最高点</string> <!-- short -->
-    <string name="top_vote">最高票</string> <!-- short -->
-    <string name="last_click">最近点</string> <!-- short -->
-    <string name="last_change">最近改</string> <!-- short -->
-
-
-    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
-    <string name="All_modes_except_Legacy_are_in_beta">除经典模式外，所有模式均处于测试阶段。</string>
-    <string name="AskChangeSource_popupTitle">确认位置更改</string>
-    <string name="Offline_for">离线时间</string>
-    <string name="Track_View">曲目视图</string>
-    <string name="already_downloaded">已下载</string>
-    <string name="help_radio_text"><![CDATA[按<font color="#81C784">国家</font>、<font color="#FFCC80">热度</font>浏览，或按名称<font color="#64B5F6">搜索</font>电台。
-    <br><br>
-    点击电台<font color="#81C784"><b>立即播放</b></font>。
-    <br><br>
-    使用<font color="#EF9A9A">爱心</font>添加到<font color="#BA68C8">收藏夹</font>。]]></string>
-    <string name="help_radio_title">流媒体世界广播</string>
-    <string name="live_podcast">直播播客</string>
-    <string name="newlocation_better">所选文件夹修复了所有损坏路径</string>
-    <string name="newlocation_better_and_worse">所选文件夹修复了部分损坏路径</string>
-    <string name="newlocation_not_better">所选文件夹未修复任何路径</string>
-    <string name="open_audiobook">打开有声书</string>
-    <string name="pick_a_new_location">选择新位置</string>
-    <string name="proceed">继续</string>
-    <string name="reset_progress_only_for_this_track">仅重置此曲目进度</string>
-    <string name="sec">秒</string>
-    <string name="Alphabetically">按字母</string>
-    <string name="sort_by">排序</string>
-    <string name="sort_last_added">最近添加</string>
-    <string name="sort_last_played">最近播放</string>
-    <string name="to">至</string>
-    <string name="vote_too_many">您为同一电台投票太频繁 — 请稍后再试。</string>
-    <string name="export_start_button">开始导出</string>
-    <string name="export_title_label">导出书本为 ZIP：</string>
-    <string name="export_zipping_label">压缩中： </string>
-
-    <string name="http_code_400">错误的请求</string>
-    <string name="Unauthorized">未授权</string>
-    <string name="Forbidden">禁止访问</string>
-    <string name="http_code_404">未找到</string>
-    <string name="http_code_408">请求超时</string>
-    <string name="http_code_429">请求过多</string>
-    <string name="http_code_500">内部服务器错误</string>
-    <string name="http_code_502">网关错误</string>
-    <string name="http_code_503">服务不可用</string>
-    <string name="http_code_504">网关超时</string>
-
-    <string name="id_label">ID： </string>
-    <string name="import_started_for">开始导入</string>
-    <string name="imported_as">导入为</string>
-
-    <string name="mass_import_all_imported">所有 %1$d 个项目已导入。</string>
-    <string name="mass_import_found_items">找到 %1$d 个项目 (%2$s)</string>
-    <string name="mass_import_found_items_mixed">找到 %1$d 个项目 (%2$s) - %3$d 个已导入</string>
-    <string name="massimport_all_aready_imported">没有可导入的项目（都已存在）</string>
-
-    <string name="max_value_label">最大值 = </string>
-    <string name="no_backup_found">❌ 在以下位置未找到备份： </string>
-    <string name="no_ebook_found">未找到电子书</string>
-    <string name="no_ebooks_found_search">未找到电子书 \n搜索 [%1$s] \n语言 [%2$s]</string>
-    <string name="no_episode_downloaded">未下载剧集</string>
-    <string name="no_favorite_podcasts_found">未找到收藏的播客</string>
-    <string name="no_items_found">未找到项目</string>
-    <string name="nothing">无</string>
-
-    <string name="option_epub_split_mode_auto">自动 (目录优先，否则Spine)</string>
-    <string name="option_epub_split_mode_explain_text">基于目录创建更多章节但保留结构。基于Spine更简单，章节更少。</string>
-    <string name="option_epub_split_mode_spine">Spine (每本书籍条目一章)</string>
-    <string name="option_epub_split_mode_text">如何将EPUB分割为章节：</string>
-    <string name="option_epub_split_mode_title">EPUB章节分割</string>
-    <string name="option_epub_split_mode_toc">基于目录 (每个目录条目一章)</string>
-
-    <string name="permission_read_storage_not_granted">未授予存储读取权限</string>
-    <string name="please_select_email_app">请选择邮件应用</string>
-
-    <string name="share_radio_body">在 BookPlayer 上收听这个直播网络电台</string>
-    <string name="share_radio_head">分享 BookPlayer 电台</string>
-    <string name="share_title">分享方式</string>
-
-    <string name="skippring_already_imported_item">跳过已导入的项目</string>
-    <string name="vote_rejected">投票被拒绝： </string>
-    <string name="vote_send_error">向服务器发送投票时出错。</string>
-    <string name="vote_sent_success">投票已发送，谢谢。</string>
-
-    <string name="already_imported_under_name">已以此名称导入： </string>
-    <string name="api_paging_size">API 分页大小</string>
-    <string name="app_reset_done">应用重置完成</string>
-    <string name="Deleting">正在删除</string>
-    <string name="error_file_not_found_attach">文件未找到，无法附加。</string>
-    <string name="error_label_multiline">错误：\n</string>
-    <string name="error_network_not_available">哎呀。网络不可用。</string>
-    <string name="error_no_folder_selected">错误：未选择文件夹。</string>
-    <string name="error_reading_backup">读取备份时出错： </string>
-    <string name="error_server_not_reachable">哎呀。bookplayer.driot.com 无法连接。</string>
-    <string name="export_audiobook_name_placeholder">有声书名称</string>
-    <string name="export_base_destination_folder_label">基本目标文件夹：</string>
-    <string name="export_click_to_change_label">点击更改</string>
-    <string name="export_destination_filename_label">目标文件名：</string>
-    <string name="export_download_folder_button">下载文件夹</string>
-    <string name="export_edit_name_hint">您可以编辑此名称</string>
-    <string name="export_inside_subfolder_label">并在 \'BookPlayer\' 子文件夹内</string>
-    <string name="export_progress_info_placeholder">进度信息…</string>
-
-    <string name="MB_taken_by_linked_audios">" MB：链接音频"</string>
-    <string name="action_reset_to_original">↩️ 恢复原样</string>
-    <string name="Bookshelves">"书架"</string>
-    <string name="calculating_storage">计算中…</string>
-    <string name="device_storage_memory">设备存储</string>
-    <string name="gutenberg_contacting">正在连接 gutenberg.org…</string>
-    <string name="gutenberg_try_1st">第1次尝试</string>
-    <string name="gutenberg_try_2nd">第2次尝试</string>
-    <string name="gutenberg_wait_elapsed">已过 %1$d 秒 - %2$s -（超时 %3$d 秒）</string>
-    <string name="librivox_books_loaded">已加载 %1$s 本书</string>
-    <string name="librivox_books_loaded_of">%1$s / %2$s 本书</string>
-    <string name="loading_voice_3pt">正在加载语音…</string>
-    <string name="mass_import_found_candidates_click">找到 %1$d 个候选，点击打开。</string>
-    <string name="mass_import_scan_complete">批量导入扫描完成。</string>
-    <string name="mass_import_scanning_title">批量导入扫描…</string>
-    <string name="mass_import_selected_summary">已选 %1$d 个候选用于导入（%2$s）</string>
-    <string name="massiveimport_title">多本书导入</string>
-    <string name="no_ebooks_found_bookshelf">未找到电子书 \n书架 [%1$s] \n语言 [%2$s]</string>
-    <string name="option_mass_import_display_storage_bar">显示存储栏</string>
-    <string name="option_podcast_open_specific_view_subtitle2">可通过双击封面在此视图间切换。</string>
-    <string name="power_management_exempt">应用已免除电池优化（推荐）</string>
-    <string name="power_management_subject">应用受电池优化影响（可能在后台被关闭）</string>
-    <string name="radio_thanks">感谢 radio-browser.info 提供免费世界电台目录</string>
-    <string name="sd_card_storage">SD 卡存储</string>
-    <string name="select_at_least_one_item">请至少选择一项以导入。</string>
-    <string name="storage_device">设备存储</string>
-    <string name="Storage">存储</string>
-    <string name="copied">已复制</string>
-    <string name="linked">已链接</string>
-    <string name="storage_legend_new_books">新书</string>
-    <string name="others">其他</string>
-    <string name="storage_sd_card">SD 卡存储</string>
     <plurals name="tracks_count">
         <item quantity="one">%d 首</item>
         <item quantity="other">%d 首</item>
     </plurals>
-
 </resources>
