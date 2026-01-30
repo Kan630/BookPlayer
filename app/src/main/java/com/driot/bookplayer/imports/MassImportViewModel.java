@@ -32,10 +32,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class MassImportViewModel extends LoggingAndroidViewModel {
 
     private final MassImportRepository repository;
-    private final MutableLiveData<StorageInfo> storageInfo = new MutableLiveData<>();
+    private final MutableLiveData<StorageInfo> internalStorageInfo = new MutableLiveData<>();
+    private final MutableLiveData<StorageInfo> sdCardStorageInfo = new MutableLiveData<>();
     // Use a separate executor for storage calculations to avoid blocking scanning
     private final ExecutorService storageExecutorService = Executors.newSingleThreadExecutor();
-    
+
     // Cache to avoid recalculating SD card folder size repeatedly
     private long cachedSDCardFolderSize = -1;
     private long lastSDCardFolderSizeCalculation = 0;
@@ -73,8 +74,12 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         repository.consumeScanState();
     }
 
-    public LiveData<StorageInfo> getStorageInfo() {
-        return storageInfo;
+    public LiveData<StorageInfo> getInternalStorageInfo() {
+        return internalStorageInfo;
+    }
+
+    public LiveData<StorageInfo> getSdCardStorageInfo() {
+        return sdCardStorageInfo;
     }
 
     public void updateStorageInfo(long expectedAddedMemoryBytes) {
@@ -91,107 +96,83 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
     private void calculateStorageInfo(long expectedAddedMemoryBytes) {
         Application app = getApplication();
         boolean useSdCard = Option.getUseSdCard();
-        long totalStorage;
-        long usedByOthers;
-        long usedByBookPlayer;
+        boolean sdCardAvailable = StorageHelper.isExternalSDCardAvailable(app);
 
-        if (useSdCard && StorageHelper.isExternalSDCardAvailable(app)) {
-            // SD Card storage - use cached values if available
-            long cachedTimestamp = StorageInfoCacheHelper.getCachedSDCardTimestamp();
-            if (cachedTimestamp > 0) {
+        // Always compute internal storage
+        long totalInternal = 0, usedByOthersInternal = 0, usedByBookPlayerInternal = 0;
+        long cachedTimestampInternal = StorageInfoCacheHelper.getCachedInternalTimestamp();
+        if (cachedTimestampInternal > 0) {
+            myLogI("MassImportViewModel: Using cached internal storage info");
+            totalInternal = StorageInfoCacheHelper.getCachedInternalTotal();
+            usedByOthersInternal = StorageInfoCacheHelper.getCachedInternalUsedByOthers();
+            usedByBookPlayerInternal = StorageInfoCacheHelper.getCachedInternalUsedByBookPlayer();
+        } else {
+            myLogI("MassImportViewModel: No cached internal storage, calculating now");
+            totalInternal = getTotaLInternalMemorySize();
+            long availableInternal = getAvailableInternalMemorySize();
+            if (totalInternal > 0 && availableInternal >= 0) {
+                usedByBookPlayerInternal = getAppSize(app);
+                long usedTotal = totalInternal - availableInternal;
+                usedByOthersInternal = usedTotal - usedByBookPlayerInternal;
+                if (usedByOthersInternal < 0) usedByOthersInternal = 0;
+                if (usedByBookPlayerInternal < 0) usedByBookPlayerInternal = 0;
+            }
+        }
+        if (totalInternal > 0) {
+            long linkedInternal = StorageInfoCacheHelper.getCachedInternalLinkedAudios();
+            long expectedInternal = useSdCard ? 0 : expectedAddedMemoryBytes;
+            internalStorageInfo.postValue(new StorageInfo(
+                totalInternal, usedByOthersInternal, usedByBookPlayerInternal,
+                expectedInternal, linkedInternal, null));
+        }
+
+        // If SD card exists, also compute SD card storage
+        if (sdCardAvailable) {
+            long totalSd = 0, usedByOthersSd = 0, usedByBookPlayerSd = 0;
+            long cachedTimestampSd = StorageInfoCacheHelper.getCachedSDCardTimestamp();
+            if (cachedTimestampSd > 0) {
                 myLogI("MassImportViewModel: Using cached SD card storage info");
-                totalStorage = StorageInfoCacheHelper.getCachedSDCardTotal();
-                usedByOthers = StorageInfoCacheHelper.getCachedSDCardUsedByOthers();
-                usedByBookPlayer = StorageInfoCacheHelper.getCachedSDCardUsedByBookPlayer();
+                totalSd = StorageInfoCacheHelper.getCachedSDCardTotal();
+                usedByOthersSd = StorageInfoCacheHelper.getCachedSDCardUsedByOthers();
+                usedByBookPlayerSd = StorageInfoCacheHelper.getCachedSDCardUsedByBookPlayer();
             } else {
                 myLogI("MassImportViewModel: No cached SD card storage, calculating now");
-                // Fallback to calculation if cache not available
-                totalStorage = getTotalRemovableSDCardSize(app);
-                long availableStorage = getAvailableRemovableSDCardSize(app);
-                if (totalStorage > 0 && availableStorage >= 0) {
-                    // Use cached SD card folder size if available and recent
+                totalSd = getTotalRemovableSDCardSize(app);
+                long availableSd = getAvailableRemovableSDCardSize(app);
+                if (totalSd > 0 && availableSd >= 0) {
                     long currentTime = System.currentTimeMillis();
-                    if (cachedSDCardFolderSize >= 0 && 
+                    if (cachedSDCardFolderSize >= 0 &&
                         (currentTime - lastSDCardFolderSizeCalculation) < SD_CARD_FOLDER_SIZE_CACHE_DURATION_MS) {
-                        // Use cached value
-                        usedByBookPlayer = cachedSDCardFolderSize;
-                        myLogI("MassImportViewModel: Using cached SD card folder size: " + (usedByBookPlayer / 1048576L) + " MB");
+                        usedByBookPlayerSd = cachedSDCardFolderSize;
                     } else {
-                        // Calculate BookPlayer usage on SD card (slow operation)
                         String sdCardUnzipFolder = StorageHelper.getSdCardUnzippedFolder(app);
                         if (sdCardUnzipFolder != null) {
-                            myLogI("MassImportViewModel: Calculating SD card folder size (cache expired or first time)");
-                            long startTime = System.currentTimeMillis();
-                            usedByBookPlayer = getFolderSize(sdCardUnzipFolder);
-                            long duration = System.currentTimeMillis() - startTime;
-                            myLogI("MassImportViewModel: SD card folder size calculated in " + duration + "ms: " + (usedByBookPlayer / 1048576L) + " MB");
-                            
-                            // Cache the result
-                            cachedSDCardFolderSize = usedByBookPlayer;
+                            usedByBookPlayerSd = getFolderSize(sdCardUnzipFolder);
+                            cachedSDCardFolderSize = usedByBookPlayerSd;
                             lastSDCardFolderSizeCalculation = currentTime;
                         } else {
-                            usedByBookPlayer = 0;
+                            usedByBookPlayerSd = 0;
                             cachedSDCardFolderSize = 0;
                             lastSDCardFolderSizeCalculation = currentTime;
                         }
                     }
-                    
-                    long usedTotal = totalStorage - availableStorage;
-                    usedByOthers = usedTotal - usedByBookPlayer;
-                    if (usedByOthers < 0) usedByOthers = 0;
-                    if (usedByBookPlayer < 0) usedByBookPlayer = 0;
-                } else {
-                    return; // Invalid storage values
+                    long usedTotal = totalSd - availableSd;
+                    usedByOthersSd = usedTotal - usedByBookPlayerSd;
+                    if (usedByOthersSd < 0) usedByOthersSd = 0;
+                    if (usedByBookPlayerSd < 0) usedByBookPlayerSd = 0;
                 }
             }
-            
-            if (totalStorage > 0) {
-                long linkedAudios = StorageInfoCacheHelper.getCachedSDCardLinkedAudios();
-                storageInfo.postValue(new StorageInfo(
-                    totalStorage, 
-                    usedByOthers, 
-                    usedByBookPlayer, 
-                    expectedAddedMemoryBytes,
-                    linkedAudios,
-                    null
-                ));
+            if (totalSd > 0) {
+                long linkedSd = StorageInfoCacheHelper.getCachedSDCardLinkedAudios();
+                long expectedSd = useSdCard ? expectedAddedMemoryBytes : 0;
+                sdCardStorageInfo.postValue(new StorageInfo(
+                    totalSd, usedByOthersSd, usedByBookPlayerSd,
+                    expectedSd, linkedSd, null));
+            } else {
+                sdCardStorageInfo.postValue(null);
             }
         } else {
-            // Internal storage - use cached values if available
-            long cachedTimestamp = StorageInfoCacheHelper.getCachedInternalTimestamp();
-            if (cachedTimestamp > 0) {
-                myLogI("MassImportViewModel: Using cached internal storage info");
-                totalStorage = StorageInfoCacheHelper.getCachedInternalTotal();
-                usedByOthers = StorageInfoCacheHelper.getCachedInternalUsedByOthers();
-                usedByBookPlayer = StorageInfoCacheHelper.getCachedInternalUsedByBookPlayer();
-            } else {
-                myLogI("MassImportViewModel: No cached internal storage, calculating now");
-                // Fallback to calculation if cache not available
-                totalStorage = getTotaLInternalMemorySize();
-                long availableStorage = getAvailableInternalMemorySize();
-                if (totalStorage > 0 && availableStorage >= 0) {
-                    usedByBookPlayer = getAppSize(app);
-                    
-                    long usedTotal = totalStorage - availableStorage;
-                    usedByOthers = usedTotal - usedByBookPlayer;
-                    if (usedByOthers < 0) usedByOthers = 0;
-                    if (usedByBookPlayer < 0) usedByBookPlayer = 0;
-                } else {
-                    return; // Invalid storage values
-                }
-            }
-            
-            if (totalStorage > 0) {
-                long linkedAudios = StorageInfoCacheHelper.getCachedInternalLinkedAudios();
-                storageInfo.postValue(new StorageInfo(
-                    totalStorage, 
-                    usedByOthers, 
-                    usedByBookPlayer, 
-                    expectedAddedMemoryBytes,
-                    linkedAudios,
-                    null
-                ));
-            }
+            sdCardStorageInfo.postValue(null);
         }
     }
 

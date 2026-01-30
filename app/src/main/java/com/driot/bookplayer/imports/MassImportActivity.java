@@ -44,7 +44,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
     private TextView tvProgress;
     private TextView tvCount;
     private Button btnConfirmImport;
-    private StorageBarView storageBar;
+    private StorageBarView storageBarInternal;
+    private StorageBarView storageBarSdCard;
+    private TextView tvStorageLabelInternal;
+    private LinearLayout llSdCardStorage;
     private LinearLayout llStorageSection;
     private TextView tvSelectedSummary;
 
@@ -153,7 +156,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
         tvProgress = findViewById(R.id.tvProgress);
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
-        storageBar = findViewById(R.id.storageBar);
+        storageBarInternal = findViewById(R.id.storageBarInternal);
+        storageBarSdCard = findViewById(R.id.storageBarSdCard);
+        tvStorageLabelInternal = findViewById(R.id.tvStorageLabelInternal);
+        llSdCardStorage = findViewById(R.id.llSdCardStorage);
         llStorageSection = findViewById(R.id.llStorageSection);
         tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
 
@@ -161,21 +167,39 @@ public class MassImportActivity extends BaseBottomNavActivity {
         boolean showStorageBar = Option.getMassImportDisplayStorageBar();
         llStorageSection.setVisibility(showStorageBar ? View.VISIBLE : View.GONE);
 
-        // Observe storage info from ViewModel; show section only when option is On and we have data
-        viewModel.getStorageInfo().observe(this, storageInfo -> {
-            if (storageInfo != null && storageBar != null && llStorageSection != null) {
-                if (Option.getMassImportDisplayStorageBar() && storageInfo.totalStorageBytes > 0) {
-                    storageBar.setStorageValues(
-                        storageInfo.totalStorageBytes,
-                        storageInfo.usedByOthersBytes,
-                        storageInfo.usedByBookPlayerBytes,
-                        storageInfo.expectedAddedMemoryBytes,
-                        storageInfo.linkedAudiosBytes
-                    );
-                    llStorageSection.setVisibility(View.VISIBLE);
-                } else {
-                    llStorageSection.setVisibility(View.GONE);
-                }
+        // Observe internal storage: one bar with label "Storage" or "Device storage" (when SD exists)
+        viewModel.getInternalStorageInfo().observe(this, info -> {
+            if (info == null || storageBarInternal == null || !Option.getMassImportDisplayStorageBar()) return;
+            if (info.totalStorageBytes > 0) {
+                storageBarInternal.setStorageValues(
+                    info.totalStorageBytes,
+                    info.usedByOthersBytes,
+                    info.usedByBookPlayerBytes,
+                    info.expectedAddedMemoryBytes,
+                    info.linkedAudiosBytes
+                );
+                storageBarInternal.setVisibility(View.VISIBLE);
+                llStorageSection.setVisibility(View.VISIBLE);
+            }
+        });
+
+        // Observe SD card storage: second bar when SD exists; update internal label to "Device storage"
+        viewModel.getSdCardStorageInfo().observe(this, info -> {
+            if (tvStorageLabelInternal != null) {
+                tvStorageLabelInternal.setText(info != null ? R.string.storage_device : R.string.storage_header);
+            }
+            if (llSdCardStorage == null || storageBarSdCard == null) return;
+            if (info != null && info.totalStorageBytes > 0 && Option.getMassImportDisplayStorageBar()) {
+                storageBarSdCard.setStorageValues(
+                    info.totalStorageBytes,
+                    info.usedByOthersBytes,
+                    info.usedByBookPlayerBytes,
+                    info.expectedAddedMemoryBytes,
+                    info.linkedAudiosBytes
+                );
+                llSdCardStorage.setVisibility(View.VISIBLE);
+            } else {
+                llSdCardStorage.setVisibility(View.GONE);
             }
         });
 

@@ -63,20 +63,22 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="18dp"
         android:visibility="visible"
-        tools:visibility="visible">
+        tools:visibility="visible"
+        android:background="?attr/colorSurfaceVariant"
+        >
 
-        <!-- Storage bar with "Storage" label aligned right inside the bar -->
+        <!-- Internal (device) storage bar: label "Storage" when alone, "Device storage" when SD exists -->
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <com.driot.bookplayer.widgets.StorageBarView
-                android:id="@+id/storageBar"
+                android:id="@+id/storageBarInternal"
                 android:layout_width="match_parent"
                 android:layout_height="24dp" />
             <TextView
-                android:id="@+id/tvStorageLabel"
+                android:id="@+id/tvStorageLabelInternal"
                 android:layout_width="wrap_content"
                 android:layout_height="24dp"
                 android:layout_gravity="end|center_vertical"
@@ -92,13 +94,47 @@
                 android:shadowRadius="1" />
         </FrameLayout>
 
+        <!-- SD card storage bar (visible when SD card exists); label "SD card storage" -->
+        <LinearLayout
+            android:id="@+id/llSdCardStorage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_marginTop="8dp">
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <com.driot.bookplayer.widgets.StorageBarView
+                    android:id="@+id/storageBarSdCard"
+                    android:layout_width="match_parent"
+                    android:layout_height="24dp" />
+                <TextView
+                    android:id="@+id/tvStorageLabelSdCard"
+                    android:layout_width="wrap_content"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:gravity="center_vertical"
+                    android:paddingEnd="8dp"
+                    android:paddingStart="8dp"
+                    android:text="@string/storage_sd_card"
+                    android:textSize="12sp"
+                    android:textColor="?android:attr/textColorPrimary"
+                    android:shadowColor="#80000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="1" />
+            </FrameLayout>
+        </LinearLayout>
+
         <!-- Legend -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:gravity="start"
-            android:layout_marginTop="4dp">
+            android:layout_marginTop="4dp"
+            >
 
             <LinearLayout
                 android:layout_width="wrap_content"

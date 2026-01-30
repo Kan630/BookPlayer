@@ -69,6 +69,8 @@
     <string name="Import_in_progress">Import in progress</string>
     <string name="calculating_storage">Calculating…</string>
     <string name="storage_header">Storage</string>
+    <string name="storage_device">Device storage</string>
+    <string name="storage_sd_card">SD card storage</string>
     <string name="storage_legend_others">others</string>
     <string name="storage_legend_copied">copied</string>
     <string name="storage_legend_linked_audios">linked</string>
