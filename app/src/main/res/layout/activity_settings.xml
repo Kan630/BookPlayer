@@ -27,6 +27,14 @@
             />
 -->
         <com.driot.bookplayer.views.SettingsSectionView
+            android:id="@+id/section_language"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:sectionTitle="@string/Language"
+            app:sectionIcon="@drawable/ic_menu_book_24"
+            />
+
+        <com.driot.bookplayer.views.SettingsSectionView
             android:id="@+id/section_play_behaviour"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

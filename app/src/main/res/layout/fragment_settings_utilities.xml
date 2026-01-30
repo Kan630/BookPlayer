@@ -16,40 +16,6 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-        <!-- Language -->
-        <LinearLayout
-            style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="0dp">
-
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/app_language" />
-
-            <TextView
-                style="@style/OptionSubTitle"
-                android:text="@string/option_app_language_subtitle"
-                android:textStyle="italic"
-                />
-
-            <LinearLayout
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-
-                <TextView
-                    style="@style/OptionSubTitle"
-                    android:text="@string/app_language"
-                    android:layout_marginEnd="20dp"
-                    android:layout_marginTop="0dp" />
-
-                <Spinner
-                    android:id="@+id/spinner_app_language"
-                    style="@style/Spinner"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-            </LinearLayout>
-        </LinearLayout>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
-
         <!-- Mail method -->
         <LinearLayout
             android:id="@+id/ll_MailMethod_vert"

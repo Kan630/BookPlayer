@@ -51,6 +51,14 @@ public class SettingsActivity extends BaseBottomNavActivity {
         });
  */
 
+        SettingsSectionView sectionLanguage = findViewById(R.id.section_language);
+        registerSection(
+                sectionLanguage,
+                "expand_language",
+                () -> new com.driot.bookplayer.settings.ui.LanguageSettingsFragment(),
+                savedInstanceState
+        );
+
         SettingsSectionView sectionPlay = findViewById(R.id.section_play_behaviour);
         registerSection(
                 sectionPlay,

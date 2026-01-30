@@ -7,24 +7,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.helpers.LanguageHelper;
-import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 public class UtilitiesSettingsFragment extends LoggingFragment {
 
-    private Spinner appLanguageSpinner;
     private MaterialCheckBox chkMailMethod;
     private LinearLayout llMailMethod;
 
@@ -115,21 +110,6 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             PlaybackCommands.stop(requireContext().getApplicationContext());
             myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
         });
-
-        appLanguageSpinner = root.findViewById(R.id.spinner_app_language);
-
-        LanguageHelper.setupLanguageSpinner(
-                this.getContext(),
-                appLanguageSpinner,
-                Option.getAppLanguage(), // "system" | "en" | ...
-                LanguageHelper.getAppLanguages(),
-                lang -> {
-                    String value = lang.twoLetterCode; // "system" or IETF language tag
-                    myLogD("App language chosen: " + value);
-                    Option.setAppLanguage(value);
-                    LocaleHelper.applyAppLocale(value);
-                    // recreate(); // activity-level refresh
-                }, false);
 
         return root;
     }
