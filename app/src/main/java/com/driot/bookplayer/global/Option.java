@@ -65,6 +65,7 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW = false;
     public static final boolean DEFAULT_PODCAST_ADD_DATE_TO_EPISODE_NAME = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
+    private static final boolean DEFAULT_MASS_IMPORT_DISPLAY_STORAGE_BAR = false;
     public static final String DEFAULT_LANGUAGE = "system";
     public static final String DEFAULT_VOICE = "system";
     public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
@@ -369,6 +370,9 @@ public class Option {
 
     public static void setCreateCover(boolean bool) {prefs.edit().putBoolean("CREATE_COVER",bool).apply();}
     public static boolean getCreateCover() {return prefs.getBoolean("CREATE_COVER", DEFAULT_CREATE_COVER);}
+
+    public static void setMassImportDisplayStorageBar(boolean value) { prefs.edit().putBoolean("MASS_IMPORT_DISPLAY_STORAGE_BAR", value).apply(); }
+    public static boolean getMassImportDisplayStorageBar() { return prefs.getBoolean("MASS_IMPORT_DISPLAY_STORAGE_BAR", DEFAULT_MASS_IMPORT_DISPLAY_STORAGE_BAR); }
 
 
     /////////////////// APP LANGUAGE ///////////////////

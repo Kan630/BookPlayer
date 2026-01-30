@@ -13,6 +13,7 @@ public class BookCandidate {
     public String originalHash; // Computed during scanning
     public String existingBookName; // Name of book if hash already exists in DB (null if not imported)
     public String coverImagePath; // Path to detected cover image (null if none)
+    private boolean selected; // User selection for mass import (false if already imported)
 
     public BookCandidate(Uri uri, String name, String type, String path, long size, String originalHash,
             String existingBookName, int tracksCount, String coverImagePath) {
@@ -25,6 +26,15 @@ public class BookCandidate {
         this.existingBookName = existingBookName;
         this.tracksCount = tracksCount;
         this.coverImagePath = coverImagePath;
+        this.selected = true; // default; adapter will set false for already-imported
+    }
+
+    public boolean isSelected() {
+        return selected;
+    }
+
+    public void setSelected(boolean selected) {
+        this.selected = selected;
     }
 
     public boolean isAlreadyImported() {

@@ -1407,5 +1407,8 @@
     <string name="mass_import_scanning_title">Mass Import Scanning...</string>
     <string name="mass_import_scan_complete">Mass Import Scan Complete.</string>
     <string name="mass_import_found_candidates_click">Found %1$d book candidates, click to open.</string>
+    <string name="select_at_least_one_item">Please select at least one item to import.</string>
+    <string name="mass_import_selected_summary">%1$d book candidates selected for import (%2$s)</string>
+    <string name="option_mass_import_display_storage_bar">Display Storage Bar</string>
 
 </resources>

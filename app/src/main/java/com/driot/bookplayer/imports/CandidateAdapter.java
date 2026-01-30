@@ -3,10 +3,13 @@ package com.driot.bookplayer.imports;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.google.android.material.checkbox.MaterialCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -20,8 +23,19 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
     private List<BookCandidate> items = new ArrayList<>();
 
+    /** Called when user checks/unchecks a candidate; use to update selection summary and storage bar. */
+    private Runnable onSelectionChanged;
+
+    public void setOnSelectionChanged(Runnable onSelectionChanged) {
+        this.onSelectionChanged = onSelectionChanged;
+    }
+
     public void setItems(List<BookCandidate> items) {
         this.items = items;
+        // Initialize selection: checked by default for non-imported, unchecked and disabled for already-imported
+        for (BookCandidate c : items) {
+            c.setSelected(!c.isAlreadyImported());
+        }
         notifyDataSetChanged();
     }
 
@@ -91,12 +105,24 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             String txtError = holder.itemView.getContext()
                     .getString(com.driot.bookplayer.R.string.already_imported_under_name) + item.existingBookName;
             holder.tvAlreadyImported.setText(txtError);
+            // Checkbox unchecked and disabled for already-imported
+            holder.cbSelect.setChecked(false);
+            holder.cbSelect.setEnabled(false);
         } else {
             // Clear color filter (normal icon)
             holder.ivTypeIcon.clearColorFilter();
             // Hide "already imported" message
             holder.tvAlreadyImported.setVisibility(android.view.View.GONE);
+            // Checkbox reflects selection state, enabled
+            holder.cbSelect.setEnabled(true);
+            holder.cbSelect.setChecked(item.isSelected());
         }
+
+        // Sync checkbox with item selection (avoid triggering during setChecked above)
+        holder.cbSelect.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
+            item.setSelected(isChecked);
+            if (onSelectionChanged != null) onSelectionChanged.run();
+        });
     }
 
     @Override
@@ -110,6 +136,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         TextView tvAlreadyImported;
         ImageView ivCover;
         ImageView ivTypeIcon;
+        MaterialCheckBox cbSelect;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -118,6 +145,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             tvAlreadyImported = itemView.findViewById(R.id.tvAlreadyImported);
             ivCover = itemView.findViewById(R.id.ivCover);
             ivTypeIcon = itemView.findViewById(R.id.ivTypeIcon);
+            cbSelect = itemView.findViewById(R.id.cbSelect);
         }
     }
 }

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/scrollView"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:id="@+id/root_container"
+        style="@style/LinearLayoutOptionsVertical"
+        android:padding="8dp">
+
+        <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+            <TextView android:text="@string/Mass_Import" style="@style/OptionMasterTitle"/>
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+        </LinearLayout>
+
+        <TextView style="@style/betatest"/>
+
+        <!-- Display Storage Bar -->
+        <LinearLayout
+            android:id="@+id/ll_display_storage_bar"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_display_storage_bar"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_mass_import_display_storage_bar" />
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>

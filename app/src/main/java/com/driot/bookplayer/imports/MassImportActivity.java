@@ -39,13 +39,12 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
     // UI Elements
     private LinearLayout llScanning;
-    private View clReport;
     private TextView tvProgress;
     private TextView tvCount;
     private Button btnConfirmImport;
     private StorageBarView storageBar;
     private LinearLayout llStorageSection;
-    // btnCancelScan removed
+    private TextView tvSelectedSummary;
 
     @Override
     protected int getNavId() {
@@ -128,18 +127,21 @@ public class MassImportActivity extends BaseBottomNavActivity {
 
     private void initializeViews() {
         llScanning = findViewById(R.id.llScanning);
-        clReport = findViewById(R.id.clReport);
         tvProgress = findViewById(R.id.tvProgress);
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
         storageBar = findViewById(R.id.storageBar);
         llStorageSection = findViewById(R.id.llStorageSection);
-        
-        // Observe storage info from ViewModel
+        tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
+
+        // Storage section visible only when "Display Storage Bar" is enabled in Settings > Massive Import
+        boolean showStorageBar = Option.getMassImportDisplayStorageBar();
+        llStorageSection.setVisibility(showStorageBar ? View.VISIBLE : View.GONE);
+
+        // Observe storage info from ViewModel; show section only when option is On and we have data
         viewModel.getStorageInfo().observe(this, storageInfo -> {
             if (storageInfo != null && storageBar != null && llStorageSection != null) {
-                // Only show if we have valid storage data
-                if (storageInfo.totalStorageBytes > 0) {
+                if (Option.getMassImportDisplayStorageBar() && storageInfo.totalStorageBytes > 0) {
                     storageBar.setStorageValues(
                         storageInfo.totalStorageBytes,
                         storageInfo.usedByOthersBytes,
@@ -153,27 +155,40 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 }
             }
         });
-        
-        // Don't load initial storage info here - it will be calculated once when scanning completes
+
+        // Load storage immediately from cache (don't wait for scan to finish)
+        viewModel.updateStorageInfo(0);
+    }
+
+    /** Updates "x book candidates selected for import (size)" from current selection. */
+    private void updateSelectedSummary() {
+        if (adapter == null || tvSelectedSummary == null) return;
+        List<BookCandidate> items = adapter.getItems();
+        int selectedCount = 0;
+        long selectedSize = 0;
+        for (BookCandidate c : items) {
+            if (c.isSelected() && !c.isAlreadyImported()) {
+                selectedCount++;
+                selectedSize += c.size;
+            }
+        }
+        String sizeStr = com.driot.bookplayer.utils.Tonio.getReadableSize(selectedSize);
+        tvSelectedSummary.setText(getString(R.string.mass_import_selected_summary, selectedCount, sizeStr));
     }
     
     private void recalculateStorageBar() {
         if (adapter == null) return;
-        
+
         List<BookCandidate> candidates = adapter.getItems();
-        
-        // Calculate expected memory - all files except Folders need copying
+
+        // Expected memory = selected candidates that need copying (not Folder)
         long expectedSize = 0;
         for (BookCandidate c : candidates) {
-            if (!c.isAlreadyImported()) {
-                // All files except Folders need copying
-                if (!"Folder".equals(c.type)) {
-                    expectedSize += c.size;
-                }
+            if (c.isSelected() && !c.isAlreadyImported() && !"Folder".equals(c.type)) {
+                expectedSize += c.size;
             }
         }
-        
-        // Update storage info directly (no debouncing, just calculate once)
+
         viewModel.updateStorageInfo(expectedSize);
     }
 
@@ -181,6 +196,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
         RecyclerView rv = findViewById(R.id.rvCandidates);
         rv.setLayoutManager(new LinearLayoutManager(this));
         adapter = new CandidateAdapter();
+        adapter.setOnSelectionChanged(() -> {
+            updateSelectedSummary();
+            recalculateStorageBar();
+        });
         rv.setAdapter(adapter);
     }
 
@@ -188,15 +207,11 @@ public class MassImportActivity extends BaseBottomNavActivity {
         viewModel.getIsScanning().observe(this, isScanning -> {
             if (isScanning) {
                 llScanning.setVisibility(View.VISIBLE);
-                // Keep list visible to show progress
-                clReport.setVisibility(View.VISIBLE);
                 btnConfirmImport.setEnabled(false);
             } else {
                 llScanning.setVisibility(View.GONE);
-                clReport.setVisibility(View.VISIBLE);
-                // Button state is handled by candidates observer
-                
-                // Calculate storage once when scanning completes
+                // Update selection summary and storage bar when scan completes
+                updateSelectedSummary();
                 recalculateStorageBar();
             }
         });
@@ -224,12 +239,10 @@ public class MassImportActivity extends BaseBottomNavActivity {
             String sizeStr = com.driot.bookplayer.utils.Tonio.getReadableSize(totalSize);
 
             if (importableCount < totalCount) {
-                // Mixed: some new, some imported
                 int importedCount = totalCount - importableCount;
                 tvCount.setText(
                         getString(R.string.mass_import_found_items_mixed, importableCount, sizeStr, importedCount));
             } else {
-                // All new
                 tvCount.setText(getString(R.string.mass_import_found_items, importableCount, sizeStr));
             }
 
@@ -241,12 +254,12 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 }
                 btnConfirmImport.setEnabled(false);
             } else {
-                // Only enable if not scanning
                 boolean scanning = Boolean.TRUE.equals(viewModel.getIsScanning().getValue());
                 btnConfirmImport.setEnabled(importableCount > 0 && !scanning);
             }
-            
-            // Don't recalculate storage here - it's calculated once when scanning completes
+
+            updateSelectedSummary();
+            recalculateStorageBar();
         });
     }
 
@@ -255,23 +268,31 @@ public class MassImportActivity extends BaseBottomNavActivity {
         if (candidates.isEmpty())
             return;
 
-        myLog("Starting import of " + candidates.size() + " items.");
+        // Only proceed with selected candidates (and skip already-imported)
+        int batchTotal = 0;
+        for (BookCandidate candidate : candidates) {
+            if (candidate.isSelected() && !candidate.isAlreadyImported()) {
+                batchTotal++;
+            }
+        }
+        if (batchTotal == 0) {
+            myToast(getString(R.string.select_at_least_one_item));
+            return;
+        }
+
+        myLog("Starting import of " + batchTotal + " selected items.");
 
         // Disable button to prevent double click
         btnConfirmImport.setEnabled(false);
 
+        final int totalInBatch = batchTotal;
         new Thread(() -> {
-            // Count non-skipped candidates for batch tracking
-            int batchTotal = 0;
-            for (BookCandidate candidate : candidates) {
-                if (!candidate.isAlreadyImported()) {
-                    batchTotal++;
-                }
-            }
-            
             int batchIndex = 0;
             for (BookCandidate candidate : candidates) {
-                // Skip already-imported items
+                // Skip non-selected or already-imported items
+                if (!candidate.isSelected()) {
+                    continue;
+                }
                 if (candidate.isAlreadyImported()) {
                     myLog(getString(R.string.skippring_already_imported_item) + ": [" + candidate.name + "] ("
                             + getString(R.string.imported_as) + ": " + candidate.existingBookName + ")");
@@ -283,7 +304,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 LoadBookTaskState s = new LoadBookTaskState();
                 // Set batch tracking info
                 s.batchIndex = batchIndex;
-                s.batchTotal = batchTotal;
+                s.batchTotal = totalInBatch;
                 // Format the name for display (remove underscores, extension, etc.)
                 String formattedName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(candidate.name);
 

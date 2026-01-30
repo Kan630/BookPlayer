@@ -43,6 +43,19 @@
                 android:padding="3dp"
                 android:scaleType="fitCenter"
                 android:contentDescription="Type Icon" />
+
+            <!-- Selection checkbox overlay (top-right corner); white circle for contrast on dark covers -->
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cbSelect"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="end|top"
+                android:layout_margin="4dp"
+                android:background="@drawable/circle_background_white"
+                android:padding="2dp"
+                app:buttonTint="?attr/colorPrimary"
+                app:useMaterialThemeColors="true"
+                android:contentDescription="Select for import" />
         </FrameLayout>
 
         <LinearLayout

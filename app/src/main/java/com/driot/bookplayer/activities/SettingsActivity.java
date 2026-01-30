@@ -131,6 +131,14 @@ public class SettingsActivity extends BaseBottomNavActivity {
                 savedInstanceState
         );
 
+        SettingsSectionView sectionMassiveImport = findViewById(R.id.section_massive_import);
+        registerSection(
+                sectionMassiveImport,
+                "expand_massive_import",
+                () -> new com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment(),
+                savedInstanceState
+        );
+
     }
 
     @Override
