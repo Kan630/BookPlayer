@@ -1,31 +1,246 @@
-<?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- ********************************** -->
+    <!-- NO TRANSLATION (translatable=false) -->
+
+
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
-
-    <string name="title_FolderContent">Liste des fichiers</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
-
     <string name="asset_statements" translatable="false">
-[{
-  \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
-}]
-</string>
-
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    </string>
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
     <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
+    <string name="Librivox" translatable="false">LibriVox</string>
+
+    <string name="three_dots" translatable="false">…</string>
+
+
+    <string name="play" translatable="false"><![CDATA[>]]></string>
+    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
+    <string name="forward" translatable="false"><![CDATA[>>]]></string>
+    <string name="pause" translatable="false">||</string>
+    <string name="btnSleepSet" translatable="false">Sleep</string>
+    <string name="menu_seeLog" translatable="false">See Logs</string>
+
+    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
+    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
+    <string name="otherApp_scanner" translatable="false">Scanner</string>
+    <string name="permissions_ok_button" translatable="false">OK</string>
+    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
+    <string name="emoji_paste" translatable="false">📋</string>
+    <string name="emoji_clear" translatable="false">🗑️</string>
+    <string name="librivox" translatable="false">Librivox</string>
+    <string name="Internet_Archive" translatable="false">Internet Archive</string>
 
     <!-- ********************************** -->
-    <!-- GENERAL -->
+    <!-- SINGLE WORDS -->
 
-    <string name="Yes">Oui</string>
+    <string name="Added">Ajouté</string>
+    <string name="after">après</string>
+    <string name="Album">Album</string>
+    <string name="Alphabetically">par nom</string>
+    <string name="Also">Aussi</string>
+    <string name="Artist">Artiste</string>
+    <string name="Audio">Audio</string>
+    <string name="AudioBooks">Livres audio</string>
+    <string name="Auto_Delete">Suppression automatique</string>
+    <string name="Auto_Download">Téléchargement automatique</string>
+    <string name="auto_download">téléchargement automatique</string>
+    <string name="Automotive">Automobile</string>
+    <string name="bars">barres</string>
+    <string name="Bitrate">Débit binaire</string>
+    <string name="Bookshelves">Bibliothèques</string>
+    <string name="Bundle">Archive</string>
+    <string name="calculating_storage">Calcul du stockage…</string>
+    <string name="Cancelled">Annulé</string>
+    <string name="candidates">candidats</string>
+    <string name="Channels">Canaux</string>
+    <string name="chars">caract.</string>
+    <string name="Cleaning">Nettoyage</string>
+    <string name="clear">effacer</string>
+    <string name="Close">Fermer</string>
+    <string name="collapse">réduire</string>
+    <string name="confirm">confirmer</string>
+    <string name="copied">copié</string>
+    <string name="Copy">Copie</string>
+    <string name="count">compteur</string>
+    <string name="Creator">Créateur</string>
+    <string name="days">jours</string>
+    <string name="Delete">Supprimer</string>
+    <string name="Deleting">Suppression</string>
+    <string name="denied">refusée</string>
+    <string name="Design">Design</string>
+    <string name="destination">destination</string>
+    <string name="device">appareil</string>
+    <string name="Disc">Disque</string>
+    <string name="done">terminé</string>
+    <string name="done.">terminé.</string>
+    <string name="download">télécharger</string>
+    <string name="Download">Télécharger</string>
+    <string name="downloaded">téléchargé</string>
+    <string name="Downloading">Téléchargement</string>
+    <string name="downloads">téléchargements</string>
+    <string name="Duration">Durée</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="Engine">Moteur</string>
+    <string name="ep">"ép"</string>
+    <string name="episodes">épisodes</string>
+    <string name="error">erreur</string>
+    <string name="Exit">Quitter</string>
+    <string name="expand">développer</string>
+    <string name="Export_3pt">Exporter…</string>
+    <string name="favorite">favori</string>
+    <string name="favorites">favoris</string>
+    <string name="Favorites">Favoris</string>
+    <string name="File">Fichier</string>
+    <string name="flag">drapeau</string>
+    <string name="Folder">Dossier</string>
+    <string name="folder">dossier</string>
+    <string name="Font">Police</string>
+    <string name="Forbidden">Interdit</string>
+    <string name="found">trouvé</string>
+    <string name="from">de</string>
+    <string name="General">Général</string>
+    <string name="Genre">Genre</string>
+    <string name="get">obtenir</string>
+    <string name="granted">autorisée</string>
+    <string name="History">Histoire</string>
+    <string name="homepage">page d\'accueil</string>
+    <string name="icon">icône</string>
+    <string name="id_label">ID : </string>
+    <string name="Import">Importer</string>
+    <string name="in">dans</string>
+    <string name="Integration">Intégration</string>
+    <string name="items">éléments</string>
+    <string name="language">langue</string>
+    <string name="Language">Langue</string>
+    <string name="Language_2pt">Langue : </string>
+    <string name="last">derniers</string>
+    <string name="legacy">ancien</string>
+    <string name="library">bibliothèque</string>
+    <string name="linked">lié</string>
+    <string name="links">liens</string>
+    <string name="listened">écouté</string>
+    <string name="loading">chargement</string>
+    <string name="Logging">Journalisation</string>
+    <string name="manual">manuel</string>
+    <string name="MB">Mo</string>
+    <string name="memory">mémoire</string>
+    <string name="Menu">Menu</string>
+    <string name="metadata">métadonnées</string>
+    <string name="min.">min.</string>
+    <string name="Miscellaneous">Divers</string>
+    <string name="ms.">ms.</string>
+    <string name="new_label">nouveau</string>
     <string name="No">Non</string>
-    <string name="are_you_sure">Êtes-vous sûr ?</string>
+    <string name="nothing">rien</string>
+    <string name="open">ouvrir</string>
+    <string name="others">autres</string>
+    <string name="paste">coller</string>
+    <string name="Pause">Pause</string>
+    <string name="Permission">Autorisation</string>
+    <string name="Podcasts">Podcasts</string>
+    <string name="podcasts">podcasts</string>
+    <string name="proceed">continuer</string>
+    <string name="Processing">Traitement en cours</string>
+    <string name="radial">radial</string>
+    <string name="radio">radio</string>
+    <string name="Radio">Radio</string>
+    <string name="Ready">Prêt</string>
+    <string name="refresh">rafraîchir</string>
+    <string name="reorder">réorganiser</string>
+    <string name="Results_2pt">Résultats : </string>
+    <string name="Resume">Reprendre</string>
+    <string name="reviews">avis</string>
+    <string name="Roaming">Itinérance</string>
+    <string name="save">enregistrer</string>
+    <string name="Search">Rechercher</string>
+    <string name="Search_2pt">Recherche : </string>
+    <string name="sec">sec</string>
+    <string name="Set">Définir</string>
+    <string name="Settings">Options</string>
+    <string name="settings">paramètres</string>
+    <string name="sort">trier</string>
+    <string name="Spam">Spam</string>
+    <string name="Speaking">Lecture en cours</string>
+    <string name="Speed">Vitesse</string>
+    <string name="import_task_start">démarrage...</string>
+    <string name="Stats">Statistiques</string>
+    <string name="stop">stop</string>
+    <string name="Storage">Stockage</string>
+    <string name="subtitle">sous-titre</string>
+    <string name="tags">tags</string>
+    <string name="Technical">Technique</string>
+    <string name="Text">Texte</string>
+    <string name="text_to_speech">synthèse vocale</string>
+    <string name="Text_To_Speech">Synthèse vocale</string>
+    <string name="title">titre</string>
+    <string name="to">vers</string>
+    <string name="Track">Piste</string>
+    <string name="Trending">Tendances</string>
+    <string name="Unauthorized">Non autorisé</string>
+    <string name="Uncompress">Décompression</string>
+    <string name="Utilities">Utilitaires</string>
+    <string name="Version">Version</string>
+    <string name="Video">Vidéo</string>
+    <string name="Warning">Avertissement</string>
+    <string name="wave">onde</string>
+    <string name="Website">Site web</string>
+    <string name="Year">Année</string>
+    <string name="Yes">Oui</string>
     <string name="yesterday">hier</string>
+    <string name="export_zipping_label">Compression : </string>
+
+        <!-- OTHER (multi-word strings, plurals, etc.) -->
+
+    <string name="title_FolderContent">Liste des fichiers</string>
+
+    <string name="beta_test">test bêta</string>
+    <string name="are_you_sure">Êtes-vous sûr ?</string>
     <string name="app_info">Infos sur l\'app</string>
     <string name="delete_logs">Supprimer les journaux</string>
-    <string name="Delete">Supprimer</string>
+    <string name="Import_failed">Échec de l\'importation</string>
+    <string name="About_to_start_download">Sur le point de commencer le téléchargement…</string>
+    <string name="Please_enter_a_URL">Veuillez saisir une URL.</string>
+    <string name="Permission_Required">Autorisation requise</string>
+
+    <string name="App_Info">Infos sur l\'application</string>
+
+    <string name="reset_app">Réinitialiser l\'application</string>
+    <string name="add_book">ajouter un livre</string>
+
+
+    <string name="Not_enough_memory">Mémoire insuffisante</string>
+
+    <string name="unexpected_error">Erreur inattendue</string>
+    <string name="an_error_occurred">Une erreur est survenue</string>
+    <string name="no_internet_connection">Pas de connexion internet</string>
+    <string name="no_metadata_available">Aucune métadonnée disponible</string>
+
+
+    <string name="Import_in_progress">Importation en cours</string>
+    <string name="storage_device">Stockage appareil</string>
+    <string name="storage_sd_card">Stockage carte SD</string>
+    <string name="storage_legend_new_books">nouveaux livres</string>
+    <string name="power_management_exempt">App exemptée des optimisations batterie (bien)</string>
+    <string name="power_management_subject">App sujette aux optimisations batterie (risque d\'arrêt)</string>
+    <string name="left_on">laissé sur</string>
+
+    <string name="SD_card">Carte SD</string>
+
+    <string name="audios_in_app">audios dans l\'app</string>
+    <string name="audio_tracks">pistes audio</string>
+
+    <string name="book_cover">couverture du livre</string>
+    <string name="Available_since">Disponible depuis</string>
+    <string name="default_for">défaut pour</string>
+
+    <string name="sample_rate">Fréquence d\'échantillonnage</string>
+
 
     <string name="DeleteLogs_AskConfirm">Vous êtes sur le point de supprimer tous les journaux.
 Êtes-vous sûr ?</string>
@@ -36,35 +251,8 @@
     <string name="ModifyZikFile_AskDelete">Vous êtes sur le point de supprimer cette piste audio.
 Êtes-vous sûr ?</string>
 
-    <string name="left_on">laissé sur</string>
-    <string name="memory">mémoire</string>
-    <string name="device">appareil</string>
-    <string name="SD_card">Carte SD</string>
-    <string name="audios_in_app">audios dans l\'app</string>
-    <string name="listened">écouté</string>
-    <string name="audio_tracks">pistes audio</string>
-    <string name="Added">Ajouté</string>
-    <string name="Favorites">Favoris</string>
-    <string name="Set">Définir</string>
-    <string name="MB">Mo</string>
-    <string name="Export_3pt">Exporter…</string>
-    <string name="Version">Version</string>
-    <string name="Miscellaneous">Divers</string>
-    <string name="Processing">Traitement en cours</string>
-    <string name="downloaded">téléchargé</string>
-    <string name="Downloading">Téléchargement</string>
-    <string name="book_cover">couverture du livre</string>
-    <string name="Search">Rechercher</string>
-    <string name="Creator">Créateur</string>
-    <string name="Available_since">Disponible depuis</string>
-    <string name="default_for">défaut pour</string>
 
-    <!-- ********************************** -->
-    <!-- HELP Screen -->
-
-    <string name="help_title">Manuel BookPlayer</string>
-
-    <string name="General">Général</string>
+        <string name="help_title">Manuel BookPlayer</string>
     <string name="help_text_general"><![CDATA[
 Lorsque vous ouvrez l\'application, vous voyez une liste de <font color="#90D8E8">dossiers</font> — cela représente vos Livres, Leçons ou Podcasts.
 <br><br>
@@ -76,7 +264,6 @@ Un <font color="#81C784">appui long</font> sur une <font color="#BA68C8">piste</
 <br>
 Un simple appui lance la lecture.
 ]]></string>
-
     <string name="help_title_manual_import">Import manuel :</string>
     <string name="help_text_manual_import"><![CDATA[
 Lorsque vous <font color="#81C784"><b>importez manuellement</b></font> un livre, vous commencez par sélectionner un <font color="#64B5F6">fichier</font> ou un <font color="#64B5F6">dossier</font>.
@@ -99,7 +286,6 @@ BookPlayer prend en charge presque tous les formats audio, lit les pistes son de
 <br><br>
 Activez <font color="#F48FB1"><b>la suppression automatique</b></font> dans le menu Options pour supprimer le fichier source après l\'import.
 ]]></string>
-
     <string name="help_librivox_title">Import Librivox :</string>
     <string name="help_librivox_text"><![CDATA[
 <font color="#BA68C8"><b>Importer des livres audio du domaine public</b></font>
@@ -110,7 +296,6 @@ Appuyez sur un livre pour le télécharger — l\'audio sera <font color="#FFCC8
 <br><br>
 Vous pouvez <font color="#81C784"><b>commencer l\'écoute immédiatement</b></font>.
 ]]></string>
-
     <string name="help_podcast_title">Import Podcast :</string>
     <string name="help_podcast_text"><![CDATA[
 <font color="#BA68C8"><b>Découvrir des podcasts</b></font>
@@ -123,7 +308,6 @@ Ajoutez des émissions à vos <font color="#EF9A9A">favoris</font> pour un accè
 <br><br>
 Les vérifications se font régulièrement, notamment au démarrage de BookPlayer.
 ]]></string>
-
     <string name="help_url_title">Import par URL :</string>
     <string name="help_url_text"><![CDATA[
 <font color="#BA68C8"><b>Importer via un lien</b></font>
@@ -134,16 +318,12 @@ Appuyez sur <font color="#FFCC80">Importer</font> et BookPlayer téléchargera e
 <br><br>
 Tout est géré automatiquement — extraction, ajout et disponibilité à la lecture.
 ]]></string>
-
-    <string name="help_storage_title">Emplacement de stockage :</string>
-    <string name="help_storage_text"><![CDATA[
-<font color="#BA68C8"><b>Où sont stockés les fichiers</b></font>
-<br><br>
-Par défaut, BookPlayer utilise la <font color="#81C784">carte SD</font> si elle est disponible, pour économiser de l\'espace.
-<br><br>
-Pour basculer vers le stockage interne, modifiez le paramètre dans le menu <font color="#64B5F6">Options</font>.
-]]></string>
-
+    <string name="help_radio_title">Radios du Monde</string>
+    <string name="help_radio_text"><![CDATA[Parcourez les stations par <font color="#81C784">pays</font>, <font color="#FFCC80">popularité</font> ou autre, ou <font color="#64B5F6">cherchez</font> une station par nom.
+    <br><br>
+    Tapez sur une station pour <font color="#81C784"><b>lancer la lecture</b></font>.
+    <br><br>
+    Utilisez <font color="#EF9A9A">le cœur</font> pour ajouter aux <font color="#BA68C8">favoris</font>.]]></string>
     <string name="help_memory_cleaning_title">Nettoyage mémoire :</string>
     <string name="help_memory_cleaning_text"><![CDATA[
 <font color="#BA68C8"><b>Gérer le stockage interne</b></font>
@@ -159,16 +339,14 @@ Voyez quels éléments occupent le plus de place et <font color="#EF9A9A">suppri
 </ul>
 Le contenu en mémoire partagée n\'est pas affiché ici.
 ]]></string>
-
-    <string name="help_tellme_title">Contacter le développeur :</string>
-    <string name="help_tellme_text"><![CDATA[
-Vous avez un problème ou avez trouvé un bug ?
+    <string name="help_storage_title">Emplacement de stockage :</string>
+    <string name="help_storage_text"><![CDATA[
+<font color="#BA68C8"><b>Où sont stockés les fichiers</b></font>
 <br><br>
-Merci de <font color="#81C784">me le signaler</font> afin que je puisse améliorer l\'application !
+Par défaut, BookPlayer utilise la <font color="#81C784">carte SD</font> si elle est disponible, pour économiser de l\'espace.
 <br><br>
-Utilisez l\'option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
+Pour basculer vers le stockage interne, modifiez le paramètre dans le menu <font color="#64B5F6">Options</font>.
 ]]></string>
-
     <string name="help_permission_title">Autorisations :</string>
     <string name="help_permission_text"><![CDATA[
 BookPlayer fonctionne <font color="#81C784">même sans autorisation</font>.
@@ -180,7 +358,14 @@ Mais pour profiter de toutes les fonctionnalités :
 </ul>
 Refuser les autorisations ne casse rien — BookPlayer s\'adapte.
 ]]></string>
-
+    <string name="help_tellme_title">Contacter le développeur :</string>
+    <string name="help_tellme_text"><![CDATA[
+Vous avez un problème ou avez trouvé un bug ?
+<br><br>
+Merci de <font color="#81C784">me le signaler</font> afin que je puisse améliorer l\'application !
+<br><br>
+Utilisez l'option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
+]]></string>
     <string name="help_forum_title">Forum :</string>
     <string name="help_forum_text"><![CDATA[
 <font color="#BA68C8"><b>Rejoignez la communauté BookPlayer</b></font>
@@ -196,114 +381,131 @@ Il est encore peu actif pour le moment, mais vous pouvez vous inscrire pour :
 Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
 ]]></string>
 
-    <!-- ********************************** -->
-    <!-- Écran des options -->
 
     <string name="option_timeBeforeSleep">Pause automatique</string>
-    <string name="option_timeBeforeSleep_text">après :</string>
-<string name="option_copy_file_title">Copier les fichiers en interne</string>
 
+    <string name="option_timeBeforeSleep_text">après :</string>
+    <string name="option_copy_file_title">Copier les fichiers en interne</string>
     <string name="option_backward_forward_title">Boutons Retour/Avance</string>
     <string name="option_backward_forward_text">décalage :</string>
     <string name="option_rewind_after_pause_text">Reculer l\'audio de quelques secondes avant la reprise (pause de 5 min → recul de 3 sec, pause d\'1h → 5 sec, …)</string>
-
     <string name="option_pick_theme_color_title">Choisir le thème de l\'app</string>
-
     <string name="option_delete_source_file_title">Suppression automatique du fichier source</string>
     <string name="option_delete_source_file_subtitle"><i>Après l\'importation d\'un livre audio dans BookPlayer, le fichier ou dossier source peut être supprimé automatiquement.
-\nNote : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus est cochée (copie des fichiers dans la mémoire interne de BookPlayer).</i></string>
+
+Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus est cochée (copie des fichiers dans la mémoire interne de BookPlayer).</i></string>
     <string name="option_delete_source_file_text">Supprimer automatiquement le fichier ou dossier source une fois chargé dans BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">!! Attention - Suppression auto !!</string>
     <string name="option_alert_delete_source_file_message">Tous les fichiers importés dans BookPlayer seront supprimés de la mémoire de l\'appareil.\n\nÊtes-vous sûr ?</string>
-
     <string name="option_beep_title">Bip sonore</string>
     <string name="option_beep_between_chapters">Émettre un bip à la fin des chapitres.</string>
     <string name="option_beep_for_autostop">Émettre un bip long lors du passage en mode pause automatique <i>(pause après XX minutes)</i></string>
     <string name="option_beep_at_the_end">Émettre un triple bip à la fin du livre.</string>
     <string name="option_visualizer_text_01">Visualiseur de fréquences minimaliste affiché pendant la lecture audio.</string>
     <string name="option_visualizer_text_02">Nécessite l\'autorisation [Microphone]</string>
-    <string name="granted">autorisée</string>
-    <string name="denied">refusée</string>
     <string name="option_visualizer_permissions_denied_02">cliquez à nouveau sur la case pour redemander la permission</string>
-
-    <string name="Logging">Journalisation</string>
-    <string name="option_tech_log_subtitle"><i>l\'app doit-elle générer des fichiers de log techniques ?</i></string>
+    <string name="option_tech_log_subtitle"><i>
+        should the app create technical debug log files.
+    </i></string>
     <string name="option_tech_log_text">Journalisation technique.</string>
-
     <string name="option_mail_method">Envoi d\'email</string>
     <string name="option_mail_method_default">Utiliser l\'app de mail par défaut.\n<i>Décochez pour choisir l\'app à chaque fois.</i></string>
-
     <string name="option_open_with_title">Ouvrir avec / Partager</string>
     <string name="option_open_with_subtitle"><i>Permet à Android de proposer BookPlayer parmi les options lorsqu\'on clique (ou clic long) sur un fichier depuis l\'explorateur ou les téléchargements</i></string>
     <string name="option_open_with_text">Pour les fichiers zip et la plupart des audios.</string>
     <string name="option_open_with_text_all">Pour tout type de fichier (mode sûr).</string>
     <string name="option_on_load_use_SD_card">Utiliser la carte SD</string>
 
+
     <string name="option_split_m4b">Découpage .m4b</string>
     <string name="option_split_m4b_text">Extraire les chapitres d\'un fichier m4b.</string>
-
     <string name="option_copy_file_special_zip"><i>les fichiers zip et m4b découpés sont toujours copiés</i></string>
-
     <string name="option_alert_delete_picked_source_file_title">!! Attention - Suppression du fichier source !!</string>
     <string name="option_alert_delete_picked_source_file_message">Ce fichier sera supprimé de la mémoire de l\'appareil après avoir été importé dans la mémoire interne de BookPlayer.\n\nÊtes-vous sûr ?</string>
     <string name="option_on_load_copy_internal">Copier dans la mémoire interne de BookPlayer</string>
     <string name="option_on_load_split_m4b">Découper le M4B en chapitres</string>
     <string name="option_on_load_delete_source">Supprimer le fichier source après importation</string>
-
     <string name="option_sdcard_title">Carte SD</string>
+
     <string name="option_sdcard_text">lors de la copie dans l\'espace réservé, utiliser la carte SD au lieu de la mémoire de l\'appareil</string>
+
     <string name="option_sdcard_text_caution"><i>attention : en retirant ou en effaçant la carte SD, vous perdrez vos audios</i></string>
 
-    <string name="option_copy_file_subtitle">Avantages :
+
+    <string name="option_copy_file_subtitle">Avantages : 
 \n* Pas besoin de permission [Lire l\'audio]
 \n* Aucun risque de perdre le livre audio ni la progression si le fichier source est supprimé/déplacé.
 \n\nInconvénients :
 \n* Nécessite plus de mémoire si vous ne supprimez pas le fichier source.</string>
     <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de BookPlayer.</string>
-    <!-- ********************************** -->
-    <!-- Obtenir des ressources -->
+    <string name="option_night_mode_title">Mode du thème  ☀️ 🌙</string>
+    <string name="option_night_mode_follow_system">⚙️ Système</string>
+    <string name="option_night_mode_light">☀️ Clair</string>
+    <string name="option_night_mode_dark">🌙 Sombre</string>
+    <string name="option_night_mode_dialog_title">Choisir le mode du thème</string>
+    <string name="option_text_appearance_title">Apparence du texte</string>
+    <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
+    <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
+    <string name="option_podcast_open_specific_view_subtitle2">Note : Vous pouvez basculer entre ces vues en tapotant ou double-tapotant l\'image de couverture.</string>
+    <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
+    <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>
+    <string name="option_playing_behaviour_title">Lecture</string>
+
+    <string name="option_start_next_track_at_zero_title_text">Toujours commencer la piste suivante depuis le début, même si elle a déjà été partiellement écoutée.</string>
+    <string name="option_stop_audio_if_user_closes_app_text">Arrêter l\'audio lorsque vous fermez l\'app.</string>
+    <string name="option_network_preference_subtext">
+"An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
+\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
+</string>
+    <string name="option_automotive_let_car_autoplay">Autoriser Android Auto à lancer la lecture automatiquement (généralement lors de la connexion à la voiture).</string>
+    <string name="option_open_play_activity">Ouvrir la vue de lecture lorsque la lecture démarre.</string>
+    <string name="tts_settings">Paramètres TTS</string>
+    <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>
+    <string name="option_tts_highlight_delay_title">Surlignage des mots.</string>
+    <string name="option_tts_highlight_delay_text">Délai du moteur :</string>
+    <string name="option_epub_split_mode_title">Découpage de chapitres EPUB</string>
+    <string name="option_epub_split_mode_text">Comment découper les fichiers EPUB en chapitres :</string>
+    <string name="option_epub_split_mode_auto">Auto (TOC si dispo, sinon séquence)</string>
+    <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
+    <string name="option_epub_split_mode_spine">Séquence (un chapitre par entrée)</string>
+    <string name="option_epub_split_mode_explain_text">Basé sur la TOC (table des matières) : Crée plus de chapitres mais préserve la structure. Basé sur la séquence : Plus simple et crée moins de chapitres.</string>
+    <string name="option_automotive_on">Se connecter à Android Auto.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Reprendre automatiquement la lecture lors de la connexion à la voiture.</string>
+
 
     <string name="AutoTest_title">Test Auto</string>
-
-    <string name="File">Fichier</string>
-    <string name="Folder">Dossier</string>
     <string name="bOpenZipFile">Fichier Zip</string>
     <string name="bOpenM4bFile">Fichier Audio</string>
-
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
     <string name="bOpenFile_desc">Choisir n\'importe quel fichier.</string>
     <string name="bOpenZipFile_desc">filtre : uniquement les fichiers zip</string>
-    <string name="bOpenM4bFile_desc">filtre : uniquement les fichiers audio\n<i>Attention : ce filtre n\'est pas parfait. Utilisez le bouton du haut [n\'importe quel fichier] en cas de problème.</i></string>
-
+    <string name="bOpenM4bFile_desc">filter : only audio files
+        \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
     <string name="DirectDownload_title">Téléchargement direct</string>
     <string name="DirectDownload_desc">Collez un lien ci-dessous puis appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
     <string name="DirectDownload_button">Télécharger</string>
-
-    <string name="AudioBooks">Livres audio</string>
     <string name="LibrivoxSearch_desc">Recherchez directement sur LibriVox pour trouver un livre audio. C\'est un dépôt gratuit de livres tombés dans le domaine public, principalement en anglais mais aussi dans d\'autres langues.</string>
-<string name="PodcastSearch_desc">Parcourir des podcasts grâce au registre open source podcastindex.org</string>
+    <string name="PodcastSearch_desc">Parcourir des podcasts grâce au registre open source podcastindex.org</string>
     <string name="podcast_image_desc">Image du podcast</string>
     <string name="podcast_no_results">Aucun podcast trouvé</string>
-
-    <string name="Search_2pt">Recherche : </string>
-    <string name="Language_2pt">Langue : </string>
-    <string name="Results_2pt">Résultats : </string>
     <string name="search_nothing_specified">Aucun critère précisé</string>
+
     <string name="Librivox_bGetAudioBook">Télécharger le livre audio</string>
+
     <string name="librivox_no_audiobook_found_for_search">Aucun livre audio trouvé avec ces critères</string>
     <string name="librivox_invalid_response">Réponse invalide du serveur Librivox</string>
     <string name="loading_details">Chargement des détails…</string>
     <string name="loading_detail_failed">Échec du chargement des détails</string>
     <string name="librivox_zip_mp3_available">Fichier ZIP-MP3 disponible</string>
     <string name="librivox_zip_mp3_not_found">Fichier ZIP-MP3 introuvable</string>
+
     <string name="librivox_cover_desc">Couverture Librivox</string>
+
 
     <string name="podcast_favorite_add">Ajouté aux favoris</string>
     <string name="podcast_autodownload_add">Ajouté en téléchargement auto</string>
     <string name="podcast_new_episodes">nouveaux épisodes</string>
 
-    <!-- ********************************** -->
-    <!-- Ajouter des ressources -->
 
     <string name="Error_Import_IsNotFolder">Ceci ne semble pas être un dossier</string>
     <string name="Error_Import_IsNotFile">Ceci ne semble pas être un fichier</string>
@@ -312,15 +514,12 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Error_Import_CannotReadFolder">Erreur lors de la lecture du dossier sélectionné</string>
     <string name="Error_Import_CannotSaveInDB">Erreur lors de l\'enregistrement dans la base locale</string>
     <string name="Import_nMediaInFolder">médias trouvés dans ce dossier</string>
-
     <string name="Import_Progress_unzipping_file">décompression du fichier : </string>
-
     <string name="Error_Import_Creating_Folders">Impossible de créer les dossiers</string>
     <string name="Error_Import_track_duration_extraction">Erreur lors de l\'obtention de la durée</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">mémoire disponible : </string>
     <string name="Error_Import_NotEnoughMemory_line3">source à copier : </string>
     <string name="Error_NameTooShort">Ce nom est trop court</string>
-
     <string name="Import_Success">Importation réussie</string>
     <string name="Import_Experimental_M4B_warning">Avertissement : <b>l\'extraction des chapitres m4b</b> est encore <b>expérimentale</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Si vous rencontrez des erreurs</string>
@@ -331,19 +530,13 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="init_please_wait">Initialisation… Veuillez patienter…</string>
     <string name="init_check_already_imported_please_wait">vérification des doublons en cours…</string>
     <string name="init_check_complementary_checks_please_wait">vérifications complémentaires…</string>
-
     <string name="error_media_already_loaded_samePath">Ce média a déjà été importé</string>
-
     <string name="ErrorCouldNotLoadAudios">ERREUR - Impossible de charger les fichiers audio.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERREUR - Aucun fichier audio trouvé dans ce dossier.</string>
-
+    <string name="loading_voice_3pt">Chargement voix…</string>
     <string name="Error_Import_OutOfMemory">Erreur générale : Mémoire insuffisante</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">Ce dossier contient peut-être trop de livres ou de sous-dossiers pour un seul chargement</string>
-
-
-    <!-- ********************************** -->
-    <!-- FolderModifyActivity -->
-<string name="bMove">Changer la position</string>
+    <string name="bMove">Changer la position</string>
     <string name="bReset">Réinitialiser la progression</string>
     <string name="Folder_Deleted_DB">Livre supprimé !</string>
     <string name="Folder_Renamed">Le dossier a été renommé</string>
@@ -351,17 +544,13 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Folder_Reset">La progression du dossier a été réinitialisée</string>
     <string name="ZikFile_Renamed">La piste a été renommée</string>
     <string name="ZikFile_Deleted">La piste a été supprimée</string>
-
     <string name="AskDelete_popupTitle">Confirmer la suppression</string>
     <string name="AskReset_popupTitle">Confirmer la réinitialisation</string>
-
     <string name="You_are_about_to_delete_this_audio_book">Vous êtes sur le point de supprimer ce livre audio</string>
     <string name="LastAccess">Dernier accès</string>
     <string name="AudioLocation">Emplacement de l\'audio</string>
-
     <string name="Change_cover_image">Changer l\'image de couverture</string>
     <string name="AskRename_Track">Renommer cette piste en</string>
-
     <string name="IntroCut">Couper l\'intro</string>
     <string name="Rename_book">Renommer le livre</string>
     <string name="AskRename_Book">Voulez-vous vraiment renommer le livre en</string>
@@ -371,45 +560,43 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="Export_display_text_preparing_export">Préparation de l\'export…</string>
     <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des fichiers audio.</string>
     <string name="Export_error">Erreur d\'export</string>
+    <string name="export_title_label">Exporter le livre en ZIP :</string>
+    <string name="export_audiobook_name_placeholder">nom du livre audio</string>
+    <string name="export_base_destination_folder_label">dossier de destination de base :</string>
+    <string name="export_click_to_change_label">cliquer pour changer</string>
+    <string name="export_download_folder_button">Dossier Téléchargements</string>
+    <string name="export_destination_filename_label">nom du fichier de destination :</string>
+    <string name="export_edit_name_hint">vous pouvez modifier ce nom</string>
+    <string name="export_progress_info_placeholder">Info de progression…</string>
+    <string name="export_start_button">Démarrer l\'export</string>
+    <string name="export_inside_subfolder_label">et dans un sous-dossier \'BookPlayer\'</string>
 
-    <!-- ********************************** -->
-    <!-- Zik File Adapter -->
 
     <string name="Progression_reset_done">Progression réinitialisée</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">Confirmer la réinitialisation</string>
     <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">Vous êtes sur le point de réinitialiser la progression de cet audio\nÊtes-vous sûr ?</string>
-
-    <!-- ********************************** -->
-    <!-- PlayActivity -->
-
-    <string name="play" translatable="false"><![CDATA[>]]></string>
-    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
-    <string name="forward" translatable="false"><![CDATA[>>]]></string>
-    <string name="pause" translatable="false">||</string>
-    <string name="Speed">Vitesse</string>
-    <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">Aucune action utilisateur depuis</string>
     <string name="tv_CustomSleepDialog_generalInfo"><i>Cette valeur ne sera utilisée que pour la session en cours.\nLa valeur globale de veille automatique se trouve dans les Options.</i></string>
     <string name="tv_TimeLeft">Temps restant avant veille</string>
     <string name="error_reading_track">ERREUR DE LECTURE DE LA PISTE !</string>
     <string name="current_position">Position actuelle</string>
-<string name="source_not_found">Le fichier source est introuvable ou illisible.</string>
+    <string name="source_not_found">Le fichier source est introuvable ou illisible.</string>
     <string name="source_not_found_deleted">Le fichier source est introuvable. Il a peut-être été supprimé.</string>
     <string name="source_file_path">Chemin du fichier source</string>
     <string name="permission_not_set">La permission n\'est pas accordée.</string>
     <string name="notification_playlist_finished">Livre terminé !</string>
     <string name="notification_auto_sleep">Veille automatique !</string>
-
     <string name="SleepTimer">Minuteur de veille</string>
     <string name="SleepTimerWrongInt">Entrée invalide. Veuillez saisir un nombre valide.</string>
     <string name="SleepTimerGeneralError">Une erreur s\'est produite lors de la configuration du minuteur de veille.</string>
 
-    <!-- ********************************** -->
-    <!-- STORAGE -->
 
     <string name="physical_storage_memory">Mémoire de stockage physique</string>
+    <string name="device_storage_memory">Mémoire de l'appareil</string>
+    <string name="sd_card_storage">Stockage Carte SD</string>
     <string name="MB_taken_by_BookPlayer_app">Mo pris par l\'app BookPlayer</string>
     <string name="MB_taken_by_audio_files">Mo pris par les fichiers audio</string>
+    <string name="MB_taken_by_linked_audios"> Mo : audios liés</string>
     <string name="MB_taken_by_logs">Mo pris par les journaux</string>
     <string name="MB_available_on_device">Mo : disponibles sur l\'appareil</string>
     <string name="MB_device_memory">Mo : mémoire de l\'appareil</string>
@@ -418,38 +605,19 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="audio_location_sdcard">Carte SD</string>
     <string name="custom_value_in_minutes">valeur personnalisée en minutes</string>
 
+
     <string name="audio_location_sdcard_reserved_storage">Carte SD (espace réservé à l\'app)</string>
     <string name="audio_location_bookplayer_reserved_storage">Stockage réservé à BookPlayer</string>
     <string name="audio_location_smartphone_shared_storage">Stockage partagé du smartphone</string>
     <string name="audio_location_audiobook_not_found">Livre audio introuvable</string>
-    <!-- ********************************** -->
-    <!-- Menus -->
-
-    <string name="Menu">Menu</string>
-    <string name="open">ouvrir</string>
-    <string name="manual">manuel</string>
     <string name="menu_sendmail">e-mail au développeur</string>
-    <string name="Stats">Statistiques</string>
-    <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="Cleaning">Nettoyage</string>
-    <string name="Website">Site web</string>
 
-    <!-- ********************************** -->
-    <!-- OTHER APPS -->
-    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_scanner" translatable="false">Scanner</string>
-
-    <!-- ********************************** -->
-    <!-- PERMISSIONS -->
 
     <string name="permission_rationale">Cette activité nécessite les autorisations suivantes: </string>
     <string name="permissions_granted">Autorisations accordées.</string>
     <string name="permissions_denied">Autorisations refusées.</string>
-    <string name="permissions_ok_button" translatable="false">OK</string>
-
     <string name="permission_read_write_rationale">Bookplayer nécessite l\'autorisation [Lire l\'audio] (ou activez l\'option [Copier le fichier]).</string>
-    <string name="permission_read_write_denied">L\'autorisation [Lire l\'audio] a été refusée.
+    <string name="permission_read_write_denied">L'autorisation [Lire l'audio] a été refusée.
 \n\nCliquez sur [Infos sur l\'app] pour activer les autorisations manuellement.
 \n\nOu
 \n\nCliquez sur [Options] pour activer l\'option [Copier le fichier en interne] de l\'app.
@@ -457,75 +625,49 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
 </string>
     <string name="permission_record_audio_rationale">Le visualiseur de spectre nécessite l\'autorisation [enregistrer l\'audio].</string>
     <string name="permission_record_audio_denied">Le visualiseur de spectre ne sera pas affiché. L\'autorisation [enregistrer l\'audio] a été refusée.</string>
-
-    <string name="Permission">Autorisation</string>
     <string name="permission_read_denied_short_text_on_load">L\'autorisation [Musique et audio] a précédemment été refusée.
 \n\nVous devrez cliquer sur [Infos sur l\'app] et activer cette autorisation manuellement.
 \n\n<i>Elle est nécessaire si vous souhaitez lire directement l\'audio depuis le stockage général du smartphone (option de copie désactivée).</i>
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">Autorisation [Musique et audio] requise pour lire depuis le stockage général du smartphone.</string>
-
-    <string name="Close">Fermer</string>
     <string name="Episode_description">Description de l\'épisode</string>
-    <string name="Trending">Tendances</string>
     <string name="max_number_of_results_reached">nombre maximum de résultats atteint</string>
     <string name="librivox_books_loaded">%1$s livres chargés</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s livres</string>
-
     <string name="network_preferences_title">préférences réseau</string>
     <string name="option_download_auto_title">Téléchargement automatique</string>
     <string name="option_download_user_title">Téléchargement manuel</string>
     <string name="download_any">📶 Toute connexion</string>
-
-    <!-- Network download prompts -->
+    <string name="download_bis_unmetered">🆓 Uniquement sans compteur</string>
+    <string name="download_not_roaming">🏠 Pas en itinérance</string>
     <string name="download_warning_title_unmetered">Connexion illimitée</string>
     <string name="download_warning_message_unmetered">Tu n\'es pas sur une connexion illimitée. Continuer le téléchargement ?</string>
+    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Utilisez HTTPS ou autorisez le texte clair pour cet hôte dans la configuration de sécurité réseau de l\'app.</string>
+    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (texte clair) est bloqué par la politique de sécurité réseau d\'Android.</string>
+    <string name="http_cleartext_to">HTTP (texte clair) vers</string>
+    <string name="is_blocked_by_android_s_network_security_policy">est bloqué par la politique de sécurité réseau d\'Android</string>
 
-    <string name="no_internet_connection">Pas de connexion internet</string>
-    <string name="an_error_occurred">Une erreur est survenue</string>
 
     <string name="Add_to_favorite">Ajouter aux favoris</string>
     <string name="Auto_Download_episodes">Téléchargement automatique des épisodes</string>
-    <string name="favorites">favoris</string>
     <string name="Download_paused_by_user">Téléchargement mis en pause par l\'utilisateur</string>
     <string name="Download_finished">Téléchargement terminé</string>
-
-    <string name="Pause">Pause</string>
-    <string name="Resume">Reprendre</string>
-    <string name="Import_failed">Échec de l\'importation</string>
-    <string name="About_to_start_download">Sur le point de commencer le téléchargement…</string>
-    <string name="Please_enter_a_URL">Veuillez saisir une URL.</string>
-    <string name="Permission_Required">Autorisation requise</string>
-    <string name="Settings">Options</string>
-    <string name="App_Info">Infos sur l\'application</string>
-    <string name="reset_app">Réinitialiser l\'application</string>
-    <string name="Exit">Quitter</string>
-    <string name="add_book">ajouter un livre</string>
-    <string name="Not_enough_memory">Mémoire insuffisante</string>
-    <string name="Import_in_progress">Importation en cours</string>
-
     <string name="Import_Progress_copying_file_from_general_storage">"copie du fichier source \n- depuis le stockage général de l\'appareil"</string>
     <string name="Import_Progress_copying_file_from_cloud">"copie du fichier source \n- depuis le Cloud"</string>
     <string name="Import_Progress_copying_file_to_internal_reserved">"\n- vers la mémoire interne réservée de l\'application Bookplayer"</string>
     <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- vers la mémoire carte SD réservée de Bookplayer"</string>
-
     <string name="could_not_check_already_imported">impossible de vérifier si déjà importé.</string>
     <string name="warning_url_already_loaded_under_the_name">le même lien web a déjà été importé ! (le contenu n\'a pas été vérifié, est-ce le même ?). Il a été enregistré sous le nom :</string>
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">Un média différent avec le même nom avait déjà été chargé</string>
-    <string name="Also">Aussi</string>
     <string name="the_name_will_be_changed_to">, le nom sera changé en : </string>
-
     <string name="listing_and_sorting_tracks">listage et tri des pistes</string>
     <string name="scanning_tracks">analyse des pistes</string>
     <string name="saving_folder">enregistrement du dossier</string>
     <string name="saving_track">enregistrement de la piste</string>
-    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
     <string name="MB_taken_by_images">" Mo pris par les images"</string>
-
     <string name="DeleteImages_AskConfirm">"Vous êtes sur le point de supprimer toutes les images.
        Êtes-vous sûr ?"</string>
     <string name="delete_cached_images">Supprimer les images en cache</string>
-
     <string name="too_low">trop bas</string>
     <string name="too_high">trop élevé</string>
     <string name="delay_for_auto_deletion">délai pour suppression automatique</string>
@@ -533,18 +675,9 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="auto_download_last_n_episode">téléchargement automatique des xx derniers épisodes</string>
     <string name="auto_download_max_n_podcast">téléchargement automatique max xx podcasts</string>
     <string name="auto_download_delay_between_checks_in_min">délai automatique entre les vérifications (en min)</string>
-    <string name="last">derniers</string>
-    <string name="episodes">épisodes</string>
-    <string name="Podcasts">Podcasts</string>
-    <string name="podcasts">podcasts</string>
-    <string name="Auto_Download">Téléchargement automatique</string>
-    <string name="Auto_Delete">Suppression automatique</string>
     <string name="for_max">pour un maximum de</string>
     <string name="check_every">vérifier toutes les</string>
-    <string name="min.">min.</string>
     <string name="auto_delete_episodes_once_listened_to">supprimer automatiquement les épisodes après écoute</string>
-    <string name="after">après</string>
-    <string name="days">jours</string>
     <string name="if_completion">si achèvement</string>
     <string name="no_episode_all_deleted">aucun épisode trouvé, tous supprimés ?</string>
     <string name="podcast_api_unavailable_fallback">impossible d\'obtenir de nouveaux épisodes, affichage uniquement des précédents</string>
@@ -552,94 +685,58 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="added_on">ajouté le</string>
     <string name="MB_taken_by_databases">" Mo pris par la base de données"</string>
     <string name="bMassImport">Importation massive</string>
-
     <string name="bOpenMassImport_desc">Importation en masse : Créez autant de livres audio qu\'il y a d\'éléments dans le dossier que vous choisirez.</string>
     <string name="bOpenFolder_desc">Choisissez un dossier : tous les fichiers audio (y compris dans les sous-dossiers, le cas échéant) seront importés dans le même livre audio.</string>
-
     <string name="type_here_">Saisissez ici…</string>
+
 
     <string name="most_downloaded">"Les plus téléchargés"</string>
     <string name="open_audiobooks">"Parcourir les livres audio"</string>
     <string name="open_other">"Ouvrir un fichier audio"</string>
 
-    <string name="ep">"ép"</string>
     <string name="option_podcast_episodes_sort_order">dernier épisode en haut</string>
-
     <string name="app_language">Langue de l\'application</string>
+
     <string name="tts_language">Langue TTS</string>
-    <string name="language">langue</string>
-    <string name="download">télécharger</string>
-    <string name="auto_download">téléchargement automatique</string>
-    <string name="refresh">rafraîchir</string>
-    <string name="collapse">réduire</string>
-    <string name="expand">développer</string>
-    <string name="flag">drapeau</string>
     <string name="language_flag">drapeau de langue</string>
     <string name="voice_flag">drapeau de voix</string>
-    <string name="settings">paramètres</string>
     <string name="Podcast_Settings">paramètres podcast</string>
     <string name="option_podcast_episodes_expand">afficher les descriptions</string>
     <string name="option_create_cover">Créer des couvertures</string>
     <string name="option_create_cover_text">Si aucune image de couverture n\'est trouvée lors du chargement du livre, une image pastel avec les initiales du titre sera créée.</string>
     <string name="toggle_text_image">Basculer texte/image</string>
     <string name="reset_progress_from_this_track">réinitialiser la progression depuis ce morceau</string>
+
     <string name="rename_track">renommer le morceau</string>
-    <string name="sort">trier</string>
     <string name="could_not_read_resource">Impossible de lire la ressource</string>
     <string name="mime_type_not_supported">le fichier choisi n\'est pas pris en charge</string>
+
     <string name="list_of_supported_extensions">liste des extensions prises en charge</string>
     <string name="audio_book_name">nom du livre audio</string>
-    <string name="audio_book_cover">couverture du livre audio</string>
-    <string name="title">titre</string>
-    <string name="subtitle">sous-titre</string>
 
-    <string name="option_night_mode_title">Mode du thème  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ Système</string>
-    <string name="option_night_mode_light">☀️ Clair</string>
-    <string name="option_night_mode_dark">🌙 Sombre</string>
-    <string name="option_night_mode_dialog_title">Choisir le mode du thème</string>
-    <string name="text_to_speech">synthèse vocale</string>
+    <string name="audio_book_cover">couverture du livre audio</string>
     <string name="still_in_development">encore en développement</string>
     <string name="weird_behavior_could_happen">un comportement étrange peut survenir</string>
     <string name="DeleteCoverImage_AskDelete">"Vous êtes sur le point de supprimer cette image de couverture.\nÊtes-vous sûr ?"</string>
-    <string name="action_generate">✨ Générer</string>
-    <string name="action_delete">🗑️ Supprimer</string>
     <string name="action_change">🖼️ Changer</string>
-
+    <string name="action_delete">🗑️ Supprimer</string>
+    <string name="action_generate">✨ Générer</string>
+    <string name="action_web_search">🔎 Recherche web</string>
+    <string name="action_reset_to_original">↩️ RàZ original</string>
     <string name="Specific_view">Vue spécifique podcast</string>
-    <string name="option_podcast_autodownloaded_at_the_top">Lorsque de nouveaux épisodes sont téléchargés, déplacer le podcast en haut de la liste des livres audio.</string>
-    <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>
     <string name="Error_Import_No_Usable_item_Found">"Aucun élément utilisable trouvé"</string>
+
 
     <string name="Error_Import_could_not_delete_source">"impossible de supprimer la source choisie"</string>
 
-    <string name="option_text_appearance_title">Apparence du texte</string>
-    <string name="Font">Police</string>
-    <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
-    <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
-
-    <string name="option_playing_behaviour_title">Lecture</string>
-    <string name="option_start_next_track_at_zero_title_text">Toujours commencer la piste suivante depuis le début, même si elle a déjà été partiellement écoutée.</string>
-    <string name="stop">stop</string>
-    <string name="option_stop_audio_if_user_closes_app_text">Arrêter l\'audio lorsque vous fermez l\'app.</string>
-    <string name="Audio">Audio</string>
-    <string name="Video">Vidéo</string>
-    <string name="Text">Texte</string>
-    <string name="Bundle">Archive</string>
 
     <string name="could_not_identify_track_to_modify">impossible d\'identifier la piste à modifier</string>
     <string name="could_not_identify_folder_to_modify">impossible d\'identifier le dossier à modifier</string>
-
-    <string name="Automotive">Automobile</string>
-    <string name="option_automotive_on">Se connecter à Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Reprendre automatiquement la lecture lors de la connexion à la voiture.</string>
     <string name="automotive_no_item_in_bookplayer">Aucun élément. Ouvrez BookPlayer sur votre téléphone et importez un livre.</string>
     <string name="automotive_empty_book">Livre vide</string>
     <string name="automotive_resume_play">Reprendre la lecture</string>
     <string name="nb_of_audios_found">Nb d\'audios trouvés</string>
-    <string name="reviews">avis</string>
     <string name="average_rating">note moyenne</string>
-
     <string name="help_tts_title">Synthèse vocale :</string>
     <string name="help_tts_text"><![CDATA[
 <font color="#BA68C8"><b>Écouter du texte avec des voix synthétiques</b></font>
@@ -652,36 +749,28 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
 ]]></string>
     <string name="failed_to_create_destination_folder">Échec de la création du dossier de destination</string>
     <string name="server_returned_http">Le serveur a renvoyé HTTP</string>
+    <string name="http_code_400">Mauvaise requête</string>
+    <string name="http_code_404">Introuvable</string>
+    <string name="http_code_408">Délai d\'attente dépassé</string>
+    <string name="http_code_429">Trop de requêtes</string>
+    <string name="http_code_500">Erreur interne du serveur</string>
+    <string name="http_code_502">Mauvaise passerelle</string>
+    <string name="http_code_503">Service indisponible</string>
+    <string name="http_code_504">Délai passerelle dépassé</string>
     <string name="connection_aborted">Connexion interrompue</string>
     <string name="io_error">Erreur d’E/S</string>
-    <string name="unexpected_error">Erreur inattendue</string>
     <string name="starting_download">Démarrage du téléchargement…</string>
     <string name="No_chapters_found">Aucun chapitre trouvé</string>
     <string name="Unsupported_ebook_type">Type de livre numérique non pris en charge</string>
     <string name="download_stopped_by_system_will_retry">Téléchargement arrêté par le système — nouvelle tentative</string>
     <string name="download_resuming">Reprise du téléchargement</string>
-    <string name="Cancelled">Annulé</string>
     <string name="importing_book">Importation du livre</string>
-    <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">vérification de la taille</string>
-    <string name="error">erreur</string>
-    <string name="download_bis_unmetered">🆓 Uniquement sans compteur</string>
-    <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Utilisez HTTPS ou autorisez le texte clair pour cet hôte dans la configuration de sécurité réseau de l\'app.</string>
-    <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (texte clair) est bloqué par la politique de sécurité réseau d\'Android.</string>
-    <string name="http_cleartext_to">HTTP (texte clair) vers</string>
-    <string name="is_blocked_by_android_s_network_security_policy">est bloqué par la politique de sécurité réseau d\'Android</string>
-    <string name="save">enregistrer</string>
     <string name="rounded_corners">coins arrondis</string>
     <string name="cover_preview">aperçu de la couverture</string>
-    <string name="paste">coller</string>
-    <string name="clear">effacer</string>
-    <string name="emoji_paste" translatable="false">📋</string>
-    <string name="emoji_clear" translatable="false">🗑️</string>
-    <string name="librivox" translatable="false">Librivox</string>
     <string name="return_max">retour max</string>
     <string name="maximum_number_of_results_for_">Nombre maximum de résultats pour </string>
     <string name="minimum_number_of_results_for_">Nombre minimum de résultats pour </string>
-    <string name="favorite">favori</string>
     <string name="librivox_settings">paramètres Librivox</string>
     <string name="error_no_space_left">Plus d\'espace disponible sur l\'appareil</string>
     <string name="solution_free_space">Veuillez libérer de l\'espace de stockage et réessayer.</string>
@@ -690,101 +779,50 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="Error_Import_no_valid_media_found">Erreur : aucun média valide trouvé</string>
     <string name="Error_Import_extract_audio_data_failed">Erreur : impossible d\'extraire les données audio</string>
     <string name="Error_Import_unsupported_file">Erreur : fichier non pris en charge</string>
-
-    <string name="Warning">Avertissement</string>
-    <string name="beta_test">test bêta</string>
-
-    <string name="action_web_search">🔎 Recherche web</string>
-    <string name="confirm">confirmer</string>
     <string name="use_this_image_as_cover">utiliser cette image comme couverture</string>
     <string name="search_title_hint">tapez ici...</string>
     <string name="failed_to_change_image">Échec du changement d\'image</string>
     <string name="no_image_found">Aucune image trouvée</string>
     <string name="parsing_metadata">Analyse des métadonnées</string>
-
-    <string name="download_not_roaming">🏠 Pas en itinérance</string>
     <string name="download_warning_title_roaming">Connexion en itinérance</string>
     <string name="download_warning_message_roaming">Vous êtes en itinérance (à l\'étranger). Continuer le téléchargement ?</string>
-    <string name="option_network_preference_subtext">"Une connexion non mesurée signifie que vous n\'utilisez pas de données mobiles (par exemple Wi-Fi, Ethernet ou certains VPN).\nL\'itinérance signifie être à l\'étranger - même le Wi-Fi d\'hôtel à l\'étranger compte comme itinérance."</string>
-
     <string name="please_wait_another_book_is_being_imported">Veuillez patienter, un autre livre est encore en cours d\'importation.</string>
     <string name="download_stop_requested">Arrêt du téléchargement demandé</string>
-
-    <string name="import_task_start">démarrage...</string>
-    <string name="done.">terminé.</string>
-    <string name="Copy">Copie</string>
-<string name="import_task_ebook_split">Analyse de l\'ebook</string>
+    <string name="import_task_ebook_split">Analyse de l\'ebook</string>
     <string name="import_task_m4b_split">Extraction M4b</string>
-    <string name="Uncompress">Décompression</string>
-    <string name="Integration">Intégration</string>
     <string name="Import_Success_with_warnings">Importation terminée avec avertissements</string>
-
-    <string name="metadata">métadonnées</string>
-    <string name="no_metadata_available">Aucune métadonnée disponible</string>
-    <string name="Artist">Artiste</string>
-    <string name="Album">Album</string>
-    <string name="Genre">Genre</string>
-    <string name="Year">Année</string>
-    <string name="Track">Piste</string>
-    <string name="Disc">Disque</string>
-    <string name="Bitrate">Débit binaire</string>
-    <string name="sample_rate">Fréquence d\'échantillonnage</string>
-    <string name="Channels">Canaux</string>
-
     <string name="frequency_visualizer">Visualiseur de fréquences</string>
     <string name="counting_files">comptage des fichiers</string>
-
-    <string name="option_automotive_let_car_autoplay">Autoriser Android Auto à lancer la lecture automatiquement (généralement lors de la connexion à la voiture).</string>
-    <string name="option_open_play_activity">Ouvrir la vue de lecture lorsque la lecture démarre.</string>
-    <string name="tts_settings">Paramètres TTS</string>
-    <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>
-    <string name="option_tts_highlight_delay_title">Surlignage des mots.</string>
-    <string name="option_tts_highlight_delay_text">Délai du moteur :</string>
-    <string name="ms.">ms.</string> //means milliseconds
-
-    <string name="Text_To_Speech">Synthèse vocale</string>
     <string name="tts_phase_loading_text">Chargement du texte…</string>
     <string name="tts_phase_warming_up">Préparation de la voix…</string>
     <string name="tts_phase_starting">Démarrage de la lecture…</string>
-    <string name="Ready">Prêt</string>
-    <string name="Speaking">Lecture en cours</string>
     <string name="tts_phase_error">Erreur du moteur de synthèse</string>
     <string name="error_generic">Une erreur inattendue est survenue</string>
     <string name="tts_error_warmup_timeout">Le préchauffage de la voix a expiré</string>
     <string name="tts_error_voice_set_failed">Échec de l\'application de la voix</string>
     <string name="tts_error_synth_failed">Échec de la synthèse de préchauffage</string>
-
     <string name="source_flag">drapeau de source</string>
     <string name="voice_name">nom de la voix</string>
     <string name="Clipboard_is_empty">Le presse-papiers est vide</string>
-
-    <string name="chars">caract.</string> <!-- means : word character -->
-    <string name="reorder">réorganiser</string>
-    <string name="new_label">nouveau</string>
-    <string name="icon">icône</string>
-    <string name="Engine">Moteur</string>
-    <string name="Design">Design</string>
-    <string name="Import">Importer</string>
-    <string name="Utilities">Utilitaires</string>
     <string name="option_tts_highlight_delay_outOfBounds">Délai de surbrillance</string>
+
+
     <string name="option_tts_chunk_size_text">Taille des segments :</string>
     <string name="tts_chunk_size">Taille des segments</string>
     <string name="changeTracksOrder">changer l\'ordre des pistes</string>
     <string name="Failed_to_create_the_destionation_file">Échec de création du fichier de destination.</string>
     <string name="Cannot_write_to_the_chosen_folder">Impossible d\'écrire dans le dossier choisi.</string>
     <string name="Export_done_Excl">"Export terminé !"</string>
-
     <string name="option_play_view">Vue de lecture</string>
     <string name="option_click_container_playpause_text">Un clic sur l\'image mettra l\'audio en pause ou le reprendra</string>
     <string name="Radio_Settings">paramètres radio</string>
     <string name="live_radio">radio en direct</string>
-    <string name="radio">radio</string>
+    <string name="live_podcast">podcast en direct</string>
     <string name="no_result">aucun résultat</string>
     <string name="radio_cover_desc">description de la couverture radio</string>
     <string name="RadioSearch_title">Radios Web</string>
     <string name="selected_language_error">erreur de langue sélectionnée</string>
-
-    <string name="media_button_action">action du bouton média</string> <!-- media control -->
+    <string name="media_button_action">action du bouton média</string>
     <string name="by_tag">par étiquette</string>
     <string name="by_country">par pays</string>
     <string name="by_language">par langue</string>
@@ -793,56 +831,41 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="remove_from_favorites">retirer des favoris</string>
     <string name="search_by_station_name">rechercher par nom de station</string>
     <string name="play_pause">lecture pause</string>
-
     <string name="option_reset_settings_values">Réinitialiser les valeurs des paramètres</string>
     <string name="reset_to_default">réinitialiser par défaut</string>
     <string name="reset_for_power_user">réinitialiser pour utilisateur avancé</string>
-
     <string name="option_reset_for_power_user_explain_text">
 La réinitialisation pour utilisateur avancé restaure les valeurs d\'usine, mais garde quelques réglages spécifiques :
 \nImportation :
 \n* [ne pas copier]
-\n* [\"Ouvrir avec\" pour tout type de fichier]
+\n* ["Ouvrir avec" pour tout type de fichier]
 \nComportement de lecture :
 \n* [ne pas ouvrir la vue de lecture dédiée]
-\n* [continuer la lecture audio en quittant l\'application]
+\n* [continuer la lecture audio en quittant l'application]
 </string>
-
     <string name="cancel_ongoing_operation">Annuler les opérations en cours</string>
-
     <string name="option_reset_app_explain_text">
 Parfois, l\'application peut se bloquer, par exemple après un crash pendant une importation, empêchant toute autre importation ou annulation.
 Dans ce cas, appuyez sur ce bouton pour annuler et réinitialiser les importations en cours.
 </string>
-
     <string name="option_tts_chunk_size_explain_text">
 La taille du bloc détermine combien de texte est envoyé au moteur TTS à la fois. L\'augmenter peut donner une voix plus fluide et naturelle.
 </string>
-
     <string name="option_tts_highlight_delay_explain_text">
 Vous pouvez ajuster le délai de surbrillance pour mieux synchroniser l\'audio avec les mots affichés.
 </string>
-
     <string name="option_automotive_on_explain_text">
 Autoriser Android Auto à se connecter à BookPlayer, afficher le catalogue et contrôler la lecture.
 </string>
-
     <string name="option_automotive_auto_resume_on_car_connect_explain_text">
 Autoriser Android Auto à reprendre automatiquement la lecture lors de la connexion à la voiture, si l\'audio était déjà en cours.
 </string>
-
     <string name="option_automotive_let_car_autoplay_explain_text">
 Autoriser Android Auto à démarrer automatiquement la lecture lors de la connexion à la voiture, même si rien ne jouait.
 </string>
-
     <string name="Mass_Import">Importation massive</string>
+    <string name="massiveimport_title">Import de masse</string>
     <string name="scanning_folder">analyse du dossier</string>
-    <string name="candidates">candidats</string>
-    <string name="found">trouvé</string>
-    <string name="from">de</string>
-    <string name="in">dans</string>
-    <string name="items">éléments</string>
-    <string name="folder">dossier</string>
     <string name="Nothing_to_re_import_among">Rien à réimporter parmi</string>
     <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres &gt; Utilitaires &gt; Annuler l\'opération en cours] (tout en bas).</string>
     <string name="Podcast_source_error">Erreur de source du podcast</string>
@@ -852,22 +875,14 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="import_settings">Paramètres d\'importation</string>
     <string name="option_split_m4b_subtitle">Si décoché, les fichiers M4B seront importés comme des pistes uniques.</string>
     <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>
-
     <string name="Import_Progress_chapter_title">"Titre de piste"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"le nom du fichier exporté doit contenir au moins 3 caractères"</string>
     <string name="option_radio_renew_url">vérifier le meilleur miroir avant lecture</string>
     <string name="option_radio_renew_url_subtitle">Vérifier les miroirs (serveurs radio) garantit la meilleure source disponible, mais peut prendre du temps (délai actuel 10 sec.).</string>
     <string name="checking_for_best_mirror">vérification du meilleur miroir</string>
     <string name="error_radio_renew_url">erreur lors de l\'obtention du lien du miroir radio</string>
-    <string name="loading">chargement</string>
-    <string name="library">bibliothèque</string> <!-- stay below 10/12 chars -->
-    <string name="Download">Télécharger</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Ajouter la date de publication au nom de l\'épisode</string>
 
-    <string name="legacy">ancien</string> <!-- <8 -->
-    <string name="wave">onde</string> <!-- <8 -->
-    <string name="bars">barres</string> <!-- <8 -->
-    <string name="radial">radial</string> <!-- <8 -->
     <string name="option_play_view_explain">La vue lecture est l\'écran détaillé — celui avec la grande couverture au centre, les gros boutons en bas et des commandes comme Vitesse et Minuteur.</string>
     <string name="ChangeTrackOrder_Title">Instructions pour l\'écran suivant</string>
     <string name="ChangeTrackOrder_Text">Faites glisser les boîtes.
@@ -886,11 +901,9 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="direct_link">http direct</string>
     <string name="load_one_book">charger 1 livre</string>
     <string name="load_multiple_book">charger plusieurs livres</string>
-
     <string name="reset_track_order">réinitialiser l\'ordre des pistes</string>
     <string name="Tracks_order_has_been_reset">l\'ordre des pistes a été réinitialisé</string>
     <string name="add_new_tracks">ajouter de nouvelles pistes</string>
-
     <string name="m4b_error_non_standard_chapter_format">"""
                         Ce fichier M4B utilise un format de chapitres non standard.
                         BookPlayer ne peut découper que les fichiers M4B qui possèdent des chapitres texte intégrés.
@@ -908,51 +921,28 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
                         - Ou séparez-le sur un ordinateur et importez les chapitres individuellement.
 
                         Pour l\'instant, BookPlayer importera le M4B original comme un seul fichier audio."""</string>
-
-    <string name="destination">destination</string>
-    <string name="count">compteur</string>
-
     <string name="APPEND_MODE">AJOUTER AU LIVRE EXISTANT</string>
     <string name="internet_status">État Internet</string>
     <string name="net_status_initial">Vérification du réseau…</string>
     <string name="net_status_unmetered">Connexion illimitée</string>
-    <string name="Roaming">Itinérance</string>
     <string name="AskReset_popupText_order">Vous êtes sur le point de réinitialiser l\'ordre des pistes.\nÊtes-vous sûr?</string>
     <string name="zikFiles_not_readable">des pistes ont des erreurs et ne sont pas lisibles:</string>
     <string name="All_zikFiles_not_readable">Ce livre est KO. Aucune piste ne peut être lue.</string>
     <string name="option_progress_heatmap_subtitle">Les barres de progression des pistes montreront exactement quelles parties ont été écoutées, et la couleur s\'intensifie plus une section a été lue.</string>
     <string name="option_progress_heatmap">afficher les cartes thermiques</string>
     <string name="option_lock_orientation_play_activity">Verrouiller l\'orientation de l\'écran</string>
-
-    <string name="History">Histoire</string>
     <string name="in_history">dans l\'historique</string>
     <string name="radio_could_not_resolve_url">Ce lien de station semble cassé.</string>
     <string name="clicks_2pt">Clics : %1$d</string>
-    <string name="tags">tags</string>
-    <string name="homepage">page d\'accueil</string>
 
-    <plurals name="audio_files_count"> <!-- ex : 15 audio files -->
-        <item quantity="one">%d fichier audio</item>
-        <item quantity="other">%d fichiers audio</item>
-    </plurals>
-    <plurals name="subfolders_count"> <!-- ex : 3 subfolders -->
-        <item quantity="one">%d sous-dossier</item>
-        <item quantity="other">%d sous-dossiers</item>
-    </plurals>
-    <string name="count_status">%1$s (%2$s)</string> <!-- 15 audio files (3 subfolders) -->
+    <string name="count_status">%1$s (%2$s)</string>
+
 
     <string name="import_warning_lot_of_file_and_subfolders">Il semble y avoir beaucoup de fichiers audio dans ce dossier et ses sous-dossiers. Voulez-vous vraiment tout importer dans un seul livre ?</string>
-    <string name="done">terminé</string>
-
-    <string name="downloads">téléchargements</string>
-    <string name="get">obtenir</string>
     <string name="browse_ebooks">Parcourir les ebooks</string>
     <string name="GutendexSearch_desc">"Parcourez les ebooks du domaine public de Project Gutenberg. Des milliers de classiques gratuits disponibles en EPUB."</string>
-    <string name="Ebooks">Ebooks</string>
     <string name="full_screen_mode">mode plein écran</string>
-
     <string name="tts_voice_seems_incompatible">la voix semble incompatible</string>
-    <string name="Technical">Technique</string>
     <string name="Engine_buffer">Tampon moteur</string>
     <string name="option_radio_sleep_copy">copier valeur param. généraux</string>
     <string name="option_radio_use_cloudfare">utiliser cache ( cloudfare )</string>
@@ -961,131 +951,98 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="by_author">par auteur</string>
     <string name="librivox_no_audiobook_found_in_genre">Aucun livre audio trouvé dans</string>
     <string name="last_added">derniers ajouts</string>
+
     <string name="by_genre_all_languages">par genre (toutes langues)</string>
     <string name="unsupported_language">langue non supportée</string>
-    <string name="Internet_Archive" translatable="false">Internet Archive</string>
-    <string name="links">liens</string>
-    <string name="Duration">Durée</string>
-    <string name="Language">Langue</string>
     <string name="spam_fake_stations_removed">supprimé (spam ?)</string>
-    <string name="Spam">Spam</string>
     <string name="option_radio_remove_duplicates">supprimer les doublons</string>
     <string name="option_radio_remove_duplicates_subtitle">Si le nom de la station apparaît plus de 3 fois, les suivantes ne sont pas affichées afin d\'éviter d\'encombrer la liste avec des doublons.</string>
     <string name="option_radio_sleep_copy_subtitle">Ici, vous pouvez définir une valeur personnalisée pour l\'arrêt auto des radios. Comme nous ne sauvegardons pas la progression en radio, ce n\'est pas grave si vous vous endormez !</string>
-    <string name="Radio">Radio</string>
     <string name="no_results_found">aucun résultat</string>
     <string name="getting_first_results_from">Premiers résultats depuis</string>
     <string name="getting_more_from">plus depuis</string>
-
     <string name="stream_url">URL du flux</string>
     <string name="votes_2pt">Votes : %1$d</string>
+    <string name="top_click">plus cliqués</string>
 
-    <string name="top_click">plus cliqués</string> <!-- short -->
-    <string name="top_vote">plus votés</string> <!-- short -->
-    <string name="last_click">derniers clics</string> <!-- short -->
-    <string name="last_change">dernier modifiés.</string> <!-- short -->
+    <string name="top_vote">plus votés</string>
+
+    <string name="last_click">derniers clics</string>
+
+    <string name="last_change">dernier modifiés.</string>
 
 
-    <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
-    <string name="All_modes_except_Legacy_are_in_beta">Tous les modes sauf Legacy sont en bêta.</string>
-    <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
+    <string name="vote_too_many">Vous avez trop voté pour cette station — réessayez plus tard.</string>
     <string name="Offline_for">Hors ligne depuis</string>
     <string name="Track_View">Vue Piste</string>
-    <string name="already_downloaded">Déjà téléchargé</string>
-    <string name="help_radio_text"><![CDATA[Parcourez les stations par <font color="#81C784">pays</font>, <font color="#FFCC80">popularité</font> ou autre, ou <font color="#64B5F6">cherchez</font> une station par nom.
-    <br><br>
-    Tapez sur une station pour <font color="#81C784"><b>lancer la lecture</b></font>.
-    <br><br>
-    Utilisez <font color="#EF9A9A">le cœur</font> pour ajouter aux <font color="#BA68C8">favoris</font>.]]></string>
-    <string name="help_radio_title">Radios du Monde</string>
-    <string name="live_podcast">podcast en direct</string>
+    <string name="All_modes_except_Legacy_are_in_beta">Tous les modes sauf Legacy sont en bêta.</string>
+    <string name="reset_progress_only_for_this_track">réinit. progression de cette piste</string>
+    <string name="pick_a_new_location">choisir un nouvel emplacement</string>
     <string name="newlocation_better">Ce dossier corrige tous les chemins rompus</string>
     <string name="newlocation_better_and_worse">Ce dossier corrige certains chemins rompus</string>
     <string name="newlocation_not_better">Ce dossier ne corrige aucun chemin</string>
+    <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
+    <string name="already_downloaded">Déjà téléchargé</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>
-    <string name="pick_a_new_location">choisir un nouvel emplacement</string>
-    <string name="proceed">continuer</string>
-    <string name="reset_progress_only_for_this_track">réinit. progression de cette piste</string>
-    <string name="sec">sec</string>
-    <string name="Alphabetically">par nom</string>
     <string name="sort_by">Trier par</string>
-    <string name="sort_last_added">Derniers ajouts</string>
     <string name="sort_last_played">Dernières écoutes</string>
-    <string name="to">vers</string>
-    <string name="vote_too_many">Vous avez trop voté pour cette station — réessayez plus tard.</string>
-    <string name="export_start_button">Démarrer l\'export</string>
-    <string name="export_title_label">Exporter le livre en ZIP :</string>
-    <string name="export_zipping_label">Compression : </string>
+    <string name="sort_last_added">Derniers ajouts</string>
+    <string name="share_title">Partager via</string>
+    <string name="share_radio_body">Découvrez cette radio web en direct sur BookPlayer</string>
+    <string name="share_radio_head">Partage radio BookPlayer</string>
 
-    <string name="http_code_400">Mauvaise requête</string>
-    <string name="Unauthorized">Non autorisé</string>
-    <string name="Forbidden">Interdit</string>
-    <string name="http_code_404">Introuvable</string>
-    <string name="http_code_408">Délai d\'attente dépassé</string>
-    <string name="http_code_429">Trop de requêtes</string>
-    <string name="http_code_500">Erreur interne du serveur</string>
-    <string name="http_code_502">Mauvaise passerelle</string>
-    <string name="http_code_503">Service indisponible</string>
-    <string name="http_code_504">Délai passerelle dépassé</string>
 
-    <string name="id_label">ID : </string>
-    <string name="import_started_for">Import démarré pour</string>
-    <string name="imported_as">importé sous</string>
-
-    <string name="mass_import_all_imported">Les %1$d éléments sont déjà importés.</string>
-    <string name="mass_import_found_items">Trouvé %1$d éléments (%2$s)</string>
-    <string name="mass_import_found_items_mixed">Trouvé %1$d éléments (%2$s) - %3$d déjà importés</string>
     <string name="massimport_all_aready_imported">Aucun élément à importer (tous sont déjà là)</string>
-
-    <string name="max_value_label">Max = </string>
-    <string name="no_backup_found">❌ Aucune sauvegarde trouvée dans : </string>
+    <string name="import_started_for">Import démarré pour</string>
+    <string name="skippring_already_imported_item">Élément déjà importé ignoré</string>
+    <string name="imported_as">importé sous</string>
+    <string name="no_items_found">aucun élément trouvé</string>
+    <string name="mass_import_found_items_mixed">Trouvé %1$d éléments (%2$s) - %3$d déjà importés</string>
+    <string name="mass_import_found_items">Trouvé %1$d éléments (%2$s)</string>
+    <string name="mass_import_all_imported">Les %1$d éléments sont déjà importés.</string>
     <string name="no_ebook_found">aucun ebook trouvé</string>
+    <string name="please_select_email_app">Veuillez sélectionner une application de messagerie</string>
+    <string name="app_reset_done">Réinitialisation de l\'app effectuée</string>
+    <string name="vote_rejected">Vote rejeté : </string>
+    <string name="vote_sent_success">Vote envoyé au serveur, merci.</string>
+    <string name="vote_send_error">Erreur lors de l\'envoi du vote au serveur.</string>
+    <string name="error_no_folder_selected">Erreur : Aucun dossier sélectionné.</string>
+    <string name="error_network_not_available">Aïe. Réseau indisponible.</string>
+    <string name="error_server_not_reachable">Aïe. bookplayer.driot.com injoignable.</string>
+    <string name="no_favorite_podcasts_found">Aucun podcast favori trouvé</string>
+    <string name="permission_read_storage_not_granted">permission de lecture du stockage non accordée</string>
+    <string name="error_file_not_found_attach">Fichier introuvable, impossible de joindre.</string>
+    <string name="max_value_label">Max = </string>
+    <string name="already_imported_under_name">Déjà importé sous le nom : </string>
+    <string name="no_episode_downloaded">Aucun épisode téléchargé</string>
+    <string name="no_backup_found">❌ Aucune sauvegarde trouvée dans : </string>
+    <string name="error_reading_backup">Erreur de lecture de la sauvegarde : </string>
+    <string name="error_label_multiline">Erreur : \n</string>
     <string name="no_ebooks_found_search">Aucun ebook trouvé \npour la recherche [%1$s] \navec la langue [%2$s]</string>
+    <string name="no_ebooks_found_bookshelf">Aucun ebook trouvé 
+pour la bibliothèque [%1$s] 
+avec la langue [%2$s]</string>
     <string name="gutenberg_contacting">Contact de gutenberg.org…</string>
     <string name="gutenberg_wait_elapsed">%1$d s écoulées - %2$s - (délai d\'attente %3$d s)</string>
     <string name="gutenberg_try_1st">1ère tentative</string>
     <string name="gutenberg_try_2nd">2e tentative</string>
-    <string name="no_episode_downloaded">Aucun épisode téléchargé</string>
-    <string name="no_favorite_podcasts_found">Aucun podcast favori trouvé</string>
-    <string name="no_items_found">aucun élément trouvé</string>
-    <string name="nothing">rien</string>
-
-    <string name="option_epub_split_mode_auto">Auto (TOC si dispo, sinon séquence)</string>
-    <string name="option_epub_split_mode_explain_text">Basé sur la TOC (table des matières) : Crée plus de chapitres mais préserve la structure. Basé sur la séquence : Plus simple et crée moins de chapitres.</string>
-    <string name="option_epub_split_mode_spine">Séquence (un chapitre par entrée)</string>
-    <string name="option_epub_split_mode_text">Comment découper les fichiers EPUB en chapitres :</string>
-    <string name="option_epub_split_mode_title">Découpage de chapitres EPUB</string>
-    <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
-
-    <string name="permission_read_storage_not_granted">permission de lecture du stockage non accordée</string>
-    <string name="please_select_email_app">Veuillez sélectionner une application de messagerie</string>
-
-    <string name="share_radio_body">Découvrez cette radio web en direct sur BookPlayer</string>
-    <string name="share_radio_head">Partage radio BookPlayer</string>
-    <string name="share_title">Partager via</string>
-
-    <string name="skippring_already_imported_item">Élément déjà importé ignoré</string>
-    <string name="vote_rejected">Vote rejeté : </string>
-    <string name="vote_send_error">Erreur lors de l\'envoi du vote au serveur.</string>
-    <string name="vote_sent_success">Vote envoyé au serveur, merci.</string>
-
-    <string name="already_imported_under_name">Déjà importé sous le nom : </string>
     <string name="api_paging_size">Taille de pagination API</string>
-    <string name="app_reset_done">Réinitialisation de l\'app effectuée</string>
-    <string name="Deleting">Suppression</string>
-    <string name="error_file_not_found_attach">Fichier introuvable, impossible de joindre.</string>
-    <string name="error_label_multiline">Erreur : \n</string>
-    <string name="error_network_not_available">Aïe. Réseau indisponible.</string>
-    <string name="error_no_folder_selected">Erreur : Aucun dossier sélectionné.</string>
-    <string name="error_reading_backup">Erreur de lecture de la sauvegarde : </string>
-    <string name="error_server_not_reachable">Aïe. bookplayer.driot.com injoignable.</string>
-    <string name="export_audiobook_name_placeholder">nom du livre audio</string>
-    <string name="export_base_destination_folder_label">dossier de destination de base :</string>
-    <string name="export_click_to_change_label">cliquer pour changer</string>
-    <string name="export_destination_filename_label">nom du fichier de destination :</string>
-    <string name="export_download_folder_button">Dossier Téléchargements</string>
-    <string name="export_edit_name_hint">vous pouvez modifier ce nom</string>
-    <string name="export_inside_subfolder_label">et dans un sous-dossier \'BookPlayer\'</string>
-    <string name="export_progress_info_placeholder">Info de progression…</string>
+    <string name="radio_thanks">Merci à radio-browser.info pour leur répertoire gratuit de radios</string>
+    <string name="mass_import_scanning_title">Scan import de masse...</string>
+    <string name="mass_import_scan_complete">Scan import de masse terminé.</string>
+    <string name="mass_import_found_candidates_click">%1$d candidats trouvés, cliquez pour ouvrir.</string>
+    <string name="select_at_least_one_item">Veuillez sélectionner au moins un élément.</string>
+    <string name="mass_import_selected_summary">%1$d candidats sélectionnés pour import (%2$s)</string>
+    <string name="option_mass_import_display_storage_bar">Afficher la barre de stockage</string>
 
+
+    <plurals name="audio_files_count">//ex : 15 audio files
+        <item quantity="one">%d fichier audio</item>
+        <item quantity="other">%d fichiers audio</item></plurals>
+    <plurals name="subfolders_count">//ex : 3 subfolders
+        <item quantity="one">%d sous-dossier</item>
+        <item quantity="other">%d sous-dossiers</item></plurals>
+    <plurals name="tracks_count">//ex : 1 track, 2 tracks
+        <item quantity="one">%d piste</item>
+        <item quantity="other">%d pistes</item></plurals>
 </resources>

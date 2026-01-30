@@ -406,7 +406,7 @@
     <string name="option_mail_method">Sending mail</string>
     <string name="option_mail_method_default">Use default email app.\n<i>Uncheck to be asked which app to use.</i></string>
     <string name="option_open_with_title">Open With / Share</string>
-    <string name="option_open_with_subtitle">Ensures BookPlayer appears in the 'Share' or 'Open With' menu when you select a suitable file in your file manager.</string>
+    <string name="option_open_with_subtitle">Ensures BookPlayer appears in the \'Share\' or \'Open With\' menu when you select a suitable file in your file manager.</string>
     <string name="option_open_with_text">For zip and most audio files.</string>
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
     <string name="option_on_load_use_SD_card">Use SD card</string>
@@ -924,7 +924,7 @@
     <string name="AskReset_popupText_order">You are about to reset tracks order.\nAre you sure ?</string>
     <string name="zikFiles_not_readable">tracks have errors and are not playable:</string>
     <string name="All_zikFiles_not_readable">This Book is KO. No track can be read.</string>
-    <string name="option_progress_heatmap_subtitle">Track playback progress bars show exactly which parts have been listened to, with the color deepening the more a section is played. If this option is disabled, the progress bars are filled only up to the last listening position.</string>
+    <string name="option_progress_heatmap_subtitle">Track playback progress bars show exactly which parts have been listened to, with the color deepening the more a section is played. (it is not yet very good with written ebooks). If this option is disabled, the progress bars are filled only up to the last listening position.</string>
     <string name="option_progress_heatmap">show progress heat maps</string>
     <string name="option_lock_orientation_play_activity">Lock screen orientation</string>
     <string name="in_history">in history</string>
