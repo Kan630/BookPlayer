@@ -14,7 +14,7 @@
     <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
     <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
-    <string name="Librivox" translatable="false">Librivox</string>
+    <string name="Librivox" translatable="false">LibriVox</string>
 
     <string name="three_dots" translatable="false">…</string>
 
@@ -33,7 +33,7 @@
     <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
     <string name="emoji_paste" translatable="false">📋</string>
     <string name="emoji_clear" translatable="false">🗑️</string>
-    <string name="librivox" translatable="false">Librivox</string>
+    <string name="librivox" translatable="false">LibriVox</string>
     <string name="Internet_Archive" translatable="false">Internet Archive</string>
 
     <!-- ********************************** -->
@@ -61,7 +61,7 @@
     <string name="Channels">Channels</string>
     <string name="chars">chars</string>
     <string name="Cleaning">Cleaning</string>
-    <string name="clear">clear</string>
+    <string name="clear">Clear</string>
     <string name="Close">Close</string>
     <string name="collapse">collapse</string>
     <string name="confirm">confirm</string>
@@ -121,7 +121,7 @@
     <string name="Language_2pt">"Language: "</string>
     <string name="last">last</string>
     <string name="legacy">legacy</string>
-    <string name="library">library</string>
+    <string name="library">Library</string>
     <string name="linked">linked</string>
     <string name="links">links</string>
     <string name="listened">"listened"</string>
@@ -144,11 +144,11 @@
     <string name="Pause">Pause</string>
     <string name="Permission">Permission</string>
     <string name="Podcasts">Podcasts</string>
-    <string name="podcasts">podcasts</string>
+    <string name="podcasts">Podcasts</string>
     <string name="proceed">proceed</string>
     <string name="Processing">"Processing"</string>
     <string name="radial">radial</string>
-    <string name="radio">radio</string>
+    <string name="radio">Radio</string>
     <string name="Radio">Radio</string>
     <string name="Ready">Ready</string>
     <string name="refresh">refresh</string>
@@ -163,7 +163,7 @@
     <string name="sec">sec</string>
     <string name="Set">Set</string>
     <string name="Settings">Settings</string>
-    <string name="settings">settings</string>
+    <string name="settings">Settings</string>
     <string name="sort">sort</string>
     <string name="Spam">Spam</string>
     <string name="Speaking">Speaking</string>
@@ -211,7 +211,7 @@
     <string name="App_Info">App Info</string>
 
     <string name="reset_app">Reset App</string>
-    <string name="add_book">add book</string>
+    <string name="add_book">Add Book</string>
 
 
     <string name="Not_enough_memory">Not enough memory</string>
@@ -232,7 +232,7 @@
 
     <string name="SD_card">SD card</string>
 
-    <string name="audios_in_app">audios in app</string>
+    <string name="audios_in_app">Audio files in app</string>
     <string name="audio_tracks">"audio tracks"</string>
 
     <string name="book_cover">"book cover"</string>
@@ -286,11 +286,11 @@
     <br><br>
     Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Settings menu to delete the source file after import.
     ]]></string>
-    <string name="help_librivox_title">Librivox Import :</string>
+    <string name="help_librivox_title">LibriVox Import:</string>
     <string name="help_librivox_text"><![CDATA[
     <font color="#BA68C8"><b>Import Public Domain Audiobooks</b></font>
     <br><br>
-    Browse the <font color="#90D8E8"><b>Librivox catalog</b></font> of public domain titles by selecting a <font color="#81C784">language</font>.
+    Browse the <font color="#90D8E8"><b>LibriVox catalog</b></font> of public domain titles by selecting a <font color="#81C784">language</font>.
     <br><br>
     Tap any book to download it — the audio will be <font color="#FFCC80"><b>copied</b></font> to your device and added to your library.
     ]]></string>
@@ -381,59 +381,59 @@
 
     <string name="option_timeBeforeSleep_text">after :</string>
     <string name="option_copy_file_title">Copy files internally</string>
-    <string name="option_backward_forward_title">BackWard/Forward buttons</string>
+    <string name="option_backward_forward_title">Backward/Forward buttons</string>
     <string name="option_backward_forward_text">timelapse :</string>
-    <string name="option_rewind_after_pause_text">"Rewind audio a few seconds before resuming play, (pause of 5 minutes leads to rewind of 3 sec, pause of 1h leads to 5 sec, …)"</string>
+    <string name="option_rewind_after_pause_text">"Rewind audio a few seconds before resuming playback (e.g., a 5-min pause rewinds 3s; a 1-hour pause rewinds 5s…)"</string>
     <string name="option_pick_theme_color_title">Pick your app color theme</string>
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
     <string name="option_delete_source_file_subtitle">After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
-        \nNote that this is only possible for zip or if the option just above is ticked (if audios are copied in Bookplayer reserved memory).
+        \nNote: This is only possible for ZIP files or if the 'Copy files internally' option is enabled.
         </string>
-    <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into Bookplayer.</string>
+    <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">!! Warning - Auto-Delete !!</string>
-    <string name="option_alert_delete_source_file_message">Every file loaded into Bookplayer will be wiped out from device memory.\n\nAre you sure ?.</string>
+    <string name="option_alert_delete_source_file_message">Every file imported into BookPlayer will be deleted from device storage.\n\nAre you sure?</string>
     <string name="option_beep_title">Beep Sound</string>
     <string name="option_beep_between_chapters">Produce a beep at chapters end.</string>
     <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode <i>(automatic pause after XX minutes)</i></string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
-    <string name="option_visualizer_text_01">Minimalist frequency visualizer displayed when audio is playing.</string>
+    <string name="option_visualizer_text_01">Displays a minimalist frequency visualizer when audio is playing.</string>
     <string name="option_visualizer_text_02">Needs [Record Audio]/[Microphone] permission</string>
-    <string name="option_visualizer_permissions_denied_02">click again the checkbox to ask permission</string>
+    <string name="option_visualizer_permissions_denied_02">Tap the checkbox again to request permission.</string>
     <string name="option_tech_log_subtitle"><i>
         should the app create technical debug log files.
     </i></string>
     <string name="option_tech_log_text">Technical logging.</string>
     <string name="option_mail_method">Sending mail</string>
-    <string name="option_mail_method_default">Use default mailing app.\n<i>Uncheck to be asked which app to use.</i></string>
+    <string name="option_mail_method_default">Use default email app.\n<i>Uncheck to be asked which app to use.</i></string>
     <string name="option_open_with_title">Open With / Share</string>
-    <string name="option_open_with_subtitle">Makes Android propose Bookplayer among the other proposed options when selecting [Share] or [open With] after clicking (long-clicking) on a file from the phone file explorer or from downloads</string>
+    <string name="option_open_with_subtitle">Ensures BookPlayer appears in the 'Share' or 'Open With' menu when you select a suitable file in your file manager.</string>
     <string name="option_open_with_text">For zip and most audio files.</string>
     <string name="option_open_with_text_all">For any kind of file (fail safe).</string>
     <string name="option_on_load_use_SD_card">Use SD card</string>
 
 
     <string name="option_split_m4b">.m4b splitting</string>
-    <string name="option_split_m4b_text">Extract chapters from m4b.</string>
+    <string name="option_split_m4b_text">Extract chapters from M4B.</string>
     <string name="option_copy_file_special_zip">zip and split m4b are always copied</string>
     <string name="option_alert_delete_picked_source_file_title">!! Warning - Source-Deletion !!</string>
-    <string name="option_alert_delete_picked_source_file_message">"This picked file will be wiped out from device memory after being loaded inside bookplayer app internal memory.\n\nAre you sure ?."</string>
-    <string name="option_on_load_copy_internal">"Copy to Bookplayer internal storage"</string>
+    <string name="option_alert_delete_picked_source_file_message">"This picked file will be deleted from device memory after being imported into BookPlayer internal memory.\n\nAre you sure?"</string>
+    <string name="option_on_load_copy_internal">"Copy to BookPlayer internal storage"</string>
     <string name="option_on_load_split_m4b">"Split M4B into chapters"</string>
     <string name="option_on_load_delete_source">"Delete source file after import"</string>
     <string name="option_sdcard_title">SD card</string>
 
-    <string name="option_sdcard_text">when copying audio in reserved space, use SD card instead of device storage</string>
+    <string name="option_sdcard_text">When copying audio to reserved space, use SD card instead of internal storage</string>
 
-    <string name="option_sdcard_text_caution">please note that if you remove or erase the sd card, you will lose your audios</string>
+    <string name="option_sdcard_text_caution">Please note: If you remove or erase the SD card, you will lose your audio files.</string>
 
 
-    <string name="option_copy_file_subtitle">Pros :
+    <string name="option_copy_file_subtitle">Pros:
         \n* [Read Audio] permission is not needed.
-        \n* No risk to loose audio book and progress if its source file get accidentally deleted/moved.
-        \n\nCons :
+        \n* No risk to lose the audiobook and progress if its source file gets accidentally deleted/moved.
+        \n\nCons:
         \n* More memory will be needed if you do not delete the source file.
     </string>
-    <string name="option_copy_file_text">Copy audio files in the internal, reserved, BookPlayer app memory.</string>
+    <string name="option_copy_file_text">Copy audio files to the internal, reserved, BookPlayer app memory.</string>
     <string name="option_night_mode_title">Dark mode &#160;&#160; ☀️ &#160; 🌙</string>
     <string name="option_night_mode_follow_system">⚙️ &#160; System</string>
     <string name="option_night_mode_light">☀️ &#160; Light</string>
@@ -441,8 +441,8 @@
     <string name="option_night_mode_dialog_title">Choose theme mode</string>
     <string name="option_text_appearance_title">Text appearance</string>
     <string name="option_podcast_open_specific_view">Live view is default</string>
-    <string name="option_podcast_open_specific_view_subtitle">If checked, when you click a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf uncheckd, it opens the \'book\' view with the downloaded ones.</string>
-    <string name="option_podcast_open_specific_view_subtitle2">Note that you can switch between these views by clicking/dbl-clicking on the cover image.</string>
+    <string name="option_podcast_open_specific_view_subtitle">If checked, when you tap a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf unchecked, it opens the \'book\' view with downloaded episodes.</string>
+    <string name="option_podcast_open_specific_view_subtitle2">Note: You can switch between these views by tapping or double-tapping the cover image.</string>
     <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
     <string name="option_playing_behaviour_title">Play behaviour</string>
@@ -453,7 +453,7 @@
 "An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
-    <string name="option_automotive_let_car_autoplay">Allow Auto Play.</string>
+    <string name="option_automotive_let_car_autoplay">Allow Auto-Play.</string>
     <string name="option_open_play_activity">Open Play View when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
@@ -489,13 +489,13 @@
     <string name="Librivox_bGetAudioBook">"Get Audiobook"</string>
 
     <string name="librivox_no_audiobook_found_for_search">No audiobook found for search terms</string>
-    <string name="librivox_invalid_response">Invalid response from Librivox Server</string>
+    <string name="librivox_invalid_response">Invalid response from LibriVox Server</string>
     <string name="loading_details">Loading details…</string>
     <string name="loading_detail_failed">Failed to load details</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3 file available</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 file not found</string>
 
-    <string name="librivox_cover_desc">Librivox cover</string>
+    <string name="librivox_cover_desc">LibriVox cover</string>
 
 
     <string name="podcast_favorite_add">Added to favorites</string>
@@ -510,7 +510,7 @@
     <string name="Error_Import_CannotReadFolder">Error reading picked Folder</string>
     <string name="Error_Import_CannotSaveInDB">Error saving audio file in local database</string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
-    <string name="Import_Progress_unzipping_file">"unzipping file : "</string>
+    <string name="Import_Progress_unzipping_file">"Unzipping file: "</string>
     <string name="Error_Import_Creating_Folders">"Couldn't create folders"</string>
     <string name="Error_Import_track_duration_extraction">"Error getting Track duration"</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">"available memory : "</string>
@@ -520,22 +520,22 @@
     <string name="Import_Experimental_M4B_warning">Warning : <b>m4b chapters extraction</b> is basic and may not work with all files.</string>
     <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
     <string name="Import_Experimental_M4B_solution_1">Uncheck the [split m4b] option.</string>
-    <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that m4b file into a folder of mp3 files, and then import that folder into Bookplayer.</i></string>
-    <string name="Import_Progress_splitting_m4b_file">"splitting m4b file : "</string>
+    <string name="Import_Experimental_M4B_solution_2"><i>You could also use a third party tool to first convert that M4B file into a folder of MP3 files, and then import that folder into BookPlayer.</i></string>
+    <string name="Import_Progress_splitting_m4b_file">"Splitting M4B file: "</string>
     <string name="error_media_already_loaded_samePath_under_the_name">This media has already been loaded and is currently stored under the name : </string>
     <string name="init_please_wait">Initializing… Please Wait…</string>
     <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
     <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
     <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
-    <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
-    <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
+    <string name="ErrorCouldNotLoadAudios">Error - Could not load audio files.</string>
+    <string name="ErrorCouldNotLoadAudios_emptyfolder">Error - No audio files found in that folder.</string>
     <string name="loading_voice_3pt">Loading voice…</string>
     <string name="Error_Import_OutOfMemory">General Error : Out of Memory</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">This folder may contain too many books or subfolders to be loaded in one go.</string>
     <string name="bMove">"Change position"</string>
     <string name="bReset">"Reset Progress"</string>
-    <string name="Folder_Deleted_DB">"Book deleted !"</string>
-    <string name="Folder_Renamed">"Folder has been renamed"</string>
+    <string name="Folder_Deleted_DB">"Book deleted!"</string>
+    <string name="Folder_Renamed">"Folder renamed"</string>
     <string name="Error_FolderNameTooShort">"Folder Name should be at least 2 characters"</string>
     <string name="Folder_Reset">"Folder progress has been reset"</string>
     <string name="ZikFile_Renamed">"Track has been renamed"</string>
@@ -554,7 +554,7 @@
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
     <string name="Export_share_title">"Share ZIP file"</string>
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
-    <string name="Export_display_no_valid_audiobook">"Error getting audiobook audios."</string>
+    <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>
     <string name="Export_error">"Export Error"</string>
     <string name="export_title_label">"Export book as ZIP:"</string>
     <string name="export_audiobook_name_placeholder">"audiobook name"</string>
@@ -574,7 +574,7 @@
     <string name="tv_ListeningTimeWithNoUserAction">No user action since</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Note that this value will only be used for the current playing session.\nThe global Auto Sleep Value is located in Settings</i>"</string>
     <string name="tv_TimeLeft">Time before sleep</string>
-    <string name="error_reading_track">"ERROR READING TRACK !"</string>
+    <string name="error_reading_track">"Error reading track!"</string>
     <string name="current_position">Current position</string>
     <string name="source_not_found">The source file could not be found.</string>
     <string name="source_not_found_deleted">The source file could not be found. It may have been deleted.</string>
@@ -591,8 +591,8 @@
     <string name="device_storage_memory">Device Storage Memory</string>
     <string name="sd_card_storage">SD Card Storage Memory</string>
     <string name="MB_taken_by_BookPlayer_app">" MB taken by BookPlayer app"</string>
-    <string name="MB_taken_by_audio_files">" MB : copied audios"</string>
-    <string name="MB_taken_by_linked_audios">" MB : linked audios"</string>
+    <string name="MB_taken_by_audio_files">" MB : copied audio files"</string>
+    <string name="MB_taken_by_linked_audios">" MB : linked audio files"</string>
     <string name="MB_taken_by_logs">" MB taken by logs"</string>
     <string name="MB_available_on_device">" MB : available on device"</string>
     <string name="MB_device_memory">" MB : Device memory"</string>
@@ -603,7 +603,7 @@
 
 
     <string name="audio_location_sdcard_reserved_storage">SD card (app reserved)</string>
-    <string name="audio_location_bookplayer_reserved_storage">Bookplayer reserved storage</string>
+    <string name="audio_location_bookplayer_reserved_storage">BookPlayer reserved storage</string>
     <string name="audio_location_smartphone_shared_storage">Smartphone shared storage</string>
     <string name="audio_location_audiobook_not_found">Audiobook not found</string>
     <string name="menu_sendmail">mail developer</string>
@@ -612,12 +612,12 @@
     <string name="permission_rationale">This activity requires the following permissions: </string>
     <string name="permissions_granted">Permissions were granted.</string>
     <string name="permissions_denied">Permissions were not granted.</string>
-    <string name="permission_read_write_rationale">Bookplayer needs [Read Audio] permission (or set [Copy File] option).</string>
+    <string name="permission_read_write_rationale">BookPlayer needs [Read Audio] permission (or set [Copy File] option).</string>
     <string name="permission_read_write_denied">[Read Audio] permission was denied.
         \n\nClick [App Info] to activate permissions manually.
         \n\nOr
         \n\nClick [Settings] to activate app [Copy File internally] option.
-        \n<i>Then, your audio files will be copied inside Bookplayer internal memory and you won\'t need any permission to read them.</i>
+        \n<i>Then, your audio files will be copied inside BookPlayer internal memory and you won\'t need any permission to read them.</i>
     </string>
     <string name="permission_record_audio_rationale">Spectrum visualizer requires [record audio] permission.</string>
     <string name="permission_record_audio_denied">Spectrum visualizer will not be displayed. [record audio] permission has been denied.</string>
@@ -650,8 +650,8 @@
     <string name="Download_finished">Download finished</string>
     <string name="Import_Progress_copying_file_from_general_storage">"copying source file \n- from Device general storage"</string>
     <string name="Import_Progress_copying_file_from_cloud">"copying source file \n- from Cloud"</string>
-    <string name="Import_Progress_copying_file_to_internal_reserved">"\n- to Bookplayer app internal memory"</string>
-    <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- to Bookplayer reserved sd card memory"</string>
+    <string name="Import_Progress_copying_file_to_internal_reserved">"\n- to BookPlayer app internal memory"</string>
+    <string name="Import_Progress_copying_file_to_sd_card_reserved">"\n- to BookPlayer reserved SD card memory"</string>
     <string name="could_not_check_already_imported">could not check if already imported.</string>
     <string name="warning_url_already_loaded_under_the_name">the same web link has already been imported ! (content was not checked, is it the same?). It has been stored under the name :</string>
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">A different media with the same name had already been loaded</string>
@@ -682,7 +682,7 @@
     <string name="MB_taken_by_databases">" MB taken by database"</string>
     <string name="bMassImport">Mass Import</string>
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
-    <string name="bOpenFolder_desc">Pick a folder : all audios (even in subfolders, if any) will be imported in the same book.</string>
+    <string name="bOpenFolder_desc">Pick a folder : all audio files (even in subfolders, if any) will be imported in the same book.</string>
     <string name="type_here_">Type here…</string>
 
 
@@ -731,7 +731,7 @@
     <string name="automotive_no_item_in_bookplayer">No items. Open BookPlayer on your phone and import a book.</string>
     <string name="automotive_empty_book">Empty book</string>
     <string name="automotive_resume_play">Resume play</string>
-    <string name="nb_of_audios_found">Nb of audio found</string>
+    <string name="nb_of_audios_found">Audio files found</string>
     <string name="average_rating">average rating</string>
     <string name="help_tts_title">Text-To-Speech :</string>
     <string name="help_tts_text"><![CDATA[
@@ -767,7 +767,7 @@
     <string name="return_max">return max</string>
     <string name="maximum_number_of_results_for_">Maximum number of results for </string>
     <string name="minimum_number_of_results_for_">Minimum number of results for </string>
-    <string name="librivox_settings">Librivox settings</string>
+    <string name="librivox_settings">LibriVox settings</string>
     <string name="error_no_space_left">No space left on device</string>
     <string name="solution_free_space">Please free some storage and try again.</string>
     <string name="invalid_resource">Invalid resource.</string>
@@ -809,7 +809,7 @@
     <string name="Failed_to_create_the_destionation_file">Failed to create the destination file.</string>
     <string name="Cannot_write_to_the_chosen_folder">Cannot write to the chosen folder.</string>
     <string name="Export_done_Excl">"Export done !"</string>
-    <string name="option_play_view">"Play View"</string>
+    <string name="option_play_view">"Player View"</string>
     <string name="option_click_container_playpause_text">A click on the image/visualizer will pause/resume the audio</string>
     <string name="Radio_Settings">Radio Settings</string>
     <string name="live_radio">live radio</string>
@@ -828,10 +828,10 @@
     <string name="search_by_station_name">search by station name</string>
     <string name="play_pause">play pause</string>
     <string name="option_reset_settings_values">Reset Settings Values</string>
-    <string name="reset_to_default">reset to default</string>
-    <string name="reset_for_power_user">reset for power user</string>
+    <string name="reset_to_default">Reset to Default</string>
+    <string name="reset_for_power_user">Reset for Power User</string>
     <string name="option_reset_for_power_user_explain_text">
-    The 2nd reset -Power User- restores app defaults, but customize a few specific settings:
+    The \'Power User\' reset restores app defaults but keeps specific settings customized:
     \nImport:
         \n* [don\'t copy]
         \n* [\"Open With\" for any kind of file]
@@ -872,9 +872,9 @@
     <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
     <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>
     <string name="Import_Progress_chapter_title">"Track title"</string>
-    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"exported file name should have at least 3 characters"</string>
-    <string name="option_radio_renew_url">always check for best mirror before playing</string>
-    <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensure you are playing from the best source available, but can take some time (current timeout is 10sec.) This usually should be let unchecked.</string>
+    <string name="Export_Progress_file_name_should_have_at_east_3_chars">"Exported file name must have at least 3 characters"</string>
+    <string name="option_radio_renew_url">Always check for best mirror before playing</string>
+    <string name="option_radio_renew_url_subtitle">Checking mirrors (radio servers) ensures you are playing from the best source available but can take some time (current timeout is 10 sec). This should usually be left unchecked.</string>
     <string name="checking_for_best_mirror">checking for best mirror</string>
     <string name="error_radio_renew_url">error getting radio mirror link</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Add the publication date to the episode name</string>
@@ -885,7 +885,7 @@
 \n\nLong-press one of the boxes on the left to select it, then drag and drop it to the desired position.</string>
     <string name="Quit_the_player_to_move_playing_tracks">You may need to close the player to move the tracks.</string>
     <string name="welcome_title">Welcome to BookPlayer</string>
-    <string name="welcome_subtitle">Your offline-friendly multi purpose audio player.</string>
+    <string name="welcome_subtitle">Your offline-friendly multi-purpose audio player.</string>
     <string name="welcome_item_add_book">Add an existing audiobook from your device, SD card, drive.</string>
     <string name="welcome_item_librivox">Browse and get free public-domain audiobooks.</string>
     <string name="welcome_item_podcasts_radio">Discover web radios and podcasts.</string>
@@ -895,8 +895,8 @@
     <string name="btn_direct_link_title">I have a direct download link.</string>
     <string name="btn_browse_audiobooks_title">I want to browse a free public registry.</string>
     <string name="direct_link">http direct</string>
-    <string name="load_one_book">load 1 book</string>
-    <string name="load_multiple_book">load multiple books</string>
+    <string name="load_one_book">Load 1 Book</string>
+    <string name="load_multiple_book">Load Multiple Books</string>
     <string name="reset_track_order">reset track order</string>
     <string name="Tracks_order_has_been_reset">tracks order has been reset</string>
     <string name="add_new_tracks">add new tracks</string>
@@ -941,7 +941,7 @@
     <string name="tts_voice_seems_incompatible">voice seems incompatible</string>
     <string name="Engine_buffer">Engine buffer</string>
     <string name="option_radio_sleep_copy">copy general settings value</string>
-    <string name="option_radio_use_cloudfare">use caching ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare">Use caching (Cloudflare)</string>
     <string name="option_radio_use_cloudfare_subtitle">use caching could improve speed</string>
     <string name="by_genre">by genre</string>
     <string name="by_author">by author</string>
@@ -1004,7 +1004,7 @@
     <string name="vote_send_error">Error sending vote to server.</string>
     <string name="error_no_folder_selected">Error: No folder selected.</string>
     <string name="error_network_not_available">Aie. Network not available.</string>
-    <string name="error_server_not_reachable">Aie. bookplayer.driot.com not reachable.</string>
+    <string name="error_server_not_reachable">Error: bookplayer.driot.com is unreachable.</string>
     <string name="no_favorite_podcasts_found">No favorite podcasts found</string>
     <string name="permission_read_storage_not_granted">permission read storage not granted</string>
     <string name="error_file_not_found_attach">File not found, cannot attach.</string>
