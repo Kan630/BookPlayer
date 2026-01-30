@@ -1177,6 +1177,7 @@
 </string>
 
     <string name="Mass_Import">Massive Import</string>
+    <string name="massiveimport_title">Multiple books import</string>
     <string name="scanning_folder">scanning folder</string>
 
     <string name="Nothing_to_re_import_among">Nothing to re-import among</string>

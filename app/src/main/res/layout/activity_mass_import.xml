@@ -19,7 +19,7 @@
             android:id="@+id/tvTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/Mass_Import"
+            android:text="@string/massiveimport_title"
             android:textAppearance="@style/TextAppearance.AppCompat.Large"
             android:textStyle="bold" />
         <View style="@style/spacer" />

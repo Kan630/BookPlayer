@@ -121,6 +121,17 @@ public class StatsActivity extends LoggingActivity {
             }
         });
 
+        // Secret triple-tap (top-end) to open AdminActivity (same as LogListActivity)
+        View secretEntry = findViewById(R.id.viewSecretEntry);
+        final long[] taps = new long[3];
+        secretEntry.setOnClickListener(v -> {
+            System.arraycopy(taps, 1, taps, 0, taps.length - 1);
+            taps[taps.length - 1] = System.currentTimeMillis();
+            if (taps[0] >= System.currentTimeMillis() - 1000) {
+                startActivity(new Intent(this, AdminActivity.class));
+            }
+        });
+
         // ----------------------------------------
 
         String zeText2 = "Android SDK version = " + Build.VERSION.SDK_INT
