@@ -16,7 +16,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.widgets.StorageBarView;
@@ -108,11 +110,26 @@ public class MassImportActivity extends BaseBottomNavActivity {
             startImport();
         });
 
+        findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
+
         // Start scanning automatically only if not already done
         // This prevents recomputation on rotation
         // Start scanning automatically only if not already done and we have a URI
         if (rootUri != null) {
             viewModel.startScan(rootUri);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // When returning from Massive Import settings, refresh storage section visibility
+        if (llStorageSection != null) {
+            boolean showStorageBar = Option.getMassImportDisplayStorageBar();
+            llStorageSection.setVisibility(showStorageBar ? View.VISIBLE : View.GONE);
+            if (showStorageBar) {
+                recalculateStorageBar();
+            }
         }
     }
 
@@ -123,6 +140,12 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 android.content.Intent.FLAG_ACTIVITY_CLEAR_TOP | android.content.Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
         finish();
+    }
+
+    /** Opens Massive Import settings fragment (Display Storage Bar, etc.) in SettingsHostActivity. */
+    private void clickSettings() {
+        myLogI("--- User clicks MASSIVE IMPORT SETTINGS ---");
+        SettingsHostActivity.start(this, MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
     }
 
     private void initializeViews() {

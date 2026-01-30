@@ -9,6 +9,7 @@ import androidx.annotation.StringRes;
 import androidx.fragment.app.Fragment;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -67,6 +68,7 @@ public class SettingsHostActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        InsetHelper.apply(this);
 
         // Title handling (status bar / toolbar title)
         CharSequence titleText = getIntent().getCharSequenceExtra(EXTRA_ACTIVITY_TITLE_TEXT);

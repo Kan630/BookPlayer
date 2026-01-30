@@ -7,16 +7,31 @@
     android:orientation="vertical"
     android:padding="16dp">
 
-    <TextView
-        android:id="@+id/tvTitle"
+    <!-- Title row: title on left, settings gear on right (same line as Radio/Other activities) -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/Mass_Import"
-        android:textAppearance="@style/TextAppearance.AppCompat.Large"
-        android:textStyle="bold"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
         android:layout_marginBottom="16dp"
-        android:layout_marginTop="16dp"
-        />
+        android:layout_marginTop="16dp">
+        <TextView
+            android:id="@+id/tvTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/Mass_Import"
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            android:textStyle="bold" />
+        <View style="@style/spacer" />
+        <ImageButton
+            android:id="@+id/ibSettings"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:contentDescription="@string/settings"
+            android:src="@drawable/ic_settings_24"
+            android:background="@android:color/transparent"
+            app:tint="?attr/colorOnSurface" />
+    </LinearLayout>
 
     <!-- Scanning Progress Area -->
     <LinearLayout
@@ -161,15 +176,15 @@
             </LinearLayout>
         </LinearLayout>
 
-        <!-- Selected-for-import summary (updated when user checks/unchecks) -->
-        <TextView
-            android:id="@+id/tvSelectedSummary"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:textSize="13sp"
-            tools:text="3 book candidates selected for import (125 MB)" />
     </LinearLayout>
+    <!-- Selected-for-import summary (updated when user checks/unchecks) -->
+    <TextView
+        android:id="@+id/tvSelectedSummary"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textSize="13sp"
+        tools:text="3 book candidates selected for import (125 MB)" />
 
     <!-- List Area -->
     <androidx.recyclerview.widget.RecyclerView
