@@ -168,7 +168,7 @@
     <string name="Spam">Spam</string>
     <string name="Speaking">Lecture en cours</string>
     <string name="Speed">Vitesse</string>
-    <string name="import_task_start">démarrage...</string>
+    <string name="import_task_start">démarrage…</string>
     <string name="Stats">Statistiques</string>
     <string name="stop">stop</string>
     <string name="Storage">Stockage</string>
@@ -780,7 +780,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="Error_Import_extract_audio_data_failed">Erreur : impossible d\'extraire les données audio</string>
     <string name="Error_Import_unsupported_file">Erreur : fichier non pris en charge</string>
     <string name="use_this_image_as_cover">utiliser cette image comme couverture</string>
-    <string name="search_title_hint">tapez ici...</string>
+    <string name="search_title_hint">tapez ici…</string>
     <string name="failed_to_change_image">Échec du changement d\'image</string>
     <string name="no_image_found">Aucune image trouvée</string>
     <string name="parsing_metadata">Analyse des métadonnées</string>
@@ -870,8 +870,8 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres &gt; Utilitaires &gt; Annuler l\'opération en cours] (tout en bas).</string>
     <string name="Podcast_source_error">Erreur de source du podcast</string>
     <string name="Streaming_Podcast">Podcast en streaming</string>
-    <string name="librivox_search_edittext_title">Recherche par auteur ou titre...\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
-    <string name="podcast_search_edittext_title">Recherche... (toutes langues)\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
+    <string name="librivox_search_edittext_title">Recherche par auteur ou titre…\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
+    <string name="podcast_search_edittext_title">Recherche… (toutes langues)\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
     <string name="import_settings">Paramètres d\'importation</string>
     <string name="option_split_m4b_subtitle">Si décoché, les fichiers M4B seront importés comme des pistes uniques.</string>
     <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>
@@ -917,7 +917,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
                         BookPlayer prend actuellement en charge uniquement les fichiers M4B standards.
 
                         Astuces :
-                        - Essayez de convertir le M4B avec un outil externe (ffmpeg, mp4box...),
+                        - Essayez de convertir le M4B avec un outil externe (ffmpeg, mp4box…),
                         - Ou séparez-le sur un ordinateur et importez les chapitres individuellement.
 
                         Pour l\'instant, BookPlayer importera le M4B original comme un seul fichier audio."""</string>
@@ -1028,7 +1028,7 @@ avec la langue [%2$s]</string>
     <string name="gutenberg_try_2nd">2e tentative</string>
     <string name="api_paging_size">Taille de pagination API</string>
     <string name="radio_thanks">Merci à radio-browser.info pour leur répertoire gratuit de radios</string>
-    <string name="mass_import_scanning_title">Scan import de masse...</string>
+    <string name="mass_import_scanning_title">Scan import de masse…</string>
     <string name="mass_import_scan_complete">Scan import de masse terminé.</string>
     <string name="mass_import_found_candidates_click">%1$d candidats trouvés, cliquez pour ouvrir.</string>
     <string name="select_at_least_one_item">Veuillez sélectionner au moins un élément.</string>
