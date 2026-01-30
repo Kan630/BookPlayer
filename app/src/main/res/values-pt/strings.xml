@@ -1108,7 +1108,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="gutenberg_wait_elapsed">%1$d s decorridos - %2$s - (timeout %3$d s)</string>
     <string name="librivox_books_loaded">%1$s livros carregados</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s livros</string>
-    <string name="loading_voice">A carregar voz…</string>
+    <string name="loading_voice_3pt">A carregar voz…</string>
     <string name="mass_import_found_candidates_click">Encontrados %1$d candidatos, toque para abrir.</string>
     <string name="mass_import_scan_complete">Análise de importação em massa concluída.</string>
     <string name="mass_import_scanning_title">Análise de importação em massa…</string>

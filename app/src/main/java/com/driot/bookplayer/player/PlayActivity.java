@@ -6,14 +6,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -580,7 +575,7 @@ public class PlayActivity extends LoggingActivity {
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
-                tv.setText(R.string.loading_voice);
+                tv.setText(R.string.loading_voice_3pt);
             progressOverlay.setVisibility(View.VISIBLE);
             progressOverlay.bringToFront(); // Ensure it's on top
         } else {

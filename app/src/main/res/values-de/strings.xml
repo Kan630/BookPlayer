@@ -1101,7 +1101,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="gutenberg_wait_elapsed">%1$d s vergangen - %2$s - (Timeout %3$d s)</string>
     <string name="librivox_books_loaded">%1$s Bücher geladen</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s Bücher</string>
-    <string name="loading_voice">Stimme wird geladen…</string>
+    <string name="loading_voice_3pt">Stimme wird geladen…</string>
     <string name="mass_import_found_candidates_click">%1$d Kandidaten gefunden, tippen zum Öffnen.</string>
     <string name="mass_import_scan_complete">Massenimport-Scan abgeschlossen.</string>
     <string name="mass_import_scanning_title">Massenimport-Scan…</string>

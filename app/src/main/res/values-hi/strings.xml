@@ -1133,7 +1133,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="gutenberg_wait_elapsed">%1$d सेकंड बीते - %2$s - (टाइमआउट %3$d सेकंड)</string>
     <string name="librivox_books_loaded">%1$s किताबें लोड हुईं</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s किताबें</string>
-    <string name="loading_voice">आवाज़ लोड हो रही है…</string>
+    <string name="loading_voice_3pt">आवाज़ लोड हो रही है…</string>
     <string name="mass_import_found_candidates_click">%1$d उम्मीदवार मिले, खोलने के लिए टैप करें।</string>
     <string name="mass_import_scan_complete">मास इम्पोर्ट स्कैन पूर्ण।</string>
     <string name="mass_import_scanning_title">मास इम्पोर्ट स्कैन…</string>

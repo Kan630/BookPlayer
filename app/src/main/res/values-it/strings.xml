@@ -1110,7 +1110,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="gutenberg_wait_elapsed">%1$d s trascorsi - %2$s - (timeout %3$d s)</string>
     <string name="librivox_books_loaded">%1$s libri caricati</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s libri</string>
-    <string name="loading_voice">Caricamento voce…</string>
+    <string name="loading_voice_3pt">Caricamento voce…</string>
     <string name="mass_import_found_candidates_click">Trovati %1$d candidati, tocca per aprire.</string>
     <string name="mass_import_scan_complete">Scansione importazione massiva completata.</string>
     <string name="mass_import_scanning_title">Scansione importazione massiva…</string>

@@ -529,7 +529,7 @@
     <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
     <string name="ErrorCouldNotLoadAudios">ERROR - Could not load audios.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no audios found in that folder.</string>
-    <string name="loading_voice">Loading voice…</string>
+    <string name="loading_voice_3pt">Loading voice…</string>
     <string name="Error_Import_OutOfMemory">General Error : Out of Memory</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">This folder may contain too many books or subfolders to be loaded in one go.</string>
     <string name="bMove">"Change position"</string>

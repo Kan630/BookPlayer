@@ -1095,7 +1095,7 @@
     <string name="gutenberg_wait_elapsed">%1$d ثانية - %2$s - (المهلة %3$d ثانية)</string>
     <string name="librivox_books_loaded">تم تحميل %1$s كتب</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s كتب</string>
-    <string name="loading_voice">جاري تحميل الصوت…</string>
+    <string name="loading_voice_3pt">جاري تحميل الصوت…</string>
     <string name="mass_import_found_candidates_click">تم العثور على %1$d مرشح، انقر للفتح.</string>
     <string name="mass_import_scan_complete">اكتمل مسح الاستيراد الجماعي.</string>
     <string name="mass_import_scanning_title">مسح الاستيراد الجماعي…</string>
