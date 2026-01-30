@@ -1313,4 +1313,41 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="export_inside_subfolder_label">并在 \'BookPlayer\' 子文件夹内</string>
     <string name="export_progress_info_placeholder">进度信息…</string>
 
+    <string name="MB_taken_by_linked_audios">" MB：链接音频"</string>
+    <string name="action_reset_to_original">↩️ 恢复原样</string>
+    <string name="bookshelves">"书架"</string>
+    <string name="calculating_storage">计算中…</string>
+    <string name="device_storage_memory">设备存储</string>
+    <string name="gutenberg_contacting">正在连接 gutenberg.org…</string>
+    <string name="gutenberg_try_1st">第1次尝试</string>
+    <string name="gutenberg_try_2nd">第2次尝试</string>
+    <string name="gutenberg_wait_elapsed">已过 %1$d 秒 - %2$s -（超时 %3$d 秒）</string>
+    <string name="librivox_books_loaded">已加载 %1$s 本书</string>
+    <string name="librivox_books_loaded_of">%1$s / %2$s 本书</string>
+    <string name="loading_voice">正在加载语音…</string>
+    <string name="mass_import_found_candidates_click">找到 %1$d 个候选，点击打开。</string>
+    <string name="mass_import_scan_complete">批量导入扫描完成。</string>
+    <string name="mass_import_scanning_title">批量导入扫描…</string>
+    <string name="mass_import_selected_summary">已选 %1$d 个候选用于导入（%2$s）</string>
+    <string name="massiveimport_title">多本书导入</string>
+    <string name="no_ebooks_found_bookshelf">未找到电子书 \n书架 [%1$s] \n语言 [%2$s]</string>
+    <string name="option_mass_import_display_storage_bar">显示存储栏</string>
+    <string name="option_podcast_open_specific_view_subtitle2">可通过双击封面在此视图间切换。</string>
+    <string name="power_management_exempt">应用已免除电池优化（推荐）</string>
+    <string name="power_management_subject">应用受电池优化影响（可能在后台被关闭）</string>
+    <string name="radio_thanks">感谢 radio-browser.info 提供免费世界电台目录</string>
+    <string name="sd_card_storage">SD 卡存储</string>
+    <string name="select_at_least_one_item">请至少选择一项以导入。</string>
+    <string name="storage_device">设备存储</string>
+    <string name="storage_header">存储</string>
+    <string name="storage_legend_copied">已复制</string>
+    <string name="storage_legend_linked_audios">已链接</string>
+    <string name="storage_legend_new_books">新书</string>
+    <string name="storage_legend_others">其他</string>
+    <string name="storage_sd_card">SD 卡存储</string>
+    <plurals name="tracks_count">
+        <item quantity="one">%d 首</item>
+        <item quantity="other">%d 首</item>
+    </plurals>
+
 </resources>
