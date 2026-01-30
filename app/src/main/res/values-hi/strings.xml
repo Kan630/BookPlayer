@@ -15,15 +15,11 @@
     <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
 
 
-
-
     <string name="title_FolderContent">फ़ाइल सूची</string>
 
 
-
     <string name="Warning">चेतावनी</string>
-    <string name="beta_test">बीटा परीक्षण</string>
-    <string name="warning_beta_test">बीटा फ़ीचर – अस्थिर हो सकता है</string>">
+    <string name="beta_test">बीटा परीक्षण</string>">
     <string name="three_dots" translatable="false">…</string>
 
 
@@ -34,7 +30,6 @@
     <string name="No">नहीं</string>
     <string name="Cancel">रद्द करें</string>
     <string name="are_you_sure">क्या आप सुनिश्चित हैं ?</string>
-    <string name="Technical_Error">"तकनीकी त्रुटि"</string>
     <string name="yesterday">"कल"</string>
     <string name="app_info">ऐप जानकारी</string>
     <string name="delete_logs">लॉग हटाएँ</string>
@@ -44,23 +39,19 @@
 
     <string name="Pause">विराम</string>
     <string name="Resume">फिर से शुरू करें</string>
-    <string name="Import_finished_with_errors">आयात त्रुटियों के साथ पूर्ण हुआ</string>
     <string name="Import_failed">आयात विफल</string>
     <string name="About_to_start_download">डाउनलोड शुरू होने वाला है…</string>
-    <string name="Surf_the_vast_Internet_Archive_for_audio_files_and_download_some">इंटरनेट आर्काइव पर ऑडियो फ़ाइलें खोजें और कुछ डाउनलोड करें !</string>
     <string name="Please_enter_a_URL">कृपया एक URL दर्ज करें.</string>
     <string name="Permission_Required">अनुमति आवश्यक</string>
     <string name="Settings">सेटिंग्स</string>
     <string name="App_Info">ऐप जानकारी</string>
     <string name="reset_app">ऐप रीसेट करें</string>
     <string name="Exit">बाहर निकलें</string>
-    <string name="Finished">पूर्ण</string>
     <string name="add_book">पुस्तक जोड़ें</string>
 
 
     <string name="Not_enough_memory">पर्याप्त मेमोरी नहीं</string>
     <string name="unexpected_error">अप्रत्याशित त्रुटि</string>
-    <string name="Error_checking_file">फ़ाइल जाँच में त्रुटि</string>
     <string name="an_error_occurred">एक त्रुटि हुई</string>
     <string name="no_internet_connection">इंटरनेट कनेक्शन नहीं</string>
     <string name="no_metadata_available">कोई मेटाडेटा उपलब्ध नहीं</string>
@@ -68,24 +59,17 @@
     <string name="Import_in_progress">आयात प्रगति पर है</string>
 
     <string name="confirm">पुष्टि करें</string>
-    <string name="back">वापस</string>
     <string name="save">सहेजें</string>
     <string name="paste">पेस्ट</string>
     <string name="clear">साफ़ करें</string>
-    <string name="books">पुस्तकें</string>
     <string name="favorite">पसंदीदा</string>
     <string name="cancelled">रद्द किया गया</string>
-    <string name="failed">विफल</string>
-    <string name="completed">पूर्ण</string>
-    <string name="copy">कॉपी</string>
     <string name="error">त्रुटि</string>
-    <string name="initialization">आरंभीकरण</string>
     <string name="stop">रोकें</string>
     <string name="Audio">ऑडियो</string>
     <string name="Video">वीडियो</string>
     <string name="Text">पाठ</string>
     <string name="Bundle">बंडल</string> //means compressed file like zip
-    <string name="Generate">उत्पन्न करें</string>
 
     <string name="language">भाषा</string>">
     <string name="download">डाउनलोड करें</string>
@@ -95,7 +79,6 @@
     <string name="flag">फ़्लैग</string>
     <string name="settings">सेटिंग्स</string>
     <string name="sort">क्रमबद्ध करें</string>
-    <string name="default_">डिफ़ॉल्ट</string>
     <string name="reviews">समीक्षाएँ</string>
 
     <string name="Also">साथ ही</string>
@@ -111,17 +94,12 @@
     <string name="min.">मि.</string>
     <string name="after">के बाद</string>
     <string name="days">दिन</string>
-    <string name="hours">घंटे</string>
-    <string name="minutes">मिनट</string>
-    <string name="seconds">सेकंड</string>
 
     <string name="left_on">पर छोड़ा</string>">
     <string name="memory">मेमोरी</string>"> //in the storage space sense
-    <string name="device">डिवाइस</string>">
-    <string name="sd_card">एसडी कार्ड</string>">
+    <string name="device">डिवाइस</string>">">
     <string name="SD_card">SD कार्ड</string>">
     <string name="audios_in_app">ऐप में ऑडियो</string>">
-    <string name="Change">"बदलें"</string>
     <string name="listened">"सुना गया"</string>
     <string name="audio_tracks">"ऑडियो ट्रैक्स"</string>
     <string name="Added">"जोड़ा गया"</string>
@@ -133,7 +111,6 @@
     <string name="version">संस्करण</string>
     <string name="miscellaneous">विविध</string>
     <string name="Processing">"प्रक्रिया जारी"</string>
-    <string name="StillExperimental">"- अभी भी प्रायोगिक -"</string>
     <string name="downloaded">"डाउनलोड किया गया"</string>">
     <string name="Downloading">"डाउनलोड हो रहा है"</string>">
     <string name="book_cover">"पुस्तक कवर"</string>">
@@ -141,7 +118,6 @@
     <string name="Creator">रचनाकार</string>
     <string name="Available_since">से उपलब्ध</string>
     <string name="default_for">के लिए डिफ़ॉल्ट</string>
-    <string name="streaming">स्ट्रीमिंग</string>
     <string name="metadata">मेटाडेटा</string>
     <string name="artist">कलाकार</string>
     <string name="album">ऐल्बम</string>
@@ -154,10 +130,6 @@
     <string name="channels">चैनल</string>
 
 
-
-
-
-
     <string name="DeleteLogs_AskConfirm">"आप सभी लॉग हटाने वाले हैं.
        क्या आप सुनिश्चित हैं ?"</string>
     <string name="ModifyFolder_AskDelete">"आप इस फ़ोल्डर और सभी ट्रैक्स को हटाने वाले हैं
@@ -166,8 +138,6 @@
        क्या आप सुनिश्चित हैं ?"</string>
     <string name="ModifyZikFile_AskDelete">"आप इस ऑडियो ट्रैक को हटाने वाले हैं
        क्या आप सुनिश्चित हैं ?"</string>
-
-
 
 
     <!-- ********************************** -->
@@ -304,36 +274,20 @@
     ]]></string>
 
 
-
-
-
     <!-- ********************************** -->
     <!-- Settings Screen -->
-
-    <string name="option_hide_advanced_options">"उन्नत सेटिंग्स छिपाएँ"</string>
-    <string name="option_show_advanced_options">"उन्नत सेटिंग्स दिखाएँ"</string>
 
     <string name="option_timeBeforeSleep">स्वतः विराम</string>
     <string name="option_timeBeforeSleep_text">के बाद :</string>
     <string name="option_timeBeforeSleep_min">मि.</string>
-    <string name="option_timeBeforeSleep_outOfBound">अरेग : स्वतः विराम अवधि सीमा से बाहर, डिफ़ॉल्ट पर रीसेट</string>
-
-    <string name="option_zip">Zip फ़ाइलें</string>
-    <string name="option_copyzip_local">फ़ाइलों को ऐप मेमोरी में कॉपी करें (Android 11 और ऊपर के लिए अनिवार्य)।</string>
-    <string name="option_unzip_local">फ़ाइलें अनज़िप करें (स्टोरेज लेता है, पर सुनना स्मूथ रहता है)</string>
 
     <string name="option_copy_file_title">फ़ाइलें आंतरिक रूप से कॉपी करें</string>
 
     <string name="option_backward_forward_title">बैकवर्ड/फ़ॉरवर्ड बटन</string>
     <string name="option_backward_forward_text">टाइमलैप्स :</string>
-
-    <string name="option_rewind_after_pause_title">रिज़्यूम पर स्वतः रिवाइंड</string>
     <string name="option_rewind_after_pause_text">"प्ले फिर शुरू करने से कुछ सेकंड पहले ऑडियो रिवाइंड करें, (5 मिनट के विराम पर 3 सेकंड का रिवाइंड, 1 घंटे के विराम पर 5 सेकंड, …)"</string>
 
     <string name="option_pick_theme_color_title">अपना ऐप रंग थीम चुनें</string>
-
-    <string name="option_orientation">स्क्रीन ओरिएंटेशन</string>
-    <string name="option_orientation_lock">प्लेबैक के दौरान स्क्रीन ओरिएंटेशन लॉक करें (ऑन रखना बेहतर है)</string>
 
     <string name="option_delete_source_file_title">स्रोत फ़ाइल का स्वतः मिटाना</string>
     <string name="option_delete_source_file_subtitle"><i>जब कोई ऑडियोबुक BookPlayer में लोड हो जाती है, तो चुनी गई स्रोत फ़ाइल/फ़ोल्डर स्वतः हटाया जा सकता है.
@@ -347,15 +301,11 @@
     <string name="option_beep_between_chapters">अध्यायों के अंत में बीप उत्पन्न करें।</string>
     <string name="option_beep_for_autostop">स्लीप मोड में प्रवेश करते समय लंबा बीप उत्पन्न करें <i>(XX मिनट बाद स्वतः विराम)</i></string>
     <string name="option_beep_at_the_end">किताब के अंत में तीन बार बीप उत्पन्न करें।</string>
-
-    <string name="option_visualizer_title">स्पेक्ट्रम विज़ुअलाइज़र</string>
     <string name="option_visualizer_text_01">जब ऑडियो चल रहा हो तो न्यूनतम फ़्रीक्वेंसी विज़ुअलाइज़र दिखाएँ।</string>
     <string name="option_visualizer_text_02">[Record Audio]/[Microphone] अनुमति आवश्यक</string>
     <string name="option_visualizer_permissions_granted">स्वीकृत</string>
     <string name="option_visualizer_permissions_denied_01">अस्वीकृत</string>
     <string name="option_visualizer_permissions_denied_02">अनुमति माँगने के लिए चेकबॉक्स फिर से क्लिक करें</string>
-
-    <string name="option_click_visualizer_playpause_text_01">विज़ुअलाइज़र पर क्लिक करना प्ले/पॉज़ बटन के रूप में भी काम करता है।</string>
 
     <string name="option_log">लॉगिंग</string>
     <string name="option_tech_log_subtitle"><i>
@@ -404,7 +354,6 @@
 
     <string name="option_text_appearance_title">टेक्स्ट की बनावट</string>
     <string name="option_font_family">फ़ॉन्ट</string>
-    <string name="option_text_size">आकार</string>
 
     <string name="option_podcast_open_specific_view_subtitle">किसी \'पॉडकास्ट\' आइटम पर क्लिक करने पर, क्या सभी एपिसोड वाले स्ट्रीम पॉडकास्ट व्यू खुले, या डाउनलोड किए गए एपिसोड के साथ \'किताब\' व्यू?</string>
     <string name="option_podcast_open_specific_view">लाइव व्यू खोलें</string>
@@ -413,9 +362,7 @@
 
     <string name="option_playing_behaviour_title">प्लेबैक व्यवहार</string>
     <string name="option_start_next_track_at_zero_title_text">अगला ट्रैक हमेशा शुरुआत से शुरू करें, भले ही उसे पहले आंशिक रूप से सुना गया हो।</string>
-    <string name="error_playlist_null">प्लेलिस्ट प्राप्त नहीं हो सकी।</string>
     <string name="option_stop_audio_if_user_closes_app_text">जब आप ऐप बंद करें तो ऑडियो रोकें।</string>
-    <string name="option_auto_play_on_main_player_text">ऑडियो ट्रैक पर क्लिक करने पर स्वतः प्ले करें।</string>
     <string name="option_network_preference_subtext">
 "अनमीटर्ड कनेक्शन का अर्थ है कि आप मोबाइल डेटा पर नहीं हैं (उदाहरण, Wi-Fi, Ethernet, या कुछ VPNs)。
 \nरोमिंग का अर्थ है विदेश में होना — विदेश में होटल Wi-Fi भी रोमिंग माना जाता है।"
@@ -426,36 +373,21 @@
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
     <string name="option_tts_highlight_delay_title">शब्द हाइलाइट।</string>
     <string name="option_tts_highlight_delay_text">विलंब :</string>
-
-    <string name="option_text_preview_label">पूर्वावलोकन</string>
-    <string name="deprecated_option_text_preview_sample">The quick brown fox jumps over the lazy dog — 0123456789</string>
     <string name="option_automotive_title">ऑटोमोटिव</string>
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
     <string name="option_automotive_auto_resume_on_car_connect">कार से कनेक्ट होने पर प्लेबैक स्वतः पुनः आरंभ करें।</string>
-    <string name="option_automotive_keep_phone_playback_on_car_connect">कार से कनेक्ट होने पर फ़ोन पर प्लेबैक जारी रखें।</string>
-
 
 
     <!-- ********************************** -->
     <!-- Get Resources -->
 
-    <string name="TextHeaderSearch">इंटरनेट पर मुफ़्त ऑडियो खोजें</string>
-    <string name="bSearchlitteratureaudio_desc">litteratureaudio.com (फ़्रेंच) से किताब खोजें और डाउनलोड करें :</string>
-    <string name="bSearchOpenCulture_desc">Open Culture पर कुछ ऑडियो खोजें :</string>
-    <string name="bSearchExampleText">ऊपर बताई वेबसाइटें केवल उदाहरण हैं, वेब पर ढेर सारा ऑडियो है; आप विश्वविद्यालय व्याख्यान भी डाउनलोड कर सकते हैं।</string>
-
 
     <string name="AutoTest_title">ऑटो टेस्ट</string>
-    <string name="AutoTest_desc">ऑडियोबुक्स का स्वतः डाउनलोड और एकीकरण, परीक्षण उद्देश्य हेतु</string>
 
     <string name="bOpenFile">फ़ाइल</string>
     <string name="bOpenFolder">फ़ोल्डर</string>
     <string name="bOpenZipFile">Zip फ़ाइल</string>
     <string name="bOpenM4bFile">ऑडियो फ़ाइल</string>
-
-    <string name="OnlineSearch_title">प्रत्यक्ष एकीकरण - बीटा टेस्ट</string>
-    <string name="OnlineSearch_desc">इस खोज का उपयोग उस ऑडियोबुक को ढूँढने के लिए करें जिसकी आपको तलाश है। फिर, अगली पेज पर, वह चुनें जिसे आयात करना चाहते हैं — यह डाउनलोड होकर सीधे BookPlayer में जुड़ जाएगी!</string>
-    <string name="OnlineSearch_button">खोजें…</string>
 
     <string name="TextHeaderOpen">डिवाइस से ऑडियो लोड करें</string>
     <string name="bOpenFile_desc">कोई भी फ़ाइल लें।</string>
@@ -470,36 +402,22 @@
     <string name="LibrivoxSearch_title">"ऑडियोबुक्स"</string>
     <string name="LibrivoxSearch_desc">"अपनी ऑडियोबुक खोजने के लिए सीधे LibriVox पर खोजें। यह एक मुफ़्त, पब्लिक-डोमेन रिपॉजिटरी है जिसमें अधिकतर अंग्रेज़ी रचनाएँ हैं और कुछ अन्य भाषाओं में भी उपलब्ध हैं।"</string>
 
-    <string name="OnlineSearch_hint">Jack London</string>
-    <string name="LibrivoxSearch_hint">Jack London</string>
-    <string name="PodcastSearch_hint">cats</string>
-    <string name="DirectDownload_hint">https://bookplayer.driot.com/audiobook630.zip</string>
-
     <string name="PodcastSearch_title">पॉडकास्ट</string>
     <string name="PodcastSearch_desc">ओपन सोर्स रजिस्ट्री podcastindex.org की मदद से पॉडकास्ट ब्राउज़ करें</string>
     <string name="podcast_image_desc">पॉडकास्ट छवि</string>
     <string name="podcast_no_results">कोई पॉडकास्ट नहीं मिला</string>
-    <string name="podcast_nb_of_podcast_found">मिले हुए पॉडकास्ट की संख्या</string>
 
     <string name="Search_2pt">"खोज: "</string>
     <string name="Language_2pt">"भाषा: "</string>
     <string name="Results_2pt">"परिणाम: "</string>
-    <string name="search_nothing_specified">कुछ भी निर्दिष्ट नहीं</string>
-    <string name="search_nothing_specified_so_trending">कुछ नहीं => ट्रेंडिंग दिखाएँ</string>
-
-    <string name="LibrivoxResultItem_audio_available_since">"से ऑडियो उपलब्ध"</string>">
-    <string name="LibrivoxResultitem_nb_of_reviews">"समीक्षाओं की संख्या"</string>">
-    <string name="LibrivoxResultitem_avg_rating">"औसत रेटिंग"</string>">
+    <string name="search_nothing_specified">कुछ भी निर्दिष्ट नहीं</string>">">">
     <string name="Librivox_bGetAudioBook">"ऑडियोबुक प्राप्त करें"</string>">
     <string name="librivox_no_audiobook_found_for_search">खोज शब्दों के लिए कोई ऑडियोबुक नहीं मिली</string>
     <string name="librivox_invalid_response">Librivox सर्वर से अमान्य प्रतिक्रिया</string>
     <string name="loading_details">विवरण लोड हो रहे हैं…</string>
     <string name="loading_detail_failed">विवरण लोड करने में विफल</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3 फ़ाइल उपलब्ध</string>
-    <string name="librivox_zip_mp3_not_found">ZIP-MP3 फ़ाइल नहीं मिली</string>
-    <string name="librivox_wait_integration">कृपया प्रतीक्षा करें, क्योंकि एक अन्य किताब अभी भी डाउनलोड/लोड हो रही है।</string>
-
-    <string name="LibrivoxSearch_warning">"चेतावनी - बीटा टेस्ट\nअब भी प्रायोगिक\nयदि डाउनलोड रुक जाए, तो ऐप को फ़ोरग्राउंड में रखने की कोशिश करें"</string>">
+    <string name="librivox_zip_mp3_not_found">ZIP-MP3 फ़ाइल नहीं मिली</string>">
     <string name="librivox_cover_desc">Librivox कवर</string>">
 
     <string name="podcast_favorite_add">पसंदीदा में जोड़ा गया</string>
@@ -510,77 +428,37 @@
     <!-- ********************************** -->
     <!-- Add Resources -->
 
-    <string name="bAddRessource">सामग्री जोड़ें</string>
-
     <string name="Error_Import_IsNotFolder">यह फ़ोल्डर जैसा नहीं लगता</string>
     <string name="Error_Import_IsNotFile">यह फ़ाइल जैसा नहीं लगता</string>
     <string name="Error_Import_NoMediaInFolder">इस फ़ोल्डर में कोई मीडिया नहीं मिला</string>
-    <string name="Error_Import_FilePathKO">फ़ाइल का पथ नहीं मिला</string>
-    <string name="Error_Import_FolderPathKO">फ़ोल्डर का पथ नहीं मिला</string>
     <string name="Error_Import_CannotReadFile">चुनी हुई फ़ाइल पढ़ने में त्रुटि</string>
     <string name="Error_Import_CannotReadFolder">चुना हुआ फ़ोल्डर पढ़ने में त्रुटि</string>
-    <string name="Error_Import_CannotParseFile">ऑडियो स्रोत को पार्स करते समय त्रुटि</string>
-    <string name="Error_Import_CannotGetParentDir">पैरेंट निर्देशिका नहीं मिल सकी</string>
-    <string name="Error_Import_TypeNotSupported">यह प्रकार समर्थित नहीं है</string>
-    <string name="Error_Import_CannotDetermineType">फ़ाइल प्रकार निर्धारित नहीं कर सका</string>
-    <string name="Error_Import_NotAnAudio">क्या यह ऑडियो नहीं है?</string>
     <string name="Error_Import_CannotSaveInDB">स्थानीय डेटाबेस में ऑडियो फ़ाइल सहेजने में त्रुटि</string>
-    <string name="Error_Import_CannotDeleteSource">ऑडियो स्रोत हटाने में त्रुटि</string>
-    <string name="Error_Import_AlreadyImported">यह किताब पहले ही डाउनलोड और इस रूप में आयात की जा चुकी है</string>
-    <string name="Error_Import_BetterTryNoDownloadFolder">ऑडियो संसाधन को किसी अन्य स्थान पर ले जाने का प्रयास करें (डाउनलोड फ़ोल्डर में नहीं)</string>
     <string name="Import_nMediaInFolder">इस फ़ोल्डर में मीडिया मिले</string>
-    <string name="Error_Getting_Ressource_Name_from_Download_Folder">डाउनलोड्स स्थान में संसाधन तक पहुँचते समय त्रुटि</string>
-    <string name="Add_resource_reading_file">फ़ाइल का विश्लेषण</string>
 
     <string name="Import_Progress_unzipping_file">"फ़ाइल अनज़िप हो रही है : "</string>
 
-    <string name="Import_Progress_onGoing">"व्यस्त… आयात जारी…"</string>
-
     <string name="Error_Import_Creating_Folders">"फ़ोल्डर नहीं बना सके"</string>
-    <string name="Error_Import_track_duration_nofile">"ट्रैक अवधि प्राप्त करने में त्रुटि (फ़ाइल नहीं मिली)"</string>
     <string name="Error_Import_track_duration_extraction">"ट्रैक अवधि प्राप्त करने में त्रुटि"</string>
-    <string name="Error_Import_computing_folder_duration">"एसेट्स की कुल अवधि गणना में त्रुटि"</string>
-
-    <string name="Error_Import_UnableToUnzip_line1">"संपीड़ित फ़ाइल अनज़िप करने में त्रुटि"</string>
-    <string name="Error_Import_UnableToUnzip_line2">"क्षमा करें, आप इसके बजाय पहले से अनज़िप किया हुआ फ़ोल्डर आयात कर सकते हैं"</string>
-
-    <string name="Error_Import_NotEnoughMemory_line1">"डिवाइस में पर्याप्त मेमोरी नहीं"</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">"उपलब्ध मेमोरी : "</string>
     <string name="Error_Import_NotEnoughMemory_line3">"कॉपी करने का स्रोत : "</string>
-    <string name="Error_Import_NotEnoughMemory_line4_1">"(आपको कम से कम "</string>
-    <string name="Error_Import_NotEnoughMemory_line4_2">" गुना स्रोत फ़ाइल के आकार की आवश्यकता है)"</string>
-    <string name="Error_Import_NotEnoughMemory_line5_zip">"आप इस सीमित कारक को दरकिनार करने के लिए zip के बजाय अनज़िप किया हुआ mp3 फ़ोल्डर आयात कर सकते हैं।"</string>
-    <string name="Error_Import_NotEnoughMemory_line5_other">"आप [CopyFile] चरण (विकल्प मेनू में) अक्षम कर सकते हैं, ताकि सीधे मुख्य मेमोरी से ऑडियो पढ़े जा सकें।"</string>
-
-    <string name="Error_ZikFilePositionOnlyDigits">"यहाँ आप केवल अंकों को ही दर्ज कर सकते हैं"</string>
     <string name="Error_NameTooShort">"यह नाम बहुत छोटा है"</string>
 
     <string name="Import_Success">आयात सफल</string>
-
-    <string name="Error_Import_Split_M4B"><i>m4b फ़ाइल विभाजित करते समय त्रुटि हुई।</i></string>
     <string name="Import_Experimental_M4B_warning">चेतावनी : <b>m4b अध्याय निष्कर्षण</b> बुनियादी है और सभी फ़ाइलों पर काम न करे।</string>
     <string name="Import_Experimental_M4B_iferror">यदि आपको त्रुटियाँ मिलें</string>
     <string name="Import_Experimental_M4B_solution_1">[split m4b] विकल्प को अनचेक करें।</string>
     <string name="Import_Experimental_M4B_solution_2"><i>आप किसी तृतीय-पक्ष टूल से पहले m4b फ़ाइल को mp3 फ़ाइलों के फ़ोल्डर में बदलकर, फिर उस फ़ोल्डर को BookPlayer में आयात भी कर सकते हैं।</i></string>
-    <string name="Import_Progress_splitting_m4b_files">"m4b फ़ाइलों को अध्यायों में विभाजित किया जा रहा है"</string>
     <string name="Import_Progress_splitting_m4b_file">"m4b फ़ाइल विभाजित कर रहे हैं : "</string>
-
-    <string name="error_could_not_check_hash">यह जाँचने में त्रुटि कि यह ऑडियोबुक पहले से आयात है या नहीं</string>
     <string name="error_media_already_loaded_samePath_under_the_name">यह मीडिया पहले से लोड किया जा चुका है और वर्तमान में इस नाम से संग्रहीत है : </string>
     <string name="init_please_wait">आरंभ हो रहा है… कृपया प्रतीक्षा करें…</string>
-    <string name="error_media_already_loaded_samePath_so_changeName">उसी नाम वाला भिन्न मीडिया पहले से लोड था, नाम बदलकर यह किया जाएगा : </string>
     <string name="init_check_already_imported_please_wait">"पहले से आयात है या नहीं जाँच रहे हैं, कृपया प्रतीक्षा करें…"</string>
     <string name="init_check_complementary_checks_please_wait">"पूरक जाँचें चल रही हैं, कृपया प्रतीक्षा करें…"</string>
-    <string name="Error_Import_FolderAlreadyImported">यह फ़ोल्डर पहले ही लोड किया जा चुका है</string>
 
     <string name="error_media_already_loaded_samePath">यह मीडिया पहले से लोड किया जा चुका है</string>
-    <string name="error_media_already_loaded_sameName">इस नाम की एक किताब पहले से BookPlayer में मौजूद है</string>
 
     <string name="ErrorCouldNotLoadAudios">त्रुटि - ऑडियो लोड नहीं कर सके।</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">त्रुटि - इस फ़ोल्डर में कोई ऑडियो नहीं मिला।</string>
-
-    <string name="Import_Progress_copying_zip_file">"स्रोत फ़ाइल कॉपी कर रहे हैं \n- डिवाइस के सामान्य स्टोरेज से\n- BookPlayer ऐप की आंतरिक मेमोरी में"</string>
-    <string name="Import_Progress_copying_zip_file_cloud">"स्रोत फ़ाइल कॉपी कर रहे हैं \n- क्लाउड से\n- BookPlayer ऐप की आंतरिक मेमोरी में"</string>
 
     <string name="Error_Import_OutOfMemory">सामान्य त्रुटि : मेमोरी समाप्त</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">इस फ़ोल्डर में बहुत अधिक किताबें या सबफ़ोल्डर हो सकते हैं जिन्हें एक साथ लोड नहीं किया जा सकता।</string>
@@ -589,14 +467,12 @@
     <!-- FolderModifyActivity -->
 
     <string name="bDelete">"हटाएँ"</string>
-    <string name="bRenameTrack">"ट्रैक का नाम बदलें"</string>
     <string name="bMove">"स्थिति बदलें"</string>
     <string name="bReset">"प्रोग्रेस रीसेट"</string>
     <string name="Folder_Deleted_DB">"किताब हटाई गई!"</string>
     <string name="Folder_Renamed">"फ़ोल्डर का नाम बदल दिया गया"</string>
     <string name="Error_FolderNameTooShort">"फ़ोल्डर का नाम कम से कम 2 अक्षरों का होना चाहिए"</string>
     <string name="Folder_Reset">"फ़ोल्डर प्रोग्रेस रीसेट कर दिया गया"</string>
-    <string name="ZikFile_RePositioned">"ट्रैक को नई स्थिति में रखा गया"</string>
     <string name="ZikFile_Renamed">"ट्रैक का नाम बदल दिया गया"</string>
     <string name="ZikFile_Deleted">"ट्रैक हटाया गया"</string>
 
@@ -604,8 +480,6 @@
     <string name="AskReset_popupTitle">रीसेट की पुष्टि</string>
 
     <string name="You_are_about_to_delete_this_audio_book">"आप इस ऑडियोबुक को हटाने वाले हैं"</string>
-
-    <string name="ImportedOn">"आयात दिनांक"</string>
     <string name="LastAccess">"अंतिम पहुंच"</string>
     <string name="AudioLocation">"ऑडियो स्थान"</string>
 
@@ -616,19 +490,11 @@
     <string name="Rename_book">"किताब का नाम बदलें"</string>
     <string name="AskRename_Book">"क्या आप सचमुच किताब का नाम यह रखना चाहते हैं"</string>
     <string name="AskRename_popupTitle">नाम बदलने की पुष्टि</string>
-
-    <string name="bRenameFolder">"किताब का नाम बदलें"</string>
     <string name="IntroCutText"><i>"चलाने के दौरान प्रत्येक अध्याय के पहले कुछ सेकंड ट्रिम करता है।"</i></string>
-
-    <string name="Export_notification_title">"ऑडियोबुक निर्यात की गई"</string>
-    <string name="Export_notification_text">"डाउनलोड फ़ोल्डर में"</string>
     <string name="Export_share_title">"ZIP फ़ाइल साझा करें"</string>
-    <string name="Export_display_text_loading">"फ़ोल्डर जानकारी लोड हो रही है…"</string>
     <string name="Export_display_text_preparing_export">"निर्यात तैयार किया जा रहा है…"</string>
     <string name="Export_display_no_valid_audiobook">"ऑडियोबुक ऑडियो प्राप्त करने में त्रुटि।"</string>
     <string name="Export_error">"निर्यात त्रुटि"</string>
-    <string name="Export_display_text_export_title">"ZIP निर्यात"</string>
-    <string name="Export_done">"Export_done"</string>
 
     <!-- ********************************** -->
     <!-- Zik File Adapter -->
@@ -646,26 +512,17 @@
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
     <string name="tvSpeed">गति</string>
-    <string name="tvSleep">स्लीप</string>
-    <string name="tvVolume">वॉल्यूम</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">बिना उपयोगकर्ता क्रिया के समय</string>
-    <string name="tv_ListeningTimeWithCustomSleep">कस्टम स्लीप सेट होने से</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>ध्यान दें यह मान केवल वर्तमान प्ले सत्र के लिए उपयोग होगा.\nवैश्विक ऑटो स्लीप मान सेटिंग्स में है (मेनू में, ऐप की स्टार्ट पेज से उपलब्ध)</i>"</string>
-    <string name="tv_CustomSleepDialog_EnterMinutesBeforeSleep">"स्लीप से पहले मिनटों की संख्या दर्ज करें:"</string>
     <string name="tv_TimeLeft">स्लीप से पहले शेष समय</string>
     <string name="error_reading_track">"ट्रैक पढ़ने में त्रुटि !"</string>
-    <string name="error_file_not_found">"फ़ाइल नहीं मिली !"</string>
     <string name="current_position">वर्तमान स्थिति</string>
     <string name="total_time">अवधि</string>
-    <string name="file_name">फ़ाइल नाम</string>
     <string name="source_not_found">स्रोत फ़ाइल नहीं मिली या पढ़ी नहीं जा सकी।</string>
     <string name="source_not_found_deleted">स्रोत फ़ाइल नहीं मिली। संभव है कि इसे हटा दिया गया हो।</string>
     <string name="source_file_path">स्रोत फ़ाइल पथ</string>
     <string name="permission_not_set">अनुमति सेट नहीं है।</string>
-    <string name="permission_to_set">सेट करने के लिए, नीचे दिए बटन पर क्लिक कर ऐप जानकारी दिखाएँ, फिर [App Permissions] अनुभाग में जाएँ और [MUSIC AND AUDIO] को मैन्युअली सेट करें.
-        \n\nअनुमति आवश्यक है क्योंकि पढ़ने के लिए स्रोत फ़ाइल BookPlayer की आंतरिक मेमोरी में नहीं है।</string>
-    <string name="device_settings">BookPlayer के लिए डिवाइस सेटिंग्स</string>
     <string name="notification_playlist_finished">"किताब समाप्त!"</string>
     <string name="notification_auto_sleep">"ऑटो स्लीप!"</string>
 
@@ -685,10 +542,7 @@
     <string name="MB_available_on_SD_card">" MB : SD कार्ड पर उपलब्ध"</string>
     <string name="MB_SD_card_memory">" MB : SD कार्ड मेमोरी"</string>
     <string name="audio_location_sdcard">SD कार्ड</string>
-    <string name="custom_value_in_minutes">कस्टम मान (मिनट)</string>">
-    <string name="MB_audios_in_app">MB: ऐप में ऑडियो</string>">
-    <string name="MB_left_on_device">MB: डिवाइस पर शेष</string>">
-    <string name="MB_device_memory2">MB: डिवाइस मेमोरी</string>">
+    <string name="custom_value_in_minutes">कस्टम मान (मिनट)</string>">">">">
 
     <string name="audio_location_sdcard_reserved_storage">SD कार्ड (ऐप आरक्षित)</string>
     <string name="audio_location_bookplayer_reserved_storage">BookPlayer आरक्षित स्टोरेज</string>
@@ -701,26 +555,17 @@
     <string name="action_menu_three_dot">मेनू</string>
     <string name="menu_open">खोलें</string>
     <string name="menu_manual">मैनुअल</string>
-    <string name="menu_settings">सेटिंग्स</string>
-    <string name="menu_otherapp">अन्य ऐप्स</string>
     <string name="menu_sendmail">डेवलपर को मेल</string>
     <string name="menu_stats">आँकड़े</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
     <string name="menu_cacheFiles">सफ़ाई</string>
-    <string name="menu_forum">फ़ोरम</string>
     <string name="menu_website">वेबसाइट</string>
-    <string name="menu_synchro">सिंक</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
-
-    <string name="otherApp_title">"मेरे अन्य ऐप्स :-)"</string>
     <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_droitpositif_txt">मुख्य फ़्रांसीसी क़ानूनी पाठ, ऑफ़लाइन भी उपलब्ध</string>
     <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_deces_txt">1970\' के दशक से फ़्रांस में मृत लोग</string>
     <string name="otherApp_scanner" translatable="false">Scanner</string>
-    <string name="otherApp_scanner_txt">QR-कोड्स और बारकोड्स स्कैनर</string>
 
     <!-- Action Bar -->
 
@@ -739,14 +584,8 @@
         \n\nऐप का [Copy File internally] विकल्प सक्रिय करने के लिए [Settings] क्लिक करें।
         \n<i>इसके बाद, आपकी ऑडियो फ़ाइलें BookPlayer की आंतरिक मेमोरी में कॉपी हो जाएँगी और उन्हें पढ़ने के लिए किसी अनुमति की आवश्यकता नहीं होगी।</i>
     </string>
-
-    <string name="permission_record_audio_rationale_01">"निम्न वैकल्पिक अनुमति स्पेक्ट्रम विज़ुअलाइज़र दिखाने के लिए है।"</string>
     <string name="permission_record_audio_rationale">स्पेक्ट्रम विज़ुअलाइज़र के लिए [record audio] अनुमति चाहिए।</string>
     <string name="permission_record_audio_denied">स्पेक्ट्रम विज़ुअलाइज़र प्रदर्शित नहीं होगा। [record audio] अनुमति अस्वीकृत की गई है।</string>
-    <string name="permission_record_audio_rationale_after_denied">BookPlayer पहले से अस्वीकृत अनुमति के लिए दोबारा नहीं पूछ सकता.
-        \n\nआप [App Info] क्लिक करके बायपास कर सकते हैं।
-        \nयह डिवाइस पर BookPlayer सेटिंग्स खोलेगा।
-        \n\nफिर "Permissions" अनुभाग में जाएँ और "Microphone" को मैन्युअली अनुमति दें।</string>
 
     <string name="Permission">अनुमति</string>
     <string name="permission_read_denied_short_text_on_load">[Music and Audio] अनुमति पहले ही अस्वीकृत की गई थी.
@@ -760,7 +599,6 @@
 
     <string name="Close">बंद करें</string>
     <string name="Episode_description">एपिसोड विवरण</string>
-    <string name="Podcast_description">पॉडकास्ट विवरण</string>
     <string name="Trending">ट्रेंडिंग</string>
     <string name="max_number_of_results_reached">परिणामों की अधिकतम संख्या पहुँच गई</string>
 
@@ -769,38 +607,21 @@
     <string name="option_download_auto_title">स्वतः डाउनलोड</string>
     <string name="option_download_user_title">मैनुअल डाउनलोड</string>
     <string name="download_any">📶 कोई भी कनेक्शन</string>
-    <string name="download_wifi">🛜 केवल Wi-Fi</string>
-    <string name="download_unmetered">🆓 केवल अनमीटर्ड Wi-Fi</string>
-    <string name="download_never_ask">🛣️ कभी मत पूछो</string>
-    <string name="download_ask_if_not_wifi">❓ यदि Wi-Fi नहीं है तो पूछें</string>
-    <string name="download_ask_if_unmetered">⚠️ यदि अनमीटर्ड नहीं है तो पूछें</string>
     <string name="download_bis_unmetered">🆓 केवल अनमीटर्ड</string>
     <string name="download_not_roaming">🏠 रोमिंग नहीं</string>
 
     <string name="download_warning_title_unmetered">अनमीटर्ड कनेक्शन</string>
     <string name="download_warning_message_unmetered">आप अनमीटर्ड कनेक्शन पर नहीं हैं (आप मोबाइल नेटवर्क पर हैं)। क्या डाउनलोड जारी रखें?</string>
-    <string name="download_warning_title_wifi">Wi-Fi</string>
-    <string name="download_warning_message_wifi">आप Wi-Fi पर नहीं हैं। क्या डाउनलोड जारी रखें?</string>
 
     <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">HTTPS का उपयोग करें या ऐप की नेटवर्क सुरक्षा कॉन्फ़िग में इस होस्ट के लिए क्लियरटेक्स्ट की अनुमति दें।</string>
     <string name="http_is_blocked_by_android_s_network_security_policy">Android की नेटवर्क सुरक्षा नीति द्वारा HTTP (क्लियरटेक्स्ट) अवरुद्ध है।</string>
     <string name="http_cleartext_to">HTTP (क्लियरटेक्स्ट) से</string>
-    <string name="is_blocked_by_android_s_network_security_policy">Android की नेटवर्क सुरक्षा नीति द्वारा अवरुद्ध है</string>
-
-    <string name="Download_cancelled">"डाउनलोड रद्द किया गया"</string>">
-    <string name="Download_failed">"डाउनलोड विफल"</string>">
+    <string name="is_blocked_by_android_s_network_security_policy">Android की नेटवर्क सुरक्षा नीति द्वारा अवरुद्ध है</string>">">
 
     <string name="Add_to_favorite">पसंदीदा में जोड़ें</string>
     <string name="Auto_Download_episodes">एपिसोड का स्वतः डाउनलोड</string>
-
-    <string name="Download_paused_due_to_network_policy">नेटवर्क नीति के कारण डाउनलोड रोका गया</string>
     <string name="Download_paused_by_user">उपयोगकर्ता द्वारा डाउनलोड रोका गया</string>
-    <string name="Download_cancelled_by_user">उपयोगकर्ता द्वारा डाउनलोड रद्द किया गया</string>
     <string name="Download_finished">डाउनलोड समाप्त</string>
-
-
-
-
 
 
     <string name="Import_Progress_copying_file_from_general_storage">"स्रोत फ़ाइल कॉपी कर रहे हैं \n- डिवाइस के सामान्य स्टोरेज से"</string>
@@ -831,7 +652,6 @@
     <string name="auto_download_last_n_episode">अंतिम xx एपिसोड स्वतः डाउनलोड</string>
     <string name="auto_download_max_n_podcast">अधिकतम xx पॉडकास्ट स्वतः डाउनलोड</string>
     <string name="auto_download_delay_between_checks_in_min">जाँचों के बीच विलंब (मिनट) स्वतः डाउनलोड</string>
-    <string name="Auto_Delete_episodes">एपिसोड स्वतः हटाएँ</string>
 
 
     <string name="for_max">अधिकतम के लिए</string>
@@ -842,10 +662,8 @@
     <string name="podcast_api_unavailable_fallback">नए एपिसोड प्राप्त नहीं कर सके, केवल पूर्ववर्ती दिखाए जा रहे हैं</string>
     <string name="deleted_on">हटाया गया दिनांक</string>
     <string name="added_on">जोड़ा गया दिनांक</string>
-    <string name="from_previous_request">पिछले से</string>
     <string name="MB_taken_by_databases">" MB डेटाबेस"</string>
     <string name="bMassImport">मास आयात</string>
-
 
 
     <string name="bOpenMassImport_desc">मास आयात : आप जिस फ़ोल्डर को चुनेंगे, उसमें मौजूद प्रत्येक आइटम के लिए एक ऑडियोबुक बनाएं</string>
@@ -854,8 +672,6 @@
     <string name="type_here_">यहाँ लिखें…</string>">
 
     <string name="most_downloaded">"सबसे अधिक डाउनलोड"</string>
-
-    <string name="open_podcasts">"पॉडकास्ट ब्राउज़ करें"</string>
     <string name="open_audiobooks">"ऑडियोबुक्स ब्राउज़ करें"</string>
     <string name="open_other">"ऑडियो खोलें"</string>
 
@@ -879,9 +695,6 @@
     <string name="list_of_supported_extensions">समर्थित एक्सटेंशनों की सूची :</string>
     <string name="audio_book_name">ऑडियोबुक नाम</string>>
     <string name="audio_book_cover">ऑडियोबुक कवर</string>>
-    <string name="section_audio">ऑडियो</string>
-    <string name="section_video">वीडियो</string>
-    <string name="section_text">पाठ</string>
 
 
     <string name="text_to_speech">टेक्स्ट-टू-स्पीच</string>
@@ -896,10 +709,6 @@
 
 
     <string name="Specific_view">पॉडकास्ट विशेष व्यू</string>
-    <string name="Classic_book_view">क्लासिक किताब व्यू</string>
-
-    <string name="toast_tts_not_ready">"टेक्स्ट-टू-स्पीच तैयार नहीं है!"</string>
-    <string name="toast_tts_getting_ready">"टेक्स्ट-टू-स्पीच तैयार हो रहा है!"</string>
     <string name="Error_Import_No_Usable_item_Found">"कोई उपयोगी आइटम नहीं मिला"</string>">
 
     <string name="Error_Import_could_not_delete_source">"चुना हुआ स्रोत हटाया नहीं जा सका"</string>">
@@ -924,12 +733,8 @@
     <br><br>
     यह अपेक्षाकृत <font color="#FFCC80">नया फ़ीचर</font> है — कृपया नरमी रखें और अपनी प्रतिक्रिया साझा करें।
 ]]></string>
-
-    <string name="pause_following_error">त्रुटि के बाद विराम</string>
     <string name="failed_to_create_destination_folder">गंतव्य फ़ोल्डर बनाने में विफल</string>
     <string name="server_returned_http">सर्वर ने HTTP लौटाया</string>
-    <string name="Pause_wait_interrupted">विराम प्रतीक्षा बाधित</string>
-    <string name="download_cancelled_during_execution">निष्पादन के दौरान डाउनलोड रद्द</string>
     <string name="connection_aborted">कनेक्शन निरस्त</string>
     <string name="io_error">I/O त्रुटि</string>
     <string name="starting_download">डाउनलोड शुरू हो रहा है…</string>
@@ -957,7 +762,6 @@
     <string name="Error_Import_no_valid_media_found">त्रुटि : कोई वैध मीडिया नहीं मिला</string>
     <string name="Error_Import_extract_audio_data_failed">त्रुटि : ऑडियो डेटा निकाला नहीं जा सका</string>
     <string name="Error_Import_unsupported_file">त्रुटि : असमर्थित फ़ाइल</string>
-    <string name="Error_Import_access_denied">त्रुटि : प्रवेश अस्वीकृत</string>
 
     <string name="use_this_image_as_cover">इस छवि को कवर के रूप में उपयोग करें</string>
     <string name="search_title_hint">यहाँ टाइप करें…</string>
@@ -992,7 +796,6 @@
     <string name="tts_phase_speaking">वाचन जारी</string>
     <string name="tts_phase_error">स्पीच इंजन त्रुटि</string>
     <string name="error_generic">एक अप्रत्याशित त्रुटि हुई</string>
-    <string name="tts_error_engine_generic">स्पीच इंजन त्रुटि</string>
     <string name="tts_error_warmup_timeout">आवाज़ वार्म-अप का समय समाप्त</string>
     <string name="tts_error_voice_set_failed">आवाज़ लागू करने में विफल</string>
     <string name="tts_error_synth_failed">वार्म-अप सिंथेसिस विफल</string>
@@ -1006,7 +809,6 @@
     <string name="new_">नया</string>
     <string name="icon">आइकन</string>
     <string name="Engine">इंजन</string>
-    <string name="delay">विलंब</string>
     <string name="Design">डिज़ाइन</string>
     <string name="Import">आयात</string>
     <string name="Utilities">उपयोगिताएँ</string>
@@ -1016,27 +818,18 @@
     <string name="option_tts_chunk_size_text">चंक आकार :</string>
     <string name="tts_chunk_size">चंक आकार</string>
     <string name="changeTracksOrder">ट्रैक्स का क्रम बदलें</string>
-    <string name="Please_first_stop_the_player">कृपया पहले प्लेयर को रोकें</string>
     <string name="Failed_to_create_the_destionation_file">गंतव्य फ़ाइल बनाने में विफल।</string>
     <string name="Cannot_write_to_the_chosen_folder">चयनित फ़ोल्डर में लिख नहीं सकते।</string>
     <string name="Export_done_Excl">"निर्यात पूरा !"</string>
 
     <string name="option_play_view">प्ले दृश्य</string>
     <string name="option_click_container_playpause_text">छवि पर क्लिक करने से ऑडियो रुकेगा या फिर से शुरू होगा</string>
-    <string name="double_click_image_to_get_back_to_text_view">टेक्स्ट दृश्य पर वापस जाने के लिए छवि पर डबल-क्लिक करें</string>
-    <string name="option_app_language_subtitle">यह कुछ उपकरणों पर काम नहीं कर सकता (कुछ उपकरण सिस्टम की डिफ़ॉल्ट भाषा से अलग भाषा का उपयोग रोक सकते हैं)।</string>
-
-    <string name="browse_radios">रेडियो ब्राउज़ करें</string>
-    <string name="Radio_settings">रेडियो सेटिंग्स</string>
     <string name="Radio_Settings">रेडियो सेटिंग्स</string>
     <string name="live_radio">लाइव रेडियो</string>
-    <string name="stations">स्टेशन</string>
     <string name="radio">रेडियो</string>
     <string name="no_result">कोई परिणाम नहीं</string>
     <string name="radio_cover_desc">रेडियो कवर विवरण</string>
     <string name="RadioSearch_title">वेब रेडियो</string>
-    <string name="RadioSearch_desc">भाषा, देश या टैग के अनुसार ब्राउज़ करें, या स्टेशन के नाम से खोजें।</string>
-    <string name="trending_radios">लोकप्रिय रेडियो</string>
     <string name="selected_language_error">चयनित भाषा में त्रुटि</string>
 
     <string name="media_button_action">मीडिया बटन क्रिया</string>
@@ -1102,9 +895,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="please_wait_another_book">कृपया प्रतीक्षा करें — एक और पुस्तक डाउनलोड या लोड हो रही है।\nयदि नहीं, तो [सेटिंग्स &gt; उपयोगिताएँ &gt; चल रही प्रक्रिया रद्द करें] में रीसेट ऐप बटन का उपयोग करें।</string>
     <string name="Podcast_source_error">पॉडकास्ट स्रोत त्रुटि</string>
     <string name="Streaming_Podcast">स्ट्रीमिंग पॉडकास्ट</string>
-    <string name="deprecated_Stop_the_player_to_move_playing_tracks">चल रहे ट्रैक को स्थानांतरित करने के लिए आपको प्लेबैक रोकना होगा</string>
-
-    <string name="deprecated_bOpenMassImport_warning">अभी केवल उपफ़ोल्डर जिनमें ऑडियो फ़ाइलें हैं, समर्थित हैं</string>
     <string name="librivox_search_edittext_title">लेखक या शीर्षक से खोजें...\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="podcast_search_edittext_title">खोजें... (सभी भाषाएँ)\nसुझाव: एक शब्द अक्सर बेहतर परिणाम देता है</string>
     <string name="import_settings">आयात सेटिंग्स</string>
@@ -1113,15 +903,12 @@ Android Auto को कार से जुड़ने पर स्वतः �
 
     <string name="Import_Progress_chapter_title">"ट्रैक शीर्षक"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"निर्यात की गई फ़ाइल का नाम कम से कम 3 अक्षरों का होना चाहिए"</string>
-    <string name="option_radio_renew_url_title">पसंदीदा से चलाने पर</string>
     <string name="option_radio_renew_url">चलाने से पहले सर्वोत्तम मिरर की जाँच करें</string>
     <string name="option_radio_renew_url_subtitle">मिरर (रेडियो सर्वर) की जांच करने से सर्वोत्तम स्रोत मिलता है, लेकिन समय लग सकता है (वर्तमान टाइमआउट 10 सेकंड)।</string>
     <string name="checking_for_best_mirror">सर्वोत्तम मिरर की जाँच</string>
     <string name="error_radio_renew_url">रेडियो मिरर लिंक प्राप्त करने में त्रुटि</string>
     <string name="loading">लोड हो रहा है</string>
-    <string name="no_review">कोई समीक्षा नहीं</string>
     <string name="library">लाइब्रेरी</string> <!-- stay below 10/12 chars -->
-    <string name="source_not_read">स्रोत फ़ाइल पढ़ी नहीं जा सकी।</string>
     <string name="Download">डाउनलोड</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">एपिसोड नाम में प्रकाशन तिथि जोड़ें</string>
 
@@ -1171,23 +958,16 @@ Android Auto को कार से जुड़ने पर स्वतः �
                     अभी के लिए, BookPlayer मूल M4B को एकल ऑडियो फ़ाइल के रूप में आयात करेगा।"""</string>
 
     <string name="destination">गंतव्य</string>
-    <string name="play_mode">प्ले मोड</string>
     <string name="count">गिनती</string>
 
     <string name="APPEND_MODE">मौजूदा पुस्तक में जोड़ें</string>
     <string name="internet_status">इंटरनेट स्थिति</string>
     <string name="net_status_initial">नेटवर्क की जाँच…</string>
-    <string name="deprecated__net_status_online_for">%1$ds से ऑनलाइन</string>
-    <string name="deprecated__net_status_offline_for">%1$ds से ऑफ़लाइन</string>
     <string name="net_status_unmetered">अनलिमिटेड कनेक्शन</string>
     <string name="net_status_roaming">रोमिंग</string>
-    <string name="deprecated_net_status_online_for_percent">%1$ds से ऑनलाइन · %2$d%%</string>
-    <string name="deprecated_net_status_offline_for_percent">%1$ds से ऑफ़लाइन · %2$d%%</string>
     <string name="AskReset_popupText_order">आप ट्रैक क्रम रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?</string>
     <string name="zikFiles_not_readable">कुछ ट्रैकों में त्रुटियाँ हैं और चल नहीं सकतीं:</string>
     <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>
-
-    <string name="Progress_Heatmap">प्रगति हीटमैप</string>
     <string name="option_progress_heatmap_subtitle">ट्रैक की प्रगति पट्टियाँ दिखाएँगी कि कौन से भाग सुने गए हैं, और जितना अधिक कोई हिस्सा चलाया जाता है, रंग उतना ही गहरा होता जाता है।</string>
     <string name="option_progress_heatmap">हीटमैप दिखाएँ</string>
     <string name="option_lock_orientation_play_activity">स्क्रीन ओरिएंटेशन लॉक करें</string>
@@ -1197,9 +977,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="radio_could_not_resolve_url">यह स्टेशन लिंक टूटा हुआ लगता है।</string>
         <string name="clicks_2pt">क्लिक: %1$d</string>
         <string name="tags">टैग</string>
-        <string name="url">url</string>
         <string name="homepage">मुखपृष्ठ</string>
-        <string name="audio_files">ऑडियो फ़ाइलें</string>
 
         <plurals name="audio_files_count">
             <item quantity="one">%d ऑडियो फ़ाइल</item>
@@ -1208,10 +986,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <plurals name="subfolders_count">
             <item quantity="one">%d उप-फ़ोल्डर</item>
             <item quantity="other">%d उप-फ़ोल्डर</item>
-        </plurals>
-        <plurals name="folders_count">
-            <item quantity="one">%d फ़ोल्डर</item>
-            <item quantity="other">%d फ़ोल्डर</item>
         </plurals>
         <string name="count_status">%1$s (%2$s)</string>
 
@@ -1223,7 +997,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="browse_ebooks">ईबुक ब्राउज़ करें</string>
         <string name="GutendexSearch_desc">"प्रोजेक्ट गुटेनबर्ग की सार्वजनिक-डोमेन ईबुक्स ब्राउज़ करें। EPUB प्रारूप में हजारों निःशुल्क क्लासिक उपलब्ध हैं।"</string>
         <string name="Ebooks">ईबुक्स</string>
-        <string name="deprecated_Ebooks_special">यह ईबुक फिर आपके डिवाइस के बिल्ट-इन टेक्स्ट-टू-स्पीच इंजन द्वारा ज़ोर से पढ़ी जाएगी।</string>
         <string name="full_screen_mode">फुल स्क्रीन मोड</string>
 
         <string name="tts_voice_seems_incompatible">वॉइस असंगत प्रतीत होती है</string>
@@ -1232,7 +1005,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="option_radio_sleep_copy">सामान्य सेटिंग मान कॉपी करें</string>
         <string name="option_radio_use_cloudfare">कैशिंग का उपयोग करें ( cloudfare )</string>
         <string name="option_radio_use_cloudfare_subtitle">कैशिंग गति में सुधार करनी चाहिए</string>
-        <string name="Performance">प्रदर्शन</string>
         <string name="by_genre">शैली के अनुसार</string>
         <string name="by_author">लेखक के अनुसार</string>
         <string name="librivox_no_audiobook_found_in_genre">इसमें कोई ऑडियोबुक नहीं मिली</string>
@@ -1249,8 +1021,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_radio_remove_duplicates_subtitle">यदि स्टेशन का नाम 3 बार से अधिक मिलता है, तो सूची में अव्यवस्था से बचने के लिए आगे की प्रविष्टियाँ नहीं दिखेंगी।</string>
     <string name="option_radio_sleep_copy_subtitle">यहाँ आप रेडियो ऑटो-स्लीप के लिए कस्टम मान सेट कर सकते हैं। हम रेडियो के लिए प्रगति नहीं सहेजते, तो यदि आप सो भी जाएँ तो कोई समस्या नहीं!</string>
     <string name="Radio">रेडियो</string>
-
-        <string name="loading_more">और लोड हो रहा…</string>
         <string name="no_results_found">कोई परिणाम नहीं</string>
         <string name="getting_first_results_from">पहले परिणाम यहाँ से</string>
         <string name="getting_more_from">और यहाँ से</string>
@@ -1262,7 +1032,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <string name="top_vote">टॉप वोट</string> <!-- short -->
         <string name="last_click">आखिरी क्लिक</string> <!-- short -->
         <string name="last_change">आखिरी बदल.</string> <!-- short -->
-
 
 
     <!-- MISSING TRANSLATIONS ADDED BY SCRIPT -->
@@ -1341,7 +1110,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="share_title">शेयर करें</string>
 
     <string name="skippring_already_imported_item">पहले से आयातित आइटम को छोड़ रहा है</string>
-    <string name="tracks">ट्रैक</string>
     <string name="vote_rejected">वोट अस्वीकार कर दिया गया: </string>
     <string name="vote_send_error">सर्वर पर वोट भेजने में त्रुटि।</string>
     <string name="vote_sent_success">सर्वर पर वोट भेजा गया, धन्यवाद।</string>
