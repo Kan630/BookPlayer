@@ -82,17 +82,17 @@ public class LibrivoxRepository {
     // =====================================================================
 
     private void searchHotListWithFallback(String label, String q, List<String> fields,
-                                           int limit, String sort,
+                                           int limit, int page, String sort,
                                            Callback<ArchiveApiResponse> cb) {
         if (cachedApi == null) {
-            myLogD(label + ": no cachedApi → direct only");
-            directApi.search(q, fields, limit, 1, "json", sort)
+            myLogD(label + ": no cachedApi → direct only, page=" + page);
+            directApi.search(q, fields, limit, page, "json", sort)
                     .enqueue(new LoggingCallback<>(cb, label + "-direct"));
             return;
         }
 
         Call<ArchiveApiResponse> primaryCall = cachedApi.search(
-                q, fields, limit, 1, "json", sort);
+                q, fields, limit, page, "json", sort);
 
         primaryCall.enqueue(new Callback<>() {
             @Override
@@ -103,7 +103,7 @@ public class LibrivoxRepository {
                         && resp.body().response != null;
 
                 if (ok) {
-                    myLog(label + " via Cloudflare → " + resp.code());
+                    myLog(label + " via Cloudflare → " + resp.code() + " page=" + page);
                     cb.onResponse(call, resp);
                     return;
                 }
@@ -112,7 +112,7 @@ public class LibrivoxRepository {
                         + resp.code() + ") - falling back to direct");
 
                 Call<ArchiveApiResponse> fallbackCall = directApi.search(
-                        q, fields, limit, 1, "json", sort);
+                        q, fields, limit, page, "json", sort);
                 fallbackCall.enqueue(new LoggingCallback<>(cb, label + "-direct-fallback"));
             }
 
@@ -122,19 +122,26 @@ public class LibrivoxRepository {
                         + " - falling back to direct");
 
                 Call<ArchiveApiResponse> fallbackCall = directApi.search(
-                        q, fields, limit, 1, "json", sort);
+                        q, fields, limit, page, "json", sort);
                 fallbackCall.enqueue(new LoggingCallback<>(cb, label + "-direct-fallback"));
             }
         });
     }
 
+    /** First page (page 1) only. */
     public void mostDownloadedByLang(String lang, int limit,
+                                     Callback<ArchiveApiResponse> cb) {
+        mostDownloadedByLang(lang, limit, 1, cb);
+    }
+
+    /** With page (1-based) for pagination. */
+    public void mostDownloadedByLang(String lang, int limit, int page,
                                      Callback<ArchiveApiResponse> cb) {
         List<String> fields = Arrays.asList("identifier", "title", "date",
                 "avg_rating", "num_reviews");
         String q = "collection:librivoxaudio AND language:(" + lang + ")";
-        myLog("Librivox mostDownloadedByLang: [" + q + "]");
-        searchHotListWithFallback("mostDownloadedByLang", q, fields, limit,
+        myLog("Librivox mostDownloadedByLang: [" + q + "] page=" + page);
+        searchHotListWithFallback("mostDownloadedByLang", q, fields, limit, page,
                 API_SORT_DOWNLOADS_DESC, cb);
     }
 
@@ -150,7 +157,7 @@ public class LibrivoxRepository {
         }
 
         myLog("Librivox mostDownloadedByGenre: [" + q + "]");
-        searchHotListWithFallback("mostDownloadedByGenre", q, fields, limit,
+        searchHotListWithFallback("mostDownloadedByGenre", q, fields, limit, 1,
                 API_SORT_DOWNLOADS_DESC, cb);
     }
 
@@ -166,17 +173,24 @@ public class LibrivoxRepository {
         }
 
         myLog("Librivox mostDownloadedByAuthor: [" + q + "]");
-        searchHotListWithFallback("mostDownloadedByAuthor", q, fields, limit,
+        searchHotListWithFallback("mostDownloadedByAuthor", q, fields, limit, 1,
                 API_SORT_DOWNLOADS_DESC, cb);
     }
 
+    /** First page (page 1) only. */
     public void mostRecentlyAddedByLang(String lang, int limit,
+                                        Callback<ArchiveApiResponse> cb) {
+        mostRecentlyAddedByLang(lang, limit, 1, cb);
+    }
+
+    /** With page (1-based) for pagination. */
+    public void mostRecentlyAddedByLang(String lang, int limit, int page,
                                         Callback<ArchiveApiResponse> cb) {
         List<String> fields = Arrays.asList("identifier", "title", "date",
                 "avg_rating", "num_reviews");
         String q = "collection:librivoxaudio AND language:(" + lang + ")";
-        myLog("Librivox mostRecentlyAddedByLang: [" + q + "]");
-        searchHotListWithFallback("mostRecentlyAddedByLang", q, fields, limit,
+        myLog("Librivox mostRecentlyAddedByLang: [" + q + "] page=" + page);
+        searchHotListWithFallback("mostRecentlyAddedByLang", q, fields, limit, page,
                 API_SORT_ADDED_DESC, cb);
     }
 

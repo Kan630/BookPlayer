@@ -809,6 +809,8 @@
     <string name="Podcast_description">Podcast description</string>
     <string name="Trending">Trending</string>
     <string name="max_number_of_results_reached">max number of results reached</string>
+    <string name="librivox_books_loaded">%1$s books loaded</string>
+    <string name="librivox_books_loaded_of">%1$s / %2$s books</string>
 
 
     <string name="network_preferences_title">Network preferences</string>

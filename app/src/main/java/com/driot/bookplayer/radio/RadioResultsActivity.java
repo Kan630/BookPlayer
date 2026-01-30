@@ -40,6 +40,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     // --- list ---
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private ProgressBar progressBarLoadMore;
 
     private RadioResultsViewModel viewModel;
     private RadioBrowserRepository repo;
@@ -65,6 +66,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar  = findViewById(R.id.progressBar);
+        progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         // ---- grid span (header full width) ----
         int span = getResources().getInteger(R.integer.radio_grid_span);
@@ -251,7 +253,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             progressBar.setVisibility(View.GONE);
         });
         viewModel.getIsLoadingMore().observe(this, isLoading -> {
-            // Could show a bottom loading indicator here if needed
+            if (progressBarLoadMore != null) {
+                progressBarLoadMore.setVisibility(Boolean.TRUE.equals(isLoading) ? View.VISIBLE : View.GONE);
+            }
         });
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
             if (Boolean.TRUE.equals(shouldFinish)) finish();

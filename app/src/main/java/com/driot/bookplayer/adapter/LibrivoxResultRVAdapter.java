@@ -59,8 +59,17 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     // --- Items API ---
     public void setItems(List<ArchiveItem> newItems) {
-        items = newItems != null ? newItems : new ArrayList<>();
+        items = newItems != null ? new ArrayList<>(newItems) : new ArrayList<>();
         notifyDataSetChanged();
+    }
+
+    /** Append new items (e.g. next page). Header is at position 0. */
+    public void appendItems(List<ArchiveItem> newItems) {
+        if (newItems != null && !newItems.isEmpty()) {
+            int startPosition = items.size() + 1; // +1 for header
+            items.addAll(newItems);
+            notifyItemRangeInserted(startPosition, newItems.size());
+        }
     }
 
     // --- ViewHolders ---

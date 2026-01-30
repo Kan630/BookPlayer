@@ -18,38 +18,37 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/Technical"/>
+
         <LinearLayout
             android:id="@+id/ll_Search"
             style="@style/LinearLayoutOptionsVertical">
 
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/Search"
-                android:layout_marginTop="0dp" />
             <LinearLayout
-                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                    android:gravity="center"
-                    android:layout_width="match_parent">
-                    <TextView
-                        style="@style/OptionPodcastTextBeforeEditText"
-                        android:text="@string/return_max"
-                        />
-                    <EditText
-                        style="@style/OptionPodcastEditText"
-                        android:layout_width="70dp"
-                        android:id="@+id/et_librivox_api_nb_results"
-                        />
-                    <TextView
-                        style="@style/OptionPodcastTextAfterEditText"
-                        android:text="@string/books"
-                        />
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_width="match_parent"
+                android:layout_marginTop="0dp">
+                <TextView
+                    style="@style/OptionPodcastTextBeforeEditText"
+                    android:textSize="16sp"
+                    android:text="@string/api_paging_size"
+                    android:layout_marginStart="10dp"/>
+                <EditText
+                    style="@style/OptionPodcastEditText"
+                    android:layout_width="70dp"
+                    android:textSize="16sp"
+                    android:id="@+id/et_librivox_api_nb_results"/>
             </LinearLayout>
             <TextView
                 android:text="Min = 20"
-                style="@style/OptionMiniText" />
+                style="@style/OptionMiniText"
+                android:layout_marginStart="10dp"/>
             <TextView
                 android:text="Max = 1000"
-                style="@style/OptionMiniText" />
+                style="@style/OptionMiniText"
+                android:layout_marginStart="10dp"/>
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

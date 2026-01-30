@@ -20,6 +20,10 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 
+import java.text.NumberFormat;
+import java.util.List;
+import java.util.Locale;
+
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
@@ -28,6 +32,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private RecyclerView recyclerView;
     private LibrivoxResultRVAdapter adapter;
     private ProgressBar progressBar;
+    private ProgressBar progressBarLoadMore;
     private LibrivoxResultsViewModel viewModel;
 
     // For animated loading dots
@@ -47,6 +52,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
+        progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         // Initialize dot animation
         dotAnimationHandler = new android.os.Handler(getMainLooper());
@@ -80,6 +86,9 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         // Initialize ViewModel
         viewModel = new ViewModelProvider(this).get(LibrivoxResultsViewModel.class);
+
+        // Scroll-to-load-more for MODE_TRENDING / MODE_LAST_ADDED
+        setupScrollToLoadMore();
 
         // Setup observers
         setupObservers();
@@ -132,9 +141,16 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
             progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
         });
 
-        // Observe results
+        // Observe results (replace on first load, append on pagination)
         viewModel.getResults().observe(this, items -> {
-            adapter.setItems(items);
+            if (items == null) return;
+            int currentAdapterSize = adapter.getItemCount() - 1; // -1 for header
+            if (currentAdapterSize == 0 || items.size() <= currentAdapterSize) {
+                adapter.setItems(items);
+            } else {
+                List<ArchiveItem> newItems = items.subList(currentAdapterSize, items.size());
+                adapter.appendItems(newItems);
+            }
         });
 
         // Observe header status (handles both simple and paged results)
@@ -151,20 +167,27 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                             + statusData.apiSource + getAnimatedDots();
                 } else {
                     // Subsequent pages
-                    status = getString(R.string.nb_of_audios_found) + " : " + statusData.count
-                            + " (" + getString(R.string.getting_more_from) + " "
-                            + statusData.apiSource + getAnimatedDots() + ")";
+                    if (statusData.totalCount >= 0) {
+                        status = getString(R.string.librivox_books_loaded_of,
+                                formatCount(statusData.count), formatCount(statusData.totalCount))
+                                + " (" + getString(R.string.getting_more_from) + " "
+                                + statusData.apiSource + getAnimatedDots() + ")";
+                    } else {
+                        status = getString(R.string.librivox_books_loaded, formatCount(statusData.count))
+                                + " (" + getString(R.string.getting_more_from) + " "
+                                + statusData.apiSource + getAnimatedDots() + ")";
+                    }
                 }
             } else {
                 // Done loading - stop animation
                 stopDotAnimation();
-                if (statusData.isMaxReached) {
-                    // Max reached
-                    status = getString(R.string.max_number_of_results_reached)
-                            + " (" + statusData.count + ")";
+                if (statusData.totalCount >= 0) {
+                    // Show "XX / YY books" when total is known (locale-formatted)
+                    status = getString(R.string.librivox_books_loaded_of,
+                            formatCount(statusData.count), formatCount(statusData.totalCount));
                 } else {
-                    // Final count
-                    status = getString(R.string.nb_of_audios_found) + " : " + statusData.count;
+                    // Fallback: "XX books loaded"
+                    status = getString(R.string.librivox_books_loaded, formatCount(statusData.count));
                 }
             }
 
@@ -208,6 +231,34 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
             if (shouldFinish != null && shouldFinish) {
                 finish();
+            }
+        });
+        viewModel.getIsLoadingMore().observe(this, isLoadingMore -> {
+            if (progressBarLoadMore != null) {
+                progressBarLoadMore.setVisibility(Boolean.TRUE.equals(isLoadingMore) ? View.VISIBLE : View.GONE);
+            }
+        });
+    }
+
+    /** Load next page when user scrolls near bottom (MODE_TRENDING / MODE_LAST_ADDED only). */
+    private void setupScrollToLoadMore() {
+        GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
+        if (layoutManager == null) return;
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                GridLayoutManager lm = (GridLayoutManager) recyclerView.getLayoutManager();
+                if (lm == null) return;
+                int visibleItemCount = lm.getChildCount();
+                int totalItemCount = lm.getItemCount();
+                int firstVisibleItemPosition = lm.findFirstVisibleItemPosition();
+                // Load more when user is near the bottom (within 5 items)
+                if (!viewModel.isLoadingMore() && viewModel.hasMore()) {
+                    if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
+                        viewModel.loadNextPage();
+                    }
+                }
             }
         });
     }
@@ -326,12 +377,24 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
             status = getString(R.string.getting_first_results_from) + " "
                     + statusData.apiSource + getAnimatedDots();
         } else {
-            // Subsequent pages
-            status = getString(R.string.nb_of_audios_found) + " : " + statusData.count
-                    + " (" + getString(R.string.getting_more_from) + " "
-                    + statusData.apiSource + getAnimatedDots() + ")";
+            // Subsequent pages (loading more)
+            if (statusData.totalCount >= 0) {
+                status = getString(R.string.librivox_books_loaded_of,
+                        formatCount(statusData.count), formatCount(statusData.totalCount))
+                        + " (" + getString(R.string.getting_more_from) + " "
+                        + statusData.apiSource + getAnimatedDots() + ")";
+            } else {
+                status = getString(R.string.librivox_books_loaded, formatCount(statusData.count))
+                        + " (" + getString(R.string.getting_more_from) + " "
+                        + statusData.apiSource + getAnimatedDots() + ")";
+            }
         }
         adapter.setHeaderCount(status);
+    }
+
+    /** Locale-aware number formatting (e.g. 60399 → "60,399" or "60 399"). */
+    private static String formatCount(long n) {
+        return NumberFormat.getNumberInstance(Locale.getDefault()).format(n);
     }
 
     private void startDotAnimation() {

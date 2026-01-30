@@ -40,17 +40,30 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     private String lastLang = null;
     private boolean fetchStarted = false;
 
+    // Pagination for MODE_TRENDING and MODE_LAST_ADDED (archive.org)
+    private String lastPagedMode = null;  // "MODE_TRENDING" or "MODE_LAST_ADDED"
+    private String lastLangCode3 = null;
+    private int currentPage = 1;
+    private boolean hasMore = false;
+    private boolean isLoadingMore = false;
+    private final MutableLiveData<Boolean> isLoadingMoreLive = new MutableLiveData<>(false);
+    /** Total from first page response (numFound). -1 if unknown. */
+    private long pagedTotalCount = -1;
+
     // Data class for header status
     public static class HeaderStatusData {
         public final int count;
+        /** Total matching items from API (e.g. archive.org numFound). -1 if unknown. */
+        public final long totalCount;
         public final boolean isFinal;
         public final boolean isMaxReached;
         public final boolean isLoading;
         public final String apiSource; // e.g. "librivox.org"
 
-        public HeaderStatusData(int count, boolean isFinal, boolean isMaxReached,
+        public HeaderStatusData(int count, long totalCount, boolean isFinal, boolean isMaxReached,
                                 boolean isLoading, String apiSource) {
             this.count = count;
+            this.totalCount = totalCount;
             this.isFinal = isFinal;
             this.isMaxReached = isMaxReached;
             this.isLoading = isLoading;
@@ -72,6 +85,9 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     public LiveData<HeaderStatusData> getHeaderStatus() { return headerStatus; }
     public LiveData<String> getErrorMessage() { return errorMessage; }
     public LiveData<Boolean> getIsLoading() { return isLoading; }
+    public LiveData<Boolean> getIsLoadingMore() { return isLoadingMoreLive; }
+    public boolean hasMore() { return hasMore; }
+    public boolean isLoadingMore() { return isLoadingMore; }
 
     public void requestFinish() { shouldFinish.setValue(true); }
     public String getLastQuery() { return lastQuery; }
@@ -107,23 +123,86 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     public void searchTrending(String langCode3) {
         isLoading.setValue(true);
         fetchStarted = false;
+        lastPagedMode = "MODE_TRENDING";
+        lastLangCode3 = langCode3;
+        currentPage = 1;
+        hasMore = false;
+        isLoadingMore = false;
+        isLoadingMoreLive.setValue(false);
 
         repository.mostDownloadedByLang(
                 langCode3,
                 Option.getLibrivoxApiNbResults(),
-                createArchiveCallback("trending", null)
+                1,
+                createArchiveCallbackFirstPage("trending", null)
         );
     }
 
     public void searchLastAdded(String langCode3) {
         isLoading.setValue(true);
         fetchStarted = false;
+        lastPagedMode = "MODE_LAST_ADDED";
+        lastLangCode3 = langCode3;
+        currentPage = 1;
+        hasMore = false;
+        isLoadingMore = false;
+        isLoadingMoreLive.setValue(false);
 
         repository.mostRecentlyAddedByLang(
                 langCode3,
                 Option.getLibrivoxApiNbResults(),
-                createArchiveCallback("last added", null)
+                1,
+                createArchiveCallbackFirstPage("last added", null)
         );
+    }
+
+    /** Load next page for MODE_TRENDING or MODE_LAST_ADDED. No-op if not paged mode or no more pages. */
+    public void loadNextPage() {
+        if (lastPagedMode == null || lastLangCode3 == null || isLoadingMore || !hasMore) {
+            return;
+        }
+        isLoadingMore = true;
+        isLoadingMoreLive.setValue(true);
+        int pageSize = Option.getLibrivoxApiNbResults();
+        int pageToFetch = currentPage;
+
+        Callback<ArchiveApiResponse> cb = new Callback<ArchiveApiResponse>() {
+            @Override
+            public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
+                isLoadingMore = false;
+                isLoadingMoreLive.postValue(false);
+                if (response.body() == null || response.body().response == null) {
+                    hasMore = false;
+                    return;
+                }
+                List<ArchiveItem> newItems = response.body().response.docs;
+                if (newItems == null) newItems = new ArrayList<>();
+                if (newItems.isEmpty()) {
+                    hasMore = false;
+                    return;
+                }
+                List<ArchiveItem> current = results.getValue();
+                if (current == null) current = new ArrayList<>();
+                List<ArchiveItem> merged = new ArrayList<>(current);
+                merged.addAll(newItems);
+                currentPage++;
+                hasMore = newItems.size() >= pageSize;
+                enrichWithLocalState(merged);
+                updateSimpleSearchHeader(merged, pagedTotalCount);
+            }
+            @Override
+            public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
+                isLoadingMore = false;
+                isLoadingMoreLive.postValue(false);
+                myLogEE(t, "Librivox loadNextPage failed");
+            }
+        };
+
+        if ("MODE_TRENDING".equals(lastPagedMode)) {
+            repository.mostDownloadedByLang(lastLangCode3, pageSize, pageToFetch, cb);
+        } else {
+            repository.mostRecentlyAddedByLang(lastLangCode3, pageSize, pageToFetch, cb);
+        }
     }
 
     public void searchByAuthor(String author, String langCode3) {
@@ -194,6 +273,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     // PRIVATE HELPER METHODS
     // ============================================================
 
+    /** Callback for first page (search by query, or first page of trending/last added). */
     private Callback<ArchiveApiResponse> createArchiveCallback(String searchType, String query) {
         return new Callback<ArchiveApiResponse>() {
             @Override
@@ -208,8 +288,10 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         errorMessage.postValue(msg);
                         requestFinish();
                     } else {
+                        long total = response.body().response.numFound >= 0
+                                ? response.body().response.numFound : -1;
                         enrichWithLocalState(items);
-                        updateSimpleSearchHeader(items);
+                        updateSimpleSearchHeader(items, total);
                         myLog(items.size() + " results found for " + searchType);
                     }
                 } else {
@@ -229,10 +311,57 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         };
     }
 
+    /** Callback for first page of MODE_TRENDING / MODE_LAST_ADDED (enables pagination). */
+    private Callback<ArchiveApiResponse> createArchiveCallbackFirstPage(String searchType, String query) {
+        return new Callback<ArchiveApiResponse>() {
+            @Override
+            public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
+                isLoading.postValue(false);
+
+                if (response.body() != null && response.body().response != null) {
+                    List<ArchiveItem> items = response.body().response.docs;
+
+                    if (items.isEmpty()) {
+                        String msg = "no_results_" + searchType + (query != null ? ":" + query : "");
+                        errorMessage.postValue(msg);
+                        requestFinish();
+                    } else {
+                        int pageSize = Option.getLibrivoxApiNbResults();
+                        currentPage = 2;
+                        hasMore = items.size() >= pageSize;
+                        long total = response.body().response.numFound >= 0
+                                ? response.body().response.numFound : -1;
+                        pagedTotalCount = total;
+                        enrichWithLocalState(items);
+                        updateSimpleSearchHeader(items, total);
+                        myLog(items.size() + " results found for " + searchType + ", hasMore=" + hasMore + ", total=" + total);
+                    }
+                } else {
+                    myLogEE(null, "Invalid response body from archive.org");
+                    errorMessage.postValue("error:invalid_response");
+                    requestFinish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
+                isLoading.postValue(false);
+                myLogEE(t, searchType + " search failure");
+                errorMessage.postValue("error:" + t.getMessage());
+                requestFinish();
+            }
+        };
+    }
+
     private void updateSimpleSearchHeader(List<ArchiveItem> items) {
+        updateSimpleSearchHeader(items, -1);
+    }
+
+    private void updateSimpleSearchHeader(List<ArchiveItem> items, long totalCount) {
         int count = items == null ? 0 : items.size();
         boolean isMaxReached = count >= Option.getLibrivoxApiNbResults();
-        headerStatus.postValue(new HeaderStatusData(count, true, isMaxReached, false, "archive.org"));
+        if (totalCount < 0 && lastPagedMode != null) totalCount = pagedTotalCount;
+        headerStatus.postValue(new HeaderStatusData(count, totalCount, true, isMaxReached, false, "archive.org"));
     }
 
     private void updateHeaderStatus(List<ArchiveItem> currentList, boolean isFinal, String webApi) {
@@ -241,7 +370,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         boolean isLoading = !fetchStarted || !isFinal;
 
         fetchStarted = true;
-        headerStatus.postValue(new HeaderStatusData(count, isFinal, isMaxReached, isLoading, webApi));
+        headerStatus.postValue(new HeaderStatusData(count, -1, isFinal, isMaxReached, isLoading, webApi));
     }
 
     public void enrichWithLocalState(List<ArchiveItem> apiItems) {

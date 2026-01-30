@@ -10,5 +10,7 @@ public class ArchiveApiResponse {
     @Keep
     public static class ResponseData {
         public List<ArchiveItem> docs;
+        /** Total number of matching items (archive.org). -1 if not provided. */
+        public long numFound = -1;
     }
 }

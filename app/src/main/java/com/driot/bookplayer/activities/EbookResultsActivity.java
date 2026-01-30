@@ -26,8 +26,10 @@ import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
 
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import okhttp3.OkHttpClient;
@@ -448,11 +450,17 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     private void updateCountDisplay(int loadedCount) {
         String countText;
         if (totalCount > 0 && loadedCount < totalCount) {
-            countText = getString(R.string.Results_2pt) + " " + loadedCount + " / " + totalCount;
+            countText = getString(R.string.Results_2pt) + " "
+                    + formatCount(loadedCount) + " / " + formatCount(totalCount);
         } else {
-            countText = getString(R.string.Results_2pt) + " " + loadedCount;
+            countText = getString(R.string.Results_2pt) + " " + formatCount(loadedCount);
         }
         adapter.setHeaderCount(countText);
+    }
+
+    /** Locale-aware number formatting (e.g. 60399 → "60,399" or "60 399"). */
+    private static String formatCount(long n) {
+        return NumberFormat.getNumberInstance(Locale.getDefault()).format(n);
     }
 
     /**
