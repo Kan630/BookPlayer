@@ -790,7 +790,7 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
     <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
 
-    <string name="option_playing_behaviour_title">Comportement de lecture</string>
+    <string name="option_playing_behaviour_title">Lecture</string>
     <string name="option_start_next_track_at_zero_title_text">Toujours commencer la piste suivante depuis le début, même si elle a déjà été partiellement écoutée.</string>
     <string name="error_playlist_null">La liste de lecture n\'a pas pu être récupérée.</string>
     <string name="stop">stop</string>
