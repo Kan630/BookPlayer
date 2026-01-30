@@ -116,6 +116,7 @@
     <string name="in">in</string>
     <string name="Integration">Integration</string>
     <string name="items">items</string>
+    <string name="language">language</string>
     <string name="Language">Language</string>
     <string name="Language_2pt">"Language: "</string>
     <string name="last">last</string>
@@ -386,7 +387,7 @@
     <string name="option_pick_theme_color_title">Pick your app color theme</string>
     <string name="option_delete_source_file_title">Automatic Source file deletion</string>
     <string name="option_delete_source_file_subtitle">After an audiobook has been loaded into BookPlayer, the source file/folder you picked can be deleted automatically.
-        \nNote: This is only possible for ZIP files or if the 'Copy files internally' option is enabled.
+        \nNote: This is only possible for ZIP files or if the \'Copy files internally\' option is enabled.
         </string>
     <string name="option_delete_source_file_text">Automatically delete picked file/folder once loaded into BookPlayer.</string>
     <string name="option_alert_delete_source_file_title">!! Warning - Auto-Delete !!</string>

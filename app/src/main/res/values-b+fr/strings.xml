@@ -195,7 +195,7 @@
     <string name="yesterday">hier</string>
     <string name="export_zipping_label">Compression : </string>
 
-        <!-- OTHER (multi-word strings, plurals, etc.) -->
+    <!-- OTHER (multi-word strings, plurals, etc.) -->
 
     <string name="title_FolderContent">Liste des fichiers</string>
 
@@ -252,7 +252,7 @@
 Êtes-vous sûr ?</string>
 
 
-        <string name="help_title">Manuel BookPlayer</string>
+    <string name="help_title">Manuel BookPlayer</string>
     <string name="help_text_general"><![CDATA[
 Lorsque vous ouvrez l\'application, vous voyez une liste de <font color="#90D8E8">dossiers</font> — cela représente vos Livres, Leçons ou Podcasts.
 <br><br>
@@ -364,7 +364,7 @@ Vous avez un problème ou avez trouvé un bug ?
 <br><br>
 Merci de <font color="#81C784">me le signaler</font> afin que je puisse améliorer l\'application !
 <br><br>
-Utilisez l'option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
+Utilisez l\'option <font color="#90D8E8">"Contacter le développeur"</font> dans le menu.
 ]]></string>
     <string name="help_forum_title">Forum :</string>
     <string name="help_forum_text"><![CDATA[
@@ -432,7 +432,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_sdcard_text_caution"><i>attention : en retirant ou en effaçant la carte SD, vous perdrez vos audios</i></string>
 
 
-    <string name="option_copy_file_subtitle">Avantages : 
+    <string name="option_copy_file_subtitle">Avantages :
 \n* Pas besoin de permission [Lire l\'audio]
 \n* Aucun risque de perdre le livre audio ni la progression si le fichier source est supprimé/déplacé.
 \n\nInconvénients :
@@ -841,7 +841,7 @@ La réinitialisation pour utilisateur avancé restaure les valeurs d\'usine, mai
 \n* ["Ouvrir avec" pour tout type de fichier]
 \nComportement de lecture :
 \n* [ne pas ouvrir la vue de lecture dédiée]
-\n* [continuer la lecture audio en quittant l'application]
+\n* [continuer la lecture audio en quittant l\'application]
 </string>
     <string name="cancel_ongoing_operation">Annuler les opérations en cours</string>
     <string name="option_reset_app_explain_text">
@@ -1019,8 +1019,8 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="error_reading_backup">Erreur de lecture de la sauvegarde : </string>
     <string name="error_label_multiline">Erreur : \n</string>
     <string name="no_ebooks_found_search">Aucun ebook trouvé \npour la recherche [%1$s] \navec la langue [%2$s]</string>
-    <string name="no_ebooks_found_bookshelf">Aucun ebook trouvé 
-pour la bibliothèque [%1$s] 
+    <string name="no_ebooks_found_bookshelf">Aucun ebook trouvé
+pour la bibliothèque [%1$s]
 avec la langue [%2$s]</string>
     <string name="gutenberg_contacting">Contact de gutenberg.org…</string>
     <string name="gutenberg_wait_elapsed">%1$d s écoulées - %2$s - (délai d\'attente %3$d s)</string>
@@ -1045,4 +1045,5 @@ avec la langue [%2$s]</string>
     <plurals name="tracks_count">//ex : 1 track, 2 tracks
         <item quantity="one">%d piste</item>
         <item quantity="other">%d pistes</item></plurals>
+
 </resources>
