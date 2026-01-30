@@ -158,11 +158,17 @@ public class StatsActivity extends LoggingActivity {
         // Check if install date is prior to December 1, 2025
         boolean showStatsStartedNote = isInstallDateBefore(Pref.getFirstOpenDate(), 2025, 12, 1);
         
-        // Get duration values
-        String bookTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK));
-        String ttsTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS));
-        String radioTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO));
-        String podcastTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST));
+        // Get duration values (raw ms for percentage calculation)
+        long totalMs = Pref.getTotalMsPlayed();
+        long bookMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK);
+        long ttsMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS);
+        long radioMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO);
+        long podcastMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST);
+        
+        String bookTime = Tonio.formatTime(bookMs);
+        String ttsTime = Tonio.formatTime(ttsMs);
+        String radioTime = Tonio.formatTime(radioMs);
+        String podcastTime = Tonio.formatTime(podcastMs);
         
         // Build text for main body (without Audio Time, it will be in table header)
         String zeText4 = "Install Date = " + installDateFormatted;
@@ -175,9 +181,10 @@ public class StatsActivity extends LoggingActivity {
         tv_head4.setText(R.string.menu_stats);
         tv_body4.setText(zeText4);
         
-        // Populate table with duration details (including Audio Time header)
-        String totalAudioTime = Tonio.formatTime(Pref.getTotalMsPlayed());
-        populateDurationTable(tableDurationDetails, totalAudioTime, bookTime, ttsTime, radioTime, podcastTime);
+        // Populate table with duration details (including Audio Time header and percentage bars)
+        String totalAudioTime = Tonio.formatTime(totalMs);
+        populateDurationTable(tableDurationDetails, totalAudioTime, totalMs,
+                bookTime, bookMs, ttsTime, ttsMs, radioTime, radioMs, podcastTime, podcastMs);
         
         // Show stats note if needed
         if (showStatsStartedNote) {
@@ -372,15 +379,23 @@ public class StatsActivity extends LoggingActivity {
     }
 
     /**
-     * Populate TableLayout with duration details in a 2-column table format
+     * Populate TableLayout with duration details in a 2-column table format.
+     * Detail rows show a gray bar whose length is the percentage of total audio time.
      * @param tableLayout The TableLayout to populate
      * @param totalAudioTime Total audio time string (for header)
+     * @param totalMs Total audio time in milliseconds (for percentage)
      * @param bookTime Book time string
+     * @param bookMs Book time in ms
      * @param ttsTime TTS time string
+     * @param ttsMs TTS time in ms
      * @param radioTime Radio time string
+     * @param radioMs Radio time in ms
      * @param podcastTime Podcast time string
+     * @param podcastMs Podcast time in ms
      */
-    private void populateDurationTable(TableLayout tableLayout, String totalAudioTime, String bookTime, String ttsTime, String radioTime, String podcastTime) {
+    private void populateDurationTable(TableLayout tableLayout, String totalAudioTime, long totalMs,
+            String bookTime, long bookMs, String ttsTime, long ttsMs, String radioTime, long radioMs,
+            String podcastTime, long podcastMs) {
         if (tableLayout == null) {
             return;
         }
@@ -391,11 +406,11 @@ public class StatsActivity extends LoggingActivity {
         // Add header row with "Audio Time" in bold
         addTableHeaderRow(tableLayout, "Audio Time", totalAudioTime);
         
-        // Create rows for each duration type
-        addTableRow(tableLayout, "* Book Time", bookTime);
-        addTableRow(tableLayout, "* TTS Time", ttsTime);
-        addTableRow(tableLayout, "* Radio Time", radioTime);
-        addTableRow(tableLayout, "* Podcast Time", podcastTime);
+        // Create rows for each duration type with percentage bar
+        addTableRowWithPercentage(tableLayout, "* Book Time", bookTime, totalMs, bookMs);
+        addTableRowWithPercentage(tableLayout, "* TTS Time", ttsTime, totalMs, ttsMs);
+        addTableRowWithPercentage(tableLayout, "* Radio Time", radioTime, totalMs, radioMs);
+        addTableRowWithPercentage(tableLayout, "* Podcast Time", podcastTime, totalMs, podcastMs);
     }
     
     /**
@@ -428,28 +443,61 @@ public class StatsActivity extends LoggingActivity {
     }
     
     /**
-     * Add a row to the table with label and value
+     * Add a row to the table with label and value, and a gray bar showing percentage of total.
      * @param tableLayout The TableLayout
      * @param label The label text (left column)
      * @param value The value text (right column)
+     * @param totalMs Total audio time in ms (for percentage)
+     * @param valueMs This row's time in ms
      */
-    private void addTableRow(TableLayout tableLayout, String label, String value) {
+    private void addTableRowWithPercentage(TableLayout tableLayout, String label, String value, long totalMs, long valueMs) {
         TableRow row = new TableRow(this);
         
-        // Label TextView (left column)
+        // Single cell: label + value, then a very fine underline (length = percentage of total)
+        int percentage = (totalMs > 0 && valueMs >= 0) ? (int) Math.round(100.0 * valueMs / totalMs) : 0;
+        percentage = Math.min(100, Math.max(0, percentage));
+        
+        android.widget.LinearLayout cell = new android.widget.LinearLayout(this);
+        cell.setOrientation(android.widget.LinearLayout.VERTICAL);
+        
+        // Text row: label + value
+        android.widget.LinearLayout contentLayout = new android.widget.LinearLayout(this);
+        contentLayout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        
         TextView labelView = new TextView(this);
         labelView.setText(label);
-        labelView.setPadding(0, 4, 16, 4); // top, right, bottom, left
+        labelView.setPadding(0, 4, 16, 4);
         labelView.setTextAppearance(this, R.style.simpleText);
-        row.addView(labelView);
+        contentLayout.addView(labelView);
         
-        // Value TextView (right column)
         TextView valueView = new TextView(this);
         valueView.setText(value);
-        valueView.setPadding(0, 4, 0, 4);
+        valueView.setPadding(0, 4, 8, 4);
         valueView.setTextAppearance(this, R.style.simpleText);
-        valueView.setGravity(android.view.Gravity.END); // Right-align values
-        row.addView(valueView);
+        valueView.setGravity(android.view.Gravity.END);
+        android.widget.LinearLayout.LayoutParams valueParams = new android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        contentLayout.addView(valueView, valueParams);
+        
+        cell.addView(contentLayout);
+        
+        // Very fine underline: length = percentage of row width
+        View underline = new View(this);
+        underline.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.gray_300));
+        int lineHeightPx = (int) (1f * getResources().getDisplayMetrics().density); // 1dp
+        android.widget.LinearLayout.LayoutParams lineParams = new android.widget.LinearLayout.LayoutParams(0, lineHeightPx, percentage);
+        lineParams.topMargin = 2;
+        android.widget.LinearLayout.LayoutParams lineSpacer = new android.widget.LinearLayout.LayoutParams(0, lineHeightPx, 100 - percentage);
+        lineSpacer.topMargin = 2;
+        
+        android.widget.LinearLayout lineRow = new android.widget.LinearLayout(this);
+        lineRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
+        lineRow.addView(underline, lineParams);
+        lineRow.addView(new View(this), lineSpacer);
+        cell.addView(lineRow);
+        
+        TableRow.LayoutParams spanParams = new TableRow.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+        spanParams.span = 2;
+        row.addView(cell, spanParams);
         
         tableLayout.addView(row);
     }

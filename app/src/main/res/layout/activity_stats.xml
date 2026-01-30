@@ -175,11 +175,12 @@
                 />
         </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <View style="@style/myStyleViewSimpleHorizontalBar"
+            android:layout_marginBottom="40dp"
+            />
 
         <Button
             android:id="@+id/bt_01"
-            android:layout_marginTop="40sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
