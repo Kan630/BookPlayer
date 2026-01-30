@@ -12,6 +12,7 @@ import android.os.PowerManager;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -28,8 +29,6 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.helpers.StorageInfoCacheHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -59,12 +58,13 @@ public class StatsActivity extends LoggingActivity {
         viewModel = new ViewModelProvider(this).get(StatsViewModel.class);
 
         // Setup UI references
-        TextView tv_head = findViewById(R.id.tv1_head);
-        tv_head.setText(R.string.physical_storage_memory);
+        TextView tv_head_internal = findViewById(R.id.tv1_head);
+        tv_head_internal.setText(R.string.physical_storage_memory);
         tv1_body_internal = findViewById(R.id.tv1_body_internal);
         tv1_body_sdcard = findViewById(R.id.tv1_body_sdcard);
         storageBarInternal = findViewById(R.id.storageBarInternal);
         storageBarSDCard = findViewById(R.id.storageBarSDCard);
+        LinearLayout llSDCardStorage = findViewById(R.id.llSDCardStorage);
 
         // Observe internal storage data
         viewModel.getInternalStorageText().observe(this, text -> {
@@ -93,12 +93,11 @@ public class StatsActivity extends LoggingActivity {
         viewModel.getSdCardStorageText().observe(this, text -> {
             if (text != null && tv1_body_sdcard != null) {
                 tv1_body_sdcard.setText(text); // text is CharSequence (SpannableString) with colored linked audios
-                tv1_body_sdcard.setVisibility(View.VISIBLE);
             }
         });
 
         viewModel.getSdCardStorageInfo().observe(this, storageInfo -> {
-            if (storageInfo != null && storageBarSDCard != null) {
+            if (storageInfo != null && storageBarSDCard != null && llSDCardStorage != null) {
                 storageBarSDCard.setStorageValues(
                     storageInfo.totalStorageBytes,
                     storageInfo.usedByOthersBytes,
@@ -107,9 +106,11 @@ public class StatsActivity extends LoggingActivity {
                     storageInfo.linkedAudiosBytes, // linked audios
                     0 // appStorage (only for internal storage)
                 );
-                storageBarSDCard.setVisibility(View.VISIBLE);
                 // Force redraw to ensure the bar updates
                 storageBarSDCard.invalidate();
+                // Show the entire SD card storage section
+                llSDCardStorage.setVisibility(View.VISIBLE);
+                tv_head_internal.setText(R.string.device_storage_memory);
             }
         });
 

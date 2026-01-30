@@ -718,6 +718,8 @@
     <!-- STORAGE -->
 
     <string name="physical_storage_memory">Physical Storage Memory</string>
+    <string name="device_storage_memory">Device Storage Memory</string>
+    <string name="sd_card_storage">SD Card Storage Memory</string>
     <string name="MB_taken_by_BookPlayer_app">" MB taken by BookPlayer app"</string>
     <string name="MB_taken_by_audio_files">" MB : copied audios"</string>
     <string name="MB_taken_by_linked_audios">" MB : linked audios"</string>

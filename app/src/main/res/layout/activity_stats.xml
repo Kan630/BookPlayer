@@ -51,27 +51,43 @@
             />
 
         <!-- SD Card Storage Section -->
-        <TextView
-            android:id="@+id/tv1_body_sdcard"
-            style="@style/simpleText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20sp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
-            android:fontFamily="monospace"
-            android:visibility="gone"
-            />
-
-        <com.driot.bookplayer.widgets.StorageBarView
-            android:id="@+id/storageBarSDCard"
+        <LinearLayout
+            android:id="@+id/llSDCardStorage"
             android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:layout_marginTop="16dp"
-            android:layout_marginStart="15dp"
-            android:layout_marginEnd="15dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:visibility="gone"
-            />
+            >
+            <TextView
+                style="@style/myStyleTextTitle2"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:textStyle="bold"
+                android:text="@string/sd_card_storage"
+                />
+            <TextView
+                android:id="@+id/tv1_body_sdcard"
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                android:fontFamily="monospace"
+                />
+
+            <com.driot.bookplayer.widgets.StorageBarView
+                android:id="@+id/storageBarSDCard"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginEnd="15dp"
+                />
+        </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
