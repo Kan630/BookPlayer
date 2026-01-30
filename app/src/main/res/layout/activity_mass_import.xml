@@ -60,18 +60,127 @@
             app:layout_constraintBottom_toTopOf="@+id/storageBar"
             tools:listitem="@layout/item_candidate"/>
 
-        <!-- Storage Bar -->
-        <com.driot.bookplayer.widgets.StorageBarView
-            android:id="@+id/storageBar"
+        <!-- Storage Section -->
+        <LinearLayout
+            android:id="@+id/llStorageSection"
             android:layout_width="match_parent"
-            android:layout_height="24dp"
-            android:layout_marginBottom="8dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
             android:layout_marginStart="16dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
             android:visibility="gone"
             app:layout_constraintTop_toBottomOf="@id/rvCandidates"
-            app:layout_constraintBottom_toTopOf="@id/llButtons"
-            />
+            app:layout_constraintBottom_toTopOf="@id/llButtons">
+            
+            <!-- Storage Header -->
+            <TextView
+                android:id="@+id/tvStorageHeader"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/storage_header"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp" />
+            
+            <!-- Storage Bar -->
+            <com.driot.bookplayer.widgets.StorageBarView
+                android:id="@+id/storageBar"
+                android:layout_width="match_parent"
+                android:layout_height="24dp"
+                android:layout_marginBottom="8dp" />
+            
+            <!-- Legend -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="start">
+                
+                <!-- Used (Gray) -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="16dp">
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@color/gray_500"
+                        android:layout_marginEnd="4dp" />
+                    <TextView
+                        android:id="@+id/tvLegendUsed"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/storage_legend_others"
+                        android:textSize="12sp"
+                        />
+                </LinearLayout>
+                
+                <!-- Books (Pastel Blue) -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="16dp">
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@color/pastel_blue_500"
+                        android:layout_marginEnd="4dp" />
+                    <TextView
+                        android:id="@+id/tvLegendBooks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/storage_legend_copied"
+                        android:textSize="12sp"
+                        />
+                </LinearLayout>
+                
+                <!-- Linked Audios (Green) -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="16dp">
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@color/green_500"
+                        android:layout_marginEnd="4dp" />
+                    <TextView
+                        android:id="@+id/tvLegendLinkedAudios"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/storage_legend_linked_audios"
+                        android:textSize="12sp"
+                        />
+                </LinearLayout>
+                
+                <!-- New Books (Yellow) -->
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+                    <View
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:background="@color/yellow_500"
+                        android:layout_marginEnd="4dp" />
+                    <TextView
+                        android:id="@+id/tvLegendNewBooks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@string/storage_legend_new_books"
+                        android:textSize="12sp"
+                        />
+                </LinearLayout>
+            </LinearLayout>
+        </LinearLayout>
 
 
         <LinearLayout

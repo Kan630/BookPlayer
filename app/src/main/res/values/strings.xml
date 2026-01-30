@@ -68,6 +68,11 @@
 
     <string name="Import_in_progress">Import in progress</string>
     <string name="calculating_storage">Calculating…</string>
+    <string name="storage_header">Storage</string>
+    <string name="storage_legend_others">others</string>
+    <string name="storage_legend_copied">copied</string>
+    <string name="storage_legend_linked_audios">linked</string>
+    <string name="storage_legend_new_books">new books</string>
     <string name="power_management_exempt">App is exempt from battery optimizations (good)</string>
     <string name="power_management_subject">App is subject to battery optimizations (may be killed in background)</string>
 
@@ -714,7 +719,8 @@
 
     <string name="physical_storage_memory">Physical Storage Memory</string>
     <string name="MB_taken_by_BookPlayer_app">" MB taken by BookPlayer app"</string>
-    <string name="MB_taken_by_audio_files">" MB taken by audios files"</string>
+    <string name="MB_taken_by_audio_files">" MB : copied audios"</string>
+    <string name="MB_taken_by_linked_audios">" MB : linked audios"</string>
     <string name="MB_taken_by_logs">" MB taken by logs"</string>
     <string name="MB_available_on_device">" MB : available on device"</string>
     <string name="MB_device_memory">" MB : Device memory"</string>

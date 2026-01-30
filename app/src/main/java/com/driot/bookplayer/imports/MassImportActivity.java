@@ -44,6 +44,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
     private TextView tvCount;
     private Button btnConfirmImport;
     private StorageBarView storageBar;
+    private LinearLayout llStorageSection;
     // btnCancelScan removed
 
     @Override
@@ -132,21 +133,23 @@ public class MassImportActivity extends BaseBottomNavActivity {
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
         storageBar = findViewById(R.id.storageBar);
+        llStorageSection = findViewById(R.id.llStorageSection);
         
         // Observe storage info from ViewModel
         viewModel.getStorageInfo().observe(this, storageInfo -> {
-            if (storageInfo != null && storageBar != null) {
+            if (storageInfo != null && storageBar != null && llStorageSection != null) {
                 // Only show if we have valid storage data
                 if (storageInfo.totalStorageBytes > 0) {
                     storageBar.setStorageValues(
                         storageInfo.totalStorageBytes,
                         storageInfo.usedByOthersBytes,
                         storageInfo.usedByBookPlayerBytes,
-                        storageInfo.expectedAddedMemoryBytes
+                        storageInfo.expectedAddedMemoryBytes,
+                        storageInfo.linkedAudiosBytes
                     );
-                    storageBar.setVisibility(View.VISIBLE);
+                    llStorageSection.setVisibility(View.VISIBLE);
                 } else {
-                    storageBar.setVisibility(View.GONE);
+                    llStorageSection.setVisibility(View.GONE);
                 }
             }
         });

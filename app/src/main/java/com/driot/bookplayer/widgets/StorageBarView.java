@@ -14,9 +14,10 @@ import com.driot.bookplayer.R;
  * A horizontal bar view that displays storage/memory usage with colored sections.
  * Sections are drawn from left to right:
  * 1. Used storage space (by others) - gray
- * 2. BookPlayer used storage space - blue
- * 3. Expected added memory needed (optional) - yellow/orange
- * 4. Remaining free storage space - transparent
+ * 2. BookPlayer used storage space - pastel blue
+ * 3. Linked audios (optional) - blue
+ * 4. Expected added memory needed (optional) - yellow/orange
+ * 5. Remaining free storage space - transparent
  */
 public class StorageBarView extends View {
 
@@ -25,9 +26,13 @@ public class StorageBarView extends View {
     private long totalStorage = 0;
     private long usedByOthers = 0;
     private long usedByBookPlayer = 0;
+    private long linkedAudios = 0;
+    private long appStorage = 0; // BookPlayer app storage (app + db + logs + images)
     private long expectedAddedMemory = 0;
     private int colorUsedByOthers;
     private int colorUsedByBookPlayer;
+    private int colorLinkedAudios;
+    private int colorAppStorage; // Dark blue for app storage
     private int colorExpectedMemory;
     private int borderColor;
 
@@ -56,7 +61,9 @@ public class StorageBarView extends View {
 
         // Load colors from resources
         colorUsedByOthers = getContext().getColor(R.color.gray_500);
-        colorUsedByBookPlayer = getContext().getColor(R.color.pastel_blue_500); // Blue for better visibility
+        colorUsedByBookPlayer = getContext().getColor(R.color.pastel_blue_500); // Blue for BookPlayer audio files
+        colorLinkedAudios = getContext().getColor(R.color.green_500); // Green for linked audios
+        colorAppStorage = getContext().getColor(R.color.pastel_blue_900); // Dark blue for app storage (app + db + logs + images)
         colorExpectedMemory = getContext().getColor(R.color.yellow_500);
         borderColor = getContext().getColor(R.color.gray_500);
         borderPaint.setColor(borderColor);
@@ -72,6 +79,8 @@ public class StorageBarView extends View {
         this.totalStorage = totalStorage;
         this.usedByOthers = usedByOthers;
         this.usedByBookPlayer = usedByBookPlayer;
+        this.linkedAudios = 0;
+        this.appStorage = 0;
         this.expectedAddedMemory = 0;
         invalidate();
     }
@@ -87,6 +96,45 @@ public class StorageBarView extends View {
         this.totalStorage = totalStorage;
         this.usedByOthers = usedByOthers;
         this.usedByBookPlayer = usedByBookPlayer;
+        this.linkedAudios = 0;
+        this.appStorage = 0;
+        this.expectedAddedMemory = expectedAddedMemory;
+        invalidate();
+    }
+
+    /**
+     * Set storage values including linked audios and expected added memory
+     * @param totalStorage Total storage space
+     * @param usedByOthers Storage used by others (not BookPlayer)
+     * @param usedByBookPlayer Storage used by BookPlayer
+     * @param expectedAddedMemory Expected memory that will be added
+     * @param linkedAudios Linked audios (files outside BookPlayer reserved space)
+     */
+    public void setStorageValues(long totalStorage, long usedByOthers, long usedByBookPlayer, long expectedAddedMemory, long linkedAudios) {
+        this.totalStorage = totalStorage;
+        this.usedByOthers = usedByOthers;
+        this.usedByBookPlayer = usedByBookPlayer;
+        this.linkedAudios = linkedAudios;
+        this.appStorage = 0;
+        this.expectedAddedMemory = expectedAddedMemory;
+        invalidate();
+    }
+
+    /**
+     * Set storage values including app storage, linked audios and expected added memory
+     * @param totalStorage Total storage space
+     * @param usedByOthers Storage used by others (not BookPlayer)
+     * @param usedByBookPlayer Storage used by BookPlayer (audio files)
+     * @param expectedAddedMemory Expected memory that will be added
+     * @param linkedAudios Linked audios (files outside BookPlayer reserved space)
+     * @param appStorage BookPlayer app storage (app + db + logs + images, excluding audio)
+     */
+    public void setStorageValues(long totalStorage, long usedByOthers, long usedByBookPlayer, long expectedAddedMemory, long linkedAudios, long appStorage) {
+        this.totalStorage = totalStorage;
+        this.usedByOthers = usedByOthers;
+        this.usedByBookPlayer = usedByBookPlayer;
+        this.linkedAudios = linkedAudios;
+        this.appStorage = appStorage;
         this.expectedAddedMemory = expectedAddedMemory;
         invalidate();
     }
@@ -109,16 +157,20 @@ public class StorageBarView extends View {
 
         // Calculate proportions
         float usedByOthersRatio = (float) usedByOthers / totalStorage;
+        float appStorageRatio = (float) appStorage / totalStorage;
         float usedByBookPlayerRatio = (float) usedByBookPlayer / totalStorage;
+        float linkedAudiosRatio = (float) linkedAudios / totalStorage;
         float expectedRatio = (float) expectedAddedMemory / totalStorage;
 
         // Clamp ratios to ensure they don't exceed 1.0
-        float totalUsedRatio = usedByOthersRatio + usedByBookPlayerRatio + expectedRatio;
+        float totalUsedRatio = usedByOthersRatio + appStorageRatio + usedByBookPlayerRatio + linkedAudiosRatio + expectedRatio;
         if (totalUsedRatio > 1.0f) {
             // Scale down proportionally
             float scale = 1.0f / totalUsedRatio;
             usedByOthersRatio *= scale;
+            appStorageRatio *= scale;
             usedByBookPlayerRatio *= scale;
+            linkedAudiosRatio *= scale;
             expectedRatio *= scale;
         }
 
@@ -130,7 +182,15 @@ public class StorageBarView extends View {
             currentX += sectionWidth;
         }
 
-        // Draw section 2: Used by BookPlayer (blue)
+        // Draw section 2: App storage (dark blue) - BookPlayer app + db + logs + images
+        if (appStorage > 0 && appStorageRatio > 0) {
+            float sectionWidth = barWidth * appStorageRatio;
+            paint.setColor(colorAppStorage);
+            canvas.drawRect(currentX, 0, currentX + sectionWidth, barHeight, paint);
+            currentX += sectionWidth;
+        }
+
+        // Draw section 3: Used by BookPlayer audio files (pastel blue)
         if (usedByBookPlayerRatio > 0) {
             float sectionWidth = barWidth * usedByBookPlayerRatio;
             paint.setColor(colorUsedByBookPlayer);
@@ -138,7 +198,15 @@ public class StorageBarView extends View {
             currentX += sectionWidth;
         }
 
-        // Draw section 3: Expected added memory (yellow/orange) - only if > 0
+        // Draw section 4: Linked audios (green) - only if > 0
+        if (linkedAudios > 0 && linkedAudiosRatio > 0) {
+            float sectionWidth = barWidth * linkedAudiosRatio;
+            paint.setColor(colorLinkedAudios);
+            canvas.drawRect(currentX, 0, currentX + sectionWidth, barHeight, paint);
+            currentX += sectionWidth;
+        }
+
+        // Draw section 5: Expected added memory (yellow/orange) - only if > 0
         if (expectedAddedMemory > 0 && expectedRatio > 0) {
             float sectionWidth = barWidth * expectedRatio;
             paint.setColor(colorExpectedMemory);

@@ -306,4 +306,97 @@ public class Pref {
                 .getInt(kCoverTextSize(folderId), 16); // Default 16 (mid of 12-20)
     }
 
+    /////////////////// STORAGE INFO CACHE ///////////////////
+
+    // Internal Storage
+    public static void setStorageInternalTotal(long value) {
+        prefs.edit().putLong("STORAGE_INTERNAL_TOTAL", value).apply();
+    }
+
+    public static long getStorageInternalTotal() {
+        return prefs.getLong("STORAGE_INTERNAL_TOTAL", 0);
+    }
+
+    public static void setStorageInternalUsedByOthers(long value) {
+        prefs.edit().putLong("STORAGE_INTERNAL_USED_BY_OTHERS", value).apply();
+    }
+
+    public static long getStorageInternalUsedByOthers() {
+        return prefs.getLong("STORAGE_INTERNAL_USED_BY_OTHERS", 0);
+    }
+
+    public static void setStorageInternalUsedByBookPlayer(long value) {
+        prefs.edit().putLong("STORAGE_INTERNAL_USED_BY_BOOKPLAYER", value).apply();
+    }
+
+    public static long getStorageInternalUsedByBookPlayer() {
+        return prefs.getLong("STORAGE_INTERNAL_USED_BY_BOOKPLAYER", 0);
+    }
+
+    public static void setStorageInternalTimestamp(long value) {
+        prefs.edit().putLong("STORAGE_INTERNAL_TIMESTAMP", value).apply();
+    }
+
+    public static long getStorageInternalTimestamp() {
+        return prefs.getLong("STORAGE_INTERNAL_TIMESTAMP", 0);
+    }
+
+    // SD Card Storage
+    public static void setStorageSDCardTotal(long value) {
+        prefs.edit().putLong("STORAGE_SDCARD_TOTAL", value).apply();
+    }
+
+    public static long getStorageSDCardTotal() {
+        return prefs.getLong("STORAGE_SDCARD_TOTAL", 0);
+    }
+
+    public static void setStorageSDCardUsedByOthers(long value) {
+        prefs.edit().putLong("STORAGE_SDCARD_USED_BY_OTHERS", value).apply();
+    }
+
+    public static long getStorageSDCardUsedByOthers() {
+        return prefs.getLong("STORAGE_SDCARD_USED_BY_OTHERS", 0);
+    }
+
+    public static void setStorageSDCardUsedByBookPlayer(long value) {
+        prefs.edit().putLong("STORAGE_SDCARD_USED_BY_BOOKPLAYER", value).apply();
+    }
+
+    public static long getStorageSDCardUsedByBookPlayer() {
+        return prefs.getLong("STORAGE_SDCARD_USED_BY_BOOKPLAYER", 0);
+    }
+
+    public static void setStorageSDCardTimestamp(long value) {
+        prefs.edit().putLong("STORAGE_SDCARD_TIMESTAMP", value).apply();
+    }
+
+    public static long getStorageSDCardTimestamp() {
+        return prefs.getLong("STORAGE_SDCARD_TIMESTAMP", 0);
+    }
+
+    // Linked Audios (files outside BookPlayer reserved space)
+    public static void setStorageInternalLinkedAudios(long value) {
+        prefs.edit().putLong("STORAGE_INTERNAL_LINKED_AUDIOS", value).apply();
+    }
+
+    public static long getStorageInternalLinkedAudios() {
+        return prefs.getLong("STORAGE_INTERNAL_LINKED_AUDIOS", 0);
+    }
+
+    public static void setStorageSDCardLinkedAudios(long value) {
+        prefs.edit().putLong("STORAGE_SDCARD_LINKED_AUDIOS", value).apply();
+    }
+
+    public static long getStorageSDCardLinkedAudios() {
+        return prefs.getLong("STORAGE_SDCARD_LINKED_AUDIOS", 0);
+    }
+
+    // Internal App Storage (app + db + logs + images, excluding audio files)
+    public static void setStorageInternalApp(long value) {
+        prefs.edit().putLong("STORAGE_INTERNAL_APP", value).apply();
+    }
+
+    public static long getStorageInternalApp() {
+        return prefs.getLong("STORAGE_INTERNAL_APP", 0);
+    }
 }

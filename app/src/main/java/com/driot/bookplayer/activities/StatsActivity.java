@@ -29,6 +29,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.helpers.StorageInfoCacheHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
@@ -68,7 +69,8 @@ public class StatsActivity extends LoggingActivity {
         // Observe internal storage data
         viewModel.getInternalStorageText().observe(this, text -> {
             if (text != null && tv1_body_internal != null) {
-                tv1_body_internal.setText(text);
+                tv1_body_internal.setText(text); // text is CharSequence (SpannableString) with colored linked audios
+                tv1_body_internal.setVisibility(View.VISIBLE);
             }
         });
 
@@ -77,15 +79,20 @@ public class StatsActivity extends LoggingActivity {
                 storageBarInternal.setStorageValues(
                     storageInfo.totalStorageBytes,
                     storageInfo.usedByOthersBytes,
-                    storageInfo.usedByBookPlayerBytes
+                    storageInfo.usedByBookPlayerBytes,
+                    0, // expectedAddedMemory
+                    storageInfo.linkedAudiosBytes, // linked audios
+                    storageInfo.appStorageBytes // app storage (dark blue)
                 );
+                storageBarInternal.setVisibility(View.VISIBLE);
+                storageBarInternal.invalidate();
             }
         });
 
         // Observe SD card storage data
         viewModel.getSdCardStorageText().observe(this, text -> {
             if (text != null && tv1_body_sdcard != null) {
-                tv1_body_sdcard.setText(text);
+                tv1_body_sdcard.setText(text); // text is CharSequence (SpannableString) with colored linked audios
                 tv1_body_sdcard.setVisibility(View.VISIBLE);
             }
         });
@@ -95,7 +102,10 @@ public class StatsActivity extends LoggingActivity {
                 storageBarSDCard.setStorageValues(
                     storageInfo.totalStorageBytes,
                     storageInfo.usedByOthersBytes,
-                    storageInfo.usedByBookPlayerBytes
+                    storageInfo.usedByBookPlayerBytes,
+                    0, // expectedAddedMemory
+                    storageInfo.linkedAudiosBytes, // linked audios
+                    0 // appStorage (only for internal storage)
                 );
                 storageBarSDCard.setVisibility(View.VISIBLE);
                 // Force redraw to ensure the bar updates

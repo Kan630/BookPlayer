@@ -111,6 +111,9 @@ public class MyApp extends Application {
         });
 
         AppTtsManager.init(getApplicationContext());
+        
+        // Initialize storage info cache calculation (runs in background)
+        com.driot.bookplayer.helpers.StorageInfoCacheHelper.init(getApplicationContext());
     }
 /// STRICT MODE
 
