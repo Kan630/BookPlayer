@@ -592,7 +592,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
 
 
     <string name="physical_storage_memory">Mémoire de stockage physique</string>
-    <string name="device_storage_memory">Mémoire de l'appareil</string>
+    <string name="device_storage_memory">Mémoire de l\'appareil</string>
     <string name="sd_card_storage">Stockage Carte SD</string>
     <string name="MB_taken_by_BookPlayer_app">Mo pris par l\'app BookPlayer</string>
     <string name="MB_taken_by_audio_files">Mo pris par les fichiers audio</string>
@@ -617,7 +617,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="permissions_granted">Autorisations accordées.</string>
     <string name="permissions_denied">Autorisations refusées.</string>
     <string name="permission_read_write_rationale">Bookplayer nécessite l\'autorisation [Lire l\'audio] (ou activez l\'option [Copier le fichier]).</string>
-    <string name="permission_read_write_denied">L'autorisation [Lire l'audio] a été refusée.
+    <string name="permission_read_write_denied">L\'autorisation [Lire l\'audio] a été refusée.
 \n\nCliquez sur [Infos sur l\'app] pour activer les autorisations manuellement.
 \n\nOu
 \n\nCliquez sur [Options] pour activer l\'option [Copier le fichier en interne] de l\'app.
