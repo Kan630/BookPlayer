@@ -509,8 +509,8 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="podcast_new_episodes">nouveaux épisodes</string>
 
 
-    <string name="Error_Import_IsNotFolder">Ceci ne semble pas être un dossier</string>
-    <string name="Error_Import_IsNotFile">Ceci ne semble pas être un fichier</string>
+    <string name="Error_Import_IsNotFile">L\'élément sélectionné n\'est pas un fichier</string>
+    <string name="Error_Import_IsNotFolder">L\'élément sélectionné n\'est pas un dossier</string>
     <string name="Error_Import_NoMediaInFolder">Aucun média trouvé dans ce dossier</string>
     <string name="Error_Import_CannotReadFile">Erreur lors de la lecture du fichier sélectionné</string>
     <string name="Error_Import_CannotReadFolder">Erreur lors de la lecture du dossier sélectionné</string>
@@ -643,7 +643,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="download_bis_unmetered">🆓 Uniquement sans compteur</string>
     <string name="download_not_roaming">🏠 Pas en itinérance</string>
     <string name="download_warning_title_unmetered">Connexion illimitée</string>
-    <string name="download_warning_message_unmetered">Tu n\'es pas sur une connexion illimitée. Continuer le téléchargement ?</string>
+    <string name="download_warning_message_unmetered">Vous n\'êtes pas sur une connexion illimitée. Continuer le téléchargement ?</string>
     <string name="use_https_or_allow_cleartext_for_this_host_in_the_app_s_network_security_config">Utilisez HTTPS ou autorisez le texte clair pour cet hôte dans la configuration de sécurité réseau de l\'app.</string>
     <string name="http_is_blocked_by_android_s_network_security_policy">HTTP (texte clair) est bloqué par la politique de sécurité réseau d\'Android.</string>
     <string name="http_cleartext_to">HTTP (texte clair) vers</string>
