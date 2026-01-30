@@ -33,7 +33,7 @@
     <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
     <string name="emoji_paste" translatable="false">📋</string>
     <string name="emoji_clear" translatable="false">🗑️</string>
-    <string name="librivox" translatable="false">Librivox</string>
+    <string name="librivox" translatable="false">LibriVox</string>
     <string name="Internet_Archive" translatable="false">Internet Archive</string>
 
     <!-- ********************************** -->
@@ -50,20 +50,20 @@
     <string name="Auto_Delete">Suppression automatique</string>
     <string name="Auto_Download">Téléchargement automatique</string>
     <string name="auto_download">téléchargement automatique</string>
-    <string name="Automotive">Automobile</string>
+    <string name="Automotive">Automobile</string> //Auto section of settings
     <string name="bars">barres</string>
     <string name="Bitrate">Débit binaire</string>
     <string name="Bookshelves">Bibliothèques</string>
-    <string name="Bundle">Archive</string>
+    <string name="Bundle">Archive</string> //means zip, tar, 7z etc..
     <string name="calculating_storage">Calcul du stockage…</string>
     <string name="Cancelled">Annulé</string>
-    <string name="candidates">candidats</string>
+    <string name="candidates">candidats</string> //for books scanned in massive import
     <string name="Channels">Canaux</string>
     <string name="chars">caract.</string>
-    <string name="Cleaning">Nettoyage</string>
+    <string name="Cleaning">Nettoyage</string> //for the specific cleaning activity where user can delete books take too much storage
     <string name="clear">effacer</string>
     <string name="Close">Fermer</string>
-    <string name="collapse">réduire</string>
+    <string name="collapse">réduire</string> //opposite of expand, used for "enlarge" or "show description"
     <string name="confirm">confirmer</string>
     <string name="copied">copié</string>
     <string name="Copy">Copie</string>
@@ -73,7 +73,7 @@
     <string name="Delete">Supprimer</string>
     <string name="Deleting">Suppression</string>
     <string name="denied">refusée</string>
-    <string name="Design">Design</string>
+    <string name="Design">Design</string> //used as the settings title for the section where user can choose color, text font
     <string name="destination">destination</string>
     <string name="device">appareil</string>
     <string name="Disc">Disque</string>
@@ -87,17 +87,17 @@
     <string name="Duration">Durée</string>
     <string name="Ebooks">Ebooks</string>
     <string name="Engine">Moteur</string>
-    <string name="ep">"ép"</string>
+    <string name="ep">"ép"</string> //short for episode
     <string name="episodes">épisodes</string>
     <string name="error">erreur</string>
     <string name="Exit">Quitter</string>
-    <string name="expand">développer</string>
+    <string name="expand">développer</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">Exporter…</string>
     <string name="favorite">favori</string>
     <string name="favorites">favoris</string>
     <string name="Favorites">Favoris</string>
     <string name="File">Fichier</string>
-    <string name="flag">drapeau</string>
+    <string name="flag">drapeau</string> //means country flag
     <string name="Folder">Dossier</string>
     <string name="folder">dossier</string>
     <string name="Font">Police</string>
@@ -105,10 +105,10 @@
     <string name="found">trouvé</string>
     <string name="from">de</string>
     <string name="General">Général</string>
-    <string name="Genre">Genre</string>
+    <string name="Genre">Genre</string> //About a book
     <string name="get">obtenir</string>
     <string name="granted">autorisée</string>
-    <string name="History">Histoire</string>
+    <string name="History">Histoire</string> //means already listened, used for radio stations
     <string name="homepage">page d\'accueil</string>
     <string name="icon">icône</string>
     <string name="id_label">ID : </string>
@@ -128,26 +128,26 @@
     <string name="loading">chargement</string>
     <string name="Logging">Journalisation</string>
     <string name="manual">manuel</string>
-    <string name="MB">Mo</string>
-    <string name="memory">mémoire</string>
+    <string name="MB">Mo</string> //short for MegaByte
+    <string name="memory">mémoire</string> //in the storage sense
     <string name="Menu">Menu</string>
-    <string name="metadata">métadonnées</string>
+    <string name="metadata">métadonnées</string> //in audio file context
     <string name="min.">min.</string>
     <string name="Miscellaneous">Divers</string>
-    <string name="ms.">ms.</string>
+    <string name="ms.">ms.</string> //short for milliseconds
     <string name="new_label">nouveau</string>
     <string name="No">Non</string>
     <string name="nothing">rien</string>
     <string name="open">ouvrir</string>
     <string name="others">autres</string>
     <string name="paste">coller</string>
-    <string name="Pause">Pause</string>
+    <string name="Pause">Pause</string> //means pause audio playback
     <string name="Permission">Autorisation</string>
     <string name="Podcasts">Podcasts</string>
     <string name="podcasts">podcasts</string>
     <string name="proceed">continuer</string>
     <string name="Processing">Traitement en cours</string>
-    <string name="radial">radial</string>
+    <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">radio</string>
     <string name="Radio">Radio</string>
     <string name="Ready">Prêt</string>
@@ -155,12 +155,12 @@
     <string name="reorder">réorganiser</string>
     <string name="Results_2pt">Résultats : </string>
     <string name="Resume">Reprendre</string>
-    <string name="reviews">avis</string>
+    <string name="reviews">avis</string> //for book reviews
     <string name="Roaming">Itinérance</string>
     <string name="save">enregistrer</string>
     <string name="Search">Rechercher</string>
     <string name="Search_2pt">Recherche : </string>
-    <string name="sec">sec</string>
+    <string name="sec">sec</string> //short for second
     <string name="Set">Définir</string>
     <string name="Settings">Options</string>
     <string name="settings">paramètres</string>
@@ -195,7 +195,7 @@
     <string name="yesterday">hier</string>
     <string name="export_zipping_label">Compression : </string>
 
-    <!-- OTHER (multi-word strings, plurals, etc.) -->
+        <!-- OTHER (multi-word strings, plurals, etc.) -->
 
     <string name="title_FolderContent">Liste des fichiers</string>
 
@@ -252,7 +252,7 @@
 Êtes-vous sûr ?</string>
 
 
-    <string name="help_title">Manuel BookPlayer</string>
+        <string name="help_title">Manuel BookPlayer</string>
     <string name="help_text_general"><![CDATA[
 Lorsque vous ouvrez l\'application, vous voyez une liste de <font color="#90D8E8">dossiers</font> — cela représente vos Livres, Leçons ou Podcasts.
 <br><br>
@@ -1045,5 +1045,4 @@ avec la langue [%2$s]</string>
     <plurals name="tracks_count">//ex : 1 track, 2 tracks
         <item quantity="one">%d piste</item>
         <item quantity="other">%d pistes</item></plurals>
-
 </resources>
