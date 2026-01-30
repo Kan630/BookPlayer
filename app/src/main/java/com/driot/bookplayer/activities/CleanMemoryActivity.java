@@ -162,7 +162,7 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
                 .setPositiveButton(getString(R.string.Delete), (dialog, which) -> {
                     cacheFilesViewModel.deleteAudio(file);
                 })
-                .setNegativeButton(getString(R.string.Cancel), null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 

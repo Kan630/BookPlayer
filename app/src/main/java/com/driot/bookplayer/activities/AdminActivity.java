@@ -180,7 +180,7 @@ public class AdminActivity extends LoggingActivity {
                                 }
                                 Toast.makeText(this, "Deleting " + count + " book(s)...", Toast.LENGTH_SHORT).show();
                             })
-                            .setNegativeButton("Cancel", null)
+                            .setNegativeButton(android.R.string.cancel, null)
                             .show();
                 });
             } catch (Exception e) {

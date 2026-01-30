@@ -230,8 +230,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                             .setTitle(getString(R.string.option_alert_delete_picked_source_file_title))
                             .setMessage(getString(R.string.option_alert_delete_picked_source_file_message))
                             .setCancelable(false)
-                            .setPositiveButton("ok", (dialog, which) -> calculateCheckboxState())
-                            .setNegativeButton("cancel", (dialog, which) -> cbDelete.setChecked(false))
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> calculateCheckboxState())
+                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> cbDelete.setChecked(false))
                             .show();
                 } else {
                     Option.setDeleteSourceFile(false);
@@ -511,7 +511,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                 .setTitle(getString(R.string.Permission))
                 .setMessage(getString(R.string.permission_read_denied_short_text_on_load))
                 .setPositiveButton("App Info", (dialog, which) -> openAppInfo())
-                .setNegativeButton("Cancel", null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
     @Override

@@ -20,7 +20,6 @@
 
     <string name="Yes">نعم</string>
     <string name="No">لا</string>
-    <string name="Cancel">إلغاء</string>
     <string name="are_you_sure">هل أنت متأكد؟</string>
     <string name="yesterday">"أمس"</string>
     <string name="app_info">معلومات التطبيق</string>
@@ -591,7 +590,6 @@
     <string name="list_of_supported_extensions">قائمة الامتدادات المدعومة</string>
     <string name="audio_book_name">اسم الكتاب الصوتي</string>
     <string name="audio_book_cover">غلاف الكتاب الصوتي</string>
-    <string name="OK">موافق</string>
     <string name="title">عنوان</string>
     <string name="subtitle">عنوان فرعي</string>
 
@@ -994,7 +992,6 @@
     <string name="Offline_for">غير متصل لـ</string>
     <string name="Track_View">عرض المسار</string>
     <string name="already_downloaded">تم التنزيل بالفعل</string>
-    <string name="cancel">إلغاء</string>
     <string name="help_radio_text"><![CDATA[تصفح المحطات حسب <font color="#81C784">البلد</font> أو <font color="#FFCC80">الشعبية</font> أو فئات أخرى، أو <font color="#64B5F6">ابحث</font> عن محطة بالاسم.
     <br><br>
     اضغط على محطة <font color="#81C784"><b>للبدء فورًا</b></font>.

@@ -20,7 +20,6 @@
 
     <string name="Yes">是</string>
     <string name="No">否</string>
-    <string name="Cancel">取消</string>
     <string name="are_you_sure">您确定吗？</string>
     <string name="yesterday">昨天</string>
     <string name="app_info">应用信息</string>
@@ -592,7 +591,6 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="list_of_supported_extensions">支持的扩展名列表</string>
     <string name="audio_book_name">有声书名称</string>
     <string name="audio_book_cover">有声书封面</string>
-    <string name="OK">确定</string>
     <string name="title">标题</string>
     <string name="subtitle">副标题</string>
 
@@ -995,7 +993,6 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Offline_for">离线时间</string>
     <string name="Track_View">曲目视图</string>
     <string name="already_downloaded">已下载</string>
-    <string name="cancel">取消</string>
     <string name="help_radio_text"><![CDATA[按<font color="#81C784">国家</font>、<font color="#FFCC80">热度</font>浏览，或按名称<font color="#64B5F6">搜索</font>电台。
     <br><br>
     点击电台<font color="#81C784"><b>立即播放</b></font>。

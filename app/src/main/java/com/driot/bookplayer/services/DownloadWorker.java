@@ -538,7 +538,7 @@ public class DownloadWorker extends ImportWorker {
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setProgress(100, Math.max(0, Math.min(100, percent)), false)
                 .addAction(new NotificationCompat.Action(0, ctx.getString(R.string.pause), pausePI))
-                .addAction(new NotificationCompat.Action(0, ctx.getString(R.string.Cancel), cancelPI));
+                .addAction(new NotificationCompat.Action(0, ctx.getString(android.R.string.cancel), cancelPI));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             b.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);
@@ -563,7 +563,7 @@ public class DownloadWorker extends ImportWorker {
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setProgress(100, 0, false)
                 .addAction(new NotificationCompat.Action(0, ctx.getString(R.string.Resume), resumePI))
-                .addAction(new NotificationCompat.Action(0, ctx.getString(R.string.Cancel), cancelPI));
+                .addAction(new NotificationCompat.Action(0, ctx.getString(android.R.string.cancel), cancelPI));
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
             b.setForegroundServiceBehavior(NotificationCompat.FOREGROUND_SERVICE_IMMEDIATE);

@@ -24,7 +24,6 @@
 
     <string name="Yes">Sim</string>
     <string name="No">Não</string>
-    <string name="Cancel">Cancelar</string>
     <string name="are_you_sure">Você tem certeza?</string>
     <string name="yesterday">"ontem"</string>
     <string name="app_info">Informações do app</string>
@@ -615,7 +614,6 @@
     <string name="list_of_supported_extensions">lista de extensões suportadas :</string>
     <string name="audio_book_name">nome do audiolivro</string>
     <string name="audio_book_cover">capa do audiolivro</string>
-    <string name="OK">OK</string>
     <string name="title">título</string>
     <string name="subtitle">subtítulo</string>
 
@@ -1007,7 +1005,6 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="Offline_for">Offline por</string>
     <string name="Track_View">Visão da Faixa</string>
     <string name="already_downloaded">Já baixado</string>
-    <string name="cancel">cancelar</string>
     <string name="help_radio_text"><![CDATA[Navegue por <font color="#81C784">país</font>, <font color="#FFCC80">popularidade</font> ou <font color="#64B5F6">busque</font> por nome.
     <br><br>
     Toque na estação para <font color="#81C784"><b>tocar instantaneamente</b></font>.

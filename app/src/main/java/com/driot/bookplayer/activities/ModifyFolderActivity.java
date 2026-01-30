@@ -240,8 +240,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.ModifyFolder_AskDelete))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> startDeleteWorker())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> startDeleteWorker())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
@@ -330,8 +330,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setTitle(getString((R.string.AskReset_popupTitle)))
                 .setMessage(getString((R.string.ModifyFolder_AskReset)))
                 .setCancelable(true)
-                .setPositiveButton("ok", (dialog, i) -> resetFolder())
-                .setNegativeButton("cancel", (dialog, i) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, i) -> resetFolder())
+                .setNegativeButton(android.R.string.cancel, (dialog, i) -> {
                 })
                 .show();
     }
@@ -524,8 +524,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteCoverImage_AskDelete))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteCover())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteCover())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
@@ -783,8 +783,8 @@ public class ModifyFolderActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskReset_popupTitle))
                 .setMessage(getString(R.string.AskReset_popupText_order))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> resetTrackOrder())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> resetTrackOrder())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
@@ -880,7 +880,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                                     .setPositiveButton(getString(R.string.proceed), (dialog, ii) -> {
                                         updateZikFilePaths(pickedTreeUri, treeDocumentId);
                                     })
-                                    .setNegativeButton(getString(R.string.cancel), (dialog, ii) -> {
+                                    .setNegativeButton(android.R.string.cancel, (dialog, ii) -> {
                                     })
                                     .show();
                         });

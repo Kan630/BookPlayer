@@ -450,7 +450,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 .setMessage(R.string.permission_read_write_denied)
                 .setPositiveButton(getString(R.string.App_Info), (dialog, which) -> openAppInfo())
                 .setNeutralButton(getString(R.string.Settings), (dialog, which) -> openOptionActivity())
-                .setNegativeButton(getString(R.string.Cancel), null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
 

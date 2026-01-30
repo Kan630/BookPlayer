@@ -21,7 +21,6 @@
 
     <string name="Yes">Ja</string>
     <string name="No">Nein</string>
-    <string name="Cancel">Abbrechen</string>
     <string name="are_you_sure">Sind Sie sicher?</string>
     <string name="yesterday">"gestern"</string>
     <string name="app_info">App-Info</string>
@@ -606,7 +605,6 @@ Sind Sie sicher?"</string>
     <string name="list_of_supported_extensions">Liste der unterstützten Erweiterungen</string>
     <string name="audio_book_name">Hörbuchtitel</string>
     <string name="audio_book_cover">Hörbuchcover</string>
-    <string name="OK">OK</string>
     <string name="title">Titel</string>
     <string name="subtitle">Untertitel</string>
 
@@ -1000,7 +998,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="Offline_for">Offline seit</string>
     <string name="Track_View">Titelansicht</string>
     <string name="already_downloaded">Bereits heruntergeladen</string>
-    <string name="cancel">abbrechen</string>
     <string name="help_radio_text"><![CDATA[Durchsuchen Sie Sender nach <font color="#81C784">Land</font>, <font color="#FFCC80">Beliebtheit</font> oder <font color="#64B5F6">suchen</font> Sie nach Namen.
     <br><br>
     Tippen Sie zum <font color="#81C784"><b>Abspielen</b></font> auf einen Sender.

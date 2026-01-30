@@ -20,7 +20,6 @@
 
     <string name="Yes">Sí</string>
     <string name="No">No</string>
-    <string name="Cancel">Cancelar</string>
     <string name="are_you_sure">¿Estás seguro?</string>
     <string name="yesterday">"ayer"</string>
     <string name="app_info">Información de la app</string>
@@ -584,7 +583,6 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="list_of_supported_extensions">lista de extensiones compatibles</string>
     <string name="audio_book_name">nombre del audiolibro</string>
     <string name="audio_book_cover">portada del audiolibro</string>
-    <string name="OK">OK</string>
     <string name="title">título</string>
     <string name="subtitle">subtítulo</string>
 
@@ -987,7 +985,6 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="Offline_for">Desconectado por</string>
     <string name="Track_View">Vista de Pista</string>
     <string name="already_downloaded">Ya descargado</string>
-    <string name="cancel">cancelar</string>
     <string name="help_radio_text"><![CDATA[Explore emisoras por <font color="#81C784">país</font>, <font color="#FFCC80">popularidad</font> o <font color="#64B5F6">busque</font> por nombre.
     <br><br>
     Toque una emisora para <font color="#81C784"><b>escuchar al instante</b></font>.

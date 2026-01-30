@@ -21,7 +21,6 @@
 
     <string name="Yes">Oui</string>
     <string name="No">Non</string>
-    <string name="Cancel">Annuler</string>
     <string name="are_you_sure">Êtes-vous sûr ?</string>
     <string name="yesterday">hier</string>
     <string name="app_info">Infos sur l\'app</string>
@@ -591,7 +590,6 @@ Tous les messages sont lisibles publiquement. Connectez-vous pour participer.
     <string name="list_of_supported_extensions">liste des extensions prises en charge</string>
     <string name="audio_book_name">nom du livre audio</string>
     <string name="audio_book_cover">couverture du livre audio</string>
-    <string name="OK">OK</string>
     <string name="title">titre</string>
     <string name="subtitle">sous-titre</string>
 
@@ -994,7 +992,6 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="Offline_for">Hors ligne depuis</string>
     <string name="Track_View">Vue Piste</string>
     <string name="already_downloaded">Déjà téléchargé</string>
-    <string name="cancel">annuler</string>
     <string name="help_radio_text"><![CDATA[Parcourez les stations par <font color="#81C784">pays</font>, <font color="#FFCC80">popularité</font> ou autre, ou <font color="#64B5F6">cherchez</font> une station par nom.
     <br><br>
     Tapez sur une station pour <font color="#81C784"><b>lancer la lecture</b></font>.

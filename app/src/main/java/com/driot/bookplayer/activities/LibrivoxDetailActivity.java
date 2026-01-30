@@ -483,7 +483,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                         new AlertDialog.Builder(this)
                                 .setTitle(R.string.download_warning_title_unmetered)
                                 .setMessage(R.string.download_warning_message_unmetered)
-                                .setPositiveButton(R.string.OK,
+                                .setPositiveButton(android.R.string.ok,
                                         (dialog, which) -> proceedWithDownload(url, futurePath))
                                 .setNegativeButton(android.R.string.cancel,
                                         (dialog, which) -> myLogD(
@@ -496,7 +496,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                             new AlertDialog.Builder(this)
                                     .setTitle(R.string.download_warning_title_roaming)
                                     .setMessage(R.string.download_warning_message_roaming)
-                                    .setPositiveButton(R.string.OK,
+                                    .setPositiveButton(android.R.string.ok,
                                             (dialog, which) -> proceedWithDownload(url, futurePath))
                                     .setNegativeButton(android.R.string.cancel,
                                             (dialog, which) -> myLogD(

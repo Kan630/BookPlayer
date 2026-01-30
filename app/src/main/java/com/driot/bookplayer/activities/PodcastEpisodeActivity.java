@@ -646,7 +646,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             new AlertDialog.Builder(this)
                     .setTitle(R.string.download_warning_title_unmetered)
                     .setMessage(R.string.download_warning_message_unmetered)
-                    .setPositiveButton(R.string.OK, (dialog, which) -> {
+                    .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                         proceedWithDownload(podcastFeed.title, ep, podcastFeed.id);
                     })
                     .setNegativeButton(android.R.string.cancel, null)

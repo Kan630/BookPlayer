@@ -28,7 +28,6 @@
 
     <string name="Yes">हाँ</string>
     <string name="No">नहीं</string>
-    <string name="Cancel">रद्द करें</string>
     <string name="are_you_sure">क्या आप सुनिश्चित हैं ?</string>
     <string name="yesterday">"कल"</string>
     <string name="app_info">ऐप जानकारी</string>
@@ -82,7 +81,6 @@
     <string name="reviews">समीक्षाएँ</string>
 
     <string name="Also">साथ ही</string>
-    <string name="OK">OK</string>
     <string name="title">शीर्षक</string>
     <string name="subtitle">उपशीर्षक</string>
     <string name="last">अंतिम</string>
@@ -1032,7 +1030,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="Offline_for">ऑफ़लाइन के लिए</string>
     <string name="Track_View">ट्रैक व्यू</string>
     <string name="already_downloaded">पहले से डाउनलोड किया गया</string>
-    <string name="cancel">रद्द करें</string>
     <string name="help_radio_text"><![CDATA[<font color="#81C784">देश</font>, <font color="#FFCC80">लोकप्रियता</font> या अन्य श्रेणियों द्वारा स्टेशन ब्राउज़ करें, या नाम से <font color="#64B5F6">खोजें</font>।
     <br><br>
     <font color="#81C784"><b>तुरंत सुनने</b></font> के लिए स्टेशन पर टैप करें।

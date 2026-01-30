@@ -20,7 +20,6 @@
 
     <string name="Yes">Да</string>
     <string name="No">Нет</string>
-    <string name="Cancel">Отмена</string>
     <string name="are_you_sure">Вы уверены?</string>
     <string name="yesterday">"вчера"</string>
     <string name="app_info">Информация об app</string>
@@ -594,7 +593,6 @@
     <string name="list_of_supported_extensions">список поддерживаемых расширений</string>
     <string name="audio_book_name">название аудиокниги</string>
     <string name="audio_book_cover">обложка аудиокниги</string>
-    <string name="OK">ОК</string>
     <string name="title">заголовок</string>
     <string name="subtitle">подзаголовок</string>
 
@@ -1000,7 +998,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="Offline_for">Оффлайн в течение</string>
     <string name="Track_View">Просмотр трека</string>
     <string name="already_downloaded">Уже загружено</string>
-    <string name="cancel">отмена</string>
     <string name="help_radio_text"><![CDATA[Ищите станции по <font color="#81C784">стране</font>, <font color="#FFCC80">популярности</font> или <font color="#64B5F6">имени</font>.
     <br><br>
     Нажмите на станцию, чтобы <font color="#81C784"><b>слушать</b></font>.

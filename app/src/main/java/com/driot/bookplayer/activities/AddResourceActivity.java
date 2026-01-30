@@ -71,7 +71,7 @@ public class AddResourceActivity extends BaseBottomNavActivity {
         warningScroll = findViewById(R.id.warningScroll);
 
         bCancel = findViewById(R.id.bCancel);
-        bCancel.setText(getString(R.string.Cancel));
+        bCancel.setText(getString(android.R.string.cancel));
         bCancel.setOnClickListener(v -> performCancel());
 
         bPauseResume = findViewById(R.id.bPauseResume);

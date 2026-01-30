@@ -24,7 +24,6 @@
 
     <string name="Yes">Sì</string>
     <string name="No">No</string>
-    <string name="Cancel">Annulla</string>
     <string name="are_you_sure">Sei sicuro?</string>
     <string name="yesterday">"ieri"</string>
     <string name="app_info">Info app</string>
@@ -615,7 +614,6 @@
     <string name="list_of_supported_extensions">elenco estensioni supportate :</string>
     <string name="audio_book_name">nome audiolibro</string>
     <string name="audio_book_cover">copertina audiolibro</string>
-    <string name="OK">OK</string>
     <string name="title">titolo</string>
     <string name="subtitle">sottotitolo</string>
 
@@ -1009,7 +1007,6 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="Offline_for">Offline da</string>
     <string name="Track_View">Vista Traccia</string>
     <string name="already_downloaded">Già scaricato</string>
-    <string name="cancel">annulla</string>
     <string name="help_radio_text"><![CDATA[Sfoglia stazioni per <font color="#81C784">paese</font>, <font color="#FFCC80">popolarità</font> o <font color="#64B5F6">cerca</font> per nome.
     <br><br>
     Tocca una stazione per <font color="#81C784"><b>ascoltare subito</b></font>.

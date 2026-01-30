@@ -39,207 +39,163 @@
     <!-- ********************************** -->
     <!-- SINGLE WORDS -->
 
-    <string name="Warning">Warning</string>
-
-
-    <string name="Yes">Yes</string>
-    <string name="No">No</string>
-    <string name="OK">OK</string>
-    <string name="Cancel">Cancel</string>
-    <string name="yesterday">"yesterday"</string>
-    <string name="Delete">Delete</string>
-    <string name="favorites">favorites</string>
-
-
-    <string name="Pause">Pause</string>
-    <string name="Resume">Resume</string>
-    <string name="Settings">Settings</string>
-
-    <string name="Exit">Exit</string>
-    <string name="calculating_storage">Calculating…</string>
-    <string name="Storage">Storage</string>
-    <string name="others">others</string>
-    <string name="copied">copied</string>
-    <string name="linked">linked</string>
-    <string name="confirm">confirm</string>
-    <string name="proceed">proceed</string>
-
-    <string name="cancel">cancel</string>
-    <string name="to">to</string>
-
-    <string name="sec">sec</string>
-
-    <string name="save">save</string>
-    <string name="paste">paste</string>
-    <string name="clear">clear</string>
-    <string name="favorite">favorite</string>
-    <string name="Cancelled">Cancelled</string>
-    <string name="error">error</string>
-    <string name="stop">stop</string>
-    <string name="Audio">Audio</string>
-    <string name="Video">Video</string>
-    <string name="Text">Text</string>
-    <string name="Bundle">Bundle</string>
-
-
-    <string name="language">language</string>
-
-    <string name="download">download</string>
-    <string name="refresh">refresh</string>
-    <string name="collapse">collapse</string>
-
-    <string name="expand">expand</string>
-
-    <string name="flag">flag</string>
-
-    <string name="settings">settings</string>
-    <string name="sort">sort</string>
-
-    <string name="reviews">reviews</string>
-    <string name="Also">Also</string>
-    <string name="title">title</string>
-    <string name="subtitle">subtitle</string>
-    <string name="last">last</string>
-    <string name="episodes">episodes</string>
-    <string name="Podcasts">Podcasts</string>
-    <string name="podcasts">podcasts</string>
-    <string name="Auto_Download">Auto-Download</string>
-    <string name="Auto_Delete">Auto-Delete</string>
-    <string name="min.">min.</string>
-
-    <string name="after">after</string>
-    <string name="days">days</string>
-
-    <string name="memory">memory</string>
-
-    <string name="device">device</string>
-
-    <string name="listened">"listened"</string>
     <string name="Added">"Added"</string>
-    <string name="Favorites">Favorites</string>
-    <string name="Set">Set</string>
-
-    <string name="MB">MB</string>
-
-    <string name="ms.">ms.</string>
-
-    <string name="Export_3pt">"Export…"</string>
-
-    <string name="Version">Version</string>
-    <string name="Miscellaneous">Miscellaneous</string>
-
-    <string name="Processing">"Processing"</string>
-    <string name="downloaded">"downloaded"</string>
-
-    <string name="Downloading">"Downloading"</string>
-
-    <string name="Search">"Search"</string>
-    <string name="Creator">Creator</string>
-
-    <string name="metadata">metadata</string>
-    <string name="Artist">Artist</string>
+    <string name="after">after</string>
     <string name="Album">Album</string>
-    <string name="Genre">Genre</string>
-    <string name="Year">Year</string>
-    <string name="Track">Track</string>
-    <string name="Disc">Disc</string>
-    <string name="Bitrate">Bitrate</string>
-
-    <string name="Channels">Channels</string>
-    <string name="General">General</string>
-<string name="granted">granted</string>
-    <string name="denied">denied</string>
-    <string name="Logging">Logging</string>
-    <string name="Font">Font</string>
-    <string name="Automotive">Automotive</string>
-    <string name="File">File</string>
-    <string name="Folder">Folder</string>
+    <string name="Alphabetically">Alphabetically</string>
+    <string name="Also">Also</string>
+    <string name="Artist">Artist</string>
+    <string name="Audio">Audio</string>
     <string name="AudioBooks">"AudioBooks"</string>
-<string name="Search_2pt">"Search: "</string>
-    <string name="Language_2pt">"Language: "</string>
-    <string name="Results_2pt">"Results: "</string>
-<string name="export_zipping_label">"Zipping: "</string>
-    <string name="Speed">Speed</string>
-<string name="Menu">Menu</string>
-    <string name="open">open</string>
-    <string name="manual">manual</string>
-    <string name="Stats">Stats</string>
-    <string name="Cleaning">Cleaning</string>
-    <string name="Website">Website</string>
-    <string name="Permission">Permission</string>
-
-
-    <string name="Close">Close</string>
-    <string name="Trending">Trending</string>
-    <string name="Bookshelves">"Bookshelves"</string>
-    <string name="ep">"ep"</string>
-
+    <string name="Auto_Delete">Auto-Delete</string>
+    <string name="Auto_Download">Auto-Download</string>
     <string name="auto_download">auto-download</string>
-
-
-    <string name="text_to_speech">text-to-speech</string>
-    <string name="Unauthorized">Unauthorized</string>
-    <string name="Forbidden">Forbidden</string>
-    <string name="import_task_start">starting…</string>
-    <string name="done.">done.</string>
-    <string name="Copy">Copy</string>
-<string name="Uncompress">Uncompress</string>
-    <string name="Integration">Integration</string>
-    <string name="Text_To_Speech">Text-To-Speech</string>
-    <string name="Ready">Ready</string>
-    <string name="Speaking">Speaking</string>
-    <string name="new_label">new</string>
-    <string name="chars">chars</string>
-
-    <string name="reorder">reorder</string>
-    <string name="icon">icon</string>
-    <string name="Engine">Engine</string>
-    <string name="Design">Design</string>
-
-    <string name="Import">Import</string>
-    <string name="Utilities">Utilities</string>
-
+    <string name="Automotive">Automotive</string>
+    <string name="bars">bars</string>
+    <string name="Bitrate">Bitrate</string>
+    <string name="Bookshelves">"Bookshelves"</string>
+    <string name="Bundle">Bundle</string>
+    <string name="calculating_storage">Calculating…</string>
+    <string name="Cancelled">Cancelled</string>
     <string name="candidates">candidates</string>
+    <string name="Channels">Channels</string>
+    <string name="chars">chars</string>
+    <string name="Cleaning">Cleaning</string>
+    <string name="clear">clear</string>
+    <string name="Close">Close</string>
+    <string name="collapse">collapse</string>
+    <string name="confirm">confirm</string>
+    <string name="copied">copied</string>
+    <string name="Copy">Copy</string>
+    <string name="count">count</string>
+    <string name="Creator">Creator</string>
+    <string name="days">days</string>
+    <string name="Delete">Delete</string>
+    <string name="Deleting">Deleting</string>
+    <string name="denied">denied</string>
+    <string name="Design">Design</string>
+    <string name="destination">destination</string>
+    <string name="device">device</string>
+    <string name="Disc">Disc</string>
+    <string name="done">done</string>
+    <string name="done.">done.</string>
+    <string name="download">download</string>
+    <string name="Download">Download</string>
+    <string name="downloaded">"downloaded"</string>
+    <string name="Downloading">"Downloading"</string>
+    <string name="downloads">downloads</string>
+    <string name="Duration">Duration</string>
+    <string name="Ebooks">Ebooks</string>
+    <string name="Engine">Engine</string>
+    <string name="ep">"ep"</string>
+    <string name="episodes">episodes</string>
+    <string name="error">error</string>
+    <string name="Exit">Exit</string>
+    <string name="expand">expand</string>
+    <string name="Export_3pt">"Export…"</string>
+    <string name="favorite">favorite</string>
+    <string name="favorites">favorites</string>
+    <string name="Favorites">Favorites</string>
+    <string name="File">File</string>
+    <string name="flag">flag</string>
+    <string name="Folder">Folder</string>
+    <string name="folder">folder</string>
+    <string name="Font">Font</string>
+    <string name="Forbidden">Forbidden</string>
     <string name="found">found</string>
     <string name="from">from</string>
-    <string name="in">in</string>
-    <string name="items">items</string>
-    <string name="folder">folder</string>
-    <string name="loading">loading</string>
-    <string name="library">library</string>
-
-    <string name="Download">Download</string>
-    <string name="destination">destination</string>
-    <string name="count">count</string>
-    <string name="tags">tags</string>
-    <string name="homepage">homepage</string>
-    <string name="History">History</string>
-    <string name="downloads">downloads</string>
+    <string name="General">General</string>
+    <string name="Genre">Genre</string>
     <string name="get">get</string>
-    <string name="done">done</string>
-    <string name="Ebooks">Ebooks</string>
-    <string name="radio">radio</string>
-    <string name="legacy">legacy</string>
-
-    <string name="wave">wave</string>
-
-    <string name="bars">bars</string>
-
-    <string name="radial">radial</string>
-    <string name="Roaming">Roaming</string>
-    <string name="Technical">Technical</string>
-    <string name="links">links</string>
-    <string name="Duration">Duration</string>
-    <string name="Language">Language</string>
-    <string name="Spam">Spam</string>
-    <string name="Radio">Radio</string>
-    <string name="Alphabetically">Alphabetically</string>
-    <string name="nothing">nothing</string>
+    <string name="granted">granted</string>
+    <string name="History">History</string>
+    <string name="homepage">homepage</string>
+    <string name="icon">icon</string>
     <string name="id_label">"ID: "</string>
-    <string name="Deleting">Deleting</string>
+    <string name="Import">Import</string>
+    <string name="in">in</string>
+    <string name="Integration">Integration</string>
+    <string name="items">items</string>
+    <string name="language">language</string>
+    <string name="Language">Language</string>
+    <string name="Language_2pt">"Language: "</string>
+    <string name="last">last</string>
+    <string name="legacy">legacy</string>
+    <string name="library">library</string>
+    <string name="linked">linked</string>
+    <string name="links">links</string>
+    <string name="listened">"listened"</string>
+    <string name="loading">loading</string>
+    <string name="Logging">Logging</string>
+    <string name="manual">manual</string>
+    <string name="MB">MB</string>
+    <string name="memory">memory</string>
+    <string name="Menu">Menu</string>
+    <string name="metadata">metadata</string>
+    <string name="min.">min.</string>
+    <string name="Miscellaneous">Miscellaneous</string>
+    <string name="ms.">ms.</string>
+    <string name="new_label">new</string>
+    <string name="No">No</string>
+    <string name="nothing">nothing</string>
+    <string name="open">open</string>
+    <string name="others">others</string>
+    <string name="paste">paste</string>
+    <string name="Pause">Pause</string>
+    <string name="Permission">Permission</string>
+    <string name="Podcasts">Podcasts</string>
+    <string name="podcasts">podcasts</string>
+    <string name="proceed">proceed</string>
+    <string name="Processing">"Processing"</string>
+    <string name="radial">radial</string>
+    <string name="radio">radio</string>
+    <string name="Radio">Radio</string>
+    <string name="Ready">Ready</string>
+    <string name="refresh">refresh</string>
+    <string name="reorder">reorder</string>
+    <string name="Results_2pt">"Results: "</string>
+    <string name="Resume">Resume</string>
+    <string name="reviews">reviews</string>
+    <string name="Roaming">Roaming</string>
+    <string name="save">save</string>
+    <string name="Search">"Search"</string>
+    <string name="Search_2pt">"Search: "</string>
+    <string name="sec">sec</string>
+    <string name="Set">Set</string>
+    <string name="Settings">Settings</string>
+    <string name="settings">settings</string>
+    <string name="sort">sort</string>
+    <string name="Spam">Spam</string>
+    <string name="Speaking">Speaking</string>
+    <string name="Speed">Speed</string>
+    <string name="import_task_start">starting…</string>
+    <string name="Stats">Stats</string>
+    <string name="stop">stop</string>
+    <string name="Storage">Storage</string>
+    <string name="subtitle">subtitle</string>
+    <string name="tags">tags</string>
+    <string name="Technical">Technical</string>
+    <string name="Text">Text</string>
+    <string name="text_to_speech">text-to-speech</string>
+    <string name="Text_To_Speech">Text-To-Speech</string>
+    <string name="title">title</string>
+    <string name="to">to</string>
+    <string name="Track">Track</string>
+    <string name="Trending">Trending</string>
+    <string name="Unauthorized">Unauthorized</string>
+    <string name="Uncompress">Uncompress</string>
+    <string name="Utilities">Utilities</string>
+    <string name="Version">Version</string>
+    <string name="Video">Video</string>
+    <string name="Warning">Warning</string>
+    <string name="wave">wave</string>
+    <string name="Website">Website</string>
+    <string name="Year">Year</string>
+    <string name="Yes">Yes</string>
+    <string name="yesterday">"yesterday"</string>
+    <string name="export_zipping_label">"Zipping: "</string>
 
-    <!-- ********************************** -->
-    <!-- OTHER (multi-word strings, plurals, etc.) -->
+        <!-- OTHER (multi-word strings, plurals, etc.) -->
 
     <string name="title_FolderContent">Files List</string>
 
@@ -910,8 +866,8 @@
     <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.\nIf that is not the case, you can use the Reset App button in [Settings &gt; Utilities &gt; Cancel ongoing operation] (at the very bottom).</string>
     <string name="Podcast_source_error">"Podcast source error"</string>
     <string name="Streaming_Podcast">Streaming Podcast</string>
-    <string name="librivox_search_edittext_title">Search by author or title...\nTip: a single word often gives better results</string>
-    <string name="podcast_search_edittext_title">Search... (all languages)\nTip: a single word often gives better results</string>
+    <string name="librivox_search_edittext_title">Search by author or title…\nTip: a single word often gives better results</string>
+    <string name="podcast_search_edittext_title">Search… (all languages)\nTip: a single word often gives better results</string>
     <string name="import_settings">Import settings</string>
     <string name="option_split_m4b_subtitle">If unchecked, M4B files will be imported as single tracks.</string>
     <string name="option_split_m4b_subtitle_note">Note: the chapter-splitting feature currently supports only very standard M4B files.</string>
@@ -957,7 +913,7 @@
                         BookPlayer currently supports only standard M4B files.
 
                         Tips:
-                        - Try converting the M4B with an external tool (ffmpeg, mp4box...),
+                        - Try converting the M4B with an external tool (ffmpeg, mp4box…),
                         - Or split it on a computer and import the chapters separately.
 
                         For now, BookPlayer will import the original M4B as a single audio file."""</string>

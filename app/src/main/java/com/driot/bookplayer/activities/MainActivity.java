@@ -399,7 +399,7 @@ public class MainActivity extends BaseBottomNavActivity {
 
         AlertDialog dialog = new MaterialAlertDialogBuilder(this)
                 .setView(dialogView)
-                .setNegativeButton(R.string.cancel, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .create();
 
         dialog.show();

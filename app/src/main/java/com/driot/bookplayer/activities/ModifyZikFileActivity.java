@@ -112,8 +112,8 @@ public class ModifyZikFileActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.ModifyZikFile_AskDelete))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteZikFile())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteZikFile())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
                 .show();
     }
 
@@ -191,7 +191,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
                 .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
                 .setCancelable(false)
                 .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgress(zikFile))
-                .setNegativeButton(ModifyZikFileActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
                 .show();
     }
     private void bResetFromThisZikFileClick(ZikFile zikFile) {
@@ -200,7 +200,7 @@ public class ModifyZikFileActivity extends LoggingActivity {
                 .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
                 .setCancelable(false)
                 .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(zikFile))
-                .setNegativeButton(ModifyZikFileActivity.this.getString(R.string.Cancel), (dialogInterface, i) -> {})
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
                 .show();
     }
     private void deleteProgress(ZikFile zikFile) {

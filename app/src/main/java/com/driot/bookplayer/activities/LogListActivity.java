@@ -101,8 +101,8 @@ public class LogListActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteLogs_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton("ok", (dialog, which) -> deleteLogs())
-                .setNegativeButton("cancel", (dialogInterface, i) -> {})
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteLogs())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
                 .show();
     }
     private void deleteLogs() {

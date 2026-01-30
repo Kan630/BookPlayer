@@ -523,7 +523,7 @@ public class PlayActivity extends LoggingActivity {
         };
 
         builder.setPositiveButton(getString(R.string.Set), setSleepAction)
-                .setNegativeButton(getString(R.string.Cancel), (d, w) -> d.cancel());
+                .setNegativeButton(android.R.string.cancel, (d, w) -> d.cancel());
 
         AlertDialog dialog = builder.create();
         dialog.show();

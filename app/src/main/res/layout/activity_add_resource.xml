@@ -70,7 +70,7 @@
 
     <Button
         android:id="@+id/bCancel"
-        android:text="@string/Cancel"
+        android:text="@android:string/cancel"
         style="@style/GetResourceButton"
         app:layout_constraintLeft_toRightOf="@id/guideline_vertical"
         app:layout_constraintRight_toRightOf="parent"

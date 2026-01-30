@@ -116,7 +116,7 @@
             <Button
                 android:id="@+id/btnCancelExport"
                 style="@style/GetResourceButton"
-                android:text="@string/Cancel" />
+                android:text="@android:string/cancel" />
             <Button
                 android:id="@+id/btnStartExport"
                 style="@style/GetResourceButton"

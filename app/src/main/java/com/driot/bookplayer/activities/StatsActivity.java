@@ -247,8 +247,8 @@ public class StatsActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteLogs_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton(R.string.OK, (dialog, which) -> deleteLogs())
-                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteLogs())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
@@ -265,8 +265,8 @@ public class StatsActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteImages_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton(R.string.OK, (dialog, which) -> deleteCachedImages())
-                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteCachedImages())
+                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
     }
