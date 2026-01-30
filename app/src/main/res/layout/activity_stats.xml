@@ -141,14 +141,39 @@
             android:textStyle="bold"
             />
 
-        <TextView
-            android:id="@+id/tv4_body"
-            style="@style/simpleText"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10sp"
             android:layout_marginTop="20sp"
-            />
+            android:orientation="vertical"
+            >
+            <TextView
+                android:id="@+id/tv4_body"
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+            
+            <TableLayout
+                android:id="@+id/tableDurationDetails"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:stretchColumns="1"
+                >
+                <!-- Rows will be added programmatically -->
+            </TableLayout>
+            
+            <TextView
+                android:id="@+id/tv4_stats_note"
+                style="@style/simpleText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                />
+        </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar"/>
 

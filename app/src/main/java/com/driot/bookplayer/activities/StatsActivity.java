@@ -13,6 +13,8 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AlertDialog;
@@ -34,6 +36,11 @@ import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import java.io.File;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
@@ -145,18 +152,40 @@ public class StatsActivity extends LoggingActivity {
 
         // ----------------------------------------
 
-        String zeText4 = "Install Date = " + Pref.getFirstOpenDate()
-                + "\n" + "\n" + "Audio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed())
-                + "\n" + "* Book Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK))
-                + "\n" + "* TTS Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS))
-                + "\n" + "* Radio Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO))
-                + "\n" + "* Podcast Time = " + Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST))
-                + "\n" + "\n" + "(These stats started in 2025 (oct-nov)";
+        // Format install date nicely (date only, using Locale)
+        String installDateFormatted = formatInstallDate(Pref.getFirstOpenDate());
+        
+        // Check if install date is prior to December 1, 2025
+        boolean showStatsStartedNote = isInstallDateBefore(Pref.getFirstOpenDate(), 2025, 12, 1);
+        
+        // Get duration values
+        String bookTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK));
+        String ttsTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS));
+        String radioTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO));
+        String podcastTime = Tonio.formatTime(Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST));
+        
+        // Build text for main body (without Audio Time, it will be in table header)
+        String zeText4 = "Install Date = " + installDateFormatted;
 
         TextView tv_head4 = findViewById(R.id.tv4_head);
         TextView tv_body4 = findViewById(R.id.tv4_body);
+        TableLayout tableDurationDetails = findViewById(R.id.tableDurationDetails);
+        TextView tv_stats_note = findViewById(R.id.tv4_stats_note);
+        
         tv_head4.setText(R.string.menu_stats);
         tv_body4.setText(zeText4);
+        
+        // Populate table with duration details (including Audio Time header)
+        String totalAudioTime = Tonio.formatTime(Pref.getTotalMsPlayed());
+        populateDurationTable(tableDurationDetails, totalAudioTime, bookTime, ttsTime, radioTime, podcastTime);
+        
+        // Show stats note if needed
+        if (showStatsStartedNote) {
+            tv_stats_note.setText("(These stats started in 2025 (oct-nov)");
+            tv_stats_note.setVisibility(View.VISIBLE);
+        } else {
+            tv_stats_note.setVisibility(View.GONE);
+        }
 
         // ----------------------------------------
 
@@ -235,6 +264,194 @@ public class StatsActivity extends LoggingActivity {
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
         myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
+    }
+
+    /**
+     * Format install date string to display only the date (no time) using Locale
+     * @param dateTimeString Date string in format "yyyy-MM-dd-HH'h'mm'm'ss's'" or "yyyy-MM-dd HH:mm"
+     * @return Formatted date string using Locale, or original string if parsing fails
+     */
+    private String formatInstallDate(String dateTimeString) {
+        if (dateTimeString == null || dateTimeString.isEmpty()) {
+            return "";
+        }
+        
+        try {
+            // Try to parse the format "yyyy-MM-dd-HH'h'mm'm'ss's'" (from getCurrentDateTimeString)
+            SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
+            Date date = inputFormat.parse(dateTimeString);
+            
+            if (date != null) {
+                // Format using Locale with date only (no time)
+                DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
+                return dateFormat.format(date);
+            }
+        } catch (ParseException e) {
+            // Try alternative format "yyyy-MM-dd HH:mm"
+            try {
+                SimpleDateFormat inputFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                Date date = inputFormat2.parse(dateTimeString);
+                
+                if (date != null) {
+                    DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
+                    return dateFormat.format(date);
+                }
+            } catch (ParseException e2) {
+                // If both formats fail, try to extract just the date part (yyyy-MM-dd)
+                if (dateTimeString.length() >= 10) {
+                    String datePart = dateTimeString.substring(0, 10);
+                    try {
+                        SimpleDateFormat inputFormat3 = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                        Date date = inputFormat3.parse(datePart);
+                        
+                        if (date != null) {
+                            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
+                            return dateFormat.format(date);
+                        }
+                    } catch (ParseException e3) {
+                        // Fall through to return original string
+                    }
+                }
+            }
+        }
+        
+        // If all parsing fails, return original string
+        return dateTimeString;
+    }
+
+    /**
+     * Check if install date is before a specified date
+     * @param dateTimeString Date string to parse
+     * @param year Year to compare
+     * @param month Month to compare (1-12)
+     * @param day Day to compare
+     * @return true if install date is before the specified date, false otherwise
+     */
+    private boolean isInstallDateBefore(String dateTimeString, int year, int month, int day) {
+        if (dateTimeString == null || dateTimeString.isEmpty()) {
+            return false;
+        }
+        
+        try {
+            Date installDate = null;
+            
+            // Try to parse the format "yyyy-MM-dd-HH'h'mm'm'ss's'"
+            try {
+                SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
+                installDate = inputFormat.parse(dateTimeString);
+            } catch (ParseException e) {
+                // Try alternative format "yyyy-MM-dd HH:mm"
+                try {
+                    SimpleDateFormat inputFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
+                    installDate = inputFormat2.parse(dateTimeString);
+                } catch (ParseException e2) {
+                    // Try to extract just the date part (yyyy-MM-dd)
+                    if (dateTimeString.length() >= 10) {
+                        String datePart = dateTimeString.substring(0, 10);
+                        SimpleDateFormat inputFormat3 = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+                        installDate = inputFormat3.parse(datePart);
+                    }
+                }
+            }
+            
+            if (installDate != null) {
+                Calendar installCalendar = Calendar.getInstance();
+                installCalendar.setTime(installDate);
+                
+                Calendar compareCalendar = Calendar.getInstance();
+                compareCalendar.set(year, month - 1, day, 0, 0, 0); // month is 0-based
+                compareCalendar.set(Calendar.MILLISECOND, 0);
+                
+                return installCalendar.before(compareCalendar);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error checking install date");
+        }
+        
+        return false;
+    }
+
+    /**
+     * Populate TableLayout with duration details in a 2-column table format
+     * @param tableLayout The TableLayout to populate
+     * @param totalAudioTime Total audio time string (for header)
+     * @param bookTime Book time string
+     * @param ttsTime TTS time string
+     * @param radioTime Radio time string
+     * @param podcastTime Podcast time string
+     */
+    private void populateDurationTable(TableLayout tableLayout, String totalAudioTime, String bookTime, String ttsTime, String radioTime, String podcastTime) {
+        if (tableLayout == null) {
+            return;
+        }
+        
+        // Clear existing rows
+        tableLayout.removeAllViews();
+        
+        // Add header row with "Audio Time" in bold
+        addTableHeaderRow(tableLayout, "Audio Time", totalAudioTime);
+        
+        // Create rows for each duration type
+        addTableRow(tableLayout, "* Book Time", bookTime);
+        addTableRow(tableLayout, "* TTS Time", ttsTime);
+        addTableRow(tableLayout, "* Radio Time", radioTime);
+        addTableRow(tableLayout, "* Podcast Time", podcastTime);
+    }
+    
+    /**
+     * Add a header row to the table with bold text
+     * @param tableLayout The TableLayout
+     * @param label The label text (left column)
+     * @param value The value text (right column)
+     */
+    private void addTableHeaderRow(TableLayout tableLayout, String label, String value) {
+        TableRow row = new TableRow(this);
+        
+        // Label TextView (left column) - bold
+        TextView labelView = new TextView(this);
+        labelView.setText(label);
+        labelView.setPadding(0, 4, 16, 4); // top, right, bottom, left
+        labelView.setTextAppearance(this, R.style.simpleText);
+        labelView.setTypeface(null, android.graphics.Typeface.BOLD);
+        row.addView(labelView);
+        
+        // Value TextView (right column) - bold
+        TextView valueView = new TextView(this);
+        valueView.setText(value);
+        valueView.setPadding(0, 4, 0, 4);
+        valueView.setTextAppearance(this, R.style.simpleText);
+        valueView.setTypeface(null, android.graphics.Typeface.BOLD);
+        valueView.setGravity(android.view.Gravity.END); // Right-align values
+        row.addView(valueView);
+        
+        tableLayout.addView(row);
+    }
+    
+    /**
+     * Add a row to the table with label and value
+     * @param tableLayout The TableLayout
+     * @param label The label text (left column)
+     * @param value The value text (right column)
+     */
+    private void addTableRow(TableLayout tableLayout, String label, String value) {
+        TableRow row = new TableRow(this);
+        
+        // Label TextView (left column)
+        TextView labelView = new TextView(this);
+        labelView.setText(label);
+        labelView.setPadding(0, 4, 16, 4); // top, right, bottom, left
+        labelView.setTextAppearance(this, R.style.simpleText);
+        row.addView(labelView);
+        
+        // Value TextView (right column)
+        TextView valueView = new TextView(this);
+        valueView.setText(value);
+        valueView.setPadding(0, 4, 0, 4);
+        valueView.setTextAppearance(this, R.style.simpleText);
+        valueView.setGravity(android.view.Gravity.END); // Right-align values
+        row.addView(valueView);
+        
+        tableLayout.addView(row);
     }
 
     public static String getVersionName(int sdkVersion) {
