@@ -50,7 +50,7 @@
     <string name="Auto_Delete">Suppression automatique</string>
     <string name="Auto_Download">Téléchargement automatique</string>
     <string name="auto_download">téléchargement automatique</string>
-    <string name="Automotive">Automobile</string> //Auto section of settings
+    <string name="Automotive">Voiture</string> //Auto section of settings
     <string name="bars">barres</string>
     <string name="Bitrate">Débit binaire</string>
     <string name="Bookshelves">Bibliothèques</string>
@@ -879,16 +879,16 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>
     <string name="Import_Progress_chapter_title">"Titre de piste"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"le nom du fichier exporté doit contenir au moins 3 caractères"</string>
-    <string name="option_radio_renew_url">vérifier le meilleur miroir avant lecture</string>
-    <string name="option_radio_renew_url_subtitle">Vérifier les miroirs (serveurs radio) garantit la meilleure source disponible, mais peut prendre du temps (délai actuel 10 sec.).</string>
-    <string name="checking_for_best_mirror">vérification du meilleur miroir</string>
-    <string name="error_radio_renew_url">erreur lors de l\'obtention du lien du miroir radio</string>
+    <string name="option_radio_renew_url">vérifier le meilleur serveur avant lecture</string>
+    <string name="option_radio_renew_url_subtitle">Vérifier les serveurs radio garantit la meilleure source disponible, mais peut prendre du temps (délai actuel 10 sec.).</string>
+    <string name="checking_for_best_mirror">vérification du meilleur serveur</string>
+    <string name="error_radio_renew_url">erreur lors de l\'obtention du lien du serveur radio</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Ajouter la date de publication au nom de l\'épisode</string>
 
     <string name="option_play_view_explain">La vue lecture est l\'écran détaillé — celui avec la grande couverture au centre, les gros boutons en bas et des commandes comme Vitesse et Minuteur.</string>
     <string name="ChangeTrackOrder_Title">Instructions pour l\'écran suivant</string>
-    <string name="ChangeTrackOrder_Text">Faites glisser les boîtes.
-\n\nMaintenez une boîte à gauche pour la sélectionner, puis faites-la glisser à la position voulue.</string>
+    <string name="ChangeTrackOrder_Text">Faites glisser les carrés bleus.
+\n\nRestez clicqué un carré à gauche pour le sélectionner, puis faites-le glisser à la position voulue.</string>
     <string name="Quit_the_player_to_move_playing_tracks">Vous devrez peut-être fermer le lecteur pour déplacer les pistes.</string>
     <string name="welcome_title">Bienvenue dans BookPlayer</string>
     <string name="welcome_subtitle">Votre lecteur audio polyvalent, utilisable hors ligne.</string>
@@ -923,7 +923,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
                         - Ou séparez-le sur un ordinateur et importez les chapitres individuellement.
 
                         Pour l\'instant, BookPlayer importera le M4B original comme un seul fichier audio."""</string>
-    <string name="APPEND_MODE">AJOUTER AU LIVRE EXISTANT</string>
+    <string name="APPEND_MODE">AJOUTER A UN LIVRE EXISTANT</string>
     <string name="internet_status">État Internet</string>
     <string name="net_status_initial">Vérification du réseau…</string>
     <string name="net_status_unmetered">Connexion illimitée</string>
@@ -942,12 +942,12 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
 
     <string name="import_warning_lot_of_file_and_subfolders">Il semble y avoir beaucoup de fichiers audio dans ce dossier et ses sous-dossiers. Voulez-vous vraiment tout importer dans un seul livre ?</string>
     <string name="browse_ebooks">Parcourir les ebooks</string>
-    <string name="GutendexSearch_desc">"Parcourez les ebooks du domaine public de Project Gutenberg. Des milliers de classiques gratuits disponibles en EPUB."</string>
+    <string name="GutendexSearch_desc">"Parcourez les ebooks du domaine public avec le Project Gutenberg. Des milliers de classiques gratuits disponibles en EPUB."</string>
     <string name="full_screen_mode">mode plein écran</string>
     <string name="tts_voice_seems_incompatible">la voix semble incompatible</string>
-    <string name="Engine_buffer">Tampon moteur</string>
+    <string name="Engine_buffer">Tampon du moteur</string>
     <string name="option_radio_sleep_copy">copier valeur param. généraux</string>
-    <string name="option_radio_use_cloudfare">utiliser cache ( cloudfare )</string>
+    <string name="option_radio_use_cloudfare">utiliser le cache ( cloudfare )</string>
     <string name="option_radio_use_cloudfare_subtitle">le cache devrait améliorer la vitesse</string>
     <string name="by_genre">par genre</string>
     <string name="by_author">par auteur</string>
@@ -980,9 +980,9 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="All_modes_except_Legacy_are_in_beta">Tous les modes sauf Legacy sont en bêta.</string>
     <string name="reset_progress_only_for_this_track">réinit. progression de cette piste</string>
     <string name="pick_a_new_location">choisir un nouvel emplacement</string>
-    <string name="newlocation_better">Ce dossier corrige tous les chemins rompus</string>
-    <string name="newlocation_better_and_worse">Ce dossier corrige certains chemins rompus</string>
-    <string name="newlocation_not_better">Ce dossier ne corrige aucun chemin</string>
+    <string name="newlocation_better">Ce dossier corrige tous les liens rompus</string>
+    <string name="newlocation_better_and_worse">Ce dossier corrige certains liens rompus</string>
+    <string name="newlocation_not_better">Ce dossier ne corrige aucun lien</string>
     <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
     <string name="already_downloaded">Déjà téléchargé</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>
@@ -1030,12 +1030,12 @@ avec la langue [%2$s]</string>
     <string name="gutenberg_try_2nd">2e tentative</string>
     <string name="api_paging_size">Taille de pagination API</string>
     <string name="radio_thanks">Merci à radio-browser.info pour leur répertoire gratuit de radios</string>
-    <string name="mass_import_scanning_title">Scan import de masse…</string>
-    <string name="mass_import_scan_complete">Scan import de masse terminé.</string>
+    <string name="mass_import_scanning_title">Scan pour l\import de masse…</string>
+    <string name="mass_import_scan_complete">Scan pour l\import de masse terminé.</string>
     <string name="mass_import_found_candidates_click">%1$d candidats trouvés, cliquez pour ouvrir.</string>
     <string name="select_at_least_one_item">Veuillez sélectionner au moins un élément.</string>
     <string name="mass_import_selected_summary">%1$d candidats sélectionnés pour import (%2$s)</string>
-    <string name="option_mass_import_display_storage_bar">Afficher la barre de stockage</string>
+    <string name="option_mass_import_display_storage_bar">Afficher la barre de visualisation du stockage</string>
 
 
     <plurals name="audio_files_count">//ex : 15 audio files
