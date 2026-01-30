@@ -13,19 +13,19 @@
     <item
         android:id="@+id/action_menu_three_dot"
         android:icon="@drawable/ic_baseline_more_vert_24"
-        android:title="@string/action_menu_three_dot"
+        android:title="@string/Menu"
         app:showAsAction="ifRoom">
 
         <menu>
 
             <item android:id="@+id/menu_open"
-                android:title="@string/menu_open"
+                android:title="@string/open"
                 android:icon="@drawable/ic_menu_open"
                 app:showAsAction="ifRoom"
                 />
 
             <item android:id="@+id/menu_manual"
-                android:title="@string/menu_manual"
+                android:title="@string/manual"
                 android:icon="@drawable/ic_menu_book_24"
                 app:showAsAction="ifRoom"
                 />
@@ -43,7 +43,7 @@
                 />
 
             <item android:id="@+id/menu_stats"
-                android:title="@string/menu_stats"
+                android:title="@string/Stats"
                 android:icon="@drawable/ic_memory_24"
                 app:showAsAction="ifRoom"
                 />
@@ -54,12 +54,12 @@
                 app:showAsAction="ifRoom"
                 />
             <item android:id="@+id/menu_cleanMemory"
-                android:title="@string/menu_cacheFiles"
+                android:title="@string/Cleaning"
                 android:icon="@drawable/ic_delete_24"
                 app:showAsAction="ifRoom"
                 />
             <item android:id="@+id/menu_website"
-                android:title="@string/menu_website"
+                android:title="@string/Website"
                 android:icon="@drawable/ic_captive_portal_24"
                 app:showAsAction="ifRoom"
                 />

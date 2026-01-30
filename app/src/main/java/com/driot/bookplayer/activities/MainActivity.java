@@ -389,7 +389,7 @@ public class MainActivity extends BaseBottomNavActivity {
             btnLastPlayed.setText(getString(R.string.sort_last_played) + suffix0);
         } else if ("alpha".equals(currentMode) || "alphabetical".equals(currentMode)) {
             checkedId0 = R.id.btn_alpha;
-            btnAlpha.setText(getString(R.string.sort_alphabetically) + suffix0);
+            btnAlpha.setText(getString(R.string.Alphabetically) + suffix0);
         } else { // added / last_added
             checkedId0 = R.id.btn_added;
             btnAdded.setText(getString(R.string.sort_last_added) + suffix0);

@@ -793,7 +793,7 @@ public class ModifyFolderActivity extends LoggingActivity {
         AppDatabase db = AppDatabase.getInstance(getApplicationContext());
         AppDatabase.databaseWriteExecutor.execute(() -> {
             db.zikFileDao().resetSmartChapterOrderForFolder(folder.getId());
-            runOnUiThread(() -> myToast(getString(R.string.tracks_order_has_been_reset)));
+            runOnUiThread(() -> myToast(getString(R.string.Tracks_order_has_been_reset)));
         });
     }
 
@@ -858,15 +858,15 @@ public class ModifyFolderActivity extends LoggingActivity {
                     myLogW("nbBetter : " + nbBetter + ", worse : " + nbWorse + ", same : " + nbSame);
 
                     if (nbBetter <= 0) {
-                        runOnUiThread(() -> myToastE(getString(R.string.new_location_not_better)));
+                        runOnUiThread(() -> myToastE(getString(R.string.newlocation_not_better)));
                     } else {
                         final int nbBetterFinal = nbBetter;
                         final int nbWorseFinal = nbWorse;
                         runOnUiThread(() -> {
                             String oldPathExample = list.isEmpty() ? ""
                                     : Tonio.getParentFolderOrEmpty(list.get(0).getPath());
-                            String fixText = (nbWorseFinal > 0 ? getString(R.string.new_location_better_and_worse)
-                                    : getString(R.string.new_location_better));
+                            String fixText = (nbWorseFinal > 0 ? getString(R.string.newlocation_better_and_worse)
+                                    : getString(R.string.newlocation_better));
                             String textMsg = fixText
                                     + "\n " + getString(R.string.from) + " [" + oldPathExample + "]"
                                     + "\n " + getString(R.string.to) + " [" + pickedTreeUri + "]"
@@ -974,7 +974,7 @@ public class ModifyFolderActivity extends LoggingActivity {
                 i = i + 1;
                 path = zikFile.getPath();
                 String pathType = (path.startsWith("content://") ? "[CONTENT] " : "");
-                String logStrPrefix = getString(R.string.track) + " " + i + "/" + nbZikFiles + " : ["
+                String logStrPrefix = getString(R.string.Track) + " " + i + "/" + nbZikFiles + " : ["
                         + zikFile.getDisplayName() + "]";
                 src = UriHelper.resolveUriFromPath(context, path);
                 if (src == null) {

@@ -156,7 +156,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:textSize="13sp"
-                android:text="@string/miscellaneous" />
+                android:text="@string/Miscellaneous" />
                 />
         </LinearLayout>
 

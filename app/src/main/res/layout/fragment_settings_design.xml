@@ -34,7 +34,7 @@
                 <TextView
                     style="@style/OptionCheckBoxText"
                     android:layout_width="80dp"
-                    android:text="@string/option_font_family" />
+                    android:text="@string/Font" />
 
                 <Spinner
                     android:id="@+id/sp_font_family"

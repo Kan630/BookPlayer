@@ -43,9 +43,9 @@
     <string name="Favorites">المفضلة</string>
     <string name="Set">تعيين</string>
     <string name="MB">ميغابايت</string>
-    <string name="Export">"تصدير…"</string>
-    <string name="version">الإصدار</string>
-    <string name="miscellaneous">متنوع</string>
+    <string name="Export_3pt">"تصدير…"</string>
+    <string name="Version">الإصدار</string>
+    <string name="Miscellaneous">متنوع</string>
     <string name="Processing">"جارٍ المعالجة"</string>
     <string name="downloaded">"تم التنزيل"</string>
     <string name="Downloading">"جاري التنزيل"</string>
@@ -61,7 +61,7 @@
 
     <string name="help_title">دليل BookPlayer</string>
 
-    <string name="help_general_title">عام</string>
+    <string name="General">عام</string>
     <string name="help_text_general"><![CDATA[
     عند فتح التطبيق، سترى قائمة من <font color="#90D8E8">المجلدات</font> — تمثل كتبك أو دروسك أو بودكاستاتك.
     <br><br>
@@ -195,9 +195,7 @@
 
     <string name="option_timeBeforeSleep">إيقاف تلقائي</string>
     <string name="option_timeBeforeSleep_text">بعد :</string>
-    <string name="option_timeBeforeSleep_min">دقيقة.</string>
-
-    <string name="option_copy_file_title">نسخ الملفات داخليًا</string>
+<string name="option_copy_file_title">نسخ الملفات داخليًا</string>
 
     <string name="option_backward_forward_title">أزرار الرجوع/التقديم</string>
     <string name="option_backward_forward_text">الفاصل الزمني :</string>
@@ -218,11 +216,11 @@
     <string name="option_beep_at_the_end">أصدر ثلاث صفارات في نهاية الكتاب.</string>
     <string name="option_visualizer_text_01">عارض تردد بسيط يظهر عند تشغيل الصوت.</string>
     <string name="option_visualizer_text_02">يتطلب إذن [تسجيل الصوت]/[الميكروفون]</string>
-    <string name="option_visualizer_permissions_granted">مسموح</string>
-    <string name="option_visualizer_permissions_denied_01">مرفوض</string>
+    <string name="granted">مسموح</string>
+    <string name="denied">مرفوض</string>
     <string name="option_visualizer_permissions_denied_02">اضغط مرة أخرى على خانة الاختيار لطلب الإذن</string>
 
-    <string name="option_log">تسجيل الأخطاء</string>
+    <string name="Logging">تسجيل الأخطاء</string>
     <string name="option_tech_log_subtitle"><i>
         هل يجب أن ينشئ التطبيق ملفات سجل تقنية لتصحيح الأخطاء؟
     </i></string>
@@ -265,8 +263,8 @@
 
     <string name="AutoTest_title">اختبار تلقائي</string>
 
-    <string name="bOpenFile">ملف</string>
-    <string name="bOpenFolder">مجلد</string>
+    <string name="File">ملف</string>
+    <string name="Folder">مجلد</string>
     <string name="bOpenZipFile">ملف مضغوط</string>
     <string name="bOpenM4bFile">ملف صوتي</string>
 
@@ -280,11 +278,9 @@
     <string name="DirectDownload_desc">الصق الرابط أدناه واضغط على الزر لتنزيل ودمج كتاب صوتي مباشرة.</string>
     <string name="DirectDownload_button">حمّله فقط</string>
 
-    <string name="LibrivoxSearch_title">"كتب صوتية"</string>
+    <string name="AudioBooks">"كتب صوتية"</string>
     <string name="LibrivoxSearch_desc">"ابحث مباشرة في LibriVox للعثور على كتابك الصوتي. إنه أرشيف مجاني في الملكية العامة، يضم بشكل أساسي أعمالاً باللغة الإنجليزية وبعضها بلغات أخرى."</string>
-
-    <string name="PodcastSearch_title">بودكاستات</string>
-    <string name="PodcastSearch_desc">استعرض البودكاستات عبر قاعدة البيانات المفتوحة podcastindex.org</string>
+<string name="PodcastSearch_desc">استعرض البودكاستات عبر قاعدة البيانات المفتوحة podcastindex.org</string>
     <string name="podcast_image_desc">صورة البودكاست</string>
     <string name="podcast_no_results">لم يتم العثور على بودكاست</string>
 
@@ -346,9 +342,7 @@
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
-
-    <string name="bDelete">"حذف"</string>
-    <string name="bMove">"تغيير الموضع"</string>
+<string name="bMove">"تغيير الموضع"</string>
     <string name="bReset">"إعادة تعيين التقدم"</string>
     <string name="Folder_Deleted_DB">"تم حذف الكتاب!"</string>
     <string name="Folder_Renamed">"تمت إعادة تسمية المجلد"</string>
@@ -391,15 +385,14 @@
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
-    <string name="tvSpeed">السرعة</string>
+    <string name="Speed">السرعة</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">لا توجد تفاعلات من المستخدم منذ</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>لاحظ أن هذه القيمة ستُستخدم فقط لجلسة الاستماع الحالية.\nالقيمة العامة لمؤقت النوم موجودة في قسم الخيارات (في القائمة على صفحة بدء التطبيق)</i>"</string>
     <string name="tv_TimeLeft">الوقت المتبقي قبل النوم</string>
     <string name="error_reading_track">"خطأ في قراءة المقطع!"</string>
     <string name="current_position">الموضع الحالي</string>
-    <string name="total_time">المدة</string>
-    <string name="source_not_found">تعذر العثور على الملف المصدر أو قراءته.</string>
+<string name="source_not_found">تعذر العثور على الملف المصدر أو قراءته.</string>
     <string name="source_not_found_deleted">تعذر العثور على الملف المصدر. قد يكون قد تم حذفه.</string>
     <string name="source_file_path">مسار الملف المصدر</string>
     <string name="permission_not_set">لم يتم تعيين الإذن.</string>
@@ -433,14 +426,14 @@
         <!-- ********************************** -->
         <!-- Menus -->
 
-    <string name="action_menu_three_dot">قائمة</string>
-    <string name="menu_open">فتح</string>
-    <string name="menu_manual">دليل</string>
+    <string name="Menu">قائمة</string>
+    <string name="open">فتح</string>
+    <string name="manual">دليل</string>
     <string name="menu_sendmail">مراسلة المطور</string>
-    <string name="menu_stats">إحصائيات</string>
+    <string name="Stats">إحصائيات</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="menu_cacheFiles">تنظيف</string>
-    <string name="menu_website">الموقع الإلكتروني</string>
+    <string name="Cleaning">تنظيف</string>
+    <string name="Website">الموقع الإلكتروني</string>
 
         <!-- ********************************** -->
         <!-- OTHER APPS -->
@@ -577,7 +570,7 @@
     <string name="tts_language">لغة TTS</string>
     <string name="language">لغة</string>
     <string name="download">تنزيل</string>
-    <string name="autodownload">تنزيل تلقائي</string>
+    <string name="auto_download">تنزيل تلقائي</string>
     <string name="refresh">تحديث</string>
     <string name="collapse">طي</string>
     <string name="expand">توسيع</string>
@@ -598,7 +591,7 @@
     <string name="list_of_supported_extensions">قائمة الامتدادات المدعومة</string>
     <string name="audio_book_name">اسم الكتاب الصوتي</string>
     <string name="audio_book_cover">غلاف الكتاب الصوتي</string>
-    <string name="ok">موافق</string>
+    <string name="OK">موافق</string>
     <string name="title">عنوان</string>
     <string name="subtitle">عنوان فرعي</string>
 
@@ -623,7 +616,7 @@
     <string name="Error_Import_could_not_delete_source">"تعذر حذف المصدر المحدد"</string>
 
     <string name="option_text_appearance_title">مظهر النص</string>
-    <string name="option_font_family">الخط</string>
+    <string name="Font">الخط</string>
     <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
     <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
 
@@ -639,7 +632,7 @@
     <string name="could_not_identify_track_to_modify">تعذر تحديد المقطع لتعديله</string>
     <string name="could_not_identify_folder_to_modify">تعذر تحديد المجلد لتعديله</string>
 
-    <string name="option_automotive_title">السيارة</string>
+    <string name="Automotive">السيارة</string>
     <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
     <string name="automotive_no_item_in_bookplayer">لا توجد عناصر. افتح BookPlayer على هاتفك واستورد كتابًا.</string>
@@ -669,7 +662,7 @@
     <string name="Unsupported_ebook_type">نوع الكتاب الإلكتروني غير مدعوم</string>
     <string name="download_stopped_by_system_will_retry">تم إيقاف التنزيل من قبل النظام — ستتم إعادة المحاولة</string>
     <string name="download_resuming">استئناف التنزيل</string>
-    <string name="cancelled">أُلغي</string>
+    <string name="Cancelled">أُلغي</string>
     <string name="importing_book">جارٍ استيراد الكتاب</string>
     <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">جارٍ التحقق من الحجم</string>
@@ -720,26 +713,25 @@
     <string name="download_stop_requested">طُلِب إيقاف التنزيل</string>
 
     <string name="import_task_start">جارٍ البدء...</string>
-    <string name="import_task_complete">تم.</string>
-    <string name="import_task_copy">نسخ</string>
-    <string name="import_task_download">تنزيل</string>
-    <string name="import_task_ebook_split">تحليل الكتاب الإلكتروني</string>
+    <string name="done.">تم.</string>
+    <string name="Copy">نسخ</string>
+<string name="import_task_ebook_split">تحليل الكتاب الإلكتروني</string>
     <string name="import_task_m4b_split">استخراج M4b</string>
-    <string name="import_task_unzip">فك الضغط</string>
-    <string name="import_task_final_parse">دمج</string>
+    <string name="Uncompress">فك الضغط</string>
+    <string name="Integration">دمج</string>
     <string name="Import_Success_with_warnings">اكتمل الاستيراد مع تحذيرات</string>
 
     <string name="metadata">البيانات الوصفية</string>
     <string name="no_metadata_available">لا توجد بيانات وصفية متاحة</string>
-    <string name="artist">الفنان</string>
-    <string name="album">الألبوم</string>
-    <string name="genre">النوع</string>
-    <string name="year">السنة</string>
-    <string name="track">المسار</string>
-    <string name="disc">القرص</string>
-    <string name="bitrate">معدل البت</string>
+    <string name="Artist">الفنان</string>
+    <string name="Album">الألبوم</string>
+    <string name="Genre">النوع</string>
+    <string name="Year">السنة</string>
+    <string name="Track">المسار</string>
+    <string name="Disc">القرص</string>
+    <string name="Bitrate">معدل البت</string>
     <string name="sample_rate">معدل العينة</string>
-    <string name="channels">القنوات</string>
+    <string name="Channels">القنوات</string>
 
     <string name="frequency_visualizer">عارض التردد</string>
     <string name="counting_files">جارٍ عد الملفات</string>
@@ -750,14 +742,14 @@
     <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
     <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
     <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
-    <string name="ms">مللي ثانية.</string> //means milliseconds
+    <string name="ms.">مللي ثانية.</string> //means milliseconds
 
     <string name="Text_To_Speech">تحويل النص إلى كلام</string>
     <string name="tts_phase_loading_text">جارٍ تحميل النص…</string>
     <string name="tts_phase_warming_up">جارٍ تحضير الصوت…</string>
     <string name="tts_phase_starting">جارٍ بدء النطق…</string>
-    <string name="tts_phase_ready">جاهز</string>
-    <string name="tts_phase_speaking">جارٍ التحدث</string>
+    <string name="Ready">جاهز</string>
+    <string name="Speaking">جارٍ التحدث</string>
     <string name="tts_phase_error">خطأ في محرك النطق</string>
     <string name="error_generic">حدث خطأ غير متوقع</string>
     <string name="tts_error_warmup_timeout">انتهت مهلة تحضير الصوت</string>
@@ -770,7 +762,7 @@
 
     <string name="chars">أحرف</string>
     <string name="reorder">إعادة الترتيب</string>
-    <string name="new_">جديد</string>
+    <string name="new_label">جديد</string>
     <string name="icon">رمز</string>
     <string name="Engine">المحرك</string>
     <string name="Design">تصميم</string>
@@ -874,10 +866,10 @@
     <string name="Download">تنزيل</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">اضافة تاريخ النشر الى اسم الحلقة</string>
 
-    <string name="visualizer_mode_legacy">قديم</string> <!-- <8 -->
-    <string name="visualizer_mode_wave">موجة</string> <!-- <8 -->
-    <string name="visualizer_mode_bars">أعمدة</string> <!-- <8 -->
-    <string name="visualizer_mode_radial">دائري</string> <!-- <8 -->
+    <string name="legacy">قديم</string> <!-- <8 -->
+    <string name="wave">موجة</string> <!-- <8 -->
+    <string name="bars">أعمدة</string> <!-- <8 -->
+    <string name="radial">دائري</string> <!-- <8 -->
     <string name="option_play_view_explain">عرض التشغيل هو الشاشة التفصيلية — التي تحتوي على الغلاف الكبير في الوسط، الأزرار الكبيرة في الأسفل، وتحكمات مثل السرعة والمؤقت.</string>
     <string name="ChangeTrackOrder_Title">إرشادات للشاشة التالية</string>
     <string name="ChangeTrackOrder_Text">اسحب وافلت الصناديق.
@@ -926,7 +918,7 @@
     <string name="internet_status">حالة الإنترنت</string>
     <string name="net_status_initial">جارٍ فحص الشبكة…</string>
     <string name="net_status_unmetered">اتصال غير محدود</string>
-    <string name="net_status_roaming">تجوال</string>
+    <string name="Roaming">تجوال</string>
     <string name="AskReset_popupText_order">أنت على وشك إعادة تعيين ترتيب المقاطع.\nهل أنت متأكد؟</string>
     <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
@@ -1018,7 +1010,7 @@
     <string name="proceed">متابعة</string>
     <string name="reset_progress_only_for_this_track">إعادة تعيين التقدم لهذا المسار فقط</string>
     <string name="sec">ث</string>
-    <string name="sort_alphabetically">أبجديا</string>
+    <string name="Alphabetically">أبجديا</string>
     <string name="sort_by">فرز حسب</string>
     <string name="sort_last_added">آخر إضافة</string>
     <string name="sort_last_played">آخر تشغيل</string>
@@ -1029,8 +1021,8 @@
     <string name="export_zipping_label">جاري الضغط: </string>
 
     <string name="http_code_400">طلب غير صالح</string>
-    <string name="http_code_401">غير مصرح</string>
-    <string name="http_code_403">ممنوع</string>
+    <string name="Unauthorized">غير مصرح</string>
+    <string name="Forbidden">ممنوع</string>
     <string name="http_code_404">غير موجود</string>
     <string name="http_code_408">انتهاء وقت الطلب</string>
     <string name="http_code_429">طلبات كثيرة جدا</string>
@@ -1097,7 +1089,7 @@
 
     <string name="MB_taken_by_linked_audios">" ميجابايت: الصوتيات المرتبطة"</string>
     <string name="action_reset_to_original">↩️ استعادة الأصلية</string>
-    <string name="bookshelves">"رفوف الكتب"</string>
+    <string name="Bookshelves">"رفوف الكتب"</string>
     <string name="calculating_storage">جاري الحساب…</string>
     <string name="device_storage_memory">ذاكرة تخزين الجهاز</string>
     <string name="gutenberg_contacting">جاري الاتصال بـ gutenberg.org…</string>
@@ -1121,11 +1113,11 @@
     <string name="sd_card_storage">ذاكرة بطاقة SD</string>
     <string name="select_at_least_one_item">يرجى اختيار عنصر واحد على الأقل للاستيراد.</string>
     <string name="storage_device">تخزين الجهاز</string>
-    <string name="storage_header">التخزين</string>
-    <string name="storage_legend_copied">منسوخ</string>
-    <string name="storage_legend_linked_audios">مرتبط</string>
+    <string name="Storage">التخزين</string>
+    <string name="copied">منسوخ</string>
+    <string name="linked">مرتبط</string>
     <string name="storage_legend_new_books">كتب جديدة</string>
-    <string name="storage_legend_others">أخرى</string>
+    <string name="others">أخرى</string>
     <string name="storage_sd_card">تخزين بطاقة SD</string>
     <plurals name="tracks_count">
         <item quantity="one">%d مقطع</item>

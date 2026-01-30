@@ -242,7 +242,7 @@
                     android:layout_marginTop="12dp"
                     android:layout_marginStart="15dp"
                     android:layout_marginBottom="8dp"
-                    android:text="@string/tvSpeed"
+                    android:text="@string/Speed"
                     android:textAppearance="?android:attr/textAppearanceMedium" />
 
                 <!-- right group -->
@@ -304,7 +304,7 @@
 
                     <TextView
                         android:id="@+id/textViewTempsTotal"
-                        android:text="@string/total_time"
+                        android:text="@string/Duration"
                         style="@style/textColor"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

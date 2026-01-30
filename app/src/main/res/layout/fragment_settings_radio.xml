@@ -67,7 +67,7 @@
 
                 <TextView
                     style="@style/simpleTextWrap"
-                    android:text="@string/option_timeBeforeSleep_min"
+                    android:text="@string/min."
                     android:textSize="24sp" />
             </LinearLayout>
 

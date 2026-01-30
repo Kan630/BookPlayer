@@ -89,7 +89,7 @@
             android:id="@+id/section_automotive"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:sectionTitle="@string/option_automotive_title"
+            app:sectionTitle="@string/Automotive"
             app:sectionIcon="@drawable/ic_car_24" />
 
         <com.driot.bookplayer.views.SettingsSectionView

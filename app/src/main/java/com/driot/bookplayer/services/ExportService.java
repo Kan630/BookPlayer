@@ -251,7 +251,7 @@ public class ExportService extends LoggingService {
                     boolean deleted = outputFile.delete();
                     myLog("Deleted cancelled legacy file: " + deleted);
                 }
-                sendFail(getString(R.string.cancelled));
+                sendFail(getString(R.string.Cancelled));
                 return;
             }
 

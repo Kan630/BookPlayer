@@ -118,7 +118,7 @@
 
             <TextView
                 style="@style/simpleTextWrap"
-                android:text="@string/ms"
+                android:text="@string/ms."
                 android:textSize="24sp" />
         </LinearLayout>
 

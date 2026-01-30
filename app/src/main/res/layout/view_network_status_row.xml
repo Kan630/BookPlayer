@@ -50,7 +50,7 @@
         android:layout_width="18dp"
         android:layout_height="18dp"
         android:visibility="gone"
-        android:contentDescription="@string/net_status_roaming"
+        android:contentDescription="@string/Roaming"
         android:src="@drawable/ic_travel_24px" />
 
 </LinearLayout>

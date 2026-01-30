@@ -63,7 +63,7 @@
     <string name="paste">पेस्ट</string>
     <string name="clear">साफ़ करें</string>
     <string name="favorite">पसंदीदा</string>
-    <string name="cancelled">रद्द किया गया</string>
+    <string name="Cancelled">रद्द किया गया</string>
     <string name="error">त्रुटि</string>
     <string name="stop">रोकें</string>
     <string name="Audio">ऑडियो</string>
@@ -82,7 +82,7 @@
     <string name="reviews">समीक्षाएँ</string>
 
     <string name="Also">साथ ही</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="title">शीर्षक</string>
     <string name="subtitle">उपशीर्षक</string>
     <string name="last">अंतिम</string>
@@ -106,10 +106,10 @@
     <string name="Favorites">पसंदीदा</string>
     <string name="Set">सेट करें</string>">
     <string name="MB">MB</string>"> //means MegaBytes
-    <string name="ms">मि.से.</string> //means milliseconds
-    <string name="Export">"निर्यात…"</string>
-    <string name="version">संस्करण</string>
-    <string name="miscellaneous">विविध</string>
+    <string name="ms.">मि.से.</string> //means milliseconds
+    <string name="Export_3pt">"निर्यात…"</string>
+    <string name="Version">संस्करण</string>
+    <string name="Miscellaneous">विविध</string>
     <string name="Processing">"प्रक्रिया जारी"</string>
     <string name="downloaded">"डाउनलोड किया गया"</string>">
     <string name="Downloading">"डाउनलोड हो रहा है"</string>">
@@ -119,15 +119,15 @@
     <string name="Available_since">से उपलब्ध</string>
     <string name="default_for">के लिए डिफ़ॉल्ट</string>
     <string name="metadata">मेटाडेटा</string>
-    <string name="artist">कलाकार</string>
-    <string name="album">ऐल्बम</string>
-    <string name="genre">शैली</string>
-    <string name="year">वर्ष</string>
-    <string name="track">ट्रैक</string>
-    <string name="disc">डिस्क</string>
-    <string name="bitrate">बिटरेट</string>
+    <string name="Artist">कलाकार</string>
+    <string name="Album">ऐल्बम</string>
+    <string name="Genre">शैली</string>
+    <string name="Year">वर्ष</string>
+    <string name="Track">ट्रैक</string>
+    <string name="Disc">डिस्क</string>
+    <string name="Bitrate">बिटरेट</string>
     <string name="sample_rate">सैंपल दर</string>
-    <string name="channels">चैनल</string>
+    <string name="Channels">चैनल</string>
 
 
     <string name="DeleteLogs_AskConfirm">"आप सभी लॉग हटाने वाले हैं.
@@ -145,7 +145,7 @@
 
     <string name="help_title">BookPlayer मैनुअल</string>
 
-    <string name="help_general_title">सामान्य</string>
+    <string name="General">सामान्य</string>
     <string name="help_text_general"><![CDATA[
     जब आप ऐप खोलते हैं, तो आपको <font color="#90D8E8">फ़ोल्डरों</font> की सूची दिखेगी — ये आपके किताबों, पाठों या पॉडकास्ट का प्रतिनिधित्व करते हैं।
     <br><br>
@@ -279,9 +279,7 @@
 
     <string name="option_timeBeforeSleep">स्वतः विराम</string>
     <string name="option_timeBeforeSleep_text">के बाद :</string>
-    <string name="option_timeBeforeSleep_min">मि.</string>
-
-    <string name="option_copy_file_title">फ़ाइलें आंतरिक रूप से कॉपी करें</string>
+<string name="option_copy_file_title">फ़ाइलें आंतरिक रूप से कॉपी करें</string>
 
     <string name="option_backward_forward_title">बैकवर्ड/फ़ॉरवर्ड बटन</string>
     <string name="option_backward_forward_text">टाइमलैप्स :</string>
@@ -303,11 +301,11 @@
     <string name="option_beep_at_the_end">किताब के अंत में तीन बार बीप उत्पन्न करें।</string>
     <string name="option_visualizer_text_01">जब ऑडियो चल रहा हो तो न्यूनतम फ़्रीक्वेंसी विज़ुअलाइज़र दिखाएँ।</string>
     <string name="option_visualizer_text_02">[Record Audio]/[Microphone] अनुमति आवश्यक</string>
-    <string name="option_visualizer_permissions_granted">स्वीकृत</string>
-    <string name="option_visualizer_permissions_denied_01">अस्वीकृत</string>
+    <string name="granted">स्वीकृत</string>
+    <string name="denied">अस्वीकृत</string>
     <string name="option_visualizer_permissions_denied_02">अनुमति माँगने के लिए चेकबॉक्स फिर से क्लिक करें</string>
 
-    <string name="option_log">लॉगिंग</string>
+    <string name="Logging">लॉगिंग</string>
     <string name="option_tech_log_subtitle"><i>
         क्या ऐप तकनीकी डिबग लॉग फ़ाइलें बनाए?
     </i></string>
@@ -353,7 +351,7 @@
     <string name="option_night_mode_dialog_title">थीम मोड चुनें</string>
 
     <string name="option_text_appearance_title">टेक्स्ट की बनावट</string>
-    <string name="option_font_family">फ़ॉन्ट</string>
+    <string name="Font">फ़ॉन्ट</string>
 
     <string name="option_podcast_open_specific_view_subtitle">किसी \'पॉडकास्ट\' आइटम पर क्लिक करने पर, क्या सभी एपिसोड वाले स्ट्रीम पॉडकास्ट व्यू खुले, या डाउनलोड किए गए एपिसोड के साथ \'किताब\' व्यू?</string>
     <string name="option_podcast_open_specific_view">लाइव व्यू खोलें</string>
@@ -373,7 +371,7 @@
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
     <string name="option_tts_highlight_delay_title">शब्द हाइलाइट।</string>
     <string name="option_tts_highlight_delay_text">विलंब :</string>
-    <string name="option_automotive_title">ऑटोमोटिव</string>
+    <string name="Automotive">ऑटोमोटिव</string>
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
     <string name="option_automotive_auto_resume_on_car_connect">कार से कनेक्ट होने पर प्लेबैक स्वतः पुनः आरंभ करें।</string>
 
@@ -384,8 +382,8 @@
 
     <string name="AutoTest_title">ऑटो टेस्ट</string>
 
-    <string name="bOpenFile">फ़ाइल</string>
-    <string name="bOpenFolder">फ़ोल्डर</string>
+    <string name="File">फ़ाइल</string>
+    <string name="Folder">फ़ोल्डर</string>
     <string name="bOpenZipFile">Zip फ़ाइल</string>
     <string name="bOpenM4bFile">ऑडियो फ़ाइल</string>
 
@@ -399,11 +397,9 @@
     <string name="DirectDownload_desc">नीचे लिंक पेस्ट करें और बटन दबाएँ — एक ही बार में ऑडियोबुक डाउनलोड और एकीकृत हो जाएगी।</string>
     <string name="DirectDownload_button">बस ले आओ</string>
 
-    <string name="LibrivoxSearch_title">"ऑडियोबुक्स"</string>
+    <string name="AudioBooks">"ऑडियोबुक्स"</string>
     <string name="LibrivoxSearch_desc">"अपनी ऑडियोबुक खोजने के लिए सीधे LibriVox पर खोजें। यह एक मुफ़्त, पब्लिक-डोमेन रिपॉजिटरी है जिसमें अधिकतर अंग्रेज़ी रचनाएँ हैं और कुछ अन्य भाषाओं में भी उपलब्ध हैं।"</string>
-
-    <string name="PodcastSearch_title">पॉडकास्ट</string>
-    <string name="PodcastSearch_desc">ओपन सोर्स रजिस्ट्री podcastindex.org की मदद से पॉडकास्ट ब्राउज़ करें</string>
+<string name="PodcastSearch_desc">ओपन सोर्स रजिस्ट्री podcastindex.org की मदद से पॉडकास्ट ब्राउज़ करें</string>
     <string name="podcast_image_desc">पॉडकास्ट छवि</string>
     <string name="podcast_no_results">कोई पॉडकास्ट नहीं मिला</string>
 
@@ -465,9 +461,7 @@
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
-
-    <string name="bDelete">"हटाएँ"</string>
-    <string name="bMove">"स्थिति बदलें"</string>
+<string name="bMove">"स्थिति बदलें"</string>
     <string name="bReset">"प्रोग्रेस रीसेट"</string>
     <string name="Folder_Deleted_DB">"किताब हटाई गई!"</string>
     <string name="Folder_Renamed">"फ़ोल्डर का नाम बदल दिया गया"</string>
@@ -511,15 +505,14 @@
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
-    <string name="tvSpeed">गति</string>
+    <string name="Speed">गति</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">बिना उपयोगकर्ता क्रिया के समय</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>ध्यान दें यह मान केवल वर्तमान प्ले सत्र के लिए उपयोग होगा.\nवैश्विक ऑटो स्लीप मान सेटिंग्स में है (मेनू में, ऐप की स्टार्ट पेज से उपलब्ध)</i>"</string>
     <string name="tv_TimeLeft">स्लीप से पहले शेष समय</string>
     <string name="error_reading_track">"ट्रैक पढ़ने में त्रुटि !"</string>
     <string name="current_position">वर्तमान स्थिति</string>
-    <string name="total_time">अवधि</string>
-    <string name="source_not_found">स्रोत फ़ाइल नहीं मिली या पढ़ी नहीं जा सकी।</string>
+<string name="source_not_found">स्रोत फ़ाइल नहीं मिली या पढ़ी नहीं जा सकी।</string>
     <string name="source_not_found_deleted">स्रोत फ़ाइल नहीं मिली। संभव है कि इसे हटा दिया गया हो।</string>
     <string name="source_file_path">स्रोत फ़ाइल पथ</string>
     <string name="permission_not_set">अनुमति सेट नहीं है।</string>
@@ -552,14 +545,14 @@
     <!-- ********************************** -->
     <!-- Menus -->
 
-    <string name="action_menu_three_dot">मेनू</string>
-    <string name="menu_open">खोलें</string>
-    <string name="menu_manual">मैनुअल</string>
+    <string name="Menu">मेनू</string>
+    <string name="open">खोलें</string>
+    <string name="manual">मैनुअल</string>
     <string name="menu_sendmail">डेवलपर को मेल</string>
-    <string name="menu_stats">आँकड़े</string>
+    <string name="Stats">आँकड़े</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="menu_cacheFiles">सफ़ाई</string>
-    <string name="menu_website">वेबसाइट</string>
+    <string name="Cleaning">सफ़ाई</string>
+    <string name="Website">वेबसाइट</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
@@ -680,7 +673,7 @@
 
     <string name="app_language">ऐप भाषा</string>">
     <string name="tts_language">TTS भाषा</string>">
-    <string name="autodownload">स्वतः डाउनलोड</string>
+    <string name="auto_download">स्वतः डाउनलोड</string>
     <string name="language_flag">भाषा फ़्लैग</string>
     <string name="voice_flag">वॉइस फ़्लैग</string>
     <string name="Podcast_Settings">पॉडकास्ट सेटिंग्स</string>
@@ -776,13 +769,12 @@
     <string name="download_stop_requested">डाउनलोड को रोकने का अनुरोध किया गया</string>
 
     <string name="import_task_start">प्रारंभ हो रहा है…</string>
-    <string name="import_task_complete">पूर्ण।</string>
-    <string name="import_task_copy">कॉपी</string>
-    <string name="import_task_download">डाउनलोड</string>
-    <string name="import_task_ebook_split">ईबुक पार्सिंग</string>
+    <string name="done.">पूर्ण।</string>
+    <string name="Copy">कॉपी</string>
+<string name="import_task_ebook_split">ईबुक पार्सिंग</string>
     <string name="import_task_m4b_split">M4b निष्कर्षण</string>
-    <string name="import_task_unzip">अनसंकुचित करें</string>
-    <string name="import_task_final_parse">एकीकरण</string>
+    <string name="Uncompress">अनसंकुचित करें</string>
+    <string name="Integration">एकीकरण</string>
     <string name="Import_Success_with_warnings">चेतावनियों के साथ आयात पूर्ण हुआ</string>
 
     <string name="frequency_visualizer">आवृत्ति विज़ुअलाइज़र</string>
@@ -792,8 +784,8 @@
     <string name="tts_phase_loading_text">पाठ लोड किया जा रहा है…</string>
     <string name="tts_phase_warming_up">आवाज़ तैयार की जा रही है…</string>
     <string name="tts_phase_starting">वाचन शुरू किया जा रहा है…</string>
-    <string name="tts_phase_ready">तैयार</string>
-    <string name="tts_phase_speaking">वाचन जारी</string>
+    <string name="Ready">तैयार</string>
+    <string name="Speaking">वाचन जारी</string>
     <string name="tts_phase_error">स्पीच इंजन त्रुटि</string>
     <string name="error_generic">एक अप्रत्याशित त्रुटि हुई</string>
     <string name="tts_error_warmup_timeout">आवाज़ वार्म-अप का समय समाप्त</string>
@@ -806,7 +798,7 @@
 
     <string name="chars">अक्षर</string> <!-- means : word character -->
     <string name="reorder">पुनः क्रमित करें</string>
-    <string name="new_">नया</string>
+    <string name="new_label">नया</string>
     <string name="icon">आइकन</string>
     <string name="Engine">इंजन</string>
     <string name="Design">डिज़ाइन</string>
@@ -912,10 +904,10 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="Download">डाउनलोड</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">एपिसोड नाम में प्रकाशन तिथि जोड़ें</string>
 
-    <string name="visualizer_mode_legacy">पुराना</string> <!-- <8 -->
-    <string name="visualizer_mode_wave">वेव</string> <!-- <8 -->
-    <string name="visualizer_mode_bars">बार्स</string> <!-- <8 -->
-    <string name="visualizer_mode_radial">रेडियल</string> <!-- <8 -->
+    <string name="legacy">पुराना</string> <!-- <8 -->
+    <string name="wave">वेव</string> <!-- <8 -->
+    <string name="bars">बार्स</string> <!-- <8 -->
+    <string name="radial">रेडियल</string> <!-- <8 -->
     <string name="option_play_view_explain">प्ले व्यू वह विस्तृत स्क्रीन है — जिसमें बीच में बड़ा कवर, नीचे बड़े बटन और स्पीड व स्लीप टाइमर जैसे नियंत्रण होते हैं।</string>
     <string name="ChangeTrackOrder_Title">अगली स्क्रीन के निर्देश</string>
     <string name="ChangeTrackOrder_Text">बॉक्स को ड्रैग और ड्रॉप करें।
@@ -964,7 +956,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="internet_status">इंटरनेट स्थिति</string>
     <string name="net_status_initial">नेटवर्क की जाँच…</string>
     <string name="net_status_unmetered">अनलिमिटेड कनेक्शन</string>
-    <string name="net_status_roaming">रोमिंग</string>
+    <string name="Roaming">रोमिंग</string>
     <string name="AskReset_popupText_order">आप ट्रैक क्रम रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?</string>
     <string name="zikFiles_not_readable">कुछ ट्रैकों में त्रुटियाँ हैं और चल नहीं सकतीं:</string>
     <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>
@@ -1056,7 +1048,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="proceed">आगे बढ़ें</string>
     <string name="reset_progress_only_for_this_track">केवल इस ट्रैक की प्रगति रीसेट करें</string>
     <string name="sec">से</string>
-    <string name="sort_alphabetically">वर्णमाला अनुसार</string>
+    <string name="Alphabetically">वर्णमाला अनुसार</string>
     <string name="sort_by">क्रमबद्ध करें</string>
     <string name="sort_last_added">अंतिम जोड़ा गया</string>
     <string name="sort_last_played">अंतिम बार चलाया गया</string>
@@ -1067,8 +1059,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="export_zipping_label">ज़िप किया जा रहा है: </string>
 
     <string name="http_code_400">खराब अनुरोध</string>
-    <string name="http_code_401">अनधिकृत</string>
-    <string name="http_code_403">निषिद्ध</string>
+    <string name="Unauthorized">अनधिकृत</string>
+    <string name="Forbidden">निषिद्ध</string>
     <string name="http_code_404">नहीं मिला</string>
     <string name="http_code_408">अनुरोध समय समाप्त</string>
     <string name="http_code_429">बहुत सारे अनुरोध</string>
@@ -1135,7 +1127,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
 
     <string name="MB_taken_by_linked_audios">" MB : लिंक्ड ऑडियो"</string>
     <string name="action_reset_to_original">↩️ मूल पर रीसेट करें</string>
-    <string name="bookshelves">"किताबों की अलमारी"</string>
+    <string name="Bookshelves">"किताबों की अलमारी"</string>
     <string name="calculating_storage">गणना हो रही है…</string>
     <string name="device_storage_memory">डिवाइस स्टोरेज मेमोरी</string>
     <string name="gutenberg_contacting">gutenberg.org से कनेक्ट हो रहा है…</string>
@@ -1159,11 +1151,11 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="sd_card_storage">SD कार्ड स्टोरेज</string>
     <string name="select_at_least_one_item">इम्पोर्ट के लिए कम से कम एक आइटम चुनें।</string>
     <string name="storage_device">डिवाइस स्टोरेज</string>
-    <string name="storage_header">स्टोरेज</string>
-    <string name="storage_legend_copied">कॉपी किए</string>
-    <string name="storage_legend_linked_audios">लिंक्ड</string>
+    <string name="Storage">स्टोरेज</string>
+    <string name="copied">कॉपी किए</string>
+    <string name="linked">लिंक्ड</string>
     <string name="storage_legend_new_books">नई किताबें</string>
-    <string name="storage_legend_others">अन्य</string>
+    <string name="others">अन्य</string>
     <string name="storage_sd_card">SD कार्ड स्टोरेज</string>
     <plurals name="tracks_count">
         <item quantity="one">%d ट्रैक</item>

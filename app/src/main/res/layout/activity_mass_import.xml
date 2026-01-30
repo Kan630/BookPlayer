@@ -85,7 +85,7 @@
                 android:gravity="center_vertical"
                 android:paddingEnd="8dp"
                 android:paddingStart="8dp"
-                android:text="@string/storage_header"
+                android:text="@string/Storage"
                 android:textSize="12sp"
                 android:textColor="?android:attr/textColorPrimary"
                 android:shadowColor="#80000000"
@@ -151,7 +151,7 @@
                     android:id="@+id/tvLegendUsed"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/storage_legend_others"
+                    android:text="@string/others"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -170,7 +170,7 @@
                     android:id="@+id/tvLegendBooks"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/storage_legend_copied"
+                    android:text="@string/copied"
                     android:textSize="12sp" />
             </LinearLayout>
 
@@ -189,7 +189,7 @@
                     android:id="@+id/tvLegendLinkedAudios"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/storage_legend_linked_audios"
+                    android:text="@string/linked"
                     android:textSize="12sp" />
             </LinearLayout>
 

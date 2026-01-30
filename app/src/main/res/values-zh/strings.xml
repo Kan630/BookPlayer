@@ -43,9 +43,9 @@
     <string name="Favorites">收藏</string>
     <string name="Set">设置</string>
     <string name="MB">MB</string>
-    <string name="Export">导出…</string>
-    <string name="version">版本</string>
-    <string name="miscellaneous">其他</string>
+    <string name="Export_3pt">导出…</string>
+    <string name="Version">版本</string>
+    <string name="Miscellaneous">其他</string>
     <string name="Processing">处理中</string>
     <string name="downloaded">已下载</string>
     <string name="Downloading">正在下载</string>
@@ -60,7 +60,7 @@
 
     <string name="help_title">BookPlayer 使用手册</string>
 
-    <string name="help_general_title">通用</string>
+    <string name="General">通用</string>
     <string name="help_text_general"><![CDATA[
 打开应用时，您会看到一个<font color="#90D8E8">文件夹</font>列表 —— 这些代表您的书籍、课程或播客。
 <br><br>
@@ -198,9 +198,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 
     <string name="option_timeBeforeSleep">自动暂停</string>
     <string name="option_timeBeforeSleep_text">在此之后：</string>
-    <string name="option_timeBeforeSleep_min">分钟</string>
-
-    <string name="option_copy_file_title">内部复制文件</string>
+<string name="option_copy_file_title">内部复制文件</string>
 
     <string name="option_backward_forward_title">快退/快进按钮</string>
     <string name="option_backward_forward_text">时间间隔：</string>
@@ -221,11 +219,11 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_beep_at_the_end">在书籍结束时播放三声提示音。</string>
     <string name="option_visualizer_text_01">播放音频时显示的极简频率可视化图。</string>
     <string name="option_visualizer_text_02">需要 [录音]/[麦克风] 权限</string>
-    <string name="option_visualizer_permissions_granted">已授予</string>
-    <string name="option_visualizer_permissions_denied_01">已拒绝</string>
+    <string name="granted">已授予</string>
+    <string name="denied">已拒绝</string>
     <string name="option_visualizer_permissions_denied_02">再次点击复选框以请求权限</string>
 
-    <string name="option_log">日志记录</string>
+    <string name="Logging">日志记录</string>
     <string name="option_tech_log_subtitle"><i>
         应用是否应创建技术调试日志文件。
 </i></string>
@@ -268,8 +266,8 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 
     <string name="AutoTest_title">自动测试</string>
 
-    <string name="bOpenFile">文件</string>
-    <string name="bOpenFolder">文件夹</string>
+    <string name="File">文件</string>
+    <string name="Folder">文件夹</string>
     <string name="bOpenZipFile">Zip 文件</string>
     <string name="bOpenM4bFile">音频文件</string>
 
@@ -283,11 +281,9 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="DirectDownload_desc">在下方粘贴链接并点击按钮即可下载并集成有声书。</string>
     <string name="DirectDownload_button">直接获取</string>
 
-    <string name="LibrivoxSearch_title">"有声书"</string>
+    <string name="AudioBooks">"有声书"</string>
     <string name="LibrivoxSearch_desc">"在 LibriVox 中直接搜索你想要的有声书。它是一个免费的公有领域资源库，主要为英文作品，也有其他语言的内容。"</string>
-
-    <string name="PodcastSearch_title">播客</string>
-    <string name="PodcastSearch_desc">通过开源注册表 podcastindex.org 浏览播客</string>
+<string name="PodcastSearch_desc">通过开源注册表 podcastindex.org 浏览播客</string>
     <string name="podcast_image_desc">播客图像</string>
     <string name="podcast_no_results">未找到播客</string>
 
@@ -349,9 +345,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
-
-    <string name="bDelete">"删除"</string>
-    <string name="bMove">"更改位置"</string>
+<string name="bMove">"更改位置"</string>
     <string name="bReset">"重置进度"</string>
     <string name="Folder_Deleted_DB">"书籍已删除！"</string>
     <string name="Folder_Renamed">"文件夹已重命名"</string>
@@ -395,15 +389,14 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
-    <string name="tvSpeed">播放速度</string>
+    <string name="Speed">播放速度</string>
     <string name="btnSleepSet" translatable="false">睡眠</string>
     <string name="tv_ListeningTimeWithNoUserAction">自上次操作以来</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>请注意，此值仅适用于当前播放会话。\n全局自动睡眠值位于“选项”菜单（应用启动页）中。</i>"</string>
     <string name="tv_TimeLeft">剩余时间</string>
     <string name="error_reading_track">"读取音轨出错！"</string>
     <string name="current_position">当前位置</string>
-    <string name="total_time">总时长</string>
-    <string name="source_not_found">找不到源文件或无法读取。</string>
+<string name="source_not_found">找不到源文件或无法读取。</string>
     <string name="source_not_found_deleted">找不到源文件。它可能已被删除。</string>
     <string name="source_file_path">源文件路径</string>
     <string name="permission_not_set">权限未设置。</string>
@@ -436,14 +429,14 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <!-- ********************************** -->
     <!-- Menus -->
 
-    <string name="action_menu_three_dot">菜单</string>
-    <string name="menu_open">打开</string>
-    <string name="menu_manual">使用手册</string>
+    <string name="Menu">菜单</string>
+    <string name="open">打开</string>
+    <string name="manual">使用手册</string>
     <string name="menu_sendmail">联系开发者</string>
-    <string name="menu_stats">统计</string>
+    <string name="Stats">统计</string>
     <string name="menu_seeLog" translatable="false">查看日志</string>
-    <string name="menu_cacheFiles">清理</string>
-    <string name="menu_website">网站</string>
+    <string name="Cleaning">清理</string>
+    <string name="Website">网站</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
@@ -578,7 +571,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="tts_language">TTS 语言</string>
     <string name="language">语言</string>
     <string name="download">下载</string>
-    <string name="autodownload">自动下载</string>
+    <string name="auto_download">自动下载</string>
     <string name="refresh">刷新</string>
     <string name="collapse">折叠</string>
     <string name="expand">展开</string>
@@ -599,7 +592,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="list_of_supported_extensions">支持的扩展名列表</string>
     <string name="audio_book_name">有声书名称</string>
     <string name="audio_book_cover">有声书封面</string>
-    <string name="ok">确定</string>
+    <string name="OK">确定</string>
     <string name="title">标题</string>
     <string name="subtitle">副标题</string>
 
@@ -624,7 +617,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="Error_Import_could_not_delete_source">"无法删除所选来源"</string>
 
     <string name="option_text_appearance_title">文字外观</string>
-    <string name="option_font_family">字体</string>
+    <string name="Font">字体</string>
     <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
     <string name="option_podcast_open_specific_view">打开特定视图</string>
 
@@ -640,7 +633,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="could_not_identify_track_to_modify">无法识别要修改的音轨</string>
     <string name="could_not_identify_folder_to_modify">无法识别要修改的文件夹</string>
 
-    <string name="option_automotive_title">车载</string>
+    <string name="Automotive">车载</string>
     <string name="option_automotive_on">连接到 Android Auto。</string>
     <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
     <string name="automotive_no_item_in_bookplayer">没有项目。在手机上打开 BookPlayer 并导入一本书。</string>
@@ -670,7 +663,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Unsupported_ebook_type">不支持的电子书类型</string>
     <string name="download_stopped_by_system_will_retry">下载被系统停止 — 将重试</string>
     <string name="download_resuming">正在恢复下载</string>
-    <string name="cancelled">已取消</string>
+    <string name="Cancelled">已取消</string>
     <string name="importing_book">正在导入书籍</string>
     <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">正在检查大小</string>
@@ -721,26 +714,25 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="download_stop_requested">已请求停止下载</string>
 
     <string name="import_task_start">正在启动...</string>
-    <string name="import_task_complete">完成。</string>
-    <string name="import_task_copy">复制</string>
-    <string name="import_task_download">下载</string>
-    <string name="import_task_ebook_split">电子书解析</string>
+    <string name="done.">完成。</string>
+    <string name="Copy">复制</string>
+<string name="import_task_ebook_split">电子书解析</string>
     <string name="import_task_m4b_split">M4b 提取</string>
-    <string name="import_task_unzip">解压缩</string>
-    <string name="import_task_final_parse">整合</string>
+    <string name="Uncompress">解压缩</string>
+    <string name="Integration">整合</string>
     <string name="Import_Success_with_warnings">导入完成（有警告）</string>
 
     <string name="metadata">元数据</string>
     <string name="no_metadata_available">无可用元数据</string>
-    <string name="artist">艺术家</string>
-    <string name="album">专辑</string>
-    <string name="genre">类型</string>
-    <string name="year">年份</string>
-    <string name="track">曲目</string>
-    <string name="disc">光盘</string>
-    <string name="bitrate">比特率</string>
+    <string name="Artist">艺术家</string>
+    <string name="Album">专辑</string>
+    <string name="Genre">类型</string>
+    <string name="Year">年份</string>
+    <string name="Track">曲目</string>
+    <string name="Disc">光盘</string>
+    <string name="Bitrate">比特率</string>
     <string name="sample_rate">采样率</string>
-    <string name="channels">声道</string>
+    <string name="Channels">声道</string>
 
     <string name="frequency_visualizer">频率可视化</string>
     <string name="counting_files">正在统计文件</string>
@@ -751,14 +743,14 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="option_tts_language_text">新电子书的默认 TTS 语言。</string>
     <string name="option_tts_highlight_delay_title">单词高亮。</string>
     <string name="option_tts_highlight_delay_text">引擎延迟：</string>
-    <string name="ms">毫秒。</string> //means milliseconds
+    <string name="ms.">毫秒。</string> //means milliseconds
 
     <string name="Text_To_Speech">文字转语音</string>
     <string name="tts_phase_loading_text">正在加载文本…</string>
     <string name="tts_phase_warming_up">正在准备语音…</string>
     <string name="tts_phase_starting">正在开始语音…</string>
-    <string name="tts_phase_ready">准备就绪</string>
-    <string name="tts_phase_speaking">正在朗读</string>
+    <string name="Ready">准备就绪</string>
+    <string name="Speaking">正在朗读</string>
     <string name="tts_phase_error">语音引擎错误</string>
     <string name="error_generic">发生意外错误</string>
     <string name="tts_error_warmup_timeout">语音预热超时</string>
@@ -771,7 +763,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 
     <string name="chars">字符</string> <!-- means : word character -->
     <string name="reorder">重新排序</string>
-    <string name="new_">新的</string>
+    <string name="new_label">新的</string>
     <string name="icon">图标</string>
     <string name="Engine">引擎</string>
     <string name="Design">设计</string>
@@ -875,10 +867,10 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="Download">下载</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">将发布日期添加到剧集名称中</string>
 
-    <string name="visualizer_mode_legacy">旧式</string> <!-- <8 -->
-    <string name="visualizer_mode_wave">波形</string> <!-- <8 -->
-    <string name="visualizer_mode_bars">柱形</string> <!-- <8 -->
-    <string name="visualizer_mode_radial">径向</string> <!-- <8 -->
+    <string name="legacy">旧式</string> <!-- <8 -->
+    <string name="wave">波形</string> <!-- <8 -->
+    <string name="bars">柱形</string> <!-- <8 -->
+    <string name="radial">径向</string> <!-- <8 -->
     <string name="option_play_view_explain">播放视图是详细界面——中间有大封面，底部有大按钮，还有速度和睡眠定时等控制。</string>
     <string name="ChangeTrackOrder_Title">下一屏说明</string>
     <string name="ChangeTrackOrder_Text">拖放这些方框。
@@ -926,7 +918,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="internet_status">网络状态</string>
     <string name="net_status_initial">正在检查网络…</string>
     <string name="net_status_unmetered">不限量连接</string>
-    <string name="net_status_roaming">漫游</string>
+    <string name="Roaming">漫游</string>
     <string name="AskReset_popupText_order">您即将重置曲目顺序。\n确定吗？</string>
     <string name="zikFiles_not_readable">部分音轨有错误，无法播放：</string>
     <string name="All_zikFiles_not_readable">本书已损坏。无法播放任何音轨。</string>
@@ -1019,7 +1011,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="proceed">继续</string>
     <string name="reset_progress_only_for_this_track">仅重置此曲目进度</string>
     <string name="sec">秒</string>
-    <string name="sort_alphabetically">按字母</string>
+    <string name="Alphabetically">按字母</string>
     <string name="sort_by">排序</string>
     <string name="sort_last_added">最近添加</string>
     <string name="sort_last_played">最近播放</string>
@@ -1030,8 +1022,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="export_zipping_label">压缩中： </string>
 
     <string name="http_code_400">错误的请求</string>
-    <string name="http_code_401">未授权</string>
-    <string name="http_code_403">禁止访问</string>
+    <string name="Unauthorized">未授权</string>
+    <string name="Forbidden">禁止访问</string>
     <string name="http_code_404">未找到</string>
     <string name="http_code_408">请求超时</string>
     <string name="http_code_429">请求过多</string>
@@ -1098,7 +1090,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 
     <string name="MB_taken_by_linked_audios">" MB：链接音频"</string>
     <string name="action_reset_to_original">↩️ 恢复原样</string>
-    <string name="bookshelves">"书架"</string>
+    <string name="Bookshelves">"书架"</string>
     <string name="calculating_storage">计算中…</string>
     <string name="device_storage_memory">设备存储</string>
     <string name="gutenberg_contacting">正在连接 gutenberg.org…</string>
@@ -1122,11 +1114,11 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="sd_card_storage">SD 卡存储</string>
     <string name="select_at_least_one_item">请至少选择一项以导入。</string>
     <string name="storage_device">设备存储</string>
-    <string name="storage_header">存储</string>
-    <string name="storage_legend_copied">已复制</string>
-    <string name="storage_legend_linked_audios">已链接</string>
+    <string name="Storage">存储</string>
+    <string name="copied">已复制</string>
+    <string name="linked">已链接</string>
     <string name="storage_legend_new_books">新书</string>
-    <string name="storage_legend_others">其他</string>
+    <string name="others">其他</string>
     <string name="storage_sd_card">SD 卡存储</string>
     <plurals name="tracks_count">
         <item quantity="one">%d 首</item>

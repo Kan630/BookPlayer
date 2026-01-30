@@ -48,9 +48,9 @@ Sind Sie sicher?"</string>
     <string name="Favorites">Favoriten</string>
     <string name="Set">Festlegen</string>
     <string name="MB">MB</string>
-    <string name="Export">"Exportieren…"</string>
-    <string name="version">Version</string>
-    <string name="miscellaneous">Verschiedenes</string>
+    <string name="Export_3pt">"Exportieren…"</string>
+    <string name="Version">Version</string>
+    <string name="Miscellaneous">Verschiedenes</string>
     <string name="Processing">"Verarbeitung"</string>
     <string name="downloaded">"heruntergeladen"</string>
     <string name="Downloading">"Wird heruntergeladen"</string>
@@ -65,7 +65,7 @@ Sind Sie sicher?"</string>
 
     <string name="help_title">BookPlayer-Handbuch</string>
 
-    <string name="help_general_title">Allgemein</string>
+    <string name="General">Allgemein</string>
     <string name="help_text_general"><![CDATA[
 Wenn Sie die App öffnen, sehen Sie eine Liste von <font color="#90D8E8">Ordnern</font> — diese stellen Ihre Bücher, Lektionen oder Podcasts dar.
 <br><br>
@@ -210,9 +210,7 @@ Alle Beiträge sind öffentlich lesbar. Melden Sie sich an, um teilzunehmen.
 
     <string name="option_timeBeforeSleep">Automatische Pause</string>
     <string name="option_timeBeforeSleep_text">nach :</string>
-    <string name="option_timeBeforeSleep_min">Min.</string>
-
-    <string name="option_copy_file_title">Dateien intern kopieren</string>
+<string name="option_copy_file_title">Dateien intern kopieren</string>
 
     <string name="option_backward_forward_title">Zurück-/Vorwärts-Tasten</string>
     <string name="option_backward_forward_text">Zeitsprung :</string>
@@ -234,11 +232,11 @@ Alle Beiträge sind öffentlich lesbar. Melden Sie sich an, um teilzunehmen.
     <string name="option_beep_at_the_end">Dreifachen Signalton am Buchende erzeugen.</string>
     <string name="option_visualizer_text_01">Minimalistischer Frequenz-Visualizer, der während der Wiedergabe angezeigt wird.</string>
     <string name="option_visualizer_text_02">Benötigt [Audio lesen]/[Mikrofon]-Berechtigung</string>
-    <string name="option_visualizer_permissions_granted">erlaubt</string>
-    <string name="option_visualizer_permissions_denied_01">verweigert</string>
+    <string name="granted">erlaubt</string>
+    <string name="denied">verweigert</string>
     <string name="option_visualizer_permissions_denied_02">Klicken Sie erneut auf das Kontrollkästchen, um die Berechtigung anzufordern</string>
 
-    <string name="option_log">Protokollierung</string>
+    <string name="Logging">Protokollierung</string>
     <string name="option_tech_log_subtitle"><i>
 Soll die App technische Debug-Protokolle erstellen?
 </i></string>
@@ -281,8 +279,8 @@ Soll die App technische Debug-Protokolle erstellen?
 
     <string name="AutoTest_title">Auto-Test</string>
 
-    <string name="bOpenFile">Datei</string>
-    <string name="bOpenFolder">Ordner</string>
+    <string name="File">Datei</string>
+    <string name="Folder">Ordner</string>
     <string name="bOpenZipFile">Zip-Datei</string>
     <string name="bOpenM4bFile">Audiodatei</string>
 
@@ -296,11 +294,9 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="DirectDownload_desc">Fügen Sie unten einen Link ein und drücken Sie die Schaltfläche, um ein Hörbuch in einem Schritt herunterzuladen und zu integrieren.</string>
     <string name="DirectDownload_button">Jetzt holen</string>
 
-    <string name="LibrivoxSearch_title">"Hörbücher"</string>
+    <string name="AudioBooks">"Hörbücher"</string>
     <string name="LibrivoxSearch_desc">"Direkt auf LibriVox nach Hörbüchern suchen. Es ist ein kostenloses, gemeinfreies Verzeichnis mit überwiegend englischen Werken, einige auch in anderen Sprachen."</string>
-
-    <string name="PodcastSearch_title">Podcasts</string>
-    <string name="PodcastSearch_desc">Podcasts durchsuchen dank des Open-Source-Registers podcastindex.org</string>
+<string name="PodcastSearch_desc">Podcasts durchsuchen dank des Open-Source-Registers podcastindex.org</string>
     <string name="podcast_image_desc">Podcast-Bild</string>
     <string name="podcast_no_results">Kein Podcast gefunden</string>
 
@@ -361,9 +357,7 @@ Soll die App technische Debug-Protokolle erstellen?
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
-
-    <string name="bDelete">"Löschen"</string>
-    <string name="bMove">"Position ändern"</string>
+<string name="bMove">"Position ändern"</string>
     <string name="bReset">"Fortschritt zurücksetzen"</string>
     <string name="Folder_Deleted_DB">"Buch gelöscht !"</string>
     <string name="Folder_Renamed">"Ordner wurde umbenannt"</string>
@@ -406,15 +400,14 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
-    <string name="tvSpeed">Geschwindigkeit</string>
+    <string name="Speed">Geschwindigkeit</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="tv_ListeningTimeWithNoUserAction">Keine Benutzeraktion seit</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Beachten Sie, dass dieser Wert nur für die aktuelle Wiedergabesitzung gilt.\nDer globale Auto-Sleep-Wert befindet sich in den Optionen (im Menü auf der Startseite der App).</i>"</string>
     <string name="tv_TimeLeft">Zeit bis zum Schlaf</string>
     <string name="error_reading_track">"FEHLER BEIM LESEN DES TITELS !"</string>
     <string name="current_position">Aktuelle Position</string>
-    <string name="total_time">Dauer</string>
-    <string name="source_not_found">Die Quelldatei konnte nicht gefunden oder gelesen werden.</string>
+<string name="source_not_found">Die Quelldatei konnte nicht gefunden oder gelesen werden.</string>
     <string name="source_not_found_deleted">Die Quelldatei konnte nicht gefunden werden. Sie wurde möglicherweise gelöscht.</string>
     <string name="source_file_path">Pfad der Quelldatei</string>
     <string name="permission_not_set">Die Berechtigung ist nicht gesetzt.</string>
@@ -447,14 +440,14 @@ Soll die App technische Debug-Protokolle erstellen?
     <!-- ********************************** -->
     <!-- Menus -->
 
-    <string name="action_menu_three_dot">Menü</string>
-    <string name="menu_open">Öffnen</string>
-    <string name="menu_manual">Handbuch</string>
+    <string name="Menu">Menü</string>
+    <string name="open">Öffnen</string>
+    <string name="manual">Handbuch</string>
     <string name="menu_sendmail">E-Mail an Entwickler</string>
-    <string name="menu_stats">Statistiken</string>
+    <string name="Stats">Statistiken</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
-    <string name="menu_cacheFiles">Bereinigung</string>
-    <string name="menu_website">Website</string>
+    <string name="Cleaning">Bereinigung</string>
+    <string name="Website">Website</string>
 
     <!-- ********************************** -->
     <!-- OTHER APPS -->
@@ -592,7 +585,7 @@ Sind Sie sicher?"</string>
     <string name="tts_language">TTS-Sprache</string>
     <string name="language">Sprache</string>
     <string name="download">herunterladen</string>
-    <string name="autodownload">Auto-Download</string>
+    <string name="auto_download">Auto-Download</string>
     <string name="refresh">aktualisieren</string>
     <string name="collapse">zuklappen</string>
     <string name="expand">aufklappen</string>
@@ -613,7 +606,7 @@ Sind Sie sicher?"</string>
     <string name="list_of_supported_extensions">Liste der unterstützten Erweiterungen</string>
     <string name="audio_book_name">Hörbuchtitel</string>
     <string name="audio_book_cover">Hörbuchcover</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="title">Titel</string>
     <string name="subtitle">Untertitel</string>
 
@@ -639,7 +632,7 @@ Sind Sie sicher?"</string>
     <string name="Error_Import_could_not_delete_source">"die ausgewählte Quelle konnte nicht gelöscht werden"</string>
 
     <string name="option_text_appearance_title">Textdarstellung</string>
-    <string name="option_font_family">Schriftart</string>
+    <string name="Font">Schriftart</string>
     <string name="option_podcast_open_specific_view_subtitle">Beim Klicken auf ein Buch vom Typ \'Podcast\', soll die Podcast-Ansicht mit allen Episoden oder die Buchansicht nur mit den heruntergeladenen geöffnet werden?</string>
     <string name="option_podcast_open_specific_view">Spezifische Ansicht öffnen</string>
 
@@ -655,7 +648,7 @@ Sind Sie sicher?"</string>
     <string name="could_not_identify_track_to_modify">Titel zum Ändern konnte nicht identifiziert werden</string>
     <string name="could_not_identify_folder_to_modify">Ordner zum Ändern konnte nicht identifiziert werden</string>
 
-    <string name="option_automotive_title">Automobil</string>
+    <string name="Automotive">Automobil</string>
     <string name="option_automotive_on">Mit Android Auto verbinden.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe automatisch fortsetzen, wenn mit dem Auto verbunden.</string>
     <string name="automotive_no_item_in_bookplayer">Keine Elemente. Öffnen Sie BookPlayer auf Ihrem Telefon und importieren Sie ein Buch.</string>
@@ -674,7 +667,7 @@ Sind Sie sicher?"</string>
     <string name="Unsupported_ebook_type">Nicht unterstützter E-Book-Typ</string>
     <string name="download_stopped_by_system_will_retry">Download vom System gestoppt — neuer Versuch</string>
     <string name="download_resuming">Download wird fortgesetzt</string>
-    <string name="cancelled">Abgebrochen</string>
+    <string name="Cancelled">Abgebrochen</string>
     <string name="importing_book">Buch wird importiert</string>
     <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">Größe wird überprüft</string>
@@ -725,26 +718,25 @@ Sind Sie sicher?"</string>
     <string name="download_stop_requested">Download-Stopp angefordert</string>
 
     <string name="import_task_start">Startet...</string>
-    <string name="import_task_complete">fertig.</string>
-    <string name="import_task_copy">Kopieren</string>
-    <string name="import_task_download">Herunterladen</string>
-    <string name="import_task_ebook_split">E-Book-Analyse</string>
+    <string name="done.">fertig.</string>
+    <string name="Copy">Kopieren</string>
+<string name="import_task_ebook_split">E-Book-Analyse</string>
     <string name="import_task_m4b_split">M4b-Extraktion</string>
-    <string name="import_task_unzip">Entpacken</string>
-    <string name="import_task_final_parse">Integration</string>
+    <string name="Uncompress">Entpacken</string>
+    <string name="Integration">Integration</string>
     <string name="Import_Success_with_warnings">Import mit Warnungen abgeschlossen</string>
 
     <string name="metadata">Metadaten</string>
     <string name="no_metadata_available">Keine Metadaten verfügbar</string>
-    <string name="artist">Künstler</string>
-    <string name="album">Album</string>
-    <string name="genre">Genre</string>
-    <string name="year">Jahr</string>
-    <string name="track">Titel</string>
-    <string name="disc">Disk</string>
-    <string name="bitrate">Bitrate</string>
+    <string name="Artist">Künstler</string>
+    <string name="Album">Album</string>
+    <string name="Genre">Genre</string>
+    <string name="Year">Jahr</string>
+    <string name="Track">Titel</string>
+    <string name="Disc">Disk</string>
+    <string name="Bitrate">Bitrate</string>
     <string name="sample_rate">Abtastrate</string>
-    <string name="channels">Kanäle</string>
+    <string name="Channels">Kanäle</string>
 
     <string name="frequency_visualizer">Frequenzanzeige</string>
     <string name="counting_files">Dateien werden gezählt</string>
@@ -756,14 +748,14 @@ Sind Sie sicher?"</string>
     <string name="option_tts_language_text">Standard-TTS-Sprache für neue E-Books.</string>
     <string name="option_tts_highlight_delay_title">Wortmarkierung.</string>
     <string name="option_tts_highlight_delay_text">Verzögerung der Engine:</string>
-    <string name="ms">ms.</string> //means milliseconds
+    <string name="ms.">ms.</string> //means milliseconds
 
     <string name="Text_To_Speech">Text-zu-Sprache</string>
     <string name="tts_phase_loading_text">Text wird geladen…</string>
     <string name="tts_phase_warming_up">Stimme wird vorbereitet…</string>
     <string name="tts_phase_starting">Sprache wird gestartet…</string>
-    <string name="tts_phase_ready">Bereit</string>
-    <string name="tts_phase_speaking">Spricht</string>
+    <string name="Ready">Bereit</string>
+    <string name="Speaking">Spricht</string>
     <string name="tts_phase_error">Sprachengine-Fehler</string>
     <string name="error_generic">Ein unerwarteter Fehler ist aufgetreten</string>
     <string name="tts_error_warmup_timeout">Stimmenaufwärmung abgelaufen</string>
@@ -776,7 +768,7 @@ Sind Sie sicher?"</string>
 
     <string name="chars">Zeichen</string>
     <string name="reorder">neu ordnen</string>
-    <string name="new_">neu</string>
+    <string name="new_label">neu</string>
     <string name="icon">Symbol</string>
     <string name="Engine">Motor</string>
     <string name="Design">Design</string>
@@ -880,10 +872,10 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="Download">Download</string>
     <string name="option_podcast_chk_podcast_add_date_to_episode_name">Datum der Veroeffentlichung zum Episodennamen hinzufuegen</string>
 
-    <string name="visualizer_mode_legacy">alt</string> <!-- <8 -->
-    <string name="visualizer_mode_wave">welle</string> <!-- <8 -->
-    <string name="visualizer_mode_bars">balken</string> <!-- <8 -->
-    <string name="visualizer_mode_radial">radial</string> <!-- <8 -->
+    <string name="legacy">alt</string> <!-- <8 -->
+    <string name="wave">welle</string> <!-- <8 -->
+    <string name="bars">balken</string> <!-- <8 -->
+    <string name="radial">radial</string> <!-- <8 -->
     <string name="option_play_view_explain">Die Wiedergabeansicht ist der detaillierte Bildschirm — der mit dem großen Cover in der Mitte, großen Tasten unten und Steuerelementen wie Geschwindigkeit und Sleep-Timer.</string>
     <string name="ChangeTrackOrder_Title">Anweisungen für den nächsten Bildschirm</string>
     <string name="ChangeTrackOrder_Text">Ziehe die Kästen per Drag &amp; Drop.
@@ -932,7 +924,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="internet_status">Internetstatus</string>
     <string name="net_status_initial">Netzwerk wird geprüft…</string>
     <string name="net_status_unmetered">Unbegrenzte Verbindung</string>
-    <string name="net_status_roaming">Roaming</string>
+    <string name="Roaming">Roaming</string>
     <string name="AskReset_popupText_order">Sie sind dabei, die Reihenfolge der Titel zurückzusetzen.\nSind Sie sicher?</string>
     <string name="zikFiles_not_readable">einige Titel haben Fehler und sind nicht abspielbar:</string>
     <string name="All_zikFiles_not_readable">Dieses Buch ist fehlerhaft. Kein Titel kann abgespielt werden.</string>
@@ -1024,7 +1016,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="proceed">weiter</string>
     <string name="reset_progress_only_for_this_track">Fortschritt nur für diesen Titel zurücksetzen</string>
     <string name="sec">Sek</string>
-    <string name="sort_alphabetically">Alphabetisch</string>
+    <string name="Alphabetically">Alphabetisch</string>
     <string name="sort_by">Sortieren nach</string>
     <string name="sort_last_added">Zuletzt hinzugefügt</string>
     <string name="sort_last_played">Zuletzt gespielt</string>
@@ -1035,8 +1027,8 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="export_zipping_label">Komprimierung: </string>
 
     <string name="http_code_400">Ungültige Anfrage</string>
-    <string name="http_code_401">Nicht autorisiert</string>
-    <string name="http_code_403">Verboten</string>
+    <string name="Unauthorized">Nicht autorisiert</string>
+    <string name="Forbidden">Verboten</string>
     <string name="http_code_404">Nicht gefunden</string>
     <string name="http_code_408">Zeitüberschreitung der Anforderung</string>
     <string name="http_code_429">Zu viele Anfragen</string>
@@ -1103,7 +1095,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
 
     <string name="MB_taken_by_linked_audios">" MB : verlinkte Audios"</string>
     <string name="action_reset_to_original">↩️ Auf Original zurücksetzen</string>
-    <string name="bookshelves">"Bücherregale"</string>
+    <string name="Bookshelves">"Bücherregale"</string>
     <string name="calculating_storage">Berechne…</string>
     <string name="device_storage_memory">Gerätespeicher</string>
     <string name="gutenberg_contacting">Verbinde mit gutenberg.org…</string>
@@ -1127,11 +1119,11 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="sd_card_storage">SD-Karten-Speicher</string>
     <string name="select_at_least_one_item">Bitte mindestens ein Element zum Import auswählen.</string>
     <string name="storage_device">Gerätespeicher</string>
-    <string name="storage_header">Speicher</string>
-    <string name="storage_legend_copied">kopiert</string>
-    <string name="storage_legend_linked_audios">verlinkt</string>
+    <string name="Storage">Speicher</string>
+    <string name="copied">kopiert</string>
+    <string name="linked">verlinkt</string>
     <string name="storage_legend_new_books">neue Bücher</string>
-    <string name="storage_legend_others">andere</string>
+    <string name="others">andere</string>
     <string name="storage_sd_card">SD-Karten-Speicher</string>
     <plurals name="tracks_count">
         <item quantity="one">%d Titel</item>

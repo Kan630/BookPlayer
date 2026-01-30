@@ -370,7 +370,7 @@
                     android:id="@+id/bExport"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/Export"
+                    android:text="@string/Export_3pt"
                     />
             </LinearLayout>
 
@@ -393,7 +393,7 @@
                     android:id="@+id/bDelete"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/bDelete"
+                    android:text="@string/Delete"
                     />
             </LinearLayout>
 

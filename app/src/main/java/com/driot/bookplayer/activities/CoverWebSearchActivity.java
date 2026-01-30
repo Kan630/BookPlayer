@@ -141,7 +141,7 @@ public class CoverWebSearchActivity extends LoggingActivity {
         new AlertDialog.Builder(this)
                 .setTitle(R.string.confirm)
                 .setMessage(getString(R.string.use_this_image_as_cover))
-                .setPositiveButton(android.R.string.ok, (d, w) -> downloadCover(r))
+                .setPositiveButton(android.R.string.OK, (d, w) -> downloadCover(r))
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }

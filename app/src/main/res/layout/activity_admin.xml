@@ -89,7 +89,7 @@
         <TextView
             android:id="@+id/txtLog"
             style="@style/OptionTitle"
-            android:text="@string/option_log" />
+            android:text="@string/Logging" />
 
         <TextView
             style="@style/OptionSubTitle"

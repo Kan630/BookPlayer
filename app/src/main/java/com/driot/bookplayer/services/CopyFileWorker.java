@@ -51,7 +51,7 @@ public class CopyFileWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_copy) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME, context.getString(R.string.Copy) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         Uri uri = Uri.parse(j.dynamicUri);
         String destinationFolderPath = j.futureFolderPath;
@@ -134,7 +134,7 @@ public class CopyFileWorker extends ImportWorker {
                 return Result.failure();
             }
             if (result) {
-                emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.import_task_copy) + " " + context.getString(R.string.import_task_complete));
+                emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.Copy) + " " + context.getString(R.string.done_));
                 return Result.success();
             } else {
                 return Result.failure();

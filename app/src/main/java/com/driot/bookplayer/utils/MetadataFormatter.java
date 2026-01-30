@@ -64,15 +64,15 @@ public final class MetadataFormatter {
         // If you later add localized strings for labels, map them here.
         switch (key) {
             case "title": return ctx.getString(R.string.title);
-            case "artist": return ctx.getString(R.string.artist);
-            case "album": return ctx.getString(R.string.album);
-            case "genre": return ctx.getString(R.string.genre);
-            case "year": return ctx.getString(R.string.year);
-            case "track": return ctx.getString(R.string.track);
-            case "disc": return ctx.getString(R.string.disc);
-            case "bitrate": return ctx.getString(R.string.bitrate);
+            case "artist": return ctx.getString(R.string.Artist);
+            case "album": return ctx.getString(R.string.Album);
+            case "genre": return ctx.getString(R.string.Genre);
+            case "year": return ctx.getString(R.string.Year);
+            case "track": return ctx.getString(R.string.Track);
+            case "disc": return ctx.getString(R.string.Disc);
+            case "bitrate": return ctx.getString(R.string.Bitrate);
             case "samplerate": return ctx.getString(R.string.sample_rate);
-            case "channels": return ctx.getString(R.string.channels);
+            case "channels": return ctx.getString(R.string.Channels);
             default: return prettyKey(key);
         }
     }

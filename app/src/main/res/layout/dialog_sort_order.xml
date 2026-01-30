@@ -44,7 +44,7 @@
             android:layout_marginVertical="8dp"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="@string/sort_alphabetically"
+            android:text="@string/Alphabetically"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp" />
 

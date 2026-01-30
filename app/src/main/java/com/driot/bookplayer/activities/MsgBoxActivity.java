@@ -109,10 +109,10 @@ public class MsgBoxActivity extends LoggingActivity {
         if (type == TYPE_QUESTION) {
             btnNegative.setVisibility(View.VISIBLE);
             btnNegative.setText(neg != null ? neg : getString(R.string.Cancel));
-            btnPositive.setText(pos != null ? pos : getString(R.string.ok));
+            btnPositive.setText(pos != null ? pos : getString(R.string.OK));
         } else {
             btnNegative.setVisibility(View.GONE);
-            btnPositive.setText(pos != null ? pos : getString(R.string.ok));
+            btnPositive.setText(pos != null ? pos : getString(R.string.OK));
         }
         if (neutral != null && !neutral.isEmpty()) {
             btnNeutral.setVisibility(View.VISIBLE);

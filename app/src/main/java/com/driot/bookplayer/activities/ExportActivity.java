@@ -84,7 +84,7 @@ public class ExportActivity extends LoggingActivity {
             uiHandler.post(() -> {
                 tvCurrentTrack.setText(getString(R.string.Export_done_Excl));
                 tvCurrentTrack.setTextColor(getColor(R.color.green_700));
-                btnCancel.setText(getString(R.string.ok));
+                btnCancel.setText(getString(R.string.OK));
             });
             Uri zipUri = intent.getParcelableExtra("zipUri");
             if (zipUri != null) {

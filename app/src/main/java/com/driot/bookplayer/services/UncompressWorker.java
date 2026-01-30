@@ -43,7 +43,7 @@ public class UncompressWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME, context.getString(R.string.Uncompress) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
 
         final String zipFilePath = ImportHelper.getSourceFilePathForWorker(j);
@@ -112,7 +112,7 @@ public class UncompressWorker extends ImportWorker {
                 }
             }
 
-            emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.import_task_unzip) + " " + context.getString(R.string.import_task_complete));
+            emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.Uncompress) + " " + context.getString(R.string.done_));
             return Result.success();
 
         } catch (Exception e) {

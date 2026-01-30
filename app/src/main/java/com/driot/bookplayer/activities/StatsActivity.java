@@ -145,7 +145,7 @@ public class StatsActivity extends LoggingActivity {
 
         TextView tv_head2 = findViewById(R.id.tv2_head);
         TextView tv_body2 = findViewById(R.id.tv2_body);
-        tv_head2.setText(R.string.version);
+        tv_head2.setText(R.string.Version);
         tv_body2.setText(zeText2);
 
         // ----------------------------------------
@@ -158,7 +158,7 @@ public class StatsActivity extends LoggingActivity {
 
         TextView tv_head3 = findViewById(R.id.tv3_head);
         TextView tv_body3 = findViewById(R.id.tv3_body);
-        tv_head3.setText(R.string.miscellaneous);
+        tv_head3.setText(R.string.Miscellaneous);
         tv_body3.setText(zeText3);
 
         // ----------------------------------------
@@ -189,7 +189,7 @@ public class StatsActivity extends LoggingActivity {
         TableLayout tableDurationDetails = findViewById(R.id.tableDurationDetails);
         TextView tv_stats_note = findViewById(R.id.tv4_stats_note);
         
-        tv_head4.setText(R.string.menu_stats);
+        tv_head4.setText(R.string.Stats);
         tv_body4.setText(zeText4);
         
         // Populate table with duration details (including Audio Time header and percentage bars)
@@ -247,7 +247,7 @@ public class StatsActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteLogs_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, which) -> deleteLogs())
+                .setPositiveButton(R.string.OK, (dialog, which) -> deleteLogs())
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();
@@ -265,7 +265,7 @@ public class StatsActivity extends LoggingActivity {
                 .setTitle(getString(R.string.AskDelete_popupTitle))
                 .setMessage(getString(R.string.DeleteImages_AskConfirm))
                 .setCancelable(false)
-                .setPositiveButton(R.string.ok, (dialog, which) -> deleteCachedImages())
+                .setPositiveButton(R.string.OK, (dialog, which) -> deleteCachedImages())
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> {
                 })
                 .show();

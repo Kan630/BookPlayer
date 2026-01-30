@@ -43,9 +43,9 @@
     <string name="Favorites">Избранное</string>
     <string name="Set">Установить</string>
     <string name="MB">МБ</string>
-    <string name="Export">"Экспорт…"</string>
-    <string name="version">Версия</string>
-    <string name="miscellaneous">Разное</string>
+    <string name="Export_3pt">"Экспорт…"</string>
+    <string name="Version">Версия</string>
+    <string name="Miscellaneous">Разное</string>
     <string name="Processing">"Обработка"</string>
     <string name="downloaded">"загружено"</string>
     <string name="Downloading">"Загрузка"</string>
@@ -60,7 +60,7 @@
 
     <string name="help_title">Руководство BookPlayer</string>
 
-    <string name="help_general_title">Общие сведения</string>
+    <string name="General">Общие сведения</string>
     <string name="help_text_general"><![CDATA[
     При запуске приложения вы увидите список <font color="#90D8E8">папок</font> — они представляют ваши книги, уроки или подкасты.
     <br><br>
@@ -198,9 +198,7 @@
 
     <string name="option_timeBeforeSleep">Автоматическая пауза</string>
     <string name="option_timeBeforeSleep_text">через :</string>
-    <string name="option_timeBeforeSleep_min">мин.</string>
-
-    <string name="option_copy_file_title">Копировать файлы во внутреннюю память</string>
+<string name="option_copy_file_title">Копировать файлы во внутреннюю память</string>
 
     <string name="option_backward_forward_title">Кнопки Назад/Вперёд</string>
     <string name="option_backward_forward_text">промежуток :</string>
@@ -221,11 +219,11 @@
     <string name="option_beep_at_the_end">Проигрывать тройной сигнал в конце книги.</string>
     <string name="option_visualizer_text_01">Минималистичный визуализатор частот, отображается при воспроизведении.</string>
     <string name="option_visualizer_text_02">Требуется разрешение [Запись звука]/[Микрофон]</string>
-    <string name="option_visualizer_permissions_granted">разрешено</string>
-    <string name="option_visualizer_permissions_denied_01">запрещено</string>
+    <string name="granted">разрешено</string>
+    <string name="denied">запрещено</string>
     <string name="option_visualizer_permissions_denied_02">нажмите снова на чекбокс, чтобы запросить разрешение</string>
 
-    <string name="option_log">Логирование</string>
+    <string name="Logging">Логирование</string>
     <string name="option_tech_log_subtitle"><i>
         следует ли приложению создавать технические журналы отладки.
 </i></string>
@@ -269,8 +267,8 @@
 
     <string name="AutoTest_title">Автотест</string>
 
-    <string name="bOpenFile">файл</string>
-    <string name="bOpenFolder">Папка</string>
+    <string name="File">файл</string>
+    <string name="Folder">Папка</string>
     <string name="bOpenZipFile">Zip-файл</string>
     <string name="bOpenM4bFile">Аудиофайл</string>
 
@@ -284,11 +282,9 @@
     <string name="DirectDownload_desc">Вставьте ссылку ниже и нажмите кнопку для загрузки и интеграции аудиокниги за один шаг.</string>
     <string name="DirectDownload_button">Просто получить</string>
 
-    <string name="LibrivoxSearch_title">"Аудиокниги"</string>
+    <string name="AudioBooks">"Аудиокниги"</string>
     <string name="LibrivoxSearch_desc">"Поиск аудиокниг напрямую в LibriVox. Это бесплатный репозиторий в общественном достоянии, в основном на английском языке, но есть и на других языках."</string>
-
-    <string name="PodcastSearch_title">Подкасты</string>
-    <string name="PodcastSearch_desc">Просматривайте подкасты с помощью открытого реестра podcastindex.org</string>
+<string name="PodcastSearch_desc">Просматривайте подкасты с помощью открытого реестра podcastindex.org</string>
     <string name="podcast_image_desc">Изображение подкаста</string>
     <string name="podcast_no_results">Подкасты не найдены</string>
 
@@ -351,9 +347,7 @@
 
     <!-- ********************************** -->
     <!-- FolderModifyActivity -->
-
-    <string name="bDelete">"Удалить"</string>
-    <string name="bMove">"Изменить позицию"</string>
+<string name="bMove">"Изменить позицию"</string>
     <string name="bReset">"Сбросить прогресс"</string>
     <string name="Folder_Deleted_DB">"Книга удалена!"</string>
     <string name="Folder_Renamed">"Папка переименована"</string>
@@ -397,15 +391,14 @@
     <string name="rewind" translatable="false"><![CDATA[<<]]></string>
     <string name="forward" translatable="false"><![CDATA[>>]]></string>
     <string name="pause" translatable="false">||</string>
-    <string name="tvSpeed">Скорость</string>
+    <string name="Speed">Скорость</string>
     <string name="btnSleepSet" translatable="false">Сон</string>
     <string name="tv_ListeningTimeWithNoUserAction">Нет действий пользователя с</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Обратите внимание, что это значение будет использоваться только в текущей сессии воспроизведения.\nГлобальное значение таймера сна находится в настройках (в меню на стартовом экране приложения)</i>"</string>
     <string name="tv_TimeLeft">Осталось до сна</string>
     <string name="error_reading_track">"ОШИБКА ПРИ ЧТЕНИИ ДОРОЖКИ!"</string>
     <string name="current_position">Текущая позиция</string>
-    <string name="total_time">Длительность</string>
-    <string name="source_not_found">Источник файла не найден или не может быть прочитан.</string>
+<string name="source_not_found">Источник файла не найден или не может быть прочитан.</string>
     <string name="source_not_found_deleted">Источник файла не найден. Возможно, он был удалён.</string>
     <string name="source_file_path">Путь к исходному файлу</string>
     <string name="permission_not_set">Разрешение не установлено.</string>
@@ -438,14 +431,14 @@
         <!-- ********************************** -->
         <!-- Menus -->
 
-    <string name="action_menu_three_dot">Меню</string>
-    <string name="menu_open">открыть</string>
-    <string name="menu_manual">руководство</string>
+    <string name="Menu">Меню</string>
+    <string name="open">открыть</string>
+    <string name="manual">руководство</string>
     <string name="menu_sendmail">написать разработчику</string>
-    <string name="menu_stats">Статистика</string>
+    <string name="Stats">Статистика</string>
     <string name="menu_seeLog" translatable="false">Посмотреть логи</string>
-    <string name="menu_cacheFiles">Очистка</string>
-    <string name="menu_website">Сайт</string>
+    <string name="Cleaning">Очистка</string>
+    <string name="Website">Сайт</string>
 
         <!-- ********************************** -->
         <!-- OTHER APPS -->
@@ -580,7 +573,7 @@
     <string name="tts_language">Язык TTS</string>
     <string name="language">язык</string>
     <string name="download">скачать</string>
-    <string name="autodownload">автозагрузка</string>
+    <string name="auto_download">автозагрузка</string>
     <string name="refresh">обновить</string>
     <string name="collapse">свернуть</string>
     <string name="expand">развернуть</string>
@@ -601,7 +594,7 @@
     <string name="list_of_supported_extensions">список поддерживаемых расширений</string>
     <string name="audio_book_name">название аудиокниги</string>
     <string name="audio_book_cover">обложка аудиокниги</string>
-    <string name="ok">ОК</string>
+    <string name="OK">ОК</string>
     <string name="title">заголовок</string>
     <string name="subtitle">подзаголовок</string>
 
@@ -626,7 +619,7 @@
     <string name="Error_Import_could_not_delete_source">"не удалось удалить выбранный источник"</string>
 
     <string name="option_text_appearance_title">Вид текста</string>
-    <string name="option_font_family">Шрифт</string>
+    <string name="Font">Шрифт</string>
     <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
     <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
 
@@ -642,7 +635,7 @@
     <string name="could_not_identify_track_to_modify">не удалось определить дорожку для изменения</string>
     <string name="could_not_identify_folder_to_modify">не удалось определить папку для изменения</string>
 
-    <string name="option_automotive_title">Автомобиль</string>
+    <string name="Automotive">Автомобиль</string>
     <string name="option_automotive_on">Подключиться к Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Автоматически возобновлять воспроизведение при подключении к автомобилю.</string>
     <string name="automotive_no_item_in_bookplayer">Нет элементов. Откройте BookPlayer на телефоне и импортируйте книгу.</string>
@@ -672,7 +665,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="Unsupported_ebook_type">Неподдерживаемый тип электронной книги</string>
     <string name="download_stopped_by_system_will_retry">Загрузка остановлена системой — будет повторена</string>
     <string name="download_resuming">Возобновление загрузки</string>
-    <string name="cancelled">Отменено</string>
+    <string name="Cancelled">Отменено</string>
     <string name="importing_book">Импорт книги</string>
     <string name="three_dots" translatable="false">…</string>
     <string name="checking_size">проверка размера</string>
@@ -723,26 +716,25 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="download_stop_requested">Запрошена остановка загрузки</string>
 
         <string name="import_task_start">запуск...</string>
-        <string name="import_task_complete">готово.</string>
-        <string name="import_task_copy">Копирование</string>
-        <string name="import_task_download">Загрузка</string>
-        <string name="import_task_ebook_split">Анализ ebook</string>
+        <string name="done.">готово.</string>
+        <string name="Copy">Копирование</string>
+<string name="import_task_ebook_split">Анализ ebook</string>
         <string name="import_task_m4b_split">Извлечение M4b</string>
-        <string name="import_task_unzip">Распаковка</string>
-        <string name="import_task_final_parse">Интеграция</string>
+        <string name="Uncompress">Распаковка</string>
+        <string name="Integration">Интеграция</string>
         <string name="Import_Success_with_warnings">Импорт завершён с предупреждениями</string>
 
         <string name="metadata">метаданные</string>
         <string name="no_metadata_available">Метаданные недоступны</string>
-        <string name="artist">Исполнитель</string>
-        <string name="album">Альбом</string>
-        <string name="genre">Жанр</string>
-        <string name="year">Год</string>
-        <string name="track">Трек</string>
-        <string name="disc">Диск</string>
-        <string name="bitrate">Битрейт</string>
+        <string name="Artist">Исполнитель</string>
+        <string name="Album">Альбом</string>
+        <string name="Genre">Жанр</string>
+        <string name="Year">Год</string>
+        <string name="Track">Трек</string>
+        <string name="Disc">Диск</string>
+        <string name="Bitrate">Битрейт</string>
         <string name="sample_rate">Частота дискретизации</string>
-        <string name="channels">Каналы</string>
+        <string name="Channels">Каналы</string>
 
         <string name="frequency_visualizer">Визуализатор частот</string>
         <string name="counting_files">подсчёт файлов</string>
@@ -753,14 +745,14 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="option_tts_language_text">Язык TTS по умолчанию для новых электронных книг.</string>
         <string name="option_tts_highlight_delay_title">Подсветка слов.</string>
         <string name="option_tts_highlight_delay_text">Задержка движка:</string>
-        <string name="ms">мс.</string> //means milliseconds
+        <string name="ms.">мс.</string> //means milliseconds
 
         <string name="Text_To_Speech">Преобразование текста в речь</string>
         <string name="tts_phase_loading_text">Загрузка текста…</string>
         <string name="tts_phase_warming_up">Подготовка голоса…</string>
         <string name="tts_phase_starting">Запуск речи…</string>
-        <string name="tts_phase_ready">Готово</string>
-        <string name="tts_phase_speaking">Говорит</string>
+        <string name="Ready">Готово</string>
+        <string name="Speaking">Говорит</string>
         <string name="tts_phase_error">Ошибка речевого движка</string>
         <string name="error_generic">Произошла непредвиденная ошибка</string>
         <string name="tts_error_warmup_timeout">Время подготовки голоса истекло</string>
@@ -773,7 +765,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
         <string name="chars">символы</string>
         <string name="reorder">изменить порядок</string>
-        <string name="new_">новый</string>
+        <string name="new_label">новый</string>
         <string name="icon">значок</string>
         <string name="Engine">движок</string>
         <string name="Design">дизайн</string>
@@ -877,10 +869,10 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="Download">Загрузить</string>
         <string name="option_podcast_chk_podcast_add_date_to_episode_name">Добавить дату публикации к имени эпизода</string>
 
-        <string name="visualizer_mode_legacy">старый</string> <!-- <8 -->
-        <string name="visualizer_mode_wave">волна</string> <!-- <8 -->
-        <string name="visualizer_mode_bars">полосы</string> <!-- <8 -->
-        <string name="visualizer_mode_radial">радиал</string> <!-- <8 -->
+        <string name="legacy">старый</string> <!-- <8 -->
+        <string name="wave">волна</string> <!-- <8 -->
+        <string name="bars">полосы</string> <!-- <8 -->
+        <string name="radial">радиал</string> <!-- <8 -->
         <string name="option_play_view_explain">Экран воспроизведения — это детальный экран с большой обложкой в центре, крупными кнопками снизу и такими элементами, как Скорость и Таймер сна.</string>
         <string name="ChangeTrackOrder_Title">Инструкции для следующего экрана</string>
         <string name="ChangeTrackOrder_Text">Перетащите коробки.
@@ -929,7 +921,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <string name="internet_status">Статус Интернета</string>
         <string name="net_status_initial">Проверка сети…</string>
         <string name="net_status_unmetered">Безлимитное соединение</string>
-        <string name="net_status_roaming">Роуминг</string>
+        <string name="Roaming">Роуминг</string>
         <string name="AskReset_popupText_order">Вы собираетесь сбросить порядок дорожек.\nВы уверены?</string>
         <string name="zikFiles_not_readable">некоторые дорожки содержат ошибки и не воспроизводятся:</string>
         <string name="All_zikFiles_not_readable">Книга повреждена. Ни одна дорожка не воспроизводится.</string>
@@ -1024,7 +1016,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="proceed">далее</string>
     <string name="reset_progress_only_for_this_track">сброс прогресса только этого трека</string>
     <string name="sec">сек</string>
-    <string name="sort_alphabetically">По алфавиту</string>
+    <string name="Alphabetically">По алфавиту</string>
     <string name="sort_by">Сортировка</string>
     <string name="sort_last_added">Недавно добавленные</string>
     <string name="sort_last_played">Недавно прослушанные</string>
@@ -1035,8 +1027,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="export_zipping_label">Сжатие: </string>
 
     <string name="http_code_400">Неверный запрос</string>
-    <string name="http_code_401">Не авторизовано</string>
-    <string name="http_code_403">Запрещено</string>
+    <string name="Unauthorized">Не авторизовано</string>
+    <string name="Forbidden">Запрещено</string>
     <string name="http_code_404">Не найдено</string>
     <string name="http_code_408">Тайм-аут запроса</string>
     <string name="http_code_429">Слишком много запросов</string>
@@ -1103,7 +1095,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
     <string name="MB_taken_by_linked_audios">" МБ : связанные аудио"</string>
     <string name="action_reset_to_original">↩️ Восстановить оригинал</string>
-    <string name="bookshelves">"Полки"</string>
+    <string name="Bookshelves">"Полки"</string>
     <string name="calculating_storage">Вычисление…</string>
     <string name="device_storage_memory">Память устройства</string>
     <string name="gutenberg_contacting">Подключение к gutenberg.org…</string>
@@ -1127,11 +1119,11 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="sd_card_storage">Память карты SD</string>
     <string name="select_at_least_one_item">Выберите хотя бы один элемент для импорта.</string>
     <string name="storage_device">Хранилище устройства</string>
-    <string name="storage_header">Хранилище</string>
-    <string name="storage_legend_copied">скопировано</string>
-    <string name="storage_legend_linked_audios">связанные</string>
+    <string name="Storage">Хранилище</string>
+    <string name="copied">скопировано</string>
+    <string name="linked">связанные</string>
     <string name="storage_legend_new_books">новые книги</string>
-    <string name="storage_legend_others">прочее</string>
+    <string name="others">прочее</string>
     <string name="storage_sd_card">Хранилище на карте SD</string>
     <plurals name="tracks_count">
         <item quantity="one">%d трек</item>

@@ -186,7 +186,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
         // Observe SD card storage: second bar when SD exists; update internal label to "Device storage"
         viewModel.getSdCardStorageInfo().observe(this, info -> {
             if (tvStorageLabelInternal != null) {
-                tvStorageLabelInternal.setText(info != null ? R.string.storage_device : R.string.storage_header);
+                tvStorageLabelInternal.setText(info != null ? R.string.storage_device : R.string.Storage);
             }
             if (llSdCardStorage == null || storageBarSdCard == null) return;
             if (info != null && info.totalStorageBytes > 0 && Option.getMassImportDisplayStorageBar()) {

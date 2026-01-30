@@ -105,7 +105,7 @@ public class ImportSettingsFragment extends LoggingFragment {
                         .setTitle(getString(R.string.option_alert_delete_source_file_title))
                         .setMessage(getString(R.string.option_alert_delete_source_file_message))
                         .setCancelable(false)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> Option.setDeleteSourceFile(true))
+                        .setPositiveButton(android.R.string.OK, (dialog, which) -> Option.setDeleteSourceFile(true))
                         .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
                             // revert UI state
                             chkDeleteSourceFile.setChecked(Option.getDeleteSourceFile());

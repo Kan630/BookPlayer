@@ -383,10 +383,10 @@ public class PlayActivity extends LoggingActivity {
                     label = getString(R.string.tts_phase_starting);
                     break;
                 case Intents.PHASE_READY:
-                    label = getString(R.string.tts_phase_ready);
+                    label = getString(R.string.Ready);
                     break;
                 case Intents.PHASE_SPEAKING:
-                    label = getString(R.string.tts_phase_speaking);
+                    label = getString(R.string.Speaking);
                     break;
                 case Intents.PHASE_ERROR:
                     label = getString(R.string.tts_phase_error);

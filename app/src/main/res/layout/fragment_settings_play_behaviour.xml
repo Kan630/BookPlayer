@@ -50,7 +50,7 @@
 
                 <TextView
                     style="@style/simpleTextWrap"
-                    android:text="@string/option_timeBeforeSleep_min"
+                    android:text="@string/min."
                     android:textSize="24sp" />
             </LinearLayout>
 
@@ -202,7 +202,7 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerLegacy"
                     style="@style/MaterialButtonForToggleGroup"
-                    android:text="@string/visualizer_mode_legacy"
+                    android:text="@string/legacy"
                     app:cornerRadius="16dp"
                     app:checkedIcon="@drawable/ic_check_24px"
                     />
@@ -210,21 +210,21 @@
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerWave"
                     style="@style/MaterialButtonForToggleGroup"
-                    android:text="@string/visualizer_mode_wave"
+                    android:text="@string/wave"
                     app:cornerRadius="16dp"
                     />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerBars"
                     style="@style/MaterialButtonForToggleGroup"
-                    android:text="@string/visualizer_mode_bars"
+                    android:text="@string/bars"
                     app:cornerRadius="16dp"
                     />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVisualizerRadial"
                     style="@style/MaterialButtonForToggleGroup"
-                    android:text="@string/visualizer_mode_radial"
+                    android:text="@string/radial"
                     app:cornerRadius="16dp"
                     />
 

@@ -105,7 +105,7 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.download_warning_title_unmetered)
                         .setMessage(R.string.download_warning_message_unmetered)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                        .setPositiveButton(android.R.string.OK, (dialog, which) -> {
                             runOnUiThread(() -> {
                                 checkWWW(canReach -> {
                                     if (canReach) {

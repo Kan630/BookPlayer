@@ -3,7 +3,6 @@
     <!-- NO TRANSLATION (translatable=false) -->
 
 
-
     <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
@@ -57,10 +56,10 @@
 
     <string name="Exit">Exit</string>
     <string name="calculating_storage">Calculating…</string>
-    <string name="storage_header">Storage</string>
-    <string name="storage_legend_others">others</string>
-    <string name="storage_legend_copied">copied</string>
-    <string name="storage_legend_linked_audios">linked</string>
+    <string name="Storage">Storage</string>
+    <string name="others">others</string>
+    <string name="copied">copied</string>
+    <string name="linked">linked</string>
     <string name="confirm">confirm</string>
     <string name="proceed">proceed</string>
 
@@ -73,7 +72,7 @@
     <string name="paste">paste</string>
     <string name="clear">clear</string>
     <string name="favorite">favorite</string>
-    <string name="cancelled">Cancelled</string>
+    <string name="Cancelled">Cancelled</string>
     <string name="error">error</string>
     <string name="stop">stop</string>
     <string name="Audio">Audio</string>
@@ -97,7 +96,7 @@
 
     <string name="reviews">reviews</string>
     <string name="Also">Also</string>
-    <string name="ok">OK</string>
+    <string name="OK">OK</string>
     <string name="title">title</string>
     <string name="subtitle">subtitle</string>
     <string name="last">last</string>
@@ -122,12 +121,12 @@
 
     <string name="MB">MB</string>
 
-    <string name="ms">ms.</string>
+    <string name="ms.">ms.</string>
 
-    <string name="Export">"Export…"</string>
+    <string name="Export_3pt">"Export…"</string>
 
-    <string name="version">Version</string>
-    <string name="miscellaneous">Miscellaneous</string>
+    <string name="Version">Version</string>
+    <string name="Miscellaneous">Miscellaneous</string>
 
     <string name="Processing">"Processing"</string>
     <string name="downloaded">"downloaded"</string>
@@ -138,68 +137,58 @@
     <string name="Creator">Creator</string>
 
     <string name="metadata">metadata</string>
-    <string name="artist">Artist</string>
-    <string name="album">Album</string>
-    <string name="genre">Genre</string>
-    <string name="year">Year</string>
-    <string name="track">Track</string>
-    <string name="disc">Disc</string>
-    <string name="bitrate">Bitrate</string>
+    <string name="Artist">Artist</string>
+    <string name="Album">Album</string>
+    <string name="Genre">Genre</string>
+    <string name="Year">Year</string>
+    <string name="Track">Track</string>
+    <string name="Disc">Disc</string>
+    <string name="Bitrate">Bitrate</string>
 
-    <string name="channels">Channels</string>
-    <string name="help_general_title">General</string>
-    <string name="option_timeBeforeSleep_min">min.</string>
-    <string name="option_visualizer_permissions_granted">granted</string>
-    <string name="option_visualizer_permissions_denied_01">denied</string>
-    <string name="option_log">Logging</string>
-    <string name="option_font_family">Font</string>
-    <string name="option_automotive_title">Automotive</string>
-    <string name="bOpenFile">File</string>
-    <string name="bOpenFolder">Folder</string>
-    <string name="LibrivoxSearch_title">"AudioBooks"</string>
-    <string name="PodcastSearch_title">Podcasts</string>
-    <string name="Search_2pt">"Search: "</string>
+    <string name="Channels">Channels</string>
+    <string name="General">General</string>
+<string name="granted">granted</string>
+    <string name="denied">denied</string>
+    <string name="Logging">Logging</string>
+    <string name="Font">Font</string>
+    <string name="Automotive">Automotive</string>
+    <string name="File">File</string>
+    <string name="Folder">Folder</string>
+    <string name="AudioBooks">"AudioBooks"</string>
+<string name="Search_2pt">"Search: "</string>
     <string name="Language_2pt">"Language: "</string>
     <string name="Results_2pt">"Results: "</string>
-
-
-    <string name="bDelete">"Delete"</string>
-    <string name="export_zipping_label">"Zipping: "</string>
-    <string name="tvSpeed">Speed</string>
-    <string name="total_time">Duration</string>
-
-
-    <string name="action_menu_three_dot">Menu</string>
-    <string name="menu_open">open</string>
-    <string name="menu_manual">manual</string>
-    <string name="menu_stats">Stats</string>
-    <string name="menu_cacheFiles">Cleaning</string>
-    <string name="menu_website">Website</string>
+<string name="export_zipping_label">"Zipping: "</string>
+    <string name="Speed">Speed</string>
+<string name="Menu">Menu</string>
+    <string name="open">open</string>
+    <string name="manual">manual</string>
+    <string name="Stats">Stats</string>
+    <string name="Cleaning">Cleaning</string>
+    <string name="Website">Website</string>
     <string name="Permission">Permission</string>
 
 
     <string name="Close">Close</string>
     <string name="Trending">Trending</string>
-    <string name="bookshelves">"Bookshelves"</string>
+    <string name="Bookshelves">"Bookshelves"</string>
     <string name="ep">"ep"</string>
 
-    <string name="autodownload">auto-download</string>
-
+    <string name="auto_download">auto-download</string>
 
 
     <string name="text_to_speech">text-to-speech</string>
-    <string name="http_code_401">Unauthorized</string>
-    <string name="http_code_403">Forbidden</string>
+    <string name="Unauthorized">Unauthorized</string>
+    <string name="Forbidden">Forbidden</string>
     <string name="import_task_start">starting…</string>
-    <string name="import_task_complete">done.</string>
-    <string name="import_task_copy">Copy</string>
-    <string name="import_task_download">Download</string>
-    <string name="import_task_unzip">Uncompress</string>
-    <string name="import_task_final_parse">Integration</string>
+    <string name="done.">done.</string>
+    <string name="Copy">Copy</string>
+<string name="Uncompress">Uncompress</string>
+    <string name="Integration">Integration</string>
     <string name="Text_To_Speech">Text-To-Speech</string>
-    <string name="tts_phase_ready">Ready</string>
-    <string name="tts_phase_speaking">Speaking</string>
-    <string name="new_">new</string>
+    <string name="Ready">Ready</string>
+    <string name="Speaking">Speaking</string>
+    <string name="new_label">new</string>
     <string name="chars">chars</string>
 
     <string name="reorder">reorder</string>
@@ -230,21 +219,21 @@
     <string name="done">done</string>
     <string name="Ebooks">Ebooks</string>
     <string name="radio">radio</string>
-    <string name="visualizer_mode_legacy">legacy</string>
+    <string name="legacy">legacy</string>
 
-    <string name="visualizer_mode_wave">wave</string>
+    <string name="wave">wave</string>
 
-    <string name="visualizer_mode_bars">bars</string>
+    <string name="bars">bars</string>
 
-    <string name="visualizer_mode_radial">radial</string>
-    <string name="net_status_roaming">Roaming</string>
+    <string name="radial">radial</string>
+    <string name="Roaming">Roaming</string>
     <string name="Technical">Technical</string>
     <string name="links">links</string>
     <string name="Duration">Duration</string>
     <string name="Language">Language</string>
     <string name="Spam">Spam</string>
     <string name="Radio">Radio</string>
-    <string name="sort_alphabetically">Alphabetically</string>
+    <string name="Alphabetically">Alphabetically</string>
     <string name="nothing">nothing</string>
     <string name="id_label">"ID: "</string>
     <string name="Deleting">Deleting</string>
@@ -267,7 +256,6 @@
 
     <string name="reset_app">Reset App</string>
     <string name="add_book">add book</string>
-
 
 
     <string name="Not_enough_memory">Not enough memory</string>
@@ -296,7 +284,6 @@
     <string name="default_for">default for</string>
 
     <string name="sample_rate">Sample rate</string>
-
 
 
     <string name="DeleteLogs_AskConfirm">"You are about to delete all logs.
@@ -524,7 +511,6 @@
     <string name="option_epub_split_mode_explain_text">TOC-based splitting creates more chapters but preserves the book\'s structure. Spine-based is simpler and creates fewer chapters.</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
-
 
 
     <string name="AutoTest_title">Auto Test</string>

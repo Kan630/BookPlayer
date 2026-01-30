@@ -12,7 +12,7 @@
         <!-- Optional local title (hidden when embedded inline) -->
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
             <View style="@style/myStyleViewSimpleHorizontalBar" />
-            <TextView android:text="@string/option_automotive_title" style="@style/OptionMasterTitle"/>
+            <TextView android:text="@string/Automotive" style="@style/OptionMasterTitle"/>
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
@@ -24,7 +24,7 @@
             <TextView
                 style="@style/OptionTitle"
                 android:layout_marginTop="0dp"
-                android:text="@string/option_automotive_title"
+                android:text="@string/Automotive"
                 android:visibility="gone"
                 />
 

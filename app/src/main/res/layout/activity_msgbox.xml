@@ -93,7 +93,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:textColor="?attr/colorOnSurface"
-                android:text="@string/ok"
+                android:text="@string/OK"
                 android:visibility="gone"/>
 
             <LinearLayout
@@ -116,7 +116,7 @@
                     style="?attr/materialButtonOutlinedStyle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/ok"
+                    android:text="@string/OK"
                     android:visibility="gone"/>
 
                 <com.google.android.material.button.MaterialButton
@@ -124,7 +124,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
-                    android:text="@string/ok"/>
+                    android:text="@string/OK"/>
             </LinearLayout>
 
         </LinearLayout>

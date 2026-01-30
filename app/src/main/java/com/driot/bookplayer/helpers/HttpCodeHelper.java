@@ -23,10 +23,10 @@ public class HttpCodeHelper {
                 resId = R.string.http_code_400;
                 break;
             case 401:
-                resId = R.string.http_code_401;
+                resId = R.string.Unauthorized;
                 break;
             case 403:
-                resId = R.string.http_code_403;
+                resId = R.string.Forbidden;
                 break;
             case 404:
                 resId = R.string.http_code_404;

@@ -71,7 +71,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.import_task_final_parse) + " "
+        emitTaskStart(TASK_NAME, context.getString(R.string.Integration) + " "
                 + context.getString(R.string.import_task_start));
         try {
             DocumentFile df;

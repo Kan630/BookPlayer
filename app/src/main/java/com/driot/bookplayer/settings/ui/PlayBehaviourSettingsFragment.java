@@ -217,9 +217,9 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                 + getString(R.string.option_visualizer_text_02);
 
         if (isRecordAudioPermissionGranted(requireContext())) {
-            txt = txt + ": <font color='green'>" + getString(R.string.option_visualizer_permissions_granted) + "</font></i>";
+            txt = txt + ": <font color='green'>" + getString(R.string.granted) + "</font></i>";
         } else {
-            txt = txt + ": <font color='red'>" + getString(R.string.option_visualizer_permissions_denied_01) + "</font><br>"
+            txt = txt + ": <font color='red'>" + getString(R.string.denied) + "</font><br>"
                     + getString(R.string.option_visualizer_permissions_denied_02) + "</i>";
         }
         txVisualizerOn.setText(Html.fromHtml(txt, Html.FROM_HTML_MODE_LEGACY));
