@@ -1401,6 +1401,10 @@
 
     <string name="no_ebooks_found_search">No ebooks found \nfor search [%1$s] \nwith language [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">No ebooks found \nfor bookshelf [%1$s] \nwith language [%2$s]</string>
+    <string name="gutenberg_contacting">Contacting gutenberg.org…</string>
+    <string name="gutenberg_wait_elapsed">%1$d sec elapsed - %2$s - (timeout is %3$d sec)</string>
+    <string name="gutenberg_try_1st">1st try</string>
+    <string name="gutenberg_try_2nd">2nd try</string>
 
     <string name="Deleting">Deleting</string>
     <string name="tracks">tracks</string>

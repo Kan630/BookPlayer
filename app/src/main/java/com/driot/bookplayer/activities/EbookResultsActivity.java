@@ -2,6 +2,8 @@ package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -30,6 +32,7 @@ import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import okhttp3.OkHttpClient;
@@ -45,9 +48,15 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
     RecyclerView recyclerView;
     ProgressBar progressBar;
+    TextView tvProgressMessage;
     TextView tvEmptyMessage;
 
     EbookResultRVAdapter adapter;
+
+    private long searchStartTime;
+    private int currentTryNumber;
+    private final Handler progressMessageHandler = new Handler(Looper.getMainLooper());
+    private Runnable progressMessageRunnable;
 
     private String nextPageUrl;
     private boolean isLoadingMore = false;
@@ -85,6 +94,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
         tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
 
         int span = getResources().getInteger(R.integer.classic_grid_span);
@@ -190,6 +200,12 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopProgressMessageAndHide();
+    }
+
+    @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
 
@@ -218,13 +234,57 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         recyclerView.setVisibility(View.GONE);
         tvEmptyMessage.setVisibility(View.GONE);
 
+        searchStartTime = System.currentTimeMillis();
+        currentTryNumber = 1;
+        tvProgressMessage.setText(getString(R.string.gutenberg_contacting));
+        tvProgressMessage.setVisibility(View.VISIBLE);
+        startProgressMessageTicker();
+
+        performInitialSearch(0);
+    }
+
+    private void startProgressMessageTicker() {
+        progressMessageHandler.removeCallbacks(progressMessageRunnable);
+        progressMessageRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (tvProgressMessage == null || tvProgressMessage.getVisibility() != View.VISIBLE) return;
+                long elapsedSec = (System.currentTimeMillis() - searchStartTime) / 1000;
+                String tryLabel = currentTryNumber == 1
+                        ? getString(R.string.gutenberg_try_1st)
+                        : getString(R.string.gutenberg_try_2nd);
+                String msg = getString(R.string.gutenberg_wait_elapsed,
+                        (int) elapsedSec, tryLabel, GUTENDEX_READ_TIMEOUT_SEC);
+                tvProgressMessage.setText(msg);
+                progressMessageHandler.postDelayed(this, 1000);
+            }
+        };
+        progressMessageHandler.postDelayed(progressMessageRunnable, 1000);
+    }
+
+    private void stopProgressMessageAndHide() {
+        progressMessageHandler.removeCallbacks(progressMessageRunnable);
+        progressMessageRunnable = null;
+        if (tvProgressMessage != null) tvProgressMessage.setVisibility(View.GONE);
+    }
+
+    /** Gutendex can be slow (e.g. "most downloaded"); use longer timeouts and one retry on failure. */
+    private static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 30;
+    private static final int GUTENDEX_READ_TIMEOUT_SEC = 60;
+
+    private OkHttpClient buildGutendexClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
         logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-
-        OkHttpClient client = new OkHttpClient.Builder()
+        return new OkHttpClient.Builder()
+                .connectTimeout(GUTENDEX_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .readTimeout(GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(logging)
                 .build();
+    }
 
+    private void performInitialSearch(final int retryCount) {
+        OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(GutendexApiService.BASE_URL)
                 .client(client)
@@ -232,22 +292,22 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 .build();
 
         GutendexApiService api = retrofit.create(GutendexApiService.class);
-
         String searchParam = query.isEmpty() ? null : query;
         String topicParam = topic.isEmpty() ? null : topic;
 
         Call<GutendexResponse> call = api.searchBooks(
                 searchParam,
-                lang, // languages
-                topicParam, // topic/bookshelf
-                "application/epub+zip", // epub only
-                null // first page
+                lang,
+                topicParam,
+                "application/epub+zip",
+                null
         );
 
         call.enqueue(new Callback<GutendexResponse>() {
             @Override
             public void onResponse(Call<GutendexResponse> call, Response<GutendexResponse> response) {
                 progressBar.setVisibility(View.GONE);
+                stopProgressMessageAndHide();
 
                 if (!response.isSuccessful() || response.body() == null) {
                     myLogEE(null, "Gutendex invalid response, HTTP=" + response.code());
@@ -263,11 +323,9 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 if (books == null || books.isEmpty()) {
                     String errMsg;
                     if (!topic.isEmpty() && query.isEmpty()) {
-                        // Bookshelf search
                         errMsg = getString(R.string.no_ebooks_found_bookshelf, topic,
                                 LanguageMapper.getNameFromTwoLetters(lang));
                     } else {
-                        // Regular search
                         errMsg = getString(R.string.no_ebooks_found_search, query,
                                 LanguageMapper.getNameFromTwoLetters(lang));
                     }
@@ -279,44 +337,28 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
 
-                // LOG ALL BOOKS FOUND :
-                // for (GutendexBook b : books) { myLogE(b.toString()); }
-
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
                     String epubUrl = GutendexMapper.findBestEpubUrl(b);
-                    if (epubUrl == null || epubUrl.isEmpty()) {
-                        continue; // skip entries without EPUB
-                    }
+                    if (epubUrl == null || epubUrl.isEmpty()) continue;
                     String coverUrl = GutendexMapper.findCoverUrl(b);
-
                     EbookItem item = new EbookItem();
                     item.gutendexId = b.id;
                     item.title = b.title;
                     item.authors = GutendexMapper.buildAuthorLine(b);
-                    item.language = (b.languages != null && !b.languages.isEmpty())
-                            ? b.languages.get(0)
-                            : "";
+                    item.language = (b.languages != null && !b.languages.isEmpty()) ? b.languages.get(0) : "";
                     item.downloadCount = b.download_count;
                     item.coverUrl = coverUrl;
                     item.epubUrl = epubUrl;
-                    item.isImported = false; // for now
-
+                    item.isImported = false;
                     mapped.add(item);
                 }
 
                 if (mapped.isEmpty()) {
                     myLogW("Gutendex: all results filtered out (no EPUB).");
-                    String errMsg;
-                    if (!topic.isEmpty() && query.isEmpty()) {
-                        // Bookshelf search
-                        errMsg = getString(R.string.no_ebooks_found_bookshelf, topic,
-                                LanguageMapper.getNameFromTwoLetters(lang));
-                    } else {
-                        // Regular search
-                        errMsg = getString(R.string.no_ebooks_found_search, query,
-                                LanguageMapper.getNameFromTwoLetters(lang));
-                    }
+                    String errMsg = !topic.isEmpty() && query.isEmpty()
+                            ? getString(R.string.no_ebooks_found_bookshelf, topic, LanguageMapper.getNameFromTwoLetters(lang))
+                            : getString(R.string.no_ebooks_found_search, query, LanguageMapper.getNameFromTwoLetters(lang));
                     tvEmptyMessage.setText(errMsg);
                     tvEmptyMessage.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
@@ -325,21 +367,25 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 }
 
                 myLog("Gutendex: " + mapped.size() + " ebooks with EPUB found (total=" + resp.count + ")");
-
-                // Store pagination info
                 nextPageUrl = resp.next;
                 totalCount = resp.count;
-
                 adapter.setItems(mapped);
                 updateCountDisplay(mapped.size());
-
                 recyclerView.setVisibility(View.VISIBLE);
                 tvEmptyMessage.setVisibility(View.GONE);
             }
 
             @Override
             public void onFailure(Call<GutendexResponse> call, Throwable t) {
+                if (retryCount == 0) {
+                    myLogW("Gutendex initial search failed, retrying once: " + t.getMessage());
+                    currentTryNumber = 2;
+                    searchStartTime = System.currentTimeMillis();
+                    performInitialSearch(1);
+                    return;
+                }
                 progressBar.setVisibility(View.GONE);
+                stopProgressMessageAndHide();
                 myToastEE(t, getString(R.string.an_error_occurred));
                 String errMsg = getString(R.string.an_error_occurred) + "\n" + t.getMessage();
                 tvEmptyMessage.setText(errMsg);
@@ -357,13 +403,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         isLoadingMore = true;
         adapter.setLoading(true);
 
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
-        logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-
-        OkHttpClient client = new OkHttpClient.Builder()
-                .addInterceptor(logging)
-                .build();
-
+        OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(GutendexApiService.BASE_URL)
                 .client(client)

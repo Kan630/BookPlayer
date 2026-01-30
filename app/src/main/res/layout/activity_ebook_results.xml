@@ -16,6 +16,16 @@
         android:indeterminate="true" />
 
     <TextView
+        android:id="@+id/tvProgressMessage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:textSize="14sp"
+        android:visibility="gone" />
+
+    <TextView
         android:id="@+id/tvEmptyMessage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

@@ -1269,6 +1269,10 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="no_backup_found">❌ Aucune sauvegarde trouvée dans : </string>
     <string name="no_ebook_found">aucun ebook trouvé</string>
     <string name="no_ebooks_found_search">Aucun ebook trouvé \npour la recherche [%1$s] \navec la langue [%2$s]</string>
+    <string name="gutenberg_contacting">Contact de gutenberg.org…</string>
+    <string name="gutenberg_wait_elapsed">%1$d s écoulées - %2$s - (délai d\'attente %3$d s)</string>
+    <string name="gutenberg_try_1st">1ère tentative</string>
+    <string name="gutenberg_try_2nd">2e tentative</string>
     <string name="no_episode_downloaded">Aucun épisode téléchargé</string>
     <string name="no_favorite_podcasts_found">Aucun podcast favori trouvé</string>
     <string name="no_items_found">aucun élément trouvé</string>
