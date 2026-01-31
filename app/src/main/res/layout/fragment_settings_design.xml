@@ -122,7 +122,19 @@
             <LinearLayout
                 style="@style/LinearLayoutOptionsVertical"
                 android:layout_marginTop="20sp"
-                android:layout_marginBottom="10sp">
+                android:layout_marginBottom="10sp"
+                android:background="?attr/colorOnSurface"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Theme Palette"
+                    android:textColor="?attr/colorSurface"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:gravity="center"
+                    android:layout_marginBottom="10dp"/>
 
                 <LinearLayout
                     android:layout_width="match_parent"
