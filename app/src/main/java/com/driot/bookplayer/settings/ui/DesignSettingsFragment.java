@@ -6,9 +6,12 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ScrollView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
@@ -172,39 +175,69 @@ public class DesignSettingsFragment extends LoggingFragment {
 
         updateThemeModeSelection(nightMode);
 
-        chkThemeModeForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("chkThemeModeForce.setOnCheckedChangeListener - themeForce=" + isChecked);
-            if (isChecked) {
-                groupThemeMode.setEnabled(true);
-                String current = Option.getNightMode();
-                if ("SYSTEM".equals(current)) {
-                    current = isSystemDarkMode() ? "DARK" : "LIGHT";
-                    Option.setNightMode(current);
-                    Option.applyNightMode();
-                }
-                updateThemeModeSelection(current);
-                //signalAndRecreate();
-            } else {
-                Option.setNightMode("SYSTEM");
-                Option.applyNightMode();
-                groupThemeMode.setEnabled(false);
-                updateThemeModeSelection("SYSTEM");
-                //signalAndRecreate();
-            }
-        });
+        // Defer attaching listeners so we don't react to the programmatic check(id) above.
+        // check(id) runs synchronously and would fire addOnButtonCheckedListener (uncheck + check);
+        // by posting, we attach listeners only after that has finished, so only real user taps trigger them.
+        // WORKS with 0 POST DELAY, BUT I PUT 500 - better safe than sorry.
+        // if not posted, cause infinite loop in some case after user changes theme mode.
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+                    chkThemeModeForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                        myLog("chkThemeModeForce.setOnCheckedChangeListener - themeForce=" + isChecked);
 
-        groupThemeMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-            myLog("groupThemeMode.addOnButtonCheckedListener - checkedId=" + checkedId + ":" + isChecked);
-            if (!isChecked) return;
-            String chosen = (checkedId == R.id.btn_theme_light) ? "LIGHT" : "DARK";
-            if (!chosen.equals(Option.getNightMode())) {
-                Option.setNightMode(chosen);
-                Option.applyNightMode();
-                //signalAndRecreate();
-            }
-        });
+                        if (isChecked) {
+                            groupThemeMode.setEnabled(true);
+                            String current = Option.getNightMode();
+                            if ("SYSTEM".equals(current)) {
+                                current = isSystemDarkMode() ? "DARK" : "LIGHT";
+                                Option.setNightMode(current);
+                                Option.applyNightMode();
+                            }
+                            updateThemeModeSelection(current);
+                            //signalAndRecreate();
+                        } else {
+                            Option.setNightMode("SYSTEM");
+                            Option.applyNightMode();
+                            groupThemeMode.setEnabled(false);
+                            updateThemeModeSelection("SYSTEM");
+                            //signalAndRecreate();
+                        }
+                    });
+
+                    groupThemeMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                        myLog("groupThemeMode.addOnButtonCheckedListener - checkedId=" + checkedId + ":" + isChecked);
+                        if (!isChecked) return;
+                        String chosen = (checkedId == R.id.btn_theme_light) ? "LIGHT" : "DARK";
+                        if (!chosen.equals(Option.getNightMode())) {
+                            Option.setNightMode(chosen);
+                            Option.applyNightMode();
+                            //signalAndRecreate();
+                        }
+                    });
+                }
+                , 500);
+
+        // Restore scroll position after recreate (e.g. theme change)
+        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SCROLL_Y)) {
+            final int scrollY = savedInstanceState.getInt(KEY_SCROLL_Y);
+            root.post(() -> {
+                ScrollView sv = root.findViewById(R.id.scrollView);
+                if (sv != null) sv.scrollTo(0, scrollY);
+            });
+        }
 
         return root;
+    }
+
+    private static final String KEY_SCROLL_Y = "design_scroll_y";
+
+    @Override
+    public void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        View v = getView();
+        if (v != null) {
+            ScrollView sv = v.findViewById(R.id.scrollView);
+            if (sv != null) outState.putInt(KEY_SCROLL_Y, sv.getScrollY());
+        }
     }
 
     // ---------------- helpers ----------------
@@ -232,12 +265,7 @@ public class DesignSettingsFragment extends LoggingFragment {
     private void changeBaseTheme(String newBase) {
         myLog("new Base theme is [" + newBase + "]");
         Option.setThemeColor(newBase);
-
-        // Signal and recreate the host so the theme takes effect across activities
-        requireContext()
-                .getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
-                .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
-        requireActivity().recreate();
+        signalAndRecreate();
     }
 
     private boolean isSystemDarkMode() {
