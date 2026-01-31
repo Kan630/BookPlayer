@@ -62,7 +62,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
                                             && current instanceof MiniPlayBookFragment);
 
                     if (!ok) {
-                        myLogE("playType=[" + newPlayType + "] but fragment=[" + current.getClass().getSimpleName() + "], swapping");
+                        myLog("playType=[" + newPlayType + "] but fragment=[" + current.getClass().getSimpleName() + "], swapping");
                         swapChild(newPlayType);
                     }
                 }

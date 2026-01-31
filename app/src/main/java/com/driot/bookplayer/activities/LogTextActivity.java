@@ -220,11 +220,11 @@ public class LogTextActivity extends LoggingActivity {
 
             // Apply level filters (OR logic - show if contains any enabled level)
             if (filterWAR || filterERR || filterVER || filterINF || filterDEB) {
-                boolean hasWAR = filterWAR && text.contains("WAR");
-                boolean hasERR = filterERR && text.contains("ERR");
-                boolean hasVER = filterVER && text.contains("VER");
-                boolean hasINF = filterINF && text.contains("INF");
-                boolean hasDEB = filterDEB && text.contains("DEB");
+                boolean hasWAR = filterWAR && text.contains("WAR..");
+                boolean hasERR = filterERR && text.contains("ERR..");
+                boolean hasVER = filterVER && text.contains("VER..");
+                boolean hasINF = filterINF && text.contains("INF..");
+                boolean hasDEB = filterDEB && text.contains("DEB..");
                 if (!hasWAR && !hasERR && !hasVER && !hasINF && !hasDEB) {
                     matches = false;
                 }

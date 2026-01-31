@@ -100,7 +100,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                     myLogE("returned Uri not OK");
                 }
             } else {
-                myLogE("result code not OK");
+                myLog("result code not OK -- no item picked?");
             }
         } catch (Exception e) {
             myToastEE(e, "Error reading picked object");
