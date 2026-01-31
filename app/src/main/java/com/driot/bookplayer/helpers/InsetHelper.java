@@ -364,7 +364,7 @@ public final class InsetHelper {
     private static void requestApplyInsetsSafely(@NonNull View v) {
         try {
             ViewCompat.requestApplyInsets(v);
-            myLogD("requestApplyInsetsSafely() posted for view=" + v.getClass().getSimpleName());
+            //myLogD("requestApplyInsetsSafely() posted for view=" + v.getClass().getSimpleName());
         } catch (Throwable t) {
             myLogEE(t, "requestApplyInsetsSafely() failed");
         }
