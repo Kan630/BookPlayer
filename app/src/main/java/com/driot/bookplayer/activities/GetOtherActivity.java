@@ -42,6 +42,7 @@ import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.imports.LoadBookActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
+import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 
@@ -145,6 +146,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         }
 
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
+        findViewById(R.id.ibMassImportSettings).setOnClickListener(v -> clickMassImportSettings());
 
         importDimScrim = findViewById(R.id.importDimScrim);
         importDimMessage = findViewById(R.id.importDimMessage);
@@ -515,6 +517,11 @@ public class GetOtherActivity extends BaseBottomNavActivity {
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
         SettingsHostActivity.start(this, ImportSettingsFragment.class, true, R.string.import_settings);
+    }
+
+    private void clickMassImportSettings() {
+        myLogI("--- User clicks MASS IMPORT SETTINGS ---");
+        SettingsHostActivity.start(this, MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
     }
 
 }
