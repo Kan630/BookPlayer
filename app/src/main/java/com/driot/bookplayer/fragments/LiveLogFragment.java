@@ -34,8 +34,8 @@ import java.util.Collections;
  */
 public class LiveLogFragment extends LoggingFragment {
 
-    private static final int REFRESH_INTERVAL_MS = 3000; // 3 seconds
-    private static final int MAX_LOG_LINES = 100;
+    private static final int REFRESH_INTERVAL_MS = 1000; // 1 second
+    private static final int MAX_LOG_LINES = 500;
 
     private RecyclerView recyclerView;
     private MyTextChunkRVAdapter adapter;

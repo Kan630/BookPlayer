@@ -144,6 +144,27 @@
                 style="@style/OptionCheckBoxText"
                 android:text="Show Live Logs" />
         </LinearLayout>
+
+        <!-- Live Log Height Slider -->
+        <LinearLayout
+            android:id="@+id/ll_live_log_height"
+            style="@style/LayoutWrapContentMargin20horizontal"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:text="Live Log Height: 50%" 
+                android:id="@+id/tv_live_log_height"/>
+
+            <SeekBar
+                android:id="@+id/seekbar_live_log_height"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:max="5"
+                android:progress="2"
+                android:layout_marginTop="8dp"/>
+        </LinearLayout>
     </LinearLayout>
 
     <View style="@style/myStyleViewSimpleHorizontalBar" />

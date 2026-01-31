@@ -13,6 +13,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.fragment.app.FragmentTransaction;
@@ -45,6 +47,8 @@ import java.util.Map;
 public class AdminActivity extends LoggingActivity {
 
     private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
+    private static final String PREF_LIVE_LOG_HEIGHT = "live_log_height";
+    private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
 
     private LinearLayout btnContainer;
     private ListView listActivities;
@@ -91,6 +95,37 @@ public class AdminActivity extends LoggingActivity {
         if (showLiveLogs) {
             toggleLiveLogFragment(true);
         }
+
+        // Live log height slider
+        SeekBar seekBar = findViewById(R.id.seekbar_live_log_height);
+        TextView tvHeight = findViewById(R.id.tv_live_log_height);
+        int savedHeight = getSharedPreferences("admin_prefs", MODE_PRIVATE)
+                .getInt(PREF_LIVE_LOG_HEIGHT, DEFAULT_LIVE_LOG_HEIGHT);
+        int progress = (savedHeight - 25) / 10; // Convert percentage to slider position (0-5)
+        seekBar.setProgress(progress);
+        tvHeight.setText("Live Log Height: " + savedHeight + "%");
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                int percentage = 25 + (progress * 10); // 0->25%, 1->35%, 2->45%, 3->55%, 4->65%, 5->75%
+                tvHeight.setText("Live Log Height: " + percentage + "%");
+                if (fromUser) {
+                    getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
+                            .putInt(PREF_LIVE_LOG_HEIGHT, percentage).apply();
+                    // Restart activity to apply new height
+                    recreate();
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+            }
+        });
 
         // Green button to open LogListActivity
         findViewById(R.id.bOpenLogList).setOnClickListener(v -> {

@@ -46,6 +46,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "Lifecycle";
     private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
+    private static final String PREF_LIVE_LOG_HEIGHT = "live_log_height";
+    private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
 
     protected final String TAG_FROM_BRACKET = "[" + getClass().getSimpleName() + "]: ";
     protected final String TAG_FROM = "." + getClass().getSimpleName();
@@ -338,6 +340,17 @@ public abstract class LoggingActivity extends AppCompatActivity {
         }
 
         if (showLiveLogs) {
+            // Get height percentage from preferences
+            int heightPercentage = getSharedPreferences("admin_prefs", MODE_PRIVATE)
+                    .getInt(PREF_LIVE_LOG_HEIGHT, DEFAULT_LIVE_LOG_HEIGHT);
+
+            // Calculate weights: if fragment is 50%, content is 50%, so weights are equal
+            // (1.0f each)
+            // If fragment is 25%, content is 75%, so content weight = 3.0f, fragment weight
+            // = 1.0f
+            float fragmentWeight = heightPercentage / 100.0f;
+            float contentWeight = 1.0f - fragmentWeight;
+
             // Create wrapper layout
             LinearLayout wrapper = new LinearLayout(this);
             wrapper.setOrientation(LinearLayout.VERTICAL);
@@ -350,7 +363,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
             LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     0,
-                    1.0f); // 50% weight
+                    contentWeight);
             wrapper.addView(originalContent, contentParams);
 
             // Add fragment container
@@ -359,7 +372,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
             LinearLayout.LayoutParams fragmentParams = new LinearLayout.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     0,
-                    1.0f); // 50% weight
+                    fragmentWeight);
             wrapper.addView(liveLogContainer, fragmentParams);
 
             super.setContentView(wrapper);
