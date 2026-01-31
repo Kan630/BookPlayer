@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:orientation="vertical">
+
+    <!-- Top half: Scrollable admin content -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:fillViewport="true">
 
     <LinearLayout
         android:id="@+id/root"
@@ -122,6 +129,21 @@
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_tech_log_text" />
         </LinearLayout>
+
+        <!-- Live Log Viewer -->
+        <LinearLayout
+            android:id="@+id/ll_live_log"
+            style="@style/LayoutWrapContentMargin20horizontal"
+            android:layout_height="wrap_content">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_live_log"
+                style="@style/OptionCheckBox" />
+
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="Show Live Logs" />
+        </LinearLayout>
     </LinearLayout>
 
     <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -162,4 +184,14 @@
 
     </LinearLayout>
 
-</ScrollView>
+    </ScrollView>
+
+    <!-- Bottom half: Live log fragment container -->
+    <FrameLayout
+        android:id="@+id/liveLogContainer"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:visibility="gone" />
+
+</LinearLayout>

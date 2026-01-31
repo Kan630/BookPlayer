@@ -6,12 +6,16 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.Toast;
+
+import androidx.fragment.app.FragmentTransaction;
 
 import androidx.annotation.Nullable;
 
@@ -24,6 +28,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Sql;
+import com.driot.bookplayer.fragments.LiveLogFragment;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -39,8 +44,12 @@ import java.util.Map;
 
 public class AdminActivity extends LoggingActivity {
 
+    private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
+
     private LinearLayout btnContainer;
     private ListView listActivities;
+    private FrameLayout liveLogContainer;
+    private LiveLogFragment liveLogFragment;
 
     // Map of label -> Activity class to create buttons dynamically
     private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {
@@ -63,6 +72,25 @@ public class AdminActivity extends LoggingActivity {
         chkTechLog.setChecked(Option.getTechLog());
         llTechLog.setOnClickListener(v -> chkTechLog.toggle());
         chkTechLog.setOnCheckedChangeListener((b, checked) -> Option.setTechLog(checked));
+
+        // Live log viewer
+        liveLogContainer = findViewById(R.id.liveLogContainer);
+        MaterialCheckBox chkLiveLog = findViewById(R.id.chk_live_log);
+        LinearLayout llLiveLog = findViewById(R.id.ll_live_log);
+        boolean showLiveLogs = getSharedPreferences("admin_prefs", MODE_PRIVATE)
+                .getBoolean(PREF_SHOW_LIVE_LOGS, false);
+        chkLiveLog.setChecked(showLiveLogs);
+        llLiveLog.setOnClickListener(v -> chkLiveLog.toggle());
+        chkLiveLog.setOnCheckedChangeListener((b, checked) -> {
+            getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
+                    .putBoolean(PREF_SHOW_LIVE_LOGS, checked).apply();
+            toggleLiveLogFragment(checked);
+        });
+
+        // Initialize fragment if checked
+        if (showLiveLogs) {
+            toggleLiveLogFragment(true);
+        }
 
         // Green button to open LogListActivity
         findViewById(R.id.bOpenLogList).setOnClickListener(v -> {
@@ -251,15 +279,43 @@ public class AdminActivity extends LoggingActivity {
         listActivities.setAdapter(adapter);
 
         listActivities.setOnItemClickListener((parent, view, position, id) -> {
-            String fqcn = classNames.get(position); // fully qualified class name
+            String className = classNames.get(position);
             try {
-                Intent i = new Intent();
-                i.setComponent(new ComponentName(getPackageName(), fqcn));
-                startActivity(i);
-            } catch (Exception e) {
-                Toast.makeText(this, "Cannot launch: " + fqcn, Toast.LENGTH_SHORT).show();
+                Class<?> cls = Class.forName(className);
+                startActivity(new Intent(this, cls));
+            } catch (ClassNotFoundException e) {
+                Toast.makeText(this, "Activity not found", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void toggleLiveLogFragment(boolean show) {
+        try {
+            if (show) {
+                if (liveLogFragment == null) {
+                    liveLogFragment = LiveLogFragment.newInstance();
+                }
+
+                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                transaction.replace(R.id.liveLogContainer, liveLogFragment, "live_log");
+                transaction.commit();
+
+                liveLogContainer.setVisibility(View.VISIBLE);
+                myLogI("Live log fragment shown");
+            } else {
+                if (liveLogFragment != null) {
+                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+                    transaction.remove(liveLogFragment);
+                    transaction.commit();
+                    liveLogFragment = null;
+                }
+
+                liveLogContainer.setVisibility(View.GONE);
+                myLogI("Live log fragment hidden");
+            }
+        } catch (Exception e) {
+            myLogEE(e, "toggleLiveLogFragment");
+        }
     }
 
     private void launchActivitySafely(Class<?> clazz) {
