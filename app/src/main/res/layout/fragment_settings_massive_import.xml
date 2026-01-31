@@ -28,5 +28,17 @@
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_mass_import_display_storage_bar" />
         </LinearLayout>
+
+        <!-- Include subfolders when scanning -->
+        <LinearLayout
+            android:id="@+id/ll_include_subfolders"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_include_subfolders"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_mass_import_include_subfolders" />
+        </LinearLayout>
     </LinearLayout>
 </ScrollView>

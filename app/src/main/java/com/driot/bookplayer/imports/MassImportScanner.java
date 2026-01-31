@@ -45,7 +45,14 @@ public class MassImportScanner extends LoggerHelper {
         isCancelled = true;
     }
 
-    public List<BookCandidate> scan(Uri rootUri) {
+    /**
+     * Scans the given root URI for book candidates (epub, m4b, zip, 7z, audio folders, etc.).
+     *
+     * @param rootUri          Tree URI of the picked folder
+     * @param includeSubfolders If true, recursively searches subfolders for book files and audio folders.
+     *                          If false, only top-level items under root are considered.
+     */
+    public List<BookCandidate> scan(Uri rootUri, boolean includeSubfolders) {
         List<BookCandidate> candidates = new ArrayList<>();
         List<DocumentFile> deferredArchives = new ArrayList<>();
 
@@ -55,7 +62,127 @@ public class MassImportScanner extends LoggerHelper {
             return candidates;
         }
 
-        // Count top-level items for progress tracking
+        if (includeSubfolders) {
+            scanRecursive(root, candidates, deferredArchives);
+        } else {
+            scanRootOnly(root, candidates, deferredArchives);
+        }
+
+        return candidates;
+    }
+
+    /** Legacy: same as scan(rootUri, false). */
+    public List<BookCandidate> scan(Uri rootUri) {
+        return scan(rootUri, false);
+    }
+
+    /**
+     * Recursively collects book files (epub, m4b, zip, 7z, etc.) and audio folders from root and all subfolders,
+     * then processes them with progress reporting.
+     */
+    private void scanRecursive(DocumentFile root, List<BookCandidate> candidates,
+            List<DocumentFile> deferredArchives) {
+        List<DocumentFile> folderCandidates = new ArrayList<>();
+        List<DocumentFile> fileCandidates = new ArrayList<>();
+        List<DocumentFile> zipFiles = new ArrayList<>();
+
+        collectCandidatesRecursive(root, folderCandidates, fileCandidates, zipFiles);
+
+        List<DocumentFile> processList = new ArrayList<>();
+        processList.addAll(folderCandidates);
+        for (DocumentFile f : fileCandidates) {
+            processList.add(f);
+        }
+        processList.addAll(zipFiles);
+
+        int total = processList.size();
+        int current = 0;
+
+        // Process folders
+        for (DocumentFile file : folderCandidates) {
+            if (isCancelled) return;
+            current++;
+            callback.onProgress(current, total, safeName(file));
+            myLogD("--------------------------------------------------------");
+            myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
+            myLogD("--------------------------------------------------------");
+
+            String fileName = safeName(file);
+            long size = calculateSize(file);
+            String hash = computeHash(file.getUri());
+            String existingBookName = checkFolderAlreadyImported(file.getUri().toString(), hash);
+            int tracksCount = calculateTrackCount(file);
+            String coverPath = detectCoverForFolder(file);
+
+            BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
+                    fileName, size, hash, existingBookName, tracksCount, coverPath);
+            addCandidate(candidate, candidates);
+        }
+
+        // Process non-ZIP files (epub, m4b, etc.)
+        for (DocumentFile file : fileCandidates) {
+            if (isCancelled) return;
+            current++;
+            callback.onProgress(current, total, safeName(file));
+            myLogD("--------------------------------------------------------");
+            myLog("Scanning File n°" + current + "/" + total + " : " + safeName(file));
+            myLogD("--------------------------------------------------------");
+
+            String type = detectBookType(file);
+            if (type != null) {
+                String fileName = safeName(file);
+                String hash = computeHash(file.getUri());
+                String existingBookName = checkHashExists(hash);
+                String coverPath = detectCoverForFile(file, type);
+                int tracksCount = 1;
+                if ("M4B".equals(type)) {
+                    tracksCount = calculateTrackCountForM4B(file);
+                }
+                BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
+                        fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
+                addCandidate(candidate, candidates);
+            }
+        }
+
+        // Process deferred archives (ZIP, 7z, etc.)
+        processDeferredFiles(zipFiles, candidates, current, total);
+    }
+
+    /**
+     * Recursively collects: (1) directories that contain audio as folder candidates,
+     * (2) book-type files (epub, m4b, etc.) as file candidates, (3) archive files (zip, 7z) for deferred processing.
+     */
+    private void collectCandidatesRecursive(DocumentFile dir,
+            List<DocumentFile> folderCandidates, List<DocumentFile> fileCandidates,
+            List<DocumentFile> zipFiles) {
+        if (isCancelled) return;
+        DocumentFile[] files = dir.listFiles();
+        if (files == null) return;
+
+        for (DocumentFile file : files) {
+            if (isCancelled) return;
+            if (file.isDirectory()) {
+                if (hasAnyAudioRecursive(file)) {
+                    folderCandidates.add(file);
+                } else {
+                    collectCandidatesRecursive(file, folderCandidates, fileCandidates, zipFiles);
+                }
+            } else {
+                String type = detectBookType(file);
+                if ("ZIP".equals(type)) {
+                    zipFiles.add(file);
+                } else if (type != null) {
+                    fileCandidates.add(file);
+                }
+            }
+        }
+    }
+
+    /**
+     * Original behavior: only scan top-level items under root (no subfolders).
+     */
+    private void scanRootOnly(DocumentFile root, List<BookCandidate> candidates,
+            List<DocumentFile> deferredArchives) {
         DocumentFile[] files = root.listFiles();
         int total = files.length;
         int current = 0;
@@ -65,7 +192,6 @@ public class MassImportScanner extends LoggerHelper {
                 break;
 
             if (file.isDirectory()) {
-                // Directories are processed immediately
                 current++;
                 callback.onProgress(current, total, safeName(file));
                 myLogD("--------------------------------------------------------");
@@ -76,8 +202,6 @@ public class MassImportScanner extends LoggerHelper {
                     String fileName = safeName(file);
                     long size = calculateSize(file);
                     String hash = computeHash(file.getUri());
-                    // For folders, check both hash and path (like LoadBookActivity does)
-                    // Folders can be imported "in place" without copying, so path is the identifier
                     String existingBookName = checkFolderAlreadyImported(file.getUri().toString(), hash);
                     int tracksCount = calculateTrackCount(file);
                     String coverPath = detectCoverForFolder(file);
@@ -90,9 +214,6 @@ public class MassImportScanner extends LoggerHelper {
                 String type = detectBookType(file);
                 if ("ZIP".equals(type)) {
                     deferredArchives.add(file);
-                    // Deferring: Do NOT increment current yet.
-                    // We can notify the user we are deferring, but keep count unchanged?
-                    // Or simply show nothing and move to next. User will see the count pause.
                     callback.onProgress(current, total, "Deferring: " + safeName(file));
                 } else {
                     current++;
@@ -106,12 +227,10 @@ public class MassImportScanner extends LoggerHelper {
                         String hash = computeHash(file.getUri());
                         String existingBookName = checkHashExists(hash);
                         String coverPath = detectCoverForFile(file, type);
-                        // Calculate track count for M4B files (chapters)
-                        int tracksCount = 1; // Default for non-M4B files
+                        int tracksCount = 1;
                         if ("M4B".equals(type)) {
                             tracksCount = calculateTrackCountForM4B(file);
                         }
-
                         BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
                                 fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
                         addCandidate(candidate, candidates);
@@ -120,11 +239,7 @@ public class MassImportScanner extends LoggerHelper {
             }
         }
         myLogD("--------------------------------------------------------");
-
-        // Process deferred archives
         processDeferredFiles(deferredArchives, candidates, current, total);
-
-        return candidates;
     }
 
     // Process deferred archives at the end

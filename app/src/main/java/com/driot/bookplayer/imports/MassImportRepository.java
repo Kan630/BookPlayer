@@ -8,6 +8,7 @@ import android.os.Looper;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.log.LoggerStaticHelper;
 
 import java.util.ArrayList;
@@ -142,7 +143,8 @@ public class MassImportRepository {
         });
 
         executor.execute(() -> {
-            List<BookCandidate> result = scanner.scan(rootUri);
+            boolean includeSubfolders = Option.getMassImportIncludeSubfolders();
+            List<BookCandidate> result = scanner.scan(rootUri, includeSubfolders);
             mainHandler.post(() -> {
                 // Robust cancellation check using scanId
                 if (scanId != currentScanId) {

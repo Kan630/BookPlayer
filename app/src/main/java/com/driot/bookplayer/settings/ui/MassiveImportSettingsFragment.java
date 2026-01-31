@@ -18,6 +18,8 @@ public class MassiveImportSettingsFragment extends LoggingFragment {
 
     private MaterialCheckBox chkDisplayStorageBar;
     private LinearLayout llDisplayStorageBar;
+    private MaterialCheckBox chkIncludeSubfolders;
+    private LinearLayout llIncludeSubfolders;
 
     @Nullable
     @Override
@@ -40,6 +42,13 @@ public class MassiveImportSettingsFragment extends LoggingFragment {
         llDisplayStorageBar.setOnClickListener(v -> chkDisplayStorageBar.toggle());
         chkDisplayStorageBar.setOnCheckedChangeListener((buttonView, isChecked) ->
                 Option.setMassImportDisplayStorageBar(isChecked));
+
+        chkIncludeSubfolders = root.findViewById(R.id.chk_include_subfolders);
+        llIncludeSubfolders = root.findViewById(R.id.ll_include_subfolders);
+        chkIncludeSubfolders.setChecked(Option.getMassImportIncludeSubfolders());
+        llIncludeSubfolders.setOnClickListener(v -> chkIncludeSubfolders.toggle());
+        chkIncludeSubfolders.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setMassImportIncludeSubfolders(isChecked));
 
         return root;
     }

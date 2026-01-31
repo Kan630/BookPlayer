@@ -66,6 +66,7 @@ public class Option {
     public static final boolean DEFAULT_PODCAST_ADD_DATE_TO_EPISODE_NAME = true;
     public static final boolean DEFAULT_CREATE_COVER = true;
     private static final boolean DEFAULT_MASS_IMPORT_DISPLAY_STORAGE_BAR = false;
+    private static final boolean DEFAULT_MASS_IMPORT_INCLUDE_SUBFOLDERS = true;
     public static final String DEFAULT_LANGUAGE = "system";
     public static final String DEFAULT_VOICE = "system";
     public static final String DEFAULT_FONT_FAMILY = "sans-serif"; // neutre
@@ -373,6 +374,8 @@ public class Option {
 
     public static void setMassImportDisplayStorageBar(boolean value) { prefs.edit().putBoolean("MASS_IMPORT_DISPLAY_STORAGE_BAR", value).apply(); }
     public static boolean getMassImportDisplayStorageBar() { return prefs.getBoolean("MASS_IMPORT_DISPLAY_STORAGE_BAR", DEFAULT_MASS_IMPORT_DISPLAY_STORAGE_BAR); }
+    public static void setMassImportIncludeSubfolders(boolean value) { prefs.edit().putBoolean("MASS_IMPORT_INCLUDE_SUBFOLDERS", value).apply(); }
+    public static boolean getMassImportIncludeSubfolders() { return prefs.getBoolean("MASS_IMPORT_INCLUDE_SUBFOLDERS", DEFAULT_MASS_IMPORT_INCLUDE_SUBFOLDERS); }
 
 
     /////////////////// APP LANGUAGE ///////////////////
