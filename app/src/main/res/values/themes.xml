@@ -16,6 +16,7 @@
         <item name="colorOnSurfaceVariant">@color/bp_onSurface</item>
         <item name="colorSurfaceActivated">@color/purple_SurfaceActivated</item>
         <item name="colorSurfacePressed">@color/purple_SurfacePressed</item>
+        <item name="colorGraySecondary">@color/gray_secondary</item>
 
         <!-- System bars / window -->
         <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>

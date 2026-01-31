@@ -22,7 +22,7 @@
     <color name="cardBackgroundLightTextInTextView">#FF333333</color>
     <!-- ............................................. -->
 
-
+    <color name="gray_secondary">#E8E8E8</color>  <!-- attrs.xml -->
 
 
     <color name="lightred">#FFFF2222</color>

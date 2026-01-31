@@ -3,6 +3,8 @@
 
     <attr name="colorSurfaceActivated" format="color" />
     <attr name="colorSurfacePressed" format="color" />
+    <attr name="colorGraySecondary" format="color" />
+
 
     <attr name="fontFamilyGlobal" format="string|reference"/>
 

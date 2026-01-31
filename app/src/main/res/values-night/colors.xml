@@ -18,6 +18,8 @@
     <color name="cardBackgroundLightTextInTextView">#FF999999</color>
     <!-- Dark palette -->
 
+    <color name="gray_secondary">#2C2C2C</color>  <!-- attrs.xml -->
+
 
     <!-- values-night (DARK) : surfaces très foncées, légèrement teintées par thème -->
     <color name="purple_Surface">#1A1022</color>
