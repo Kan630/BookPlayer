@@ -229,7 +229,10 @@
                         android:id="@+id/bMassImport"
                         android:text="@string/bMassImport"
                         style="@style/GetResourceButton"
+                        android:backgroundTint="?attr/colorPrimaryVariant"
+                        android:textColor="?attr/colorOnPrimary"
                         android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
+
                         <View style="@style/GetResourceHorizontalBar"/>
                 </LinearLayout>
 
