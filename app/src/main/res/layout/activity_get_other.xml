@@ -154,35 +154,41 @@
                     android:textColor="?attr/colorOnPrimary"
                     android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
+                <TextView
+                    android:id="@+id/bOpenFilteredFile_desc"
+                    style="@style/GetResourceTextTopOfButton"
+                    android:layout_marginStart="20dp"
+                    android:text="@string/bOpenFilteredFile_desc" />
+
                 <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginStart="30dp"
+                    style="@style/simpleLinearLayout_Horizontal"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginStart="10dp"
                     >
+                <Button
+                    android:id="@+id/bOpenZipFile"
+                    android:text="ZIP"
+                    style="@style/GetResourceButton_low_margin"
+                    android:backgroundTint="?attr/colorPrimaryVariant"
+                    android:textColor="?attr/colorOnPrimary"
+                    />
 
-                    <TextView
-                        android:id="@+id/bOpenZipFile_desc"
-                        style="@style/GetResourceTextTopOfButton"
-                        android:text="@string/bOpenZipFile_desc" />
+                <Button
+                    android:id="@+id/bOpenM4bFile"
+                    android:text="M4B"
+                    style="@style/GetResourceButton_low_margin"
+                    android:backgroundTint="?attr/colorPrimaryVariant"
+                    android:textColor="?attr/colorOnPrimary"
+                    />
 
-                    <Button
-                        android:id="@+id/bOpenZipFile"
-                        android:text="@string/bOpenZipFile"
-                        style="@style/GetResourceButton"
-                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
 
-                    <TextView
-                        android:id="@+id/bOpenM4bFile_desc"
-                        style="@style/GetResourceTextTopOfButton"
-                        android:text="@string/bOpenM4bFile_desc" />
-
-                    <Button
-                        android:id="@+id/bOpenM4bFile"
-                        android:text="@string/bOpenM4bFile"
-                        style="@style/GetResourceButton"
-                        android:layout_marginTop="@dimen/GetRessource320_vertical_margin_text2button" />
-
+                <Button
+                    android:id="@+id/bOpenEpubFile"
+                    android:text="EPUB"
+                    style="@style/GetResourceButton_low_margin"
+                    android:backgroundTint="?attr/colorPrimaryVariant"
+                    android:textColor="?attr/colorOnPrimary"
+                    />
                 </LinearLayout>
 
                 <TextView

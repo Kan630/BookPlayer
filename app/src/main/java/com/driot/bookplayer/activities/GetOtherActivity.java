@@ -130,6 +130,7 @@ public class GetOtherActivity extends BaseBottomNavActivity {
         Button bOpenFile = findViewById(R.id.bOpenFile);
         Button bOpenZipFile = findViewById(R.id.bOpenZipFile);
         Button bOpenM4bFile = findViewById(R.id.bOpenM4bFile);
+        Button bOpenEpubFile = findViewById(R.id.bOpenEpubFile);
         Button bOpenFolder = findViewById(R.id.bOpenFolder);
         Button bMassImport = findViewById(R.id.bMassImport);
         Button bAutoTest_b1 = findViewById(R.id.bAutoTest_b1);
@@ -212,14 +213,30 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             bOpenFileActivityResultLauncher.launch(intent);
         });
 
-        // M4B
+        // M4B (filter like ZIP: only M4B)
         bOpenM4bFile.setOnClickListener(view -> {
             scanThatShit();
-            myLogI("------------ USER CLICKS : button AUDIO file");
-
+            myLogI("------------ USER CLICKS : button M4B file");
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.setType("*/*");
-            intent.putExtra(Intent.EXTRA_MIME_TYPES, new String[] { "audio/*" });
+            String[] mimeTypes = { "audio/mp4", "audio/x-m4a" };
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
+                    | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                    | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            bOpenFileActivityResultLauncher.launch(intent);
+        });
+
+        // EPUB (filter like ZIP: only EPUB)
+        bOpenEpubFile.setOnClickListener(view -> {
+            scanThatShit();
+            myLogI("------------ USER CLICKS : button EPUB file");
+            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            intent.setType("*/*");
+            String[] mimeTypes = { "application/epub+zip" };
+            intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
             intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION
                     | Intent.FLAG_GRANT_WRITE_URI_PERMISSION
                     | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION

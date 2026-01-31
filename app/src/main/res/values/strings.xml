@@ -479,13 +479,9 @@
 
 
     <string name="AutoTest_title">Auto Test</string>
-    <string name="bOpenZipFile">Zip File</string>
-    <string name="bOpenM4bFile">Audio File</string>
     <string name="TextHeaderOpen">Load audio from device</string>
     <string name="bOpenFile_desc">Grab any file.</string>
-    <string name="bOpenZipFile_desc">filter : only zip files</string>
-    <string name="bOpenM4bFile_desc">filter : only audio files
-        \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
+    <string name="bOpenFilteredFile_desc">Grab any file of a specific type. (filter)</string>
     <string name="DirectDownload_title">Direct Download</string>
     <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
     <string name="DirectDownload_button">Just Get It</string>
