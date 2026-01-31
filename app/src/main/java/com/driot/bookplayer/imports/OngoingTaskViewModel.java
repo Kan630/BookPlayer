@@ -20,10 +20,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
     private final MediatorLiveData<TaskUiState> ui = new MediatorLiveData<>();
+    private final MassImportRepository massImportRepo;
 
     @Inject
     public OngoingTaskViewModel(@NonNull Application app, MassImportRepository massImportRepo) {
         super(app);
+        this.massImportRepo = massImportRepo;
         ui.setValue(TaskUiState.idle());
 
         AppDatabase db = AppDatabase.getInstance(app);
@@ -54,7 +56,13 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
         } else if (Boolean.TRUE.equals(isScanFinished)) {
             // Priority 2: Scan Finished (waiting for user confirmation)
             int count = candidates != null ? candidates.size() : 0;
-            ui.setValue(TaskUiState.scanFinished(getApplication(), count));
+            if (count == 0) {
+                // No book candidates: don't show the OngoingTaskFragment, consume state and go idle
+                massImportRepo.consumeScanState();
+                ui.setValue(TaskUiState.idle());
+            } else {
+                ui.setValue(TaskUiState.scanFinished(getApplication(), count));
+            }
         } else if (job != null) {
             // Priority 3: Import Job - calculate position in queue
             calculateQueuePosition(job);
