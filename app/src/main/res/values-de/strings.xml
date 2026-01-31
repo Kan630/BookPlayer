@@ -976,7 +976,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="pick_a_new_location">neuen Ort wählen</string>
     <string name="newlocation_better">Ordner repariert alle defekten Pfade</string>
     <string name="newlocation_better_and_worse">Ordner repariert einige defekte Pfade</string>
-    <string name="newlocation_not_better">Ordner repariert keine defekten Pfade</string>
+    <string name="newlocation_not_better">Entschuldigung, das hat nicht funktioniert</string>
     <string name="AskChangeSource_popupTitle">Standortwechsel bestätigen</string>
     <string name="already_downloaded">Bereits heruntergeladen</string>
     <string name="open_audiobook">Das Hörbuch öffnen</string>

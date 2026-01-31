@@ -975,7 +975,7 @@
     <string name="pick_a_new_location">اختر موقعًا جديدًا</string>
     <string name="newlocation_better">المجلد المحدد يصلح جميع المسارات المعطلة</string>
     <string name="newlocation_better_and_worse">المجلد المحدد يصلح بعض المسارات المعطلة</string>
-    <string name="newlocation_not_better">المجلد المحدد لا يصلح أي مسارات معطلة</string>
+    <string name="newlocation_not_better">عذراً، لم ينجح ذلك</string>
     <string name="AskChangeSource_popupTitle">تأكيد تغيير الموقع</string>
     <string name="already_downloaded">تم التنزيل بالفعل</string>
     <string name="open_audiobook">فتح الكتاب الصوتي</string>

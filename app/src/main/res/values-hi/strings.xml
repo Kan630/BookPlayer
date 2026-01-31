@@ -979,7 +979,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="pick_a_new_location">नया स्थान चुनें</string>
     <string name="newlocation_better">चयनित फ़ोल्डर सभी टूटे हुए रास्तों को ठीक करता है</string>
     <string name="newlocation_better_and_worse">चयनित फ़ोल्डर कुछ टूटे हुए रास्तों को ठीक करता है</string>
-    <string name="newlocation_not_better">चयनित फ़ोल्डर कोई टूटे रास्ते ठीक नहीं करता</string>
+    <string name="newlocation_not_better">क्षमा करें, यह काम नहीं किया</string>
     <string name="AskChangeSource_popupTitle">स्थान परिवर्तन की पुष्टि करें</string>
     <string name="already_downloaded">पहले से डाउनलोड किया गया</string>
     <string name="open_audiobook">ऑडियोबुक खोलें</string>

@@ -976,7 +976,7 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="pick_a_new_location">escolher novo local</string>
     <string name="newlocation_better">A pasta corrige todos os caminhos quebrados</string>
     <string name="newlocation_better_and_worse">A pasta corrige alguns caminhos quebrados</string>
-    <string name="newlocation_not_better">A pasta não corrige nenhum caminho</string>
+    <string name="newlocation_not_better">Desculpe, isso não funcionou</string>
     <string name="AskChangeSource_popupTitle">Confirmar mudança de local</string>
     <string name="already_downloaded">Já baixado</string>
     <string name="open_audiobook">Abrir o audiolivro</string>

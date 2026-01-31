@@ -985,7 +985,7 @@
     <string name="pick_a_new_location">pick a new location</string>
     <string name="newlocation_better">The selected folder fixes all broken paths</string>
     <string name="newlocation_better_and_worse">The selected folder fixes some broken paths</string>
-    <string name="newlocation_not_better">The selected folder does not fix any broken paths</string>
+    <string name="newlocation_not_better">Sorry, that did not work</string>
     <string name="AskChangeSource_popupTitle">Confirm location change</string>
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>

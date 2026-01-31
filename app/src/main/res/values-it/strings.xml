@@ -976,7 +976,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="pick_a_new_location">scegli nuova posizione</string>
     <string name="newlocation_better">La cartella corregge tutti i percorsi rotti</string>
     <string name="newlocation_better_and_worse">La cartella corregge alcuni percorsi rotti</string>
-    <string name="newlocation_not_better">La cartella non corregge alcun percorso</string>
+    <string name="newlocation_not_better">Spiacente, non ha funzionato</string>
     <string name="AskChangeSource_popupTitle">Conferma cambio posizione</string>
     <string name="already_downloaded">Già scaricato</string>
     <string name="open_audiobook">Apri l\'audiolibro</string>

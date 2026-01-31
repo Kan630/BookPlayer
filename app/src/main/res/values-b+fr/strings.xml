@@ -985,7 +985,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="pick_a_new_location">choisir un nouvel emplacement</string>
     <string name="newlocation_better">Ce dossier corrige tous les liens rompus</string>
     <string name="newlocation_better_and_worse">Ce dossier corrige certains liens rompus</string>
-    <string name="newlocation_not_better">Ce dossier ne corrige aucun lien</string>
+    <string name="newlocation_not_better">Désolé, cela n\'a pas fonctionné</string>
     <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
     <string name="already_downloaded">Déjà téléchargé</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>

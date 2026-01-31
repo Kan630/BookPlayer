@@ -973,7 +973,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="pick_a_new_location">elegir nueva ubicación</string>
     <string name="newlocation_better">La carpeta corrige todas las rutas rotas</string>
     <string name="newlocation_better_and_worse">La carpeta corrige algunas rutas rotas</string>
-    <string name="newlocation_not_better">La carpeta no corrige ninguna ruta</string>
+    <string name="newlocation_not_better">Lo siento, eso no funcionó</string>
     <string name="AskChangeSource_popupTitle">Confirmar cambio de ubicación</string>
     <string name="already_downloaded">Ya descargado</string>
     <string name="open_audiobook">Abrir el audiolibro</string>
