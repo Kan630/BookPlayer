@@ -136,7 +136,7 @@ public class KanLogger {
             str = "...";
         }
         if (writeTechLogs()) {
-            writeToLogFile(str);
+            writeToLogFile("VER.. " + parsePrefix(prefix) + ".. " + str);
             Log.v(newPrefix, str);
         } else {
             if (LOG_THEM_ALL)
@@ -154,7 +154,7 @@ public class KanLogger {
             str = "...";
         }
         if (writeTechLogs()) {
-            writeToLogFile("VER.. " + parsePrefix(prefix) + ".. " + str);
+            writeToLogFile("INF.. " + parsePrefix(prefix) + ".. " + str);
             Log.i(newPrefix, str);
         } else {
             if (LOG_THEM_ALL)

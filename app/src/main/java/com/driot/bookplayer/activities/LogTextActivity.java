@@ -56,6 +56,7 @@ public class LogTextActivity extends LoggingActivity {
     private SwitchMaterial switchWAR;
     private SwitchMaterial switchERR;
     private SwitchMaterial switchVER;
+    private SwitchMaterial switchINF;
     private SwitchMaterial switchDEB;
 
     // Order and filter state
@@ -130,6 +131,7 @@ public class LogTextActivity extends LoggingActivity {
         switchWAR = findViewById(R.id.switchWAR);
         switchERR = findViewById(R.id.switchERR);
         switchVER = findViewById(R.id.switchVER);
+        switchINF = findViewById(R.id.switchINF);
         switchDEB = findViewById(R.id.switchDEB);
 
         // Flip order button
@@ -190,6 +192,9 @@ public class LogTextActivity extends LoggingActivity {
         // VER switch listener
         switchVER.setOnCheckedChangeListener((buttonView, isChecked) -> filterList());
 
+        // INF switch listener
+        switchINF.setOnCheckedChangeListener((buttonView, isChecked) -> filterList());
+
         // DEB switch listener
         switchDEB.setOnCheckedChangeListener((buttonView, isChecked) -> filterList());
     }
@@ -199,6 +204,7 @@ public class LogTextActivity extends LoggingActivity {
         boolean filterWAR = switchWAR.isChecked();
         boolean filterERR = switchERR.isChecked();
         boolean filterVER = switchVER.isChecked();
+        boolean filterINF = switchINF.isChecked();
         boolean filterDEB = switchDEB.isChecked();
 
         ArrayList<MyTextChunk> filteredList = new ArrayList<>();
@@ -213,12 +219,13 @@ public class LogTextActivity extends LoggingActivity {
             }
 
             // Apply level filters (OR logic - show if contains any enabled level)
-            if (filterWAR || filterERR || filterVER || filterDEB) {
+            if (filterWAR || filterERR || filterVER || filterINF || filterDEB) {
                 boolean hasWAR = filterWAR && text.contains("WAR");
                 boolean hasERR = filterERR && text.contains("ERR");
                 boolean hasVER = filterVER && text.contains("VER");
+                boolean hasINF = filterINF && text.contains("INF");
                 boolean hasDEB = filterDEB && text.contains("DEB");
-                if (!hasWAR && !hasERR && !hasVER && !hasDEB) {
+                if (!hasWAR && !hasERR && !hasVER && !hasINF && !hasDEB) {
                     matches = false;
                 }
             }

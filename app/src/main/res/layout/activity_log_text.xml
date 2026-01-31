@@ -64,6 +64,15 @@
             android:textColor="?attr/colorOnPrimary"
             android:layout_marginStart="8dp" />
 
+        <!-- INF Switch -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchINF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="INF"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginStart="8dp" />
+
         <!-- Flip Order Button -->
         <ImageButton
             android:id="@+id/btnFlipOrder"

@@ -65,22 +65,31 @@ public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     private void setupValuesInWidgets(MyTextChunkRVAdapter.MyViewHolder itemHolder, MyTextChunk myTextChunk) {
         if (myTextChunk != null) {
             String text = myTextChunk.getText();
-            itemHolder.tvText.setText(Html.fromHtml(text));
             itemHolder.tvText.setTextSize(myTextChunk.getCharSize());
 
             // Apply color based on log level
+            // Apply color based on log level and strip prefixes
             if (text.contains("ERR")) {
                 itemHolder.tvText.setTextColor(Color.RED);
+                text = text.replace("ERR...", "").replace("ERR..", "").replace("ERR.", "");
             } else if (text.contains("WAR")) {
                 itemHolder.tvText.setTextColor(Color.parseColor("#FFA500")); // Orange
+                text = text.replace("WAR...", "").replace("WAR..", "").replace("WAR.", "");
+            } else if (text.contains("INF")) {
+                itemHolder.tvText.setTextColor(Color.YELLOW);
+                text = text.replace("INF...", "").replace("INF..", "").replace("INF.", "");
             } else if (text.contains("DEB")) {
                 itemHolder.tvText.setTextColor(Color.parseColor("#228B22")); // Dark green (Forest Green)
+                text = text.replace("DEB...", "").replace("DEB..", "").replace("DEB.", "");
             } else if (text.contains("VER")) {
                 itemHolder.tvText.setTextColor(Color.WHITE);
+                text = text.replace("VER...", "").replace("VER..", "").replace("VER.", "");
             } else {
                 // Default color for normal logs
                 itemHolder.tvText.setTextColor(Color.LTGRAY);
             }
+
+            itemHolder.tvText.setText(Html.fromHtml(text.trim()));
         }
     }
 
