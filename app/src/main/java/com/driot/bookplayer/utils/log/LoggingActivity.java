@@ -104,9 +104,6 @@ public abstract class LoggingActivity extends AppCompatActivity {
                 myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity created anew. - Called by [" + calledBy + "]");
         }
 
-        // Initialize live log fragment if enabled
-        initializeLiveLogFragment();
-
     }
 
     /**
@@ -332,7 +329,14 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // Check if live logs are enabled
         boolean showLiveLogs = getSharedPreferences("admin_prefs", MODE_PRIVATE)
                 .getBoolean(PREF_SHOW_LIVE_LOGS, false);
-        
+
+        // Exclude LogTextActivity and LogListActivity from showing live logs
+        // (redundant)
+        String className = getClass().getSimpleName();
+        if ("LogTextActivity".equals(className) || "LogListActivity".equals(className)) {
+            showLiveLogs = false;
+        }
+
         if (showLiveLogs) {
             // Create wrapper layout
             LinearLayout wrapper = new LinearLayout(this);
@@ -340,7 +344,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
             wrapper.setLayoutParams(new ViewGroup.LayoutParams(
                     ViewGroup.LayoutParams.MATCH_PARENT,
                     ViewGroup.LayoutParams.MATCH_PARENT));
-            
+
             // Inflate original content into a container
             View originalContent = getLayoutInflater().inflate(layoutResID, null);
             LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
@@ -348,7 +352,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
                     0,
                     1.0f); // 50% weight
             wrapper.addView(originalContent, contentParams);
-            
+
             // Add fragment container
             liveLogContainer = new FrameLayout(this);
             liveLogContainer.setId(View.generateViewId());
@@ -357,8 +361,11 @@ public abstract class LoggingActivity extends AppCompatActivity {
                     0,
                     1.0f); // 50% weight
             wrapper.addView(liveLogContainer, fragmentParams);
-            
+
             super.setContentView(wrapper);
+
+            // Initialize fragment after container is created
+            initializeLiveLogFragment();
         } else {
             super.setContentView(layoutResID);
         }
