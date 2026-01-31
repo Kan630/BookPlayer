@@ -102,12 +102,12 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         long totalInternal = 0, usedByOthersInternal = 0, usedByBookPlayerInternal = 0;
         long cachedTimestampInternal = StorageInfoCacheHelper.getCachedInternalTimestamp();
         if (cachedTimestampInternal > 0) {
-            myLogI("MassImportViewModel: Using cached internal storage info");
+            myLogD("MassImportViewModel: Using cached internal storage info");
             totalInternal = StorageInfoCacheHelper.getCachedInternalTotal();
             usedByOthersInternal = StorageInfoCacheHelper.getCachedInternalUsedByOthers();
             usedByBookPlayerInternal = StorageInfoCacheHelper.getCachedInternalUsedByBookPlayer();
         } else {
-            myLogI("MassImportViewModel: No cached internal storage, calculating now");
+            myLogD("MassImportViewModel: No cached internal storage, calculating now");
             totalInternal = getTotaLInternalMemorySize();
             long availableInternal = getAvailableInternalMemorySize();
             if (totalInternal > 0 && availableInternal >= 0) {
@@ -131,12 +131,12 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
             long totalSd = 0, usedByOthersSd = 0, usedByBookPlayerSd = 0;
             long cachedTimestampSd = StorageInfoCacheHelper.getCachedSDCardTimestamp();
             if (cachedTimestampSd > 0) {
-                myLogI("MassImportViewModel: Using cached SD card storage info");
+                myLogD("MassImportViewModel: Using cached SD card storage info");
                 totalSd = StorageInfoCacheHelper.getCachedSDCardTotal();
                 usedByOthersSd = StorageInfoCacheHelper.getCachedSDCardUsedByOthers();
                 usedByBookPlayerSd = StorageInfoCacheHelper.getCachedSDCardUsedByBookPlayer();
             } else {
-                myLogI("MassImportViewModel: No cached SD card storage, calculating now");
+                myLogD("MassImportViewModel: No cached SD card storage, calculating now");
                 totalSd = getTotalRemovableSDCardSize(app);
                 long availableSd = getAvailableRemovableSDCardSize(app);
                 if (totalSd > 0 && availableSd >= 0) {
