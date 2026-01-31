@@ -274,30 +274,22 @@ public class LogTextActivity extends LoggingActivity {
 
     private void shareLog() {
         try {
-            // Build text content for sharing
-            StringBuilder logContent = new StringBuilder();
-            for (MyTextChunk chunk : myTextChunkArrayList) {
-                logContent.append(chunk.getText()).append("\n");
-            }
-
-            // Share via standard Android share
-            Intent shareIntent = new Intent(Intent.ACTION_SEND);
-            shareIntent.setType("text/plain");
-            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Log: " + file);
-            shareIntent.putExtra(Intent.EXTRA_TEXT, logContent.toString());
-            startActivity(Intent.createChooser(shareIntent, "Share log via"));
-
-            // Also send by email using KanMail
+            // Create MyFile object from filename
             MyFile myFile = new MyFile(file);
+
+            // Get URI for the file
             android.net.Uri fileUri = MyFile.getUriFromMyFile(this, myFile);
+
             if (fileUri != null) {
+                // Send log file via email with attachment
                 KanMail.sendDaMail(this, "bookplayer@driot.com", "**BookplayerLog**", file, fileUri);
             } else {
                 myLogE("File not found for email attachment: [" + file + "]");
+                myToastE("Log file not found");
             }
         } catch (Exception e) {
             myLogEE(e, "shareLog");
-            myToastE("Failed to share log");
+            myToastE("Failed to share log: " + e.getMessage());
         }
     }
 
