@@ -23,31 +23,34 @@ import com.driot.bookplayer.utils.log.LoggingRVAdapter;
  */
 public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
 
-    private final ArrayList<MyTextChunk> myTextChunkArrayList;
-
+    private ArrayList<MyTextChunk> myTextChunkArrayList;
 
     public MyTextChunkRVAdapter(ArrayList<MyTextChunk> storeMyTextChunkArrayList) {
         this.myTextChunkArrayList = storeMyTextChunkArrayList;
     }
 
+    public void updateData(ArrayList<MyTextChunk> newData) {
+        this.myTextChunkArrayList = newData;
+        notifyDataSetChanged();
+    }
+
     @NonNull
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        //myLog("MyTextChunkAdapter.onCreateViewHolder");
+        // myLog("MyTextChunkAdapter.onCreateViewHolder");
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.recyclerview_item, parent, false);
         return new MyViewHolder(view);
     }
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        //myLog("MyTextChunkAdapter.onBindViewHolder");
+        // myLog("MyTextChunkAdapter.onBindViewHolder");
         final MyTextChunk myTextChunk = getValueAt(position);
         MyTextChunkRVAdapter.MyViewHolder myViewHolder = (MyTextChunkRVAdapter.MyViewHolder) holder;
         if (myTextChunk != null) {
             setupValuesInWidgets(myViewHolder, myTextChunk);
         }
     }
-
 
     private MyTextChunk getValueAt(int position) {
         return myTextChunkArrayList.get(position);
@@ -60,13 +63,12 @@ public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     private void setupValuesInWidgets(MyTextChunkRVAdapter.MyViewHolder itemHolder, MyTextChunk myTextChunk) {
         if (myTextChunk != null) {
-            //myLog("zetext : " + myTextChunk.getText());
-            //itemHolder.tvText.setText(myTextChunk.getText());
+            // myLog("zetext : " + myTextChunk.getText());
+            // itemHolder.tvText.setText(myTextChunk.getText());
             itemHolder.tvText.setText(Html.fromHtml(myTextChunk.getText()));
             itemHolder.tvText.setTextSize(myTextChunk.getCharSize());
         }
     }
-
 
     public static class MyViewHolder extends RecyclerView.ViewHolder {
 
@@ -75,7 +77,7 @@ public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         public MyViewHolder(View itemView) {
             super(itemView);
 
-           tvText = itemView.findViewById(R.id.tvText);
+            tvText = itemView.findViewById(R.id.tvText);
 
         }
     }
