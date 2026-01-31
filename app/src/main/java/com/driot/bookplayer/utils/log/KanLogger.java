@@ -16,6 +16,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
@@ -51,6 +52,9 @@ public class KanLogger {
 
     private static final String LOGCAT_PREFIX = "toto";
 
+    /** Single thread so file writes stay in call order. */
+    private static final ExecutorService logFileExecutor = Executors.newSingleThreadExecutor();
+
     @SuppressWarnings("SpellCheckingInspection")
     public static final String[] MD5_MY_PHONE = { "", "eb621dde2a2672e66b6e6ef5acbbbb99" // "OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
             , "a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys
@@ -80,7 +84,6 @@ public class KanLogger {
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
-        // if (isMyPhoneDev()) { setDevSpecialOption(); }
     }
 
     /////////////////////////////////
@@ -131,16 +134,16 @@ public class KanLogger {
     }
 
     public static void myLog(String prefix, String str) {
-        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        String logcatPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {
             str = "...";
         }
         if (writeTechLogs()) {
             writeToLogFile("VER.. " + parsePrefix(prefix) + ".. " + str);
-            Log.v(newPrefix, str);
+            Log.v(logcatPrefix, str);
         } else {
             if (LOG_THEM_ALL)
-                Log.v(newPrefix, str);
+                Log.v(logcatPrefix, str);
         }
     }
 
@@ -149,16 +152,16 @@ public class KanLogger {
     }
 
     public static void myLogI(String prefix, String str) {
-        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        String logcatPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {
             str = "...";
         }
         if (writeTechLogs()) {
             writeToLogFile("INF.. " + parsePrefix(prefix) + ".. " + str);
-            Log.i(newPrefix, str);
+            Log.i(logcatPrefix, str);
         } else {
             if (LOG_THEM_ALL)
-                Log.i(newPrefix, str);
+                Log.i(logcatPrefix, str);
         }
     }
 
@@ -167,10 +170,10 @@ public class KanLogger {
     }
 
     public static void myLogD(String prefix, String str) {
-        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        String logcatPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (LOG_DEBUG && writeTechLogs() || BuildConfig.DEBUG) {
             writeToLogFile("DEB.. " + parsePrefix(prefix) + ".. " + str);
-            Log.d(newPrefix, str);
+            Log.d(logcatPrefix, str);
         }
     }
 
@@ -179,16 +182,16 @@ public class KanLogger {
     }
 
     public static void myLogW(String prefix, String str) {
-        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        String logcatPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {
             str = "...";
         }
         if (writeTechLogs()) {
             writeToLogFile("WAR.. " + parsePrefix(prefix) + ".. " + str);
-            Log.w(newPrefix, str);
+            Log.w(logcatPrefix, str);
         } else {
             if (LOG_THEM_ALL)
-                Log.w(newPrefix, str);
+                Log.w(logcatPrefix, str);
         }
     }
 
@@ -222,16 +225,16 @@ public class KanLogger {
     }
 
     public static void myLogE(String prefix, String str) {
-        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        String logcatPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (TextUtils.isEmpty(str)) {
             str = "...";
         }
         if (writeTechLogs()) {
             writeToLogFile("ERR.. " + parsePrefix(prefix) + ".. " + str);
-            Log.e(newPrefix, str);
+            Log.e(logcatPrefix, str);
         } else {
             if (LOG_THEM_ALL)
-                Log.e(newPrefix, str);
+                Log.e(logcatPrefix, str);
         }
     }
 
@@ -240,8 +243,8 @@ public class KanLogger {
     }
 
     public static void myLogBundle(String prefix, Bundle bundle) {
-        String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
-        myLog(newPrefix, getBundleString(bundle));
+        String logcatPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
+        myLog(logcatPrefix, getBundleString(bundle));
     }
 
     public static String getBundleString(Bundle bundle) {
@@ -395,8 +398,8 @@ public class KanLogger {
             return;
         }
 
-        // Offload to background thread
-        Executors.newSingleThreadExecutor().execute(() -> {
+        // Offload to shared single-thread executor so order is preserved
+        logFileExecutor.execute(() -> {
             String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
             String time = new SimpleDateFormat("HH:mm:ss.SSS", Locale.getDefault()).format(new Date());
             String fileName = LOG_FILE_NAME + "_" + date + ".txt";

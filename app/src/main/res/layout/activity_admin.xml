@@ -100,7 +100,7 @@
     <!-- Technical log -->
     <LinearLayout
         style="@style/LinearLayoutOptionsVertical"
-        android:background="@drawable/rounded_corner"
+        android:background="@drawable/rounded_corner_surface_variant"
         >
 
         <TextView

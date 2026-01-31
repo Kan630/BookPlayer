@@ -1,23 +1,18 @@
 package com.driot.bookplayer.activities;
 
-import android.content.ComponentName;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.fragment.app.FragmentTransaction;
 
 import androidx.annotation.Nullable;
 
@@ -30,7 +25,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Sql;
-import com.driot.bookplayer.fragments.LiveLogFragment;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -92,14 +86,14 @@ public class AdminActivity extends LoggingActivity {
         TextView tvHeight = findViewById(R.id.tv_live_log_height);
         int savedHeight = getSharedPreferences("admin_prefs", MODE_PRIVATE)
                 .getInt(PREF_LIVE_LOG_HEIGHT, DEFAULT_LIVE_LOG_HEIGHT);
-        int progress = (savedHeight - 25) / 10; // Convert percentage to slider position (0-5)
+        int progress = Math.max(0, Math.min(5, (savedHeight - 10) / 12)); // Convert percentage to slider position (0-5), range 10-70%
         seekBar.setProgress(progress);
         tvHeight.setText("Live Log Height: " + savedHeight + "%");
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int percentage = 25 + (progress * 10); // 0->25%, 1->35%, 2->45%, 3->55%, 4->65%, 5->75%
+                int percentage = 10 + (progress * 12); // 0->10%, 1->22%, 2->34%, 3->46%, 4->58%, 5->70%
                 tvHeight.setText("Live Log Height: " + percentage + "%");
                 if (fromUser) {
                     getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()

@@ -24,6 +24,7 @@ public final class LoggerStaticHelper {
     // ---------------- Public logging wrappers (same names/signatures) ----------------
 
     public static void myLog(String str)           { KanLogger.myLog(getCallerTag(), str); }
+    public static void myLogNoPrefix(String str)           { KanLogger.myLog("", str); }
     public static void myLogD(String str)          { KanLogger.myLogD(getCallerTag(), str); }
     public static void myLogI(String str)          { KanLogger.myLogI(getCallerTag(), str); }
     public static void myLogW(String str)          { KanLogger.myLogW(getCallerTag(), str); }
