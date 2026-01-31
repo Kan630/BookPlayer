@@ -461,6 +461,11 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="option_epub_split_mode_toc">Basado en el Índice (un capítulo por entrada de índice)</string>
     <string name="option_epub_split_mode_spine">Secuencia (un capítulo por entrada de libro)</string>
     <string name="option_epub_split_mode_explain_text">Basado en el Índice crea más capítulos pero preserva estructura. Basado en secuencia es más simple y crea menos capítulos.</string>
+    <string name="option_ebook_remove_references">Eliminar marcadores de referencia (notas al pie)</string>
+    <string name="option_ebook_remove_references_explain">Elimina las referencias en el texto como [1] y los bloques de notas al pie al final de las páginas para que TTS lea solo el texto principal.</string>
+    <string name="option_theme_mode_title">Modo de tema</string>
+    <string name="option_theme_mode_force_checkbox">Anular tema del sistema</string>
+    <string name="option_theme_mode_force_explain">Cuando está habilitado, la aplicación ignora la configuración claro/oscuro de su dispositivo y usa su elección a continuación. Cuando está deshabilitado, la aplicación sigue el sistema.</string>
     <string name="option_automotive_on">Conectarse a Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Reanudar la reproducción automáticamente al conectarse al coche.</string>
 
@@ -677,6 +682,15 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="deleted_on">eliminado el</string>
     <string name="added_on">añadido el</string>
     <string name="MB_taken_by_databases">" MB ocupados por la base de datos"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">Tiempo de Reproducción</string>
+    <string name="stats_book_time">* Audiolibro</string>
+    <string name="stats_tts_time">* Libro Electrónico</string>
+    <string name="stats_radio_time">* Radio</string>
+    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_note">(Estas estadísticas comenzaron en 2025 (oct-nov)</string>
+    <string name="stats_install_date_label">Fecha de instalación : </string>
     <string name="bMassImport">Importación masiva</string>
     <string name="bOpenMassImport_desc">Importación masiva: crea tantos audiolibros como elementos haya en la carpeta que elijas.</string>
     <string name="bOpenFolder_desc">Elige una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
@@ -1025,6 +1039,8 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="select_at_least_one_item">Seleccione al menos un elemento para importar.</string>
     <string name="mass_import_selected_summary">%1$d candidatos seleccionados para importar (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">Mostrar barra de almacenamiento</string>
+    <string name="option_mass_import_include_subfolders">Buscar también en subcarpetas</string>
+    <string name="option_app_language_subtitle">Puede no funcionar en algunos dispositivos.</string>
 
 
     <plurals name="audio_files_count">

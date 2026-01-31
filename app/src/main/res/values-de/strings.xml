@@ -465,6 +465,11 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_epub_split_mode_toc">TOC-basiert (ein Kapitel pro Inhaltsverzeichnis-Eintrag)</string>
     <string name="option_epub_split_mode_spine">Spine (ein Kapitel pro Buch-Eintrag)</string>
     <string name="option_epub_split_mode_explain_text">Auf Inhaltsverzeichnis basierend erstellt mehr Kapitel, bewahrt aber die Struktur. Spine-basiert ist einfacher und erstellt weniger Kapitel.</string>
+    <string name="option_ebook_remove_references">Referenzmarker entfernen (Fußnoten)</string>
+    <string name="option_ebook_remove_references_explain">Entfernt Textverweise wie [1] und Fußnotenblöcke am Ende von Seiten, damit TTS nur den Haupttext liest.</string>
+    <string name="option_theme_mode_title">Designmodus</string>
+    <string name="option_theme_mode_force_checkbox">Überschreiben des Systemdesigns</string>
+    <string name="option_theme_mode_force_explain">Wenn aktiviert, ignoriert die App die Hell/Dunkel-Einstellung Ihres Geräts und verwendet Ihre unten stehende Auswahl. Wenn deaktiviert, folgt die App dem System.</string>
     <string name="option_automotive_on">Mit Android Auto verbinden.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe automatisch fortsetzen, wenn mit dem Auto verbunden.</string>
 
@@ -680,6 +685,15 @@ Sind Sie sicher?"</string>
     <string name="deleted_on">gelöscht am</string>
     <string name="added_on">hinzugefügt am</string>
     <string name="MB_taken_by_databases">" MB belegt von Datenbank"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">Wiedergabezeit</string>
+    <string name="stats_book_time">* Hörbuch</string>
+    <string name="stats_tts_time">* E-Book</string>
+    <string name="stats_radio_time">* Radio</string>
+    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_note">(Diese Statistiken begannen im Jahr 2025 (Okt-Nov)</string>
+    <string name="stats_install_date_label">Installationsdatum : </string>
     <string name="bMassImport">Massenimport</string>
     <string name="bOpenMassImport_desc">Massenimport : So viele Hörbücher erstellen, wie Elemente im ausgewählten Ordner vorhanden sind</string>
     <string name="bOpenFolder_desc">Ordner auswählen : Alle Audios (auch in Unterordnern, falls vorhanden) werden im selben Buch importiert.</string>
@@ -1028,6 +1042,8 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="select_at_least_one_item">Bitte mindestens ein Element zum Import auswählen.</string>
     <string name="mass_import_selected_summary">%1$d Kandidaten zur Import ausgewählt (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">Speicherleiste anzeigen</string>
+    <string name="option_mass_import_include_subfolders">Auch in Unterordnern suchen</string>
+    <string name="option_app_language_subtitle">Funktioniert möglicherweise nicht auf einigen Geräten.</string>
 
 
     <plurals name="audio_files_count">

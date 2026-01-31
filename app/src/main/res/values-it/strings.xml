@@ -465,6 +465,11 @@
     <string name="option_epub_split_mode_toc">Basato sull\'Indice (un capitolo per voce indice)</string>
     <string name="option_epub_split_mode_spine">Sequenza (un capitolo per voce libro)</string>
     <string name="option_epub_split_mode_explain_text">Basato sull\'Indice crea più capitoli ma preserva struttura. Sequenza è più semplice e crea meno capitoli.</string>
+    <string name="option_ebook_remove_references">Rimuovi marcatori di riferimento (note a piè di pagina)</string>
+    <string name="option_ebook_remove_references_explain">Rimuove i riferimenti nel testo come [1] e i blocchi di note a piè di pagina alla fine delle pagine in modo che TTS legga solo il testo principale.</string>
+    <string name="option_theme_mode_title">Modalità tema</string>
+    <string name="option_theme_mode_force_checkbox">Sostituisci tema di sistema</string>
+    <string name="option_theme_mode_force_explain">Quando abilitato, l\'app ignora l\'impostazione chiaro/scuro del dispositivo e utilizza la tua scelta qui sotto. Quando disabilitato, l\'app segue il sistema.</string>
     <string name="option_automotive_on">Connettersi ad Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Riprendere automaticamente la riproduzione quando si collega all\'auto.</string>
 
@@ -680,6 +685,15 @@
     <string name="deleted_on">eliminato il</string>
     <string name="added_on">aggiunto il</string>
     <string name="MB_taken_by_databases">" MB occupati dal database"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">Tempo di Riproduzione</string>
+    <string name="stats_book_time">* Audiolibro</string>
+    <string name="stats_tts_time">* E-book</string>
+    <string name="stats_radio_time">* Radio</string>
+    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_note">(Queste statistiche sono iniziate nel 2025 (ott-nov)</string>
+    <string name="stats_install_date_label">Data di installazione : </string>
     <string name="bMassImport">Importazione massiva</string>
     <string name="bOpenMassImport_desc">Importazione massiva: crea tanti audiolibri quanti sono gli elementi nella cartella che selezionerai</string>
     <string name="bOpenFolder_desc">Seleziona una cartella: tutti gli audio (anche nelle sottocartelle, se presenti) saranno importati nello stesso libro.</string>
@@ -1028,6 +1042,8 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="select_at_least_one_item">Seleziona almeno un elemento da importare.</string>
     <string name="mass_import_selected_summary">%1$d candidati selezionati per l\'importazione (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">Mostra barra archiviazione</string>
+    <string name="option_mass_import_include_subfolders">Cerca anche nelle sottocartelle</string>
+    <string name="option_app_language_subtitle">Potrebbe non funzionare su alcuni dispositivi.</string>
 
 
     <plurals name="audio_files_count">

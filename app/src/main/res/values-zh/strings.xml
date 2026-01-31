@@ -464,6 +464,11 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_epub_split_mode_toc">基于目录 (每个目录条目一章)</string>
     <string name="option_epub_split_mode_spine">Spine (每本书籍条目一章)</string>
     <string name="option_epub_split_mode_explain_text">基于目录创建更多章节但保留结构。基于Spine更简单，章节更少。</string>
+    <string name="option_ebook_remove_references">删除参考标记（脚注）</string>
+    <string name="option_ebook_remove_references_explain">删除文本中的引用（如[1]）和页面末尾的脚注块，以便TTS仅读取主要文本。</string>
+    <string name="option_theme_mode_title">主题模式</string>
+    <string name="option_theme_mode_force_checkbox">覆盖系统主题</string>
+    <string name="option_theme_mode_force_explain">启用时，应用程序会忽略设备的亮/暗设置并使用下面的选择。禁用时，应用程序遵循系统。</string>
     <string name="option_automotive_on">连接到 Android Auto。</string>
     <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
 
@@ -679,6 +684,15 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="deleted_on">删除于</string>
     <string name="added_on">添加于</string>
     <string name="MB_taken_by_databases">" MB 被数据库占用"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">播放时间</string>
+    <string name="stats_book_time">* 有声读物</string>
+    <string name="stats_tts_time">* 电子书</string>
+    <string name="stats_radio_time">* 广播</string>
+    <string name="stats_podcast_time">* 播客</string>
+    <string name="stats_note">(这些统计数据从2025年开始（10月-11月）</string>
+    <string name="stats_install_date_label">安装日期 : </string>
     <string name="bMassImport">批量导入</string>
     <string name="bOpenMassImport_desc">批量导入：将根据你选择的文件夹中的项目数量创建相应数量的有声书。</string>
     <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的（如有））都会被导入到同一本书中。</string>
@@ -1026,6 +1040,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="select_at_least_one_item">请至少选择一项以导入。</string>
     <string name="mass_import_selected_summary">已选 %1$d 个候选用于导入（%2$s）</string>
     <string name="option_mass_import_display_storage_bar">显示存储栏</string>
+    <string name="option_mass_import_include_subfolders">也在子文件夹中搜索</string>
+    <string name="option_app_language_subtitle">可能在某些设备上无法使用。</string>
 
 
     <plurals name="audio_files_count">

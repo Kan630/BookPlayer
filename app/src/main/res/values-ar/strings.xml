@@ -464,6 +464,11 @@
     <string name="option_epub_split_mode_toc">يعتمد على جدول المحتويات (فصل واحد لكل إدخال جدول محتويات)</string>
     <string name="option_epub_split_mode_spine">Spine (فصل واحد لكل إدخال كتاب)</string>
     <string name="option_epub_split_mode_explain_text">يعتمد على جدول المحتويات لإنشاء المزيد من الفصول ولكنه يحافظ على البنية. Spine أبسط وينشئ فصولًا أقل.</string>
+    <string name="option_ebook_remove_references">إزالة علامات المرجع (الحواشي)</string>
+    <string name="option_ebook_remove_references_explain">يزيل المراجع في النص مثل [1] وكتل الحواشي في نهاية الصفحات حتى يقرأ TTS النص الرئيسي فقط.</string>
+    <string name="option_theme_mode_title">وضع السمة</string>
+    <string name="option_theme_mode_force_checkbox">تجاوز سمة النظام</string>
+    <string name="option_theme_mode_force_explain">عند التمكين، يتجاهل التطبيق إعداد الضوء/الظلام للجهاز الخاص بك ويستخدم اختيارك أدناه. عند التعطيل، يتبع التطبيق النظام.</string>
     <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
 
@@ -679,6 +684,15 @@
     <string name="deleted_on">تم الحذف في</string>
     <string name="added_on">تمت الإضافة في</string>
     <string name="MB_taken_by_databases">" ميغابايت مشغولة بقاعدة البيانات"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">وقت التشغيل</string>
+    <string name="stats_book_time">* الكتب الصوتية</string>
+    <string name="stats_tts_time">* الكتب الإلكترونية</string>
+    <string name="stats_radio_time">* الراديو</string>
+    <string name="stats_podcast_time">* البودكاست</string>
+    <string name="stats_note">(بدأت هذه الإحصائيات في 2025 (أكتوبر-نوفمبر)</string>
+    <string name="stats_install_date_label">تاريخ التثبيت : </string>
     <string name="bMassImport">استيراد جماعي</string>
     <string name="bOpenMassImport_desc">استيراد جماعي: أنشئ عددًا من الكتب الصوتية يساوي عدد العناصر في المجلد الذي ستختاره.</string>
     <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
@@ -1027,6 +1041,8 @@
     <string name="select_at_least_one_item">يرجى اختيار عنصر واحد على الأقل للاستيراد.</string>
     <string name="mass_import_selected_summary">تم اختيار %1$d مرشح للاستيراد (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">عرض شريط التخزين</string>
+    <string name="option_mass_import_include_subfolders">البحث أيضًا في المجلدات الفرعية</string>
+    <string name="option_app_language_subtitle">قد لا يعمل على بعض الأجهزة.</string>
 
 
     <plurals name="audio_files_count">

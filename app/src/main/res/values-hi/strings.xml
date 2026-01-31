@@ -468,6 +468,11 @@
     <string name="option_epub_split_mode_toc">विषय-सूची पर आधारित (प्रति सामग्री तालिका प्रविष्टि एक अध्याय)</string>
     <string name="option_epub_split_mode_spine">Spine (प्रति पुस्तक प्रविष्टि एक अध्याय)</string>
     <string name="option_epub_split_mode_explain_text">विषय-सूची पर आधारित अधिक अध्याय बनाता है लेकिन संरचना को सुरक्षित रखता है। Spine पर आधारित सरल है और कम अध्याय बनाता है।</string>
+    <string name="option_ebook_remove_references">संदर्भ मार्कर हटाएं (फुटनोट)</string>
+    <string name="option_ebook_remove_references_explain">[1] जैसे पाठ संदर्भ और पृष्ठों के अंत में फुटनोट ब्लॉक हटाता है ताकि TTS केवल मुख्य पाठ पढ़े।</string>
+    <string name="option_theme_mode_title">थीम मोड</string>
+    <string name="option_theme_mode_force_checkbox">सिस्टम थीम ओवरराइड करें</string>
+    <string name="option_theme_mode_force_explain">सक्षम होने पर, एप आपके डिवाइस की लाइट/डार्क सेटिंग को अनदेखा करता है और नीचे आपकी पसंद का उपयोग करता है। अक्षम होने पर, एप सिस्टम का अनुसरण करता है।</string>
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
     <string name="option_automotive_auto_resume_on_car_connect">कार से कनेक्ट होने पर प्लेबैक स्वतः पुनः आरंभ करें।</string>
 
@@ -683,6 +688,15 @@
     <string name="deleted_on">हटाया गया दिनांक</string>
     <string name="added_on">जोड़ा गया दिनांक</string>
     <string name="MB_taken_by_databases">" MB डेटाबेस"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">प्लेबैक समय</string>
+    <string name="stats_book_time">* ऑडियोबुक</string>
+    <string name="stats_tts_time">* ई-पुस्तक</string>
+    <string name="stats_radio_time">* रेडियो</string>
+    <string name="stats_podcast_time">* पॉडकास्ट</string>
+    <string name="stats_note">(ये आंकड़े 2025 में शुरू हुए (अक्टूबर-नवंबर)</string>
+    <string name="stats_install_date_label">इंस्टॉल तिथि : </string>
     <string name="bMassImport">मास आयात</string>
     <string name="bOpenMassImport_desc">मास आयात : आप जिस फ़ोल्डर को चुनेंगे, उसमें मौजूद प्रत्येक आइटम के लिए एक ऑडियोबुक बनाएं</string>
     <string name="bOpenFolder_desc">फ़ोल्डर चुनें : सभी ऑडियो (यदि उपफ़ोल्डर हैं तो उनमें भी) एक ही किताब में आयात हो जाएँगे।</string>
@@ -1031,6 +1045,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="select_at_least_one_item">इम्पोर्ट के लिए कम से कम एक आइटम चुनें।</string>
     <string name="mass_import_selected_summary">इम्पोर्ट के लिए %1$d उम्मीदवार चुने (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">स्टोरेज बार दिखाएं</string>
+    <string name="option_mass_import_include_subfolders">उपफ़ोल्डर्स में भी खोजें</string>
+    <string name="option_app_language_subtitle">कुछ उपकरणों पर काम नहीं कर सकता है।</string>
 
 
     <plurals name="audio_files_count">

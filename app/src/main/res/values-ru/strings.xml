@@ -464,6 +464,11 @@
     <string name="option_epub_split_mode_toc">По оглавлению (одна глава на пункт)</string>
     <string name="option_epub_split_mode_spine">Spine (одна глава на элемент книги)</string>
     <string name="option_epub_split_mode_explain_text">По оглавлению создает больше глав, но сохраняет структуру. По Spine проще и меньше глав.</string>
+    <string name="option_ebook_remove_references">Удалить маркеры ссылок (сноски)</string>
+    <string name="option_ebook_remove_references_explain">Удаляет ссылки в тексте, такие как [1], и блоки сносок в конце страниц, чтобы TTS читал только основной текст.</string>
+    <string name="option_theme_mode_title">Режим темы</string>
+    <string name="option_theme_mode_force_checkbox">Переопределить системную тему</string>
+    <string name="option_theme_mode_force_explain">При включении приложение игнорирует настройку светлой/темной темы вашего устройства и использует ваш выбор ниже. При отключении приложение следует системе.</string>
     <string name="option_automotive_on">Подключиться к Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Автоматически возобновлять воспроизведение при подключении к автомобилю.</string>
 
@@ -679,6 +684,15 @@
     <string name="deleted_on">удалено</string>
     <string name="added_on">добавлено</string>
     <string name="MB_taken_by_databases">" МБ занято базой данных"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">Время воспроизведения</string>
+    <string name="stats_book_time">* Аудиокнига</string>
+    <string name="stats_tts_time">* Электронная книга</string>
+    <string name="stats_radio_time">* Радио</string>
+    <string name="stats_podcast_time">* Подкаст</string>
+    <string name="stats_note">(Эта статистика началась в 2025 году (окт-ноя)</string>
+    <string name="stats_install_date_label">Дата установки : </string>
     <string name="bMassImport">Массовый импорт</string>
     <string name="bOpenMassImport_desc">Массовый импорт: создайте столько аудиокниг, сколько элементов в выбранной вами папке.</string>
     <string name="bOpenFolder_desc">Выберите папку: все аудиофайлы (в том числе в подпапках, если они есть) будут импортированы в одну и ту же книгу.</string>
@@ -1027,6 +1041,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="select_at_least_one_item">Выберите хотя бы один элемент для импорта.</string>
     <string name="mass_import_selected_summary">%1$d кандидатов выбрано для импорта (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">Показывать панель хранилища</string>
+    <string name="option_mass_import_include_subfolders">Искать также в подпапках</string>
+    <string name="option_app_language_subtitle">Может не работать на некоторых устройствах.</string>
 
 
     <plurals name="audio_files_count">
