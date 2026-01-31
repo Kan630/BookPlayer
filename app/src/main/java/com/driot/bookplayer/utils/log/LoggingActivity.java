@@ -21,18 +21,22 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 
+import com.driot.bookplayer.fragments.LiveLogFragment;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.LocaleHelper;
 //import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-
 
 /**
  * This abstract class extends the Activity class and overrides
@@ -41,10 +45,15 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 public abstract class LoggingActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "Lifecycle";
+    private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
+
     protected final String TAG_FROM_BRACKET = "[" + getClass().getSimpleName() + "]: ";
     protected final String TAG_FROM = "." + getClass().getSimpleName();
 
-    //protected final LoggerHelper logger = new LoggerHelper(getClass());
+    private LiveLogFragment liveLogFragment;
+    private FrameLayout liveLogContainer;
+
+    // protected final LoggerHelper logger = new LoggerHelper(getClass());
 
     @Override
     protected void attachBaseContext(Context newBase) {
@@ -53,7 +62,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onBackPressed() - user pressed BACK");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onBackPressed() - user pressed BACK");
         myLogI("--- user pressed BACK ---     on " + TAG_FROM_BRACKET);
         super.onBackPressed(); // keep default behaviour (finish / navigate back)
     }
@@ -65,7 +75,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
      * lifecycle callbacks are called except for onDestroy().
      * 
      * @param savedInstanceState
-     *            object that contains saved state information.
+     *                           object that contains saved state information.
      */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -84,13 +94,18 @@ public abstract class LoggingActivity extends AppCompatActivity {
             // The activity is being re-created. Use the
             // savedInstanceState bundle for initializations either
             // during onCreate or onRestoreInstanceState().
-            if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity re-created. - Called by [" + calledBy  + "]");
+            if (LOG_LIFECYCLE_TRACE)
+                myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity re-created. - Called by [" + calledBy + "]");
 
         } else {
             // Activity is being created anew. No prior saved
             // instance state information available in Bundle object.
-            if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity created anew. - Called by [" + calledBy  + "]");
+            if (LOG_LIFECYCLE_TRACE)
+                myLifecycleLog(TAG_FROM_BRACKET + "onCreate(): activity created anew. - Called by [" + calledBy + "]");
         }
+
+        // Initialize live log fragment if enabled
+        initializeLiveLogFragment();
 
     }
 
@@ -105,7 +120,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // Always call super class for necessary
         // initialization/implementation.
         super.onStart();
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onStart() - the activity is about to become visible");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onStart() - the activity is about to become visible");
     }
 
     /**
@@ -122,7 +138,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onResume();
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onResume() - the activity has become visible (it is now \"resumed\")");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onResume() - the activity has become visible (it is now \"resumed\")");
     }
 
     /**
@@ -138,7 +155,9 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onPause();
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET
+                    + "onPause() - another activity is taking focus (this activity is about to be \"paused\")");
     }
 
     /**
@@ -152,7 +171,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onStop();
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onStop() - the activity is no longer visible (it is now \"stopped\")");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onStop() - the activity is no longer visible (it is now \"stopped\")");
     }
 
     /**
@@ -165,7 +185,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onRestart();
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onRestart() - the activity is about to be restarted()");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onRestart() - the activity is about to be restarted()");
     }
 
     /**
@@ -179,7 +200,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
         // initialization/implementation and then log which lifecycle
         // hook method is being called.
         super.onDestroy();
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onDestroy() - the activity is about to be destroyed");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onDestroy() - the activity is about to be destroyed");
     }
 
     // Ajouts Tonio
@@ -187,36 +209,40 @@ public abstract class LoggingActivity extends AppCompatActivity {
     @Override
     protected void onSaveInstanceState(@NonNull Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onSaveInstanceState()");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onSaveInstanceState()");
     }
 
     @Override
     protected void onRestoreInstanceState(@NonNull Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onRestoreInstanceState()");
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onRestoreInstanceState()");
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onActivityResult() - request code " + requestCode);
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onActivityResult() - request code " + requestCode);
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onNewIntent() + intent : " + intent.getAction());
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onNewIntent() + intent : " + intent.getAction());
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) { //Notamment le changement de Locale
+    public void onConfigurationChanged(@NonNull Configuration newConfig) { // Notamment le changement de Locale
         super.onConfigurationChanged(newConfig);
-        if (LOG_LIFECYCLE_TRACE) myLifecycleLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
+        if (LOG_LIFECYCLE_TRACE)
+            myLifecycleLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
     }
 
-
     /// ///////////////////////////////////////////////////////////////////
-    ///            LOGGER                  (Extend Activity)
+    /// LOGGER (Extend Activity)
     /// ///////////////////////////////////////////////////////////////////
 
     protected void myLog(String str) {
@@ -242,6 +268,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
     protected void myLogEE(Throwable t, String str) {
         KanLogger.myLogEE(t, TAG_FROM, str);
     }
+
     protected void myLogInFile(String str) {
         KanLogger.myLogInFile(TAG_FROM, str);
     }
@@ -274,18 +301,81 @@ public abstract class LoggingActivity extends AppCompatActivity {
         FirebaseAnalyticsHelper.logCrashlytics(strLog);
     }
 
+    /// ///////////////////////////////////////////////////////////////////
+    /// LOGGER (For this specific Helper Class)
+    /// ///////////////////////////////////////////////////////////////////
+    /*
+     * private void myLifecycleLog(String str) { KanLogger.myLogD(LOG_TAG, str); }
+     * private void myLifecycleLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
+     * private void myLifecycleLogEE(Throwable t, String str) { KanLogger.myLogEE(t,
+     * LOG_TAG, str); }
+     * 
+     */
+    private void myLifecycleLog(String str) {
+        KanLogger.myLogD(LOG_TAG, str);
+    }
+
+    private void myLifecycleLogE(String str) {
+        KanLogger.myLogE(LOG_TAG, str);
+    }
+
+    private void myLifecycleLogEE(Throwable t, String str) {
+        KanLogger.myLogEE(t, LOG_TAG, str);
+    }
 
     /// ///////////////////////////////////////////////////////////////////
-    ///            LOGGER        (For this specific Helper Class)
+    /// LIVE LOG FRAGMENT SUPPORT
     /// ///////////////////////////////////////////////////////////////////
-/*
-    private void myLifecycleLog(String str) { KanLogger.myLogD(LOG_TAG, str); }
-    private void myLifecycleLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
-    private void myLifecycleLogEE(Throwable t, String str) { KanLogger.myLogEE(t, LOG_TAG, str); }
-    
- */
-    private void myLifecycleLog(String str) { KanLogger.myLogD(LOG_TAG, str); }
-    private void myLifecycleLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
-    private void myLifecycleLogEE(Throwable t, String str) { KanLogger.myLogEE(t, LOG_TAG, str); }
-    
+
+    @Override
+    public void setContentView(int layoutResID) {
+        // Check if live logs are enabled
+        boolean showLiveLogs = getSharedPreferences("admin_prefs", MODE_PRIVATE)
+                .getBoolean(PREF_SHOW_LIVE_LOGS, false);
+        
+        if (showLiveLogs) {
+            // Create wrapper layout
+            LinearLayout wrapper = new LinearLayout(this);
+            wrapper.setOrientation(LinearLayout.VERTICAL);
+            wrapper.setLayoutParams(new ViewGroup.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    ViewGroup.LayoutParams.MATCH_PARENT));
+            
+            // Inflate original content into a container
+            View originalContent = getLayoutInflater().inflate(layoutResID, null);
+            LinearLayout.LayoutParams contentParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0,
+                    1.0f); // 50% weight
+            wrapper.addView(originalContent, contentParams);
+            
+            // Add fragment container
+            liveLogContainer = new FrameLayout(this);
+            liveLogContainer.setId(View.generateViewId());
+            LinearLayout.LayoutParams fragmentParams = new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MATCH_PARENT,
+                    0,
+                    1.0f); // 50% weight
+            wrapper.addView(liveLogContainer, fragmentParams);
+            
+            super.setContentView(wrapper);
+        } else {
+            super.setContentView(layoutResID);
+        }
+    }
+
+    private void initializeLiveLogFragment() {
+        if (liveLogContainer != null) {
+            try {
+                liveLogFragment = LiveLogFragment.newInstance();
+                getSupportFragmentManager().beginTransaction()
+                        .replace(liveLogContainer.getId(), liveLogFragment, "live_log")
+                        .commit();
+                myLogI("Live log fragment initialized");
+            } catch (Exception e) {
+                myLogEE(e, "initializeLiveLogFragment");
+            }
+        }
+    }
+
 }
