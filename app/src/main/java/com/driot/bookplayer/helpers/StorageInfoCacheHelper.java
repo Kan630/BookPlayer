@@ -32,16 +32,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class StorageInfoCacheHelper {
 
-    private static final String PREF_KEY_INTERNAL_TOTAL = "STORAGE_INTERNAL_TOTAL";
-    private static final String PREF_KEY_INTERNAL_USED_BY_OTHERS = "STORAGE_INTERNAL_USED_BY_OTHERS";
-    private static final String PREF_KEY_INTERNAL_USED_BY_BOOKPLAYER = "STORAGE_INTERNAL_USED_BY_BOOKPLAYER";
-    private static final String PREF_KEY_INTERNAL_TIMESTAMP = "STORAGE_INTERNAL_TIMESTAMP";
-    
-    private static final String PREF_KEY_SDCARD_TOTAL = "STORAGE_SDCARD_TOTAL";
-    private static final String PREF_KEY_SDCARD_USED_BY_OTHERS = "STORAGE_SDCARD_USED_BY_OTHERS";
-    private static final String PREF_KEY_SDCARD_USED_BY_BOOKPLAYER = "STORAGE_SDCARD_USED_BY_BOOKPLAYER";
-    private static final String PREF_KEY_SDCARD_TIMESTAMP = "STORAGE_SDCARD_TIMESTAMP";
-    
+    private static final boolean DEBUG = false;
+
     private static final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     /**
@@ -52,50 +44,51 @@ public class StorageInfoCacheHelper {
         Application app = (Application) context.getApplicationContext();
         executorService.execute(() -> {
             try {
-                myLogI("StorageInfoCacheHelper: Starting storage calculation at startup");
+                myLog("StorageInfoCacheHelper: Starting storage calculation at startup");
                 // First populate missing sizes in database
                 populateZikFileSizes(app);
                 calculateInternalStorage(app);
                 calculateSDCardStorage(app);
                 calculateLinkedAudios(app);
-                myLogI("StorageInfoCacheHelper: Storage calculation completed");
+                myLog("StorageInfoCacheHelper: Storage calculation completed");
             } catch (Exception e) {
                 myLogEE(e, "StorageInfoCacheHelper: Error calculating storage at startup");
             }
         });
     }
-    
+
     /**
-     * Populate missing size fields in ZikFile database by checking actual file sizes on filesystem
+     * Populate missing size fields in ZikFile database by checking actual file
+     * sizes on filesystem
      */
     private static void populateZikFileSizes(Application app) {
         try {
-            myLogI("StorageInfoCacheHelper: Populating missing ZikFile sizes from filesystem");
+            myLogD("StorageInfoCacheHelper: Populating missing ZikFile sizes from filesystem");
             long startTime = System.currentTimeMillis();
-            
+
             // Get all ZikFiles where size is 0 or missing
             List<ZikFile> allZikFiles = AppDatabase.getDatabase(app).zikFileDao().getAll();
             int updatedCount = 0;
             int skippedCount = 0;
             int errorCount = 0;
-            
+
             for (ZikFile zikFile : allZikFiles) {
                 // Skip if size is already set (greater than 0)
                 if (zikFile.getSize() > 0) {
                     skippedCount++;
                     continue;
                 }
-                
+
                 String path = zikFile.getPath();
                 if (path == null || path.isEmpty()) {
                     skippedCount++;
                     continue;
                 }
-                
+
                 try {
                     // Get file size from filesystem
                     long fileSize = getFileSizeFromPath(app, path);
-                    
+
                     if (fileSize > 0) {
                         // Update the database
                         zikFile.setSize(fileSize);
@@ -105,22 +98,24 @@ public class StorageInfoCacheHelper {
                     } else {
                         // File not found or inaccessible
                         skippedCount++;
-                        //myLogE("Size update -File Not found- for ZikFile id=" + zikFile.getId() + ", path=" + path);
+                        // myLogE("Size update -File Not found- for ZikFile id=" + zikFile.getId() + ",
+                        // path=" + path);
                     }
                 } catch (Exception e) {
                     errorCount++;
-                    myLogW("StorageInfoCacheHelper: Error getting size for ZikFile id=" + zikFile.getId() + ", path=" + path + ": " + e.getMessage());
+                    myLogW("StorageInfoCacheHelper: Error getting size for ZikFile id=" + zikFile.getId() + ", path="
+                            + path + ": " + e.getMessage());
                 }
             }
-            
+
             long duration = System.currentTimeMillis() - startTime;
-            myLogI("StorageInfoCacheHelper: ZikFile size population completed in " + Tonio.formatTime(duration) + 
+            myLogD("StorageInfoCacheHelper: ZikFile size population completed in " + Tonio.formatTime(duration) +
                     " - Updated: " + updatedCount + ", Skipped: " + skippedCount + ", Errors: " + errorCount);
         } catch (Exception e) {
             myLogEE(e, "StorageInfoCacheHelper: Error populating ZikFile sizes");
         }
     }
-    
+
     /**
      * Get file size from path (handles both file:// and content:// URIs)
      */
@@ -128,7 +123,7 @@ public class StorageInfoCacheHelper {
         if (path == null || path.isEmpty()) {
             return -1;
         }
-        
+
         try {
             Uri uri;
             // Check if path is already a URI
@@ -138,14 +133,14 @@ public class StorageInfoCacheHelper {
                 // Assume it's a file path
                 uri = Uri.parse("file://" + path);
             }
-            
+
             return getFileSize(app, uri);
         } catch (Exception e) {
             myLogEE(e, "StorageInfoCacheHelper: Error getting file size for path: " + path);
             return -1;
         }
     }
-    
+
     /**
      * Get file size from URI (handles both file:// and content:// URIs)
      */
@@ -153,7 +148,7 @@ public class StorageInfoCacheHelper {
         if (uri == null) {
             return -1;
         }
-        
+
         if ("file".equalsIgnoreCase(uri.getScheme())) {
             try {
                 if (uri.getPath() != null) {
@@ -183,8 +178,8 @@ public class StorageInfoCacheHelper {
      */
     private static void calculateInternalStorage(Application app) {
         try {
-            myLogI("StorageInfoCacheHelper: Calculating internal storage");
-            
+            myLogD("StorageInfoCacheHelper: Calculating internal storage");
+
             long totalMemory = getTotaLInternalMemorySize() / 1048576L;
             long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
             long currentAppSize = getAppSize(app) / 1048576L;
@@ -193,80 +188,99 @@ public class StorageInfoCacheHelper {
             File unzipFolder = StorageHelper.getUnzipFolder(app, false);
             long currentAudiosSizeInternal = 0;
             if (unzipFolder != null && unzipFolder.exists()) {
-                myLogI("StorageInfoCacheHelper: Calculating getFolderSize for internal unzipped folder: " + unzipFolder.getAbsolutePath());
+                myLogD("StorageInfoCacheHelper: Calculating getFolderSize for internal unzipped folder: "
+                        + unzipFolder.getAbsolutePath());
                 long startTime = System.currentTimeMillis();
                 currentAudiosSizeInternal = getFolderSize(unzipFolder) / 1048576L;
                 long duration = System.currentTimeMillis() - startTime;
-                myLogI("StorageInfoCacheHelper: getFolderSize for internal unzipped completed in " + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(currentAudiosSizeInternal * 1048576L));
+                myLogD("StorageInfoCacheHelper: getFolderSize for internal unzipped completed in "
+                        + Tonio.formatTime(duration) + ", size: "
+                        + Tonio.getReadableSize(currentAudiosSizeInternal * 1048576L));
             }
-            
+
             File imagesFolder = new File(app.getFilesDir(), "images");
             long sizeImages = 0;
             if (imagesFolder.exists()) {
-                myLogI("StorageInfoCacheHelper: Calculating getFolderSize for images folder: " + imagesFolder.getAbsolutePath());
+                myLogD("StorageInfoCacheHelper: Calculating getFolderSize for images folder: "
+                        + imagesFolder.getAbsolutePath());
                 long startTime = System.currentTimeMillis();
                 sizeImages = getFolderSize(imagesFolder.getPath()) / 1048576L;
                 long duration = System.currentTimeMillis() - startTime;
-                myLogI("StorageInfoCacheHelper: getFolderSize for images completed in " + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(sizeImages * 1048576L));
+                myLogD("StorageInfoCacheHelper: getFolderSize for images completed in " + Tonio.formatTime(duration)
+                        + ", size: " + Tonio.getReadableSize(sizeImages * 1048576L));
             }
-            
+
             File logsFolder = new File(app.getFilesDir(), "log");
             long sizeLogs = 0;
             if (logsFolder.exists()) {
-                myLogI("StorageInfoCacheHelper: Calculating getFolderSize for log folder: " + logsFolder.getAbsolutePath());
+                myLogD("StorageInfoCacheHelper: Calculating getFolderSize for log folder: "
+                        + logsFolder.getAbsolutePath());
                 long startTime = System.currentTimeMillis();
                 sizeLogs = getFolderSize(logsFolder.getPath()) / 1048576L;
                 long duration = System.currentTimeMillis() - startTime;
-                myLogI("StorageInfoCacheHelper: getFolderSize for log completed in " + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(sizeLogs * 1048576L));
+                myLogD("StorageInfoCacheHelper: getFolderSize for log completed in " + Tonio.formatTime(duration)
+                        + ", size: " + Tonio.getReadableSize(sizeLogs * 1048576L));
             }
-            
+
             long sizeDB = 0;
             File parentFile = app.getFilesDir().getParentFile();
             if (parentFile != null) {
                 File dbFolder = new File(parentFile, "databases");
                 if (dbFolder.exists()) {
-                    myLogI("StorageInfoCacheHelper: Calculating getFolderSize for databases folder: " + dbFolder.getAbsolutePath());
+                    myLogD("StorageInfoCacheHelper: Calculating getFolderSize for databases folder: "
+                            + dbFolder.getAbsolutePath());
                     long startTime = System.currentTimeMillis();
                     sizeDB = getFolderSize(dbFolder.getPath()) / 1048576L;
                     long duration = System.currentTimeMillis() - startTime;
-                    myLogI("StorageInfoCacheHelper: getFolderSize for databases completed in " + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(sizeDB * 1048576L));
+                    myLogD("StorageInfoCacheHelper: getFolderSize for databases completed in "
+                            + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(sizeDB * 1048576L));
                 }
             }
-            
+
             File cachedImagesFolder = new File(app.getFilesDir(), "cached_images");
             long sizeCachedImages = 0;
             if (cachedImagesFolder.exists()) {
-                myLogI("StorageInfoCacheHelper: Calculating getFolderSize for cached_images folder: " + cachedImagesFolder.getAbsolutePath());
+                myLogD("StorageInfoCacheHelper: Calculating getFolderSize for cached_images folder: "
+                        + cachedImagesFolder.getAbsolutePath());
                 long startTime = System.currentTimeMillis();
                 sizeCachedImages = getFolderSize(cachedImagesFolder.getPath()) / 1048576L;
                 long duration = System.currentTimeMillis() - startTime;
-                myLogI("StorageInfoCacheHelper: getFolderSize for cached_images completed in " + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(sizeCachedImages * 1048576L));
+                myLogD("StorageInfoCacheHelper: getFolderSize for cached_images completed in "
+                        + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(sizeCachedImages * 1048576L));
             }
 
-            // Calculate BookPlayer app storage (app + db + logs + images + cached images, excluding audio files)
+            // Calculate BookPlayer app storage (app + db + logs + images + cached images,
+            // excluding audio files)
             long appStorageMB = currentAppSize + sizeDB + sizeLogs + sizeImages + sizeCachedImages;
-            
-            // Calculate BookPlayer total usage (app + audios + images + logs + db + cached images)
-            long usedByBookPlayerMB = currentAppSize + currentAudiosSizeInternal + sizeImages + sizeLogs + sizeDB + sizeCachedImages;
-            
+
+            // Calculate BookPlayer total usage (app + audios + images + logs + db + cached
+            // images)
+            long usedByBookPlayerMB = currentAppSize + currentAudiosSizeInternal + sizeImages + sizeLogs + sizeDB
+                    + sizeCachedImages;
+
             if (totalMemory > 0) {
                 long totalMemoryBytes = totalMemory * 1048576L;
                 long availableBytes = availableMegs2 * 1048576L;
                 long usedByBookPlayerBytes = usedByBookPlayerMB * 1048576L;
                 long usedTotalBytes = totalMemoryBytes - availableBytes;
                 long usedByOthersBytes = usedTotalBytes - usedByBookPlayerBytes;
-                
-                if (usedByOthersBytes < 0) usedByOthersBytes = 0;
-                if (usedByBookPlayerBytes < 0) usedByBookPlayerBytes = 0;
-                
+
+                if (usedByOthersBytes < 0)
+                    usedByOthersBytes = 0;
+                if (usedByBookPlayerBytes < 0)
+                    usedByBookPlayerBytes = 0;
+
                 // Store in preferences
                 Pref.setStorageInternalTotal(totalMemoryBytes);
                 Pref.setStorageInternalUsedByOthers(usedByOthersBytes);
                 Pref.setStorageInternalUsedByBookPlayer(usedByBookPlayerBytes);
                 Pref.setStorageInternalApp(appStorageMB * 1048576L); // Store in bytes
                 Pref.setStorageInternalTimestamp(System.currentTimeMillis());
-                
-                myLogI("StorageInfoCacheHelper: Internal storage cached - Total: " + Tonio.getReadableSize(totalMemoryBytes) + ", Used by BookPlayer: " + Tonio.getReadableSize(usedByBookPlayerBytes) + ", Used by others: " + Tonio.getReadableSize(usedByOthersBytes));
+
+                myLogD("StorageInfoCacheHelper: Internal storage cached - Total: "
+                        + Tonio.getReadableSize(totalMemoryBytes) + ", Used by BookPlayer: "
+                        + Tonio.getReadableSize(usedByBookPlayerBytes) + ", Used by others: "
+                        + Tonio.getReadableSize(usedByOthersBytes));
             }
         } catch (Exception e) {
             myLogEE(e, "StorageInfoCacheHelper: Error calculating internal storage");
@@ -278,48 +292,56 @@ public class StorageInfoCacheHelper {
      */
     private static void calculateSDCardStorage(Application app) {
         try {
-            myLogI("StorageInfoCacheHelper: Calculating SD card storage");
-            
+            myLogD("StorageInfoCacheHelper: Calculating SD card storage");
+
             long total = getTotalRemovableSDCardSize(app) / 1048576L;
             if (total > 0) {
                 long available = getAvailableRemovableSDCardSize(app) / 1048576L;
-                
+
                 // Calculate BookPlayer usage on SD card (can be slow)
                 File sdUnzipFolder = StorageHelper.getUnzipFolder(app, true);
                 long currentAudiosSizeSD = 0;
                 if (sdUnzipFolder != null && sdUnzipFolder.exists()) {
-                    myLogI("StorageInfoCacheHelper: Calculating getFolderSize for SD card: " + sdUnzipFolder.getAbsolutePath());
+                    myLogD("StorageInfoCacheHelper: Calculating getFolderSize for SD card: "
+                            + sdUnzipFolder.getAbsolutePath());
                     long startTime = System.currentTimeMillis();
                     currentAudiosSizeSD = getFolderSize(sdUnzipFolder) / 1048576L;
                     long duration = System.currentTimeMillis() - startTime;
-                    myLogI("StorageInfoCacheHelper: getFolderSize for SD card completed in " + Tonio.formatTime(duration) + ", size: " + Tonio.getReadableSize(currentAudiosSizeSD * 1048576L));
+                    myLogD("StorageInfoCacheHelper: getFolderSize for SD card completed in "
+                            + Tonio.formatTime(duration) + ", size: "
+                            + Tonio.getReadableSize(currentAudiosSizeSD * 1048576L));
                 } else {
-                    myLogI("StorageInfoCacheHelper: SD card unzip folder does not exist, skipping folder size calculation");
+                    myLogD("StorageInfoCacheHelper: SD card unzip folder does not exist, skipping folder size calculation");
                 }
-                
+
                 long totalSDCardBytes = total * 1048576L;
                 long availableSDCardBytes = available * 1048576L;
                 long usedTotalSDCardBytes = totalSDCardBytes - availableSDCardBytes;
                 long usedByBookPlayerSDCardBytes = currentAudiosSizeSD * 1048576L;
                 long usedByOthersSDCardBytes = usedTotalSDCardBytes - usedByBookPlayerSDCardBytes;
-                
-                if (usedByOthersSDCardBytes < 0) usedByOthersSDCardBytes = 0;
-                if (usedByBookPlayerSDCardBytes < 0) usedByBookPlayerSDCardBytes = 0;
-                
+
+                if (usedByOthersSDCardBytes < 0)
+                    usedByOthersSDCardBytes = 0;
+                if (usedByBookPlayerSDCardBytes < 0)
+                    usedByBookPlayerSDCardBytes = 0;
+
                 // Store in preferences
                 Pref.setStorageSDCardTotal(totalSDCardBytes);
                 Pref.setStorageSDCardUsedByOthers(usedByOthersSDCardBytes);
                 Pref.setStorageSDCardUsedByBookPlayer(usedByBookPlayerSDCardBytes);
                 Pref.setStorageSDCardTimestamp(System.currentTimeMillis());
 
-                myLogI("StorageInfoCacheHelper: SD card storage cached - Total: " + Tonio.getReadableSize(totalSDCardBytes) + ", Used by BookPlayer: " + Tonio.getReadableSize(usedByBookPlayerSDCardBytes) + ", Used by others: " + Tonio.getReadableSize(usedByOthersSDCardBytes));
+                myLogD("StorageInfoCacheHelper: SD card storage cached - Total: "
+                        + Tonio.getReadableSize(totalSDCardBytes) + ", Used by BookPlayer: "
+                        + Tonio.getReadableSize(usedByBookPlayerSDCardBytes) + ", Used by others: "
+                        + Tonio.getReadableSize(usedByOthersSDCardBytes));
             } else {
                 // No SD card available, clear cached values
                 Pref.setStorageSDCardTotal(0);
                 Pref.setStorageSDCardUsedByOthers(0);
                 Pref.setStorageSDCardUsedByBookPlayer(0);
                 Pref.setStorageSDCardTimestamp(0);
-                myLogI("StorageInfoCacheHelper: No SD card available, cleared SD card storage cache");
+                myLogD("StorageInfoCacheHelper: No SD card available, cleared SD card storage cache");
             }
         } catch (Exception e) {
             myLogEE(e, "StorageInfoCacheHelper: Error calculating SD card storage");
@@ -373,24 +395,24 @@ public class StorageInfoCacheHelper {
      */
     private static void calculateLinkedAudios(Application app) {
         try {
-            myLogI("StorageInfoCacheHelper: Calculating linked audios");
+            myLogD("StorageInfoCacheHelper: Calculating linked audios");
             long startTime = System.currentTimeMillis();
-            
+
             long internalLinkedAudiosBytes = 0;
             long sdCardLinkedAudiosBytes = 0;
-            
+
             // Get all folders from database
             List<Folder> allFolders = AppDatabase.getDatabase(app).folderDao().getAll();
-            myLogI("StorageInfoCacheHelper: Found " + allFolders.size() + " folders to check for linked audios");
-            
+            myLogD("StorageInfoCacheHelper: Found " + allFolders.size() + " folders to check for linked audios");
+
             for (Folder folder : allFolders) {
                 if (folder.getPath() == null || folder.getPath().isEmpty()) {
                     continue;
                 }
-                
+
                 // Check if folder path is outside BookPlayer reserved space
                 MemoryLocationType locationType = StorageHelper.getMemoryLocationType(app, folder.getPath());
-                
+
                 if (locationType == MemoryLocationType.PHONE_SHARED) {
                     // Linked audio on internal/shared storage
                     long folderSize = calculateFolderLinkedSize(app, folder.getId());
@@ -401,20 +423,20 @@ public class StorageInfoCacheHelper {
                     sdCardLinkedAudiosBytes += folderSize;
                 }
             }
-            
+
             // Store in preferences
             Pref.setStorageInternalLinkedAudios(internalLinkedAudiosBytes);
             Pref.setStorageSDCardLinkedAudios(sdCardLinkedAudiosBytes);
-            
+
             long duration = System.currentTimeMillis() - startTime;
-            myLogI("StorageInfoCacheHelper: Linked audios calculated in " + Tonio.formatTime(duration) + 
-                    " - Internal: " + Tonio.getReadableSize(internalLinkedAudiosBytes) + 
+            myLogD("StorageInfoCacheHelper: Linked audios calculated in " + Tonio.formatTime(duration) +
+                    " - Internal: " + Tonio.getReadableSize(internalLinkedAudiosBytes) +
                     ", SD Card: " + Tonio.getReadableSize(sdCardLinkedAudiosBytes));
         } catch (Exception e) {
             myLogEE(e, "StorageInfoCacheHelper: Error calculating linked audios");
         }
     }
-    
+
     /**
      * Calculate total size of all ZikFile tracks for a folder
      */
@@ -451,7 +473,7 @@ public class StorageInfoCacheHelper {
         Application app = (Application) context.getApplicationContext();
         executorService.execute(() -> {
             try {
-                myLogI("StorageInfoCacheHelper: Force recalculating storage");
+                myLogD("StorageInfoCacheHelper: Force recalculating storage");
                 populateZikFileSizes(app);
                 calculateInternalStorage(app);
                 calculateSDCardStorage(app);
@@ -461,9 +483,10 @@ public class StorageInfoCacheHelper {
             }
         });
     }
-    
+
     /**
-     * Public method to populate ZikFile sizes (can be called independently if needed)
+     * Public method to populate ZikFile sizes (can be called independently if
+     * needed)
      */
     public static void populateSizes(Context context) {
         Application app = (Application) context.getApplicationContext();
@@ -474,5 +497,10 @@ public class StorageInfoCacheHelper {
                 myLogEE(e, "StorageInfoCacheHelper: Error populating ZikFile sizes");
             }
         });
+    }
+
+    private static void myLogD(String msg) {
+        if (DEBUG)
+            com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogD(msg);
     }
 }
