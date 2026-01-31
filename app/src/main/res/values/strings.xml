@@ -441,6 +441,11 @@
     <string name="option_night_mode_light">☀️ &#160; Light</string>
     <string name="option_night_mode_dark">🌙 &#160; Dark</string>
     <string name="option_night_mode_dialog_title">Choose theme mode</string>
+
+    <!-- Theme mode section (Design): override system vs follow, then Light/Dark choice -->
+    <string name="option_theme_mode_title">Theme mode</string>
+    <string name="option_theme_mode_force_checkbox">Override system theme</string>
+    <string name="option_theme_mode_force_explain">When enabled, the app ignores your device\'s light/dark setting and uses your choice below. When disabled, the app follows the system.</string>
     <string name="option_text_appearance_title">Text appearance</string>
     <string name="option_podcast_open_specific_view">Live view is default</string>
     <string name="option_podcast_open_specific_view_subtitle">If checked, when you tap a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf unchecked, it opens the \'book\' view with downloaded episodes.</string>

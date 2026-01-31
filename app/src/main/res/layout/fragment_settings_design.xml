@@ -120,30 +120,54 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <!-- Night mode row -->
+            <!-- Theme mode: override system checkbox + Light/Dark toggle -->
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_theme_mode_title" />
+
             <LinearLayout
-                android:id="@+id/ll_night_mode"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="12dp"
-                android:gravity="center_vertical"
-                android:clickable="true"
-                android:focusable="true">
+                android:id="@+id/ll_theme_mode_force"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_theme_mode_force"
+                    style="@style/OptionCheckBox" />
 
                 <TextView
-                    android:id="@+id/tv_night_mode_title"
+                    style="@style/OptionCheckBoxText"
                     android:layout_width="0dp"
-                    android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/option_night_mode_title"
-                    android:textSize="16sp" />
-
-                <Button
-                    android:id="@+id/btn_night_mode"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/option_night_mode_follow_system" />
+                    android:text="@string/option_theme_mode_force_checkbox" />
             </LinearLayout>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:layout_marginBottom="8dp"
+                android:text="@string/option_theme_mode_force_explain" />
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/group_theme_mode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:paddingBottom="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_theme_light"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/option_night_mode_light"
+                    app:cornerRadius="16dp" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btn_theme_dark"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/option_night_mode_dark"
+                    app:cornerRadius="16dp" />
+            </com.google.android.material.button.MaterialButtonToggleGroup>
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

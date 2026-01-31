@@ -445,6 +445,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_night_mode_light">☀️ Clair</string>
     <string name="option_night_mode_dark">🌙 Sombre</string>
     <string name="option_night_mode_dialog_title">Choisir le mode du thème</string>
+    <string name="option_theme_mode_title">Mode du thème</string>
+    <string name="option_theme_mode_force_checkbox">Forcer le thème (ignorer le système)</string>
+    <string name="option_theme_mode_force_explain">Si activé, l\'app ignore le réglage clair/sombre du téléphone et utilise votre choix ci-dessous. Si désactivé, l\'app suit le système.</string>
     <string name="option_text_appearance_title">Apparence du texte</string>
     <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
     <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>

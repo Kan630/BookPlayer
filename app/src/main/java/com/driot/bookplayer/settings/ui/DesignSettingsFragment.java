@@ -1,5 +1,6 @@
 package com.driot.bookplayer.settings.ui;
 
+import android.content.res.Configuration;
 import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
@@ -9,8 +10,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
@@ -23,6 +22,9 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.util.Executors;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.checkbox.MaterialCheckBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.ArrayList;
@@ -31,7 +33,10 @@ import java.util.List;
 public class DesignSettingsFragment extends LoggingFragment {
 
     private Spinner spFontFamily;
-    private Button btnNightMode;
+    private MaterialCheckBox chkThemeModeForce;
+    private MaterialButtonToggleGroup groupThemeMode;
+    private MaterialButton btnThemeLight;
+    private MaterialButton btnThemeDark;
 
     // local helper identical to your Activity’s inner class
     private static class FontChoice {
@@ -154,13 +159,50 @@ public class DesignSettingsFragment extends LoggingFragment {
             b.setOnClickListener(v -> changeBaseTheme(themeKey));
         }
 
-        // ===== Night mode row =====
-        btnNightMode = root.findViewById(R.id.btn_night_mode);
-        setNightModeButtonLabel(btnNightMode, Option.getNightMode());
+        // ===== Theme mode: override system checkbox + Light/Dark toggle =====
+        chkThemeModeForce = root.findViewById(R.id.chk_theme_mode_force);
+        groupThemeMode = root.findViewById(R.id.group_theme_mode);
+        btnThemeLight = root.findViewById(R.id.btn_theme_light);
+        btnThemeDark = root.findViewById(R.id.btn_theme_dark);
 
-        View nightModeRow = root.findViewById(R.id.ll_night_mode);
-        nightModeRow.setOnClickListener(v -> showNightModeChooser());
-        btnNightMode.setOnClickListener(v -> showNightModeChooser());
+        String nightMode = Option.getNightMode();
+        boolean forceMode = !"SYSTEM".equals(nightMode);
+        chkThemeModeForce.setChecked(forceMode);
+        groupThemeMode.setEnabled(forceMode);
+
+        updateThemeModeSelection(nightMode);
+
+        chkThemeModeForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            myLog("chkThemeModeForce.setOnCheckedChangeListener - themeForce=" + isChecked);
+            if (isChecked) {
+                groupThemeMode.setEnabled(true);
+                String current = Option.getNightMode();
+                if ("SYSTEM".equals(current)) {
+                    current = isSystemDarkMode() ? "DARK" : "LIGHT";
+                    Option.setNightMode(current);
+                    Option.applyNightMode();
+                }
+                updateThemeModeSelection(current);
+                //signalAndRecreate();
+            } else {
+                Option.setNightMode("SYSTEM");
+                Option.applyNightMode();
+                groupThemeMode.setEnabled(false);
+                updateThemeModeSelection("SYSTEM");
+                //signalAndRecreate();
+            }
+        });
+
+        groupThemeMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+            myLog("groupThemeMode.addOnButtonCheckedListener - checkedId=" + checkedId + ":" + isChecked);
+            if (!isChecked) return;
+            String chosen = (checkedId == R.id.btn_theme_light) ? "LIGHT" : "DARK";
+            if (!chosen.equals(Option.getNightMode())) {
+                Option.setNightMode(chosen);
+                Option.applyNightMode();
+                //signalAndRecreate();
+            }
+        });
 
         return root;
     }
@@ -198,41 +240,22 @@ public class DesignSettingsFragment extends LoggingFragment {
         requireActivity().recreate();
     }
 
-    private void showNightModeChooser() {
-        final String current = Option.getNightMode();
-        final CharSequence[] items = new CharSequence[] {
-                getString(R.string.option_night_mode_follow_system),
-                getString(R.string.option_night_mode_light),
-                getString(R.string.option_night_mode_dark)
-        };
-        int checked = (current.equals("LIGHT")) ? 1 : (current.equals("DARK") ? 2 : 0);
-
-        new android.app.AlertDialog.Builder(requireContext())
-                .setTitle(R.string.option_night_mode_dialog_title)
-                .setSingleChoiceItems(items, checked, (dlg, which) -> {
-                    String chosen = (which == 1) ? "LIGHT"
-                            : (which == 2) ? "DARK"
-                            : "SYSTEM";
-
-                    if (!chosen.equals(current)) {
-                        Option.setNightMode(chosen);
-                        Option.applyNightMode();
-                        setNightModeButtonLabel(btnNightMode, chosen);
-
-                        requireContext()
-                                .getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
-                                .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
-                        requireActivity().recreate();
-                    }
-                    dlg.dismiss();
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+    private boolean isSystemDarkMode() {
+        int uiMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        return uiMode == Configuration.UI_MODE_NIGHT_YES;
     }
 
-    private void setNightModeButtonLabel(Button btn, String modeKey) {
-        // Show raw key or map to pretty if you prefer
-        btn.setText(modeKey); // You can map to strings if you want localized text.
+    private void updateThemeModeSelection(String mode) {
+        int id = "LIGHT".equals(mode) ? R.id.btn_theme_light
+                : ("DARK".equals(mode) ? R.id.btn_theme_dark : (isSystemDarkMode() ? R.id.btn_theme_dark : R.id.btn_theme_light));
+        groupThemeMode.check(id);
+    }
+
+    private void signalAndRecreate() {
+        requireContext()
+                .getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
+                .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
+        requireActivity().recreate();
     }
 
     private static class FontAdapter extends ArrayAdapter<FontChoice> {

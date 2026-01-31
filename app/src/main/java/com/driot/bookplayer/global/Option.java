@@ -435,6 +435,7 @@ public class Option {
 
     public static void applyNightMode() {
         String nightMode = getNightMode();
+        myLog("applyNightMode : " + nightMode);
         int appCompatMode = switch (nightMode) {
             case "LIGHT" -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO;
             case "DARK" -> androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES;

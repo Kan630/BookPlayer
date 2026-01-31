@@ -102,7 +102,7 @@ public class SettingsActivitySmokeTest implements LogSupport {
                 //,R.id.option_open_play_activity      // <-- replace if you have it
         });
         plan.put(R.id.section_design, new int[] {
-                R.id.btn_night_mode           // <-- replace
+                R.id.chk_theme_mode_force
         });
         plan.put(R.id.section_import, new int[] {
                 R.id.chk_copy_file             // <-- replace
