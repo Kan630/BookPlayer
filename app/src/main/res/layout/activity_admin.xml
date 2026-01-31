@@ -1,37 +1,51 @@
 <?xml version="1.0" encoding="utf-8"?>
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/root"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dp"
-    >
+    android:fillViewport="true">
 
-    <Button
-        android:id="@+id/bFlushDiskImages"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/root"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Flush to log : DISK images"/>
-    <Button
-        android:id="@+id/bFlushDiskCachedImages"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Flush to log : DISK cached images"/>
-    <Button
-        android:id="@+id/bFlushDiskBooks"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Flush to log : DISK book files"/>
-    <Button
-        android:id="@+id/bFlushSQL"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Flush to log : SQL"/>
-    <Button
-        android:id="@+id/bCarConnect"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Car Connect"/>
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <Button
+            android:id="@+id/bOpenLogList"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#4CAF50"
+            android:text="Open Log List"
+            android:textColor="#FFFFFF" />
+
+        <View style="@style/GetResourceHorizontalBar" />
+
+        <Button
+            android:id="@+id/bFlushDiskImages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flush to log : DISK images"/>
+        <Button
+            android:id="@+id/bFlushDiskCachedImages"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flush to log : DISK cached images"/>
+        <Button
+            android:id="@+id/bFlushDiskBooks"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flush to log : DISK book files"/>
+        <Button
+            android:id="@+id/bFlushSQL"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Flush to log : SQL"/>
+        <Button
+            android:id="@+id/bCarConnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Car Connect"/>
 
     <View style="@style/GetResourceHorizontalBar" />
 
@@ -146,4 +160,6 @@
     android:layout_weight="1"
     android:dividerHeight="1dp" />
 
-</LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

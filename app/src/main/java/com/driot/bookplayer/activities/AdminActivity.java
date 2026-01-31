@@ -64,6 +64,11 @@ public class AdminActivity extends LoggingActivity {
         llTechLog.setOnClickListener(v -> chkTechLog.toggle());
         chkTechLog.setOnCheckedChangeListener((b, checked) -> Option.setTechLog(checked));
 
+        // Green button to open LogListActivity
+        findViewById(R.id.bOpenLogList).setOnClickListener(v -> {
+            startActivity(new Intent(this, LogListActivity.class));
+        });
+
         findViewById(R.id.bFlushDiskBooks).setOnClickListener(v -> {
             new Thread(() -> {
                 myLogD("-----------------");
@@ -145,19 +150,22 @@ public class AdminActivity extends LoggingActivity {
                 long cutoffTime = System.currentTimeMillis() - (minutesAgo * 60L * 1000L);
                 AppDatabase db = AppDatabase.getDatabase(this);
                 List<Folder> foldersToDelete = db.folderDao().getFoldersCreatedSince(cutoffTime);
-                
+
                 runOnUiThread(() -> {
                     if (foldersToDelete.isEmpty()) {
-                        Toast.makeText(this, "No books found imported in the last " + minutesAgo + " minutes", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(this, "No books found imported in the last " + minutesAgo + " minutes",
+                                Toast.LENGTH_SHORT).show();
                         return;
                     }
-                    
+
                     // Show confirmation dialog
                     new android.app.AlertDialog.Builder(this)
                             .setTitle("Delete Recent Books")
-                            .setMessage("Delete " + foldersToDelete.size() + " book(s) imported in the last " + minutesAgo + " minutes?")
+                            .setMessage("Delete " + foldersToDelete.size() + " book(s) imported in the last "
+                                    + minutesAgo + " minutes?")
                             .setPositiveButton("Delete", (dialog, which) -> {
-                                // Delete each folder using DeleteFolderWorker (same logic as ModifyFolderActivity)
+                                // Delete each folder using DeleteFolderWorker (same logic as
+                                // ModifyFolderActivity)
                                 WorkManager wm = WorkManager.getInstance(getApplicationContext());
                                 int count = 0;
                                 for (Folder folder : foldersToDelete) {
