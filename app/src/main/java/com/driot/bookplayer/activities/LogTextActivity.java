@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
@@ -29,6 +30,8 @@ import java.util.ArrayList;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
+
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
  * * imported from Droit Positif (02/12/2020)
@@ -52,6 +55,8 @@ public class LogTextActivity extends LoggingActivity {
     private EditText etSearch;
     private SwitchMaterial switchWAR;
     private SwitchMaterial switchERR;
+    private SwitchMaterial switchVER;
+    private SwitchMaterial switchDEB;
 
     public ArrayList<MyTextChunk> getTextFileContentInArrayList(Context c, String typeStorage, String textFileName,
             String textFileFolder, int charSize) {
@@ -120,6 +125,11 @@ public class LogTextActivity extends LoggingActivity {
         etSearch = findViewById(R.id.etSearch);
         switchWAR = findViewById(R.id.switchWAR);
         switchERR = findViewById(R.id.switchERR);
+        switchVER = findViewById(R.id.switchVER);
+        switchDEB = findViewById(R.id.switchDEB);
+
+        // Share button
+        //findViewById(R.id.btnShare).setOnClickListener(v -> shareLog());
 
         textOptions = new TextOptions(this);
         loadRecyclerView();
@@ -159,12 +169,20 @@ public class LogTextActivity extends LoggingActivity {
 
         // ERR switch listener
         switchERR.setOnCheckedChangeListener((buttonView, isChecked) -> filterList());
+
+        // VER switch listener
+        switchVER.setOnCheckedChangeListener((buttonView, isChecked) -> filterList());
+
+        // DEB switch listener
+        switchDEB.setOnCheckedChangeListener((buttonView, isChecked) -> filterList());
     }
 
     private void filterList() {
         String searchText = etSearch.getText().toString().toLowerCase();
         boolean filterWAR = switchWAR.isChecked();
         boolean filterERR = switchERR.isChecked();
+        boolean filterVER = switchVER.isChecked();
+        boolean filterDEB = switchDEB.isChecked();
 
         ArrayList<MyTextChunk> filteredList = new ArrayList<>();
 
@@ -177,11 +195,13 @@ public class LogTextActivity extends LoggingActivity {
                 matches = false;
             }
 
-            // Apply WAR/ERR filters (OR logic - show if contains WAR OR ERR when enabled)
-            if (filterWAR || filterERR) {
+            // Apply level filters (OR logic - show if contains any enabled level)
+            if (filterWAR || filterERR || filterVER || filterDEB) {
                 boolean hasWAR = filterWAR && text.contains("WAR");
                 boolean hasERR = filterERR && text.contains("ERR");
-                if (!hasWAR && !hasERR) {
+                boolean hasVER = filterVER && text.contains("VER");
+                boolean hasDEB = filterDEB && text.contains("DEB");
+                if (!hasWAR && !hasERR && !hasVER && !hasDEB) {
                     matches = false;
                 }
             }

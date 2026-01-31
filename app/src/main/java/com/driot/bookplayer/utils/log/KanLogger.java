@@ -31,16 +31,15 @@ import com.google.firebase.crashlytics.FirebaseCrashlytics;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  *
- * Utility Class = Helper class = contains just static methods => cannot be instantiated
+ * Utility Class = Helper class = contains just static methods => cannot be
+ * instantiated
  */
 public class KanLogger {
-
 
     private static final boolean LOG_DEBUG = true;
     public static final boolean LOG_LIFECYCLE_TRACE = false;
     public static final boolean LOG_FRAGMENT_LIFECYCLE_TRACE = false;
     public static final boolean LOG_INSETS = false;
-
 
     private static final String PREFIX_DELETE = "com.driot.bookplayer.";
     private static final String LOG_FILE_FOLDER = "log";
@@ -53,24 +52,23 @@ public class KanLogger {
     private static final String LOGCAT_PREFIX = "toto";
 
     @SuppressWarnings("SpellCheckingInspection")
-    public static final String[] MD5_MY_PHONE = {""
-            ,"eb621dde2a2672e66b6e6ef5acbbbb99" //"OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
-            ,"a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys
-            ,"dabe9f1966e715f8d0cdf81561647f7c" // OPPO/CPH2065EEA/OP4BDCL1:12/SP1A.210812.016/Q.GDPR.132c99b-1ff9d:user/release-keys
-            ,"177d74d79a466e1713c2d0bac3a533cb" // samsung/gta8wifieea/gta8wifi:14/UP1A.231005.007/X200XXS3DXD5:user/release-keys
-            ,"6ae8f378ae8663ef65b459119615d98e" // HONOR/LLD-L31/HWLLD-H:9/HONORLLD-L31/9.1.0.158C432:user/release-keys
-            ,"075791181e0710a32a2ed10e04f32b26" // samsung/a16nseea/a16:15/AP3A.240905.015.A2/A165FXXU3BYEC:user/release-keys
-            ,"ed8acdf5617d368dce4175a6597197a2" // samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS9CUE5:user/release-keys
+    public static final String[] MD5_MY_PHONE = { "", "eb621dde2a2672e66b6e6ef5acbbbb99" // "OPPO/CPH2065EEA/OP4BDCL1:11/RP1A.200720.011/1629728339857:user/release-keys"
+            , "a35ba9d541e15b9ff7b017b7fef54430" // Redmi/veux_eea/veux:13/TKQ1.221114.001/V816.0.1.0.TKCEUXM:user/release-keys
+            , "dabe9f1966e715f8d0cdf81561647f7c" // OPPO/CPH2065EEA/OP4BDCL1:12/SP1A.210812.016/Q.GDPR.132c99b-1ff9d:user/release-keys
+            , "177d74d79a466e1713c2d0bac3a533cb" // samsung/gta8wifieea/gta8wifi:14/UP1A.231005.007/X200XXS3DXD5:user/release-keys
+            , "6ae8f378ae8663ef65b459119615d98e" // HONOR/LLD-L31/HWLLD-H:9/HONORLLD-L31/9.1.0.158C432:user/release-keys
+            , "075791181e0710a32a2ed10e04f32b26" // samsung/a16nseea/a16:15/AP3A.240905.015.A2/A165FXXU3BYEC:user/release-keys
+            , "ed8acdf5617d368dce4175a6597197a2" // samsung/j5y17ltexx/j5y17lte:9/PPR1.180610.011/J530FXXS9CUE5:user/release-keys
     };
 
-
-    // TODO use the same logic as Playlist Context init, coupled with MyPersonalApp class
-
+    // TODO use the same logic as Playlist Context init, coupled with MyPersonalApp
+    // class
 
     /////////////////////////////////
     /// CONTEXT - needed for * Writing log files * Toasts *
-    /////////////////////////////////-----------------------------------------------------------
+    ///////////////////////////////// -----------------------------------------------------------
     private static Context appContext;
+
     private static Context getMyAppContext() {
         if (KanLogger.appContext != null) {
             return KanLogger.appContext;
@@ -80,15 +78,14 @@ public class KanLogger {
         }
     }
 
-
     public static void init(Context context) {
         appContext = context.getApplicationContext();
-        //if (isMyPhoneDev()) { setDevSpecialOption(); }
+        // if (isMyPhoneDev()) { setDevSpecialOption(); }
     }
 
     /////////////////////////////////
     /// IS DEV
-    /////////////////////////////////-----------------------------------------------------------
+    ///////////////////////////////// -----------------------------------------------------------
     public static boolean isMyPhoneDev() {
         boolean ret = false;
         String strToCheck = MD5(Build.FINGERPRINT);
@@ -100,128 +97,156 @@ public class KanLogger {
                 }
             }
         }
-        //Log.d("toto", "writeTechLogs : End");
+        // Log.d("toto", "writeTechLogs : End");
         return ret;
     }
 
     /////////////////////////////////
     /// IS DEV
-    /////////////////////////////////-----------------------------------------------------------
+    ///////////////////////////////// -----------------------------------------------------------
     public static boolean writeTechLogs() {
         boolean ret = false;
         if (getMyAppContext() != null) {
             ret = Option.getTechLog();
         } else {
             ret = isMyPhoneDev();
-            Log.e(kanLogger_TAG,"writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");
+            Log.e(kanLogger_TAG, "writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");
         }
         return ret;
     }
 
     /////////////////////////////////
     /// LOG
-    /////////////////////////////////-----------------------------------------------------------
+    ///////////////////////////////// -----------------------------------------------------------
     public static void myLogInFile(String str) {
         myLogInFile("", str);
     }
+
     public static void myLogInFile(String prefix, String str) {
         myLog(prefix, str);
     }
 
     public static void myLog(String str) {
-        myLog("",str);
+        myLog("", str);
     }
+
     public static void myLog(String prefix, String str) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
-        if (TextUtils.isEmpty(str)) {str = "...";}
+        if (TextUtils.isEmpty(str)) {
+            str = "...";
+        }
         if (writeTechLogs()) {
             writeToLogFile(str);
             Log.v(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.v(newPrefix, str);
+            if (LOG_THEM_ALL)
+                Log.v(newPrefix, str);
         }
     }
 
     public static void myLogI(String str) {
-        myLogI("",str);
+        myLogI("", str);
     }
+
     public static void myLogI(String prefix, String str) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
-        if (TextUtils.isEmpty(str)) {str = "...";}
+        if (TextUtils.isEmpty(str)) {
+            str = "...";
+        }
         if (writeTechLogs()) {
-            writeToLogFile(str);
+            writeToLogFile("VER.. " + parsePrefix(prefix) + ".. " + str);
             Log.i(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.i(newPrefix, str);
+            if (LOG_THEM_ALL)
+                Log.i(newPrefix, str);
         }
     }
 
-    public static void myLogD(String str)  { myLogD("",str); }
+    public static void myLogD(String str) {
+        myLogD("", str);
+    }
+
     public static void myLogD(String prefix, String str) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         if (LOG_DEBUG && writeTechLogs() || BuildConfig.DEBUG) {
-            writeToLogFile(str);
+            writeToLogFile("DEB.. " + parsePrefix(prefix) + ".. " + str);
             Log.d(newPrefix, str);
         }
     }
 
     public static void myLogW(String str) {
-        myLogE("",str);
+        myLogE("", str);
     }
+
     public static void myLogW(String prefix, String str) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
-        if (TextUtils.isEmpty(str)) {str = "...";}
+        if (TextUtils.isEmpty(str)) {
+            str = "...";
+        }
         if (writeTechLogs()) {
             writeToLogFile("WAR.. " + parsePrefix(prefix) + ".. " + str);
             Log.w(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.w(newPrefix, str);
+            if (LOG_THEM_ALL)
+                Log.w(newPrefix, str);
         }
     }
-
 
     public static void myLogEE(Throwable t, String str) {
         myLogEE(t, "", str);
     }
-    //TODO add e.getClass() to the string ?
+
+    // TODO add e.getClass() to the string ?
     public static void myLogEE(Throwable t, String prefix, String str) {
-        myLogE(prefix, str + (t != null ?  " : " + t.getMessage() : ""));
+        myLogE(prefix, str + (t != null ? " : " + t.getMessage() : ""));
         try {
-            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_prefix",prefix);
-            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_errMessage",(t != null ?  " : " + t.getMessage() : ""));
-            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_customMessage",str);
-            String strFirebaseLog =  prefix + " " + str;
+            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_prefix", prefix);
+            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_errMessage",
+                    (t != null ? " : " + t.getMessage() : ""));
+            FirebaseCrashlytics.getInstance().setCustomKey("myLogEE_customMessage", str);
+            String strFirebaseLog = prefix + " " + str;
             String androidErrorMessage = "";
-            if (t!=null) {
+            if (t != null) {
                 androidErrorMessage = t.getMessage();
                 FirebaseCrashlytics.getInstance().recordException(t);
                 strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
             }
             FirebaseCrashlytics.getInstance().log(strFirebaseLog);
             FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "myLogEE");
-        } catch (Throwable ignored) {} // Never let Crashlytics reporting crash the app
+        } catch (Throwable ignored) {
+        } // Never let Crashlytics reporting crash the app
     }
 
     public static void myLogE(String str) {
-        myLogE("",str);
+        myLogE("", str);
     }
+
     public static void myLogE(String prefix, String str) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
-        if (TextUtils.isEmpty(str)) {str = "...";}
+        if (TextUtils.isEmpty(str)) {
+            str = "...";
+        }
         if (writeTechLogs()) {
             writeToLogFile("ERR.. " + parsePrefix(prefix) + ".. " + str);
             Log.e(newPrefix, str);
         } else {
-            if (LOG_THEM_ALL) Log.e(newPrefix, str);
+            if (LOG_THEM_ALL)
+                Log.e(newPrefix, str);
         }
     }
-    public static void myLogBundle(Bundle bundle) {myLogBundle("", bundle);}
+
+    public static void myLogBundle(Bundle bundle) {
+        myLogBundle("", bundle);
+    }
+
     public static void myLogBundle(String prefix, Bundle bundle) {
         String newPrefix = parsePrefix(LOGCAT_PREFIX + " " + prefix);
         myLog(newPrefix, getBundleString(bundle));
     }
+
     public static String getBundleString(Bundle bundle) {
-        if (bundle == null) return "Bundle is null";
+        if (bundle == null)
+            return "Bundle is null";
         StringBuilder sb = new StringBuilder("Bundle{ ");
         for (String key : bundle.keySet()) {
             Object value = bundle.get(key);
@@ -231,12 +256,12 @@ public class KanLogger {
         return sb.toString();
     }
 
-
-//TODO change for snackbars....
+    // TODO change for snackbars....
     /////////////////////////////////
     /// TOAST
-    /////////////////////////////////-----------------------------------------------------------
-// --- Toast helpers: hardened & consistent ---  (after crash : java.lang.IllegalArgumentException: Error unparceling MemoryIntArray)
+    ///////////////////////////////// -----------------------------------------------------------
+    // --- Toast helpers: hardened & consistent --- (after crash :
+    // java.lang.IllegalArgumentException: Error unparceling MemoryIntArray)
 
     private static final int MAX_TOAST_LEN = 1000; // avoid huge strings crashing OEM toasts
     private static final Handler MAIN = new Handler(Looper.getMainLooper());
@@ -255,25 +280,29 @@ public class KanLogger {
 
     public static void myToast(String prefix, String str, int toastLength) {
         String msg = sanitize(prefix, str);
-        if (getMyAppContext() == null || msg == null) return;
+        if (getMyAppContext() == null || msg == null)
+            return;
 
         myLog(prefix, "TOASTING : " + msg);
 
         Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
-        if (Looper.myLooper() == Looper.getMainLooper()) r.run();
-        else MAIN.post(r);
+        if (Looper.myLooper() == Looper.getMainLooper())
+            r.run();
+        else
+            MAIN.post(r);
     }
 
     public static void myToastEE(@Nullable Throwable t, String prefix, String str) {
         String msg = sanitize(prefix, str);
-        if (msg == null) msg = "(null message)";
+        if (msg == null)
+            msg = "(null message)";
         // Log once at error level
         myLogE(prefix, msg + (t != null ? " : " + t.getMessage() : ""));
         // Show toast (short) with full hardening
         myToastE(prefix, msg, Toast.LENGTH_SHORT);
         // Report (avoid double-reporting large stacks if t is null)
         try {
-            String strFirebaseLog =  prefix + " " + str;
+            String strFirebaseLog = prefix + " " + str;
             String androidErrorMessage = "";
             if (t != null) {
                 androidErrorMessage = t.getMessage();
@@ -283,8 +312,10 @@ public class KanLogger {
                 FirebaseCrashlytics.getInstance().log(prefix + " " + msg);
             }
             FirebaseCrashlytics.getInstance().log(strFirebaseLog);
-            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "myToastEE");
-        } catch (Throwable ignored) {} // Never let Crashlytics reporting crash the app
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage,
+                    "myToastEE");
+        } catch (Throwable ignored) {
+        } // Never let Crashlytics reporting crash the app
     }
 
     public static void myToastE(String str) {
@@ -301,34 +332,42 @@ public class KanLogger {
 
     public static void myToastE(String prefix, String str, int toastLength) {
         String msg = sanitize(prefix, str);
-        if (getMyAppContext() == null || msg == null) return;
+        if (getMyAppContext() == null || msg == null)
+            return;
 
         myLogE(prefix, "TOASTING : " + msg);
 
         Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
-        if (Looper.myLooper() == Looper.getMainLooper()) r.run();
-        else MAIN.post(r);
+        if (Looper.myLooper() == Looper.getMainLooper())
+            r.run();
+        else
+            MAIN.post(r);
     }
 
     public static void myToastW(String prefix, String str, int toastLength) {
         String msg = sanitize(prefix, str);
-        if (getMyAppContext() == null || msg == null) return;
+        if (getMyAppContext() == null || msg == null)
+            return;
 
         myLogW(prefix, "TOASTING : " + msg);
 
         Runnable r = () -> safeToastShow(getMyAppContext().getApplicationContext(), msg, toastLength);
-        if (Looper.myLooper() == Looper.getMainLooper()) r.run();
-        else MAIN.post(r);
+        if (Looper.myLooper() == Looper.getMainLooper())
+            r.run();
+        else
+            MAIN.post(r);
     }
 
-// --- Internals ---
+    // --- Internals ---
 
     @Nullable
     private static String sanitize(@Nullable String prefix, @Nullable String str) {
         // Collapse nulls and trim; keep it short to avoid OEM quirks
         String s = (str == null ? "" : str).trim();
-        if (s.isEmpty()) return null;
-        if (s.length() > MAX_TOAST_LEN) s = s.substring(0, MAX_TOAST_LEN - 1) + "…";
+        if (s.isEmpty())
+            return null;
+        if (s.length() > MAX_TOAST_LEN)
+            s = s.substring(0, MAX_TOAST_LEN - 1) + "…";
         return s;
     }
 
@@ -346,12 +385,9 @@ public class KanLogger {
         }
     }
 
-
-
-
     /////////////////////////////////
     /// LOG FILES
-    /////////////////////////////////-----------------------------------------------------------
+    ///////////////////////////////// -----------------------------------------------------------
     private static void writeToLogFile(String message) {
         Context appCtx = getMyAppContext();
         if (appCtx == null) {
@@ -374,7 +410,7 @@ public class KanLogger {
 
                 File logFile = new File(dir, fileName);
                 try (FileOutputStream fos = new FileOutputStream(logFile, true);
-                     OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+                        OutputStreamWriter writer = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
                     writer.write(time + " " + message + "\n");
                 }
 
@@ -386,7 +422,7 @@ public class KanLogger {
 
     private static String parsePrefix(String str) {
         String zeReturn = str;
-        zeReturn = zeReturn.replace(PREFIX_DELETE,"");
+        zeReturn = zeReturn.replace(PREFIX_DELETE, "");
         zeReturn = zeReturn.replace(" activities.", " a.");
         zeReturn = zeReturn.replace(" services.", " s.");
         zeReturn = zeReturn.replace(" helpers.", " h.");
@@ -399,4 +435,3 @@ public class KanLogger {
     }
 
 }
-

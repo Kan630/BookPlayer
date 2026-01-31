@@ -46,6 +46,32 @@
             android:textColor="?attr/colorOnPrimary"
             android:layout_marginStart="8dp" />
 
+        <!-- VER Switch -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchVER"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="VER"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginStart="8dp" />
+
+        <!-- DEB Switch -->
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/switchDEB"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="DEB"
+            android:textColor="?attr/colorOnPrimary"
+            android:layout_marginStart="8dp" />
+
+        <!-- Share Button -->
+        <ImageButton
+            android:id="@+id/btnShare"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_share_24px"
+            android:layout_marginStart="8dp" />
+
     </LinearLayout>
 
     <androidx.recyclerview.widget.RecyclerView
