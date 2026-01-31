@@ -208,7 +208,7 @@ public final class EpubLowLevelHelper {
             // Plain text extraction
             String plain = xhtmlToPlainSmart(xhtml);
             plain = ensureParagraphs(plain);
-            it.text = clean(plain);
+            it.text = EbookTextCleaner.removeReferencesIfEnabled(clean(plain));
 
             it.textLen = it.text.length();
 

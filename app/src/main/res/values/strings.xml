@@ -467,6 +467,8 @@
     <string name="option_epub_split_mode_toc">TOC-based (one chapter per table of contents entry)</string>
     <string name="option_epub_split_mode_spine">Spine-based (one chapter per book entry)</string>
     <string name="option_epub_split_mode_explain_text">TOC-based splitting creates more chapters but preserves the book\'s structure. Spine-based is simpler and creates fewer chapters.</string>
+    <string name="option_ebook_remove_references">Remove reference markers (footnotes)</string>
+    <string name="option_ebook_remove_references_explain">Strips in-text refs like [8] and footnote blocks at end of pages so TTS reads the main text only.</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
 

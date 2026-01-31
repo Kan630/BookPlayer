@@ -394,7 +394,7 @@ public final class Fb2LowLevelHelper {
                     ensureBlankLine(text);
                 } else if ("section".equalsIgnoreCase(tag)) {
                     if (depth == 0) {
-                        ch.text = text.toString();
+                        ch.text = EbookTextCleaner.removeReferencesIfEnabled(text.toString());
                         return ch; // done with this section
                     } else {
                         depth--;
@@ -404,7 +404,7 @@ public final class Fb2LowLevelHelper {
         }
 
         // If we reach here, malformed, but return what we got
-        ch.text = text.toString();
+        ch.text = EbookTextCleaner.removeReferencesIfEnabled(text.toString());
         return ch;
     }
 

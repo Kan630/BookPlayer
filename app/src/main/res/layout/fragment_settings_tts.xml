@@ -159,5 +159,34 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+
+        <TextView
+            style="@style/warningText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="20dp"
+            android:text="@string/beta_test" />
+        <!-- Remove reference markers (footnotes) in ebooks -->
+        <LinearLayout
+            android:id="@+id/ll_ebook_remove_references"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="0dp"
+            >
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_ebook_remove_references"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_ebook_remove_references" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_ebook_remove_references_explain"
+            />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
     </LinearLayout>
 </ScrollView>

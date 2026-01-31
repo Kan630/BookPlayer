@@ -9,8 +9,11 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.android.material.checkbox.MaterialCheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +30,8 @@ public class TtsSettingsFragment extends LoggingFragment {
     private String lastSavedTtsVoice;
     private EditText etTtsHighlightDelay, etTtsChunkSize;
     private Spinner spinnerEpubSplitMode;
+    private MaterialCheckBox chkEbookRemoveReferences;
+    private LinearLayout llEbookRemoveReferences;
     private boolean hasBeenInitialized = false;
 
     @Nullable
@@ -91,6 +96,14 @@ public class TtsSettingsFragment extends LoggingFragment {
         // EPUB Split Mode spinner
         spinnerEpubSplitMode = root.findViewById(R.id.spinner_epub_split_mode);
         setupEpubSplitModeSpinner();
+
+        // Remove reference markers (footnotes) in ebooks
+        chkEbookRemoveReferences = root.findViewById(R.id.chk_ebook_remove_references);
+        llEbookRemoveReferences = root.findViewById(R.id.ll_ebook_remove_references);
+        chkEbookRemoveReferences.setChecked(Option.getEbookRemoveReferences());
+        llEbookRemoveReferences.setOnClickListener(v -> chkEbookRemoveReferences.toggle());
+        chkEbookRemoveReferences.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setEbookRemoveReferences(isChecked));
 
         return root;
     }
