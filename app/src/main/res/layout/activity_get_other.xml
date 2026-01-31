@@ -148,7 +148,7 @@
 
                 <Button
                     android:id="@+id/bOpenFile"
-                    android:text="@string/File"
+                    android:text="@string/File_and_icon"
                     style="@style/GetResourceButton"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"
@@ -199,7 +199,7 @@
 
                 <Button
                     android:id="@+id/bOpenFolder"
-                    android:text="@string/Folder"
+                    android:text="@string/Folder_and_icon"
                     style="@style/GetResourceButton"
                     android:backgroundTint="?attr/colorPrimaryVariant"
                     android:textColor="?attr/colorOnPrimary"

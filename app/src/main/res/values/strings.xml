@@ -99,8 +99,10 @@
     <string name="favorites">favorites</string>
     <string name="Favorites">Favorites</string>
     <string name="File">File</string>
+    <string name="File_and_icon">📄 File</string>
     <string name="flag">flag</string> //means country flag
     <string name="Folder">Folder</string>
+    <string name="Folder_and_icon">📁 Folder</string>
     <string name="folder">folder</string>
     <string name="Font">Font</string>
     <string name="Forbidden">Forbidden</string>
@@ -695,7 +697,7 @@
     <string name="stats_note">(These stats started in 2025 (oct-nov)</string>
     <string name="stats_install_date_label">Install Date : </string>
     
-    <string name="bMassImport">Mass Import</string>
+    <string name="bMassImport">📁 Mass Import</string>
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
     <string name="bOpenFolder_desc">Pick a folder : all audio files (even in subfolders, if any) will be imported in the same book.</string>
     <string name="type_here_">Type here…</string>
