@@ -6,29 +6,25 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.widget.ScrollView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
-import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.SeekBar; // Added for Custom Theme
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.core.view.ViewCompat;
 
 import com.bumptech.glide.util.Executors;
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
@@ -41,8 +37,6 @@ public class DesignSettingsFragment extends LoggingFragment {
     private Spinner spFontFamily;
     private MaterialCheckBox chkThemeModeForce;
     private MaterialButtonToggleGroup groupThemeMode;
-    private MaterialButton btnThemeLight;
-    private MaterialButton btnThemeDark;
 
     // local helper identical to your Activity’s inner class
     private static class FontChoice {
@@ -57,9 +51,6 @@ public class DesignSettingsFragment extends LoggingFragment {
 
     private final List<FontChoice> fontChoices = new ArrayList<>();
 
-    // Keep references for color buttons to paint them with theme primary color
-    private ImageButton[] colorButtons;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -67,6 +58,8 @@ public class DesignSettingsFragment extends LoggingFragment {
             @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_settings_design, container, false);
+
+        if (!BuildConfig.DEBUG && !Option.getTechLog()) root.findViewById(R.id.ll_color_viewer_section).setVisibility(View.GONE);
 
         // Hide the title row when embedded inline
         boolean showLocalTitle = true;
@@ -119,28 +112,6 @@ public class DesignSettingsFragment extends LoggingFragment {
             }
         });
 
-        // ===== Theme color grid (18 buttons) =====
-        colorButtons = new ImageButton[] {
-                root.findViewById(R.id.btn_color_01),
-                root.findViewById(R.id.btn_color_02),
-                root.findViewById(R.id.btn_color_03),
-                root.findViewById(R.id.btn_color_04),
-                root.findViewById(R.id.btn_color_05),
-                root.findViewById(R.id.btn_color_06),
-                root.findViewById(R.id.btn_color_07),
-                root.findViewById(R.id.btn_color_08),
-                root.findViewById(R.id.btn_color_09),
-                root.findViewById(R.id.btn_color_10),
-                root.findViewById(R.id.btn_color_11),
-                root.findViewById(R.id.btn_color_12),
-                root.findViewById(R.id.btn_color_13),
-                root.findViewById(R.id.btn_color_14),
-                root.findViewById(R.id.btn_color_15),
-                root.findViewById(R.id.btn_color_16),
-                root.findViewById(R.id.btn_color_17),
-                root.findViewById(R.id.btn_color_18)
-        };
-
         // theme key → style map (same naming you already use)
         Object[][] themesAndColors = new Object[][] {
                 { R.id.btn_color_01, "gray", R.style.Theme_BookPlayer_Gray },
@@ -192,8 +163,6 @@ public class DesignSettingsFragment extends LoggingFragment {
         // ===== Theme mode: override system checkbox + Light/Dark toggle =====
         chkThemeModeForce = root.findViewById(R.id.chk_theme_mode_force);
         groupThemeMode = root.findViewById(R.id.group_theme_mode);
-        btnThemeLight = root.findViewById(R.id.btn_theme_light);
-        btnThemeDark = root.findViewById(R.id.btn_theme_dark);
 
         String nightMode = Option.getNightMode();
         boolean forceMode = !"SYSTEM".equals(nightMode);
@@ -247,224 +216,9 @@ public class DesignSettingsFragment extends LoggingFragment {
             });
         }, 500);
 
-        // ===== Custom Buttons & Sliders =====
-        setupCustomThemeLogic(root);
-
         return root;
     }
 
-    // ---------------- Custom Logic ----------------
-    private LinearLayout llColorPicker;
-    private SeekBar sbRed, sbGreen, sbBlue;
-    private TextView tvRed, tvGreen, tvBlue;
-    private MaterialButton btnCustom1, btnCustom2, btnCustom3;
-    // 6 preview boxes references
-    private TextView boxPrimary, boxSecondary, boxPrimaryV, boxSurface, boxSurfaceV, boxOutline;
-    private TextView[] allBoxes;
-    private String[] boxKeys = { "primary", "secondary", "primary_v", "surface", "surface_v", "outline" };
-    private int[] defaultColors;
-
-    private int currentCustomThemeIdx = -1; // -1 = standard, 1,2,3 = custom
-    private String currentSelectedColorKey = "primary"; // default selection
-
-    private void setupCustomThemeLogic(View root) {
-        btnCustom1 = root.findViewById(R.id.btn_custom_1);
-        btnCustom2 = root.findViewById(R.id.btn_custom_2);
-        btnCustom3 = root.findViewById(R.id.btn_custom_3);
-
-        llColorPicker = root.findViewById(R.id.ll_color_picker);
-        sbRed = root.findViewById(R.id.seekbar_red);
-        sbGreen = root.findViewById(R.id.seekbar_green);
-        sbBlue = root.findViewById(R.id.seekbar_blue);
-        tvRed = root.findViewById(R.id.tv_red_val);
-        tvGreen = root.findViewById(R.id.tv_green_val);
-        tvBlue = root.findViewById(R.id.tv_blue_val);
-
-        boxPrimary = root.findViewById(R.id.box_primary);
-        boxSecondary = root.findViewById(R.id.box_secondary);
-        boxPrimaryV = root.findViewById(R.id.box_primary_v);
-        boxSurface = root.findViewById(R.id.box_surface);
-        boxSurfaceV = root.findViewById(R.id.box_surface_v);
-        boxOutline = root.findViewById(R.id.box_outline);
-
-        allBoxes = new TextView[] { boxPrimary, boxSecondary, boxPrimaryV, boxSurface, boxSurfaceV, boxOutline };
-
-        // Listeners for Custom Buttons
-        View.OnClickListener customBtnListener = v -> {
-            int idx = 1;
-            if (v == btnCustom2)
-                idx = 2;
-            else if (v == btnCustom3)
-                idx = 3;
-            setCustomThemeMode(idx);
-        };
-        btnCustom1.setOnClickListener(customBtnListener);
-        btnCustom2.setOnClickListener(customBtnListener);
-        btnCustom3.setOnClickListener(customBtnListener);
-
-        // Listeners for Boxes
-        for (int i = 0; i < allBoxes.length; i++) {
-            String key = boxKeys[i];
-            View box = allBoxes[i];
-            box.setOnClickListener(v -> {
-                if (currentCustomThemeIdx != -1) {
-                    selectBox(key);
-                }
-            });
-        }
-
-        // Listeners for SeekBars
-        SeekBar.OnSeekBarChangeListener sbListener = new SeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (fromUser && currentCustomThemeIdx != -1) {
-                    updateColorFromSliders();
-                }
-            }
-
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-            }
-        };
-        sbRed.setOnSeekBarChangeListener(sbListener);
-        sbGreen.setOnSeekBarChangeListener(sbListener);
-        sbBlue.setOnSeekBarChangeListener(sbListener);
-    }
-
-    private void setCustomThemeMode(int idx) {
-        currentCustomThemeIdx = idx;
-        llColorPicker.setVisibility(View.VISIBLE);
-        // Highlight active button (optional visual feedback, simple toggle for now)
-        btnCustom1.setChecked(idx == 1);
-        btnCustom2.setChecked(idx == 2);
-        btnCustom3.setChecked(idx == 3);
-
-        // Deselect standard color buttons (remove strokes)
-        float density = getResources().getDisplayMetrics().density;
-        if (colorButtons != null) {
-            for (ImageButton b : colorButtons) {
-                ViewCompat.setBackgroundTintList(b, null); // Just in case tint interferes
-                GradientDrawable gd = (GradientDrawable) b.getBackground();
-                if (gd != null)
-                    gd.setStroke(0, 0); // clear stroke
-            }
-        }
-
-        reloadCustomColorsForPreview();
-        selectBox("primary"); // default selection
-    }
-
-    private void reloadCustomColorsForPreview() {
-        if (defaultColors == null) {
-            // Lazy load defaults from Purple theme as fallback
-            defaultColors = new int[6];
-            Context ctx = requireContext();
-
-            // Resolve standard theme colors
-            Resources.Theme theme = ctx.getResources().newTheme();
-            theme.applyStyle(R.style.Theme_BookPlayer_Purple, true);
-            defaultColors[0] = getColor(theme, R.attr.colorPrimary);
-            defaultColors[1] = getColor(theme, R.attr.colorSecondary);
-            defaultColors[2] = getColor(theme, R.attr.colorPrimaryVariant);
-            defaultColors[3] = getColor(theme, com.google.android.material.R.attr.colorSurface);
-            defaultColors[4] = getColor(theme, com.google.android.material.R.attr.colorSurfaceVariant);
-            defaultColors[5] = getColor(theme, com.google.android.material.R.attr.colorOutline);
-        }
-
-        for (int i = 0; i < allBoxes.length; i++) {
-            int color = Option.getCustomColor(currentCustomThemeIdx, boxKeys[i], defaultColors[i]);
-            setBoxColor(allBoxes[i], color, false);
-        }
-    }
-
-    private int getColor(Resources.Theme theme, int attr) {
-        TypedArray ta = theme.obtainStyledAttributes(new int[] { attr });
-        int color = ta.getColor(0, 0xFF777777);
-        ta.recycle();
-        return color;
-    }
-
-    private void selectBox(String key) {
-        currentSelectedColorKey = key;
-
-        // Find stored color
-        int boxIdx = 0;
-        for (int i = 0; i < boxKeys.length; i++)
-            if (boxKeys[i].equals(key))
-                boxIdx = i;
-
-        int color = Option.getCustomColor(currentCustomThemeIdx, key,
-                defaultColors != null ? defaultColors[boxIdx] : 0xFF000000);
-
-        // Update Sliders
-        int r = (color >> 16) & 0xFF;
-        int g = (color >> 8) & 0xFF;
-        int b = (color) & 0xFF;
-        sbRed.setProgress(r);
-        sbGreen.setProgress(g);
-        sbBlue.setProgress(b);
-        updateSliderText(r, g, b);
-
-        // Update Contours
-        for (int i = 0; i < allBoxes.length; i++) {
-            int c = Option.getCustomColor(currentCustomThemeIdx, boxKeys[i], defaultColors[i]);
-            setBoxColor(allBoxes[i], c, boxKeys[i].equals(key));
-        }
-    }
-
-    private void updateColorFromSliders() {
-        int r = sbRed.getProgress();
-        int g = sbGreen.getProgress();
-        int b = sbBlue.getProgress();
-        updateSliderText(r, g, b);
-
-        int color = 0xFF000000 | (r << 16) | (g << 8) | b;
-
-        // Save
-        Option.setCustomColor(currentCustomThemeIdx, currentSelectedColorKey, color);
-
-        // Update View
-        int boxIdx = 0;
-        for (int i = 0; i < boxKeys.length; i++)
-            if (boxKeys[i].equals(currentSelectedColorKey))
-                boxIdx = i;
-        setBoxColor(allBoxes[boxIdx], color, true);
-    }
-
-    private void updateSliderText(int r, int g, int b) {
-        tvRed.setText(String.valueOf(r));
-        tvGreen.setText(String.valueOf(g));
-        tvBlue.setText(String.valueOf(b));
-    }
-
-    private void setBoxColor(TextView box, int color, boolean selected) {
-        float density = getResources().getDisplayMetrics().density;
-        int cornerRadiusPx = (int) (8 * density);
-        int strokeWidthPx = (int) (3 * density);
-
-        GradientDrawable gd = new GradientDrawable();
-        gd.setShape(GradientDrawable.RECTANGLE);
-        gd.setCornerRadius(cornerRadiusPx);
-        gd.setColor(color);
-
-        if (selected) {
-            int strokeColor = resolveColorOnSurface(requireContext());
-            gd.setStroke(strokeWidthPx, strokeColor);
-        }
-
-        box.setBackground(gd);
-
-        // Auto text color (white or black depending on luminance)
-        if (androidx.core.graphics.ColorUtils.calculateLuminance(color) > 0.5) {
-            box.setTextColor(0xFF000000);
-        } else {
-            box.setTextColor(0xFFFFFFFF);
-        }
-    }
 
     // ---------------- helpers ----------------
 
