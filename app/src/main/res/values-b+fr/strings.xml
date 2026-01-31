@@ -474,6 +474,8 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
     <string name="option_epub_split_mode_spine">Séquence (un chapitre par entrée)</string>
     <string name="option_epub_split_mode_explain_text">Basé sur la TOC (table des matières) : Crée plus de chapitres mais préserve la structure. Basé sur la séquence : Plus simple et crée moins de chapitres.</string>
+    <string name="option_ebook_remove_references">Supprimer les références (notes de bas de page)</string>
+    <string name="option_ebook_remove_references_explain">Supprime les références dans le texte comme [1] et les blocs de notes de bas de page en fin de pages afin que la synthèse vocale ne lise que le texte principal.</string>
     <string name="option_automotive_on">Se connecter à Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Reprendre automatiquement la lecture lors de la connexion à la voiture.</string>
 
@@ -689,6 +691,16 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="deleted_on">supprimé le</string>
     <string name="added_on">ajouté le</string>
     <string name="MB_taken_by_databases">" Mo pris par la base de données"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">Temps d\'écoute</string>
+    <string name="stats_book_time">* Livre Audio</string>
+    <string name="stats_tts_time">* Ebook</string>
+    <string name="stats_radio_time">* Radio</string>
+    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_note">(Ces statistiques ont commencé en 2025 (oct-nov)</string>
+    <string name="stats_install_date_label">installation de l\'App : </string>
+    
     <string name="bMassImport">Importation massive</string>
     <string name="bOpenMassImport_desc">Importation en masse : Créez autant de livres audio qu\'il y a d\'éléments dans le dossier que vous choisirez.</string>
     <string name="bOpenFolder_desc">Choisissez un dossier : tous les fichiers audio (y compris dans les sous-dossiers, le cas échéant) seront importés dans le même livre audio.</string>
@@ -1039,6 +1051,8 @@ avec la langue [%2$s]</string>
     <string name="select_at_least_one_item">Veuillez sélectionner au moins un élément.</string>
     <string name="mass_import_selected_summary">%1$d candidats sélectionnés pour import (%2$s)</string>
     <string name="option_mass_import_display_storage_bar">Afficher la barre de visualisation du stockage</string>
+    <string name="option_mass_import_include_subfolders">Rechercher également dans les sous-dossiers</string>
+    <string name="option_app_language_subtitle">Peut ne pas fonctionner sur certains appareils.</string>
 
 
     <plurals name="audio_files_count">//ex : 15 audio files

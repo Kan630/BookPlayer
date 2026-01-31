@@ -689,6 +689,16 @@
     <string name="deleted_on">deleted on</string>
     <string name="added_on">added on</string>
     <string name="MB_taken_by_databases">" MB taken by database"</string>
+    
+    <!-- Stats Activity Table -->
+    <string name="stats_audio_time">Playback Time</string>
+    <string name="stats_book_time">* AudioBook</string>
+    <string name="stats_tts_time">* Ebook</string>
+    <string name="stats_radio_time">* Radio</string>
+    <string name="stats_podcast_time">* Podcast</string>
+    <string name="stats_note">(These stats started in 2025 (oct-nov)</string>
+    <string name="stats_install_date_label">Install Date : </string>
+    
     <string name="bMassImport">Mass Import</string>
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
     <string name="bOpenFolder_desc">Pick a folder : all audio files (even in subfolders, if any) will be imported in the same book.</string>

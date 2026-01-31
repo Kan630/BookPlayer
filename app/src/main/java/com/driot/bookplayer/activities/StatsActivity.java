@@ -84,12 +84,12 @@ public class StatsActivity extends LoggingActivity {
         viewModel.getInternalStorageInfo().observe(this, storageInfo -> {
             if (storageInfo != null && storageBarInternal != null) {
                 storageBarInternal.setStorageValues(
-                    storageInfo.totalStorageBytes,
-                    storageInfo.usedByOthersBytes,
-                    storageInfo.usedByBookPlayerBytes,
-                    0, // expectedAddedMemory
-                    storageInfo.linkedAudiosBytes, // linked audios
-                    storageInfo.appStorageBytes // app storage (dark blue)
+                        storageInfo.totalStorageBytes,
+                        storageInfo.usedByOthersBytes,
+                        storageInfo.usedByBookPlayerBytes,
+                        0, // expectedAddedMemory
+                        storageInfo.linkedAudiosBytes, // linked audios
+                        storageInfo.appStorageBytes // app storage (dark blue)
                 );
                 storageBarInternal.setVisibility(View.VISIBLE);
                 storageBarInternal.invalidate();
@@ -106,12 +106,12 @@ public class StatsActivity extends LoggingActivity {
         viewModel.getSdCardStorageInfo().observe(this, storageInfo -> {
             if (storageInfo != null && storageBarSDCard != null && llSDCardStorage != null) {
                 storageBarSDCard.setStorageValues(
-                    storageInfo.totalStorageBytes,
-                    storageInfo.usedByOthersBytes,
-                    storageInfo.usedByBookPlayerBytes,
-                    0, // expectedAddedMemory
-                    storageInfo.linkedAudiosBytes, // linked audios
-                    0 // appStorage (only for internal storage)
+                        storageInfo.totalStorageBytes,
+                        storageInfo.usedByOthersBytes,
+                        storageInfo.usedByBookPlayerBytes,
+                        0, // expectedAddedMemory
+                        storageInfo.linkedAudiosBytes, // linked audios
+                        0 // appStorage (only for internal storage)
                 );
                 // Force redraw to ensure the bar updates
                 storageBarSDCard.invalidate();
@@ -165,41 +165,42 @@ public class StatsActivity extends LoggingActivity {
 
         // Format install date nicely (date only, using Locale)
         String installDateFormatted = formatInstallDate(Pref.getFirstOpenDate());
-        
+
         // Check if install date is prior to December 1, 2025
         boolean showStatsStartedNote = isInstallDateBefore(Pref.getFirstOpenDate(), 2025, 12, 1);
-        
+
         // Get duration values (raw ms for percentage calculation)
         long totalMs = Pref.getTotalMsPlayed();
         long bookMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_BOOK);
         long ttsMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_TTS);
         long radioMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_RADIO);
         long podcastMs = Pref.getTotalMsPlayed(Var.PLAY_MODE_PODCAST);
-        
+
         String bookTime = Tonio.formatTime(bookMs);
         String ttsTime = Tonio.formatTime(ttsMs);
         String radioTime = Tonio.formatTime(radioMs);
         String podcastTime = Tonio.formatTime(podcastMs);
-        
+
         // Build text for main body (without Audio Time, it will be in table header)
-        String zeText4 = "Install Date = " + installDateFormatted;
+        String zeText4 = getString(R.string.stats_install_date_label) + installDateFormatted;
 
         TextView tv_head4 = findViewById(R.id.tv4_head);
         TextView tv_body4 = findViewById(R.id.tv4_body);
         TableLayout tableDurationDetails = findViewById(R.id.tableDurationDetails);
         TextView tv_stats_note = findViewById(R.id.tv4_stats_note);
-        
+
         tv_head4.setText(R.string.Stats);
         tv_body4.setText(zeText4);
-        
-        // Populate table with duration details (including Audio Time header and percentage bars)
+
+        // Populate table with duration details (including Audio Time header and
+        // percentage bars)
         String totalAudioTime = Tonio.formatTime(totalMs);
         populateDurationTable(tableDurationDetails, totalAudioTime, totalMs,
                 bookTime, bookMs, ttsTime, ttsMs, radioTime, radioMs, podcastTime, podcastMs);
-        
+
         // Show stats note if needed
         if (showStatsStartedNote) {
-            tv_stats_note.setText("(These stats started in 2025 (oct-nov)");
+            tv_stats_note.setText(R.string.stats_note);
             tv_stats_note.setVisibility(View.VISIBLE);
         } else {
             tv_stats_note.setVisibility(View.GONE);
@@ -286,19 +287,23 @@ public class StatsActivity extends LoggingActivity {
 
     /**
      * Format install date string to display only the date (no time) using Locale
-     * @param dateTimeString Date string in format "yyyy-MM-dd-HH'h'mm'm'ss's'" or "yyyy-MM-dd HH:mm"
-     * @return Formatted date string using Locale, or original string if parsing fails
+     * 
+     * @param dateTimeString Date string in format "yyyy-MM-dd-HH'h'mm'm'ss's'" or
+     *                       "yyyy-MM-dd HH:mm"
+     * @return Formatted date string using Locale, or original string if parsing
+     *         fails
      */
     private String formatInstallDate(String dateTimeString) {
         if (dateTimeString == null || dateTimeString.isEmpty()) {
             return "";
         }
-        
+
         try {
-            // Try to parse the format "yyyy-MM-dd-HH'h'mm'm'ss's'" (from getCurrentDateTimeString)
+            // Try to parse the format "yyyy-MM-dd-HH'h'mm'm'ss's'" (from
+            // getCurrentDateTimeString)
             SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
             Date date = inputFormat.parse(dateTimeString);
-            
+
             if (date != null) {
                 // Format using Locale with date only (no time)
                 DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
@@ -309,7 +314,7 @@ public class StatsActivity extends LoggingActivity {
             try {
                 SimpleDateFormat inputFormat2 = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US);
                 Date date = inputFormat2.parse(dateTimeString);
-                
+
                 if (date != null) {
                     DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
                     return dateFormat.format(date);
@@ -321,7 +326,7 @@ public class StatsActivity extends LoggingActivity {
                     try {
                         SimpleDateFormat inputFormat3 = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
                         Date date = inputFormat3.parse(datePart);
-                        
+
                         if (date != null) {
                             DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
                             return dateFormat.format(date);
@@ -332,27 +337,28 @@ public class StatsActivity extends LoggingActivity {
                 }
             }
         }
-        
+
         // If all parsing fails, return original string
         return dateTimeString;
     }
 
     /**
      * Check if install date is before a specified date
+     * 
      * @param dateTimeString Date string to parse
-     * @param year Year to compare
-     * @param month Month to compare (1-12)
-     * @param day Day to compare
+     * @param year           Year to compare
+     * @param month          Month to compare (1-12)
+     * @param day            Day to compare
      * @return true if install date is before the specified date, false otherwise
      */
     private boolean isInstallDateBefore(String dateTimeString, int year, int month, int day) {
         if (dateTimeString == null || dateTimeString.isEmpty()) {
             return false;
         }
-        
+
         try {
             Date installDate = null;
-            
+
             // Try to parse the format "yyyy-MM-dd-HH'h'mm'm'ss's'"
             try {
                 SimpleDateFormat inputFormat = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
@@ -371,38 +377,40 @@ public class StatsActivity extends LoggingActivity {
                     }
                 }
             }
-            
+
             if (installDate != null) {
                 Calendar installCalendar = Calendar.getInstance();
                 installCalendar.setTime(installDate);
-                
+
                 Calendar compareCalendar = Calendar.getInstance();
                 compareCalendar.set(year, month - 1, day, 0, 0, 0); // month is 0-based
                 compareCalendar.set(Calendar.MILLISECOND, 0);
-                
+
                 return installCalendar.before(compareCalendar);
             }
         } catch (Exception e) {
             myLogEE(e, "Error checking install date");
         }
-        
+
         return false;
     }
 
     /**
      * Populate TableLayout with duration details in a 2-column table format.
-     * Detail rows show a gray bar whose length is the percentage of total audio time.
-     * @param tableLayout The TableLayout to populate
+     * Detail rows show a gray bar whose length is the percentage of total audio
+     * time.
+     * 
+     * @param tableLayout    The TableLayout to populate
      * @param totalAudioTime Total audio time string (for header)
-     * @param totalMs Total audio time in milliseconds (for percentage)
-     * @param bookTime Book time string
-     * @param bookMs Book time in ms
-     * @param ttsTime TTS time string
-     * @param ttsMs TTS time in ms
-     * @param radioTime Radio time string
-     * @param radioMs Radio time in ms
-     * @param podcastTime Podcast time string
-     * @param podcastMs Podcast time in ms
+     * @param totalMs        Total audio time in milliseconds (for percentage)
+     * @param bookTime       Book time string
+     * @param bookMs         Book time in ms
+     * @param ttsTime        TTS time string
+     * @param ttsMs          TTS time in ms
+     * @param radioTime      Radio time string
+     * @param radioMs        Radio time in ms
+     * @param podcastTime    Podcast time string
+     * @param podcastMs      Podcast time in ms
      */
     private void populateDurationTable(TableLayout tableLayout, String totalAudioTime, long totalMs,
             String bookTime, long bookMs, String ttsTime, long ttsMs, String radioTime, long radioMs,
@@ -410,29 +418,30 @@ public class StatsActivity extends LoggingActivity {
         if (tableLayout == null) {
             return;
         }
-        
+
         // Clear existing rows
         tableLayout.removeAllViews();
-        
+
         // Add header row with "Audio Time" in bold
-        addTableHeaderRow(tableLayout, "Audio Time", totalAudioTime);
-        
+        addTableHeaderRow(tableLayout, getString(R.string.stats_audio_time), totalAudioTime);
+
         // Create rows for each duration type with percentage bar
-        addTableRowWithPercentage(tableLayout, "* Book Time", bookTime, totalMs, bookMs);
-        addTableRowWithPercentage(tableLayout, "* TTS Time", ttsTime, totalMs, ttsMs);
-        addTableRowWithPercentage(tableLayout, "* Radio Time", radioTime, totalMs, radioMs);
-        addTableRowWithPercentage(tableLayout, "* Podcast Time", podcastTime, totalMs, podcastMs);
+        addTableRowWithPercentage(tableLayout, getString(R.string.stats_book_time), bookTime, totalMs, bookMs);
+        addTableRowWithPercentage(tableLayout, getString(R.string.stats_tts_time), ttsTime, totalMs, ttsMs);
+        addTableRowWithPercentage(tableLayout, getString(R.string.stats_radio_time), radioTime, totalMs, radioMs);
+        addTableRowWithPercentage(tableLayout, getString(R.string.stats_podcast_time), podcastTime, totalMs, podcastMs);
     }
-    
+
     /**
      * Add a header row to the table with bold text
+     * 
      * @param tableLayout The TableLayout
-     * @param label The label text (left column)
-     * @param value The value text (right column)
+     * @param label       The label text (left column)
+     * @param value       The value text (right column)
      */
     private void addTableHeaderRow(TableLayout tableLayout, String label, String value) {
         TableRow row = new TableRow(this);
-        
+
         // Label TextView (left column) - bold
         TextView labelView = new TextView(this);
         labelView.setText(label);
@@ -440,7 +449,7 @@ public class StatsActivity extends LoggingActivity {
         labelView.setTextAppearance(this, R.style.simpleText);
         labelView.setTypeface(null, android.graphics.Typeface.BOLD);
         row.addView(labelView);
-        
+
         // Value TextView (right column) - bold
         TextView valueView = new TextView(this);
         valueView.setText(value);
@@ -449,67 +458,75 @@ public class StatsActivity extends LoggingActivity {
         valueView.setTypeface(null, android.graphics.Typeface.BOLD);
         valueView.setGravity(android.view.Gravity.END); // Right-align values
         row.addView(valueView);
-        
+
         tableLayout.addView(row);
     }
-    
+
     /**
-     * Add a row to the table with label and value, and a gray bar showing percentage of total.
+     * Add a row to the table with label and value, and a gray bar showing
+     * percentage of total.
+     * 
      * @param tableLayout The TableLayout
-     * @param label The label text (left column)
-     * @param value The value text (right column)
-     * @param totalMs Total audio time in ms (for percentage)
-     * @param valueMs This row's time in ms
+     * @param label       The label text (left column)
+     * @param value       The value text (right column)
+     * @param totalMs     Total audio time in ms (for percentage)
+     * @param valueMs     This row's time in ms
      */
-    private void addTableRowWithPercentage(TableLayout tableLayout, String label, String value, long totalMs, long valueMs) {
+    private void addTableRowWithPercentage(TableLayout tableLayout, String label, String value, long totalMs,
+            long valueMs) {
         TableRow row = new TableRow(this);
-        
-        // Single cell: label + value, then a very fine underline (length = percentage of total)
+
+        // Single cell: label + value, then a very fine underline (length = percentage
+        // of total)
         int percentage = (totalMs > 0 && valueMs >= 0) ? (int) Math.round(100.0 * valueMs / totalMs) : 0;
         percentage = Math.min(100, Math.max(0, percentage));
-        
+
         android.widget.LinearLayout cell = new android.widget.LinearLayout(this);
         cell.setOrientation(android.widget.LinearLayout.VERTICAL);
-        
+
         // Text row: label + value
         android.widget.LinearLayout contentLayout = new android.widget.LinearLayout(this);
         contentLayout.setOrientation(android.widget.LinearLayout.HORIZONTAL);
-        
+
         TextView labelView = new TextView(this);
         labelView.setText(label);
         labelView.setPadding(0, 4, 16, 4);
         labelView.setTextAppearance(this, R.style.simpleText);
         contentLayout.addView(labelView);
-        
+
         TextView valueView = new TextView(this);
         valueView.setText(value);
         valueView.setPadding(0, 4, 8, 4);
         valueView.setTextAppearance(this, R.style.simpleText);
         valueView.setGravity(android.view.Gravity.END);
-        android.widget.LinearLayout.LayoutParams valueParams = new android.widget.LinearLayout.LayoutParams(0, android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+        android.widget.LinearLayout.LayoutParams valueParams = new android.widget.LinearLayout.LayoutParams(0,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
         contentLayout.addView(valueView, valueParams);
-        
+
         cell.addView(contentLayout);
-        
+
         // Very fine underline: length = percentage of row width
         View underline = new View(this);
         underline.setBackgroundColor(androidx.core.content.ContextCompat.getColor(this, R.color.gray_300));
         int lineHeightPx = (int) (1f * getResources().getDisplayMetrics().density); // 1dp
-        android.widget.LinearLayout.LayoutParams lineParams = new android.widget.LinearLayout.LayoutParams(0, lineHeightPx, percentage);
+        android.widget.LinearLayout.LayoutParams lineParams = new android.widget.LinearLayout.LayoutParams(0,
+                lineHeightPx, percentage);
         lineParams.topMargin = 2;
-        android.widget.LinearLayout.LayoutParams lineSpacer = new android.widget.LinearLayout.LayoutParams(0, lineHeightPx, 100 - percentage);
+        android.widget.LinearLayout.LayoutParams lineSpacer = new android.widget.LinearLayout.LayoutParams(0,
+                lineHeightPx, 100 - percentage);
         lineSpacer.topMargin = 2;
-        
+
         android.widget.LinearLayout lineRow = new android.widget.LinearLayout(this);
         lineRow.setOrientation(android.widget.LinearLayout.HORIZONTAL);
         lineRow.addView(underline, lineParams);
         lineRow.addView(new View(this), lineSpacer);
         cell.addView(lineRow);
-        
-        TableRow.LayoutParams spanParams = new TableRow.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT, android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        TableRow.LayoutParams spanParams = new TableRow.LayoutParams(android.view.ViewGroup.LayoutParams.MATCH_PARENT,
+                android.view.ViewGroup.LayoutParams.WRAP_CONTENT);
         spanParams.span = 2;
         row.addView(cell, spanParams);
-        
+
         tableLayout.addView(row);
     }
 
