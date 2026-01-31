@@ -30,8 +30,6 @@ import java.util.ArrayList;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingActivity;
 
-
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
  * * imported from Droit Positif (02/12/2020)
@@ -129,7 +127,7 @@ public class LogTextActivity extends LoggingActivity {
         switchDEB = findViewById(R.id.switchDEB);
 
         // Share button
-        //findViewById(R.id.btnShare).setOnClickListener(v -> shareLog());
+        findViewById(R.id.btnShare).setOnClickListener(v -> shareLog());
 
         textOptions = new TextOptions(this);
         loadRecyclerView();
@@ -213,6 +211,24 @@ public class LogTextActivity extends LoggingActivity {
 
         myTextChunkArrayList = filteredList;
         adapter.updateData(filteredList);
+    }
+
+    private void shareLog() {
+        try {
+            StringBuilder logContent = new StringBuilder();
+            for (MyTextChunk chunk : myTextChunkArrayList) {
+                logContent.append(chunk.getText()).append("\n");
+            }
+
+            Intent shareIntent = new Intent(Intent.ACTION_SEND);
+            shareIntent.setType("text/plain");
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Log: " + file);
+            shareIntent.putExtra(Intent.EXTRA_TEXT, logContent.toString());
+            startActivity(Intent.createChooser(shareIntent, "Share log via"));
+        } catch (Exception e) {
+            myLogEE(e, "shareLog");
+            myToastE("Failed to share log");
+        }
     }
 
     @Override

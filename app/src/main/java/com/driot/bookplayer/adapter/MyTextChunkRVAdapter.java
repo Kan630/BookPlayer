@@ -1,5 +1,6 @@
 package com.driot.bookplayer.adapter;
 
+import android.graphics.Color;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -63,10 +64,23 @@ public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     private void setupValuesInWidgets(MyTextChunkRVAdapter.MyViewHolder itemHolder, MyTextChunk myTextChunk) {
         if (myTextChunk != null) {
-            // myLog("zetext : " + myTextChunk.getText());
-            // itemHolder.tvText.setText(myTextChunk.getText());
-            itemHolder.tvText.setText(Html.fromHtml(myTextChunk.getText()));
+            String text = myTextChunk.getText();
+            itemHolder.tvText.setText(Html.fromHtml(text));
             itemHolder.tvText.setTextSize(myTextChunk.getCharSize());
+
+            // Apply color based on log level
+            if (text.contains("ERR")) {
+                itemHolder.tvText.setTextColor(Color.RED);
+            } else if (text.contains("WAR")) {
+                itemHolder.tvText.setTextColor(Color.parseColor("#FFA500")); // Orange
+            } else if (text.contains("DEB")) {
+                itemHolder.tvText.setTextColor(Color.GREEN);
+            } else if (text.contains("VER")) {
+                itemHolder.tvText.setTextColor(Color.WHITE);
+            } else {
+                // Default color for normal logs
+                itemHolder.tvText.setTextColor(Color.LTGRAY);
+            }
         }
     }
 
