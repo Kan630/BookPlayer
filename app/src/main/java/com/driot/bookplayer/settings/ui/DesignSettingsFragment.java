@@ -5,12 +5,14 @@ import android.content.Context;
 import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.ScrollView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageButton;
@@ -98,10 +100,7 @@ public class DesignSettingsFragment extends LoggingFragment {
 
                 Executors.directExecutor().execute(() -> {
                     // Flag main to refresh + recreate current host activity so theme/typography applies
-                    requireContext()
-                            .getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
-                            .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
-                    requireActivity().recreate();
+                    signalAndRecreate();
                         });
             }
             @Override public void onNothingSelected(android.widget.AdapterView<?> parent) {}
@@ -151,6 +150,12 @@ public class DesignSettingsFragment extends LoggingFragment {
                 { R.id.btn_color_18,"greenDark",   R.style.Theme_BookPlayer_GreenDark },
         };
 
+        int currentThemeResId = Option.getThemeColor();
+        float density = getResources().getDisplayMetrics().density;
+        int cornerRadiusPx = (int) (8 * density);
+        int strokeWidthPx = (int) (3 * density);
+        int strokeColor = resolveColorOnSurface(requireContext());
+
         for (Object[] entry : themesAndColors) {
             int btnId = (int) entry[0];
             String themeKey = (String) entry[1];
@@ -158,7 +163,16 @@ public class DesignSettingsFragment extends LoggingFragment {
 
             ImageButton b = root.findViewById(btnId);
             int mainColor = getPrimaryColorFromTheme(requireContext(), themeResId);
-            b.setBackgroundColor(mainColor);
+
+            GradientDrawable gd = new GradientDrawable();
+            gd.setShape(GradientDrawable.RECTANGLE);
+            gd.setCornerRadius(cornerRadiusPx);
+            gd.setColor(mainColor);
+            boolean selected = (themeResId == currentThemeResId);
+            if (selected) {
+                gd.setStroke(strokeWidthPx, strokeColor);
+            }
+            b.setBackground(gd);
             b.setOnClickListener(v -> changeBaseTheme(themeKey));
         }
 
@@ -216,37 +230,11 @@ public class DesignSettingsFragment extends LoggingFragment {
                 }
                 , 500);
 
-        // Restore scroll position after recreate (e.g. theme change)
-        if (savedInstanceState != null && savedInstanceState.containsKey(KEY_SCROLL_Y)) {
-            final int scrollY = savedInstanceState.getInt(KEY_SCROLL_Y);
-            root.post(() -> {
-                ScrollView sv = root.findViewById(R.id.scrollView);
-                if (sv != null) sv.scrollTo(0, scrollY);
-            });
-        }
-
         return root;
-    }
 
-    private static final String KEY_SCROLL_Y = "design_scroll_y";
-
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        super.onSaveInstanceState(outState);
-        View v = getView();
-        if (v != null) {
-            ScrollView sv = v.findViewById(R.id.scrollView);
-            if (sv != null) outState.putInt(KEY_SCROLL_Y, sv.getScrollY());
-        }
     }
 
     // ---------------- helpers ----------------
-
-    private List<String> toLabels(List<FontChoice> list) {
-        List<String> labels = new ArrayList<>();
-        for (FontChoice f : list) labels.add(f.label);
-        return labels;
-    }
 
     private int indexOfKey(List<FontChoice> list, String key) {
         for (int i = 0; i < list.size(); i++) if (list.get(i).key.equalsIgnoreCase(key)) return i;
@@ -257,6 +245,13 @@ public class DesignSettingsFragment extends LoggingFragment {
         Resources.Theme theme = context.getResources().newTheme();
         theme.applyStyle(themeResId, true);
         TypedArray ta = theme.obtainStyledAttributes(new int[]{ androidx.appcompat.R.attr.colorPrimary });
+        int color = ta.getColor(0, ContextCompat.getColor(context, android.R.color.black));
+        ta.recycle();
+        return color;
+    }
+
+    private int resolveColorOnSurface(Context context) {
+        TypedArray ta = context.getTheme().obtainStyledAttributes(new int[]{ android.R.attr.textColorPrimary });
         int color = ta.getColor(0, ContextCompat.getColor(context, android.R.color.black));
         ta.recycle();
         return color;

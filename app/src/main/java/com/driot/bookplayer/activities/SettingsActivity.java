@@ -31,6 +31,8 @@ public class SettingsActivity extends BaseBottomNavActivity {
     ScrollView scrollView;
     private SectionHost currentlyExpanded = null;
     private boolean headerTapLocked = false;
+    /** Scroll position to restore after recreate (e.g. theme change). Applied in onResume so it runs after any scroll reset. */
+    private int pendingScrollPosition = -1;
 
     @Override protected int getNavId() { return R.id.nav_settings; }
     @Override protected int getLayoutResId() { return R.layout.activity_settings; }
@@ -194,22 +196,23 @@ public class SettingsActivity extends BaseBottomNavActivity {
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
-        final int scrollPosition = savedInstanceState.getInt("scroll_position");
-        scrollView.post(() -> scrollView.scrollTo(0, scrollPosition));
+        pendingScrollPosition = savedInstanceState.getInt("scroll_position", 0);
+        myLog("reading scroll position : " + pendingScrollPosition);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (pendingScrollPosition >= 0 && scrollView != null) {
+            final int position = pendingScrollPosition;
+            pendingScrollPosition = -1;
+            // Apply after layout and after any scroll-to-top (e.g. initGoToTop); post twice so we run last
+            scrollView.post(() -> scrollView.post(() -> {
+                myLog("scrolling to position : " + position);
+                scrollView.scrollTo(0, position);
+            }));
+        }
     }
-
-
-    private void setChildButtonAutomotive(CheckBox chk, LinearLayout ll, boolean checked, boolean enabled) {
-        if (!chk.isChecked()) chk.setChecked(checked);
-        chk.setEnabled(enabled);
-        ll.setEnabled(enabled);
-    }
-
 
 
     // =====================
@@ -331,6 +334,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
             if (targetY > 16) targetY -= 16;
 
             scrollView.smoothScrollTo(0, targetY);
+            myLog("smoothScrollTo :" + targetY);
         });
     }
 
