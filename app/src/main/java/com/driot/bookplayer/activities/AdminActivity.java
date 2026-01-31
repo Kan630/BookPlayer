@@ -89,6 +89,7 @@ public class AdminActivity extends LoggingActivity {
             getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
                     .putBoolean(PREF_SHOW_LIVE_LOGS, checked).apply();
             toggleLiveLogFragment(checked);
+            recreate();
         });
 
         // Initialize fragment if checked
@@ -114,7 +115,7 @@ public class AdminActivity extends LoggingActivity {
                     getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
                             .putInt(PREF_LIVE_LOG_HEIGHT, percentage).apply();
                     // Restart activity to apply new height
-                    recreate();
+                    //recreate();
                 }
             }
 

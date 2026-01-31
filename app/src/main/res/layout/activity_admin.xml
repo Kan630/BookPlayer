@@ -148,7 +148,7 @@
         <!-- Live Log Height Slider -->
         <LinearLayout
             android:id="@+id/ll_live_log_height"
-            style="@style/LayoutWrapContentMargin20horizontal"
+            style="@style/LinearLayoutOptionsVertical"
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
