@@ -46,8 +46,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 242
-        versionName = "242 - Placid Beaver"
+        versionCode = 243
+        versionName = "243 - Placid Beaver"
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -167,7 +167,7 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:5.0.5'
     implementation 'com.googlecode.mp4parser:isoparser:1.1.22'
 
-    implementation "androidx.work:work-runtime:2.11.0"
+    implementation "androidx.work:work-runtime:2.11.1"
 
     implementation "androidx.room:room-runtime:2.8.4"
     annotationProcessor "androidx.room:room-compiler:2.8.4"
@@ -197,6 +197,6 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-contrib:3.7.0"
     androidTestImplementation "androidx.test.uiautomator:uiautomator:2.3.0"
     androidTestImplementation "com.google.truth:truth:1.4.5"
-    androidTestImplementation "androidx.work:work-testing:2.11.0"
+    androidTestImplementation "androidx.work:work-testing:2.11.1"
 
 }
