@@ -118,6 +118,91 @@
                 <ImageButton android:id="@+id/btn_color_18" style="@style/OptionsColorButtons" />
             </LinearLayout>
 
+            <!-- Color Viewer Section -->
+            <LinearLayout
+                style="@style/LinearLayoutOptionsVertical"
+                android:layout_marginTop="20sp"
+                android:layout_marginBottom="10sp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <!-- Primary -->
+                    <TextView
+                        style="@style/OptionsColorButtons"
+                        android:text="Primary"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnPrimary" />
+
+                    <!-- Secondary -->
+                    <TextView
+                        style="@style/OptionsColorButtons"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:text="Secondary"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="?attr/colorSecondary"
+                        android:textColor="?attr/colorOnSecondary" />
+
+                    <!-- PrimaryVariant -->
+                    <TextView
+                        style="@style/OptionsColorButtons"
+                        android:text="PrimaryV"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="?attr/colorPrimaryVariant"
+                        android:textColor="?attr/colorOnPrimary" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10sp"
+                    android:orientation="horizontal">
+
+                    <!-- Surface -->
+                    <TextView
+                        style="@style/OptionsColorButtons"
+                        android:text="Surface"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="?attr/colorSurface"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <!-- SurfaceVariant -->
+                    <TextView
+                        style="@style/OptionsColorButtons"
+                        android:layout_marginStart="10dp"
+                        android:layout_marginEnd="10dp"
+                        android:text="SurfaceV"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="?attr/colorSurfaceVariant"
+                        android:textColor="?attr/colorOnSurface" />
+
+                    <!-- Outline -->
+                    <TextView
+                        style="@style/OptionsColorButtons"
+                        android:text="Outline"
+                        android:gravity="center"
+                        android:textSize="12sp"
+                        android:textStyle="bold"
+                        android:background="?attr/colorOutline"
+                        android:textColor="?attr/colorOnSurface" />
+                </LinearLayout>
+
+            </LinearLayout>
+
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
             <!-- Theme mode: override system checkbox + Light/Dark toggle -->
