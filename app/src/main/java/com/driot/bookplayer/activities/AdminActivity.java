@@ -52,8 +52,6 @@ public class AdminActivity extends LoggingActivity {
 
     private LinearLayout btnContainer;
     private ListView listActivities;
-    private FrameLayout liveLogContainer;
-    private LiveLogFragment liveLogFragment;
 
     // Map of label -> Activity class to create buttons dynamically
     private final LinkedHashMap<String, Class<?>> quickButtons = new LinkedHashMap<String, Class<?>>() {
@@ -78,7 +76,6 @@ public class AdminActivity extends LoggingActivity {
         chkTechLog.setOnCheckedChangeListener((b, checked) -> Option.setTechLog(checked));
 
         // Live log viewer
-        liveLogContainer = findViewById(R.id.liveLogContainer);
         MaterialCheckBox chkLiveLog = findViewById(R.id.chk_live_log);
         LinearLayout llLiveLog = findViewById(R.id.ll_live_log);
         boolean showLiveLogs = getSharedPreferences("admin_prefs", MODE_PRIVATE)
@@ -88,14 +85,7 @@ public class AdminActivity extends LoggingActivity {
         chkLiveLog.setOnCheckedChangeListener((b, checked) -> {
             getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
                     .putBoolean(PREF_SHOW_LIVE_LOGS, checked).apply();
-            toggleLiveLogFragment(checked);
-            recreate();
         });
-
-        // Initialize fragment if checked
-        if (showLiveLogs) {
-            toggleLiveLogFragment(true);
-        }
 
         // Live log height slider
         SeekBar seekBar = findViewById(R.id.seekbar_live_log_height);
@@ -114,8 +104,6 @@ public class AdminActivity extends LoggingActivity {
                 if (fromUser) {
                     getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
                             .putInt(PREF_LIVE_LOG_HEIGHT, percentage).apply();
-                    // Restart activity to apply new height
-                    //recreate();
                 }
             }
 
@@ -125,6 +113,8 @@ public class AdminActivity extends LoggingActivity {
 
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
+                // Apply height change when user releases slider
+                recreate();
             }
         });
 
@@ -323,35 +313,6 @@ public class AdminActivity extends LoggingActivity {
                 Toast.makeText(this, "Activity not found", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-
-    private void toggleLiveLogFragment(boolean show) {
-        try {
-            if (show) {
-                if (liveLogFragment == null) {
-                    liveLogFragment = LiveLogFragment.newInstance();
-                }
-
-                FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                transaction.replace(R.id.liveLogContainer, liveLogFragment, "live_log");
-                transaction.commit();
-
-                liveLogContainer.setVisibility(View.VISIBLE);
-                myLogI("Live log fragment shown");
-            } else {
-                if (liveLogFragment != null) {
-                    FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-                    transaction.remove(liveLogFragment);
-                    transaction.commit();
-                    liveLogFragment = null;
-                }
-
-                liveLogContainer.setVisibility(View.GONE);
-                myLogI("Live log fragment hidden");
-            }
-        } catch (Exception e) {
-            myLogEE(e, "toggleLiveLogFragment");
-        }
     }
 
     private void launchActivitySafely(Class<?> clazz) {

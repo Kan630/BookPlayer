@@ -207,12 +207,5 @@
 
     </ScrollView>
 
-    <!-- Bottom half: Live log fragment container -->
-    <FrameLayout
-        android:id="@+id/liveLogContainer"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:visibility="gone" />
 
 </LinearLayout>
