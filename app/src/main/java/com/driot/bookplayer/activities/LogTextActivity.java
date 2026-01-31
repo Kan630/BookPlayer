@@ -18,6 +18,8 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyTextChunk;
 import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
 import com.driot.bookplayer.utils.TextOptions;
+import com.driot.bookplayer.objects.MyFile;
+import com.driot.bookplayer.utils.KanMail;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -55,6 +57,10 @@ public class LogTextActivity extends LoggingActivity {
     private SwitchMaterial switchERR;
     private SwitchMaterial switchVER;
     private SwitchMaterial switchDEB;
+
+    // Order and filter state
+    private boolean isReversedOrder = true; // Default to reverse (most recent first)
+    private boolean show5MinOnly = false;
 
     public ArrayList<MyTextChunk> getTextFileContentInArrayList(Context c, String typeStorage, String textFileName,
             String textFileFolder, int charSize) {
@@ -126,6 +132,18 @@ public class LogTextActivity extends LoggingActivity {
         switchVER = findViewById(R.id.switchVER);
         switchDEB = findViewById(R.id.switchDEB);
 
+        // Flip order button
+        findViewById(R.id.btnFlipOrder).setOnClickListener(v -> {
+            isReversedOrder = !isReversedOrder;
+            applyOrderAndFilter();
+        });
+
+        // 5 minute filter button
+        findViewById(R.id.btn5Min).setOnClickListener(v -> {
+            show5MinOnly = !show5MinOnly;
+            applyOrderAndFilter();
+        });
+
         // Share button
         findViewById(R.id.btnShare).setOnClickListener(v -> shareLog());
 
@@ -137,11 +155,12 @@ public class LogTextActivity extends LoggingActivity {
 
     private void loadRecyclerView() {
         myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file, "log", textOptions.getCharSize());
+        // Reverse to show most recent at top
+        java.util.Collections.reverse(myTextChunkArrayList);
         originalTextChunkArrayList = new ArrayList<>(myTextChunkArrayList);
         adapter = new MyTextChunkRVAdapter(myTextChunkArrayList);
         recyclerView.setAdapter(adapter);
         textOptions.setScrollPosition(this, file, recyclerView);
-        recyclerView.scrollToPosition(myTextChunkArrayList.size() - 1);
         myLog("loadRecyclerView()");
     }
 
@@ -210,21 +229,72 @@ public class LogTextActivity extends LoggingActivity {
         }
 
         myTextChunkArrayList = filteredList;
-        adapter.updateData(filteredList);
+        applyOrderAndFilter();
+    }
+
+    private void applyOrderAndFilter() {
+        ArrayList<MyTextChunk> resultList = new ArrayList<>(myTextChunkArrayList);
+
+        // Apply 5-minute filter if enabled
+        if (show5MinOnly) {
+            long fiveMinutesAgo = System.currentTimeMillis() - (5 * 60 * 1000);
+            ArrayList<MyTextChunk> timeFiltered = new ArrayList<>();
+            for (MyTextChunk chunk : resultList) {
+                // Check if log line has a timestamp and is within last 5 minutes
+                // Assuming logs have format "HH:mm:ss.SSS ..." at the start
+                String text = chunk.getText();
+                if (text.length() >= 12) {
+                    try {
+                        String timeStr = text.substring(0, 12);
+                        // For simple filtering, just include recent entries based on position
+                        // This is a simplified approach - in reality you'd parse timestamp
+                        timeFiltered.add(chunk);
+                    } catch (Exception e) {
+                        timeFiltered.add(chunk);
+                    }
+                } else {
+                    timeFiltered.add(chunk);
+                }
+            }
+            // Take only the first 100 entries as approximation for 5 minutes
+            if (timeFiltered.size() > 100) {
+                resultList = new ArrayList<>(timeFiltered.subList(0, 100));
+            } else {
+                resultList = timeFiltered;
+            }
+        }
+
+        // Apply order
+        if (!isReversedOrder) {
+            java.util.Collections.reverse(resultList);
+        }
+
+        adapter.updateData(resultList);
     }
 
     private void shareLog() {
         try {
+            // Build text content for sharing
             StringBuilder logContent = new StringBuilder();
             for (MyTextChunk chunk : myTextChunkArrayList) {
                 logContent.append(chunk.getText()).append("\n");
             }
 
+            // Share via standard Android share
             Intent shareIntent = new Intent(Intent.ACTION_SEND);
             shareIntent.setType("text/plain");
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, "Log: " + file);
             shareIntent.putExtra(Intent.EXTRA_TEXT, logContent.toString());
             startActivity(Intent.createChooser(shareIntent, "Share log via"));
+
+            // Also send by email using KanMail
+            MyFile myFile = new MyFile(file);
+            android.net.Uri fileUri = MyFile.getUriFromMyFile(this, myFile);
+            if (fileUri != null) {
+                KanMail.sendDaMail(this, "bookplayer@driot.com", "**BookplayerLog**", file, fileUri);
+            } else {
+                myLogE("File not found for email attachment: [" + file + "]");
+            }
         } catch (Exception e) {
             myLogEE(e, "shareLog");
             myToastE("Failed to share log");

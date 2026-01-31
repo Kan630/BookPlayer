@@ -74,7 +74,7 @@ public class MyTextChunkRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             } else if (text.contains("WAR")) {
                 itemHolder.tvText.setTextColor(Color.parseColor("#FFA500")); // Orange
             } else if (text.contains("DEB")) {
-                itemHolder.tvText.setTextColor(Color.GREEN);
+                itemHolder.tvText.setTextColor(Color.parseColor("#228B22")); // Dark green (Forest Green)
             } else if (text.contains("VER")) {
                 itemHolder.tvText.setTextColor(Color.WHITE);
             } else {

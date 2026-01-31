@@ -64,12 +64,30 @@
             android:textColor="?attr/colorOnPrimary"
             android:layout_marginStart="8dp" />
 
+        <!-- Flip Order Button -->
+        <ImageButton
+            android:id="@+id/btnFlipOrder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_sort_swap_vert_24"
+            android:contentDescription="Flip order"
+            android:layout_marginStart="8dp" />
+
+        <!-- 5 Min Filter Button -->
+        <Button
+            android:id="@+id/btn5Min"
+            android:text="5 min."
+            android:textSize="12sp"
+            android:layout_marginStart="4dp"
+            style="@style/simpleTextWrap" />
+
         <!-- Share Button -->
         <ImageButton
             android:id="@+id/btnShare"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_share_24px"
+            android:contentDescription="Share"
             android:layout_marginStart="8dp" />
 
     </LinearLayout>
