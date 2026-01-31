@@ -99,8 +99,10 @@
     <string name="favorites">المفضلة</string>
     <string name="Favorites">المفضلة</string>
     <string name="File">ملف</string>
+    <string name="File_and_icon">📄 ملف</string>
     <string name="flag">علم</string> //means country flag
     <string name="Folder">مجلد</string>
+    <string name="Folder_and_icon">📁 مجلد</string>
     <string name="folder">مجلد</string>
     <string name="Font">الخط</string>
     <string name="Forbidden">ممنوع</string>
@@ -474,13 +476,9 @@
 
 
     <string name="AutoTest_title">اختبار تلقائي</string>
-    <string name="bOpenZipFile">ملف مضغوط</string>
-    <string name="bOpenM4bFile">ملف صوتي</string>
     <string name="TextHeaderOpen">افتح ملفاً صوتياً من جهازي</string>
     <string name="bOpenFile_desc">اختر أي ملف.</string>
-    <string name="bOpenZipFile_desc">فلتر: فقط ملفات zip</string>
-    <string name="bOpenM4bFile_desc">فلتر: فقط ملفات الصوت
-        \n<i>انتبه: هذا الفلتر ليس مثالياً، استخدم الزر العلوي [أي ملف] إذا واجهت مشاكل.</i></string>
+    <string name="bOpenFilteredFile_desc">اختر أي ملف من نوع محدد. (فلتر)</string>
     <string name="DirectDownload_title">تحميل مباشر</string>
     <string name="DirectDownload_desc">الصق الرابط أدناه واضغط على الزر لتنزيل ودمج كتاب صوتي مباشرة.</string>
     <string name="DirectDownload_button">حمّله فقط</string>
@@ -693,7 +691,7 @@
     <string name="stats_podcast_time">* البودكاست</string>
     <string name="stats_note">(بدأت هذه الإحصائيات في 2025 (أكتوبر-نوفمبر)</string>
     <string name="stats_install_date_label">تاريخ التثبيت : </string>
-    <string name="bMassImport">استيراد جماعي</string>
+    <string name="bMassImport">📁 استيراد جماعي</string>
     <string name="bOpenMassImport_desc">استيراد جماعي: أنشئ عددًا من الكتب الصوتية يساوي عدد العناصر في المجلد الذي ستختاره.</string>
     <string name="bOpenFolder_desc">اختر مجلدًا: جميع الملفات الصوتية (حتى في المجلدات الفرعية إن وُجدت) سيتم استيرادها في نفس الكتاب الصوتي.</string>
     <string name="type_here_">اكتب هنا…</string>

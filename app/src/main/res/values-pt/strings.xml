@@ -99,8 +99,10 @@
     <string name="favorites">favoritos</string>
     <string name="Favorites">Favoritos</string>
     <string name="File">Arquivo</string>
+    <string name="File_and_icon">📄 Arquivo</string>
     <string name="flag">bandeira</string> //means country flag
     <string name="Folder">Pasta</string>
+    <string name="Folder_and_icon">📁 Pasta</string>
     <string name="folder">pasta</string>
     <string name="Font">Fonte</string>
     <string name="Forbidden">Proibido</string>
@@ -475,13 +477,9 @@
 
 
     <string name="AutoTest_title">Teste automático</string>
-    <string name="bOpenZipFile">Arquivo Zip</string>
-    <string name="bOpenM4bFile">Arquivo de áudio</string>
     <string name="TextHeaderOpen">Carregar áudio do dispositivo</string>
     <string name="bOpenFile_desc">Selecione qualquer arquivo.</string>
-    <string name="bOpenZipFile_desc">filtro: apenas arquivos zip</string>
-    <string name="bOpenM4bFile_desc">filtro: apenas arquivos de áudio
-        \n<i>Atenção: este filtro não é perfeito; use o botão superior [qualquer arquivo] se houver problemas.</i></string>
+    <string name="bOpenFilteredFile_desc">Selecione qualquer arquivo de um tipo específico. (filtro)</string>
     <string name="DirectDownload_title">Download direto</string>
     <string name="DirectDownload_desc">Cole um link abaixo e pressione o botão para baixar e integrar um audiolivro de uma vez.</string>
     <string name="DirectDownload_button">Baixar agora</string>
@@ -694,7 +692,7 @@
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(Estas estatísticas começaram em 2025 (out-nov)</string>
     <string name="stats_install_date_label">Data de instalação : </string>
-    <string name="bMassImport">Importação em massa</string>
+    <string name="bMassImport">📁 Importação em massa</string>
     <string name="bOpenMassImport_desc">Importação em massa: crie tantos audiolivros quanto forem os itens na pasta que você escolher</string>
     <string name="bOpenFolder_desc">Escolha uma pasta: todos os áudios (até os de subpastas, se houver) serão importados no mesmo livro.</string>
     <string name="type_here_">Digite aqui…</string>

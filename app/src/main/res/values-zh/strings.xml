@@ -99,8 +99,10 @@
     <string name="favorites">收藏夹</string>
     <string name="Favorites">收藏</string>
     <string name="File">文件</string>
+    <string name="File_and_icon">📄 文件</string>
     <string name="flag">旗帜</string> //means country flag
     <string name="Folder">文件夹</string>
+    <string name="Folder_and_icon">📁 文件夹</string>
     <string name="folder">文件夹</string>
     <string name="Font">字体</string>
     <string name="Forbidden">禁止访问</string>
@@ -474,13 +476,9 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 
 
     <string name="AutoTest_title">自动测试</string>
-    <string name="bOpenZipFile">Zip 文件</string>
-    <string name="bOpenM4bFile">音频文件</string>
     <string name="TextHeaderOpen">打开设备上的音频</string>
     <string name="bOpenFile_desc">选择任意文件。</string>
-    <string name="bOpenZipFile_desc">筛选：仅限 zip 文件</string>
-    <string name="bOpenM4bFile_desc">筛选：仅限音频文件
-        \n<i>注意：此筛选不完美，若遇问题请使用顶部按钮 [任意文件]。</i></string>
+    <string name="bOpenFilteredFile_desc">选择任意特定类型的文件。（筛选）</string>
     <string name="DirectDownload_title">直接下载</string>
     <string name="DirectDownload_desc">在下方粘贴链接并点击按钮即可下载并集成有声书。</string>
     <string name="DirectDownload_button">直接获取</string>
@@ -693,7 +691,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="stats_podcast_time">* 播客</string>
     <string name="stats_note">(这些统计数据从2025年开始（10月-11月）</string>
     <string name="stats_install_date_label">安装日期 : </string>
-    <string name="bMassImport">批量导入</string>
+    <string name="bMassImport">📁 批量导入</string>
     <string name="bOpenMassImport_desc">批量导入：将根据你选择的文件夹中的项目数量创建相应数量的有声书。</string>
     <string name="bOpenFolder_desc">选择一个文件夹：所有音频（包括子文件夹中的（如有））都会被导入到同一本书中。</string>
     <string name="type_here_">在此输入…</string>

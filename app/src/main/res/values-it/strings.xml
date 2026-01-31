@@ -99,8 +99,10 @@
     <string name="favorites">preferiti</string>
     <string name="Favorites">Preferiti</string>
     <string name="File">File</string>
+    <string name="File_and_icon">📄 File</string>
     <string name="flag">bandiera</string> //means country flag
     <string name="Folder">Cartella</string>
+    <string name="Folder_and_icon">📁 Cartella</string>
     <string name="folder">cartella</string>
     <string name="Font">Font</string>
     <string name="Forbidden">Proibito</string>
@@ -475,13 +477,9 @@
 
 
     <string name="AutoTest_title">Test automatico</string>
-    <string name="bOpenZipFile">File Zip</string>
-    <string name="bOpenM4bFile">File audio</string>
     <string name="TextHeaderOpen">Carica audio dal dispositivo</string>
     <string name="bOpenFile_desc">Prendi qualsiasi file.</string>
-    <string name="bOpenZipFile_desc">filtro: solo file zip</string>
-    <string name="bOpenM4bFile_desc">filtro: solo file audio
-        \n<i>Attenzione, il filtro non è perfetto; usa il pulsante in alto [qualsiasi file] in caso di problemi.</i></string>
+    <string name="bOpenFilteredFile_desc">Prendi qualsiasi file di un tipo specifico. (filtro)</string>
     <string name="DirectDownload_title">Download diretto</string>
     <string name="DirectDownload_desc">Incolla un link qui sotto e premi il pulsante per scaricare e integrare un audiolibro in un\'unica operazione.</string>
     <string name="DirectDownload_button">Scarica subito</string>
@@ -694,7 +692,7 @@
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(Queste statistiche sono iniziate nel 2025 (ott-nov)</string>
     <string name="stats_install_date_label">Data di installazione : </string>
-    <string name="bMassImport">Importazione massiva</string>
+    <string name="bMassImport">📁 Importazione massiva</string>
     <string name="bOpenMassImport_desc">Importazione massiva: crea tanti audiolibri quanti sono gli elementi nella cartella che selezionerai</string>
     <string name="bOpenFolder_desc">Seleziona una cartella: tutti gli audio (anche nelle sottocartelle, se presenti) saranno importati nello stesso libro.</string>
     <string name="type_here_">Scrivi qui…</string>

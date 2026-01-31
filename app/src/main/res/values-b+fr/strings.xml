@@ -99,8 +99,10 @@
     <string name="favorites">favoris</string>
     <string name="Favorites">Favoris</string>
     <string name="File">Fichier</string>
+    <string name="File_and_icon">📄 Fichier</string>
     <string name="flag">drapeau</string> //means country flag
     <string name="Folder">Dossier</string>
+    <string name="Folder_and_icon">📁 Dossier</string>
     <string name="folder">dossier</string>
     <string name="Font">Police</string>
     <string name="Forbidden">Interdit</string>
@@ -481,13 +483,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
 
 
     <string name="AutoTest_title">Test Auto</string>
-    <string name="bOpenZipFile">Fichier Zip</string>
-    <string name="bOpenM4bFile">Fichier Audio</string>
     <string name="TextHeaderOpen">Ouvrir un audio sur mon appareil</string>
     <string name="bOpenFile_desc">Choisir n\'importe quel fichier.</string>
-    <string name="bOpenZipFile_desc">filtre : uniquement les fichiers zip</string>
-    <string name="bOpenM4bFile_desc">filter : only audio files
-        \n<i>Beware this filter is not perfect, use top button [any file] if problems.</i></string>
+    <string name="bOpenFilteredFile_desc">Choisir un fichier d\'un type spécifique. (filtre)</string>
     <string name="DirectDownload_title">Téléchargement direct</string>
     <string name="DirectDownload_desc">Collez un lien ci-dessous puis appuyez sur le bouton pour télécharger et intégrer un livre audio en une seule étape.</string>
     <string name="DirectDownload_button">Télécharger</string>
@@ -701,7 +699,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="stats_note">(Ces statistiques ont commencé en 2025 (oct-nov)</string>
     <string name="stats_install_date_label">installation de l\'App : </string>
     
-    <string name="bMassImport">Importation massive</string>
+    <string name="bMassImport">📁 Importation massive</string>
     <string name="bOpenMassImport_desc">Importation en masse : Créez autant de livres audio qu\'il y a d\'éléments dans le dossier que vous choisirez.</string>
     <string name="bOpenFolder_desc">Choisissez un dossier : tous les fichiers audio (y compris dans les sous-dossiers, le cas échéant) seront importés dans le même livre audio.</string>
     <string name="type_here_">Saisissez ici…</string>

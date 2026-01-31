@@ -99,8 +99,10 @@
     <string name="favorites">Favoriten</string>
     <string name="Favorites">Favoriten</string>
     <string name="File">Datei</string>
+    <string name="File_and_icon">📄 Datei</string>
     <string name="flag">Flagge</string> //means country flag
     <string name="Folder">Ordner</string>
+    <string name="Folder_and_icon">📁 Ordner</string>
     <string name="folder">Ordner</string>
     <string name="Font">Schriftart</string>
     <string name="Forbidden">Verboten</string>
@@ -475,13 +477,9 @@ Soll die App technische Debug-Protokolle erstellen?
 
 
     <string name="AutoTest_title">Auto-Test</string>
-    <string name="bOpenZipFile">Zip-Datei</string>
-    <string name="bOpenM4bFile">Audiodatei</string>
     <string name="TextHeaderOpen">Audio vom Gerät laden</string>
     <string name="bOpenFile_desc">Beliebige Datei auswählen.</string>
-    <string name="bOpenZipFile_desc">Filter : nur ZIP-Dateien</string>
-    <string name="bOpenM4bFile_desc">Filter : nur Audiodateien
-\n<i>Achtung: Filter ist nicht perfekt, verwenden Sie die obere Schaltfläche [beliebige Datei], falls Probleme auftreten.</i></string>
+    <string name="bOpenFilteredFile_desc">Beliebige Datei eines bestimmten Typs auswählen. (Filter)</string>
     <string name="DirectDownload_title">Direkter Download</string>
     <string name="DirectDownload_desc">Fügen Sie unten einen Link ein und drücken Sie die Schaltfläche, um ein Hörbuch in einem Schritt herunterzuladen und zu integrieren.</string>
     <string name="DirectDownload_button">Jetzt holen</string>
@@ -694,7 +692,7 @@ Sind Sie sicher?"</string>
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(Diese Statistiken begannen im Jahr 2025 (Okt-Nov)</string>
     <string name="stats_install_date_label">Installationsdatum : </string>
-    <string name="bMassImport">Massenimport</string>
+    <string name="bMassImport">📁 Massenimport</string>
     <string name="bOpenMassImport_desc">Massenimport : So viele Hörbücher erstellen, wie Elemente im ausgewählten Ordner vorhanden sind</string>
     <string name="bOpenFolder_desc">Ordner auswählen : Alle Audios (auch in Unterordnern, falls vorhanden) werden im selben Buch importiert.</string>
     <string name="type_here_">Hier tippen…</string>

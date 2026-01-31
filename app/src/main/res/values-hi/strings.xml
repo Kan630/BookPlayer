@@ -99,8 +99,10 @@
     <string name="favorites">पसंदीदा</string>
     <string name="Favorites">पसंदीदा</string>
     <string name="File">फ़ाइल</string>
+    <string name="File_and_icon">📄 फ़ाइल</string>
     <string name="flag">फ़्लैग</string> //means country flag
     <string name="Folder">फ़ोल्डर</string>
+    <string name="Folder_and_icon">📁 फ़ोल्डर</string>
     <string name="folder">फ़ोल्डर</string>
     <string name="Font">फ़ॉन्ट</string>
     <string name="Forbidden">निषिद्ध</string>
@@ -478,13 +480,9 @@
 
 
     <string name="AutoTest_title">ऑटो टेस्ट</string>
-    <string name="bOpenZipFile">Zip फ़ाइल</string>
-    <string name="bOpenM4bFile">ऑडियो फ़ाइल</string>
     <string name="TextHeaderOpen">डिवाइस से ऑडियो लोड करें</string>
     <string name="bOpenFile_desc">कोई भी फ़ाइल लें।</string>
-    <string name="bOpenZipFile_desc">फ़िल्टर : केवल zip फ़ाइलें</string>
-    <string name="bOpenM4bFile_desc">फ़िल्टर : केवल ऑडियो फ़ाइलें
-        \n<i>ध्यान दें यह फ़िल्टर पूर्ण नहीं है; समस्या होने पर ऊपर वाला [कोई भी फ़ाइल] बटन उपयोग करें।</i></string>
+    <string name="bOpenFilteredFile_desc">किसी विशिष्ट प्रकार की कोई भी फ़ाइल लें। (फ़िल्टर)</string>
     <string name="DirectDownload_title">प्रत्यक्ष डाउनलोड</string>
     <string name="DirectDownload_desc">नीचे लिंक पेस्ट करें और बटन दबाएँ — एक ही बार में ऑडियोबुक डाउनलोड और एकीकृत हो जाएगी।</string>
     <string name="DirectDownload_button">बस ले आओ</string>
@@ -697,7 +695,7 @@
     <string name="stats_podcast_time">* पॉडकास्ट</string>
     <string name="stats_note">(ये आंकड़े 2025 में शुरू हुए (अक्टूबर-नवंबर)</string>
     <string name="stats_install_date_label">इंस्टॉल तिथि : </string>
-    <string name="bMassImport">मास आयात</string>
+    <string name="bMassImport">📁 मास आयात</string>
     <string name="bOpenMassImport_desc">मास आयात : आप जिस फ़ोल्डर को चुनेंगे, उसमें मौजूद प्रत्येक आइटम के लिए एक ऑडियोबुक बनाएं</string>
     <string name="bOpenFolder_desc">फ़ोल्डर चुनें : सभी ऑडियो (यदि उपफ़ोल्डर हैं तो उनमें भी) एक ही किताब में आयात हो जाएँगे।</string>
     <string name="type_here_">यहाँ लिखें…</string>

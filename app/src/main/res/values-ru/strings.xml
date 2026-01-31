@@ -99,8 +99,10 @@
     <string name="favorites">избранное</string>
     <string name="Favorites">Избранное</string>
     <string name="File">файл</string>
+    <string name="File_and_icon">📄 файл</string>
     <string name="flag">флаг</string> //means country flag
     <string name="Folder">Папка</string>
+    <string name="Folder_and_icon">📁 Папка</string>
     <string name="folder">папка</string>
     <string name="Font">Шрифт</string>
     <string name="Forbidden">Запрещено</string>
@@ -474,13 +476,9 @@
 
 
     <string name="AutoTest_title">Автотест</string>
-    <string name="bOpenZipFile">Zip-файл</string>
-    <string name="bOpenM4bFile">Аудиофайл</string>
     <string name="TextHeaderOpen">Открыть аудио на моём устройстве</string>
     <string name="bOpenFile_desc">Выбрать любой файл.</string>
-    <string name="bOpenZipFile_desc">фильтр: только zip-файлы</string>
-    <string name="bOpenM4bFile_desc">фильтр: только аудиофайлы
-        \n<i>Обратите внимание: фильтр не идеален. При возникновении проблем используйте верхнюю кнопку [любой файл].</i></string>
+    <string name="bOpenFilteredFile_desc">Выбрать любой файл определённого типа. (фильтр)</string>
     <string name="DirectDownload_title">Прямая загрузка</string>
     <string name="DirectDownload_desc">Вставьте ссылку ниже и нажмите кнопку для загрузки и интеграции аудиокниги за один шаг.</string>
     <string name="DirectDownload_button">Просто получить</string>
@@ -693,7 +691,7 @@
     <string name="stats_podcast_time">* Подкаст</string>
     <string name="stats_note">(Эта статистика началась в 2025 году (окт-ноя)</string>
     <string name="stats_install_date_label">Дата установки : </string>
-    <string name="bMassImport">Массовый импорт</string>
+    <string name="bMassImport">📁 Массовый импорт</string>
     <string name="bOpenMassImport_desc">Массовый импорт: создайте столько аудиокниг, сколько элементов в выбранной вами папке.</string>
     <string name="bOpenFolder_desc">Выберите папку: все аудиофайлы (в том числе в подпапках, если они есть) будут импортированы в одну и ту же книгу.</string>
     <string name="type_here_">Введите здесь…</string>

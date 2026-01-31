@@ -99,8 +99,10 @@
     <string name="favorites">favoritos</string>
     <string name="Favorites">Favoritos</string>
     <string name="File">Archivo</string>
+    <string name="File_and_icon">📄 Archivo</string>
     <string name="flag">bandera</string> //means country flag
     <string name="Folder">Carpeta</string>
+    <string name="Folder_and_icon">📁 Carpeta</string>
     <string name="folder">carpeta</string>
     <string name="Font">Fuente</string>
     <string name="Forbidden">Prohibido</string>
@@ -471,13 +473,9 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
 
 
     <string name="AutoTest_title">Prueba automática</string>
-    <string name="bOpenZipFile">Archivo Zip</string>
-    <string name="bOpenM4bFile">Archivo de audio</string>
     <string name="TextHeaderOpen">Abrir un audio en mi dispositivo</string>
     <string name="bOpenFile_desc">Seleccionar cualquier archivo.</string>
-    <string name="bOpenZipFile_desc">filtro: solo archivos zip</string>
-    <string name="bOpenM4bFile_desc">filtro: solo archivos de audio
-\n<i>Atención: este filtro no es perfecto. Usa el botón superior [cualquier archivo] si hay problemas.</i></string>
+    <string name="bOpenFilteredFile_desc">Seleccionar cualquier archivo de un tipo específico. (filtro)</string>
     <string name="DirectDownload_title">Descarga directa</string>
     <string name="DirectDownload_desc">Pega un enlace abajo y pulsa el botón para descargar e integrar un audiolibro de una sola vez.</string>
     <string name="DirectDownload_button">Descargar ahora</string>
@@ -691,7 +689,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(Estas estadísticas comenzaron en 2025 (oct-nov)</string>
     <string name="stats_install_date_label">Fecha de instalación : </string>
-    <string name="bMassImport">Importación masiva</string>
+    <string name="bMassImport">📁 Importación masiva</string>
     <string name="bOpenMassImport_desc">Importación masiva: crea tantos audiolibros como elementos haya en la carpeta que elijas.</string>
     <string name="bOpenFolder_desc">Elige una carpeta: todos los audios (incluso en subcarpetas, si las hay) se importarán en el mismo libro.</string>
     <string name="type_here_">Escribe aquí…</string>
