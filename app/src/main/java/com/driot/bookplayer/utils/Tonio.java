@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -55,7 +56,6 @@ public class Tonio {
             return String.format(Locale.US, "%.1f MB", sizeBytes / (1024.0 * 1024.0));
         return String.format(Locale.US, "%.1f GB", sizeBytes / (1024.0 * 1024.0 * 1024.0));
     }
-
 
     public static String getReadableSizeForCleanActivity(long sizeBytes) {
         // if (sizeBytes <= 0) return "0 B";
@@ -109,22 +109,22 @@ public class Tonio {
 
             if (year != 0) {
                 // Example: "1y 23d"
-                s = String.format(Locale.getDefault(), "%dy %dd", year, day);
+                s = String.format(Locale.US, "%dy %dd", year, day);
             } else if (day != 0) {
                 // Example: "3d 4h"
-                s = String.format(Locale.getDefault(), "%dd %dh", day, hou);
+                s = String.format(Locale.US, "%dd %dh", day, hou);
             } else if (hou != 0) {
                 if (!doDisplayMin) {
-                    s = String.format(Locale.getDefault(), "%dh", hou);
+                    s = String.format(Locale.US, "%dh", hou);
                 } else if (!doDisplaySec) {
-                    s = String.format(Locale.getDefault(), "%dh %dm", hou, min);
+                    s = String.format(Locale.US, "%dh %dm", hou, min);
                 } else {
-                    s = String.format(Locale.getDefault(), "%dh %dm %ds", hou, min, sec);
+                    s = String.format(Locale.US, "%dh %dm %ds", hou, min, sec);
                 }
             } else if (min != 0) {
-                s = String.format(Locale.getDefault(), "%dm %ds", min, sec);
+                s = String.format(Locale.US, "%dm %ds", min, sec);
             } else {
-                s = String.format(Locale.getDefault(), "%ds", sec);
+                s = String.format(Locale.US, "%ds", sec);
             }
         } else {
             s = "";
@@ -179,18 +179,19 @@ public class Tonio {
             cal.add(Calendar.DATE, -1);
             Date yesterday = new Date(cal.getTimeInMillis());
 
-            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+            Locale locale = LocaleHelper.getLocale(context);
+            SimpleDateFormat dayFormat = new SimpleDateFormat("yyyy-MM-dd", locale);
             String accessDay = dayFormat.format(accessDate);
             String todayDay = dayFormat.format(today);
             String yesterdayDay = dayFormat.format(yesterday);
 
             if (accessDay.equals(todayDay)) {
-                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", Locale.getDefault());
+                SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm", locale);
                 s = timeFormat.format(accessDate);
             } else if (accessDay.equals(yesterdayDay)) {
                 s = context.getString(R.string.yesterday);
             } else if ((today.getTime() - accessDate.getTime()) / (1000 * 60 * 60 * 24) < 7) {
-                SimpleDateFormat weekdayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
+                SimpleDateFormat weekdayFormat = new SimpleDateFormat("EEEE", locale);
                 s = weekdayFormat.format(accessDate);
             } else {
                 s = accessDay;
@@ -496,18 +497,19 @@ public class Tonio {
         return size;
     }
 
-    public static String formatMemPadding(long mem) {
-        return formatMemPadding(mem, 9);
+    public static String formatMemPadding(Context context, long mem) {
+        return formatMemPadding(context, mem, 9);
     }
 
-    public static String formatMemPadding(long mem, int padding) {
+    public static String formatMemPadding(Context context, long mem, int padding) {
         // %3s => left padding
         if (padding < 1) {
             return String.valueOf(mem);
         } else {
             try {
+                Locale locale = LocaleHelper.getLocale(context);
                 return String.format("%" + padding + "s",
-                        NumberFormat.getNumberInstance(Locale.getDefault()).format(mem));
+                        NumberFormat.getNumberInstance(locale).format(mem));
             } catch (Exception e) {
                 myLogEE(e, "formatMem");
                 return String.valueOf(mem);

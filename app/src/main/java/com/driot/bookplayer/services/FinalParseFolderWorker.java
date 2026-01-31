@@ -212,7 +212,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                 myLog("No File found in directory : [" + dfPickedDir.getName() + ']');
             } else {
                 myLog(audioFileInfoArrayList.size() + " files found in directory : [" + dfPickedDir.getName() + ']');
-                myLog("Full directory size : [" + formatMemPadding(fullFolderSize / 1024 / 1024, 0) + " Mo]");
+                myLog("Full directory size : [" + formatMemPadding(context, fullFolderSize / 1024 / 1024, 0) + " Mo]");
                 myLogD("-----------------------------");
             }
             goFolder();

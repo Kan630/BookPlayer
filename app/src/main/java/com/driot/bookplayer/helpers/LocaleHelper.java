@@ -29,15 +29,19 @@ public class LocaleHelper {
     }
 
     /**
-     * Wrap a context with the app's saved locale so that getResources(), getString(), etc.
+     * Wrap a context with the app's saved locale so that getResources(),
+     * getString(), etc.
      * use the user-chosen language. Use this in Application.attachBaseContext and
-     * Activity.attachBaseContext so the language works on all devices (including Oppo
+     * Activity.attachBaseContext so the language works on all devices (including
+     * Oppo
      * and Samsung Android 9–12 where setApplicationLocales alone often does not).
-     * Reads APP_LANGUAGE from the same SharedPreferences as Option (safe to call before
+     * Reads APP_LANGUAGE from the same SharedPreferences as Option (safe to call
+     * before
      * Option.init()).
      */
     public static Context wrapContextWithAppLocale(Context base) {
-        if (base == null) return base;
+        if (base == null)
+            return base;
         String tag = base.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
                 .getString(PREF_KEY_APP_LANGUAGE, Option.DEFAULT_LANGUAGE);
         if (TextUtils.isEmpty(tag) || Option.DEFAULT_LANGUAGE.equals(tag)) {
@@ -47,5 +51,19 @@ public class LocaleHelper {
         Configuration config = new Configuration(base.getResources().getConfiguration());
         config.setLocale(locale);
         return base.createConfigurationContext(config);
+    }
+
+    /**
+     * Get the app's configured locale from the given context.
+     * Use this instead of Locale.getDefault() when formatting user-facing text
+     * (numbers, dates, etc.)
+     * to ensure the text matches the app's selected language, not the system
+     * locale.
+     */
+    public static Locale getLocale(Context context) {
+        if (context == null) {
+            return Locale.getDefault(); // fallback only
+        }
+        return context.getResources().getConfiguration().getLocales().get(0);
     }
 }

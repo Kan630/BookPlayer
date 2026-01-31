@@ -51,14 +51,15 @@ public class CopyFileWorker extends ImportWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        emitTaskStart(TASK_NAME, context.getString(R.string.Copy) + " " + context.getString(R.string.import_task_start));
+        emitTaskStart(TASK_NAME,
+                context.getString(R.string.Copy) + " " + context.getString(R.string.import_task_start));
         ImportJob j = jobOrFail();
         Uri uri = Uri.parse(j.dynamicUri);
         String destinationFolderPath = j.futureFolderPath;
         String destinationFileName = j.originalFile;
         String type = j.dynamicType;
         String fileExtension = j.fileExtension;
-        boolean checkSize = true;  //TODO, to check
+        boolean checkSize = true; // TODO, to check
         long forceSize = -1;
 
         // Optionally enter foreground:
@@ -66,7 +67,8 @@ public class CopyFileWorker extends ImportWorker {
 
         sourceLocation = Tonio.getSourceLocation(context, uri);
         destinationLocation = StorageHelper.getMemoryLocationType(context, destinationFolderPath);
-        if (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED) || destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_SHARED)) {
+        if (destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_RESERVED)
+                || destinationLocation.equals(StorageHelper.MemoryLocationType.SDCARD_SHARED)) {
             availableMemory = StorageHelper.getAvailableRemovableSDCardSize(context);
         } else {
             availableMemory = StorageHelper.getAvailableInternalMemorySize();
@@ -91,13 +93,13 @@ public class CopyFileWorker extends ImportWorker {
                 "\n.    total size = [" + Tonio.getReadableSize(totalSize) + "]" +
                 "\n.    available = [" + Tonio.getReadableSize(availableMemory) + "]" +
                 "\n.    source Location = [" + sourceLocation + "]" +
-                "\n.    destination Location = [" + destinationLocation.toString() + "]"
-        );
+                "\n.    destination Location = [" + destinationLocation.toString() + "]");
         myLogD("----------------------------------------------------");
 
         if (!isSizeOk(fileExtension)) {
             emitWarning(context.getString(R.string.Not_enough_memory)
-                    + "\n" + Tonio.formatSizeMB(availableMemory) + " " + context.getString(R.string.MB_available_on_device));
+                    + "\n" + Tonio.formatSizeMB(availableMemory) + " "
+                    + context.getString(R.string.MB_available_on_device));
             emitFailed(TASK_NAME, "Not_enough_memory", context.getString(R.string.Not_enough_memory));
             return Result.failure();
         }
@@ -106,20 +108,18 @@ public class CopyFileWorker extends ImportWorker {
         File destinationFolderFile = new File(destinationFolderPath);
         try {
             if (!destinationFolderFile.exists() && !destinationFolderFile.mkdirs()) {
-                emitFailed(TASK_NAME
-                        , "Error_Import_Creating_Folders : " + destinationFolderPath
-                        , context.getString(R.string.Error_Import_Creating_Folders));
+                emitFailed(TASK_NAME, "Error_Import_Creating_Folders : " + destinationFolderPath,
+                        context.getString(R.string.Error_Import_Creating_Folders));
                 return Result.failure();
             }
         } catch (Exception e) {
             myLogEE(e, "CopyFileWorker - Error creating destination folder");
-            emitFailed(TASK_NAME
-                    , "Catch Error_Import_Creating_Folders : " + destinationFolderPath
-                    , context.getString(R.string.Error_Import_Creating_Folders));
+            emitFailed(TASK_NAME, "Catch Error_Import_Creating_Folders : " + destinationFolderPath,
+                    context.getString(R.string.Error_Import_Creating_Folders));
             return Result.failure();
         }
 
-        //run the actual stuff
+        // run the actual stuff
         try {
             boolean result;
             if ("Folder".equals(type)) {
@@ -127,14 +127,17 @@ public class CopyFileWorker extends ImportWorker {
             } else {
                 result = copyFile(uri, destinationFolderPath, destinationFileName);
             }
-            myLogI("nbFileCopied = " + nbFileCopied + " .  nbFileKO = " + nbFileKO + " .  nbFolder = " + nbFolder + " .  nbPic = " + nbPic);
-            if (nbFileCopied == 0) result = false;
+            myLogI("nbFileCopied = " + nbFileCopied + " .  nbFileKO = " + nbFileKO + " .  nbFolder = " + nbFolder
+                    + " .  nbPic = " + nbPic);
+            if (nbFileCopied == 0)
+                result = false;
             if (hasBeenCancelled) {
                 emitCancelled(TASK_NAME);
                 return Result.failure();
             }
             if (result) {
-                emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.Copy) + " " + context.getString(R.string.done_));
+                emitTaskCompleted(TASK_NAME, destinationFolderPath,
+                        context.getString(R.string.Copy) + " " + context.getString(R.string.done_));
                 return Result.success();
             } else {
                 return Result.failure();
@@ -150,7 +153,7 @@ public class CopyFileWorker extends ImportWorker {
         int nbBuffCopied = 0;
 
         try (InputStream is = context.getContentResolver().openInputStream(uri);
-             OutputStream out = new FileOutputStream(new File(destinationFolderPath + "/" + destinationFileName))) {
+                OutputStream out = new FileOutputStream(new File(destinationFolderPath + "/" + destinationFileName))) {
 
             byte[] buf = new byte[1024];
             int len;
@@ -179,18 +182,20 @@ public class CopyFileWorker extends ImportWorker {
     private boolean copyFolder(Uri uri, String destinationFolderPath) {
         try {
             // Uniform wrapper for content:// (tree/single) and file:// paths
-            androidx.documentfile.provider.DocumentFile root =
-                    com.driot.bookplayer.helpers.UriHelper.getDocumentFileFromAnyUri(context, uri);
+            androidx.documentfile.provider.DocumentFile root = com.driot.bookplayer.helpers.UriHelper
+                    .getDocumentFileFromAnyUri(context, uri);
 
             if (root == null || !root.exists() || !root.isDirectory()) {
-                emitFailed(TASK_NAME, "Invalid URI: [" + uri + "]", context.getString(R.string.invalid_resource) + ": [" + uri + "]");
+                emitFailed(TASK_NAME, "Invalid URI: [" + uri + "]",
+                        context.getString(R.string.invalid_resource) + ": [" + uri + "]");
                 return false;
             }
 
             File dest = new File(destinationFolderPath);
             if (!dest.exists() && !dest.mkdirs()) {
                 emitFailed(TASK_NAME,
-                        "failed_to_create_destination_folder - [" + dest.getAbsolutePath() + "]", context.getString(R.string.failed_to_create_destination_folder));
+                        "failed_to_create_destination_folder - [" + dest.getAbsolutePath() + "]",
+                        context.getString(R.string.failed_to_create_destination_folder));
                 return false;
             }
 
@@ -203,13 +208,15 @@ public class CopyFileWorker extends ImportWorker {
     }
 
     private void copyFolderRecursiveDoc(androidx.documentfile.provider.DocumentFile src,
-                                        File destinationFolder) {
-        if (hasBeenCancelled) return;
+            File destinationFolder) {
+        if (hasBeenCancelled)
+            return;
 
         if (!destinationFolder.exists() && !destinationFolder.mkdirs()) {
-            emitFailed(TASK_NAME
-                    , "failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]"
-                    , context.getString(R.string.failed_to_create_destination_folder) + " [" + destinationFolder.getAbsolutePath() + "]");
+            emitFailed(TASK_NAME,
+                    "failed_to_create_destination_folder (recursive) - [" + destinationFolder.getAbsolutePath() + "]",
+                    context.getString(R.string.failed_to_create_destination_folder) + " ["
+                            + destinationFolder.getAbsolutePath() + "]");
             return;
         } else {
             myLogD("Folder created: " + destinationFolder.getAbsolutePath());
@@ -237,9 +244,13 @@ public class CopyFileWorker extends ImportWorker {
                 if (doCopy) {
                     File out = new File(destinationFolder, name);
                     if (copyFileFromDoc(child, out)) {
-                        if (isPic) nbPic++; else nbFileCopied++;
+                        if (isPic)
+                            nbPic++;
+                        else
+                            nbFileCopied++;
                     } else {
-                        if (!isPic) nbFileKO++;
+                        if (!isPic)
+                            nbFileKO++;
                     }
                 }
             }
@@ -249,9 +260,10 @@ public class CopyFileWorker extends ImportWorker {
     private boolean copyFileFromDoc(androidx.documentfile.provider.DocumentFile docFile, File destinationFile) {
         myLogD("copyFileFromDoc() -> " + destinationFile.getParentFile().getAbsolutePath());
         try (InputStream in = context.getContentResolver().openInputStream(docFile.getUri());
-             FileOutputStream out = new FileOutputStream(destinationFile)) {
+                FileOutputStream out = new FileOutputStream(destinationFile)) {
 
-            if (in == null) throw new IllegalStateException("openInputStream returned null for: " + docFile.getUri());
+            if (in == null)
+                throw new IllegalStateException("openInputStream returned null for: " + docFile.getUri());
 
             byte[] buf = new byte[1024];
             int len, nbBuffCopied = 0;
@@ -263,7 +275,8 @@ public class CopyFileWorker extends ImportWorker {
                 }
                 out.write(buf, 0, len);
                 copiedSize += len;
-                if (nbBuffCopied % 1024 == 0) buildProgressString();
+                if (nbBuffCopied % 1024 == 0)
+                    buildProgressString();
                 nbBuffCopied++;
             }
             return true;
@@ -289,10 +302,13 @@ public class CopyFileWorker extends ImportWorker {
                 : context.getString(R.string.Import_Progress_copying_file_to_internal_reserved));
 
         String msg = progressMsg + "\n\n" +
-                context.getString(R.string.Error_Import_NotEnoughMemory_line3) + formatMemPadding(copiedSize / 1024 / 1024, 0) + " " + context.getString(R.string.MB)
-                + " / " + formatMemPadding(totalSize / 1024 / 1024, 0) + " " + context.getString(R.string.MB) + "\n" +
-                context.getString(R.string.Error_Import_NotEnoughMemory_line2_1) + Tonio.formatMemPadding(availableMemory / 1048576L) + " " + context.getString(R.string.MB);
-        //TODO sd card or internal....   + live changing availableMemory ?
+                context.getString(R.string.Error_Import_NotEnoughMemory_line3)
+                + formatMemPadding(context, copiedSize / 1024 / 1024, 0) + " " + context.getString(R.string.MB)
+                + " / " + formatMemPadding(context, totalSize / 1024 / 1024, 0) + " " + context.getString(R.string.MB)
+                + "\n" +
+                context.getString(R.string.Error_Import_NotEnoughMemory_line2_1)
+                + Tonio.formatMemPadding(context, availableMemory / 1048576L) + " " + context.getString(R.string.MB);
+        // TODO sd card or internal.... + live changing availableMemory ?
 
         if (!msg.equals(last_logged_msg)) {
             last_logged_msg = msg;
@@ -314,12 +330,14 @@ public class CopyFileWorker extends ImportWorker {
                 size_check_inflate_coefficient = Var.M4B_SIZE_MAX_COEF;
             }
             myLogD("size_check_inflate_coefficient = [" + size_check_inflate_coefficient + "]");
-            myLogD("totalSize : [" + totalSize + "] => [" + totalSize * size_check_inflate_coefficient + "] - availableMemory : [" + availableMemory + "]");
+            myLogD("totalSize : [" + totalSize + "] => [" + totalSize * size_check_inflate_coefficient
+                    + "] - availableMemory : [" + availableMemory + "]");
             if (totalSize > 0 && totalSize * size_check_inflate_coefficient > availableMemory) {
                 return false;
             }
         } catch (Exception e) {
-            emitWarning(context.getString(R.string.error) + " " + context.getString(R.string.checking_size) + " - " + e.getMessage());
+            emitWarning(context.getString(R.string.error) + " " + context.getString(R.string.checking_size) + " - "
+                    + e.getMessage());
         }
         return true;
     }

@@ -142,11 +142,11 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         String MB_left_on_label = getString(R.string.MB) + ": " + getString(R.string.left_on) + " " + label;
         String MB_label_memory = getString(R.string.MB) + ": " + label + " " + getString(R.string.memory);
 
-        String str_MB_audio = MB_audio > 0 ? Tonio.formatMemPadding(MB_audio) : String.format("%9s", "...");
+        String str_MB_audio = MB_audio > 0 ? Tonio.formatMemPadding(this.getApplicationContext(), MB_audio) : String.format("%9s", "...");
 
         String zeText = str_MB_audio + " " + MB_audio_in_app + "\n\n" +
-                Tonio.formatMemPadding(MB_leftOnDevice) + " " + MB_left_on_label + "\n\n" +
-                Tonio.formatMemPadding(MB_deviceMemory) + " " + MB_label_memory;
+                Tonio.formatMemPadding(this.getApplicationContext(), MB_leftOnDevice) + " " + MB_left_on_label + "\n\n" +
+                Tonio.formatMemPadding(this.getApplicationContext(), MB_deviceMemory) + " " + MB_label_memory;
 
         statsTextView.setText(zeText);
     }
