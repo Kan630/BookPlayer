@@ -312,4 +312,15 @@ public class LogTextActivity extends LoggingActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void finish() {
+        int prevOrientation = getIntent().getIntExtra("previous_orientation", -1);
+        if (prevOrientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else if (prevOrientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
+        super.finish();
+    }
+
 }

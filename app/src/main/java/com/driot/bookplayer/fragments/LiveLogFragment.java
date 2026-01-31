@@ -62,7 +62,6 @@ public class LiveLogFragment extends LoggingFragment {
         recyclerView.setAdapter(adapter);
 
         // Click on fragment opens LogTextActivity
-        view.setOnClickListener(v -> openFullLogActivity());
 
         return view;
     }
@@ -80,6 +79,25 @@ public class LiveLogFragment extends LoggingFragment {
                 refreshHandler.postDelayed(this, REFRESH_INTERVAL_MS);
             }
         };
+
+        // Double tap to open full log
+        final android.view.GestureDetector gestureDetector = new android.view.GestureDetector(getContext(),
+                new android.view.GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDoubleTap(android.view.MotionEvent e) {
+                        openFullLogActivity();
+                        return true;
+                    }
+                });
+
+        View.OnTouchListener touchListener = (v, event) -> {
+            gestureDetector.onTouchEvent(event);
+            return false; // Let the event propagate (e.g. for scrolling)
+        };
+
+        if (recyclerView != null)
+            recyclerView.setOnTouchListener(touchListener);
+        view.setOnTouchListener(touchListener);
     }
 
     @Override
@@ -205,6 +223,7 @@ public class LiveLogFragment extends LoggingFragment {
         intent.putExtra("typeStorage", "classic");
         intent.putExtra("file", currentLogFile);
         intent.putExtra("title", "Log");
+        intent.putExtra("previous_orientation", getResources().getConfiguration().orientation);
         startActivity(intent);
     }
 }
