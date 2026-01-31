@@ -320,19 +320,19 @@ public class MainActivity extends BaseBottomNavActivity {
     }
 
     private void handleDeepLink(Intent intent) {
-        myLogI("=== handleDeepLink called ===");
+        myLogD("=== handleDeepLink called ===");
 
         if (intent == null) {
-            myLogI("Intent is NULL");
+            myLogI("Intent is NULL, return");
             return;
         }
 
-        myLogI("Intent action: " + intent.getAction());
+        myLogD("Intent action: " + intent.getAction());
 
         Uri data = intent.getData();
 
         if (data == null) {
-            myLogI("URI data is NULL");
+            myLogD("URI data is NULL, return");
             return;
         }
 
