@@ -1040,6 +1040,9 @@
     <string name="option_mass_import_include_subfolders">Also search in subfolders</string>
 
 
+    <string name="option_app_language_subtitle">May not work on some devices.</string>
+
+
     <plurals name="audio_files_count"> //ex : 15 audio files
         <item quantity="one">%d audio file</item>
         <item quantity="other">%d audio files</item>

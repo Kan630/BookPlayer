@@ -32,6 +32,12 @@
                 style="@style/Spinner"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_app_language_subtitle"
+                android:layout_marginEnd="20dp"
+                android:layout_marginTop="5dp" />
         </LinearLayout>
     </LinearLayout>
 </ScrollView>
