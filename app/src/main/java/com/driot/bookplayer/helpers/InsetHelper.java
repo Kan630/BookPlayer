@@ -182,6 +182,23 @@ public final class InsetHelper {
                 /*consume*/ false);
     }
 
+    /** Top insets only (no left/right) — uses status bar height only, no cutout padding, to avoid huge empty space. */
+    public static void applyTopInsetsOnlyTo(@NonNull Activity activity, @NonNull View targetView) {
+        if (KanLogger.LOG_INSETS) myLogD("applyTopInsetsOnlyTo()");
+        applyInsets(activity, targetView,
+                new WindowConfig.Builder()
+                        .softInputAdjustResize(true)
+                        .allowShortEdgeCutout(false)
+                        .build(),
+                new PaddingConfig.Builder()
+                        .onlyTop()
+                        .handleCutout(false)
+                        .sides(false)
+                        .addToPadding(true)
+                        .build(),
+                /*consume*/ false);
+    }
+
     // 2) Scrollable list behind nav bar, with IME lift.
 //    Only bottom padding + optional side padding. No top padding here.
     public static void applyBottomInsetsForScrollable(@NonNull Activity activity, @NonNull View scrollableView) {

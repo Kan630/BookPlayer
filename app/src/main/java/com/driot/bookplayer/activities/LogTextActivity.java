@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
+import android.view.View;
 import android.text.TextWatcher;
 import android.widget.EditText;
 
@@ -14,10 +15,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
-import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyTextChunk;
 import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
 import com.driot.bookplayer.utils.TextOptions;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.utils.KanMail;
 
@@ -50,6 +51,8 @@ public class LogTextActivity extends LoggingActivity {
     private TextOptions textOptions;
 
     private boolean destroyedByFlip = false;
+
+    private static final int LOG_TEXT_CHAR_SIZE = 12;
 
     // Filter controls
     private EditText etSearch;
@@ -115,7 +118,12 @@ public class LogTextActivity extends LoggingActivity {
         // Force landscape orientation
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_log_text);
-        InsetHelper.apply(this);
+
+        // Add top insets only so header is below status bar and buttons remain clickable (no left/right)
+        View root = findViewById(android.R.id.content);
+        if (root != null) {
+            InsetHelper.applyTopInsetsOnlyTo(this, root);
+        }
 
         recyclerView = findViewById(R.id.recyclerView_biggerText);
 
@@ -156,7 +164,7 @@ public class LogTextActivity extends LoggingActivity {
     }
 
     private void loadRecyclerView() {
-        myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file, "log", textOptions.getCharSize());
+        myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file, "log", LOG_TEXT_CHAR_SIZE);
         // Reverse to show most recent at top
         java.util.Collections.reverse(myTextChunkArrayList);
         originalTextChunkArrayList = new ArrayList<>(myTextChunkArrayList);
