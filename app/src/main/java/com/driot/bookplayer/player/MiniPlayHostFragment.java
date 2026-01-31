@@ -44,7 +44,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
             String newPlayType = newState.playMode;
 
             if (!Objects.equals(newPlayType, lastPlayType)) {
-                myLogD("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
+                //myLogD("vm.getPlayType().observe: newPlayType=[" + newPlayType + "] - lastPlayType=[" + lastPlayType + "]");
                 swapChild(newPlayType);
             } else {
                 //myLogD("vm.getPlayType().observe: same as before newPlayType=[" + newPlayType + "]");
@@ -52,7 +52,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
                 //check current display
                 Fragment current = getChildFragmentManager().findFragmentById(R.id.mini_host_container);
                 if (current == null) {
-                    myLogD("same playType, no fragment attached, re-attaching");
+                    //myLogD("same playType, no fragment attached, re-attaching");
                     attachFirstChild(newPlayType);
                 } else {
                     boolean ok =
@@ -62,7 +62,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
                                             && current instanceof MiniPlayBookFragment);
 
                     if (!ok) {
-                        myLog("playType=[" + newPlayType + "] but fragment=[" + current.getClass().getSimpleName() + "], swapping");
+                        //myLog("playType=[" + newPlayType + "] but fragment=[" + current.getClass().getSimpleName() + "], swapping");
                         swapChild(newPlayType);
                     }
                 }
@@ -80,7 +80,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
     }
 
     private void attachFirstChild(String playType) {
-        myLog("attachFirstChild, playType: " + playType);
+        //myLog("attachFirstChild, playType: " + playType);
         final Fragment child;
         if ("radio".equals(playType)) {
             child = new MiniPlayRadioFragment();
@@ -89,7 +89,7 @@ public class MiniPlayHostFragment extends LoggingFragment {
         } else if ("book".equals(playType) || "tts".equals(playType)) {
             child = new MiniPlayBookFragment();
         } else {
-            myLogD("attachFirstChild - unknown playType: " + playType);
+            //myLogD("attachFirstChild - unknown playType: " + playType);
             setGone();
             return;
         }

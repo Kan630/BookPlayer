@@ -391,7 +391,7 @@ public abstract class LoggingActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .replace(liveLogContainer.getId(), liveLogFragment, "live_log")
                         .commit();
-                myLogI("Live log fragment initialized");
+                //myLogD("Live log fragment initialized");
             } catch (Exception e) {
                 myLogEE(e, "initializeLiveLogFragment");
             }
