@@ -62,9 +62,9 @@ public class MyApp extends Application {
         Pref.init(getApplicationContext());
         FirebaseAnalyticsHelper.init(getApplicationContext()); //after pref
 
-        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
-        myLog("ooooooooooooooooooo      BOOKPLAYER      ooooooooooooooooooooo");
-        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
+        myLog("ooooooooooooooooooo BOOKPLAYER ooooooooooooooooooooooo");
+        myLog("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
         //TaskStateRepository.get().hydrateFromPrefs();
 
