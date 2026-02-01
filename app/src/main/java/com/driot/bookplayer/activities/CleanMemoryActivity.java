@@ -87,7 +87,8 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         });
 
         cacheFilesViewModel.getTotalAudioSizeMB().observe(this, audioMB -> {
-            FillTextViewMemoryStats(audioMB,
+            long audioMBToShow = Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue()) ? -1L : (audioMB != null ? audioMB : -1L);
+            FillTextViewMemoryStats(audioMBToShow,
                     StorageHelper.getAvailableStorageMB(this, cacheFilesViewModel.isUsingInternal()),
                     StorageHelper.getTotalStorageMB(this, cacheFilesViewModel.isUsingInternal()),
                     null
@@ -104,6 +105,13 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
                 progressScanMessage.setVisibility(View.GONE); // show only after 1 sec (see startRefreshElapsedTimer)
                 cancelShowMessageAfterDelay();
                 refreshElapsedHandler.postDelayed(showMessageAfterOneSecRunnable, 1000);
+                // Hide "No books in BookPlayer..." while scanning
+                updateEmptyListVisibility(cacheFilesViewModel.getEnrichedFolders().getValue());
+                // Show "..." for audios in app while scanning
+                FillTextViewMemoryStats(-1L,
+                        StorageHelper.getAvailableStorageMB(this, cacheFilesViewModel.isUsingInternal()),
+                        StorageHelper.getTotalStorageMB(this, cacheFilesViewModel.isUsingInternal()),
+                        null);
             } else {
                 cancelShowMessageAfterDelay();
                 stopRefreshElapsedTimer();
@@ -239,7 +247,7 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         String MB_left_on_label = getString(R.string.MB) + ": " + getString(R.string.left_on) + " " + label;
         String MB_label_memory = getString(R.string.MB) + ": " + label + " " + getString(R.string.memory);
 
-        String str_MB_audio = MB_audio > 0 ? Tonio.formatMemPadding(this.getApplicationContext(), MB_audio) : String.format("%9s", "...");
+        String str_MB_audio = MB_audio >= 0 ? Tonio.formatMemPadding(this.getApplicationContext(), MB_audio) : String.format("%9s", "...");
 
         String zeText = str_MB_audio + " " + MB_audio_in_app + "\n\n" +
                 Tonio.formatMemPadding(this.getApplicationContext(), MB_leftOnDevice) + " " + MB_left_on_label + "\n\n" +
