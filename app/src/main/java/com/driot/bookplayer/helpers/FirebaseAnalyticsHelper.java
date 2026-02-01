@@ -1,6 +1,7 @@
 package com.driot.bookplayer.helpers;
 
 import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -13,17 +14,33 @@ import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.util.TimeZone;
+
 public final class FirebaseAnalyticsHelper {
 
     private static final int MAX_FA_PARAM = 100;
 
     private static Context appContext;
     private static String appVersion;
+    private static String sdkVersion;
+    private static String androidVersion;
+    private static String countryFromTimeZone;
+    private static String daysSinceInstall;
 
     public static void init(Context context) {
         try {
-            appVersion = BuildConfig.VERSION_NAME;
             appContext = context.getApplicationContext();
+
+            appVersion = BuildConfig.VERSION_NAME;
+            sdkVersion = String.valueOf(Build.VERSION.SDK_INT);
+            androidVersion = Build.VERSION.RELEASE;
+            countryFromTimeZone = TimeZone.getDefault().getID();
+            long installTimestamp = Pref.getFirstOpenTimeStamp();
+            long days = installTimestamp > 0
+                    ? (System.currentTimeMillis() - installTimestamp) / (24 * 60 * 60 * 1000L)
+                    : 0;
+            daysSinceInstall = String.valueOf(days);
+
             setCustomKeyCrashlytics("app_version", appVersion);
             setCustomKeyCrashlytics("first_open_date", Pref.getFirstOpenDate());
             setCustomKeyCrashlytics("total_ms_played", Tonio.formatTime(Pref.getTotalMsPlayed(), false));
@@ -304,6 +321,8 @@ public final class FirebaseAnalyticsHelper {
             myLogD("Analytics logging - " + logName + " - " + bundle.toString());
             FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
             bundle.putString("app_version", appVersion);
+            bundle.putString("aaa", androidVersion + "-" + appVersion + "-" + countryFromTimeZone);
+            bundle.putString("bbb", sdkVersion + "-" + appVersion + "-" + daysSinceInstall + "-" + countryFromTimeZone);
             firebaseAnalytics.logEvent(logName, bundle);
         } catch (Exception e) {
             myLogE("Analytics logging - " + logName);
