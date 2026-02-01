@@ -34,8 +34,8 @@ import java.util.List;
 public class DesignSettingsFragment extends LoggingFragment {
 
     private Spinner spFontFamily;
-    private MaterialCheckBox chkThemeDarkLightForce;
-    private MaterialButtonToggleGroup groupThemeMode;
+    private MaterialCheckBox chkNightModeForce;
+    private MaterialButtonToggleGroup groupNightMode;
 
     // local helper identical to your Activity’s inner class
     private static class FontChoice {
@@ -160,13 +160,13 @@ public class DesignSettingsFragment extends LoggingFragment {
         }
 
         // ===== Theme mode: override system checkbox + Light/Dark toggle =====
-        chkThemeDarkLightForce = root.findViewById(R.id.chk_theme_mode_force);
-        groupThemeMode = root.findViewById(R.id.group_theme_mode);
+        chkNightModeForce = root.findViewById(R.id.chk_night_mode_force);
+        groupNightMode = root.findViewById(R.id.group_night_mode);
 
         String nightMode = Option.getNightMode();
         boolean forceMode = !"SYSTEM".equals(nightMode);
-        chkThemeDarkLightForce.setChecked(forceMode);
-        groupThemeMode.setEnabled(forceMode);
+        chkNightModeForce.setChecked(forceMode);
+        groupNightMode.setEnabled(forceMode);
 
         updateThemeModeSelection(nightMode);
 
@@ -180,11 +180,11 @@ public class DesignSettingsFragment extends LoggingFragment {
         // if not posted, cause infinite loop in some case after user changes theme
         // mode.
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            chkThemeDarkLightForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                myLogI("----- user clicks checkbox Darl/Light Theme - IsThemeForced=" + isChecked);
+            chkNightModeForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                myLogI("----- user clicks checkbox Force Night Theme - IsThemeForced=" + isChecked);
 
                 if (isChecked) {
-                    groupThemeMode.setEnabled(true);
+                    groupNightMode.setEnabled(true);
                     String current = Option.getNightMode();
                     if ("SYSTEM".equals(current)) {
                         current = isSystemDarkMode() ? "DARK" : "LIGHT";
@@ -196,14 +196,14 @@ public class DesignSettingsFragment extends LoggingFragment {
                 } else {
                     Option.setNightMode("SYSTEM");
                     Option.applyNightMode();
-                    groupThemeMode.setEnabled(false);
+                    groupNightMode.setEnabled(false);
                     updateThemeModeSelection("SYSTEM");
                     // signalAndRecreate();
                 }
             });
 
-            groupThemeMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
-                myLog("groupThemeMode.addOnButtonCheckedListener - checkedId=" + checkedId + ":" + isChecked);
+            groupNightMode.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                myLog("----- user select Night Theme - checkedId=" + checkedId + ":" + isChecked);
                 if (!isChecked)
                     return;
                 String chosen = (checkedId == R.id.btn_theme_light) ? "LIGHT" : "DARK";
@@ -259,7 +259,7 @@ public class DesignSettingsFragment extends LoggingFragment {
         int id = "LIGHT".equals(mode) ? R.id.btn_theme_light
                 : ("DARK".equals(mode) ? R.id.btn_theme_dark
                         : (isSystemDarkMode() ? R.id.btn_theme_dark : R.id.btn_theme_light));
-        groupThemeMode.check(id);
+        groupNightMode.check(id);
     }
 
     private void signalAndRecreate() {
