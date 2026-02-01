@@ -6,7 +6,6 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -35,7 +34,7 @@ import java.util.List;
 public class DesignSettingsFragment extends LoggingFragment {
 
     private Spinner spFontFamily;
-    private MaterialCheckBox chkThemeModeForce;
+    private MaterialCheckBox chkThemeDarkLightForce;
     private MaterialButtonToggleGroup groupThemeMode;
 
     // local helper identical to your Activity’s inner class
@@ -161,12 +160,12 @@ public class DesignSettingsFragment extends LoggingFragment {
         }
 
         // ===== Theme mode: override system checkbox + Light/Dark toggle =====
-        chkThemeModeForce = root.findViewById(R.id.chk_theme_mode_force);
+        chkThemeDarkLightForce = root.findViewById(R.id.chk_theme_mode_force);
         groupThemeMode = root.findViewById(R.id.group_theme_mode);
 
         String nightMode = Option.getNightMode();
         boolean forceMode = !"SYSTEM".equals(nightMode);
-        chkThemeModeForce.setChecked(forceMode);
+        chkThemeDarkLightForce.setChecked(forceMode);
         groupThemeMode.setEnabled(forceMode);
 
         updateThemeModeSelection(nightMode);
@@ -181,8 +180,8 @@ public class DesignSettingsFragment extends LoggingFragment {
         // if not posted, cause infinite loop in some case after user changes theme
         // mode.
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            chkThemeModeForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                myLog("chkThemeModeForce.setOnCheckedChangeListener - themeForce=" + isChecked);
+            chkThemeDarkLightForce.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                myLogI("----- user clicks checkbox Darl/Light Theme - IsThemeForced=" + isChecked);
 
                 if (isChecked) {
                     groupThemeMode.setEnabled(true);
