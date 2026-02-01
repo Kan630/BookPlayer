@@ -8,110 +8,102 @@
     android:fillViewport="true"
     style="@style/MainContainer">
 
-    <LinearLayout
-        android:id="@+id/content"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="12dp"
-        android:orientation="vertical"
-        android:paddingBottom="16dp"
-        android:paddingTop="8dp"
-        >
-<!--   // FOR LATER
-        <com.driot.bookplayer.views.SettingSwitchRow
-            android:id="@+id/row_sd_card"
+        <LinearLayout
+            android:id="@+id/content"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:title="@string/option_sdcard_text"
-            app:subtitle="@string/option_sdcard_text_caution"
-            />
--->
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_language"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Language"
-            app:sectionIcon="@drawable/ic_language_24px"
-            />
+            android:paddingHorizontal="12dp"
+            android:orientation="vertical"
+            android:paddingBottom="16dp"
+            android:paddingTop="8dp"
+            >
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_play_behaviour"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/option_playing_behaviour_title"
-            app:sectionIcon="@drawable/ic_media_play_24"
-            />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_language"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Language"
+                    app:sectionIcon="@drawable/ic_language_24px"
+                    />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_design"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Design"
-            app:sectionIcon="@drawable/ic_palette_24px"
-            />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_play_behaviour"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/option_playing_behaviour_title"
+                    app:sectionIcon="@drawable/ic_media_play_24"
+                    />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_import"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Import"
-            app:sectionIcon="@drawable/ic_add_book_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_design"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Design"
+                    app:sectionIcon="@drawable/ic_palette_24px"
+                    />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_librivox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/librivox"
-            app:sectionIcon="@drawable/ic_librivox_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_import"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Import"
+                    app:sectionIcon="@drawable/ic_add_book_24" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_tts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Text_To_Speech"
-            app:sectionIcon="@drawable/ic_tts_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_massive_import"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Mass_Import"
+                    app:sectionIcon="@drawable/ic_data_table_24px" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_radio"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Radio"
-            app:sectionIcon="@drawable/ic_radio_24px" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_librivox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/librivox"
+                    app:sectionIcon="@drawable/ic_librivox_24" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_podcast"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Podcasts"
-            app:sectionIcon="@drawable/ic_podcast_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_tts"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Text_To_Speech"
+                    app:sectionIcon="@drawable/ic_tts_24" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_automotive"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Automotive"
-            app:sectionIcon="@drawable/ic_car_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_radio"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Radio"
+                    app:sectionIcon="@drawable/ic_radio_24px" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_network"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/network_preferences_title"
-            app:sectionIcon="@drawable/ic_cloud_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_podcast"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Podcasts"
+                    app:sectionIcon="@drawable/ic_podcast_24" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_utilities"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Utilities"
-            app:sectionIcon="@drawable/ic_service_toolbox_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_automotive"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Automotive"
+                    app:sectionIcon="@drawable/ic_car_24" />
 
-        <com.driot.bookplayer.views.SettingsSectionView
-            android:id="@+id/section_massive_import"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:sectionTitle="@string/Mass_Import"
-            app:sectionIcon="@drawable/ic_add_book_24" />
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_network"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/network_preferences_title"
+                    app:sectionIcon="@drawable/ic_cloud_24" />
+
+                <com.driot.bookplayer.views.SettingsSectionView
+                    android:id="@+id/section_utilities"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:sectionTitle="@string/Utilities"
+                    app:sectionIcon="@drawable/ic_service_toolbox_24" />
 
         </LinearLayout>
 

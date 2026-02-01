@@ -862,6 +862,8 @@
     \nPlayback behavior:
         \n* [don\'t open the dedicated play view]
         \n* [keep audio playing when exiting the app]
+    \nNavigation:
+        \n* [Open favorites first] for Radio and Podcast
     </string>
     <string name="cancel_ongoing_operation">Cancel ongoing operations</string>
     <string name="option_reset_app_explain_text">
