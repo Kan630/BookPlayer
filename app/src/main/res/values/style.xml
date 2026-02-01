@@ -7,6 +7,10 @@
         <item name="android:background">?attr/colorSurface</item>
     </style>
 
+    <style name="RecyclerBackground">
+        <item name="android:background">?attr/colorSecondary</item>
+    </style>
+
     <style name="textColor" parent="TextAppearance.AppCompat">
         <item name="android:textColor">@color/bp_onSurface</item>
     </style>

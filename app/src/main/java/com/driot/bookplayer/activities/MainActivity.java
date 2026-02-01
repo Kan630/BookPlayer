@@ -125,7 +125,7 @@ public class MainActivity extends BaseBottomNavActivity {
             recyclerView.setLayoutManager(glm);
             recyclerView.setHasFixedSize(true);
             recyclerView.addItemDecoration(
-                    new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
+                    new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, 0)));
         }
 
         adapter = new FoldersRVAdapter(this);
