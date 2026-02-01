@@ -30,7 +30,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.services.DeleteFolderWorker;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class AdminActivity extends LoggingActivity {
+public class AdminActivity extends BaseActivity {
 
     private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
     private static final String PREF_LIVE_LOG_HEIGHT = "live_log_height";

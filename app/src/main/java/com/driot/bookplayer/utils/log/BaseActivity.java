@@ -42,7 +42,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
  * This abstract class extends the Activity class and overrides
  * lifecycle callbacks for logging various lifecycle events.
  */
-public abstract class LoggingActivity extends AppCompatActivity {
+public abstract class BaseActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "Lifecycle";
     private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";

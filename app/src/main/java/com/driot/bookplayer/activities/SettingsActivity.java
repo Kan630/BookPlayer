@@ -3,14 +3,11 @@ package com.driot.bookplayer.activities;
 import android.app.Activity;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.CheckBox;
-import android.widget.LinearLayout;
 import android.widget.ScrollView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 import com.driot.bookplayer.views.SettingsSectionView;
 
 

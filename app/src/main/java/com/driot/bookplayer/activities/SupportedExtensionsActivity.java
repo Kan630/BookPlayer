@@ -19,13 +19,13 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class SupportedExtensionsActivity extends LoggingActivity {
+public class SupportedExtensionsActivity extends BaseActivity {
 
     private static final String EXTRA_MSG = "extra_msg";
 

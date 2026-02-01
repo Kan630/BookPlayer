@@ -33,7 +33,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -44,7 +44,7 @@ import java.util.Date;
 import java.util.Locale;
 import java.util.TimeZone;
 
-public class StatsActivity extends LoggingActivity {
+public class StatsActivity extends BaseActivity {
 
     private StatsViewModel viewModel;
     private StorageBarView storageBarInternal;

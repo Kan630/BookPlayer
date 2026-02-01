@@ -22,11 +22,11 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.util.Locale;
 
-public class CoverGenerationActivity extends LoggingActivity {
+public class CoverGenerationActivity extends BaseActivity {
 
     public static final String EXTRA_FOLDER_ID = "folder_id";
     public static final String EXTRA_TITLE = "title";

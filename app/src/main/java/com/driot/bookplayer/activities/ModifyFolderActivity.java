@@ -46,7 +46,7 @@ import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 
 import java.io.File;
@@ -55,7 +55,7 @@ import java.util.List;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
  */
-public class ModifyFolderActivity extends LoggingActivity {
+public class ModifyFolderActivity extends BaseActivity {
 
     private Folder folder;
     private View blockingOverlay;

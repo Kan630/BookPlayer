@@ -1,26 +1,22 @@
 package com.driot.bookplayer.activities;
 
-import static com.driot.bookplayer.db.DatabaseBackupHelper.BACKUP_FOLDER_NAME;
 import static com.driot.bookplayer.db.DatabaseBackupHelper.BACKUP_NAME;
 import static com.driot.bookplayer.db.DatabaseBackupHelper.getBackupDir;
 
 import android.os.Bundle;
-import android.os.Environment;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseBackupHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
 
-public class DebugDatabaseActivity extends LoggingActivity {
+public class DebugDatabaseActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

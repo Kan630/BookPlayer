@@ -12,14 +12,14 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
-public class MsgBoxActivity extends LoggingActivity {
+public class MsgBoxActivity extends BaseActivity {
 
     // Types
     public static final int TYPE_INFO = 0;

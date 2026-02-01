@@ -14,7 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.lang.ref.WeakReference;
 
@@ -26,7 +26,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class TtsHighlighter {
 
-    private final WeakReference<LoggingActivity> activityRef;
+    private final WeakReference<BaseActivity> activityRef;
     private final TextView tvTtsText;
     private final Handler uiH = new Handler(Looper.getMainLooper());
 
@@ -62,11 +62,11 @@ public class TtsHighlighter {
 
     private static final String TAG = "TtsHighlighter";
 
-    public TtsHighlighter(LoggingActivity activity, TextView tvTtsText) {
+    public TtsHighlighter(BaseActivity activity, TextView tvTtsText) {
         this.activityRef = new WeakReference<>(activity);
         this.tvTtsText = tvTtsText;
         this.loadingRunnable = () -> {
-            LoggingActivity act = activityRef.get();
+            BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
                 ((PlayActivity) act).showTtsLoading(true);
             }
@@ -191,7 +191,7 @@ public class TtsHighlighter {
     private void stopLoadingTimer() {
         uiH.removeCallbacks(loadingRunnable);
         myLogD("stopLoadingTimer: canceled");
-        LoggingActivity act = activityRef.get();
+        BaseActivity act = activityRef.get();
         if (act instanceof PlayActivity) {
             ((PlayActivity) act).showTtsLoading(false);
         }
@@ -317,7 +317,7 @@ public class TtsHighlighter {
         // For now, let's assume PlayActivity handles the scroll via a callback or we
         // execute a Runnable passed in?
         // Or simpler: We define an interface or a public method in PlayActivity.
-        LoggingActivity a = activityRef.get();
+        BaseActivity a = activityRef.get();
         if (a instanceof PlayActivity) {
             ((PlayActivity) a).onTtsHighlightApplied(tvTtsText, startPos);
         }

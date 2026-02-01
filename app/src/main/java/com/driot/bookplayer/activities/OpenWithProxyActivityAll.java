@@ -9,12 +9,12 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.imports.LoadBookActivity;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 // 2025-07-05
 
 
-public class OpenWithProxyActivityAll extends LoggingActivity {
+public class OpenWithProxyActivityAll extends BaseActivity {
 
     private static final int REQUEST_LOAD_OPTIONS = 1642;
 

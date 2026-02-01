@@ -1,7 +1,6 @@
 package com.driot.bookplayer.activities;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.text.Editable;
@@ -31,13 +30,13 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 21/08/21
  * * imported from Droit Positif (02/12/2020)
  */
-public class LogTextActivity extends LoggingActivity {
+public class LogTextActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;

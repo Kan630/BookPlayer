@@ -48,14 +48,14 @@ import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
-public class PlayActivity extends LoggingActivity {
+public class PlayActivity extends BaseActivity {
 
     private PlaybackViewModel vm;
 

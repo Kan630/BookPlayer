@@ -10,7 +10,6 @@ import androidx.fragment.app.Fragment;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

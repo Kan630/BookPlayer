@@ -25,11 +25,11 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.net.CoverSearchRepository;
 import com.driot.bookplayer.objects.CoverResult;
 import com.driot.bookplayer.services.DownloadCoverWorker;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 import java.util.List;
 import java.util.concurrent.Executors;
 
-public class CoverWebSearchActivity extends LoggingActivity {
+public class CoverWebSearchActivity extends BaseActivity {
     public static final String EXTRA_FOLDER_ID = "folderId";
     public static final String EXTRA_DEFAULT_TITLE = "defaultTitle";
     public static final int MAX_NB_COVER_SEARCH_RESULT = 24;

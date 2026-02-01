@@ -16,7 +16,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.adapter.MyFileRVAdapter;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -29,7 +29,7 @@ import java.util.Comparator;
  * Show list of logs, 1 log per day
  *
  */
-public class LogListActivity extends LoggingActivity {
+public class LogListActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
 

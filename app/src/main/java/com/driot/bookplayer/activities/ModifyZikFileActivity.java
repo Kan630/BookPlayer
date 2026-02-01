@@ -25,14 +25,14 @@ import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.MsgBox;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 2023-05-27
  */
-public class ModifyZikFileActivity extends LoggingActivity {
+public class ModifyZikFileActivity extends BaseActivity {
 
     private ZikFile zikFile;
 

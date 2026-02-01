@@ -7,11 +7,11 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
  */
-public class HelpActivity extends LoggingActivity {
+public class HelpActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

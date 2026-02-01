@@ -27,11 +27,11 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.services.ExportService;
-import com.driot.bookplayer.utils.log.LoggingActivity;
+import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
 
-public class ExportActivity extends LoggingActivity {
+public class ExportActivity extends BaseActivity {
 
     public static final String EXTRA_DEST_FILE_FULL_PATH = "EXTRA_DEST_FILE_FULL_PATH";
     public static final String EXTRA_DEST_URI = "EXTRA_DEST_URI";
