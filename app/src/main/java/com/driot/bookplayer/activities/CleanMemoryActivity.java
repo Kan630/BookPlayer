@@ -20,9 +20,11 @@ import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
+import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -37,8 +39,14 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
     private TextView progressScanMessage;
     private TextView statsTextView;
     private RecyclerView recyclerViewCacheFiles;
+    private TextView emptyListMessage;
     private final Handler refreshElapsedHandler = new Handler(Looper.getMainLooper());
     private Runnable refreshElapsedRunnable;
+    private final Runnable showMessageAfterOneSecRunnable = () -> {
+        if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue())) return;
+        progressScanMessage.setVisibility(View.VISIBLE);
+        startRefreshElapsedTimer();
+    };
 
     @Override protected int getNavId() { return R.id.nav_settings; } //TODO change to correct one after migrating menu items
     @Override protected int getLayoutResId() { return R.layout.activity_clean_memory; }
@@ -50,6 +58,7 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         InsetHelper.apply(this);
 
         recyclerViewCacheFiles = findViewById(R.id.recyclerView_cacheFiles);
+        emptyListMessage = findViewById(R.id.empty_list_message);
 
         statsTextView = findViewById(R.id.cachefiles_stats_text);
 
@@ -72,8 +81,9 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
 
         // Set up observers
         cacheFilesViewModel.getEnrichedFolders().observe(this, fileWithSummaries -> {
-            myLogD("Enriched list updated: " + fileWithSummaries.size());
+            myLogD("Enriched list updated: " + (fileWithSummaries != null ? fileWithSummaries.size() : 0));
             cacheFilesAdapter.setFilesWithSummary(fileWithSummaries);
+            updateEmptyListVisibility(fileWithSummaries);
         });
 
         cacheFilesViewModel.getTotalAudioSizeMB().observe(this, audioMB -> {
@@ -91,9 +101,11 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         cacheFilesViewModel.getIsRefreshing().observe(this, isRefreshing -> {
             if (Boolean.TRUE.equals(isRefreshing)) {
                 recyclerViewCacheFiles.setVisibility(View.GONE);
-                progressScanMessage.setVisibility(View.VISIBLE);
-                startRefreshElapsedTimer();
+                progressScanMessage.setVisibility(View.GONE); // show only after 1 sec (see startRefreshElapsedTimer)
+                cancelShowMessageAfterDelay();
+                refreshElapsedHandler.postDelayed(showMessageAfterOneSecRunnable, 1000);
             } else {
+                cancelShowMessageAfterDelay();
                 stopRefreshElapsedTimer();
                 progressScanMessage.setVisibility(View.GONE);
                 recyclerViewCacheFiles.setVisibility(View.VISIBLE);
@@ -110,17 +122,36 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         progressContainer.setVisibility(loading || refreshing ? View.VISIBLE : View.GONE);
     }
 
+    private void updateEmptyListVisibility(List<FolderWithSummary> fileWithSummaries) {
+        boolean loading = Boolean.TRUE.equals(cacheFilesViewModel.getIsLoading().getValue());
+        boolean refreshing = Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue());
+        if (loading || refreshing) {
+            emptyListMessage.setVisibility(View.GONE);
+            return;
+        }
+        boolean empty = fileWithSummaries == null || fileWithSummaries.isEmpty();
+        if (empty) {
+            emptyListMessage.setText(cacheFilesViewModel.isUsingInternal()
+                    ? getString(R.string.clean_memory_empty_internal)
+                    : getString(R.string.clean_memory_empty_sdcard));
+            emptyListMessage.setVisibility(View.VISIBLE);
+        } else {
+            emptyListMessage.setVisibility(View.GONE);
+        }
+    }
+
     private void startRefreshElapsedTimer() {
         stopRefreshElapsedTimer();
         Long startTime = cacheFilesViewModel.getRefreshStartTime().getValue();
         if (startTime == null || startTime == 0) return;
+        boolean onSdCardView = !cacheFilesViewModel.isUsingInternal();
         refreshElapsedRunnable = new Runnable() {
             @Override
             public void run() {
                 if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue())) return;
                 long elapsedSec = (System.currentTimeMillis() - startTime) / 1000;
                 String msg = getString(R.string.clean_memory_scanning_folders, (int) elapsedSec);
-                if (StorageHelper.getSdCardUnzippedFolder(CleanMemoryActivity.this) != null) {
+                if (onSdCardView) {
                     msg += "\n\n" + getString(R.string.clean_memory_sdcard_slow);
                 }
                 progressScanMessage.setText(msg);
@@ -128,6 +159,10 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
             }
         };
         refreshElapsedRunnable.run();
+    }
+
+    private void cancelShowMessageAfterDelay() {
+        refreshElapsedHandler.removeCallbacks(showMessageAfterOneSecRunnable);
     }
 
     private void stopRefreshElapsedTimer() {

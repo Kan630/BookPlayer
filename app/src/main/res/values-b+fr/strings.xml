@@ -63,6 +63,8 @@
     <string name="Cleaning">Nettoyage</string> //for the specific cleaning activity where user can delete books take too much storage
     <string name="clean_memory_scanning_folders">Analyse des dossiers utilisés par l’app, %1$d s écoulées…</string>
     <string name="clean_memory_sdcard_slow">L’accès à la carte SD est plus lent que l’accès à la mémoire interne.</string>
+    <string name="clean_memory_empty_internal">Aucun livre dans l’espace interne BookPlayer.</string>
+    <string name="clean_memory_empty_sdcard">Aucun livre dans l’espace carte SD BookPlayer.</string>
     <string name="clear">effacer</string>
     <string name="Close">Fermer</string>
     <string name="collapse">réduire</string> //opposite of expand, used for "enlarge" or "show description"

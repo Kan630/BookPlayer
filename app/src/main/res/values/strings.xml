@@ -63,6 +63,8 @@
     <string name="Cleaning">Cleaning</string> //for the specific cleaning activity where user can delete books take too much storage
     <string name="clean_memory_scanning_folders">Scanning folders used by the app, %1$d sec elapsed…</string>
     <string name="clean_memory_sdcard_slow">SD card access is slow compared to internal device memory.</string>
+    <string name="clean_memory_empty_internal">No books in BookPlayer internal storage.</string>
+    <string name="clean_memory_empty_sdcard">No books in BookPlayer SD card storage.</string>
     <string name="clear">Clear</string>
     <string name="Close">Close</string>
     <string name="collapse">collapse</string> //opposite of expand, used for "enlarge" or "show description"
