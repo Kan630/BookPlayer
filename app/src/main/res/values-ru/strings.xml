@@ -665,6 +665,7 @@
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">Другое медиа с таким же именем уже было загружено</string>
     <string name="the_name_will_be_changed_to">, имя будет изменено на: </string>
     <string name="listing_and_sorting_tracks">создание списка и сортировка треков</string>
+    <string name="Scanning_3dots">Сканирование…</string>
     <string name="scanning_tracks">сканирование треков</string>
     <string name="saving_folder">сохранение папки</string>
     <string name="saving_track">сохранение трека</string>

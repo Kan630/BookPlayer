@@ -665,6 +665,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">已加载同名但不同的媒体</string>
     <string name="the_name_will_be_changed_to">，名称将更改为： </string>
     <string name="listing_and_sorting_tracks">列出并排序音轨</string>
+    <string name="Scanning_3dots">扫描中…</string>
     <string name="scanning_tracks">扫描音轨</string>
     <string name="saving_folder">保存文件夹</string>
     <string name="saving_track">保存音轨</string>

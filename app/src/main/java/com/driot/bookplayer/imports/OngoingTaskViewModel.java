@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.imports.BookCandidate;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.List;
@@ -52,7 +52,7 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
             List<BookCandidate> candidates) {
         if (Boolean.TRUE.equals(isScanning)) {
             // Priority 1: Scanning
-            ui.setValue(TaskUiState.scanning(getApplication(), scanProgress != null ? scanProgress : "Scanning..."));
+            ui.setValue(TaskUiState.scanning(getApplication(), scanProgress != null ? scanProgress : getApplication().getString(R.string.Scanning_3dots)));
         } else if (Boolean.TRUE.equals(isScanFinished)) {
             // Priority 2: Scan Finished (waiting for user confirmation)
             int count = candidates != null ? candidates.size() : 0;

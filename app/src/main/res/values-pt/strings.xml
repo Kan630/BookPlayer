@@ -666,6 +666,7 @@
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">Uma mídia diferente com o mesmo nome já havia sido carregada</string>
     <string name="the_name_will_be_changed_to">, o nome será alterado para: </string>
     <string name="listing_and_sorting_tracks">listando e ordenando as faixas</string>
+    <string name="Scanning_3dots">Verificando…</string>
     <string name="scanning_tracks">escaneando as faixas</string>
     <string name="saving_folder">registrando pasta</string>
     <string name="saving_track">registrando faixa</string>

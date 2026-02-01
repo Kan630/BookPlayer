@@ -663,6 +663,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">Un medio diferente con el mismo nombre ya había sido cargado</string>
     <string name="the_name_will_be_changed_to">, el nombre se cambiará a: </string>
     <string name="listing_and_sorting_tracks">listando y ordenando pistas</string>
+    <string name="Scanning_3dots">Escaneando…</string>
     <string name="scanning_tracks">escaneando pistas</string>
     <string name="saving_folder">guardando carpeta</string>
     <string name="saving_track">guardando pista</string>

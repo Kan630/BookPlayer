@@ -665,6 +665,7 @@
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">تم تحميل وسائط مختلفة بنفس الاسم مسبقًا</string>
     <string name="the_name_will_be_changed_to">، سيتم تغيير الاسم إلى: </string>
     <string name="listing_and_sorting_tracks">إدراج وفرز المقاطع</string>
+    <string name="Scanning_3dots">جاري الفحص…</string>
     <string name="scanning_tracks">فحص المقاطع</string>
     <string name="saving_folder">حفظ المجلد</string>
     <string name="saving_track">حفظ المقطع</string>

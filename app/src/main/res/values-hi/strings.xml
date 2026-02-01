@@ -669,6 +669,7 @@
     <string name="A_different_media_with_the_same_name_had_already_been_loaded">उसी नाम वाला भिन्न मीडिया पहले से लोड था</string>
     <string name="the_name_will_be_changed_to">, नाम बदलकर यह किया जाएगा : </string>
     <string name="listing_and_sorting_tracks">ट्रैक्स सूचीबद्ध और क्रमबद्ध कर रहे हैं</string>
+    <string name="Scanning_3dots">स्कैन हो रहा है…</string>
     <string name="scanning_tracks">ट्रैक्स स्कैन कर रहे हैं</string>
     <string name="saving_folder">फ़ोल्डर पंजीकृत कर रहे हैं</string>
     <string name="saving_track">ट्रैक पंजीकृत कर रहे हैं</string>
