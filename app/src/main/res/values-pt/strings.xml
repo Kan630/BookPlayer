@@ -217,6 +217,12 @@
     <string name="reset_app">Redefinir app</string>
     <string name="add_book">adicionar livro</string>
 
+    <!-- Short labels for bottom nav only -->
+    <string name="nav_library">biblioteca</string>
+    <string name="nav_add_book">Adicionar</string>
+    <string name="nav_radio">rádio</string>
+    <string name="nav_podcasts">podcasts</string>
+    <string name="nav_settings">Config.</string>
 
     <string name="Not_enough_memory">Memória insuficiente</string>
 

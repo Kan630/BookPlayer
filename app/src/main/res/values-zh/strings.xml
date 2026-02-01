@@ -217,6 +217,12 @@
     <string name="reset_app">重置应用</string>
     <string name="add_book">添加书籍</string>
 
+    <!-- Short labels for bottom nav only -->
+    <string name="nav_library">资料库</string>
+    <string name="nav_add_book">添加</string>
+    <string name="nav_radio">广播</string>
+    <string name="nav_podcasts">播客</string>
+    <string name="nav_settings">设置</string>
 
     <string name="Not_enough_memory">内存不足</string>
 

@@ -217,6 +217,12 @@
     <string name="reset_app">ऐप रीसेट करें</string>
     <string name="add_book">पुस्तक जोड़ें</string>
 
+    <!-- Short labels for bottom nav only -->
+    <string name="nav_library">लाइब्रेरी</string>
+    <string name="nav_add_book">जोड़ें</string>
+    <string name="nav_radio">रेडियो</string>
+    <string name="nav_podcasts">पॉडकास्ट</string>
+    <string name="nav_settings">सेटिंग्स</string>
 
     <string name="Not_enough_memory">पर्याप्त मेमोरी नहीं</string>
 

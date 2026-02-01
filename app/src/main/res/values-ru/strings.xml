@@ -217,6 +217,12 @@
     <string name="reset_app">Сбросить приложение</string>
     <string name="add_book">добавить книгу</string>
 
+    <!-- Short labels for bottom nav only -->
+    <string name="nav_library">библиотека</string>
+    <string name="nav_add_book">Добавить</string>
+    <string name="nav_radio">радио</string>
+    <string name="nav_podcasts">подкасты</string>
+    <string name="nav_settings">настройки</string>
 
     <string name="Not_enough_memory">Недостаточно памяти</string>
 
