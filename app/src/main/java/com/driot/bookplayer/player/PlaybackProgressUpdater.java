@@ -69,22 +69,20 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 if (r > 0) {
                     myLogD("zik updated " + String.valueOf(timestamp).substring(8) + " (" + zf.getName() + ") pos=" + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - " + zf.getPercentdone() + "%");
                     Sql.calculateFolderProgress(app, zf.getIdFolder());
+                    // PlayTick only when ZikFile still exists in DB (avoids FK constraint)
+                    if (!finished) {
+                        try {
+                            PlayTick tick = new PlayTick(timestamp, zf.getId(), pos);
+                            AppDatabase.getDatabase(app).playTickDao().insert(tick);
+                        } catch (Throwable t) {
+                            myLogEE(t, "playTick insert exception for [" + zf.getDisplayName() + "] - pos=" + pos);
+                        }
+                    }
                 } else {
                     myLogEE(null,"update failed for " + zf.getName());
                 }
             } catch (Throwable t) {
                 myLogEE(t, "update exception");
-            }
-
-            //PlayTick
-            if (!finished) {
-                try {
-                    PlayTick tick = new PlayTick(timestamp, zf.getId(), pos);
-                    AppDatabase.getDatabase(app).playTickDao().insert(tick);
-                } catch (Throwable t) {
-                    myLogEE(t, "playTick insert exception for [" + zf.getDisplayName() + "] - pos=" + pos);
-                }
-
             }
 
         });

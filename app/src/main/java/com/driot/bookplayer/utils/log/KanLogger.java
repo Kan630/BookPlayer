@@ -213,9 +213,12 @@ public class KanLogger {
                 androidErrorMessage = t.getMessage();
                 FirebaseCrashlytics.getInstance().recordException(t);
                 strFirebaseLog = strFirebaseLog + " - " + t.getMessage();
+            } else {
+                // Record as non-fatal so myLogEE(null, message) shows in Crashlytics
+                FirebaseCrashlytics.getInstance().recordException(new RuntimeException("LogEE: " + strFirebaseLog));
             }
             FirebaseCrashlytics.getInstance().log(strFirebaseLog);
-            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "myLogEE");
+            FirebaseAnalyticsHelper.tellAnalyticsLogee(parsePrefix(prefix) + " " + str, androidErrorMessage, "LogEE");
         } catch (Throwable ignored) {
         } // Never let Crashlytics reporting crash the app
     }
