@@ -39,15 +39,6 @@ import dagger.hilt.android.HiltAndroidApp;
 public class MyApp extends Application {
 
     private static InAppPeriodicTaskManager periodicTaskManager;
-/*
-//COMMENTED BECAUSE IT BREAKS night Mode when user switch in device settings
-//There is the same method in LoggingActivity
-    @Override
-    protected void attachBaseContext(Context base) {
-        super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(base));
-    }
-
- */
 
     public static InAppPeriodicTaskManager getPeriodicTaskManager(Context context) {
         if (periodicTaskManager == null) {

@@ -55,10 +55,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
     private LiveLogFragment liveLogFragment;
     private FrameLayout liveLogContainer;
 
-    // protected final LoggerHelper logger = new LoggerHelper(getClass());
-
-    //Funny Method, not sure what it is for, App Language I presume, for old devices
-    //Was also in MyApp, commented there
+    //WRAPPING OF THE CONTEXT - DO NOT DO IN MYAPP, or you will fix the context forever, and then device system changes like darkmode are just ignored by the app... here : any conf change trigger an activity recreation, so context will be wrapped again
+    //It's supposed to allow easier App Language change for old devices
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(newBase));
