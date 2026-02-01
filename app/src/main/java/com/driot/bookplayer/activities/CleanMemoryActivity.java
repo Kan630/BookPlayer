@@ -59,7 +59,10 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         progressContainer.bringToFront();
 
         ImageButton btnRefresh = findViewById(R.id.btn_clean_memory_refresh);
-        btnRefresh.setOnClickListener(v -> cacheFilesViewModel.refreshStorageCache(this));
+        btnRefresh.setOnClickListener(v -> {
+            myLogI("---- USER TOGGLE REFRESH BUTTON ----");
+            cacheFilesViewModel.refreshStorageCache(this, cacheFilesViewModel.isUsingInternal());
+        });
 
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 

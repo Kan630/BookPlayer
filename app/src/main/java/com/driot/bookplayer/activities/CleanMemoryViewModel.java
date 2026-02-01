@@ -91,13 +91,18 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     }
 
     /**
-     * Trigger full storage recalculate; show progress in UI until complete, then reload from cache.
+     * Trigger storage recalculate for the current view; show progress in UI until complete, then reload from cache.
+     * @param context       application context
+     * @param internalView  true if user is on internal storage view (recalc internal only), false for SD card view (recalc SD only)
      */
-    public void refreshStorageCache(android.content.Context context) {
+    public void refreshStorageCache(android.content.Context context, boolean internalView) {
         if (isRefreshing.getValue() != null && isRefreshing.getValue()) return;
         refreshStartTime.postValue(System.currentTimeMillis());
         isRefreshing.postValue(true);
-        StorageInfoCacheHelper.recalculate(context, true, true, new StorageInfoCacheHelper.RecalculateProgressCallback() {
+        final boolean internalOnly = internalView;
+        final boolean sdCardOnly = !internalView;
+        myLog("refreshing storage cache - internal: [" + internalOnly + "], SD: [" + sdCardOnly + "]");
+        StorageInfoCacheHelper.recalculate(context, internalOnly, sdCardOnly, new StorageInfoCacheHelper.RecalculateProgressCallback() {
             @Override
             public void onProgress(int elapsedSec, String phaseMessage, boolean isSdCardPhase) {
                 // Optional: could post progress for phase-based message
