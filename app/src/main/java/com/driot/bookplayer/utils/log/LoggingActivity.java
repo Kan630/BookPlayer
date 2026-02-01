@@ -55,6 +55,9 @@ public abstract class LoggingActivity extends AppCompatActivity {
     private LiveLogFragment liveLogFragment;
     private FrameLayout liveLogContainer;
 
+    /** Last uiMode night mask, to detect system dark/light change when in "follow system" mode. */
+    private int lastNightModeUiMode = -1;
+
     // protected final LoggerHelper logger = new LoggerHelper(getClass());
 
     @Override
@@ -89,6 +92,8 @@ public abstract class LoggingActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
+
+        lastNightModeUiMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         String calledBy = CallerInspector.inferCaller(this, Intents.EXTRA_CALLER);
 
@@ -234,10 +239,20 @@ public abstract class LoggingActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) { // Notamment le changement de Locale
+    public void onConfigurationChanged(@NonNull Configuration newConfig) { // Notamment le changement de Locale, uiMode (dark/light)
         super.onConfigurationChanged(newConfig);
         if (LOG_LIFECYCLE_TRACE)
             myLifecycleLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
+
+        // When device dark/light mode changes and app is in "follow system", recreate so theme updates.
+        int newNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
+        KanLogger.myLogW("conf change : " + newNightMode);
+        if (lastNightModeUiMode != -1 && newNightMode != lastNightModeUiMode && Option.getNightMode().equals("SYSTEM")) {
+            Option.applyNightMode();
+            KanLogger.myLogW("recreate");
+            recreate();
+        }
+        lastNightModeUiMode = newNightMode;
     }
 
     /// ///////////////////////////////////////////////////////////////////
