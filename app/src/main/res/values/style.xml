@@ -8,7 +8,7 @@
     </style>
 
     <style name="RecyclerBackground">
-        <item name="android:background">?attr/colorSecondary</item>
+        <item name="android:background">?attr/colorSurface</item>
     </style>
 
     <style name="textColor" parent="TextAppearance.AppCompat">

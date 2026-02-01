@@ -1,15 +1,20 @@
-<androidx.cardview.widget.CardView
+<com.google.android.material.card.MaterialCardView
     android:id="@+id/cardView"
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+
+    android:layout_marginBottom="3dp"
+    android:descendantFocusability="afterDescendants"
+
     app:cardElevation="2dp"
     app:cardCornerRadius="8dp"
     app:cardBackgroundColor="?attr/colorSurfaceVariant"
-    android:layout_marginBottom="3dp"
-    android:descendantFocusability="afterDescendants"
-    >
+
+    app:strokeWidth="1dp"
+    app:strokeColor="?attr/colorOutline">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -29,127 +34,127 @@
             android:clickable="true"
             android:contentDescription="@string/reorder" />
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@drawable/bg_row"
-        android:padding="2dp">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/recyclerview_between_cardView"
-        android:layout_marginTop="@dimen/recyclerview_between_cardView"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        android:duplicateParentState="true"
-        >
-        <TextView
-            android:id="@+id/tvBookName"
-            android:text="@string/audio_tracks"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingVertical="0dp"
-            android:paddingHorizontal="5dp"
-            android:layout_marginTop="@dimen/recyclerview_elements_top"
-            android:layout_marginLeft="@dimen/recyclerview_elements_sides"
-            android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            android:textColor="?attr/colorOnSurface"
-            android:textSize="16sp"
-            app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
-            />
+            android:background="@drawable/bg_row"
+            android:padding="2dp">
 
-        <androidx.constraintlayout.widget.Guideline
-            android:id="@+id/guideline"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            app:layout_constraintGuide_percent="0.75" />
-
-        <FrameLayout
-            android:id="@+id/heatMapContainer"
-            android:layout_width="0dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-            android:layout_marginLeft="@dimen/recyclerview_elements_sides"
-            android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            app:layout_constraintTop_toBottomOf="@id/tvBookName"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/guideline">
-
-            <!-- Heatmap as background -->
-            <com.driot.bookplayer.player.heatmaps.PlayHeatMapView
-                android:id="@+id/heatMapView"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:heatmapColor="?attr/colorPrimary"
-                />
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="@dimen/recyclerview_between_cardView"
+                android:layout_marginTop="@dimen/recyclerview_between_cardView"
+                android:layout_marginStart="0dp"
+                android:layout_marginEnd="0dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:duplicateParentState="true"
+                >
+                <TextView
+                    android:id="@+id/tvBookName"
+                    android:text="@string/audio_tracks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="0dp"
+                    android:paddingHorizontal="5dp"
+                    android:layout_marginTop="@dimen/recyclerview_elements_top"
+                    android:layout_marginLeft="@dimen/recyclerview_elements_sides"
+                    android:layout_marginRight="@dimen/recyclerview_elements_sides"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
+                    app:layout_constraintBottom_toTopOf="@id/textViewFilePercent"
+                    />
 
-            <!-- Classic progress bar on top -->
-            <ProgressBar
-                android:id="@+id/progressBar"
-                style="@android:style/Widget.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:progress="20"
-                android:progressDrawable="@drawable/progress_bar_theme"
-                />
+                <androidx.constraintlayout.widget.Guideline
+                    android:id="@+id/guideline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    app:layout_constraintGuide_percent="0.75" />
 
-        </FrameLayout>
+                <FrameLayout
+                    android:id="@+id/heatMapContainer"
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="@dimen/recyclerview_elements_bottom"
+                    android:layout_marginLeft="@dimen/recyclerview_elements_sides"
+                    android:layout_marginRight="@dimen/recyclerview_elements_sides"
+                    app:layout_constraintTop_toBottomOf="@id/tvBookName"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    app:layout_constraintRight_toLeftOf="@+id/guideline">
 
+                    <!-- Heatmap as background -->
+                    <com.driot.bookplayer.player.heatmaps.PlayHeatMapView
+                        android:id="@+id/heatMapView"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:heatmapColor="?attr/colorPrimary"
+                        />
 
-        <TextView
-            android:id="@+id/textViewFilePercent"
-            android:layout_width="50dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-            android:gravity="center"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toBottomOf="@id/tvBookName"
-            app:layout_constraintRight_toRightOf="@id/guideline"
-            android:layout_marginStart="0dp"
-            android:layout_marginEnd="20dp"
-            android:text="...xx%..." />
+                    <!-- Classic progress bar on top -->
+                    <ProgressBar
+                        android:id="@+id/progressBar"
+                        style="@android:style/Widget.ProgressBar.Horizontal"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:progress="20"
+                        android:progressDrawable="@drawable/progress_bar_theme"
+                        />
 
-        <TextView
-            android:id="@+id/textViewDuration"
-            android:layout_width="0dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-            android:layout_marginStart="20dp"
-            android:layout_marginEnd="@dimen/recyclerview_elements_sides"
-            android:textColor="?attr/colorOnSurface"
-            app:layout_constraintTop_toBottomOf="@id/tvBookName"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:text="..."
-            app:layout_constraintRight_toLeftOf="@+id/textViewFilePercent"
-            android:maxLines="1"
-            android:ellipsize="end" />
-
-        <TextView
-            android:id="@+id/textViewFileLastAccess"
-            android:text="..."
-            android:layout_width="0dp"
-            android:layout_height="20dp"
-            android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-            android:layout_marginLeft="@dimen/recyclerview_elements_sides"
-            android:layout_marginRight="@dimen/recyclerview_elements_sides"
-            android:paddingTop="@dimen/recyclerview_padding_text_vertical"
-            android:paddingBottom="@dimen/recyclerview_padding_text_vertical"
-            android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
-            android:paddingEnd="@dimen/recyclerview_padding_text_horizontal"
-            android:gravity="center_vertical"
-            android:background="@color/cardBackgroundTextView"
-            android:textColor="@color/cardBackgroundLightTextInTextView"
-            app:layout_constraintTop_toBottomOf="@id/tvBookName"
-            app:layout_constraintLeft_toLeftOf="@+id/guideline"
-            app:layout_constraintRight_toRightOf="parent"
-            />
+                </FrameLayout>
 
 
+                <TextView
+                    android:id="@+id/textViewFilePercent"
+                    android:layout_width="50dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="@dimen/recyclerview_elements_bottom"
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnSurface"
+                    app:layout_constraintTop_toBottomOf="@id/tvBookName"
+                    app:layout_constraintRight_toRightOf="@id/guideline"
+                    android:layout_marginStart="0dp"
+                    android:layout_marginEnd="20dp"
+                    android:text="...xx%..." />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-</androidx.constraintlayout.widget.ConstraintLayout>
+                <TextView
+                    android:id="@+id/textViewDuration"
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="@dimen/recyclerview_elements_bottom"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginEnd="@dimen/recyclerview_elements_sides"
+                    android:textColor="?attr/colorOnSurface"
+                    app:layout_constraintTop_toBottomOf="@id/tvBookName"
+                    app:layout_constraintLeft_toLeftOf="parent"
+                    android:text="..."
+                    app:layout_constraintRight_toLeftOf="@+id/textViewFilePercent"
+                    android:maxLines="1"
+                    android:ellipsize="end" />
+
+                <TextView
+                    android:id="@+id/textViewFileLastAccess"
+                    android:text="..."
+                    android:layout_width="0dp"
+                    android:layout_height="20dp"
+                    android:layout_marginTop="@dimen/recyclerview_elements_bottom"
+                    android:layout_marginLeft="@dimen/recyclerview_elements_sides"
+                    android:layout_marginRight="@dimen/recyclerview_elements_sides"
+                    android:paddingTop="@dimen/recyclerview_padding_text_vertical"
+                    android:paddingBottom="@dimen/recyclerview_padding_text_vertical"
+                    android:paddingStart="@dimen/recyclerview_padding_text_horizontal"
+                    android:paddingEnd="@dimen/recyclerview_padding_text_horizontal"
+                    android:gravity="center_vertical"
+                    android:background="@color/cardBackgroundTextView"
+                    android:textColor="@color/cardBackgroundLightTextInTextView"
+                    app:layout_constraintTop_toBottomOf="@id/tvBookName"
+                    app:layout_constraintLeft_toLeftOf="@+id/guideline"
+                    app:layout_constraintRight_toRightOf="parent"
+                    />
+
+
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+</com.google.android.material.card.MaterialCardView>
