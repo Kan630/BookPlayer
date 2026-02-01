@@ -218,10 +218,10 @@
     <string name="add_book">Buch hinzufügen</string>
 
     <!-- Short labels for bottom nav only -->
-    <string name="nav_library">bibliothek</string>
+    <string name="nav_library">Bibliothek</string>
     <string name="nav_add_book">Hinzufügen</string>
     <string name="nav_radio">Radio</string>
-    <string name="nav_podcasts">podcasts</string>
+    <string name="nav_podcasts">Podcasts</string>
     <string name="nav_settings">Einstell.</string>
 
     <string name="Not_enough_memory">Nicht genug Speicher</string>

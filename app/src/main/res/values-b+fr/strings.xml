@@ -224,9 +224,9 @@
     <!-- Short labels for bottom nav only -->
     <string name="nav_library">Biblio</string>
     <string name="nav_add_book">Ajouter</string>
-    <string name="nav_radio">radio</string>
-    <string name="nav_podcasts">podcasts</string>
-    <string name="nav_settings">paramètres</string>
+    <string name="nav_radio">Radio</string>
+    <string name="nav_podcasts">Podcasts</string>
+    <string name="nav_settings">Paramètres</string>
 
     <string name="Not_enough_memory">Mémoire insuffisante</string>
 

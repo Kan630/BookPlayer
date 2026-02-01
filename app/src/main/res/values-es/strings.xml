@@ -218,11 +218,11 @@
     <string name="add_book">añadir libro</string>
 
     <!-- Short labels for bottom nav only (same length as main, kept for consistency) -->
-    <string name="nav_library">biblioteca</string>
-    <string name="nav_add_book">añadir libro</string>
-    <string name="nav_radio">radio</string>
-    <string name="nav_podcasts">pódcast</string>
-    <string name="nav_settings">ajustes</string>
+    <string name="nav_library">Biblioteca</string>
+    <string name="nav_add_book">Añadir libro</string>
+    <string name="nav_radio">Radio</string>
+    <string name="nav_podcasts">Pódcast</string>
+    <string name="nav_settings">Ajustes</string>
 
     <string name="Not_enough_memory">Memoria insuficiente</string>
 
