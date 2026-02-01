@@ -40,6 +40,13 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.player.heatmaps.PlayHeatMapView;
+import com.driot.bookplayer.player.heatmaps.PlaySession;
+import com.driot.bookplayer.player.heatmaps.PlaySessionDao;
+import com.driot.bookplayer.player.heatmaps.PlayTickBucket;
+import com.driot.bookplayer.player.heatmaps.PlayTickBucketMerger;
+import com.driot.bookplayer.player.heatmaps.PlayTickDao;
+import com.driot.bookplayer.player.heatmaps.PlayTickHeatMapHelper;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
@@ -52,6 +59,8 @@ import com.driot.bookplayer.utils.log.BaseActivity;
 import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 
+import java.util.List;
+
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
@@ -62,7 +71,14 @@ public class PlayActivity extends BaseActivity {
     private MaterialButton bPlayPause, bRewind, bForward;
     private Button bSpeedUp, bSpeedDown, bSetSleep;
     private Slider sbSeek;
+    private PlayHeatMapView heatMapSeek;
     private UiHelper.SliderBinding sliderBinding;
+    private boolean useHeatMapSeek;
+    private int lastHeatMapTrackId = -1;
+    private long lastHeatMapDurationMs = 0;
+    private long lastHeatMapLoadTime = 0;
+    /** Match MediaService.DELAY_CHECK_TIMER_SLEEP (1s) so colored bar updates with new PlayTicks. */
+    private static final long HEATMAP_REFRESH_INTERVAL_MS = 1000;
     private TextView tvCurTime, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
 
@@ -159,25 +175,29 @@ public class PlayActivity extends BaseActivity {
         tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
 
         sbSeek = findViewById(R.id.sbSeek);
+        heatMapSeek = findViewById(R.id.heatMapSeek);
         ivCover = findViewById(R.id.folderImage);
         ivCover.setImageURI(null);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
-        sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
-        // Re-enable TTS auto-follow when user finishes a seek
-        sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-            @Override
-            public void onStartTrackingTouch(@NonNull Slider slider) {
-                // (optional) while user drags, you can temporarily stop auto-scroll if you want
-                // suppressAutoScroll = true;
-            }
+        useHeatMapSeek = Option.getProgressHeatMap();
+        if (useHeatMapSeek && heatMapSeek != null) {
+            sbSeek.setVisibility(View.GONE);
+            heatMapSeek.setVisibility(View.VISIBLE);
+            setupHeatMapSeek();
+        } else {
+            if (heatMapSeek != null) heatMapSeek.setVisibility(View.GONE);
+            sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
+            sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+                @Override
+                public void onStartTrackingTouch(@NonNull Slider slider) { }
 
-            @Override
-            public void onStopTrackingTouch(@NonNull Slider slider) {
-                // User picked a new position → let TTS word tracking resume
-                suppressAutoScroll = false;
-            }
-        });
+                @Override
+                public void onStopTrackingTouch(@NonNull Slider slider) {
+                    suppressAutoScroll = false;
+                }
+            });
+        }
 
         ttsContainer = findViewById(R.id.ttsContainer);
         tvTtsText = findViewById(R.id.tvTtsText);
@@ -288,12 +308,30 @@ public class PlayActivity extends BaseActivity {
             }
             reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
-            // Title/sub
-            UiHelper.FillUiBasic(s, null, null, tvTitle, tvSubTitle, null, null, sbSeek, null, null);
+            // Title/sub; when heatmap seek, pass null for slider so time is still updated
+            UiHelper.FillUiBasic(s, null, null, tvTitle, tvSubTitle, tvCurTime, null, useHeatMapSeek ? null : sbSeek, null, null);
 
-            // Seek/progress: sliderBinding handles slider + current time label
+            // Seek/progress
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
+
+            if (useHeatMapSeek && heatMapSeek != null && s.durationMs > 0) {
+                float norm = (float) Math.min(s.positionMs, s.durationMs) / s.durationMs;
+                heatMapSeek.setPlayingCursor(norm);
+                heatMapSeek.setCursors(new float[0]);
+                if (s.trackId > 0) {
+                    boolean trackOrDurationChanged = (s.trackId != lastHeatMapTrackId || s.durationMs != lastHeatMapDurationMs);
+                    boolean refreshDue = (System.currentTimeMillis() - lastHeatMapLoadTime >= HEATMAP_REFRESH_INTERVAL_MS);
+                    if (trackOrDurationChanged || refreshDue) {
+                        if (trackOrDurationChanged) {
+                            lastHeatMapTrackId = s.trackId;
+                            lastHeatMapDurationMs = s.durationMs;
+                        }
+                        lastHeatMapLoadTime = System.currentTimeMillis();
+                        loadHeatMapIntensities(s.trackId, s.durationMs);
+                    }
+                }
+            }
 
             boolean isTts = "tts".equals(s.playMode);
             boolean isStarting = Intents.PHASE_STARTING.equals(s.loadPhase);
@@ -464,6 +502,57 @@ public class PlayActivity extends BaseActivity {
         if (ttsHighlighter != null)
             ttsHighlighter.onDestroy();
         super.onDestroy();
+    }
+
+    // ---------- Heatmap seek (when Option.getProgressHeatMap()) ----------
+
+    private void setupHeatMapSeek() {
+        if (heatMapSeek == null) return;
+        heatMapSeek.setOnTouchListener((v, event) -> {
+            PlaybackUiState s = vm.getState().getValue();
+            if (s == null || s.durationMs <= 0) return false;
+            int w = heatMapSeek.getWidth();
+            if (w <= 0) return false;
+            float x = event.getX();
+            float ratio = Math.max(0f, Math.min(1f, x / w));
+            long seekMs = (long) (ratio * s.durationMs);
+            switch (event.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_MOVE:
+                    vm.setSeekPreview(seekMs);
+                    tvCurTime.setText(Tonio.formatHhMmSs(seekMs) + " / " + Tonio.formatHhMmSs(s.durationMs));
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    vm.setSeekPreview(null);
+                    vm.seekTo(seekMs);
+                    suppressAutoScroll = false;
+                    return true;
+                default:
+                    return false;
+            }
+        });
+    }
+
+    private void loadHeatMapIntensities(long zikFileId, long durationMs) {
+        if (heatMapSeek == null || durationMs <= 0) return;
+        int nbBuckets = Math.max(1, Math.min((int) durationMs / 1000, Var.HEATMAP_PROGRESSBAR_BUCKET_SIZE));
+        long bucketSizeMs = Math.max(1L, durationMs / nbBuckets);
+        Context appCtx = getApplicationContext();
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            PlayTickDao tickDao = AppDatabase.getInstance(appCtx).playTickDao();
+            com.driot.bookplayer.player.heatmaps.PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx).playSessionDao();
+            List<PlayTickBucket> tickBuckets = tickDao.getBucketCounts(zikFileId, bucketSizeMs);
+            List<PlaySession> sessions = sessionDao.getAllForFile(zikFileId);
+            List<PlayTickBucket> sessionBuckets = PlaySessionDao.getBucketCounts(sessions, bucketSizeMs);
+            List<PlayTickBucket> buckets = PlayTickBucketMerger.merge(sessionBuckets, tickBuckets);
+            final float[] intensities = PlayTickHeatMapHelper.computeIntensities(buckets, durationMs, nbBuckets);
+            runOnUiThread(() -> {
+                if (heatMapSeek != null && lastHeatMapTrackId == zikFileId && lastHeatMapDurationMs == durationMs) {
+                    heatMapSeek.setIntensities(intensities);
+                }
+            });
+        });
     }
 
     // ---------- UI bits that used to call the service directly ----------

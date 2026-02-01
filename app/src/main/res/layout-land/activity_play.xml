@@ -311,15 +311,28 @@
                         android:textAppearance="?android:attr/textAppearanceSmall"
                         android:layout_marginStart="16dp" />
                 </LinearLayout>
-                <com.google.android.material.slider.Slider
-                    android:id="@+id/sbSeek"
+                <FrameLayout
+                    android:id="@+id/seekContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_above="@+id/llCommandButtons"
-                    app:trackHeight="2dp"
-                    app:trackColor="?attr/colorSecondary"
-                    app:thumbColor="?attr/colorSecondary"
-                    />
+                    android:minHeight="32dp">
+
+                    <com.google.android.material.slider.Slider
+                        android:id="@+id/sbSeek"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        app:trackHeight="2dp"
+                        app:trackColor="?attr/colorSecondary"
+                        app:thumbColor="?attr/colorSecondary"
+                        />
+                    <com.driot.bookplayer.player.heatmaps.PlayHeatMapView
+                        android:id="@+id/heatMapSeek"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:visibility="gone"
+                        app:heatmapColor="?attr/colorPrimary"
+                        />
+                </FrameLayout>
             </LinearLayout>
 
 
