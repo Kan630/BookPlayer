@@ -51,6 +51,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.MetadataUi;
@@ -508,6 +509,9 @@ public class PlayActivity extends BaseActivity {
 
     // ---------- Heatmap seek (when Option.getProgressHeatMap()) ----------
 
+    /** Half-width (px) of the touch zone centered on the cursor; total zone = 2 * this. */
+    private static final int HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP = 40;
+
     private void setupHeatMapSeek() {
         if (heatMapSeek == null) return;
         heatMapSeek.setOnTouchListener((v, event) -> {
@@ -519,12 +523,18 @@ public class PlayActivity extends BaseActivity {
             float ratio = Math.max(0f, Math.min(1f, x / w));
             long seekMs = (long) (ratio * s.durationMs);
             switch (event.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
+                case MotionEvent.ACTION_DOWN: {
+                    float cursorX = (s.positionMs / (float) s.durationMs) * w;
+                    float halfZonePx = ViewHelper.dp(this, HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP);
+                    if (x < cursorX - halfZonePx || x > cursorX + halfZonePx) {
+                        return false;
+                    }
                     heatMapSeekStartPositionMs = s.positionMs;
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
                     tvCurTime.setText(Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
                     return true;
+                }
                 case MotionEvent.ACTION_MOVE:
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
