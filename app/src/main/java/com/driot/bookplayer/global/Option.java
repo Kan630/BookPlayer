@@ -89,6 +89,8 @@ public class Option {
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
+    private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
+    private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -194,6 +196,14 @@ public class Option {
 
     public static void setRadioRemoveSpamStations(boolean bool) {
         prefs.edit().putBoolean("RADIO_REMOVE_SPAM_STATIONS", bool).apply();
+    }
+
+    public static boolean getRadioOpenFavoritesFirst() {
+        return prefs.getBoolean("RADIO_OPEN_FAVORITES_FIRST", DEFAULT_RADIO_OPEN_FAVORITES_FIRST);
+    }
+
+    public static void setRadioOpenFavoritesFirst(boolean bool) {
+        prefs.edit().putBoolean("RADIO_OPEN_FAVORITES_FIRST", bool).apply();
     }
 
     /////////////////// HEAT_MAPS ///////////////////
@@ -628,6 +638,14 @@ public class Option {
 
     public static boolean getPodcastOpenSpecificView() {
         return prefs.getBoolean("PODCAST_OPEN_SPECIFIC_VIEW", DEFAULT_PODCAST_OPEN_SPECIFIC_VIEW);
+    }
+
+    public static boolean getPodcastOpenFavoritesFirst() {
+        return prefs.getBoolean("PODCAST_OPEN_FAVORITES_FIRST", DEFAULT_PODCAST_OPEN_FAVORITES_FIRST);
+    }
+
+    public static void setPodcastOpenFavoritesFirst(boolean bool) {
+        prefs.edit().putBoolean("PODCAST_OPEN_FAVORITES_FIRST", bool).apply();
     }
 
     public static void setPodcastAddDateToEpisodeName(boolean bool) {

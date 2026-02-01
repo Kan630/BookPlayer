@@ -20,6 +20,7 @@ import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.radio.RadioStationDao;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -77,7 +78,7 @@ public class NavHelper {
             myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
         }
 
-        if (hasFavOrHistory) {
+        if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
             // Build back stack: Main -> GetRadio -> RadioFavorites
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
@@ -166,7 +167,7 @@ public class NavHelper {
                 Intent mainIntent = new Intent(activity, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-                if (hasFavOrHistory) {
+                if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
                     // 1) Base screen in stack: radio search/list
                     Intent listIntent = new Intent(activity, GetRadioActivity.class);
 
@@ -207,7 +208,7 @@ public class NavHelper {
                 Intent mainIntent = new Intent(activity, MainActivity.class);
                 mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
 
-                if (nbFavorite > 0) {
+                if (Option.getPodcastOpenFavoritesFirst() && nbFavorite > 0) {
                     // 1) Base screen in stack
                     Intent listIntent = new Intent(activity, GetPodcastActivity.class);
 

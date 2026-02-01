@@ -27,6 +27,7 @@ public class PodcastSettingsFragment extends LoggingFragment {
     private CheckBox chk_podcast_episodes_expand;
     private CheckBox chk_podcast_autodownloaded_at_the_top;
     private CheckBox chk_podcast_open_specific_view;
+    private CheckBox chk_podcast_open_favorites_first;
     private CheckBox chk_podcast_add_date_to_episode_name;
 
     private LinearLayout ll_podcast_auto_delete;
@@ -34,6 +35,7 @@ public class PodcastSettingsFragment extends LoggingFragment {
     private LinearLayout ll_podcast_episodes_expand;
     private LinearLayout ll_podcast_autodownloaded_at_the_top;
     private LinearLayout ll_podcast_open_specific_view;
+    private LinearLayout ll_podcast_open_favorites_first;
     private LinearLayout ll_podcast_add_date_to_episode_name;
 
 
@@ -55,6 +57,13 @@ public class PodcastSettingsFragment extends LoggingFragment {
         View root = inflater.inflate(R.layout.fragment_settings_podcast, container, false);
 
         // ====== CHECKBOXES ======
+        chk_podcast_open_favorites_first = root.findViewById(R.id.chk_podcast_open_favorites_first);
+        ll_podcast_open_favorites_first  = root.findViewById(R.id.ll_podcast_open_favorites_first);
+        chk_podcast_open_favorites_first.setChecked(Option.getPodcastOpenFavoritesFirst());
+        ll_podcast_open_favorites_first.setOnClickListener(v -> chk_podcast_open_favorites_first.toggle());
+        chk_podcast_open_favorites_first.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setPodcastOpenFavoritesFirst(isChecked));
+
         chk_podcast_open_specific_view = root.findViewById(R.id.chk_podcast_open_specific_view);
         ll_podcast_open_specific_view  = root.findViewById(R.id.ll_podcast_open_specific_view);
         chk_podcast_open_specific_view.setChecked(Option.getPodcastOpenSpecificView());

@@ -24,8 +24,10 @@ public class RadioSettingsFragment extends LoggingFragment {
     private EditText et_option_radio_sleep_value;
     private CheckBox chk_option_radio_sleep_copy;
     private CheckBox chk_option_radio_remove_duplicates;
+    private CheckBox chk_option_radio_open_favorites_first;
     private LinearLayout ll_option_radio_sleep_value;
     private LinearLayout ll_option_radio_remove_duplicates;
+    private LinearLayout ll_option_radio_open_favorites_first;
 
 
     @Nullable @Override
@@ -63,6 +65,12 @@ public class RadioSettingsFragment extends LoggingFragment {
         chk_option_radio_remove_duplicates.setChecked(Option.getRadioRemoveSpamStations());
         ll_option_radio_remove_duplicates.setOnClickListener(v -> chk_option_radio_remove_duplicates.toggle());
         chk_option_radio_remove_duplicates.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRemoveSpamStations(isChecked));
+
+        ll_option_radio_open_favorites_first = root.findViewById(R.id.ll_option_radio_open_favorites_first);
+        chk_option_radio_open_favorites_first = root.findViewById(R.id.chk_option_radio_open_favorites_first);
+        chk_option_radio_open_favorites_first.setChecked(Option.getRadioOpenFavoritesFirst());
+        ll_option_radio_open_favorites_first.setOnClickListener(v -> chk_option_radio_open_favorites_first.toggle());
+        chk_option_radio_open_favorites_first.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioOpenFavoritesFirst(isChecked));
 
         chk_option_radio_sleep_copy = root.findViewById(R.id.chk_option_radio_sleep_copy);
         LinearLayout ll_option_radio_sleep_copy = root.findViewById(R.id.ll_option_radio_sleep_copy);

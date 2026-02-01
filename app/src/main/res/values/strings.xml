@@ -183,6 +183,7 @@
     <string name="subtitle">subtitle</string>
     <string name="tags">tags</string>
     <string name="Technical">Technical</string>
+    <string name="Navigation">Navigation</string>
     <string name="Text">Text</string>
     <string name="text_to_speech">text-to-speech</string>
     <string name="Text_To_Speech">Text-To-Speech</string>
@@ -456,6 +457,8 @@
     <string name="option_podcast_open_specific_view">Live view is default</string>
     <string name="option_podcast_open_specific_view_subtitle">If checked, when you tap a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf unchecked, it opens the \'book\' view with downloaded episodes.</string>
     <string name="option_podcast_open_specific_view_subtitle2">Note: You can switch between these views by tapping or double-tapping the cover image.</string>
+    <string name="option_podcast_open_favorites_first">Open favorites first</string>
+    <string name="option_podcast_open_favorites_first_subtitle">When you tap Podcast in the bottom bar, open your Favorites screen first. Press Back to reach the search screen and browse more podcasts.</string>
     <string name="option_podcast_autodownloaded_at_the_top">When new episodes are downloaded, move the podcast to the top of the audiobooks list.</string>
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
     <string name="option_playing_behaviour_title">Play behaviour</string>
@@ -974,6 +977,8 @@
     <string name="spam_fake_stations_removed">removed (spam?)</string>
     <string name="option_radio_remove_duplicates">remove duplicates</string>
     <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>
+    <string name="option_radio_open_favorites_first">Open favorites first</string>
+    <string name="option_radio_open_favorites_first_subtitle">When you tap Radio in the bottom bar, open your Favorites screen first. Press Back to reach the search screen and browse more stations.</string>
     <string name="option_radio_sleep_copy_subtitle">If checked, the auto-sleep value will be the same as in the general settings. If unchecked, you can specify a custom value for radio. Since there is no progress saving here, it doesn’t matter if you fall asleep and you could set a huge value.</string>
     <string name="no_results_found">no results found</string>
     <string name="getting_first_results_from">Getting first results from</string>
