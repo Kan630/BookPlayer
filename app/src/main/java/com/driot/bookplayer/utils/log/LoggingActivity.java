@@ -55,11 +55,10 @@ public abstract class LoggingActivity extends AppCompatActivity {
     private LiveLogFragment liveLogFragment;
     private FrameLayout liveLogContainer;
 
-    /** Last uiMode night mask, to detect system dark/light change when in "follow system" mode. */
-    private int lastNightModeUiMode = -1;
-
     // protected final LoggerHelper logger = new LoggerHelper(getClass());
 
+    //Funny Method, not sure what it is for, App Language I presume, for old devices
+    //Was also in MyApp, commented there
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(newBase));
@@ -92,8 +91,6 @@ public abstract class LoggingActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
-
-        lastNightModeUiMode = getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK;
 
         String calledBy = CallerInspector.inferCaller(this, Intents.EXTRA_CALLER);
 
@@ -238,21 +235,12 @@ public abstract class LoggingActivity extends AppCompatActivity {
             myLifecycleLog(TAG_FROM_BRACKET + "onNewIntent() + intent : " + intent.getAction());
     }
 
+    // Pour le changement de Locale (Language) + NightMode ? Does not seem really useful... since should be automatic, maybe do not temper !
     @Override
-    public void onConfigurationChanged(@NonNull Configuration newConfig) { // Notamment le changement de Locale, uiMode (dark/light)
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        if (LOG_LIFECYCLE_TRACE)
+        //if (LOG_LIFECYCLE_TRACE)
             myLifecycleLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
-
-        // When device dark/light mode changes and app is in "follow system", recreate so theme updates.
-        int newNightMode = newConfig.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        KanLogger.myLogW("conf change : " + newNightMode);
-        if (lastNightModeUiMode != -1 && newNightMode != lastNightModeUiMode && Option.getNightMode().equals("SYSTEM")) {
-            Option.applyNightMode();
-            KanLogger.myLogW("recreate");
-            recreate();
-        }
-        lastNightModeUiMode = newNightMode;
     }
 
     /// ///////////////////////////////////////////////////////////////////
