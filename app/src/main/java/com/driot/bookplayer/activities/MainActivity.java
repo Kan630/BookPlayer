@@ -380,16 +380,18 @@ public class MainActivity extends BaseBottomNavActivity {
         MaterialButton btnAlpha = dialogView.findViewById(R.id.btn_alpha);
         MaterialButton btnAdded = dialogView.findViewById(R.id.btn_added);
 
-        // Set initial checked button + direction suffix
+        // Set initial checked button + direction suffix (▲ ▼ = filled triangles, more visible than ↑ ↓)
+        // Alphabetical: reversed (▲ = Z→A, ▼ = A→Z) so it matches "list order" intuition
         int checkedId0;
-        String suffix0 = "desc".equals(currentDir) ? " ↓" : " ↑";
+        String suffix0 = "desc".equals(currentDir) ? " \u25BC" : " \u25B2";
+        String suffixAlpha = "desc".equals(currentDir) ? " \u25B2" : " \u25BC";
 
         if ("last_played".equals(currentMode)) {
             checkedId0 = R.id.btn_last_played;
             btnLastPlayed.setText(getString(R.string.sort_last_played) + suffix0);
         } else if ("alpha".equals(currentMode) || "alphabetical".equals(currentMode)) {
             checkedId0 = R.id.btn_alpha;
-            btnAlpha.setText(getString(R.string.Alphabetically) + suffix0);
+            btnAlpha.setText(getString(R.string.Alphabetically) + suffixAlpha);
         } else { // added / last_added
             checkedId0 = R.id.btn_added;
             btnAdded.setText(getString(R.string.sort_last_added) + suffix0);
