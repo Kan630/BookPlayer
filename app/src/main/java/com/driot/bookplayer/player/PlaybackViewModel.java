@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
@@ -36,7 +37,43 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     public interface WarmupUiCallback { void onResult(boolean ready, int reason); }
 
-    public LiveData<PlaybackUiState> getState() { return PlaybackUiBus.get().state(); }
+    private final MutableLiveData<Long> _seekPreviewMs = new MutableLiveData<>();
+    private volatile boolean _stateSourcesAdded = false;
+
+    private final MediatorLiveData<PlaybackUiState> _state = new MediatorLiveData<>();
+    public LiveData<PlaybackUiState> getState() {
+        if (!_stateSourcesAdded) {
+            _stateSourcesAdded = true;
+            _state.addSource(PlaybackUiBus.get().state(), s -> emitStateWithSeekPreview());
+            _state.addSource(_seekPreviewMs, v -> emitStateWithSeekPreview());
+        }
+        return _state;
+    }
+    private void emitStateWithSeekPreview() {
+        PlaybackUiState s = PlaybackUiBus.get().state().getValue();
+        if (s == null) return;
+        Long preview = _seekPreviewMs.getValue();
+        if (preview != null) {
+            // Clear preview when bus has caught up (after seek), so slider stays at new position
+            if (s.durationMs > 0 && Math.abs(s.positionMs - preview) < 2000) {
+                _seekPreviewMs.setValue(null);
+            } else {
+                s = new PlaybackUiState(
+                        s.loadPhase, s.playing, s.ready, s.playMode,
+                        preview, s.durationMs, s.sleepLeftMS,
+                        s.title, s.subTitle, s.cover,
+                        s.trackId, s.folderId, s.podcastFeedId, s.radioStationUuid,
+                        s.calledFrom, s.callCounter, s.extras
+                );
+            }
+        }
+        _state.setValue(s);
+    }
+
+    /** While user drags the seek bar, pass preview position so list triangle moves in real time. Call with null on release. */
+    public void setSeekPreview(@Nullable Long positionMs) {
+        _seekPreviewMs.setValue(positionMs);
+    }
 
     private final MutableLiveData<Pair<Integer,Integer>> ttsRange = new MutableLiveData<>();
     public LiveData<Pair<Integer,Integer>> getTtsRange() { return ttsRange; }

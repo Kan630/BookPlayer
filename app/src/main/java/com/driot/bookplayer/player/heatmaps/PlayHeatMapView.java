@@ -18,10 +18,13 @@ public class PlayHeatMapView extends View {
 
     private float[] intensities = new float[0]; // 0..1
     private final Paint progressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private float[] cursors = new float[0]; // positions 0..1 relative to duration
+    private float[] cursors = new float[0]; // positions 0..1 relative to duration (saved position = vertical line)
+    private float playingCursor = -1f;      // 0..1 = current play position (triangle, left edge at position); <0 = none
     private final Paint cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Paint playingCursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int baseColor;
+    private float triangleWidthPx;
 
     public PlayHeatMapView(Context context) {
         super(context);
@@ -58,7 +61,12 @@ public class PlayHeatMapView extends View {
         int cursorSizeDp = context.getResources().getInteger(R.integer.heatmaps_cursor_size_dp);
         float cursorWidthPx = ViewHelper.dp(context, cursorSizeDp);
         cursorPaint.setStrokeWidth(cursorWidthPx);
-        cursorPaint.setColor(0xFFFF5722); // orange for last-listened
+        cursorPaint.setColor(0xFFFF5722); // orange/red for saved position
+
+        triangleWidthPx = ViewHelper.dp(context, 10);
+        playingCursorPaint.setStyle(Paint.Style.FILL);
+        playingCursorPaint.setColor(0xFFFF5722); // same color, triangular play marker for current track
+        playingCursorPaint.setAntiAlias(true);
     }
 
     @Override
@@ -112,11 +120,24 @@ public class PlayHeatMapView extends View {
 
         }
 
-        // Draw cursors inside clip
+        // Draw saved-position cursors (vertical lines)
         for (float c : cursors) {
             if (c < 0f || c >= 1f) continue; // skip 100%
             float x = c * width;
             canvas.drawLine(x, 0, x, height, cursorPaint);
+        }
+
+        // Draw playing cursor: triangle with tip pointing right (play shape), base at position
+        if (playingCursor >= 0f && playingCursor < 1f && height > 0) {
+            float xLeft = playingCursor * width;
+            float xRight = Math.min(xLeft + triangleWidthPx, width);
+            float halfH = height * 0.5f;
+            Path tri = new Path();
+            tri.moveTo(xLeft, 0);       // base left = position
+            tri.lineTo(xLeft, height);
+            tri.lineTo(xRight, halfH);  // tip on the right
+            tri.close();
+            canvas.drawPath(tri, playingCursorPaint);
         }
 
         canvas.restore(); // remove clipping
@@ -144,6 +165,14 @@ public class PlayHeatMapView extends View {
             this.cursors = cursors;
         }
         invalidate();
+    }
+
+    /** Position 0..1 for the currently playing track (triangle marker). Left edge of triangle = position. Use < 0 to hide. */
+    public void setPlayingCursor(float position0to1) {
+        if (position0to1 != playingCursor) {
+            playingCursor = position0to1;
+            invalidate();
+        }
     }
 
 }

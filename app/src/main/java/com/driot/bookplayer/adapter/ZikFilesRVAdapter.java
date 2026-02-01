@@ -60,7 +60,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         setHasStableIds(true);
         playbackState.observe(owner, s -> {
             if (s == null) return;
-            setHighlightedTrackId(s.trackId); // triggers minimal payload updates
+            updatePlayingState(s.trackId, s.positionMs, s.durationMs);
         });
     }
 
@@ -93,16 +93,23 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         return getCurrentList();
     }
 
-    ///  TRACK HIGHLIGHT
+    ///  TRACK HIGHLIGHT + PLAYING POSITION (triangle)
 
     private long highlightedTrackId = -1;
-    private void setHighlightedTrackId(long newId) {
-        if (newId == highlightedTrackId) return;
+    private float playingPositionNorm = -1f;
+
+    private void updatePlayingState(long trackId, long positionMs, long durationMs) {
+        float norm = (durationMs > 0) ? (float) Math.min(positionMs, durationMs) / durationMs : -1f;
+        int newPos = findPositionById(trackId);
+        boolean trackChanged = (trackId != highlightedTrackId);
+        boolean positionChanged = (trackId == highlightedTrackId && Math.abs(norm - playingPositionNorm) >= 0.001f);
+        if (!trackChanged && !positionChanged) return;
+
         int oldPos = findPositionById(highlightedTrackId);
-        int newPos = findPositionById(newId);
-        highlightedTrackId = newId;
+        highlightedTrackId = trackId;
+        playingPositionNorm = norm;
         if (oldPos >= 0) notifyItemChanged(oldPos, "playstate");
-        if (newPos >= 0) notifyItemChanged(newPos, "playstate");
+        if (newPos >= 0 && newPos != oldPos) notifyItemChanged(newPos, "playstate");
     }
     private int findPositionById(long id) {
         if (id < 0) return -1;
@@ -150,12 +157,28 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                     h.ibSort.setText(String.valueOf(position + 1));
                 case "playstate":
                     h.itemView.setActivated(t.getId() == highlightedTrackId);
+                    if (displayHeatMaps && h.heatMapView != null) {
+                        boolean isCurrent = t.getId() == highlightedTrackId;
+                        if (isCurrent) {
+                            h.heatMapView.setPlayingCursor(playingPositionNorm);
+                            h.heatMapView.setCursors(new float[0]);
+                        } else {
+                            h.heatMapView.setPlayingCursor(-1f);
+                            long dur = (long) t.getDuration();
+                            float[] cursors = (t.getPosition() > 0 && dur > 0)
+                                    ? new float[]{(float) t.getPosition() / dur}
+                                    : new float[0];
+                            h.heatMapView.setCursors(cursors);
+                        }
+                    }
                     return;
                 case "progress":
                     h.textViewFilePercent.setText(Tonio.formatPercentString(t.getPercentdone()));
                     h.mProgressBar.setProgress(Tonio.formatPercentForProgressBar(t.getPercentdone()));
                     if (displayHeatMaps) {
-                        h.updateHeatMap(t);
+                        boolean isCurrent = t.getId() == highlightedTrackId;
+                        float playingNorm = isCurrent ? playingPositionNorm : -1f;
+                        h.updateHeatMap(t, isCurrent, playingNorm);
                         h.mProgressBar.setVisibility(View.GONE);
                         h.heatMapView.setVisibility(View.VISIBLE);
                     } else {
@@ -196,7 +219,9 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         holder.itemView.setActivated(zikFile.getId() == highlightedTrackId);
 
         if (displayHeatMaps) {
-            holder.updateHeatMap(zikFile);
+            boolean isCurrent = zikFile.getId() == highlightedTrackId;
+            float playingNorm = isCurrent ? playingPositionNorm : -1f;
+            holder.updateHeatMap(zikFile, isCurrent, playingNorm);
             holder.mProgressBar.setVisibility(View.GONE);
             holder.heatMapView.setVisibility(View.VISIBLE);
         } else {
@@ -213,7 +238,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
         TextView ibSort;
         PlayHeatMapView heatMapView;
 
-        void updateHeatMap(ZikFile zikFile) {
+        void updateHeatMap(ZikFile zikFile, boolean isCurrentTrack, float playingPositionNorm) {
             if (heatMapView == null) return;
 
             final long zikFileId = zikFile.getId();
@@ -259,14 +284,19 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
                     if (current == null || current.getId() != zikFileId) return;
 
                     heatMapView.setIntensities(intensities);
-
-                    final float[] cursors;
-                    if (zikFile.getPosition() > 0) {
-                        cursors = new float[] { (float) zikFile.getPosition() / durationMs };
+                    if (isCurrentTrack) {
+                        heatMapView.setPlayingCursor(playingPositionNorm);
+                        heatMapView.setCursors(new float[0]);
                     } else {
-                        cursors = new float[0];
+                        heatMapView.setPlayingCursor(-1f);
+                        final float[] cursors;
+                        if (zikFile.getPosition() > 0) {
+                            cursors = new float[] { (float) zikFile.getPosition() / durationMs };
+                        } else {
+                            cursors = new float[0];
+                        }
+                        heatMapView.setCursors(cursors);
                     }
-                    heatMapView.setCursors(cursors);
                 });
             });
         }

@@ -37,10 +37,11 @@ public class UiHelper {
             // Bubble formatter (mm:ss) while dragging
             slider.setLabelFormatter(value -> Tonio.formatHhMmSs((long) value * 1000L));
 
-            // Change listener for live preview while scrubbing
+            // Change listener for live preview while scrubbing (time text + list triangle)
             this.changeListener = (s, value, fromUser) -> {
                 if (!fromUser) return;
                 long previewMs = (long) value * 1000L;
+                vm.setSeekPreview(previewMs); // ZikFile list triangle follows in real time
                 PlaybackUiState st = vm.getState().getValue();
                 long dur = (st != null) ? st.durationMs : 0L;
                 String timeDisplay = Tonio.formatHhMmSs(previewMs) + " / " + Tonio.formatHhMmSs(dur);
@@ -57,6 +58,7 @@ public class UiHelper {
                     setUserSeeking(slider, false);
                     myLogI("---- user finished SLIDER seek ----");
                     vm.seekTo((long) s.getValue() * 1000L);
+                    // preview cleared when bus state catches up (in ViewModel)
                 }
             };
             slider.addOnSliderTouchListener(touchListener);
