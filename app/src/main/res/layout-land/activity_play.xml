@@ -328,7 +328,7 @@
                     <com.driot.bookplayer.player.heatmaps.PlayHeatMapView
                         android:id="@+id/heatMapSeek"
                         android:layout_width="match_parent"
-                        android:layout_height="48dp"
+                        android:layout_height="24dp"
                         android:visibility="gone"
                         app:heatmapColor="?attr/colorPrimary"
                         />

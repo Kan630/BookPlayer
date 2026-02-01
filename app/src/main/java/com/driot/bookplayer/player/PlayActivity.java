@@ -519,11 +519,13 @@ public class PlayActivity extends BaseActivity {
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
                 case MotionEvent.ACTION_MOVE:
+                    heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
                     tvCurTime.setText(Tonio.formatHhMmSs(seekMs) + " / " + Tonio.formatHhMmSs(s.durationMs));
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    heatMapSeek.setPlayingCursorDragging(false);
                     vm.setSeekPreview(null);
                     vm.seekTo(seekMs);
                     suppressAutoScroll = false;
