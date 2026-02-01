@@ -6,6 +6,8 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.RadialGradient;
+import android.graphics.Shader;
 import android.util.AttributeSet;
 import android.view.View;
 
@@ -25,6 +27,9 @@ public class PlayHeatMapView extends View {
     private final Paint playingCursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private static final int PLAYING_CURSOR_COLOR = 0xFFFF5722;   // orange when idle
     private static final int PLAYING_CURSOR_DRAG_COLOR = 0xFFE53935; // red when dragging
+    private static final int PLAYING_CURSOR_HALO_CENTER = 0x50E53935; // red halo center (31% alpha)
+    private static final int PLAYING_CURSOR_HALO_EDGE = 0x00E53935;  // transparent edge
+    private final Paint haloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int baseColor;
     private float triangleWidthPx;
@@ -69,6 +74,8 @@ public class PlayHeatMapView extends View {
         triangleWidthPx = ViewHelper.dp(context, 10);
         playingCursorPaint.setStyle(Paint.Style.FILL);
         playingCursorPaint.setAntiAlias(true);
+        haloPaint.setStyle(Paint.Style.FILL);
+        haloPaint.setAntiAlias(true);
     }
 
     @Override
@@ -131,10 +138,25 @@ public class PlayHeatMapView extends View {
 
         // Draw playing cursor: triangle with tip pointing right (play shape), base at position
         if (playingCursor >= 0f && playingCursor < 1f && height > 0) {
-            playingCursorPaint.setColor(playingCursorDragging ? PLAYING_CURSOR_DRAG_COLOR : PLAYING_CURSOR_COLOR);
             float xLeft = playingCursor * width;
             float xRight = Math.min(xLeft + triangleWidthPx, width);
             float halfH = height * 0.5f;
+            float centerX = xLeft + triangleWidthPx * 0.5f;
+            float centerY = halfH;
+
+            // Halo behind triangle while dragging (like slider thumb / button ripple)
+            if (playingCursorDragging) {
+                float haloRadius = triangleWidthPx * 2.2f;
+                RadialGradient haloShader = new RadialGradient(
+                        centerX, centerY, haloRadius,
+                        PLAYING_CURSOR_HALO_CENTER, PLAYING_CURSOR_HALO_EDGE,
+                        Shader.TileMode.CLAMP);
+                haloPaint.setShader(haloShader);
+                canvas.drawCircle(centerX, centerY, haloRadius, haloPaint);
+                haloPaint.setShader(null);
+            }
+
+            playingCursorPaint.setColor(playingCursorDragging ? PLAYING_CURSOR_DRAG_COLOR : PLAYING_CURSOR_COLOR);
             Path tri = new Path();
             tri.moveTo(xLeft, 0);       // base left = position
             tri.lineTo(xLeft, height);
