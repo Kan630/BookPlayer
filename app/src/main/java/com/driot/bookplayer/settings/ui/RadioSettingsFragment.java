@@ -24,9 +24,11 @@ public class RadioSettingsFragment extends LoggingFragment {
     private EditText et_option_radio_sleep_value;
     private CheckBox chk_option_radio_sleep_copy;
     private CheckBox chk_option_radio_remove_duplicates;
+    private CheckBox chk_option_radio_remove_dubious;
     private CheckBox chk_option_radio_open_favorites_first;
     private LinearLayout ll_option_radio_sleep_value;
     private LinearLayout ll_option_radio_remove_duplicates;
+    private LinearLayout ll_option_radio_remove_dubious;
     private LinearLayout ll_option_radio_open_favorites_first;
 
 
@@ -65,6 +67,12 @@ public class RadioSettingsFragment extends LoggingFragment {
         chk_option_radio_remove_duplicates.setChecked(Option.getRadioRemoveSpamStations());
         ll_option_radio_remove_duplicates.setOnClickListener(v -> chk_option_radio_remove_duplicates.toggle());
         chk_option_radio_remove_duplicates.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRemoveSpamStations(isChecked));
+
+        ll_option_radio_remove_dubious = root.findViewById(R.id.ll_option_radio_remove_dubious);
+        chk_option_radio_remove_dubious = root.findViewById(R.id.chk_option_radio_remove_dubious);
+        chk_option_radio_remove_dubious.setChecked(Option.getRadioRemoveDubiousStations());
+        ll_option_radio_remove_dubious.setOnClickListener(v -> chk_option_radio_remove_dubious.toggle());
+        chk_option_radio_remove_dubious.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setRadioRemoveDubiousStations(isChecked));
 
         ll_option_radio_open_favorites_first = root.findViewById(R.id.ll_option_radio_open_favorites_first);
         chk_option_radio_open_favorites_first = root.findViewById(R.id.chk_option_radio_open_favorites_first);

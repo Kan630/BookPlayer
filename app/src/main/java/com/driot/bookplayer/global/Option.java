@@ -89,6 +89,7 @@ public class Option {
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
+    public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
     private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
 
@@ -196,6 +197,14 @@ public class Option {
 
     public static void setRadioRemoveSpamStations(boolean bool) {
         prefs.edit().putBoolean("RADIO_REMOVE_SPAM_STATIONS", bool).apply();
+    }
+
+    public static boolean getRadioRemoveDubiousStations() {
+        return prefs.getBoolean("RADIO_REMOVE_DUBIOUS_STATIONS", DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS);
+    }
+
+    public static void setRadioRemoveDubiousStations(boolean bool) {
+        prefs.edit().putBoolean("RADIO_REMOVE_DUBIOUS_STATIONS", bool).apply();
     }
 
     public static boolean getRadioOpenFavoritesFirst() {

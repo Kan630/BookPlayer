@@ -487,9 +487,13 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
 
                     String headerTxt = "";
-                    if (Option.getRadioRemoveSpamStations()) {
-                        int nbRemoved = 0;
-                        Set<String> removedNames = new HashSet<>();
+                    boolean removeDubious = Option.getRadioRemoveDubiousStations();
+                    boolean removeDuplicates = Option.getRadioRemoveSpamStations();
+                    if (removeDubious || removeDuplicates) {
+                        int nbRemovedDuplicates = 0;
+                        int nbRemovedDubious = 0;
+                        Set<String> removedNamesDuplicates = new HashSet<>();
+                        Set<String> removedNamesDubious = new HashSet<>();
                         Map<String, Integer> countMap = new HashMap<>();
 
                         Iterator<Station> iterator = body.iterator();
@@ -497,39 +501,38 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             Station s = iterator.next();
                             if (s.name == null) continue;
 
-                            // Clean name: trim only for logging & blacklist
                             String trimmedName = s.name.trim();
 
-                            // Skip blacklisted stations  --> WORKING but not used right now, so commented for speed
-                            /*
-                            if (Var.RADIO_STATION_BLACKLIST.contains(trimmedName)) {
+                            if (removeDubious && Var.RADIO_STATION_BLACKLIST.contains(trimmedName)) {
                                 iterator.remove();
-                                nbRemoved++;
-                                removedNames.add(trimmedName);
+                                nbRemovedDubious++;
+                                removedNamesDubious.add(trimmedName);
                                 continue;
                             }
-                             */
 
-                            // Normalize name for duplicate detection: keep only alphanumeric, lowercase
-                            String normalizedName = trimmedName.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
-
-                            // Safe unboxing
-                            Integer countObj = countMap.get(normalizedName);
-                            int count = countObj != null ? countObj : 0;
-
-                            if (count >= Var.RADIO_STATION_MAX_DUPLICATES) {
-                                iterator.remove();
-                                nbRemoved++;
-                                removedNames.add(trimmedName); // log original trimmed name
-                            } else {
-                                countMap.put(normalizedName, count + 1);
+                            if (removeDuplicates) {
+                                String normalizedName = trimmedName.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+                                Integer countObj = countMap.get(normalizedName);
+                                int count = countObj != null ? countObj : 0;
+                                if (count >= Var.RADIO_STATION_MAX_DUPLICATES) {
+                                    iterator.remove();
+                                    nbRemovedDuplicates++;
+                                    removedNamesDuplicates.add(trimmedName);
+                                } else {
+                                    countMap.put(normalizedName, count + 1);
+                                }
                             }
                         }
 
-                        if (nbRemoved > 0) {
-                            headerTxt = "    (" + nbRemoved + " " + getString(R.string.spam_fake_stations_removed) + " : " + removedNames + ")";
-                            myLog(nbRemoved + " stations removed");
-                            myLog("Removed station names: " + removedNames);
+                        if (nbRemovedDuplicates > 0) {
+                            headerTxt = "    (" + nbRemovedDuplicates + " " + getString(R.string.spam_fake_stations_removed) + " : " + removedNamesDuplicates + ")";
+                            myLog(nbRemovedDuplicates + " stations removed (duplicates)");
+                            myLog("Removed duplicate names: " + removedNamesDuplicates);
+                        }
+                        if (nbRemovedDubious > 0) {
+                            headerTxt = headerTxt + "    (" + nbRemovedDubious + " " + getString(R.string.dubious_stations_removed) + " : " + removedNamesDubious + ")";
+                            myLog(nbRemovedDubious + " stations removed (dubious)");
+                            myLog("Removed dubious names: " + removedNamesDubious);
                         }
                     }
 

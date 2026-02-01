@@ -117,6 +117,22 @@
             android:text="@string/option_radio_remove_duplicates_subtitle"
             />
 
+        <LinearLayout
+            android:id="@+id/ll_option_radio_remove_dubious"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            >
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_option_radio_remove_dubious"
+                style="@style/OptionCheckBox"
+                android:layout_height="match_parent" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_radio_remove_dubious" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_radio_remove_dubious_subtitle"
+            />
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

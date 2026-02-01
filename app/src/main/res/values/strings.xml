@@ -977,8 +977,11 @@
     <string name="by_genre_all_languages">by genre (all languages)</string>
     <string name="unsupported_language">unsupported language</string>
     <string name="spam_fake_stations_removed">removed (spam?)</string>
+    <string name="dubious_stations_removed">removed (dubious)</string>
     <string name="option_radio_remove_duplicates">remove duplicates</string>
     <string name="option_radio_remove_duplicates_subtitle">If the station name is found more than 3 times, the next ones are not displayed, so as to avoid cluttering the list with duplicates.</string>
+    <string name="option_radio_remove_dubious">Remove dubious stations</string>
+    <string name="option_radio_remove_dubious_subtitle">Some stations were incorrectly added to every country or tag; hide them from results.</string>
     <string name="option_radio_open_favorites_first">Open favorites first</string>
     <string name="option_radio_open_favorites_first_subtitle">When you tap Radio in the bottom bar, open your Favorites screen first. Press Back to reach the search screen and browse more stations.</string>
     <string name="option_radio_sleep_copy_subtitle">If checked, the auto-sleep value will be the same as in the general settings. If unchecked, you can specify a custom value for radio. Since there is no progress saving here, it doesn’t matter if you fall asleep and you could set a huge value.</string>
