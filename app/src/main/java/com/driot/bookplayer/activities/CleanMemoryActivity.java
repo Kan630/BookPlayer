@@ -1,7 +1,10 @@
 package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -29,8 +32,13 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
     private CleanMemoryViewModel cacheFilesViewModel;
     private RadioGroup storageSelector;
     private RadioButton radioInternal, radioSdCard;
+    private View progressContainer;
     private ProgressBar progressBar;
+    private TextView progressScanMessage;
     private TextView statsTextView;
+    private RecyclerView recyclerViewCacheFiles;
+    private final Handler refreshElapsedHandler = new Handler(Looper.getMainLooper());
+    private Runnable refreshElapsedRunnable;
 
     @Override protected int getNavId() { return R.id.nav_settings; } //TODO change to correct one after migrating menu items
     @Override protected int getLayoutResId() { return R.layout.activity_clean_memory; }
@@ -41,18 +49,23 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        RecyclerView recyclerView = findViewById(R.id.recyclerView_cacheFiles);
+        recyclerViewCacheFiles = findViewById(R.id.recyclerView_cacheFiles);
 
         statsTextView = findViewById(R.id.cachefiles_stats_text);
 
+        progressContainer = findViewById(R.id.progress_container);
         progressBar = findViewById(R.id.progress_cache_loading);
-        progressBar.bringToFront();
+        progressScanMessage = findViewById(R.id.progress_scan_message);
+        progressContainer.bringToFront();
+
+        ImageButton btnRefresh = findViewById(R.id.btn_clean_memory_refresh);
+        btnRefresh.setOnClickListener(v -> cacheFilesViewModel.refreshStorageCache(this));
 
         cacheFilesViewModel = new ViewModelProvider(this).get(CleanMemoryViewModel.class);
 
         cacheFilesAdapter = new CleanMemoryRVAdapter(this, this);
-        recyclerView.setAdapter(cacheFilesAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        recyclerViewCacheFiles.setAdapter(cacheFilesAdapter);
+        recyclerViewCacheFiles.setLayoutManager(new LinearLayoutManager(this));
 
         // Set up observers
         cacheFilesViewModel.getEnrichedFolders().observe(this, fileWithSummaries -> {
@@ -69,10 +82,56 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         });
 
         cacheFilesViewModel.getIsLoading().observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            updateProgressVisibility();
+        });
+
+        cacheFilesViewModel.getIsRefreshing().observe(this, isRefreshing -> {
+            if (Boolean.TRUE.equals(isRefreshing)) {
+                recyclerViewCacheFiles.setVisibility(View.GONE);
+                progressScanMessage.setVisibility(View.VISIBLE);
+                startRefreshElapsedTimer();
+            } else {
+                stopRefreshElapsedTimer();
+                progressScanMessage.setVisibility(View.GONE);
+                recyclerViewCacheFiles.setVisibility(View.VISIBLE);
+            }
+            updateProgressVisibility();
         });
 
         setupRadioButtons();
+    }
+
+    private void updateProgressVisibility() {
+        boolean loading = Boolean.TRUE.equals(cacheFilesViewModel.getIsLoading().getValue());
+        boolean refreshing = Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue());
+        progressContainer.setVisibility(loading || refreshing ? View.VISIBLE : View.GONE);
+    }
+
+    private void startRefreshElapsedTimer() {
+        stopRefreshElapsedTimer();
+        Long startTime = cacheFilesViewModel.getRefreshStartTime().getValue();
+        if (startTime == null || startTime == 0) return;
+        refreshElapsedRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue())) return;
+                long elapsedSec = (System.currentTimeMillis() - startTime) / 1000;
+                String msg = getString(R.string.clean_memory_scanning_folders, (int) elapsedSec);
+                if (StorageHelper.getSdCardUnzippedFolder(CleanMemoryActivity.this) != null) {
+                    msg += "\n\n" + getString(R.string.clean_memory_sdcard_slow);
+                }
+                progressScanMessage.setText(msg);
+                refreshElapsedHandler.postDelayed(this, 1000);
+            }
+        };
+        refreshElapsedRunnable.run();
+    }
+
+    private void stopRefreshElapsedTimer() {
+        if (refreshElapsedRunnable != null) {
+            refreshElapsedHandler.removeCallbacks(refreshElapsedRunnable);
+            refreshElapsedRunnable = null;
+        }
     }
 
     private void setupRadioButtons() {

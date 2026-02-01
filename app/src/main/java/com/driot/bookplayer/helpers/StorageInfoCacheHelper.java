@@ -19,8 +19,13 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.StorageHelper.MemoryLocationType;
 import com.driot.bookplayer.utils.Tonio;
 
+import org.json.JSONObject;
+
 import java.io.File;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -31,6 +36,14 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  * Values are stored in preferences and calculated at app startup.
  */
 public class StorageInfoCacheHelper {
+
+    /**
+     * Callback for recalculate progress (invoked from background thread; post to main thread in UI).
+     */
+    public interface RecalculateProgressCallback {
+        void onProgress(int elapsedSec, String phaseMessage, boolean isSdCardPhase);
+        void onComplete();
+    }
 
     private static final boolean DEBUG = false;
 
@@ -184,18 +197,29 @@ public class StorageInfoCacheHelper {
             long availableMegs2 = getAvailableInternalMemorySize() / 1048576L;
             long currentAppSize = getAppSize(app) / 1048576L;
 
-            // Calculate folder sizes if folders exist
+            // Calculate per-folder sizes for Clean Memory (internal unzip subfolders)
             File unzipFolder = StorageHelper.getUnzipFolder(app, false);
             long currentAudiosSizeInternal = 0;
+            Map<String, Long> internalFolderSizes = new HashMap<>();
             if (unzipFolder != null && unzipFolder.exists()) {
-                myLogD("StorageInfoCacheHelper: Calculating getFolderSize for internal unzipped folder: "
-                        + unzipFolder.getAbsolutePath());
-                long startTime = System.currentTimeMillis();
-                currentAudiosSizeInternal = getFolderSize(unzipFolder) / 1048576L;
-                long duration = System.currentTimeMillis() - startTime;
-                myLogD("StorageInfoCacheHelper: getFolderSize for internal unzipped completed in "
-                        + Tonio.formatTime(duration) + ", size: "
-                        + Tonio.getReadableSize(currentAudiosSizeInternal * 1048576L));
+                File[] children = unzipFolder.listFiles();
+                if (children != null) {
+                    myLogD("StorageInfoCacheHelper: Calculating getFolderSize for internal unzipped subfolders: "
+                            + unzipFolder.getAbsolutePath());
+                    long startTime = System.currentTimeMillis();
+                    for (File f : children) {
+                        if (f.isDirectory()) {
+                            long sizeBytes = getFolderSize(f);
+                            internalFolderSizes.put(f.getAbsolutePath(), sizeBytes);
+                            currentAudiosSizeInternal += sizeBytes / 1048576L;
+                        }
+                    }
+                    long duration = System.currentTimeMillis() - startTime;
+                    myLogD("StorageInfoCacheHelper: internal unzipped subfolders completed in "
+                            + Tonio.formatTime(duration) + ", total: "
+                            + Tonio.getReadableSize(currentAudiosSizeInternal * 1048576L));
+                    Pref.setStorageInternalFolderSizesJson(folderSizesMapToJson(internalFolderSizes));
+                }
             }
 
             File imagesFolder = new File(app.getFilesDir(), "images");
@@ -298,18 +322,29 @@ public class StorageInfoCacheHelper {
             if (total > 0) {
                 long available = getAvailableRemovableSDCardSize(app) / 1048576L;
 
-                // Calculate BookPlayer usage on SD card (can be slow)
+                // Calculate per-folder sizes for Clean Memory (SD card unzip subfolders)
                 File sdUnzipFolder = StorageHelper.getUnzipFolder(app, true);
                 long currentAudiosSizeSD = 0;
+                Map<String, Long> sdCardFolderSizes = new HashMap<>();
                 if (sdUnzipFolder != null && sdUnzipFolder.exists()) {
-                    myLogD("StorageInfoCacheHelper: Calculating getFolderSize for SD card: "
-                            + sdUnzipFolder.getAbsolutePath());
-                    long startTime = System.currentTimeMillis();
-                    currentAudiosSizeSD = getFolderSize(sdUnzipFolder) / 1048576L;
-                    long duration = System.currentTimeMillis() - startTime;
-                    myLogD("StorageInfoCacheHelper: getFolderSize for SD card completed in "
-                            + Tonio.formatTime(duration) + ", size: "
-                            + Tonio.getReadableSize(currentAudiosSizeSD * 1048576L));
+                    File[] children = sdUnzipFolder.listFiles();
+                    if (children != null) {
+                        myLogD("StorageInfoCacheHelper: Calculating getFolderSize for SD card subfolders: "
+                                + sdUnzipFolder.getAbsolutePath());
+                        long startTime = System.currentTimeMillis();
+                        for (File f : children) {
+                            if (f.isDirectory()) {
+                                long sizeBytes = getFolderSize(f);
+                                sdCardFolderSizes.put(f.getAbsolutePath(), sizeBytes);
+                                currentAudiosSizeSD += sizeBytes / 1048576L;
+                            }
+                        }
+                        long duration = System.currentTimeMillis() - startTime;
+                        myLogD("StorageInfoCacheHelper: SD card subfolders completed in "
+                                + Tonio.formatTime(duration) + ", total: "
+                                + Tonio.getReadableSize(currentAudiosSizeSD * 1048576L));
+                        Pref.setStorageSDCardFolderSizesJson(folderSizesMapToJson(sdCardFolderSizes));
+                    }
                 } else {
                     myLogD("StorageInfoCacheHelper: SD card unzip folder does not exist, skipping folder size calculation");
                 }
@@ -470,18 +505,97 @@ public class StorageInfoCacheHelper {
      * Force recalculation of storage info (can be called from activities if needed)
      */
     public static void recalculate(Context context) {
+        recalculate(context, true, true, null);
+    }
+
+    /**
+     * Force recalculation with progress callback.
+     * @param internalOnly if true, only compute internal storage (and linked audios for internal)
+     * @param sdCardOnly   if true, only compute SD card storage (and linked audios for SD)
+     * @param callback     invoked from background thread; post to main thread in UI
+     */
+    public static void recalculate(Context context, boolean internalOnly, boolean sdCardOnly,
+                                    RecalculateProgressCallback callback) {
         Application app = (Application) context.getApplicationContext();
         executorService.execute(() -> {
+            long startTime = System.currentTimeMillis();
             try {
                 myLogD("StorageInfoCacheHelper: Force recalculating storage");
-                populateZikFileSizes(app);
-                calculateInternalStorage(app);
-                calculateSDCardStorage(app);
+                boolean fullRecalc = internalOnly && sdCardOnly;
+                if (fullRecalc) {
+                    if (callback != null) {
+                        callback.onProgress((int) ((System.currentTimeMillis() - startTime) / 1000),
+                                "zikfiles", false);
+                    }
+                    populateZikFileSizes(app);
+                }
+                if (internalOnly) {
+                    if (callback != null) {
+                        callback.onProgress((int) ((System.currentTimeMillis() - startTime) / 1000),
+                                "internal", false);
+                    }
+                    calculateInternalStorage(app);
+                }
+                if (sdCardOnly) {
+                    if (callback != null) {
+                        callback.onProgress((int) ((System.currentTimeMillis() - startTime) / 1000),
+                                "sdcard", true);
+                    }
+                    calculateSDCardStorage(app);
+                }
+                if (callback != null) {
+                    callback.onProgress((int) ((System.currentTimeMillis() - startTime) / 1000),
+                            "linked", false);
+                }
                 calculateLinkedAudios(app);
+                if (callback != null) {
+                    callback.onComplete();
+                }
             } catch (Exception e) {
                 myLogEE(e, "StorageInfoCacheHelper: Error recalculating storage");
+                if (callback != null) {
+                    callback.onComplete();
+                }
             }
         });
+    }
+
+    /**
+     * Get cached per-folder sizes (path -> size in bytes) for Clean Memory list.
+     * @param internal true for internal storage unzip subfolders, false for SD card
+     */
+    public static Map<String, Long> getCachedFolderSizes(boolean internal) {
+        String json = internal ? Pref.getStorageInternalFolderSizesJson() : Pref.getStorageSDCardFolderSizesJson();
+        return jsonToFolderSizesMap(json);
+    }
+
+    private static String folderSizesMapToJson(Map<String, Long> map) {
+        try {
+            JSONObject j = new JSONObject();
+            for (Map.Entry<String, Long> e : map.entrySet()) {
+                j.put(e.getKey(), e.getValue());
+            }
+            return j.toString();
+        } catch (Exception e) {
+            myLogEE(e, "StorageInfoCacheHelper: folderSizesMapToJson");
+            return "{}";
+        }
+    }
+
+    private static Map<String, Long> jsonToFolderSizesMap(String json) {
+        Map<String, Long> map = new HashMap<>();
+        if (json == null || json.isEmpty()) return map;
+        try {
+            JSONObject j = new JSONObject(json);
+            Iterator<String> it = j.keys();
+            while (it.hasNext()) {
+                String k = it.next();
+                map.put(k, j.getLong(k));
+            }
+        } catch (Exception e) {
+            myLogEE(e, "StorageInfoCacheHelper: jsonToFolderSizesMap");
+        }
+        return map;
     }
 
     /**

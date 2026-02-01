@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.StorageInfoCacheHelper;
 import com.driot.bookplayer.objects.FolderSummary;
 import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -44,6 +45,16 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     }
     private boolean useInternal = true;
     private final Map<String, Long> folderSizeCache = new HashMap<>();
+
+    private final MutableLiveData<Boolean> isRefreshing = new MutableLiveData<>(false);
+    private final MutableLiveData<Long> refreshStartTime = new MutableLiveData<>(0L);
+
+    public LiveData<Boolean> getIsRefreshing() {
+        return isRefreshing;
+    }
+    public LiveData<Long> getRefreshStartTime() {
+        return refreshStartTime;
+    }
 
     public CleanMemoryViewModel(@NonNull Application application) {
         super(application);
@@ -79,6 +90,27 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         loadFilesFromDisk();
     }
 
+    /**
+     * Trigger full storage recalculate; show progress in UI until complete, then reload from cache.
+     */
+    public void refreshStorageCache(android.content.Context context) {
+        if (isRefreshing.getValue() != null && isRefreshing.getValue()) return;
+        refreshStartTime.postValue(System.currentTimeMillis());
+        isRefreshing.postValue(true);
+        StorageInfoCacheHelper.recalculate(context, true, true, new StorageInfoCacheHelper.RecalculateProgressCallback() {
+            @Override
+            public void onProgress(int elapsedSec, String phaseMessage, boolean isSdCardPhase) {
+                // Optional: could post progress for phase-based message
+            }
+
+            @Override
+            public void onComplete() {
+                isRefreshing.postValue(false);
+                loadFilesFromDisk(); // reload list from updated cache
+            }
+        });
+    }
+
     private void loadFilesFromDisk() {
         isLoading.postValue(true);
         executorService.execute(() -> {
@@ -94,7 +126,11 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                     File[] foldersArray = baseDir.listFiles();
 
                     if (baseDir.exists() && baseDir.isDirectory() && foldersArray != null) {
-                        unzip_folders = new ArrayList<>(Arrays.asList(foldersArray));
+                        for (File f : foldersArray) {
+                            if (f.isDirectory()) {
+                                unzip_folders.add(f);
+                            }
+                        }
                         myLog(unzip_folders.size() + " folders in: [" + basePath + "]");
                     } else {
                         myLog("No valid files found in base directory: [" + basePath + "]");
@@ -103,13 +139,19 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                     myLogE("No valid base path found");
                 }
 
-                long totalSize = 0L;
+                // Use cached folder sizes from StorageInfoCacheHelper (fast)
+                Map<String, Long> cachedSizes = StorageInfoCacheHelper.getCachedFolderSizes(useInternal);
+                folderSizeCache.clear();
+                long totalSizeBytes = 0L;
                 for (File f : unzip_folders) {
-                    long size = Tonio.getFolderSize(f);
-                    folderSizeCache.put(f.getPath(), size); // Store in MB
-                    totalSize += size;
+                    Long sizeBytes = cachedSizes.get(f.getAbsolutePath());
+                    if (sizeBytes == null) {
+                        sizeBytes = Tonio.getFolderSize(f); // fallback for new folders not in cache
+                    }
+                    folderSizeCache.put(f.getPath(), sizeBytes);
+                    totalSizeBytes += sizeBytes;
                 }
-                totalAudioSizeMB.postValue(totalSize / 1024 / 1024);
+                totalAudioSizeMB.postValue(totalSizeBytes / 1024 / 1024);
 
                 foldersFromDisk.postValue(unzip_folders);
                 memoryStats.postValue(true);
@@ -141,7 +183,8 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
 
             long folderSizeBytes = folderSizeCache.containsKey(file.getPath())
                     ? folderSizeCache.get(file.getPath())
-                    : (Tonio.getFolderSize(file));
+                    : (folderSizeCache.containsKey(file.getAbsolutePath()) ? folderSizeCache.get(file.getAbsolutePath())
+                    : Tonio.getFolderSize(file)); // fallback for cache miss
             folderSizeCache.putIfAbsent(file.getPath(), folderSizeBytes);
 
             enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image, folderName));
@@ -156,8 +199,9 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
         myLog("deleting file : [" + file.getPath() + "]");
         int idFolder = getBookFolderId(file);
         if (deleteBookFromDisk(file.getPath())) {
-            Long sizeMB = folderSizeCache.remove(file.getPath());
-            if (sizeMB != null && totalAudioSizeMB.getValue() != null) {
+            Long sizeBytes = folderSizeCache.remove(file.getPath());
+            if (sizeBytes != null && totalAudioSizeMB.getValue() != null) {
+                long sizeMB = sizeBytes / 1024 / 1024;
                 totalAudioSizeMB.postValue(totalAudioSizeMB.getValue() - sizeMB);
             }
             List<File> currentDisk = foldersFromDisk.getValue();

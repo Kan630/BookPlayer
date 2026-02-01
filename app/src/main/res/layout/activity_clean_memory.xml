@@ -13,29 +13,47 @@
         android:padding="8dp"
         >
 
-        <!-- Storage Selection -->
-        <RadioGroup
-            android:id="@+id/storage_selector"
-            android:layout_width="wrap_content"
+        <!-- Storage Selection + Refresh -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_gravity="center_horizontal"
+            android:gravity="center_vertical"
             >
-
-            <RadioButton
-                android:id="@+id/radio_internal"
-                style="@style/simpleText"
-                android:layout_width="wrap_content"
+            <RadioGroup
+                android:id="@+id/storage_selector"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/device" />
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:gravity="center"
+                android:layout_gravity="center_horizontal"
+                >
 
-            <RadioButton
-                android:id="@+id/radio_sdcard"
-                style="@style/simpleText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/SD_card" />
-        </RadioGroup>
+                <RadioButton
+                    android:id="@+id/radio_internal"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/device" />
+
+                <RadioButton
+                    android:id="@+id/radio_sdcard"
+                    style="@style/simpleText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/SD_card" />
+            </RadioGroup>
+            <ImageButton
+                android:id="@+id/btn_clean_memory_refresh"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:contentDescription="@string/refresh"
+                android:src="@drawable/ic_refresh_24"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:visibility="visible"
+                />
+        </LinearLayout>
 
         <!-- Storage Stats -->
         <TextView
@@ -64,11 +82,31 @@
             android:dividerHeight="1dp" />
 
     </LinearLayout>
-    <ProgressBar
-        android:id="@+id/progress_cache_loading"
+    <LinearLayout
+        android:id="@+id/progress_container"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:layout_marginTop="16dp"
-        android:visibility="gone" />
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:visibility="gone"
+        >
+        <ProgressBar
+            android:id="@+id/progress_cache_loading"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            />
+        <TextView
+            android:id="@+id/progress_scan_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:visibility="gone"
+            />
+    </LinearLayout>
 </FrameLayout>

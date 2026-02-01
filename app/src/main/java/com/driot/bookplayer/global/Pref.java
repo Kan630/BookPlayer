@@ -399,4 +399,22 @@ public class Pref {
     public static long getStorageInternalApp() {
         return prefs.getLong("STORAGE_INTERNAL_APP", 0);
     }
+
+    // Per-folder sizes for Clean Memory (internal unzip subfolders), JSON: path -> size in bytes
+    public static void setStorageInternalFolderSizesJson(String value) {
+        prefs.edit().putString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", value != null ? value : "").apply();
+    }
+
+    public static String getStorageInternalFolderSizesJson() {
+        return prefs.getString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", "");
+    }
+
+    // Per-folder sizes for Clean Memory (SD card unzip subfolders), JSON: path -> size in bytes
+    public static void setStorageSDCardFolderSizesJson(String value) {
+        prefs.edit().putString("STORAGE_SDCARD_FOLDER_SIZES_JSON", value != null ? value : "").apply();
+    }
+
+    public static String getStorageSDCardFolderSizesJson() {
+        return prefs.getString("STORAGE_SDCARD_FOLDER_SIZES_JSON", "");
+    }
 }
