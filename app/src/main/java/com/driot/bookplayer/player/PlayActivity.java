@@ -79,6 +79,8 @@ public class PlayActivity extends BaseActivity {
     private long lastHeatMapLoadTime = 0;
     /** Match MediaService.DELAY_CHECK_TIMER_SLEEP (1s) so colored bar updates with new PlayTicks. */
     private static final long HEATMAP_REFRESH_INTERVAL_MS = 1000;
+    /** Position when heatmap drag started (for "AAA → BBB" display). */
+    private long heatMapSeekStartPositionMs = 0;
     private TextView tvCurTime, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
 
@@ -518,10 +520,15 @@ public class PlayActivity extends BaseActivity {
             long seekMs = (long) (ratio * s.durationMs);
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN:
+                    heatMapSeekStartPositionMs = s.positionMs;
+                    heatMapSeek.setPlayingCursorDragging(true);
+                    vm.setSeekPreview(seekMs);
+                    tvCurTime.setText(Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
+                    return true;
                 case MotionEvent.ACTION_MOVE:
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
-                    tvCurTime.setText(Tonio.formatHhMmSs(seekMs) + " / " + Tonio.formatHhMmSs(s.durationMs));
+                    tvCurTime.setText(Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
