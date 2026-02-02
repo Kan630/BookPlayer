@@ -36,6 +36,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private LinearLayout llVisualizerOn, llClickMainContainerPlayPause;
     private MaterialCheckBox chkVisualizerOn, chkClickMainContainerPlayPause;
     private TextView txVisualizerOn;
+    private TextView tvScreensaverPermission;
 
     private LinearLayout llRewindAfterPause, llStartNextTrackAtZero, llStopAudioOnClose, llOpenPlayActivity;
     private MaterialCheckBox chkRewindAfterPause, chkStartNextTrackAtZero, chkStopAudioIfUserClosesApp,
@@ -44,8 +45,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private LinearLayout llBeepChapter, llBeepAutostop, llBeepBookend;
     private MaterialCheckBox chkBeepChapter, chkBeepAutostop, chkBeepBookend;
 
-    private LinearLayout llScreensaverEnabled, llScreensaverDelay;
-    private MaterialCheckBox chkScreensaverEnabled;
+    private LinearLayout llScreensaverOn, llScreensaverDelay;
+    private MaterialCheckBox chkScreensaverOn;
 
     // Permission helper
     private PermissionRequest mPermissionRequest;
@@ -103,13 +104,18 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                 requestRecordAudioPermission(root);
             }
             setVisualizerPermissionText();
-            root.findViewById(R.id.groupVisualizerMode).setVisibility((isChecked ? View.VISIBLE : View.GONE));
+            int vis = isChecked ? View.VISIBLE : View.GONE;
+            root.findViewById(R.id.tv_visualizer_beta_note).setVisibility(vis);
+            root.findViewById(R.id.groupVisualizerMode).setVisibility(vis);
         });
 
         MaterialButtonToggleGroup group = root.findViewById(R.id.groupVisualizerMode);
+        View tvVisualizerBetaNote = root.findViewById(R.id.tv_visualizer_beta_note);
 
         boolean visualizerOn = Option.getVisualizerOn();
-        group.setVisibility(visualizerOn ? View.VISIBLE : View.GONE);
+        int vis = visualizerOn ? View.VISIBLE : View.GONE;
+        tvVisualizerBetaNote.setVisibility(vis);
+        group.setVisibility(vis);
 
         String type = Option.getVisualizerType();
         int checkedId = switch (type) {
@@ -139,8 +145,6 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkClickMainContainerPlayPause
                 .setOnCheckedChangeListener((button, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
 
-        setVisualizerPermissionText();
-
         // ---- Beeps
         llBeepChapter = root.findViewById(R.id.ll_beep_chapter);
         chkBeepChapter = root.findViewById(R.id.chk_beep_chapter);
@@ -161,8 +165,9 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkBeepBookend.setOnCheckedChangeListener((b, isChecked) -> Option.setBeepBookEnd(isChecked));
 
         // ---- Screensaver
-        llScreensaverEnabled = root.findViewById(R.id.ll_screensaver_enabled);
-        chkScreensaverEnabled = root.findViewById(R.id.chk_screensaver_enabled);
+        llScreensaverOn = root.findViewById(R.id.ll_screensaver_enabled);
+        chkScreensaverOn = root.findViewById(R.id.chk_screensaver_enabled);
+        tvScreensaverPermission = root.findViewById(R.id.tx_screensaver_permission);
         llScreensaverDelay = root.findViewById(R.id.ll_screensaver_delay);
         etScreensaverDelay = root.findViewById(R.id.etScreensaverDelay);
         TextView tvScreensaverDelayMin = root.findViewById(R.id.tvScreensaverDelayMin);
@@ -200,21 +205,27 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             }
         });
 
-        chkScreensaverEnabled.setChecked(ssEnabled);
+        chkScreensaverOn.setChecked(ssEnabled);
         etScreensaverDelay.setText(String.valueOf(Option.getScreensaverDelaySeconds()));
 
-        llScreensaverDelay.setEnabled(chkScreensaverEnabled.isChecked());
-        etScreensaverDelay.setEnabled(chkScreensaverEnabled.isChecked());
+        llScreensaverDelay.setEnabled(chkScreensaverOn.isChecked());
+        etScreensaverDelay.setEnabled(chkScreensaverOn.isChecked());
 
-        llScreensaverEnabled.setOnClickListener(v -> chkScreensaverEnabled.toggle());
-        chkScreensaverEnabled.setOnCheckedChangeListener((b, isChecked) -> {
+        llScreensaverOn.setOnClickListener(v -> chkScreensaverOn.toggle());
+        chkScreensaverOn.setOnCheckedChangeListener((b, isChecked) -> {
             Option.setScreensaverEnabled(isChecked);
+            if (isChecked && !isRecordAudioPermissionGranted(requireContext())) {
+                requestRecordAudioPermission(root);
+            }
+            setScreensaverPermissionText();
             llScreensaverDelay.setEnabled(isChecked);
             etScreensaverDelay.setEnabled(isChecked);
             updateScreensaverSectionVisibility(isChecked,
                     llScreensaverDelay, etScreensaverDelay, tvScreensaverDelayMin, tvScreensaverDelayMax,
                     ssGroup, llForceOrient, groupOrient);
         });
+
+        updateRecordAudioDependentOptions(root);
 
         // ---- Screensaver Orientation
         boolean isForceOrient = Option.getScreensaverForceOrientation();
@@ -307,6 +318,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     public void onResume() {
         super.onResume();
         setVisualizerPermissionText(); // refresh after coming back from Settings, etc.
+        setScreensaverPermissionText();
     }
 
     @Override
@@ -365,6 +377,27 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         txVisualizerOn.setText(Html.fromHtml(txt, Html.FROM_HTML_MODE_LEGACY));
     }
 
+    private void setScreensaverPermissionText() {
+        String txt = "<i>" + getString(R.string.option_visualizer_text_02);
+        if (isRecordAudioPermissionGranted(requireContext())) {
+            txt = txt + ": <font color='green'>" + getString(R.string.granted) + "</font></i>";
+        } else {
+            txt = txt + ": <font color='red'>" + getString(R.string.denied) + "</font><br>"
+                    + getString(R.string.option_visualizer_permissions_denied_02) + "</i>";
+        }
+        tvScreensaverPermission.setText(Html.fromHtml(txt, Html.FROM_HTML_MODE_LEGACY));
+    }
+
+    /**
+     * Updates UI that depends on RECORD_AUDIO permission: visualizer and screensaver permission text.
+     * When permission is not granted, screensaver is unchecked and section hidden (state consistent);
+     * user can still tap the option to request permission (same as visualizer).
+     */
+    private void updateRecordAudioDependentOptions(View root) {
+        setVisualizerPermissionText();
+        setScreensaverPermissionText();
+    }
+
     private void requestRecordAudioPermission(View root) {
         mPermissionRequest = PermissionRequest
                 .with(requireActivity())
@@ -376,13 +409,15 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                     @Override
                     public void onPermissionsGranted() {
                         myLog("RecordAudio Permission Granted");
-                        setVisualizerPermissionText();
+                        View v = getView();
+                        if (v != null) updateRecordAudioDependentOptions(v);
                     }
 
                     @Override
                     public void onPermissionsDenied() {
                         myLog("RecordAudio Permission Denied");
-                        setVisualizerPermissionText();
+                        View v = getView();
+                        if (v != null) updateRecordAudioDependentOptions(v);
                     }
                 })
                 .submit();

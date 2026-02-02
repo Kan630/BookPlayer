@@ -200,7 +200,9 @@
                     android:text="@string/option_visualizer_text_01" />
             </LinearLayout>
 
-            <TextView style="@style/betatest"
+            <TextView
+                android:id="@+id/tv_visualizer_beta_note"
+                style="@style/betatest"
                 android:text="@string/All_modes_except_Legacy_are_in_beta"
                 />
 
@@ -268,6 +270,11 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_screensaver_enabled" />
             </LinearLayout>
+            <TextView
+                android:id="@+id/tx_screensaver_permission"
+                style="@style/OptionExplainText"
+                android:layout_marginBottom="4dp"
+                android:text="" />
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_screensaver_subtitle"
