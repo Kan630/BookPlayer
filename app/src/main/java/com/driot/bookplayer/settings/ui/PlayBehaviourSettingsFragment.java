@@ -71,14 +71,14 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         etForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
 
         //HEAT MAPS
-        CheckBox chk_progress_heatmap;
-        LinearLayout ll_progress_heatmap;
-        chk_progress_heatmap = root.findViewById(R.id.chk_progress_heatmap);
-        ll_progress_heatmap  = root.findViewById(R.id.ll_progress_heatmap);
-        chk_progress_heatmap.setChecked(Option.getProgressHeatMap());
-        ll_progress_heatmap.setOnClickListener(v -> chk_progress_heatmap.toggle());
-        chk_progress_heatmap.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Option.setProgressHeatMap(isChecked));
+        CheckBox chk_use_heatmap_for_tracks_activity;
+        LinearLayout ll_use_heatmap_for_tracks_activity;
+        chk_use_heatmap_for_tracks_activity = root.findViewById(R.id.chk_use_heatmap_for_tracks_activity);
+        ll_use_heatmap_for_tracks_activity  = root.findViewById(R.id.ll_use_heatmap_for_tracks_activity);
+        chk_use_heatmap_for_tracks_activity.setChecked(Option.getUseHeatmapForTracksActivity());
+        ll_use_heatmap_for_tracks_activity.setOnClickListener(v -> chk_use_heatmap_for_tracks_activity.toggle());
+        chk_use_heatmap_for_tracks_activity.setOnCheckedChangeListener((buttonView, isChecked) ->
+                Option.setUseHeatmapForTracksActivity(isChecked));
 
 
         // ---- Visualizer
@@ -182,6 +182,12 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chk_lock_orientation_play_activity.setChecked(Option.getScreenOrientationLock());
         ll_lock_orientation_play_activity.setOnClickListener(v -> chk_lock_orientation_play_activity.toggle());
         chk_lock_orientation_play_activity.setOnCheckedChangeListener((b, isChecked) -> Option.setScreenOrientationLock(isChecked));
+
+        LinearLayout ll_use_heatmap_seekbar_in_play_activity = root.findViewById(R.id.ll_use_heatmap_seekbar_in_play_activity);
+        MaterialCheckBox chk_use_heatmap_seekbar_in_play_activity = root.findViewById(R.id.chk_use_heatmap_seekbar_in_play_activity);
+        chk_use_heatmap_seekbar_in_play_activity.setChecked(Option.getUseHeatmapSeekbarInPlayActivity());
+        ll_use_heatmap_seekbar_in_play_activity.setOnClickListener(v -> chk_use_heatmap_seekbar_in_play_activity.toggle());
+        chk_use_heatmap_seekbar_in_play_activity.setOnCheckedChangeListener((b, isChecked) -> Option.setUseHeatmapSeekbarInPlayActivity(isChecked));
 
         return root;
     }

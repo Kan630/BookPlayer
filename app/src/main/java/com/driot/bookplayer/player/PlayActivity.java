@@ -183,7 +183,7 @@ public class PlayActivity extends BaseActivity {
         ivCover.setImageURI(null);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
-        useHeatMapSeek = Option.getProgressHeatMap();
+        useHeatMapSeek = Option.getUseHeatmapSeekbarInPlayActivity();
         if (useHeatMapSeek && heatMapSeek != null) {
             sbSeek.setVisibility(View.GONE);
             heatMapSeek.setVisibility(View.VISIBLE);
@@ -507,7 +507,7 @@ public class PlayActivity extends BaseActivity {
         super.onDestroy();
     }
 
-    // ---------- Heatmap seek (when Option.getProgressHeatMap()) ----------
+    // ---------- Heatmap seek (when Option.getUseHeatmapSeekbarInPlayActivity()) ----------
 
     /** Half-width (px) of the touch zone centered on the cursor; total zone = 2 * this. */
     private static final int HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP = 40;

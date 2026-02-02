@@ -943,8 +943,8 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="AskReset_popupText_order">Stai per reimpostare l\'ordine delle tracce.\nSei sicuro?</string>
     <string name="zikFiles_not_readable">alcune tracce hanno errori e non sono riproducibili:</string>
     <string name="All_zikFiles_not_readable">Questo libro è danneggiato. Nessuna traccia può essere riprodotta.</string>
-    <string name="option_progress_heatmap_subtitle">Le barre di avanzamento delle tracce mostreranno esattamente quali parti sono state ascoltate, e il colore si intensifica quanto più una sezione viene riprodotta.</string>
-    <string name="option_progress_heatmap">mostra mappe di calore</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">Le barre di avanzamento delle tracce mostreranno esattamente quali parti sono state ascoltate, e il colore si intensifica quanto più una sezione viene riprodotta.</string>
+    <string name="option_use_heatmap_for_tracks_activity">mostra mappe di calore</string>
     <string name="option_lock_orientation_play_activity">blocca orientamento dello schermo</string>
     <string name="in_history">nella cronologia</string>
     <string name="radio_could_not_resolve_url">Questo link della stazione sembra non funzionare.</string>

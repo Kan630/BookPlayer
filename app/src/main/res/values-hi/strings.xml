@@ -946,8 +946,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="AskReset_popupText_order">आप ट्रैक क्रम रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?</string>
     <string name="zikFiles_not_readable">कुछ ट्रैकों में त्रुटियाँ हैं और चल नहीं सकतीं:</string>
     <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>
-    <string name="option_progress_heatmap_subtitle">ट्रैक की प्रगति पट्टियाँ दिखाएँगी कि कौन से भाग सुने गए हैं, और जितना अधिक कोई हिस्सा चलाया जाता है, रंग उतना ही गहरा होता जाता है।</string>
-    <string name="option_progress_heatmap">हीटमैप दिखाएँ</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">ट्रैक की प्रगति पट्टियाँ दिखाएँगी कि कौन से भाग सुने गए हैं, और जितना अधिक कोई हिस्सा चलाया जाता है, रंग उतना ही गहरा होता जाता है।</string>
+    <string name="option_use_heatmap_for_tracks_activity">हीटमैप दिखाएँ</string>
     <string name="option_lock_orientation_play_activity">स्क्रीन ओरिएंटेशन लॉक करें</string>
     <string name="in_history">इतिहास में</string>
     <string name="radio_could_not_resolve_url">यह स्टेशन लिंक टूटा हुआ लगता है।</string>

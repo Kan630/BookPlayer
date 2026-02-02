@@ -942,8 +942,8 @@
     <string name="AskReset_popupText_order">أنت على وشك إعادة تعيين ترتيب المقاطع.\nهل أنت متأكد؟</string>
     <string name="zikFiles_not_readable">بعض المقاطع تحتوي على أخطاء ولا يمكن تشغيلها:</string>
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
-    <string name="option_progress_heatmap_subtitle">ستُظهر أشرطة التقدّم في المقاطع الأجزاء التي تم الاستماع إليها بالضبط، ويتعمّق اللون كلما تكرّر التشغيل.</string>
-    <string name="option_progress_heatmap">عرض خرائط الحرارة</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">ستُظهر أشرطة التقدّم في المقاطع الأجزاء التي تم الاستماع إليها بالضبط، ويتعمّق اللون كلما تكرّر التشغيل.</string>
+    <string name="option_use_heatmap_for_tracks_activity">عرض خرائط الحرارة</string>
     <string name="option_lock_orientation_play_activity">قفل اتجاه الشاشة</string>
     <string name="in_history">في السجل</string>
     <string name="radio_could_not_resolve_url">يبدو أنّ رابط المحطة معطّل.</string>

@@ -46,7 +46,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
 
     private final OnStartDragListener dragStart;
     private final boolean activateReOrder;
-    private boolean displayHeatMaps = Option.getProgressHeatMap();
+    private boolean displayHeatMaps = Option.getUseHeatmapForTracksActivity();
 
 
     public ZikFilesRVAdapter(@NonNull LifecycleOwner owner,
@@ -367,7 +367,7 @@ public class ZikFilesRVAdapter extends LoggingListAdapter<ZikFile, ZikFilesRVAda
     }
 
     public void refreshDisplayHeatMaps() {
-        boolean newValue = Option.getProgressHeatMap();
+        boolean newValue = Option.getUseHeatmapForTracksActivity();
         if (newValue == displayHeatMaps) return; // nothing to do
         displayHeatMaps = newValue;
         notifyDataSetChanged(); // rebind all rows so visibility + heatmaps update

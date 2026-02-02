@@ -954,8 +954,8 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="AskReset_popupText_order">Vous êtes sur le point de réinitialiser l\'ordre des pistes.\nÊtes-vous sûr?</string>
     <string name="zikFiles_not_readable">des pistes ont des erreurs et ne sont pas lisibles:</string>
     <string name="All_zikFiles_not_readable">Ce livre est KO. Aucune piste ne peut être lue.</string>
-    <string name="option_progress_heatmap_subtitle">Les barres de progression des pistes montreront exactement quelles parties ont été écoutées, et la couleur s\'intensifie plus une section a été lue.</string>
-    <string name="option_progress_heatmap">afficher les cartes thermiques</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">Les barres de progression des pistes montreront exactement quelles parties ont été écoutées, et la couleur s\'intensifie plus une section a été lue.</string>
+    <string name="option_use_heatmap_for_tracks_activity">afficher les cartes thermiques</string>
     <string name="option_lock_orientation_play_activity">Verrouiller l\'orientation de l\'écran</string>
     <string name="in_history">dans l\'historique</string>
     <string name="radio_could_not_resolve_url">Ce lien de station semble cassé.</string>

@@ -85,7 +85,8 @@ public class Option {
     public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
     private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES = false;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
-    public static final boolean DEFAULT_PROGRESS_HEAT_MAP = true;
+    public static final boolean DEFAULT_USE_HEATMAP_FOR_TRACKS_ACTIVITY = true;
+    private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = false;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
@@ -216,16 +217,24 @@ public class Option {
     }
 
     /////////////////// HEAT_MAPS ///////////////////
-    public static boolean getProgressHeatMap() {
-        return prefs.getBoolean("PROGRESS_HEAT_MAP", DEFAULT_PROGRESS_HEAT_MAP);
+    public static boolean getUseHeatmapForTracksActivity() {
+        return prefs.getBoolean("USE_HEATMAP_FOR_TRACKS_ACTIVITY", DEFAULT_USE_HEATMAP_FOR_TRACKS_ACTIVITY);
     }
 
-    public static boolean getProgressHeatMapInitialized() {
-        return prefs.contains("PROGRESS_HEAT_MAP");
+    public static boolean getUseHeatmapForTracksActivityInitialized() {
+        return prefs.contains("USE_HEATMAP_FOR_TRACKS_ACTIVITY");
     }
 
-    public static void setProgressHeatMap(boolean bool) {
-        prefs.edit().putBoolean("PROGRESS_HEAT_MAP", bool).apply();
+    public static void setUseHeatmapForTracksActivity(boolean bool) {
+        prefs.edit().putBoolean("USE_HEATMAP_FOR_TRACKS_ACTIVITY", bool).apply();
+    }
+
+    public static boolean getUseHeatmapSeekbarInPlayActivity() {
+        return prefs.getBoolean("USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY", DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY);
+    }
+
+    public static void setUseHeatmapSeekbarInPlayActivity(boolean bool) {
+        prefs.edit().putBoolean("USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY", bool).apply();
     }
 
     /////////////////// SLEEP - AUTOMATIC PAUSE ///////////////////

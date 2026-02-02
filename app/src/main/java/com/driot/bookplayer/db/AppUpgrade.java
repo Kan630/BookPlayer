@@ -38,8 +38,8 @@ public final class AppUpgrade {
         }
 
         if (last < VERSION_INTRODUCING_HEATMAPS) {
-            if (!Option.getProgressHeatMapInitialized()) {
-                Option.setProgressHeatMap(true);
+            if (!Option.getUseHeatmapForTracksActivityInitialized()) {
+                Option.setUseHeatmapForTracksActivity(true);
             }
         }
 

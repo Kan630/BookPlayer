@@ -957,8 +957,10 @@
     <string name="AskReset_popupText_order">You are about to reset tracks order.\nAre you sure ?</string>
     <string name="zikFiles_not_readable">tracks have errors and are not playable:</string>
     <string name="All_zikFiles_not_readable">This Book is KO. No track can be read.</string>
-    <string name="option_progress_heatmap_subtitle">Track playback progress bars show exactly which parts have been listened to, with the color deepening the more a section is played. (it is not yet very good with written ebooks). If this option is disabled, the progress bars are filled only up to the last listening position.</string>
-    <string name="option_progress_heatmap">show progress heat maps</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">Track playback progress bars show exactly which parts have been listened to, with the color deepening the more a section is played. (it is not yet very good with written ebooks). If this option is disabled, the progress bars are filled only up to the last listening position.</string>
+    <string name="option_use_heatmap_for_tracks_activity">show progress heat maps</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">Replace classic seekbar with heatmap seekbar</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Use a visual progress indicator that shows how much each part of the track has been listened to, with a draggable play marker.</string>
     <string name="option_lock_orientation_play_activity">Lock screen orientation</string>
     <string name="in_history">in history</string>
     <string name="radio_could_not_resolve_url">This station link seems broken.</string>

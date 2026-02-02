@@ -110,20 +110,20 @@
         <TextView style="@style/betatest"/>
         <LinearLayout
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:id="@+id/ll_progress_heatmap"
+            android:id="@+id/ll_use_heatmap_for_tracks_activity"
             android:layout_marginTop="0dp">
 
             <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_progress_heatmap"
+                android:id="@+id/chk_use_heatmap_for_tracks_activity"
                 style="@style/OptionCheckBox" />
 
             <TextView
                 style="@style/OptionCheckBoxText"
-                android:text="@string/option_progress_heatmap" />
+                android:text="@string/option_use_heatmap_for_tracks_activity" />
         </LinearLayout>
         <TextView
             style="@style/OptionExplainText"
-            android:text="@string/option_progress_heatmap_subtitle"
+            android:text="@string/option_use_heatmap_for_tracks_activity_subtitle"
             android:layout_marginBottom="5dp"
             />
 
@@ -160,6 +160,21 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_lock_orientation_play_activity" />
             </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_use_heatmap_seekbar_in_play_activity"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_use_heatmap_seekbar_in_play_activity"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_use_heatmap_seekbar_in_play_activity" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_use_heatmap_seekbar_in_play_activity_explain"
+                android:layout_marginBottom="5dp" />
 
             <LinearLayout
                 android:id="@+id/ll_visualizer_playpause"

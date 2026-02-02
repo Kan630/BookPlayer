@@ -943,8 +943,8 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="AskReset_popupText_order">Você está prestes a redefinir a ordem das faixas.\nTem certeza?</string>
     <string name="zikFiles_not_readable">algumas faixas têm erros e não podem ser reproduzidas:</string>
     <string name="All_zikFiles_not_readable">Este livro está com problema. Nenhuma faixa pode ser reproduzida.</string>
-    <string name="option_progress_heatmap_subtitle">As barras de progresso das faixas mostrarão exatamente quais partes foram ouvidas, e a cor se intensifica quanto mais uma seção é reproduzida.</string>
-    <string name="option_progress_heatmap">mostrar mapas de calor</string>
+    <string name="option_use_heatmap_for_tracks_activity_subtitle">As barras de progresso das faixas mostrarão exatamente quais partes foram ouvidas, e a cor se intensifica quanto mais uma seção é reproduzida.</string>
+    <string name="option_use_heatmap_for_tracks_activity">mostrar mapas de calor</string>
     <string name="option_lock_orientation_play_activity">bloquear orientação da tela</string>
     <string name="in_history">no histórico</string>
     <string name="radio_could_not_resolve_url">Este link da estação parece quebrado.</string>
