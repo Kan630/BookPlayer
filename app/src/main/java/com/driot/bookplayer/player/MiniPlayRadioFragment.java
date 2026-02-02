@@ -80,18 +80,18 @@ public class MiniPlayRadioFragment extends LoggingFragment {
 
         ibPlayPause.setOnClickListener(_v -> {
             myLogI("---- user press PlayPause button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.playPause();
         });
         ibClose.setOnClickListener(_v -> {
             myLogI("---- user press CLOSE button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.stop();
         });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user press mini player ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             if (vm.getState() != null && vm.getState().getValue() != null) {
                 String radioStationUuid = vm.getState().getValue().radioStationUuid;
                 if (radioStationUuid != null) {

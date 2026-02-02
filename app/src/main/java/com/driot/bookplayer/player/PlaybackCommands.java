@@ -7,7 +7,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-import androidx.media.session.MediaButtonReceiver;
+
 import android.support.v4.media.session.MediaControllerCompat;
 import android.support.v4.media.session.PlaybackStateCompat;
 import android.view.KeyEvent;
@@ -177,7 +177,7 @@ public final class PlaybackCommands {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    public static void resetSleepTimer(Context ctx) {
+    public static void resetLastUserAction(Context ctx) {
         MediaControllerCompat mc = mcOrNull(ctx);
         if (mc != null) {
             mc.getTransportControls().sendCustomAction("CMD_RESET_LAST_USER_ACTION", null);

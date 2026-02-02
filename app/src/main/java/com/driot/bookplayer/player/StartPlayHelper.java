@@ -205,7 +205,7 @@ public class StartPlayHelper {
                     + isTTS + " - lastUiState = " + lastUiState);
 
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                PlaybackCommands.resetSleepTimer(context);
+                PlaybackCommands.resetLastUserAction(context);
 
                 // start audio service
                 if (lastUiState == null

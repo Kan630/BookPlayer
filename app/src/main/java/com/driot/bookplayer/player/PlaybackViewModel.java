@@ -8,12 +8,10 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
 import android.util.Pair;
-import android.view.KeyEvent;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -184,7 +182,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     public void resetSleepTimer() {
-        PlaybackCommands.resetSleepTimer(getApplication());
+        PlaybackCommands.resetLastUserAction(getApplication());
     }
 
     // --------------------------------------------------------------------

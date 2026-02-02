@@ -61,28 +61,28 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             startActivity(new Intent(requireContext(), PlayActivity.class));
         });
 
         ibPrev.setOnClickListener(_v -> {
             myLogI("---- user press PREV button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.prev();
         });
         ibPlayPause.setOnClickListener(_v -> {
             myLogI("---- user press PlayPause button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.playPause();
         });
         ibNext.setOnClickListener(_v -> {
             myLogI("---- user press NEXT button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.next();
         });
         ibClose.setOnClickListener(_v -> {
             myLogI("---- user press CLOSE button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.stop();
         });
     }

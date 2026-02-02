@@ -110,28 +110,28 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
 
         btnPrev.setOnClickListener(_v -> {
             myLogI("---- user press PREV button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.prev();
         });
         btnPlayPause.setOnClickListener(_v -> {
             myLogI("---- user press PlayPause button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.playPause();
         });
         btnNext.setOnClickListener(_v -> {
             myLogI("---- user press NEXT button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.next();
         });
         ibClose.setOnClickListener(_v -> {
             myLogI("---- user press CLOSE button ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             vm.stop();
         });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
-            PlaybackCommands.resetSleepTimer(requireContext());
+            PlaybackCommands.resetLastUserAction(requireContext());
             if (vm.getState() != null && vm.getState().getValue() != null) {
                 long idPodcast = vm.getState().getValue().podcastFeedId;
                 myLogD("idPodcast = " + idPodcast);

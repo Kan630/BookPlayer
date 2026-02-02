@@ -94,7 +94,7 @@ public class ScreensaverActivity extends BaseActivity {
         } else if (prevOrientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
             setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         }
-        PlaybackCommands.resetSleepTimer(this);
+        PlaybackCommands.resetLastUserAction(this);
         super.finish();
     }
 
