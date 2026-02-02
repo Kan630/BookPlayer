@@ -476,7 +476,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_podcast_autodownload_subtitle">"Si vous marquez un podcast comme favori, vous pouvez aussi activer l\'option ‘téléchargement automatique’.\nBookPlayer vérifiera alors les nouveaux épisodes — périodiquement et au démarrage — et les téléchargera."</string>
     <string name="option_playing_behaviour_title">Lecture</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Toujours commencer la piste suivante depuis le début, même si elle a déjà été partiellement écoutée.</string>
+    <string name="option_start_next_track_at_zero_title_text">Quand une piste se termine, commencer la piste suivante depuis le début, même si elle a déjà été partiellement écoutée.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Arrêter l\'audio lorsque vous fermez l\'app.</string>
     <string name="option_network_preference_subtext">
 "An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
@@ -878,6 +878,8 @@ La réinitialisation pour utilisateur avancé restaure les valeurs d\'usine, mai
 \nComportement de lecture :
 \n* [ne pas ouvrir la vue de lecture dédiée]
 \n* [continuer la lecture audio en quittant l\'application]
+\nNavigation :
+\n* [Ouvrir les favoris en premier] pour Radio et Podcast
 </string>
     <string name="cancel_ongoing_operation">Annuler les opérations en cours</string>
     <string name="option_reset_app_explain_text">
@@ -1017,13 +1019,13 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
 
     <string name="vote_too_many">Vous avez trop voté pour cette station — réessayez plus tard.</string>
     <string name="Offline_for">Hors ligne depuis</string>
-    <string name="Track_View">Vue Piste</string>
+    <string name="Track_View">Vue des pistes</string>
     <string name="All_modes_except_Legacy_are_in_beta">Tous les modes sauf Legacy sont en bêta.</string>
     <string name="reset_progress_only_for_this_track">réinit. progression de cette piste</string>
     <string name="pick_a_new_location">choisir un nouvel emplacement</string>
     <string name="newlocation_better">Ce dossier corrige tous les liens rompus</string>
     <string name="newlocation_better_and_worse">Ce dossier corrige certains liens rompus</string>
-    <string name="newlocation_not_better">Désolé, cela n\'a pas fonctionné</string>
+    <string name="newlocation_not_better">Désolé, cela n\'a pas corrigé les chemins.</string>
     <string name="AskChangeSource_popupTitle">Confirmer le changement</string>
     <string name="already_downloaded">Déjà téléchargé</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>
