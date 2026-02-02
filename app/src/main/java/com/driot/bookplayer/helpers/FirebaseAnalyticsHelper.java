@@ -14,6 +14,7 @@ import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
+import java.util.Locale;
 import java.util.TimeZone;
 
 public final class FirebaseAnalyticsHelper {
@@ -21,27 +22,29 @@ public final class FirebaseAnalyticsHelper {
     private static final int MAX_FA_PARAM = 100;
 
     private static Context appContext;
+
     private static String appVersion;
-    private static String sdkVersion;
-    private static String androidVersion;
-    private static String countryFromTimeZone;
-    private static String daysSinceInstall;
+    private static String aaa;
+    private static String bbb;
 
     public static void init(Context context) {
         try {
             appContext = context.getApplicationContext();
+            appVersion = String.valueOf(BuildConfig.VERSION_CODE);
 
-            appVersion = BuildConfig.VERSION_NAME;
-            sdkVersion = String.valueOf(Build.VERSION.SDK_INT);
-            androidVersion = Build.VERSION.RELEASE;
-            countryFromTimeZone = TimeZone.getDefault().getID();
+            String sdkVersion = String.valueOf(Build.VERSION.SDK_INT);
+            String androidVersion = Build.VERSION.RELEASE;
+            String countryFromLocale = Locale.getDefault().getCountry();
             long installTimestamp = Pref.getFirstOpenTimeStamp();
             long days = installTimestamp > 0
                     ? (System.currentTimeMillis() - installTimestamp) / (24 * 60 * 60 * 1000L)
                     : 0;
-            daysSinceInstall = String.valueOf(days);
+            String daysSinceInstall = String.valueOf(days);
+            aaa = androidVersion + "-" + appVersion + "-" + countryFromLocale;
+            bbb = sdkVersion + "-" + appVersion + "-" + daysSinceInstall + "-" + countryFromLocale;
 
             setCustomKeyCrashlytics("app_version", appVersion);
+            setCustomKeyCrashlytics("sdk_version", sdkVersion);
             setCustomKeyCrashlytics("first_open_date", Pref.getFirstOpenDate());
             setCustomKeyCrashlytics("total_ms_played", Tonio.formatTime(Pref.getTotalMsPlayed(), false));
         } catch (Exception e) {
@@ -321,8 +324,8 @@ public final class FirebaseAnalyticsHelper {
             myLogD("Analytics logging - " + logName + " - " + bundle.toString());
             FirebaseAnalytics firebaseAnalytics = FirebaseAnalytics.getInstance(appContext);
             bundle.putString("app_version", appVersion);
-            bundle.putString("aaa", androidVersion + "-" + appVersion + "-" + countryFromTimeZone);
-            bundle.putString("bbb", sdkVersion + "-" + appVersion + "-" + daysSinceInstall + "-" + countryFromTimeZone);
+            bundle.putString("aaa", aaa);
+            bundle.putString("bbb", bbb);
             firebaseAnalytics.logEvent(logName, bundle);
         } catch (Exception e) {
             myLogE("Analytics logging - " + logName);
