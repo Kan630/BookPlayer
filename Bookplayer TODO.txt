@@ -1,0 +1,46 @@
+TODO
+
+
+
+
+
+
+
+
+TO CHECK
+I have a problem with the saving of the cover picture through a temp file when importing a book using massiveimport.
+The cover seems to appear fine on mainActivity after importation
+but if i open modifyFolder activity, it does not show the picture, and I get an error message if i try the button "reset to original" :
+
+the check if it was already imported works well with epubs, fb2, m4b, single audio file, zip, but does not work with folders.
+maybe check how it was done in the single book loading process (LoadBookActivity)
+
+in ModifyFolder, for covers, deleteCover button should not actually deletet the original cover founded upon import, it should only delete the link, so that if user hits later "reset to original", it would gives back the orinigal cover. you can also remove the esle part where if no original cover found, it generates a "pastel image". just say no cover found (and log an error, that should not happen)
+
+
+
+I want to create a screesaver functionnality.
+I should have an option in playbehaviour.
+checkbox : "Screensaver"
+editBox : delay : after XX sec  (only enabled/active if checkbox on)
+
+while playing, if no uther action since delay, display a new activity : Full black, with, for now, just the frequencyVizualizer in the middle, any touch should discard it (like press back)
+take in consideration that I already have idle time detection during playback in the app (for the sleep timer, shown in playactivity through timeSinceLastUserAction)
+Also In TTS mode, since we show some highlightned text, scrensaveractivity should not show if user is on the PlayActivity, (but ok in other cases)
+
+
+
+
+tts full screen mode in play activity
+=> first open real immersive full screen with no system bar and no playFragment.
+* if click anywhere => show playfragment + system bar
+* if click again anywhere (but the system bar and the play fragment) => get back to classic view in PlayActivity
+
+
+actually, I tested again and I kind of understand : 
+since the vizualizer is shared by 2 activity, it seems to be only active on 1, at first is it in playActivity, and then it moves to screensaveractivity, but disapear from playactivity !
+any way to keep the 2 running ? or solve this problem when its active on the view that is not on screen ?
+
+
+
+

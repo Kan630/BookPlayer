@@ -1,0 +1,51 @@
+----------------------------------------------
+STRINGS PROCESS
+----------------------------------------------
+STEP 1 - (identify modifications + additions - deletions)
+check git since 5 days ago for any change in the base english strings.xml.
+for each change detected, add the var name to an array called MODIFIED_KEYS_IN_BASE_STRINGS_XML for later use.
+for each entry in MODIFIED_KEYS_IN_BASE_STRINGS_XML, check the wording in english is correct, you could use the code context. If anything looks not so nice, show me, I want to review any potential change you may propose.
+
+STEP 2 - (french tranlsation)
+Use the array MODIFIED_KEYS_IN_BASE_STRINGS_XML to check if french strings.xml is up-to-date with any change done in the english strings.xml file
+I want to review, one by one, any change you will do here.
+
+ok, I made a few changes. Now that's ok.
+STEP 3 - (fr+eng ok => others)
+Now that I have reviewed french and english tranlsations, and there are good, Use the array MODIFIED_KEYS_IN_BASE_STRINGS_XML to propagate changes in the other translation files. Make sure to use french AND english together as a source to produce the best translations.
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ChatGpt old prompt
+
+do the usual translations for languages :
+fr, ar, de, es, hi, it, pt, ru, zh
+* remember to escape apostrophes like : ' => \'
+* no ampersand : & => &amp;
+* but keep accents and normal characters
+* no special character like &nbsp;
+* just "..." => "…"
+* respect case
+* avoid special chars, no funny quotes
+* use indications and meanings if any in comments on the right with //
+* if indication is like // stay below 8 chars => it means, try to find a translation that stays below 8 chars
+* dont translate line translatable=false
+* show result in codeViews, so I can easily copy pstae
+
+here is the text to translate
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+I add a lot of strings with comments previously in english strings.xml. it did put them on the right, like this :
+<string name="Settings">Settings</string> //means preferences, options
+now I have this :
+<string name="Settings">Settings</string>
+i was doing that to help IA make better translation by giving some context for a word/phrase translation.
+it seems you deleted my usefull comments at that git point : 82b8dd7a890ff2161a0d1775cb3bed7090e539ec
+is it possible for you to put them back?
