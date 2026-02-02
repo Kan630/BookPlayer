@@ -46,11 +46,11 @@ public class StartPlayHelper {
     private static final String PREFIX_FOLDER = "folder:";
     private static final String PREFIX_TRACK = "track:";
 
-    private static final int ART_MAX_PX = 512;  // big artwork
-    private static final int ICON_MAX_PX = 158; //was 128 158=hints fron AndroidAuto // list thumbnails
+    private static final int ART_MAX_PX = 512; // big artwork
+    private static final int ICON_MAX_PX = 158; // was 128 158=hints fron AndroidAuto // list thumbnails
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
-        String cover = ep.image==null || ep.image.isEmpty() ? podcast.image : ep.image;
+        String cover = ep.image == null || ep.image.isEmpty() ? podcast.image : ep.image;
         playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title, cover, caller);
     }
 
@@ -65,7 +65,7 @@ public class StartPlayHelper {
     public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
         myLogI("onRadioClick()");
         playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon, caller);
-        //update DB
+        // update DB
         if (s.stationuuid == null) {
             myLogEE(null, "onRadioClick() - null uuid - caller=" + caller);
             return;
@@ -74,7 +74,7 @@ public class StartPlayHelper {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
             RadioStation radioStation = dao.findByUuid(station.stationuuid);
-            if (radioStation==null) {
+            if (radioStation == null) {
                 radioStation = RadioStation.fromStation(station, streamUrl);
                 radioStation.date_last_played = System.currentTimeMillis();
                 dao.insert(radioStation);
@@ -89,13 +89,13 @@ public class StartPlayHelper {
 
     public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
         playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name, f.favicon, caller);
-        //update DB
+        // update DB
         AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
             RadioStation radioStation = dao.findByUuid(f.stationuuid);
-            if (radioStation==null) {
+            if (radioStation == null) {
                 myLogE("this should not happens, radio station should already been in Favorites");
-                //dao.insert(f)...
+                // dao.insert(f)...
             } else {
                 radioStation.url_resolved = streamUrl;
                 radioStation.date_maj = System.currentTimeMillis();
@@ -105,19 +105,19 @@ public class StartPlayHelper {
         });
     }
 
-
-    public static void onFolderClick(Context context,Folder clickedFolder, String caller) {
+    public static void onFolderClick(Context context, Folder clickedFolder, String caller) {
         // DB work off main; UI nav back on main
-        AppDatabase.databaseReadExecutor.execute(()->
+        AppDatabase.databaseReadExecutor.execute(() ->
 
         {
             try {
-                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).zikFileDao().getZikFiles(clickedFolder.getId());
+                List<ZikFile> zikFilesList = AppDatabase.getDatabase(context).zikFileDao()
+                        .getZikFiles(clickedFolder.getId());
                 if (zikFilesList.isEmpty()) {
                     if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())) {
                         if (!Option.getPodcastOpenSpecificView()) {
                             myToast(context.getString(R.string.no_episode_all_deleted));
-                            //lets open the podcast specific view anyway
+                            // lets open the podcast specific view anyway
                         }
                     } else {
                         myToastE(context.getString(R.string.ErrorCouldNotLoadAudios_emptyfolder));
@@ -126,40 +126,47 @@ public class StartPlayHelper {
                 }
 
                 if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())
-                        && (Option.getPodcastOpenSpecificView() || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))
-                ) {
-                    Podcast p = AppDatabase.getDatabase(context).podcastDao().getPodcastByFolderId(clickedFolder.getId());
+                        && (Option.getPodcastOpenSpecificView()
+                                || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))) {
+                    Podcast p = AppDatabase.getDatabase(context).podcastDao()
+                            .getPodcastByFolderId(clickedFolder.getId());
                     new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                         context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p));
                     });
                 } else {
                     if (zikFilesList.size() > 1) {
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                                    context.startActivity(new Intent(context, ZikFileActivity.class).putExtra(Intents.EXTRA_FOLDER, clickedFolder));
-                                });
+                            context.startActivity(new Intent(context, ZikFileActivity.class)
+                                    .putExtra(Intents.EXTRA_FOLDER, clickedFolder));
+                        });
                     } else {
                         myLogD("Single file");
-                        // SINGLE FILE: only reload if it's a different clickedFolder than what's playing
+                        // SINGLE FILE: only reload if it's a different clickedFolder than what's
+                        // playing
                         PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
                         PlayList pl = PlayList.getInstance();
-                        boolean sameTrack = (pl != null && pl.getFolder() != null && pl.getFolder().getId() == clickedFolder.getId());  //keep getId() => needed !
-                        boolean isTTS = (pl != null && pl.getFolder() != null && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT));  //keep getId() => needed !
-                        myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = " + lastUiState);
+                        boolean sameTrack = (pl != null && pl.getFolder() != null
+                                && pl.getFolder().getId() == clickedFolder.getId()); // keep getId() => needed !
+                        boolean isTTS = (pl != null && pl.getFolder() != null
+                                && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT)); // keep getId() =>
+                                                                                                 // needed !
+                        myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = "
+                                + lastUiState);
 
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             // open play screen ?
                             if (Option.getOpenPlayActivity()
                                     || isTTS
-                                    || sameTrack
-                            ) {
-                                context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
+                                    || sameTrack) {
+                                context.startActivity(new Intent(context, PlayActivity.class)
+                                        .addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
                             }
 
                             // start foreground audio service ?
                             if (lastUiState == null
                                     || !lastUiState.playing
                                     || !sameTrack
-                                //|| isTTS //TODO remove : TTS not perfect yet, so we force reload...
+                            // || isTTS //TODO remove : TTS not perfect yet, so we force reload...
                             ) {
                                 ContextCompat.startForegroundService(
                                         context.getApplicationContext(),
@@ -167,8 +174,7 @@ public class StartPlayHelper {
                                                 .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
                                                 .putExtra(Intents.EXTRA_FOLDER_ID, clickedFolder.getId())
                                                 .putExtra(Intents.EXTRA_CALLER, caller)
-                                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                );
+                                                .putExtra(Intents.EXTRA_FOREGROUND, true));
                             }
                         });
 
@@ -181,8 +187,8 @@ public class StartPlayHelper {
     }
 
     public static void onZikFileClick(Context context, ZikFile clickedZikFile, String caller) {
-        AppDatabase.databaseReadExecutor.execute(()-> {
-            //TTS ?
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            // TTS ?
             final boolean isTTS;
             Folder folder = AppDatabase.getDatabase(context).folderDao().getById(clickedZikFile.getIdFolder());
             isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
@@ -190,19 +196,21 @@ public class StartPlayHelper {
             // was something playing ?
             PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
 
-            //is same track clicked ?
+            // is same track clicked ?
             PlayList pl = PlayList.getInstance();
-            boolean sameTrack = (pl != null && pl.getZikFile() != null && pl.getZikFile().getId() == clickedZikFile.getId());  //keep getId() => needed !
+            boolean sameTrack = (pl != null && pl.getZikFile() != null
+                    && pl.getZikFile().getId() == clickedZikFile.getId()); // keep getId() => needed !
 
-            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS=" + isTTS + " - lastUiState = " + lastUiState);
+            myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS="
+                    + isTTS + " - lastUiState = " + lastUiState);
 
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+                PlaybackCommands.resetSleepTimer(context);
 
                 // start audio service
-                if (lastUiState==null
+                if (lastUiState == null
                         || !lastUiState.playing
-                        || !sameTrack
-                ) {
+                        || !sameTrack) {
                     playZikFile(context, clickedZikFile.getId(), caller, false, false);
                 }
 
@@ -215,10 +223,11 @@ public class StartPlayHelper {
         });
     }
 
-    public static void onZikFileFromPodcast(Context activityContext, ZikFile zikFile, String caller, boolean sortNewestFirst) {
+    public static void onZikFileFromPodcast(Context activityContext, ZikFile zikFile, String caller,
+            boolean sortNewestFirst) {
         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
             if (MediaService.isRunning && PlaybackUiBus.get().state().getValue() != null) {
-                if (PlaybackUiBus.get().state().getValue().trackId==zikFile.getId()) {
+                if (PlaybackUiBus.get().state().getValue().trackId == zikFile.getId()) {
                     myLog("already playing that track - [" + zikFile.getDisplayName() + "]");
                     startActivityBecauseSameTrack(activityContext);
                     return;
@@ -226,7 +235,8 @@ public class StartPlayHelper {
             }
 
             try {
-                myLog("onOpenLocalEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - " + zikFile.getName());
+                myLog("onOpenLocalEpisode : " + zikFile.getDisplayName() + " - " + zikFile.getId() + " - "
+                        + zikFile.getName());
                 playZikFile(activityContext, zikFile.getId(), caller, true, sortNewestFirst);
             } catch (Exception e) {
                 myLogEE(e, "clickOnEpisode - playThatShit");
@@ -234,7 +244,8 @@ public class StartPlayHelper {
         });
     }
 
-    private static void playZikFile(Context context, int zikFileId, String caller, boolean isPodcast, boolean sortNewestFirst) {
+    private static void playZikFile(Context context, int zikFileId, String caller, boolean isPodcast,
+            boolean sortNewestFirst) {
         ContextCompat.startForegroundService(
                 context.getApplicationContext(),
                 new Intent(context.getApplicationContext(), MediaService.class)
@@ -243,14 +254,12 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, sortNewestFirst)
                         .putExtra(Intents.EXTRA_IS_PODCAST, isPodcast)
                         .putExtra(Intents.EXTRA_CALLER, caller)
-                        .putExtra(Intents.EXTRA_FOREGROUND, true)
-        );
+                        .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
     private static void startActivityBecauseSameTrack(Context context) {
         context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
     }
-
 
     public static void carOnPlay(Context context) {
         if (!Option.getAutomotiveLetCarAutoplay()) {
@@ -258,18 +267,19 @@ public class StartPlayHelper {
             return;
         }
 
-        //TODO if (Option.getAutomotiveAutoResumeOnCarConnect()) {
-        //myLogW("Android Auto not authorized to resume playback (from Bookplayer settings)");
+        // TODO if (Option.getAutomotiveAutoResumeOnCarConnect()) {
+        // myLogW("Android Auto not authorized to resume playback (from Bookplayer
+        // settings)");
 
         PlayList pl = PlayList.getInstance();
-        if (pl==null) {
-// NO PLAYLIST
+        if (pl == null) {
+            // NO PLAYLIST
             myLogI("Car onPlay but Playlist is null");
             FirebaseAnalyticsHelper.tellCarAutoPlay();
             AppDatabase.databaseReadExecutor.execute(() -> {
                 ZikFile zikFile = AppDatabase.getDatabase(context.getApplicationContext())
                         .zikFileDao().getLastListenedZikFile();
-                if (zikFile==null) {
+                if (zikFile == null) {
                     myLogW("no last played zikfile !, must be pretty new");
                 } else {
                     myLog("go for last played zikfile : [" + zikFile.getDisplayName() + "], starting FOREGROUND");
@@ -279,14 +289,13 @@ public class StartPlayHelper {
                                     .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                     .putExtra(Intents.EXTRA_TRACK_ID, zikFile.getId())
                                     .putExtra(Intents.EXTRA_CALLER, "carOnPlay()")
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                    );
+                                    .putExtra(Intents.EXTRA_FOREGROUND, true));
                     // Optional: show buffering right away in AA
-                    //pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
+                    // pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                 }
             });
         } else {
-// PLAYLIST EXISTS
+            // PLAYLIST EXISTS
             String playMode = pl.getPlayMode();
             if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
                 myLog("Car onPlay, resuming... send play stream");
@@ -303,7 +312,8 @@ public class StartPlayHelper {
         myLogI("---- AUTOMOTIVE user click Play -----");
         myLog("media Id = [" + mediaId + "]   - extras : " + getBundleString(extras));
         FirebaseAnalyticsHelper.tellCarOnPlayFromMediaId();
-        if (mediaId == null) return;
+        if (mediaId == null)
+            return;
 
         if (mediaId.startsWith(PREFIX_TRACK)) {
             int trackId = safeParseInt(mediaId.substring(PREFIX_TRACK.length()), -1);
@@ -313,11 +323,11 @@ public class StartPlayHelper {
                         new Intent(context, MediaService.class)
                                 .setAction(Intents.ACTION_PLAY_FROM_TRACK)
                                 .putExtra(Intents.EXTRA_TRACK_ID, trackId)
-                                .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName() + ".onPlayFromMediaId() track")
-                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                );
+                                .putExtra(Intents.EXTRA_CALLER,
+                                        context.getClass().getSimpleName() + ".onPlayFromMediaId() track")
+                                .putExtra(Intents.EXTRA_FOREGROUND, true));
                 // Optional: show buffering right away in AA
-                //pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
+                // pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
             }
             return;
         }
@@ -332,26 +342,28 @@ public class StartPlayHelper {
                                 .setAction(Intents.ACTION_PLAY_FROM_FOLDER)
                                 .putExtra(Intents.EXTRA_FOLDER_ID, folderId)
                                 .putExtra(Intents.EXTRA_INDEX, 0)
-                                .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName() + ".onPlayFromMediaId() folder")
-                                .putExtra(Intents.EXTRA_FOREGROUND, true)
-                );
-                //pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
+                                .putExtra(Intents.EXTRA_CALLER,
+                                        context.getClass().getSimpleName() + ".onPlayFromMediaId() folder")
+                                .putExtra(Intents.EXTRA_FOREGROUND, true));
+                // pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
             }
         }
     }
 
     public static void loadChildrenImpl(Context context,
             @NonNull String parentId,
-                                  @Nullable Bundle options,
-                                  @NonNull MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>> result) {
+            @Nullable Bundle options,
+            @NonNull MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>> result) {
         long startTime = System.currentTimeMillis();
         FirebaseAnalyticsHelper.tellCarOnChildren();
         // Chargements DB → thread bg
         result.detach();
 
         // Optional: honor paging if host asks
-        // int page = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE, -1) : -1;
-        // int pageSize = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1) :
+        // int page = options != null ? options.getInt(MediaBrowserCompat.EXTRA_PAGE,
+        // -1) : -1;
+        // int pageSize = options != null ?
+        // options.getInt(MediaBrowserCompat.EXTRA_PAGE_SIZE, -1) :
 
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
@@ -376,28 +388,35 @@ public class StartPlayHelper {
                     if (f.image != null) {
                         icon = MediaService.iconCache.get(f.image);
                         if (icon == null) {
-                            icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), f.image, ICON_MAX_PX);
-                            if (icon != null) MediaService.iconCache.put(f.image, icon);
+                            icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), f.image,
+                                    ICON_MAX_PX);
+                            if (icon != null)
+                                MediaService.iconCache.put(f.image, icon);
                         }
                     }
-                    if (icon != null) b.setIconBitmap(icon);
+                    if (icon != null)
+                        b.setIconBitmap(icon);
 
                     // If only 1 track => Make the "folder" tap play directly
                     int count = AppDatabase.getDatabase(context.getApplicationContext())
                             .zikFileDao().countTracks(f.getId());
                     if (count == 1) {
-                        ZikFile only = AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao().getFirstInFolder(f.getId());
+                        ZikFile only = AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao()
+                                .getFirstInFolder(f.getId());
                         if (only != null) {
-                            b.setSubtitle(only.getDisplayName());      // track label
-                            out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                            b.setSubtitle(only.getDisplayName()); // track label
+                            out.add(new MediaBrowserCompat.MediaItem(b.build(),
+                                    MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
                         }
                     } else {
-                        out.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
+                        out.add(new MediaBrowserCompat.MediaItem(b.build(),
+                                MediaBrowserCompat.MediaItem.FLAG_BROWSABLE));
                     }
                 }
 
                 result.sendResult(out);
-                myLog("onChildren() : " + out.size() + " results sent in " + (System.currentTimeMillis()-startTime) + "ms. for ROOT (parentId=" + parentId + ")");
+                myLog("onChildren() : " + out.size() + " results sent in " + (System.currentTimeMillis() - startTime)
+                        + "ms. for ROOT (parentId=" + parentId + ")");
                 return;
             }
 
@@ -414,29 +433,37 @@ public class StartPlayHelper {
                     }
 
                     // Put a "Resume" item first
-                    ZikFile resume = AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao().getLastListenedZikFileOfFolder(folderId);
+                    ZikFile resume = AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao()
+                            .getLastListenedZikFileOfFolder(folderId);
                     if (resume != null) {
                         MediaDescriptionCompat.Builder rb = new MediaDescriptionCompat.Builder()
                                 .setMediaId(PREFIX_TRACK + resume.getId())
-                                .setTitle("▶ " + context.getString(R.string.automotive_resume_play) + " : \n" + resume.getDisplayName())
+                                .setTitle("▶ " + context.getString(R.string.automotive_resume_play) + " : \n"
+                                        + resume.getDisplayName())
                                 .setSubtitle(resume.getFolderName());
                         // optional icon from folder cover (reuse your icon code)
-                        Folder f = AppDatabase.getDatabase(context.getApplicationContext()).folderDao().getById(folderId);
+                        Folder f = AppDatabase.getDatabase(context.getApplicationContext()).folderDao()
+                                .getById(folderId);
                         Bitmap icon = null;
                         if (f != null && f.image != null) {
                             icon = MediaService.iconCache.get(f.image);
                             if (icon == null) {
-                                icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), f.image, ICON_MAX_PX);
-                                if (icon != null) MediaService.iconCache.put(f.image, icon);
+                                icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), f.image,
+                                        ICON_MAX_PX);
+                                if (icon != null)
+                                    MediaService.iconCache.put(f.image, icon);
                             }
                         }
-                        if (icon != null) rb.setIconBitmap(icon);
+                        if (icon != null)
+                            rb.setIconBitmap(icon);
 
                         Bundle rExtras = new Bundle();
-                        if (resume.getDuration() > 0) rExtras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) resume.getDuration());
+                        if (resume.getDuration() > 0)
+                            rExtras.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, (long) resume.getDuration());
                         rb.setExtras(rExtras);
 
-                        out.add(new MediaBrowserCompat.MediaItem(rb.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+                        out.add(new MediaBrowserCompat.MediaItem(rb.build(),
+                                MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
                     }
 
                     // Fetch folder (for its image)
@@ -446,8 +473,10 @@ public class StartPlayHelper {
                     if (f != null && f.image != null) {
                         icon = MediaService.iconCache.get(f.image);
                         if (icon == null) {
-                            icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(),f.image, ICON_MAX_PX);
-                            if (icon != null) MediaService.iconCache.put(f.image, icon);
+                            icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), f.image,
+                                    ICON_MAX_PX);
+                            if (icon != null)
+                                MediaService.iconCache.put(f.image, icon);
                         }
                     }
                     for (ZikFile z : tracks) {
@@ -455,7 +484,8 @@ public class StartPlayHelper {
                                 .setMediaId(PREFIX_TRACK + z.getId()) // or getIdZikFile()
                                 .setTitle(z.getDisplayName())
                                 .setSubtitle(z.getFolderName());
-                        if (icon != null) b.setIconBitmap(icon);
+                        if (icon != null)
+                            b.setIconBitmap(icon);
 
                         Bundle extras = new Bundle();
                         if (z.getDuration() > 0) {
@@ -468,7 +498,8 @@ public class StartPlayHelper {
                     }
 
                 }
-                myLogD("onChildren(" + parentId + ") " + out.size() + " results sent in " + (System.currentTimeMillis()-startTime) + "ms.");
+                myLogD("onChildren(" + parentId + ") " + out.size() + " results sent in "
+                        + (System.currentTimeMillis() - startTime) + "ms.");
                 result.sendResult(out);
                 return;
             }
@@ -480,12 +511,12 @@ public class StartPlayHelper {
 
     public static MediaBrowserServiceCompat.BrowserRoot onGetRoot(String clientPackageName, String callerInfo) {
 
-        // Filtre au cas ou je ne set pas la permission dans le manifest pour le service : android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"
+        // Filtre au cas ou je ne set pas la permission dans le manifest pour le service
+        // : android:permission="android.permission.BIND_MEDIA_BROWSER_SERVICE"
 
         if ("com.google.android.projection.gearhead".equals(clientPackageName)
                 || "com.google.android.apps.automotive.inputmethod".equals(clientPackageName)
-                || "AndroidAuto".equals(callerInfo)
-        ) {
+                || "AndroidAuto".equals(callerInfo)) {
             CarSignals.markCarConnected();
             FirebaseAnalyticsHelper.tellCarOnRoot();
         }
@@ -498,8 +529,8 @@ public class StartPlayHelper {
             extras.putBoolean("android.media.browse.CONTENT_STYLE_SUPPORTED", true);
 
             // 1 = list, 2 = grid
-            extras.putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1); //Folders
-            extras.putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 1);  //ZikFiles
+            extras.putInt("android.media.browse.CONTENT_STYLE_BROWSABLE_HINT", 1); // Folders
+            extras.putInt("android.media.browse.CONTENT_STYLE_PLAYABLE_HINT", 1); // ZikFiles
 
             // These androidx flags matter for some AA versions:
             extras.putInt("androidx.media.MediaBrowserCompat.Extras.KEY_ROOT_CHILDREN_SUPPORTED_FLAGS", 1);
@@ -509,7 +540,7 @@ public class StartPlayHelper {
             extras.putBoolean("android.media.browse.SEARCH_SUPPORTED", true);
 
             myLog("-----------");
-            myLog("extras=" + "\n" + extras.toString().replace(",","\n"));
+            myLog("extras=" + "\n" + extras.toString().replace(",", "\n"));
         }
 
         return new MediaBrowserServiceCompat.BrowserRoot(ROOT_ID, extras);
@@ -517,7 +548,7 @@ public class StartPlayHelper {
 
     public static void doSearch(Context context,
             @NonNull String query, Bundle extras,
-                                @NonNull MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>> result) {
+            @NonNull MediaBrowserServiceCompat.Result<List<MediaBrowserCompat.MediaItem>> result) {
         myLogI("onSearch q=" + query + " extras=" + extras);
         result.detach();
 
@@ -553,10 +584,6 @@ public class StartPlayHelper {
 
     }
 
-
-
-
-
     private static void sendCmdPlay(Context context) {
         FirebaseAnalyticsHelper.tellCarSendCmd("CMD_PLAY");
         ContextCompat.startForegroundService(
@@ -564,11 +591,11 @@ public class StartPlayHelper {
                 new Intent(context, MediaService.class)
                         .setAction("CMD_PLAY")
                         .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName() + ".sendCmd " + "CMD_PLAY")
-                        .putExtra(Intents.EXTRA_FOREGROUND, true)
-        );
+                        .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    private static void playStream(Context context, String playMode, String streamUrl, long id, String uuid, String title, String cover, String caller) {
+    private static void playStream(Context context, String playMode, String streamUrl, long id, String uuid,
+            String title, String cover, String caller) {
         PlayList.createFromStream(context, playMode, streamUrl);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
         androidx.core.content.ContextCompat.startForegroundService(
@@ -585,8 +612,6 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-
-
     // private Helpers
     private static MediaBrowserCompat.MediaItem browsable(String id, String title) {
         MediaDescriptionCompat desc = new MediaDescriptionCompat.Builder()
@@ -597,7 +622,11 @@ public class StartPlayHelper {
     }
 
     private static int safeParseInt(String s, int def) {
-        try { return Integer.parseInt(s); } catch (Exception e) { return def; }
+        try {
+            return Integer.parseInt(s);
+        } catch (Exception e) {
+            return def;
+        }
     }
 
 }

@@ -29,7 +29,6 @@ import androidx.media.session.MediaButtonReceiver;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
@@ -141,7 +140,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private com.driot.bookplayer.player.PlaybackNotificationManager notif;
     private com.driot.bookplayer.player.MediaSessionController media;
     private com.driot.bookplayer.player.AudioFocusHelper focus;
-    private com.driot.bookplayer.player.SleepTimer sleepTimer;
+    private com.driot.bookplayer.player.PlayTimer playTimer;
     private com.driot.bookplayer.player.PauseTrimWatcher pauseWatcher;
     private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
 
@@ -491,10 +490,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Sleep timer (ticks every second)
         sleepCheckHandler = new Handler();
-        sleepTimer = new com.driot.bookplayer.player.SleepTimer(
+        playTimer = new PlayTimer(
                 sleepCheckHandler,
                 DELAY_CHECK_TIMER_SLEEP,
-                new SleepTimer.Listener() {
+                new PlayTimer.Listener() {
                     @Override
                     public void onTick(int elapsedSeconds) {
                         do_1sec_stuff(false);
@@ -807,10 +806,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (!media.session().isActive())
             media.setActive(true);
 
-        if (!sleepTimer.isRunning()) {
+        if (!playTimer.isRunning()) {
             int defaultSleep = isRadio() ? Option.getTimeBeforeSleepRadio() : Option.getTimeBeforeSleep();
             int minutes = (customSleepTime == 0) ? defaultSleep : customSleepTime;
-            sleepTimer.start(minutes);
+            playTimer.start(minutes);
         }
 
         showForegroundNotification(true);
@@ -1131,7 +1130,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             case Intents.CMD_UPDATE_SLEEP: {
                 int newSleepValueInMin = intent.getIntExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, -1);
                 if (newSleepValueInMin > 0)
-                    sleepTimer.reload(newSleepValueInMin);
+                    playTimer.reload(newSleepValueInMin);
                 return START_STICKY;
             }
 
@@ -1306,8 +1305,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void stopAsyncWork() {
         try {
-            if (sleepTimer != null)
-                sleepTimer.stop();
+            if (playTimer != null)
+                playTimer.stop();
         } catch (Throwable ignored) {
         }
         try {
@@ -1354,8 +1353,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Throwable ignored) {
         }
         try {
-            if (sleepTimer != null)
-                sleepTimer.stop();
+            if (playTimer != null)
+                playTimer.stop();
         } catch (Throwable ignored) {
         }
         try {
@@ -1623,7 +1622,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // updateZikFileStateInDB(false);
             compactPlayTicks();
             focus.abandon();
-            sleepTimer.stop();
+            playTimer.stop();
             showForegroundNotification(false);
             broadcastUiState("pauseAudio");
         }
@@ -1636,8 +1635,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } else {
             playAudio();
             // Reset sleep timer on user resume
-            if (sleepTimer != null && sleepTimer.isRunning()) {
-                sleepTimer.resetTimer();
+            if (playTimer != null && playTimer.isRunning()) {
+                playTimer.resetTimer();
             }
         }
     }
@@ -1702,15 +1701,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             updatePlaybackStateForPosition();
             broadcastUiState("setPosition");
             // Reset sleep timer if this is a user-initiated seek
-            if (resetSleepTimer && sleepTimer != null && sleepTimer.isRunning()) {
-                sleepTimer.resetTimer();
+            if (resetSleepTimer && playTimer != null && playTimer.isRunning()) {
+                playTimer.resetTimer();
             }
         }
     }
 
     public void resetSleepTimer() {
-        if (sleepTimer != null && sleepTimer.isRunning()) {
-            sleepTimer.resetTimer();
+        if (playTimer != null && playTimer.isRunning()) {
+            playTimer.resetTimer();
             broadcastUiState("resetSleepTimer");
         }
     }
@@ -1858,7 +1857,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void onEngineError(String msg, int what, int extra) {
         myLogEE(null, "Engine error: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
-        sleepTimer.stop();
+        playTimer.stop();
 
         if (msg != null && msg.startsWith("TTS")) {
             // --- Track how many TTS errors for the current engine generation ---
@@ -1921,7 +1920,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogEE(null, "onEngineFatal: " + msg + " (" + what + "," + extra + ")");
         emitUiTick("onEngineFatal");
         ErrorLoadingFile = true;
-        sleepTimer.stop();
+        playTimer.stop();
         alertError(null, null);
         if ("podcast".equals(getPlayMode())) {
             if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {
@@ -1945,7 +1944,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public long getSleepLeftMs() {
         // myLog("sleep:" + (sleepTimer!=null ? "" + sleepTimer.getSleepLeftMs() :
         // "sleep timer null"));
-        return (sleepTimer != null) ? sleepTimer.getSleepLeftMs() : 0;
+        return (playTimer != null) ? playTimer.getSleepLeftMs() : 0;
     }
 
     public String getPlayMode() {

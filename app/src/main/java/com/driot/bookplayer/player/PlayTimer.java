@@ -7,7 +7,7 @@ import androidx.annotation.NonNull;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
-public final class SleepTimer extends LoggerHelper {
+public final class PlayTimer extends LoggerHelper {
 
     public interface Listener {
         void onTick(int elapsedSeconds);
@@ -24,11 +24,12 @@ public final class SleepTimer extends LoggerHelper {
 
     private boolean running = false;
     private long elapsedMs = 0L;
+    private long msSinceLastUserAction = 0L;
     private String elapsed_category = "00:00";
     private int maxMinutes = 0;
 
-    public SleepTimer(@NonNull Handler handler, int tickMs, @NonNull Listener listener) {
-        super(SleepTimer.class);
+    public PlayTimer(@NonNull Handler handler, int tickMs, @NonNull Listener listener) {
+        super(PlayTimer.class);
         this.h = handler;
         this.tickMs = tickMs;
         this.l = listener;
@@ -51,7 +52,10 @@ public final class SleepTimer extends LoggerHelper {
             lastPostRealtime = now;
 
             elapsedMs += delta;
+            msSinceLastUserAction += delta;
+
             int elapsedSec = (int) (elapsedMs / 1000L);
+            int inactivitySec = (int) (msSinceLastUserAction / 1000L);
 
             // 5-minute bin label
             int binSec = (elapsedSec / 300) * 300;
@@ -66,16 +70,16 @@ public final class SleepTimer extends LoggerHelper {
             if (playedSinceLastMinuteMs >= 60_000L) {
                 playedSinceLastMinuteMs -= 60_000L;
                 myLog(Tonio.formatMmSs(elapsedMs) + "...     sleep in "
-                        + Tonio.formatMmSs(((long) maxMinutes * 60 - elapsedSec) * 1000) + " -- from " + maxMinutes
+                        + Tonio.formatMmSs(((long) maxMinutes * 60 - inactivitySec) * 1000) + " -- from " + maxMinutes
                         + "min.");
                 l.onEveryMinute(elapsed_category);
             }
 
-            l.onTick(elapsedSec);
+            l.onTick(inactivitySec);
 
-            if (elapsedSec >= maxMinutes * 60) {
+            if (inactivitySec >= maxMinutes * 60) {
                 myLog("SLEEP PAUSE after "
-                        + com.driot.bookplayer.utils.Tonio.formatTime(elapsedSec * 1000L, true, true));
+                        + com.driot.bookplayer.utils.Tonio.formatTime(inactivitySec * 1000L, true, true));
                 running = false;
                 l.onReachedMax();
             } else {
@@ -88,6 +92,7 @@ public final class SleepTimer extends LoggerHelper {
         myLog("=> starting - (sleep in " + customMinutes + " min.)");
         this.maxMinutes = Math.max(0, customMinutes);
         this.elapsedMs = 0L;
+        this.msSinceLastUserAction = 0L;
         this.playedSinceLastMinuteMs = 0L;
         this.lastPostRealtime = 0L;
         this.elapsed_category = "00:00";
@@ -112,9 +117,9 @@ public final class SleepTimer extends LoggerHelper {
     public void resetTimer() {
         if (running) {
             myLog("=> resetting timer (user action detected)");
-            this.elapsedMs = 0L;
-            this.playedSinceLastMinuteMs = 0L;
-            this.lastPostRealtime = android.os.SystemClock.elapsedRealtime();
+            this.msSinceLastUserAction = 0L;
+            // NOTE: We do NOT reset elapsedMs or playedSinceLastMinuteMs
+            // because we want stats to reflect the total continuous playback session.
         }
     }
 
@@ -123,6 +128,6 @@ public final class SleepTimer extends LoggerHelper {
     }
 
     public long getSleepLeftMs() {
-        return Math.max(0, (long) maxMinutes * 60 * 1000 - elapsedMs);
+        return Math.max(0, (long) maxMinutes * 60 * 1000 - msSinceLastUserAction);
     }
 }
