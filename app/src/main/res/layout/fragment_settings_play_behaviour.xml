@@ -269,6 +269,91 @@
                     android:text="@string/option_screensaver_enabled" />
             </LinearLayout>
 
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupVisualizerScreenSaverMode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVisualizerScreenSaverLegacy"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/legacy"
+                    app:cornerRadius="16dp"
+                    app:checkedIcon="@drawable/ic_check_24px"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVisualizerScreenSaverWave"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/wave"
+                    app:cornerRadius="16dp"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVisualizerScreenSaverBars"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/bars"
+                    app:cornerRadius="16dp"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnVisualizerScreenSaverRadial"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/radial"
+                    app:cornerRadius="16dp"
+                    />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <LinearLayout
+                android:id="@+id/ll_screensaver_force_orientation"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginStart="30dp"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="-20dp"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_screensaver_force_orientation"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/screensaver_force_orientation"
+                    />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupScreensaverOrientation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:padding="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScreensaverOrientationLandscape"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/landscape"
+                    app:cornerRadius="16dp"
+                    app:checkedIcon="@drawable/ic_check_24px"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnScreensaverOrientationPortrait"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/portrait"
+                    app:cornerRadius="16dp"
+                    />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
             <LinearLayout
                 android:id="@+id/ll_screensaver_delay"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
@@ -285,11 +370,13 @@
                     android:id="@+id/etScreensaverDelay"
                     style="@style/EditText"
                     android:layout_height="wrap_content"
-                    android:layout_width="70sp"
+                    android:layout_width="50sp"
                     android:inputType="number"
-                    android:paddingStart="4sp"
-                    android:paddingEnd="4sp"
+                    android:paddingStart="10sp"
+                    android:paddingEnd="10sp"
                     android:textAlignment="textEnd"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="8dp"
                     android:textSize="24sp" />
                 
                 <TextView
@@ -307,85 +394,6 @@
                 android:text="Max = 300 (5min)" 
                 style="@style/OptionMiniText" />
         </LinearLayout>
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/groupVisualizerScreenSaverMode"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:padding="8dp"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVisualizerScreenSaverLegacy"
-                style="@style/MaterialButtonForToggleGroup"
-                android:text="@string/legacy"
-                app:cornerRadius="16dp"
-                app:checkedIcon="@drawable/ic_check_24px"
-                />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVisualizerScreenSaverWave"
-                style="@style/MaterialButtonForToggleGroup"
-                android:text="@string/wave"
-                app:cornerRadius="16dp"
-                />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVisualizerScreenSaverBars"
-                style="@style/MaterialButtonForToggleGroup"
-                android:text="@string/bars"
-                app:cornerRadius="16dp"
-                />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnVisualizerScreenSaverRadial"
-                style="@style/MaterialButtonForToggleGroup"
-                android:text="@string/radial"
-                app:cornerRadius="16dp"
-                />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <LinearLayout
-            android:id="@+id/ll_screensaver_force_orientation"
-            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-            <com.google.android.material.checkbox.MaterialCheckBox
-                android:id="@+id/chk_screensaver_force_orientation"
-                style="@style/OptionCheckBox" />
-            <TextView
-                style="@style/OptionCheckBoxText"
-                android:text="@string/screensaver_force_orientation" />
-        </LinearLayout>
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
-            android:id="@+id/groupScreensaverOrientation"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:padding="8dp"
-            app:singleSelection="true"
-            app:selectionRequired="true"
-            android:orientation="horizontal">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnScreensaverOrientationLandscape"
-                style="@style/MaterialButtonForToggleGroup"
-                android:text="@string/landscape"
-                app:cornerRadius="16dp"
-                app:checkedIcon="@drawable/ic_check_24px"
-                />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnScreensaverOrientationPortrait"
-                style="@style/MaterialButtonForToggleGroup"
-                android:text="@string/portrait"
-                app:cornerRadius="16dp"
-                />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
 
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

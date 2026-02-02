@@ -498,6 +498,8 @@
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
 
+    <string name="optionMinEqual">Min = </string> //short for Minimum
+    <string name="optionMaxEqual">Max = </string> //short for Maximum
 
     <string name="AutoTest_title">Auto Test</string>
     <string name="TextHeaderOpen">Load audio from device</string>

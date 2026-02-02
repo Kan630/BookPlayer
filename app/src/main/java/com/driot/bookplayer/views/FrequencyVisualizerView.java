@@ -74,13 +74,13 @@ public class FrequencyVisualizerView extends View {
      * In RADIAL mode, base circle radius as a fraction of the min(width, height).
      * 0.5–0.7 is typical; go smaller if you want more headroom for deformation.
      */
-    private static final float RADIAL_BASE_RADIUS = 0.6f;
+    private static final float RADIAL_BASE_RADIUS = 0.55f;
 
     /**
      * How much the circle deforms under strong signal (0..1 of base radius).
      * 0.3–0.8 is typical. Larger = more “pulsing”.
      */
-    private static final float RADIAL_DEFORM_SCALE = 0.65f;
+    private static final float RADIAL_DEFORM_SCALE = 1.15f;
 
     /**
      * Stroke widths for radial mode:
@@ -88,8 +88,12 @@ public class FrequencyVisualizerView extends View {
      * - outlinePaintWidth: thickness of the outer “accent” line (drawn on top).
      * Tweak these to taste.
      */
-    private static final float RADIAL_RING_STROKE_DP = 2.0f;
-    private static final float RADIAL_OUTLINE_STROKE_DP = 5.0f;
+    /** Power curve on bar values: &lt; 1 = more reactive. */
+    private static final float RADIAL_RESPONSE_POWER = 0.5f;
+    /** Global pulse: whole circle breathes with average energy. */
+    private static final float RADIAL_GLOBAL_PULSE = 0.35f;
+    private static final float RADIAL_RING_STROKE_DP = 2.5f;
+    private static final float RADIAL_OUTLINE_STROKE_DP = 6.0f;
 
     /**
      * In BARS mode, spacing between bars (px). 0 = no gaps.
@@ -436,44 +440,55 @@ public class FrequencyVisualizerView extends View {
     }
 
     /**
-     * Draw a CLOSED PATH whose radius varies with angle.
-     * - Base radius = RADIAL_BASE_RADIUS * min(w, h)/2.
-     * - Added radius = vals[i] * (baseRadius * RADIAL_DEFORM_SCALE).
-     * - Then we draw TWO strokes: the normal ring + a thicker outline on top.
+     * Draw a smooth closed path whose radius varies with angle.
+     * - Global pulse: base radius scales with average energy (whole circle breathes).
+     * - Per-segment: power-curved value * deform scale for more bounce.
+     * - Catmull-Rom style cubic Bezier for smooth, rounded shape.
      */
     private void drawRadialDeformingCircle(Canvas canvas, float[] vals) {
         float cx = getWidth() * 0.5f;
         float cy = getHeight() * 0.5f;
-        float baseR = Math.min(cx, cy) * RADIAL_BASE_RADIUS;
+        float minDim = Math.min(cx, cy);
 
-        // Build the closed path
-        Path ring = new Path();
-        boolean started = false;
+        // Average energy for global pulse (whole circle breathes with the beat)
+        float avg = 0f;
+        for (int i = 0; i < NB_BARS; i++)
+            avg += vals[i];
+        avg /= NB_BARS;
+        float pulseScale = 1f + RADIAL_GLOBAL_PULSE * avg;
+        float baseR = minDim * RADIAL_BASE_RADIUS * pulseScale;
 
+        // Compute all points (closed: P[0..NB_BARS] with P[NB_BARS] = P[0])
+        float[] px = new float[NB_BARS + 1];
+        float[] py = new float[NB_BARS + 1];
         for (int i = 0; i <= NB_BARS; i++) {
-            // wrap around at the end to close the path
             int idx = (i == NB_BARS) ? 0 : i;
-            // angle: 0 at RIGHT, increasing CCW; we rotate so "top" is included naturally
             float angle = (float) (2 * Math.PI * idx / NB_BARS);
-
-            // deformation proportional to value
-            float deform = vals[idx] * (baseR * RADIAL_DEFORM_SCALE);
+            // Power curve: small values still create visible movement
+            float v = (float) Math.pow(Math.max(0f, vals[idx]), RADIAL_RESPONSE_POWER);
+            float deform = v * (baseR * RADIAL_DEFORM_SCALE);
             float r = baseR + deform;
-
-            float x = cx + (float) Math.cos(angle) * r;
-            float y = cy + (float) Math.sin(angle) * r;
-
-            if (!started) {
-                ring.moveTo(x, y);
-                started = true;
-            } else {
-                ring.lineTo(x, y);
-            }
+            px[i] = cx + (float) Math.cos(angle) * r;
+            py[i] = cy + (float) Math.sin(angle) * r;
         }
 
-        // Draw the main ring first
+        // Build smooth path with cubic Bezier (Catmull-Rom style control points)
+        Path ring = new Path();
+        ring.moveTo(px[0], py[0]);
+        for (int i = 0; i < NB_BARS; i++) {
+            int i0 = (i - 1 + NB_BARS) % NB_BARS;
+            int i1 = i;
+            int i2 = (i + 1) % NB_BARS;
+            int i3 = (i + 2) % NB_BARS;
+            float cp1x = px[i1] + (px[i2] - px[i0]) / 6f;
+            float cp1y = py[i1] + (py[i2] - py[i0]) / 6f;
+            float cp2x = px[i2] - (px[i3] - px[i1]) / 6f;
+            float cp2y = py[i2] - (py[i3] - py[i1]) / 6f;
+            ring.cubicTo(cp1x, cp1y, cp2x, cp2y, px[i2], py[i2]);
+        }
+        ring.close();
+
         canvas.drawPath(ring, ringPaint);
-        // Add the thicker outline for presence
         canvas.drawPath(ring, outlinePaint);
     }
 

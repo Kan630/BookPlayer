@@ -165,10 +165,17 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkScreensaverEnabled = root.findViewById(R.id.chk_screensaver_enabled);
         llScreensaverDelay = root.findViewById(R.id.ll_screensaver_delay);
         etScreensaverDelay = root.findViewById(R.id.etScreensaverDelay);
-
+        TextView tvScreensaverDelayMin = root.findViewById(R.id.tvScreensaverDelayMin);
+        TextView tvScreensaverDelayMax = root.findViewById(R.id.tvScreensaverDelayMax);
         MaterialButtonToggleGroup ssGroup = root.findViewById(R.id.groupVisualizerScreenSaverMode);
+        LinearLayout llForceOrient = root.findViewById(R.id.ll_screensaver_force_orientation);
+        MaterialCheckBox chkForceOrient = root.findViewById(R.id.chk_screensaver_force_orientation);
+        MaterialButtonToggleGroup groupOrient = root.findViewById(R.id.groupScreensaverOrientation);
+
         boolean ssEnabled = Option.getScreensaverEnabled();
-        ssGroup.setVisibility(ssEnabled ? View.VISIBLE : View.GONE);
+        updateScreensaverSectionVisibility(ssEnabled,
+                llScreensaverDelay, etScreensaverDelay, tvScreensaverDelayMin, tvScreensaverDelayMax,
+                ssGroup, llForceOrient, groupOrient);
 
         String ssType = Option.getScreensaverVisualizerType();
         int ssCheckedId = switch (ssType) {
@@ -196,7 +203,6 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkScreensaverEnabled.setChecked(ssEnabled);
         etScreensaverDelay.setText(String.valueOf(Option.getScreensaverDelaySeconds()));
 
-        // Enable/disable delay input based on checkbox
         llScreensaverDelay.setEnabled(chkScreensaverEnabled.isChecked());
         etScreensaverDelay.setEnabled(chkScreensaverEnabled.isChecked());
 
@@ -205,14 +211,12 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             Option.setScreensaverEnabled(isChecked);
             llScreensaverDelay.setEnabled(isChecked);
             etScreensaverDelay.setEnabled(isChecked);
-            ssGroup.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            updateScreensaverSectionVisibility(isChecked,
+                    llScreensaverDelay, etScreensaverDelay, tvScreensaverDelayMin, tvScreensaverDelayMax,
+                    ssGroup, llForceOrient, groupOrient);
         });
 
         // ---- Screensaver Orientation
-        LinearLayout llForceOrient = root.findViewById(R.id.ll_screensaver_force_orientation);
-        MaterialCheckBox chkForceOrient = root.findViewById(R.id.chk_screensaver_force_orientation);
-        MaterialButtonToggleGroup groupOrient = root.findViewById(R.id.groupScreensaverOrientation);
-
         boolean isForceOrient = Option.getScreensaverForceOrientation();
         chkForceOrient.setChecked(isForceOrient);
         groupOrient.setVisibility(isForceOrient ? View.VISIBLE : View.GONE);
@@ -287,15 +291,13 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                 .setOnCheckedChangeListener((b, isChecked) -> Option.setUseHeatmapSeekbarInPlayActivity(isChecked));
 
         // Set screensaver delay min/max TextViews from constants
-        TextView tvScreensaverDelayMin = root.findViewById(R.id.tvScreensaverDelayMin);
-        TextView tvScreensaverDelayMax = root.findViewById(R.id.tvScreensaverDelayMax);
         if (tvScreensaverDelayMin != null) {
             tvScreensaverDelayMin
-                    .setText("Min = " + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
+                    .setText(getString(R.string.optionMinEqual) + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
         }
         if (tvScreensaverDelayMax != null) {
             tvScreensaverDelayMax
-                    .setText("Max = " + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
+                    .setText(getString(R.string.optionMaxEqual) + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
         }
 
         return root;
@@ -311,6 +313,21 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     public void onPause() {
         super.onPause();
         saveEditTextValues();
+    }
+
+    private void updateScreensaverSectionVisibility(boolean visible,
+            LinearLayout llScreensaverDelay, EditText etScreensaverDelay,
+            TextView tvScreensaverDelayMin, TextView tvScreensaverDelayMax,
+            MaterialButtonToggleGroup ssGroup, LinearLayout llForceOrient,
+            MaterialButtonToggleGroup groupOrient) {
+        int vis = visible ? View.VISIBLE : View.GONE;
+        if (llScreensaverDelay != null) llScreensaverDelay.setVisibility(vis);
+        if (etScreensaverDelay != null) etScreensaverDelay.setVisibility(vis);
+        if (tvScreensaverDelayMin != null) tvScreensaverDelayMin.setVisibility(vis);
+        if (tvScreensaverDelayMax != null) tvScreensaverDelayMax.setVisibility(vis);
+        if (ssGroup != null) ssGroup.setVisibility(vis);
+        if (llForceOrient != null) llForceOrient.setVisibility(vis);
+        if (groupOrient != null) groupOrient.setVisibility(vis);
     }
 
     private void saveEditTextValues() {
