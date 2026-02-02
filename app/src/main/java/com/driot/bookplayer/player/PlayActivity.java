@@ -1080,6 +1080,12 @@ public class PlayActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         screensaverActive = false; // Reset when returning to activity
+        if (vm != null) {
+            PlaybackUiState s = vm.getState().getValue();
+            if (s != null) {
+                applyTtsToggleUi(s);
+            }
+        }
     }
 
 }

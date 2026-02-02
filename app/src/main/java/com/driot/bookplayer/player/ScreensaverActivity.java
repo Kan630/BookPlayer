@@ -80,4 +80,12 @@ public class ScreensaverActivity extends BaseActivity {
         PlaybackCommands.resetSleepTimer(this);
         finish();
     }
+
+    @Override
+    protected void onPause() {
+        if (visualizer != null) {
+            visualizer.release();
+        }
+        super.onPause();
+    }
 }
