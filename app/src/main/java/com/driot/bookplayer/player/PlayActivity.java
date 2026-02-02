@@ -1063,6 +1063,7 @@ public class PlayActivity extends BaseActivity {
             screensaverActive = true;
             Intent intent = new Intent(this, ScreensaverActivity.class);
             intent.putExtra(Intents.EXTRA_AUDIO_SESSION_ID, sessionId);
+            intent.putExtra("previous_orientation", getResources().getConfiguration().orientation);
             startActivity(intent);
             myLogI("Launching screensaver");
         }

@@ -74,7 +74,7 @@ public class ScreensaverActivity extends BaseActivity {
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             myLogI("Screensaver dismissed by touch");
-            closeScreensaver();
+            finish();
             return true;
         }
         return super.onTouchEvent(event);
@@ -83,12 +83,19 @@ public class ScreensaverActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        closeScreensaver();
+        finish();
     }
 
-    private void closeScreensaver() {
+    @Override
+    public void finish() {
+        int prevOrientation = getIntent().getIntExtra("previous_orientation", -1);
+        if (prevOrientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else if (prevOrientation == android.content.res.Configuration.ORIENTATION_LANDSCAPE) {
+            setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
         PlaybackCommands.resetSleepTimer(this);
-        finish();
+        super.finish();
     }
 
     @Override
