@@ -393,10 +393,10 @@ public class EbookSplitWorker extends ImportWorker {
                 return "epub";
             case "fb2":
                 return "fb2";
-            // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add
-            // unzip
+            case "odt":
+                return "odt";
             default:
-                return "epub"; // safe default if you mostly import EPUBs
+                return "epub";
         }
     }
 

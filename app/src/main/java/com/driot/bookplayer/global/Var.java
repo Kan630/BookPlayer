@@ -253,24 +253,35 @@ public class Var {
     );
 
     // --- Ebooks/Text files ---
-    public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>(
+    // Plain text: used directly as TTS tracks/chapters, no splitting
+    public static final Set<String> PLAIN_TEXT_EXTENSIONS = new HashSet<>(Arrays.asList("txt"));
+    public static final Set<String> PLAIN_TEXT_MIMES = new HashSet<>(Arrays.asList("text/plain"));
+
+    // Structured ebooks: need EbookSplitWorker to extract chapters (each file = one book)
+    public static final Set<String> SPLITTABLE_EBOOK_EXTENSIONS = new HashSet<>(
             Arrays.asList(
                     "epub",  // Kobo kepub is still .epub
-                    "txt",
                     "fb2",   // FictionBook 2
-                    "odt"    // OpenDocument Text
-                    // "html","htm","xhtml"
-            )
-    );
-    public static final Set<String> SUPPORTED_EBOOK_MIMES = new HashSet<>(
+                    "odt"    // OpenDocument Text – must be split to .txt before TTS
+            ));
+    public static final Set<String> SPLITTABLE_EBOOK_MIMES = new HashSet<>(
             Arrays.asList(
-                    "application/epub+zip",               // epub
-                    "text/plain",                         // txt
-                    "text/html",                          // html
-                    "application/xhtml+xml",              // xhtml
-                    "application/x-fictionbook+xml",      // fb2
-                    "application/vnd.oasis.opendocument.text" // odt
-            )
-    );
+                    "application/epub+zip",
+                    "application/x-fictionbook+xml",
+                    "application/vnd.oasis.opendocument.text",
+                    "text/html",                          // some epub internals
+                    "application/xhtml+xml"               // some epub internals
+            ));
+
+    /** All formats that result in TTS playback (for type resolution, display, etc.). */
+    public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>();
+    public static final Set<String> SUPPORTED_EBOOK_MIMES = new HashSet<>();
+
+    static {
+        SUPPORTED_EBOOK_EXTENSIONS.addAll(PLAIN_TEXT_EXTENSIONS);
+        SUPPORTED_EBOOK_EXTENSIONS.addAll(SPLITTABLE_EBOOK_EXTENSIONS);
+        SUPPORTED_EBOOK_MIMES.addAll(PLAIN_TEXT_MIMES);
+        SUPPORTED_EBOOK_MIMES.addAll(SPLITTABLE_EBOOK_MIMES);
+    }
 
 }

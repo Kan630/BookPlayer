@@ -225,7 +225,7 @@ public class BookToAdd extends LoggerHelper {
         return null;
     }
 
-    /** Returns [realContentCount, plainTextCount]. Real = audio/video/epub/fb2/odt/m4b/zip/etc. Plain = .txt only. */
+    /** Returns [realContentCount, plainTextCount]. Real = audio/video/epub/fb2/odt/m4b/zip. Plain = .txt only. */
     private int[] countMediaTypesRecursive(DocumentFile dir) {
         int realContent = 0;
         int plainText = 0;
@@ -259,6 +259,7 @@ public class BookToAdd extends LoggerHelper {
         }
     }
 
+    /** Count epub, fb2, odt – each is one book → "multiple books" when >= 2. */
     private int countRealEbookFilesRecursive(DocumentFile dir) {
         int count = 0;
         DocumentFile[] children = dir.listFiles();
@@ -267,10 +268,7 @@ public class BookToAdd extends LoggerHelper {
             if (child.isDirectory()) {
                 count += countRealEbookFilesRecursive(child);
             } else if (child.isFile()) {
-                String special = SupportedFilesHelper.getSpecialType(child);
-                if (SupportedFilesHelper.SPECIAL_TYPE_EPUB.equals(special)
-                        || SupportedFilesHelper.SPECIAL_TYPE_FB2.equals(special)
-                        || SupportedFilesHelper.SPECIAL_TYPE_ODT.equals(special)) {
+                if (SupportedFilesHelper.isSplittableEbookSpecial(SupportedFilesHelper.getSpecialType(child))) {
                     count++;
                 }
             }
@@ -278,13 +276,15 @@ public class BookToAdd extends LoggerHelper {
         return count;
     }
 
-    /** True if file is audio, video, epub, fb2, odt, m4b, zip, 7z, tar - i.e. "real" content we never mix with plain .txt. */
+    /** Real content that blocks "text folder" mode: audio, video, epub, fb2, odt, m4b, zip... */
     private boolean isRealBookOrAudioContent(DocumentFile child) {
         if (SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)) {
             return true;
         }
         String special = SupportedFilesHelper.getSpecialType(child);
-        return special != null && !SupportedFilesHelper.SPECIAL_TYPE_TXT.equals(special);
+        return SupportedFilesHelper.isSplittableEbookSpecial(special)
+                || SupportedFilesHelper.isBundleSpecial(special)
+                || SupportedFilesHelper.isM4bSpecial(special);
     }
 
     private void trimAudioBookPrefix() {

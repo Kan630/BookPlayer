@@ -96,16 +96,8 @@ public class BookLoadingWorkLauncher {
                 doCopy = true;
                 doUncompress = true;
             }
-            if (s.fileExtension != null && s.fileExtension.equalsIgnoreCase("epub")) {
-                myLogD("epub");
-                doCopy = true;
-                doSplitEbook = true;
-            } else if (s.fileExtension != null && s.fileExtension.equalsIgnoreCase("fb2")) {
-                myLogD("fb2");
-                doCopy = true;
-                doSplitEbook = true;
-            } else if (s.fileExtension != null && s.fileExtension.equalsIgnoreCase("odt")) {
-                myLogD("odt");
+            if (s.fileExtension != null && Var.SPLITTABLE_EBOOK_EXTENSIONS.contains(s.fileExtension.toLowerCase(Locale.ROOT))) {
+                myLogD("splittable ebook: " + s.fileExtension);
                 doCopy = true;
                 doSplitEbook = true;
             }

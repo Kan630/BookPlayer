@@ -241,7 +241,7 @@ public class CopyFileWorker extends ImportWorker {
                 boolean isPic = SupportedFilesHelper.isImage(child);
                 boolean doCopy;
                 if (Var.PLAY_TYPE_TEXT.equals(playType)) {
-                    // Text-only folder: copy plain .txt + images only (no audio/epub/etc)
+                    // Text folder: copy .txt + images only (odt must be split first, not played directly)
                     doCopy = SupportedFilesHelper.isText(child) || (isPic && nbPic < MAX_NB_PIC);
                 } else {
                     // Audio folder (or null): copy audio, video, images only - never .txt

@@ -559,11 +559,19 @@ public class SupportedFilesHelper {
                 || SPECIAL_TYPE_TAR.equals(specialType);
     }
 
+    /** All ebook-like formats (plain text + structured ebooks). */
     public static boolean isEbookSpecial(String specialType) {
         return SPECIAL_TYPE_EPUB.equals(specialType)
                 || SPECIAL_TYPE_FB2.equals(specialType)
                 || SPECIAL_TYPE_ODT.equals(specialType)
                 || SPECIAL_TYPE_TXT.equals(specialType);
+    }
+
+    /** epub, fb2, odt – need EbookSplitWorker to extract .txt before TTS. */
+    public static boolean isSplittableEbookSpecial(String specialType) {
+        return SPECIAL_TYPE_EPUB.equals(specialType)
+                || SPECIAL_TYPE_FB2.equals(specialType)
+                || SPECIAL_TYPE_ODT.equals(specialType);
     }
 
     public static boolean isM4bSpecial(String specialType) {
