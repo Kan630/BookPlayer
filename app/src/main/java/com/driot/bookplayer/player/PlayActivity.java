@@ -1069,6 +1069,14 @@ public class PlayActivity extends BaseActivity {
     }
 
     @Override
+    protected void onPause() {
+        if (frequencyVisualizerView != null) {
+            frequencyVisualizerView.release();
+        }
+        super.onPause();
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
         screensaverActive = false; // Reset when returning to activity

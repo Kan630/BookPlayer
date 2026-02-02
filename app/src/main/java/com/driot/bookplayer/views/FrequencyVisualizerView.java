@@ -17,14 +17,16 @@ import com.driot.bookplayer.utils.log.KanLogger;
 /**
  * FrequencyVisualizerView
  * -
- * - Fixes "left busy / right dead" by using only POSITIVE frequency bins (first half of FFT).
+ * - Fixes "left busy / right dead" by using only POSITIVE frequency bins (first
+ * half of FFT).
  * - Proper magnitude = sqrt(re^2 + im^2).
  * - Even or log-ish bin grouping that fully covers the spectrum.
  * - Noise gate + light auto-gain + EMA smoothing.
  * - Modes:
- *      LEGACY -> simple waveform-based visualizer (more tolerant)
- *      BARS   -> classic vertical bars, evenly spread across width
- *      RADIAL -> a single CLOSED PATH (circle) whose radius deforms with the spectrum (no spokes)
+ * LEGACY -> simple waveform-based visualizer (more tolerant)
+ * BARS -> classic vertical bars, evenly spread across width
+ * RADIAL -> a single CLOSED PATH (circle) whose radius deforms with the
+ * spectrum (no spokes)
  */
 public class FrequencyVisualizerView extends View {
 
@@ -32,7 +34,7 @@ public class FrequencyVisualizerView extends View {
     private static final boolean VISUALIZER_DISABLED = false;
 
     // ───────────────────────────────────────────
-    //                 KNOBS
+    // KNOBS
     // ───────────────────────────────────────────
     /**
      * How many visual “bars” (and also how many angular samples for RADIAL).
@@ -64,7 +66,7 @@ public class FrequencyVisualizerView extends View {
     /**
      * Frequency bin distribution curve.
      * 1.0 = linear (even across the spectrum).
-     * >1  = more detail in bass (common for music). 1.3–1.6 is typical.
+     * >1 = more detail in bass (common for music). 1.3–1.6 is typical.
      */
     private static final float FREQ_WARP_EXPONENT = 0.5f;
 
@@ -95,9 +97,11 @@ public class FrequencyVisualizerView extends View {
     private static final float BAR_SPACING_PX = 1f;
 
     // ───────────────────────────────────────────
-    //                 MODE
+    // MODE
     // ───────────────────────────────────────────
-    public enum Mode { LEGACY, WAVE, BARS, RADIAL }
+    public enum Mode {
+        LEGACY, WAVE, BARS, RADIAL
+    }
 
     private Mode mode = Mode.LEGACY;
 
@@ -120,15 +124,15 @@ public class FrequencyVisualizerView extends View {
     }
 
     // ───────────────────────────────────────────
-    //              RUNTIME STATE
+    // RUNTIME STATE
     // ───────────────────────────────────────────
     private Visualizer visualizer;
-    private byte[] fftBytes;              // raw [re0, im0, re1, im1, ...]
-    private byte[] waveformBytes;         // raw waveform (legacy mode)
-    private final float[] bars = new float[NB_BARS];  // smoothed 0..1 values
+    private byte[] fftBytes; // raw [re0, im0, re1, im1, ...]
+    private byte[] waveformBytes; // raw waveform (legacy mode)
+    private final float[] bars = new float[NB_BARS]; // smoothed 0..1 values
 
     // ───────────────────────────────────────────
-    //                 PAINTS
+    // PAINTS
     // ───────────────────────────────────────────
     private final Paint barPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint ringPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -172,7 +176,10 @@ public class FrequencyVisualizerView extends View {
             myLog("Visualizer disabled (test mode)");
             // Make sure we don’t hold any native resources
             if (visualizer != null) {
-                try { visualizer.release(); } catch (Throwable ignored) {}
+                try {
+                    visualizer.release();
+                } catch (Throwable ignored) {
+                }
             }
             visualizer = null;
             fftBytes = null;
@@ -180,11 +187,13 @@ public class FrequencyVisualizerView extends View {
             invalidate();
             return;
         }
-        if (visualizer == null) link(audioSessionId);
+        if (visualizer == null)
+            link(audioSessionId);
     }
 
     private void link(int audioSessionId) {
-        if (VISUALIZER_DISABLED) return;
+        if (VISUALIZER_DISABLED)
+            return;
         myLog("link - audioSessionId = [" + audioSessionId + "]");
         try {
             visualizer = new Visualizer(audioSessionId);
@@ -194,7 +203,8 @@ public class FrequencyVisualizerView extends View {
             try {
                 // Reflect device volume (as-played)
                 visualizer.setScalingMode(Visualizer.SCALING_MODE_AS_PLAYED);
-            } catch (Throwable ignore) {}
+            } catch (Throwable ignore) {
+            }
 
             visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
                 @Override
@@ -214,7 +224,7 @@ public class FrequencyVisualizerView extends View {
                         postInvalidateOnAnimation();
                     }
                 }
-            }, Visualizer.getMaxCaptureRate(), /*waveform*/ true, /*fft*/ true);
+            }, Visualizer.getMaxCaptureRate(), /* waveform */ true, /* fft */ true);
 
             visualizer.setEnabled(true);
         } catch (Throwable t) {
@@ -235,7 +245,7 @@ public class FrequencyVisualizerView extends View {
             case LEGACY:
                 if (waveformBytes != null) {
                     computeLegacyBarsFromWaveform(waveformBytes, bars);
-                    drawBars(canvas, bars);   // ← histogrammes
+                    drawBars(canvas, bars); // ← histogrammes
                 } else {
                     drawIdle(canvas);
                 }
@@ -278,17 +288,20 @@ public class FrequencyVisualizerView extends View {
      * - Apply noise gate, auto-gain, EMA smoothing.
      */
     private void computeBarsFromPositiveSpectrum(byte[] fft, float[] out) {
-        final int complexBins = fft.length / 2;   // pairs (re,im)
-        if (complexBins <= 2) {                   // corrupted/too small
-            for (int i = 0; i < out.length; i++) out[i] *= 0.9f;
+        final int complexBins = fft.length / 2; // pairs (re,im)
+        if (complexBins <= 2) { // corrupted/too small
+            for (int i = 0; i < out.length; i++)
+                out[i] *= 0.9f;
             return;
         }
 
         // Positive frequencies are bins 1..(Npos-1), where Npos = complexBins/2
-        // (bin 0 is DC, bins Npos..end are the mirrored negative freqs for real signals)
+        // (bin 0 is DC, bins Npos..end are the mirrored negative freqs for real
+        // signals)
         final int Npos = complexBins / 2;
         if (Npos <= 1) {
-            for (int i = 0; i < out.length; i++) out[i] *= 0.9f;
+            for (int i = 0; i < out.length; i++)
+                out[i] *= 0.9f;
             return;
         }
 
@@ -300,21 +313,25 @@ public class FrequencyVisualizerView extends View {
             int im = fft[2 * i + 1];
             float m = (float) Math.hypot(re, im);
             energy += m;
-            if (m > maxMag) maxMag = m;
+            if (m > maxMag)
+                maxMag = m;
         }
         energy /= Math.max(1, (Npos - 1));
         float energyNorm = energy / 128f;
 
         // Noise gate
         if (energyNorm < NOISE_GATE) {
-            for (int i = 0; i < out.length; i++) out[i] *= 0.9f; // gentle fade
+            for (int i = 0; i < out.length; i++)
+                out[i] *= 0.9f; // gentle fade
             return;
         }
 
         // Auto-gain (clamped)
         float gain = 96f / maxMag; // heuristic that maps typical mags near 1
-        if (gain < GAIN_MIN) gain = GAIN_MIN;
-        if (gain > GAIN_MAX) gain = GAIN_MAX;
+        if (gain < GAIN_MIN)
+            gain = GAIN_MIN;
+        if (gain > GAIN_MAX)
+            gain = GAIN_MAX;
 
         // Bin grouping across [1..Npos-1]
         final int srcBins = Npos - 1;
@@ -328,8 +345,9 @@ public class FrequencyVisualizerView extends View {
             float w1 = (float) Math.pow(t1, FREQ_WARP_EXPONENT);
 
             int start = 1 + Math.min(srcBins - 1, Math.max(0, Math.round(w0 * (srcBins - 1))));
-            int end   = 1 + Math.min(srcBins,     Math.max(1, Math.round(w1 * (srcBins - 1)) + 1));
-            if (end <= start) end = Math.min(start + 1, 1 + srcBins);
+            int end = 1 + Math.min(srcBins, Math.max(1, Math.round(w1 * (srcBins - 1)) + 1));
+            if (end <= start)
+                end = Math.min(start + 1, 1 + srcBins);
 
             float sum = 0f;
             int count = 0;
@@ -348,7 +366,7 @@ public class FrequencyVisualizerView extends View {
     }
 
     // ───────────────────────────────────────────
-    //                 DRAWING
+    // DRAWING
     // ───────────────────────────────────────────
 
     private void drawBars(Canvas canvas, float[] vals) {
@@ -388,7 +406,7 @@ public class FrequencyVisualizerView extends View {
             // waveform samples are 0..255, center at 128
             float normalized = ((wf[i] & 0xFF) - 128f) / 128f; // -1..1 approx
             float x = i * stepX;
-            float y = centerY + normalized * (h * 0.4f);      // 0.4 = margin
+            float y = centerY + normalized * (h * 0.4f); // 0.4 = margin
 
             if (i > 0) {
                 canvas.drawLine(prevX, prevY, x, y, barPaint);
@@ -457,12 +475,16 @@ public class FrequencyVisualizerView extends View {
         myLog("onDetachedFromWindow()");
         super.onDetachedFromWindow();
         if (visualizer != null) {
-            try { visualizer.release(); } catch (Throwable ignored) {}
+            try {
+                visualizer.release();
+            } catch (Throwable ignored) {
+            }
             visualizer = null;
         }
         fftBytes = null;
         waveformBytes = null;
     }
+
     /**
      * LEGACY: construit des barres à partir de la waveform (time-domain).
      * Histograms simples, très tolérants entre devices.
@@ -470,7 +492,8 @@ public class FrequencyVisualizerView extends View {
     private void computeLegacyBarsFromWaveform(byte[] wf, float[] out) {
         if (wf == null || wf.length == 0) {
             // petite décroissance si jamais on perd le signal
-            for (int i = 0; i < out.length; i++) out[i] *= 0.9f;
+            for (int i = 0; i < out.length; i++)
+                out[i] *= 0.9f;
             return;
         }
 
@@ -478,7 +501,7 @@ public class FrequencyVisualizerView extends View {
 
         for (int b = 0; b < NB_BARS; b++) {
             int start = b * len / NB_BARS;
-            int end   = (b + 1) * len / NB_BARS;
+            int end = (b + 1) * len / NB_BARS;
 
             float sum = 0f;
             int count = 0;
@@ -500,10 +523,26 @@ public class FrequencyVisualizerView extends View {
         }
     }
 
+    // ───────────────────────────────────────────
+    // LOGGING HELPERS
+    // ───────────────────────────────────────────
+    private void myLog(String str) {
+        KanLogger.myLog(this.getClass().getName(), str);
+    }
 
-    // ───────────────────────────────────────────
-    //               LOGGING HELPERS
-    // ───────────────────────────────────────────
-    private void myLog(String str)  { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
+    private void myLogE(String str) {
+        KanLogger.myLogE(this.getClass().getName(), str);
+    }
+
+    public void release() {
+        if (visualizer != null) {
+            try {
+                visualizer.release();
+            } catch (Throwable ignored) {
+            }
+            visualizer = null;
+        }
+        fftBytes = null;
+        waveformBytes = null;
+    }
 }
