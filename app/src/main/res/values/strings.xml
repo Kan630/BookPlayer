@@ -412,13 +412,13 @@
     <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode <i>(automatic pause after XX minutes)</i></string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
     <string name="option_visualizer_text_01">Displays a minimalist frequency visualizer when audio is playing.</string>
-    <string name="option_visualizer_text_02">Needs [Record Audio]/[Micro phone] permission</string>
+    <string name="option_visualizer_text_02">Needs [Record Audio]/[Microphone] permission</string>
     <string name="option_visualizer_permissions_denied_02">Tap the checkbox again to request permission.</string>
     <string name="option_screensaver_title">Screensaver</string>
     <string name="option_screensaver_enabled">Enable screensaver</string>
     <string name="option_screensaver_delay_text">Activate after</string>
     <string name="option_positioning_title">Positioning</string>
-    <string name="option_if_app_close_title">If app closed</string>
+    <string name="option_if_app_close_title">When app is closed</string>
     <string name="frequency_visualizer">Frequency Visualizer</string>
     <string name="option_tech_log_subtitle"><i>
         should the app create technical debug log files.
@@ -494,7 +494,7 @@
     <string name="option_epub_split_mode_spine">Spine-based (one chapter per book entry)</string>
     <string name="option_epub_split_mode_explain_text">TOC-based splitting creates more chapters but preserves the book\'s structure. Spine-based is simpler and creates fewer chapters.</string>
     <string name="option_ebook_remove_references">Remove reference markers (footnotes)</string>
-    <string name="option_ebook_remove_references_explain">Strips in-text refs like [8] and footnote blocks at end of pages so TTS reads the main text only.</string>
+    <string name="option_ebook_remove_references_explain">Strips in-text references like [1] and footnote blocks at the end of pages so TTS reads the main text only.</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
 
@@ -712,11 +712,11 @@
     
     <!-- Stats Activity Table -->
     <string name="stats_audio_time">Playback Time</string>
-    <string name="stats_book_time">* AudioBook</string>
+    <string name="stats_book_time">* Audiobook</string>
     <string name="stats_tts_time">* Ebook</string>
     <string name="stats_radio_time">* Radio</string>
     <string name="stats_podcast_time">* Podcast</string>
-    <string name="stats_note">(These stats started in 2025 (oct-nov)</string>
+    <string name="stats_note">(These stats started in 2025 (oct-nov))</string>
     <string name="stats_install_date_label">Install Date : </string>
     
     <string name="bMassImport">📁 Mass Import</string>
@@ -1023,7 +1023,7 @@
     <string name="pick_a_new_location">pick a new location</string>
     <string name="newlocation_better">The selected folder fixes all broken paths</string>
     <string name="newlocation_better_and_worse">The selected folder fixes some broken paths</string>
-    <string name="newlocation_not_better">Sorry, that did not work</string>
+    <string name="newlocation_not_better">Sorry, that didn\'t fix the paths</string>
     <string name="AskChangeSource_popupTitle">Confirm location change</string>
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>
@@ -1093,7 +1093,7 @@
         <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
-    <string name="option_screensaver_subtitle">Will trigger during playback, if you are on the Play screen</string>
+    <string name="option_screensaver_subtitle">Triggers during playback when you\'re on the Play screen</string>
     <string name="screensaver_force_orientation">Force Orientation</string>
     <string name="portrait">Portrait</string>
     <string name="landscape">Landscape</string>
