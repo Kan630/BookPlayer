@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Layout;
 import android.text.Spannable;
 import android.view.LayoutInflater;
@@ -85,6 +87,16 @@ public class PlayActivity extends BaseActivity {
     private static final long HEATMAP_REFRESH_INTERVAL_MS = 1000;
     /** Position when heatmap drag started (for "AAA → BBB" display). */
     private long heatMapSeekStartPositionMs = 0;
+    /** Reset last user action every second while user is dragging seekbar or heatmap. */
+    private static final long DRAG_RESET_INTERVAL_MS = 1000;
+    private final Handler dragResetHandler = new Handler(Looper.getMainLooper());
+    private final Runnable dragResetRunnable = new Runnable() {
+        @Override
+        public void run() {
+            PlaybackCommands.resetLastUserAction(PlayActivity.this);
+            dragResetHandler.postDelayed(this, DRAG_RESET_INTERVAL_MS);
+        }
+    };
     private TextView tvCurTime, tvTotalTime, tvTitle, tvSubTitle, tvSpeed, tvListeningTime, tvTimeLeft;
     private View progressOverlay, messageOverlay;
 
@@ -199,11 +211,14 @@ public class PlayActivity extends BaseActivity {
             sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                 @Override
                 public void onStartTrackingTouch(@NonNull Slider slider) {
+                    startDragResetTimer();
                 }
 
                 @Override
                 public void onStopTrackingTouch(@NonNull Slider slider) {
+                    stopDragResetTimer();
                     suppressAutoScroll = false;
+                    PlaybackCommands.resetLastUserAction(PlayActivity.this);
                 }
             });
         }
@@ -506,6 +521,7 @@ public class PlayActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
+        stopDragResetTimer();
         try {
             LocalBroadcastManager.getInstance(this).unregisterReceiver(uiReceiver);
         } catch (Throwable ignored) {
@@ -528,6 +544,16 @@ public class PlayActivity extends BaseActivity {
      */
     private static final int HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP = 40;
 
+    private void startDragResetTimer() {
+        dragResetHandler.removeCallbacks(dragResetRunnable);
+        PlaybackCommands.resetLastUserAction(this);
+        dragResetHandler.postDelayed(dragResetRunnable, DRAG_RESET_INTERVAL_MS);
+    }
+
+    private void stopDragResetTimer() {
+        dragResetHandler.removeCallbacks(dragResetRunnable);
+    }
+
     private void setupHeatMapSeek() {
         if (heatMapSeek == null)
             return;
@@ -548,6 +574,7 @@ public class PlayActivity extends BaseActivity {
                     if (x < cursorX - halfZonePx || x > cursorX + halfZonePx) {
                         return false;
                     }
+                    startDragResetTimer();
                     heatMapSeekStartPositionMs = s.positionMs;
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
@@ -563,10 +590,12 @@ public class PlayActivity extends BaseActivity {
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    stopDragResetTimer();
                     heatMapSeek.setPlayingCursorDragging(false);
                     vm.setSeekPreview(null);
                     vm.seekTo(seekMs);
                     suppressAutoScroll = false;
+                    PlaybackCommands.resetLastUserAction(this);
                     return true;
                 default:
                     return false;
