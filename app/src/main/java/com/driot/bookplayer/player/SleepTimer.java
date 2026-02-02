@@ -11,7 +11,9 @@ public final class SleepTimer extends LoggerHelper {
 
     public interface Listener {
         void onTick(int elapsedSeconds);
+
         void onReachedMax();
+
         /** Called each full minute with a label like "05:00", "12:00" or "01:15:00". */
         void onEveryMinute(@NonNull String elapsedCategory);
     }
@@ -37,11 +39,14 @@ public final class SleepTimer extends LoggerHelper {
     private long lastPostRealtime = 0L;
 
     private final Runnable r = new Runnable() {
-        @Override public void run() {
-            if (!running) return;
+        @Override
+        public void run() {
+            if (!running)
+                return;
 
             long now = android.os.SystemClock.elapsedRealtime();
-            if (lastPostRealtime == 0L) lastPostRealtime = now;
+            if (lastPostRealtime == 0L)
+                lastPostRealtime = now;
             long delta = now - lastPostRealtime;
             lastPostRealtime = now;
 
@@ -60,14 +65,17 @@ public final class SleepTimer extends LoggerHelper {
             playedSinceLastMinuteMs += delta;
             if (playedSinceLastMinuteMs >= 60_000L) {
                 playedSinceLastMinuteMs -= 60_000L;
-                myLog(Tonio.formatMmSs(elapsedMs) + "...     sleep in " + Tonio.formatMmSs(((long) maxMinutes*60 - elapsedSec)*1000) + " -- from " + maxMinutes + "min.");
+                myLog(Tonio.formatMmSs(elapsedMs) + "...     sleep in "
+                        + Tonio.formatMmSs(((long) maxMinutes * 60 - elapsedSec) * 1000) + " -- from " + maxMinutes
+                        + "min.");
                 l.onEveryMinute(elapsed_category);
             }
 
             l.onTick(elapsedSec);
 
             if (elapsedSec >= maxMinutes * 60) {
-                myLog("SLEEP PAUSE after " + com.driot.bookplayer.utils.Tonio.formatTime(elapsedSec * 1000L, true, true));
+                myLog("SLEEP PAUSE after "
+                        + com.driot.bookplayer.utils.Tonio.formatTime(elapsedSec * 1000L, true, true));
                 running = false;
                 l.onReachedMax();
             } else {
@@ -83,20 +91,38 @@ public final class SleepTimer extends LoggerHelper {
         this.playedSinceLastMinuteMs = 0L;
         this.lastPostRealtime = 0L;
         this.elapsed_category = "00:00";
-        if (running) stop();
+        if (running)
+            stop();
         running = true;
         h.postDelayed(r, tickMs);
     }
 
     public void stop() {
-        if (!running) myLog("=> stopping after " + Tonio.formatMmSsMs(elapsedMs));
+        if (!running)
+            myLog("=> stopping after " + Tonio.formatMmSsMs(elapsedMs));
         running = false;
         h.removeCallbacks(r);
     }
-    public void reload(int customMinutes) { stop(); start(customMinutes); }
-    public boolean isRunning() { return running; }
+
+    public void reload(int customMinutes) {
+        stop();
+        start(customMinutes);
+    }
+
+    public void resetTimer() {
+        if (running) {
+            myLog("=> resetting timer (user action detected)");
+            this.elapsedMs = 0L;
+            this.playedSinceLastMinuteMs = 0L;
+            this.lastPostRealtime = android.os.SystemClock.elapsedRealtime();
+        }
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
 
     public long getSleepLeftMs() {
-        return Math.max(0, (long) maxMinutes*60*1000-elapsedMs);
+        return Math.max(0, (long) maxMinutes * 60 * 1000 - elapsedMs);
     }
 }

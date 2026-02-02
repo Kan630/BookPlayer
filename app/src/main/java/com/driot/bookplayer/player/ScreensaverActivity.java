@@ -64,7 +64,7 @@ public class ScreensaverActivity extends BaseActivity {
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             myLogI("Screensaver dismissed by touch");
-            finish();
+            closeScreensaver();
             return true;
         }
         return super.onTouchEvent(event);
@@ -73,6 +73,11 @@ public class ScreensaverActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        closeScreensaver();
+    }
+
+    private void closeScreensaver() {
+        PlaybackCommands.resetSleepTimer(this);
         finish();
     }
 }

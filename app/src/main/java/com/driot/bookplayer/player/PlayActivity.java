@@ -97,8 +97,6 @@ public class PlayActivity extends BaseActivity {
     private TextView tvTtsText;
     // State moved to TtsHighlighter
 
-    private String tvListeningTimeBaseText;
-
     private long podcastLastClickTime = 0;
     private static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
@@ -180,7 +178,6 @@ public class PlayActivity extends BaseActivity {
         tvSpeed = findViewById(R.id.textViewSpeed);
         tvListeningTime = findViewById(R.id.tv_ListeningTime);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
-        tvListeningTimeBaseText = getString(R.string.tv_ListeningTimeWithNoUserAction);
 
         sbSeek = findViewById(R.id.sbSeek);
         heatMapSeek = findViewById(R.id.heatMapSeek);
@@ -671,16 +668,31 @@ public class PlayActivity extends BaseActivity {
     private void reDrawSleepTextViews(int customSleepMinutes) {
         try {
             PlaybackUiState s = vm.getState().getValue();
-            long timeLeftMs = (s != null ? s.sleepLeftMS : 0);
+            if (s == null) {
+                tvTimeLeft.setText("");
+                tvListeningTime.setText("");
+                return;
+            }
+
+            long timeLeftMs = s.sleepLeftMS;
             long timePassedMs = (long) customSleepMinutes * 60 * 1000 - timeLeftMs;
 
-            // myLog("timeLeftMs : " + timeLeftMs + " - timePassedMs : " + timePassedMs);
+            // Only display if timer is running
+            boolean showTimer = (timeLeftMs > 0 && customSleepMinutes > 0);
 
-            String timeLeftText = getString(R.string.tv_TimeLeft) + " : " + Tonio.formatTime(timeLeftMs, true);
-            tvTimeLeft.setText(timeLeftMs > 0 && timePassedMs > 0 ? timeLeftText : "");
+            if (showTimer) {
+                // "Time before sleep: 15:30"
+                String timeLeftText = getString(R.string.tv_TimeLeft) + " : " + Tonio.formatTime(timeLeftMs, true);
+                tvTimeLeft.setText(timeLeftText);
 
-            String timePassedText = tvListeningTimeBaseText + " " + Tonio.formatTime(timePassedMs, true);
-            tvListeningTime.setText(timeLeftMs > 0 && timePassedMs > 0 ? timePassedText : "");
+                // "No user action since 04:30"
+                String timePassedText = getString(R.string.tv_ListeningTimeWithNoUserAction) + " "
+                        + Tonio.formatTime(timePassedMs, true);
+                tvListeningTime.setText(timePassedText);
+            } else {
+                tvTimeLeft.setText("");
+                tvListeningTime.setText("");
+            }
 
         } catch (Throwable t) {
             myLogEE(t, "reDrawSleepTextViews(" + customSleepMinutes + ")");
