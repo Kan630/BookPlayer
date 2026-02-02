@@ -35,6 +35,7 @@ public class BookToAdd extends LoggerHelper {
 
     /** When Folder: count of epub/fb2/odt files (each is typically one book). >= 2 means "multiple books" → use Mass Import. */
     private int multipleBooksCount = 0;
+    private boolean hasOnlyZipFilesInFolder = false;
 
     private String infoMimeExtension = "init...";
     private String infoMimeExtensionSmall = "init...";
@@ -96,6 +97,7 @@ public class BookToAdd extends LoggerHelper {
             this.audioBookName = getBookName_with2folders(pickedUri.getPath(), false);
             this.playType = inferPlayTypeFromFolder(pickedUri);
             this.multipleBooksCount = countRealEbookFilesRecursive(pickedUri);
+            this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(pickedUri);
 
         }
         trimAudioBookPrefix();
@@ -164,9 +166,9 @@ public class BookToAdd extends LoggerHelper {
     public String getPlayType() { return playType; }
     public String getSpecialType() { return specialType; }
 
-    /** True when folder contains 2+ epub/fb2/odt files (each = one book) → user should use Mass Import. */
+    /** True when folder contains 2+ books (epub/fb2/odt/zip) or only zip files → user should use Mass Import. */
     public boolean hasMultipleBooksInFolder() {
-        return multipleBooksCount >= 2;
+        return multipleBooksCount >= 2 || hasOnlyZipFilesInFolder;
     }
 
 
@@ -259,7 +261,7 @@ public class BookToAdd extends LoggerHelper {
         }
     }
 
-    /** Count epub, fb2, odt – each is one book → "multiple books" when >= 2. */
+    /** Count epub, fb2, odt, zip, 7z – each is one book → "multiple books" when >= 2. */
     private int countRealEbookFilesRecursive(DocumentFile dir) {
         int count = 0;
         DocumentFile[] children = dir.listFiles();
@@ -268,12 +270,48 @@ public class BookToAdd extends LoggerHelper {
             if (child.isDirectory()) {
                 count += countRealEbookFilesRecursive(child);
             } else if (child.isFile()) {
-                if (SupportedFilesHelper.isSplittableEbookSpecial(SupportedFilesHelper.getSpecialType(child))) {
+                String special = SupportedFilesHelper.getSpecialType(child);
+                if (SupportedFilesHelper.isSplittableEbookSpecial(special)
+                        || SupportedFilesHelper.isBundleSpecial(special)) {
                     count++;
                 }
             }
         }
         return count;
+    }
+
+    /** True when folder has 1+ zip/7z and no audio (Folder import can't unzip; use Mass Import). */
+    private boolean checkHasOnlyZipFilesInFolder(Uri folderUri) {
+        try {
+            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(appContext, folderUri);
+            if (root == null || !root.exists() || !root.isDirectory()) return false;
+            int[] ab = countAudioAndBundleRecursive(root);
+            return ab[1] >= 1 && ab[0] == 0; // has bundles, no audio
+        } catch (Exception e) {
+            myLogEE(e, "checkHasOnlyZipFilesInFolder");
+            return false;
+        }
+    }
+
+    /** Returns [audioCount, bundleCount]. */
+    private int[] countAudioAndBundleRecursive(DocumentFile dir) {
+        int audio = 0, bundle = 0;
+        DocumentFile[] children = dir.listFiles();
+        if (children == null) return new int[] { 0, 0 };
+        for (DocumentFile child : children) {
+            if (child.isDirectory()) {
+                int[] sub = countAudioAndBundleRecursive(child);
+                audio += sub[0];
+                bundle += sub[1];
+            } else if (child.isFile()) {
+                if (SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)) {
+                    audio++;
+                } else if (SupportedFilesHelper.isBundleSpecial(SupportedFilesHelper.getSpecialType(child))) {
+                    bundle++;
+                }
+            }
+        }
+        return new int[] { audio, bundle };
     }
 
     /** Real content that blocks "text folder" mode: audio, video, epub, fb2, odt, m4b, zip... */
