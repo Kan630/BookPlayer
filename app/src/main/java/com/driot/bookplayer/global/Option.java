@@ -98,6 +98,8 @@ public class Option {
     private static final int MIN_SCREENSAVER_DELAY_SECONDS = 2;
     private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60;
     private static final String DEFAULT_SCREENSAVER_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_LEGACY;
+    private static final boolean DEFAULT_SCREENSAVER_FORCE_ORIENTATION = false;
+    private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -537,6 +539,22 @@ public class Option {
 
     public static String getScreensaverVisualizerType() {
         return prefs.getString("SCREENSAVER_VISUALIZER_TYPE", DEFAULT_SCREENSAVER_VISUALIZER_TYPE);
+    }
+
+    public static void setScreensaverForceOrientation(boolean bool) {
+        prefs.edit().putBoolean("SCREENSAVER_FORCE_ORIENTATION", bool).apply();
+    }
+
+    public static boolean getScreensaverForceOrientation() {
+        return prefs.getBoolean("SCREENSAVER_FORCE_ORIENTATION", DEFAULT_SCREENSAVER_FORCE_ORIENTATION);
+    }
+
+    public static void setScreensaverOrientationMode(String str) {
+        prefs.edit().putString("SCREENSAVER_ORIENTATION_MODE", str).apply();
+    }
+
+    public static String getScreensaverOrientationMode() {
+        return prefs.getString("SCREENSAVER_ORIENTATION_MODE", DEFAULT_SCREENSAVER_ORIENTATION_MODE);
     }
 
     /////////////////// COPY FILES ///////////////////

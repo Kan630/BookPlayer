@@ -36,6 +36,16 @@ public class ScreensaverActivity extends BaseActivity {
 
         setContentView(R.layout.activity_screensaver);
 
+        // Force orientation if requested
+        if (Option.getScreensaverForceOrientation()) {
+            String mode = Option.getScreensaverOrientationMode();
+            if ("PORTRAIT".equals(mode)) {
+                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else {
+                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+        }
+
         visualizer = findViewById(R.id.screensaverVisualizer);
 
         // Get audio session ID from intent

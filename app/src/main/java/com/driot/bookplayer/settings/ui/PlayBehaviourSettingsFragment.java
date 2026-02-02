@@ -208,6 +208,41 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             ssGroup.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
+        // ---- Screensaver Orientation
+        LinearLayout llForceOrient = root.findViewById(R.id.ll_screensaver_force_orientation);
+        MaterialCheckBox chkForceOrient = root.findViewById(R.id.chk_screensaver_force_orientation);
+        MaterialButtonToggleGroup groupOrient = root.findViewById(R.id.groupScreensaverOrientation);
+
+        boolean isForceOrient = Option.getScreensaverForceOrientation();
+        chkForceOrient.setChecked(isForceOrient);
+        groupOrient.setVisibility(isForceOrient ? View.VISIBLE : View.GONE);
+
+        // Initial state for buttons
+        String orientMode = Option.getScreensaverOrientationMode();
+        if ("PORTRAIT".equals(orientMode)) {
+            groupOrient.check(R.id.btnScreensaverOrientationPortrait);
+        } else {
+            groupOrient.check(R.id.btnScreensaverOrientationLandscape);
+        }
+
+        // Checkbox listener
+        llForceOrient.setOnClickListener(v -> chkForceOrient.toggle());
+        chkForceOrient.setOnCheckedChangeListener((b, isChecked) -> {
+            Option.setScreensaverForceOrientation(isChecked);
+            groupOrient.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        // Toggle Group listener
+        groupOrient.addOnButtonCheckedListener((g, checkedIdOrient, isChecked) -> {
+            if (!isChecked)
+                return;
+            if (checkedIdOrient == R.id.btnScreensaverOrientationPortrait) {
+                Option.setScreensaverOrientationMode("PORTRAIT");
+            } else {
+                Option.setScreensaverOrientationMode("LANDSCAPE");
+            }
+        });
+
         // ---- Play behaviour toggles
         llRewindAfterPause = root.findViewById(R.id.ll_rewind_after_pause);
         chkRewindAfterPause = root.findViewById(R.id.chk_rewind_after_pause);
