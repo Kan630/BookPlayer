@@ -470,8 +470,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 wordAtRange = words[0];
             }
         }
-        myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken="
-                + lastCharSpoken);
+        //myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
 
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
 
