@@ -30,6 +30,8 @@ public class Intents {
     public static final String NOTIFICATION_TTS_RANGE = "NOTIFICATION_TTS_RANGE";
     public static final String EXTRA_TTS_START = "EXTRA_TTS_START";
     public static final String EXTRA_TTS_END   = "EXTRA_TTS_END";
+    public static final String EXTRA_TTS_CHUNK_START = "EXTRA_TTS_CHUNK_START";
+    public static final String EXTRA_TTS_CHUNK_END   = "EXTRA_TTS_CHUNK_END";
 
     public static final String ACTION_PING_UI = "com.driot.bookplayer.PING_UI";
 

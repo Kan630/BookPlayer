@@ -43,22 +43,19 @@ public class TtsHighlighter {
     private long lastTtsPositionMs = -1;
 
     // Highlight scheduling
-    private int pendingStart = -1;
-    private int pendingEnd = -1;
-    private boolean highlightScheduled = false;
-    private Runnable pendingHighlightRunnable = null;
     private int lastAppliedHighlightEnd = -1;
-    private long lastHighlightTime = 0;
+    private int highlightGeneration = 0;  // incremented on reset, runnables with stale gen no-op
 
     // Seek / Sync logic
     private boolean ttsActuallyStarted = false;
     private long lastSeekTime = 0;
 
     // Constants
-    private static final long MIN_HIGHLIGHT_INTERVAL_MS = 50;
     private static final long SEEK_COOLDOWN_MS = 500;
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
+    /** Max extra delay (ms) for words at end of chunk; compensates for network TTS synthesis-vs-playback lag. */
+    private static final long TTS_SYNTHESIS_LEAD_MS = 4000;
 
     private static final String TAG = "TtsHighlighter";
 
@@ -197,7 +194,12 @@ public class TtsHighlighter {
         }
     }
 
-    public void scheduleHighlight(int s, int e) {
+    /**
+     * Schedule a highlight for the given range. When chunk bounds are valid, applies
+     * progressive delay so words toward the end of a chunk are delayed to match actual
+     * playback (network TTS reports onRangeStart when buffering, not when speaking).
+     */
+    public void scheduleHighlight(int s, int e, int chunkStart, int chunkEnd) {
         long now = System.currentTimeMillis();
 
         // Paranoid logging for diagnosing sync drift
@@ -250,33 +252,32 @@ public class TtsHighlighter {
             return;
         }
 
-        if (highlightScheduled && (now - lastHighlightTime) < MIN_HIGHLIGHT_INTERVAL_MS) {
-            pendingStart = s;
-            pendingEnd = e;
-            return;
+        // Schedule each word independently so none are skipped when TTS fires ranges rapidly.
+        // Each runnable captures its own (s,e) and applies when its delay elapses.
+        long delayMs = Option.getTtsHighlightDelayMs();
+        if (chunkStart >= 0 && chunkEnd > chunkStart && s >= chunkStart && s < chunkEnd) {
+            int positionInChunk = s - chunkStart;
+            int chunkLen = chunkEnd - chunkStart;
+            if (chunkLen > 0) {
+                long extraMs = (long) (TTS_SYNTHESIS_LEAD_MS * (positionInChunk / (double) chunkLen));
+                delayMs += extraMs;
+            }
         }
-
-        pendingStart = s;
-        pendingEnd = e;
-
-        if (highlightScheduled && pendingHighlightRunnable != null) {
-            uiH.removeCallbacks(pendingHighlightRunnable);
-            highlightScheduled = false;
-        }
-
-        pendingHighlightRunnable = this::applyHighlight;
-        highlightScheduled = true;
-        uiH.postDelayed(pendingHighlightRunnable, Option.getTtsHighlightDelayMs());
+        final int fs = s;
+        final int fe = e;
+        final int gen = highlightGeneration;
+        uiH.postDelayed(() -> {
+            if (gen != highlightGeneration) return;
+            applyHighlightForRange(fs, fe);
+        }, delayMs);
     }
 
-    private void applyHighlight() {
-        highlightScheduled = false;
-        pendingHighlightRunnable = null;
-        if (spannableText == null || pendingStart < 0)
+    private void applyHighlightForRange(int s, int e) {
+        if (spannableText == null)
             return;
         int len = spannableText.length();
-        int s = Math.max(0, Math.min(pendingStart, len));
-        int e = Math.max(s + 1, Math.min(pendingEnd, len));
+        s = Math.max(0, Math.min(s, len));
+        e = Math.max(s + 1, Math.min(e, len));
 
         if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
             myLogD("TTS HIGHLIGHT: skipping backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
@@ -285,8 +286,7 @@ public class TtsHighlighter {
         }
 
         try {
-            // Debug logging for highlighted word
-            if (spannableText != null && s < len && e <= len && s < e) {
+            if (s < len && e <= len && s < e) {
                 String highlightedWord = spannableText.subSequence(s, e).toString();
                 String[] words = highlightedWord.trim().split("\\s+");
                 if (words.length > 0)
@@ -300,9 +300,7 @@ public class TtsHighlighter {
             spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
             lastAppliedHighlightEnd = e;
-            lastHighlightTime = System.currentTimeMillis();
 
-            // Trigger auto-scroll if needed
             triggerAutoScroll(s);
 
         } catch (Throwable ignored) {
@@ -329,17 +327,11 @@ public class TtsHighlighter {
 
     public void resetHighlightTracking(boolean resetStartedFlag) {
         lastAppliedHighlightEnd = -1;
-        lastHighlightTime = 0;
+        highlightGeneration++;
         if (resetStartedFlag) {
             ttsActuallyStarted = false;
         }
-        if (highlightScheduled && pendingHighlightRunnable != null) {
-            uiH.removeCallbacks(pendingHighlightRunnable);
-            highlightScheduled = false;
-            pendingHighlightRunnable = null;
-        }
-        pendingStart = -1;
-        pendingEnd = -1;
+        // Pending runnables will no-op via generation check.
     }
 
     public void onDestroy() {

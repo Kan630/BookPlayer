@@ -43,8 +43,8 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     private boolean suppressAutoScroll = false;
     private float downY;
     private int touchSlop;
-    private int pendingStart = -1, pendingEnd = -1;
-    private boolean highlightScheduled = false;
+    private int lastAppliedHighlightEnd = -1;
+    private int highlightGeneration = 0;
     private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
 
     private int lastTtsTrackId = -1;
@@ -74,8 +74,8 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         });
 
         // Highlight range
-        vm.getTtsRange().observe(this, p -> {
-            if (p != null) scheduleTtsHighlight(p.first, p.second);
+        vm.getTtsRange().observe(this, ev -> {
+            if (ev != null) scheduleTtsHighlight(ev.start, ev.end, ev.chunkStart, ev.chunkEnd);
         });
 
         vm.getState().observe(this, s -> {
@@ -96,13 +96,18 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
             // 1) When user presses play/pause in the fragment (state toggles) → restore auto-follow
             if (playPauseToggled) {
                 suppressAutoScroll = false;
+                if (!s.playing) {
+                    lastAppliedHighlightEnd = -1;
+                    highlightGeneration++;
+                }
             }
 
             // 2) When chapter changes OR TTS becomes READY for a new chapter → refresh text + auto-follow
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
-                // Reset the request flag to allow requesting text for the new track
                 if (trackChanged) {
+                    lastAppliedHighlightEnd = -1;
+                    highlightGeneration++;
                     vm.resetTtsTextRequestFlag();
                 }
                 vm.requestTtsTextOnce();
@@ -180,32 +185,47 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         vm.requestTtsTextOnce();
     }
 
-    private void scheduleTtsHighlight(int s, int e) {
-        pendingStart = s; pendingEnd = e;
-        if (highlightScheduled) return;
-        highlightScheduled = true;
-        uiH.postDelayed(this::applyTtsHighlight, Option.getTtsHighlightDelayMs());
+    private void scheduleTtsHighlight(int s, int e, int chunkStart, int chunkEnd) {
+        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) return;
+
+        long delayMs = Option.getTtsHighlightDelayMs();
+        if (chunkStart >= 0 && chunkEnd > chunkStart && s >= chunkStart && s < chunkEnd) {
+            int positionInChunk = s - chunkStart;
+            int chunkLen = chunkEnd - chunkStart;
+            if (chunkLen > 0) {
+                long extraMs = (long) (4000 * (positionInChunk / (double) chunkLen));
+                delayMs += extraMs;
+            }
+        }
+        final int fs = s, fe = e;
+        final int gen = highlightGeneration;
+        uiH.postDelayed(() -> {
+            if (gen != highlightGeneration) return;
+            applyTtsHighlightForRange(fs, fe);
+        }, delayMs);
     }
 
-    private void applyTtsHighlight() {
-        highlightScheduled = false;
-        if (spannableText == null || pendingStart < 0) return;
+    private void applyTtsHighlightForRange(int s, int e) {
+        if (spannableText == null) return;
         int len = spannableText.length();
-        int s = Math.max(0, Math.min(pendingStart, len));
-        int e = Math.max(s + 1, Math.min(pendingEnd, len));
+        int start = Math.max(0, Math.min(s, len));
+        int end = Math.max(start + 1, Math.min(e, len));
+        if (lastAppliedHighlightEnd >= 0 && end < lastAppliedHighlightEnd) return;
         try {
             spannableText.removeSpan(ttsBgSpan);
             spannableText.removeSpan(ttsFgSpan);
-            spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableText.setSpan(ttsBgSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            spannableText.setSpan(ttsFgSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            lastAppliedHighlightEnd = end;
         } catch (Throwable ignored) {}
 
         if (suppressAutoScroll) return;
+        final int scrollPos = start;
         tvTtsFull.post(() -> {
             try {
                 Layout layout = tvTtsFull.getLayout();
                 if (layout != null) {
-                    int line = layout.getLineForOffset(s);
+                    int line = layout.getLineForOffset(scrollPos);
                     int y = layout.getLineTop(line);
                     int targetY = Math.max(0, y - tvTtsFull.getHeight() / 3);
                     tvTtsFull.scrollTo(0, targetY);

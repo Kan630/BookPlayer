@@ -179,13 +179,24 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen)
                 return;
-            // main.post(() -> { //surtout pas, source du décallage entre le highlight et
-            // l'audio
             Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
                     .putExtra(Intents.EXTRA_TTS_START, s)
-                    .putExtra(Intents.EXTRA_TTS_END, e);
+                    .putExtra(Intents.EXTRA_TTS_END, e)
+                    .putExtra(Intents.EXTRA_TTS_CHUNK_START, -1)
+                    .putExtra(Intents.EXTRA_TTS_CHUNK_END, -1);
             LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
-            // });
+        }
+
+        @Override
+        public void onTtsRange(long gen, int s, int e, int chunkStart, int chunkEnd) {
+            if (gen != engineGen)
+                return;
+            Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
+                    .putExtra(Intents.EXTRA_TTS_START, s)
+                    .putExtra(Intents.EXTRA_TTS_END, e)
+                    .putExtra(Intents.EXTRA_TTS_CHUNK_START, chunkStart)
+                    .putExtra(Intents.EXTRA_TTS_CHUNK_END, chunkEnd);
+            LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
         }
     };
 
