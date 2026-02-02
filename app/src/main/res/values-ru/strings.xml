@@ -469,7 +469,7 @@
     <string name="option_podcast_autodownload_subtitle">"Если вы отметите подкаст как избранный, вы также можете включить опцию \'автозагрузка\'.\nBookPlayer будет проверять новые эпизоды — как периодически, так и при запуске — и загружать их."</string>
     <string name="option_playing_behaviour_title">Поведение воспроизведения</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Всегда начинать следующий трек с начала, даже если он был частично прослушан ранее.</string>
+    <string name="option_start_next_track_at_zero_title_text">Когда трек заканчивается, начинать следующий с начала, даже если он был частично прослушан ранее.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Останавливать аудио при закрытии приложения.</string>
     <string name="option_network_preference_subtext">"Немеряемое соединение означает, что вы не используете мобильные данные (например, Wi-Fi, Ethernet или некоторые VPN).\nРоуминг означает, что вы за границей - даже Wi-Fi в отеле за границей считается роумингом."</string>
     <string name="option_automotive_let_car_autoplay">Разрешить Android Auto автоматически начинать воспроизведение (обычно при подключении к автомобилю).</string>
@@ -870,6 +870,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
 \nПоведение воспроизведения:
 \n* [не открывать отдельное окно плеера]
 \n* [продолжать воспроизведение при выходе из приложения]
+\nНавигация:
+\n* [Сначала открывать избранное] для Радио и Подкастов
 </string>
     <string name="cancel_ongoing_operation">Отменить текущие операции</string>
     <string name="option_reset_app_explain_text">
@@ -1009,13 +1011,13 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
     <string name="vote_too_many">Вы слишком часто голосовали за эту станцию — попробуйте позже.</string>
     <string name="Offline_for">Оффлайн в течение</string>
-    <string name="Track_View">Просмотр трека</string>
+    <string name="Track_View">Просмотр треков</string>
     <string name="All_modes_except_Legacy_are_in_beta">Все режимы, кроме Legacy, находятся в бета-версии.</string>
     <string name="reset_progress_only_for_this_track">сброс прогресса только этого трека</string>
     <string name="pick_a_new_location">выбрать новое место</string>
     <string name="newlocation_better">Папка исправляет все битые пути</string>
     <string name="newlocation_better_and_worse">Папка исправляет некоторые битые пути</string>
-    <string name="newlocation_not_better">Извините, это не сработало</string>
+    <string name="newlocation_not_better">Извините, пути не были исправлены.</string>
     <string name="AskChangeSource_popupTitle">Подтвердить смену места</string>
     <string name="already_downloaded">Уже загружено</string>
     <string name="open_audiobook">Открыть аудиокнигу</string>

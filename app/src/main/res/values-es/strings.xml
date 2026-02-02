@@ -466,7 +466,7 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="option_podcast_autodownload_subtitle">"Si marcas un pódcast como favorito, también puedes activar la opción \'descarga automática\'.\nBookPlayer verificará nuevos episodios — tanto periódicamente como al iniciar — y los descargará."</string>
     <string name="option_playing_behaviour_title">Comportamiento de reproducción</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Comenzar siempre la siguiente pista desde el principio, incluso si ya se había escuchado parcialmente.</string>
+    <string name="option_start_next_track_at_zero_title_text">Cuando termina una pista, comenzar la siguiente desde el principio, aunque ya se hubiera escuchado parcialmente.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Detener el audio al cerrar la app.</string>
     <string name="option_network_preference_subtext">"Una conexión no medida significa que no usas datos móviles (por ejemplo, Wi-Fi, Ethernet o algunas VPN).\nItinerancia significa estar en el extranjero - incluso el Wi-Fi de hotel en el extranjero cuenta como itinerancia."</string>
     <string name="option_automotive_let_car_autoplay">Permitir que Android Auto inicie la reproducción automáticamente (normalmente al conectarse al coche).</string>
@@ -868,6 +868,8 @@ El reinicio para usuario avanzado restaura los valores de fábrica pero conserva
 \nComportamiento de reproducción:
 \n* [no abrir la vista dedicada de reproducción]
 \n* [mantener la reproducción al salir de la app]
+\nNavegación:
+\n* [Abrir favoritos primero] para Radio y Podcast
 </string>
     <string name="cancel_ongoing_operation">Cancelar operaciones en curso</string>
     <string name="option_reset_app_explain_text">
@@ -1007,13 +1009,13 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
 
     <string name="vote_too_many">Ha votado demasiado por la misma emisora; inténtelo más tarde.</string>
     <string name="Offline_for">Desconectado por</string>
-    <string name="Track_View">Vista de Pista</string>
+    <string name="Track_View">Vista de pistas</string>
     <string name="All_modes_except_Legacy_are_in_beta">Todos los modos excepto Legacy están en beta.</string>
     <string name="reset_progress_only_for_this_track">reiniciar progreso solo de esta pista</string>
     <string name="pick_a_new_location">elegir nueva ubicación</string>
     <string name="newlocation_better">La carpeta corrige todas las rutas rotas</string>
     <string name="newlocation_better_and_worse">La carpeta corrige algunas rutas rotas</string>
-    <string name="newlocation_not_better">Lo siento, eso no funcionó</string>
+    <string name="newlocation_not_better">Lo siento, no se corrigieron las rutas.</string>
     <string name="AskChangeSource_popupTitle">Confirmar cambio de ubicación</string>
     <string name="already_downloaded">Ya descargado</string>
     <string name="open_audiobook">Abrir el audiolibro</string>

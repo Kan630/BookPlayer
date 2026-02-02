@@ -470,7 +470,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_podcast_autodownload_subtitle">"Wenn Sie einen Podcast als Favorit markieren, können Sie auch die Option 'Auto-Download' aktivieren.\nBookPlayer prüft dann auf neue Episoden – sowohl periodisch als auch beim Start – und lädt sie herunter."</string>
     <string name="option_playing_behaviour_title">Wiedergabeverhalten</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Den nächsten Titel immer von Anfang an starten, auch wenn er zuvor bereits teilweise abgespielt wurde.</string>
+    <string name="option_start_next_track_at_zero_title_text">Wenn ein Titel endet, den nächsten von Anfang an starten, auch wenn er zuvor bereits teilweise abgespielt wurde.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Audio stoppen, wenn du die App schließt.</string>
     <string name="option_network_preference_subtext">"Eine ungemessene Verbindung bedeutet, dass Sie keine mobilen Daten verwenden (z. B. WLAN, Ethernet oder einige VPNs).\nRoaming bedeutet, dass Sie im Ausland sind - selbst WLAN im Hotel im Ausland gilt als Roaming."</string>
     <string name="option_automotive_let_car_autoplay">Android Auto darf die Wiedergabe automatisch starten (normalerweise beim Verbinden mit dem Auto).</string>
@@ -871,6 +871,8 @@ Der Power-User-Reset stellt die Werkseinstellungen wieder her, behält jedoch ei
 \nWiedergabeverhalten:
 \n* [keine spezielle Wiedergabeansicht öffnen]
 \n* [Audio weiter abspielen, wenn die App geschlossen wird]
+\nNavigation:
+\n* [Zuerst Favoriten öffnen] für Radio und Podcast
 </string>
     <string name="cancel_ongoing_operation">Laufende Vorgänge abbrechen</string>
     <string name="option_reset_app_explain_text">
@@ -1010,13 +1012,13 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
 
     <string name="vote_too_many">Sie haben zu oft für denselben Sender abgestimmt — versuchen Sie es später.</string>
     <string name="Offline_for">Offline seit</string>
-    <string name="Track_View">Titelansicht</string>
+    <string name="Track_View">Ansicht der Titel</string>
     <string name="All_modes_except_Legacy_are_in_beta">Alle Modi außer Legacy sind im Beta-Status.</string>
     <string name="reset_progress_only_for_this_track">Fortschritt nur für diesen Titel zurücksetzen</string>
     <string name="pick_a_new_location">neuen Ort wählen</string>
     <string name="newlocation_better">Ordner repariert alle defekten Pfade</string>
     <string name="newlocation_better_and_worse">Ordner repariert einige defekte Pfade</string>
-    <string name="newlocation_not_better">Entschuldigung, das hat nicht funktioniert</string>
+    <string name="newlocation_not_better">Entschuldigung, die Pfade wurden nicht behoben.</string>
     <string name="AskChangeSource_popupTitle">Standortwechsel bestätigen</string>
     <string name="already_downloaded">Bereits heruntergeladen</string>
     <string name="open_audiobook">Das Hörbuch öffnen</string>

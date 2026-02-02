@@ -470,7 +470,7 @@
     <string name="option_podcast_autodownload_subtitle">"Se você marcar um podcast como favorito, também pode ativar a opção \'download automático\'.\nO BookPlayer verificará novos episódios — periodicamente e na inicialização — e fará o download."</string>
     <string name="option_playing_behaviour_title">Comportamento de reprodução</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Sempre iniciar a faixa seguinte do começo, mesmo que já tenha sido parcialmente ouvida.</string>
+    <string name="option_start_next_track_at_zero_title_text">Quando uma faixa termina, iniciar a seguinte desde o início, mesmo que já tenha sido parcialmente ouvida.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Parar o áudio quando você fechar o app.</string>
     <string name="option_network_preference_subtext">"Uma conexão não limitada significa que você não está usando dados móveis (por exemplo, Wi-Fi, Ethernet ou algumas VPNs).\nRoaming significa estar no exterior - até o Wi-Fi de hotel no exterior conta como roaming."</string>
     <string name="option_automotive_let_car_autoplay">Permitir que o Android Auto inicie a reprodução automaticamente (geralmente ao conectar ao carro).</string>
@@ -871,6 +871,8 @@ A redefinição para usuário avançado restaura as configurações de fábrica,
 \nComportamento de reprodução:
 \n* [não abrir a visualização de reprodução dedicada]
 \n* [manter o áudio tocando ao sair do app]
+\nNavegação:
+\n* [Abrir favoritos primeiro] para Rádio e Podcast
 </string>
     <string name="cancel_ongoing_operation">Cancelar operações em andamento</string>
     <string name="option_reset_app_explain_text">
@@ -1010,13 +1012,13 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
 
     <string name="vote_too_many">Você votou demais na mesma estação — tente novamente mais tarde.</string>
     <string name="Offline_for">Offline por</string>
-    <string name="Track_View">Visão da Faixa</string>
+    <string name="Track_View">Visão das faixas</string>
     <string name="All_modes_except_Legacy_are_in_beta">Todos os modos, exceto Legacy, estão em beta.</string>
     <string name="reset_progress_only_for_this_track">resetar progresso apenas desta faixa</string>
     <string name="pick_a_new_location">escolher novo local</string>
     <string name="newlocation_better">A pasta corrige todos os caminhos quebrados</string>
     <string name="newlocation_better_and_worse">A pasta corrige alguns caminhos quebrados</string>
-    <string name="newlocation_not_better">Desculpe, isso não funcionou</string>
+    <string name="newlocation_not_better">Desculpe, isso não corrigiu os caminhos.</string>
     <string name="AskChangeSource_popupTitle">Confirmar mudança de local</string>
     <string name="already_downloaded">Já baixado</string>
     <string name="open_audiobook">Abrir o audiolivro</string>

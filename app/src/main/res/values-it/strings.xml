@@ -470,7 +470,7 @@
     <string name="option_podcast_autodownload_subtitle">"Se contrassegni un podcast come preferito, puoi anche abilitare l\'opzione \'download automatico\'.\nBookPlayer controllerà quindi i nuovi episodi — sia periodicamente sia all\'avvio — e li scaricherà."</string>
     <string name="option_playing_behaviour_title">Comportamento di riproduzione</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Avvia sempre la traccia successiva dall\'inizio, anche se era già stata ascoltata in parte.</string>
+    <string name="option_start_next_track_at_zero_title_text">Quando una traccia termina, avviare la successiva dall\'inizio, anche se era già stata ascoltata in parte.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Interrompi l\'audio quando chiudi l\'app.</string>
     <string name="option_network_preference_subtext">"Una connessione non a consumo significa che non stai usando i dati mobili (ad esempio Wi-Fi, Ethernet o alcune VPN).\nIl roaming significa essere all\'estero - anche il Wi-Fi dell\'hotel all\'estero è considerato roaming."</string>
     <string name="option_automotive_let_car_autoplay">Consenti ad Android Auto di avviare automaticamente la riproduzione (di solito quando è collegato all\'auto).</string>
@@ -871,6 +871,8 @@ Il ripristino per utenti esperti riporta le impostazioni di fabbrica ma mantiene
 \nComportamento di riproduzione:
 \n* [non aprire la vista di riproduzione dedicata]
 \n* [mantieni l\'audio in riproduzione quando si esce dall\'app]
+\nNavigazione:
+\n* [Apri prima i preferiti] per Radio e Podcast
 </string>
     <string name="cancel_ongoing_operation">Annulla operazioni in corso</string>
     <string name="option_reset_app_explain_text">
@@ -1010,13 +1012,13 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
 
     <string name="vote_too_many">Hai votato troppo spesso per la stessa stazione — riprova più tardi.</string>
     <string name="Offline_for">Offline da</string>
-    <string name="Track_View">Vista Traccia</string>
+    <string name="Track_View">Vista delle tracce</string>
     <string name="All_modes_except_Legacy_are_in_beta">Tutte le modalità tranne Legacy sono in beta.</string>
     <string name="reset_progress_only_for_this_track">resetta progressi solo per questa traccia</string>
     <string name="pick_a_new_location">scegli nuova posizione</string>
     <string name="newlocation_better">La cartella corregge tutti i percorsi rotti</string>
     <string name="newlocation_better_and_worse">La cartella corregge alcuni percorsi rotti</string>
-    <string name="newlocation_not_better">Spiacente, non ha funzionato</string>
+    <string name="newlocation_not_better">Spiacente, non ha corretto i percorsi.</string>
     <string name="AskChangeSource_popupTitle">Conferma cambio posizione</string>
     <string name="already_downloaded">Già scaricato</string>
     <string name="open_audiobook">Apri l\'audiolibro</string>

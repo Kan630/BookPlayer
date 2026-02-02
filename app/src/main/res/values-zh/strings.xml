@@ -469,7 +469,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>
     <string name="option_playing_behaviour_title">播放行为</string>
 
-    <string name="option_start_next_track_at_zero_title_text">始终从头开始播放下一曲，即使之前已部分收听。</string>
+    <string name="option_start_next_track_at_zero_title_text">当一曲播放完毕后，从开头播放下一曲，即使之前已部分收听。</string>
     <string name="option_stop_audio_if_user_closes_app_text">关闭应用时停止音频。</string>
     <string name="option_network_preference_subtext">"未计费连接表示您未使用移动数据（例如 Wi-Fi、以太网或某些 VPN）。\n漫游表示您在国外 - 即使是在国外酒店的 Wi-Fi 也算作漫游。"</string>
     <string name="option_automotive_let_car_autoplay">允许 Android Auto 自动开始播放（通常在连接到汽车时）。</string>
@@ -870,6 +870,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 \n播放行为：
 \n* [不打开专用播放界面]
 \n* [退出应用时保持音频播放]
+\n导航：
+\n* [优先打开收藏] 适用于电台和播客
 </string>
     <string name="cancel_ongoing_operation">取消正在进行的操作</string>
     <string name="option_reset_app_explain_text">
@@ -1008,13 +1010,13 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 
     <string name="vote_too_many">您为同一电台投票太频繁 — 请稍后再试。</string>
     <string name="Offline_for">离线时间</string>
-    <string name="Track_View">曲目视图</string>
+    <string name="Track_View">曲目列表</string>
     <string name="All_modes_except_Legacy_are_in_beta">除经典模式外，所有模式均处于测试阶段。</string>
     <string name="reset_progress_only_for_this_track">仅重置此曲目进度</string>
     <string name="pick_a_new_location">选择新位置</string>
     <string name="newlocation_better">所选文件夹修复了所有损坏路径</string>
     <string name="newlocation_better_and_worse">所选文件夹修复了部分损坏路径</string>
-    <string name="newlocation_not_better">抱歉，操作失败</string>
+    <string name="newlocation_not_better">抱歉，未能修复路径。</string>
     <string name="AskChangeSource_popupTitle">确认位置更改</string>
     <string name="already_downloaded">已下载</string>
     <string name="open_audiobook">打开有声书</string>

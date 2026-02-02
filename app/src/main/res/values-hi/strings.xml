@@ -470,7 +470,7 @@
     <string name="option_podcast_autodownload_subtitle">"यदि आप किसी पॉडकास्ट को पसंदीदा चिह्नित करते हैं, तो आप ‘स्वतः डाउनलोड’ विकल्प भी सक्षम कर सकते हैं.\nBookPlayer तब नए एपिसोड की जाँच करेगा — समय-समय पर और स्टार्टअप पर — और उन्हें डाउनलोड करेगा."</string>
     <string name="option_playing_behaviour_title">प्लेबैक व्यवहार</string>
 
-    <string name="option_start_next_track_at_zero_title_text">अगला ट्रैक हमेशा शुरुआत से शुरू करें, भले ही उसे पहले आंशिक रूप से सुना गया हो।</string>
+    <string name="option_start_next_track_at_zero_title_text">जब कोई ट्रैक समाप्त हो जाए, अगला ट्रैक शुरुआत से शुरू करें, भले ही उसे पहले आंशिक रूप से सुना गया हो।</string>
     <string name="option_stop_audio_if_user_closes_app_text">जब आप ऐप बंद करें तो ऑडियो रोकें।</string>
     <string name="option_network_preference_subtext">
 "अनमीटर्ड कनेक्शन का अर्थ है कि आप मोबाइल डेटा पर नहीं हैं (उदाहरण, Wi-Fi, Ethernet, या कुछ VPNs)。
@@ -874,6 +874,8 @@
 \nप्लेबैक व्यवहार:
 \n* [समर्पित प्ले दृश्य न खोलें]
 \n* [ऐप छोड़ते समय ऑडियो चलाना जारी रखें]
+\nनेविगेशन:
+\n* [पहले पसंदीदा खोलें] रेडियो और पॉडकास्ट के लिए
 </string>
     <string name="cancel_ongoing_operation">चल रही प्रक्रियाएँ रद्द करें</string>
     <string name="option_reset_app_explain_text">
@@ -1013,13 +1015,13 @@ Android Auto को कार से जुड़ने पर स्वतः �
 
     <string name="vote_too_many">आपने एक ही स्टेशन के लिए बहुत बार वोट दिया - बाद में पुनः प्रयास करें।</string>
     <string name="Offline_for">ऑफ़लाइन के लिए</string>
-    <string name="Track_View">ट्रैक व्यू</string>
+    <string name="Track_View">ट्रैक सूची</string>
     <string name="All_modes_except_Legacy_are_in_beta">लेगासी को छोड़कर सभी मोड बीटा में हैं।</string>
     <string name="reset_progress_only_for_this_track">केवल इस ट्रैक की प्रगति रीसेट करें</string>
     <string name="pick_a_new_location">नया स्थान चुनें</string>
     <string name="newlocation_better">चयनित फ़ोल्डर सभी टूटे हुए रास्तों को ठीक करता है</string>
     <string name="newlocation_better_and_worse">चयनित फ़ोल्डर कुछ टूटे हुए रास्तों को ठीक करता है</string>
-    <string name="newlocation_not_better">क्षमा करें, यह काम नहीं किया</string>
+    <string name="newlocation_not_better">क्षमा करें, इससे पथ ठीक नहीं हुए।</string>
     <string name="AskChangeSource_popupTitle">स्थान परिवर्तन की पुष्टि करें</string>
     <string name="already_downloaded">पहले से डाउनलोड किया गया</string>
     <string name="open_audiobook">ऑडियोबुक खोलें</string>
