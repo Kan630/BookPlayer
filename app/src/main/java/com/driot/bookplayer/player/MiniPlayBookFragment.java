@@ -34,15 +34,15 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
     @Override
     public void onViewCreated(@NonNull View v, @Nullable Bundle b) {
-        tvTitle     = v.findViewById(R.id.tvTitle);
-        tvSubTitle  = v.findViewById(R.id.tvSubTitle);
-        tvMiniTime  = v.findViewById(R.id.tvMiniTime);
-        sbMiniSeek  = v.findViewById(R.id.sbMiniSeek);
+        tvTitle = v.findViewById(R.id.tvTitle);
+        tvSubTitle = v.findViewById(R.id.tvSubTitle);
+        tvMiniTime = v.findViewById(R.id.tvMiniTime);
+        sbMiniSeek = v.findViewById(R.id.sbMiniSeek);
         ibPrev = v.findViewById(R.id.bMiniBackward);
         ibPlayPause = v.findViewById(R.id.bMiniPlayPause);
         ibNext = v.findViewById(R.id.bMiniForward);
         ibClose = v.findViewById(R.id.btnClose);
-        ivCover     = v.findViewById(R.id.ivCover);
+        ivCover = v.findViewById(R.id.ivCover);
 
         ibPrev.setImageResource(R.drawable.ic_media_fast_rewind_24);
         ibNext.setImageResource(R.drawable.ic_media_fast_forward_24);
@@ -53,19 +53,38 @@ public class MiniPlayBookFragment extends LoggingFragment {
         sliderBinding = UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
 
         vm.getState().observe(getViewLifecycleOwner(), s -> {
-            if (s == null) return;
-            UiHelper.FillUiBasic(s, null, ibPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek, null, false);
+            if (s == null)
+                return;
+            UiHelper.FillUiBasic(s, null, ibPlayPause, tvTitle, tvSubTitle, tvMiniTime, ivCover, sbMiniSeek, null,
+                    false);
         });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user clicks on mini player root ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
             startActivity(new Intent(requireContext(), PlayActivity.class));
         });
 
-        ibPrev.setOnClickListener(_v -> { myLogI("---- user press PREV button ----"); vm.prev(); });
-        ibPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
-        ibNext.setOnClickListener(_v -> { myLogI("---- user press NEXT button ----"); vm.next(); });
-        ibClose.setOnClickListener(_v -> { myLogI("---- user press CLOSE button ----"); vm.stop(); });
+        ibPrev.setOnClickListener(_v -> {
+            myLogI("---- user press PREV button ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
+            vm.prev();
+        });
+        ibPlayPause.setOnClickListener(_v -> {
+            myLogI("---- user press PlayPause button ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
+            vm.playPause();
+        });
+        ibNext.setOnClickListener(_v -> {
+            myLogI("---- user press NEXT button ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
+            vm.next();
+        });
+        ibClose.setOnClickListener(_v -> {
+            myLogI("---- user press CLOSE button ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
+            vm.stop();
+        });
     }
 
     @Override
@@ -77,13 +96,15 @@ public class MiniPlayBookFragment extends LoggingFragment {
         sliderBinding = null;
     }
 
-    @Override public void onStart() {
+    @Override
+    public void onStart() {
         super.onStart();
         MediaControllerHolder.attachTo(this.getActivity());
         MediaControllerHolder.ensureConnected(requireContext().getApplicationContext());
     }
 
-    @Override public void onStop() {
+    @Override
+    public void onStop() {
         MediaControllerHolder.detachFrom(this.getActivity());
         super.onStop();
     }

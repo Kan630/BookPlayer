@@ -25,7 +25,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackUiState lastState;
     private Boolean hasInternet = null;
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
         return inf.inflate(R.layout.fragment_mini_play_radio, c, false);
     }
@@ -47,10 +48,10 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 return;
             }
 
-            //myLogD(s.toString());
-            //myLogI("vm.getState().observe " + s);
+            // myLogD(s.toString());
+            // myLogI("vm.getState().observe " + s);
 
-            if (lastState==null || lastState.cover==null || (s.cover!=null && !lastState.cover.equals(s.cover))) {
+            if (lastState == null || lastState.cover == null || (s.cover != null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");
                 Glide.with(ivCover.getContext())
                         .load(s.cover)
@@ -59,7 +60,8 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                         .into(ivCover);
             }
 
-            if (lastState!=null && lastState.playing != s.playing) myLogD("playing changed => " + s.playing);
+            if (lastState != null && lastState.playing != s.playing)
+                myLogD("playing changed => " + s.playing);
             lastState = vm.getState().getValue();
             refreshUi();
         });
@@ -76,18 +78,32 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             hasInternet = true;
         }
 
-        ibPlayPause.setOnClickListener(_v -> { myLogI("---- user press PlayPause button ----"); vm.playPause(); });
-        ibClose.setOnClickListener(_v -> { myLogI("---- user press CLOSE button ----"); vm.stop(); });
+        ibPlayPause.setOnClickListener(_v -> {
+            myLogI("---- user press PlayPause button ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
+            vm.playPause();
+        });
+        ibClose.setOnClickListener(_v -> {
+            myLogI("---- user press CLOSE button ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
+            vm.stop();
+        });
 
         v.setOnClickListener(_x -> {
             myLogI("---- user press mini player ----");
+            PlaybackCommands.resetSleepTimer(requireContext());
             if (vm.getState() != null && vm.getState().getValue() != null) {
                 String radioStationUuid = vm.getState().getValue().radioStationUuid;
-                if (radioStationUuid!=null) {
+                if (radioStationUuid != null) {
                     myLogD("radioStationUuid = " + radioStationUuid);
                     Intent intent = new Intent(requireContext(), RadioStationActivity.class);
                     intent.putExtra(Intents.EXTRA_STATION_UUID, radioStationUuid);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // dont open it multiple time... NOT SURE CLEAR TOP is really usefull...
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // dont open it
+                                                                                                       // multiple
+                                                                                                       // time... NOT
+                                                                                                       // SURE CLEAR TOP
+                                                                                                       // is really
+                                                                                                       // usefull...
                     startActivity(intent);
                 } else {
                     myLogE("radioStationUuid is NULL");
@@ -101,17 +117,21 @@ public class MiniPlayRadioFragment extends LoggingFragment {
     }
 
     private void refreshUi() {
-        if (lastState == null || hasInternet == null) return;
-        UiHelper.FillUiBasic(lastState, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null, ivNoInternet, hasInternet);
+        if (lastState == null || hasInternet == null)
+            return;
+        UiHelper.FillUiBasic(lastState, progressBar, ibPlayPause, tvTitle, tvSubTitle, null, null, null, ivNoInternet,
+                hasInternet);
     }
 
-    @Override public void onStart() {
+    @Override
+    public void onStart() {
         super.onStart();
         MediaControllerHolder.attachTo(this.getActivity());
         MediaControllerHolder.ensureConnected(requireContext().getApplicationContext());
     }
 
-    @Override public void onStop() {
+    @Override
+    public void onStop() {
         MediaControllerHolder.detachFrom(this.getActivity());
         super.onStop();
     }
