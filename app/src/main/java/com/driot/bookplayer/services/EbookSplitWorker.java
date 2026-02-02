@@ -76,10 +76,15 @@ public class EbookSplitWorker extends ImportWorker {
             return Result.failure();
         }
 
-        // No-op when source file does not exist (e.g. zip contained audio, not ebook)
+        // No-op when source file does not exist (e.g. zip contained audio) or is m4b (handled by M4bSplitWorker)
         File ebookFile = new File(ebookPath);
         if (!ebookFile.exists() || !ebookFile.isFile()) {
             myLogD("EbookSplitWorker: source file does not exist, skipping: " + ebookPath);
+            return Result.success();
+        }
+        String ext = com.driot.bookplayer.utils.Tonio.getExtension(ebookFile.getName());
+        if (ext != null && "m4b".equalsIgnoreCase(ext)) {
+            myLogD("EbookSplitWorker: source is m4b, skipping (M4bSplitWorker handles it): " + ebookPath);
             return Result.success();
         }
 
