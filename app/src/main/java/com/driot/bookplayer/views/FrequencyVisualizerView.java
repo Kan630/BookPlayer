@@ -130,6 +130,7 @@ public class FrequencyVisualizerView extends View {
     private byte[] fftBytes; // raw [re0, im0, re1, im1, ...]
     private byte[] waveformBytes; // raw waveform (legacy mode)
     private final float[] bars = new float[NB_BARS]; // smoothed 0..1 values
+    private Runnable pendingLinkRetry;
 
     // ───────────────────────────────────────────
     // PAINTS
@@ -187,13 +188,24 @@ public class FrequencyVisualizerView extends View {
             invalidate();
             return;
         }
-        if (visualizer == null)
-            link(audioSessionId);
+        if (visualizer == null) {
+            boolean ok = link(audioSessionId);
+            if (!ok && audioSessionId > 0) {
+                if (pendingLinkRetry != null) removeCallbacks(pendingLinkRetry);
+                pendingLinkRetry = () -> {
+                    pendingLinkRetry = null;
+                    link_toto(audioSessionId);
+                };
+                postDelayed(pendingLinkRetry, 250);
+            }
+        }
     }
 
-    private void link(int audioSessionId) {
+    /** @return true if linked successfully, false if init failed (e.g. session in use). */
+    private boolean link(int audioSessionId) {
         if (VISUALIZER_DISABLED)
-            return;
+            return false;
+        release();
         myLog("link - audioSessionId = [" + audioSessionId + "]");
         try {
             visualizer = new Visualizer(audioSessionId);
@@ -227,8 +239,15 @@ public class FrequencyVisualizerView extends View {
             }, Visualizer.getMaxCaptureRate(), /* waveform */ true, /* fft */ true);
 
             visualizer.setEnabled(true);
+            return true;
+        } catch (IllegalStateException e) {
+            myLogE("Visualizer init failed (session in use): " + e);
+            release();
+            return false;
         } catch (Throwable t) {
             myLogE("Visualizer init failed: " + t);
+            release();
+            return false;
         }
     }
 
@@ -474,6 +493,10 @@ public class FrequencyVisualizerView extends View {
     protected void onDetachedFromWindow() {
         myLog("onDetachedFromWindow()");
         super.onDetachedFromWindow();
+        if (pendingLinkRetry != null) {
+            removeCallbacks(pendingLinkRetry);
+            pendingLinkRetry = null;
+        }
         if (visualizer != null) {
             try {
                 visualizer.release();
@@ -535,6 +558,10 @@ public class FrequencyVisualizerView extends View {
     }
 
     public void release() {
+        if (pendingLinkRetry != null) {
+            removeCallbacks(pendingLinkRetry);
+            pendingLinkRetry = null;
+        }
         if (visualizer != null) {
             try {
                 visualizer.release();

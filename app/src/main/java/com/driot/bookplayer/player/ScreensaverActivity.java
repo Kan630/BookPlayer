@@ -21,6 +21,17 @@ public class ScreensaverActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Force orientation before setContentView to avoid config change recreating the activity
+        // (manifest has configChanges=orientation|screenSize so we won't recreate anyway).
+        if (Option.getScreensaverForceOrientation()) {
+            String mode = Option.getScreensaverOrientationMode();
+            if ("PORTRAIT".equals(mode)) {
+                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else {
+                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+        }
+
         // True full screen: hide status bar AND navigation bar
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN
                 | WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -35,16 +46,6 @@ public class ScreensaverActivity extends BaseActivity {
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
 
         setContentView(R.layout.activity_screensaver);
-
-        // Force orientation if requested
-        if (Option.getScreensaverForceOrientation()) {
-            String mode = Option.getScreensaverOrientationMode();
-            if ("PORTRAIT".equals(mode)) {
-                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-            } else {
-                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-            }
-        }
 
         visualizer = findViewById(R.id.screensaverVisualizer);
 

@@ -105,6 +105,8 @@ public class PlayActivity extends BaseActivity {
     private float downY;
 
     private boolean screensaverActive = false;
+    /** After onResume, don't launch screensaver for this long (avoids launching when user just opened PlayActivity). */
+    private long resumeScreensaverGraceUntilRealtime = 0L;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -1010,6 +1012,8 @@ public class PlayActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        // Grace period must be set before LiveData delivers to observer (which happens in STARTED state).
+        resumeScreensaverGraceUntilRealtime = android.os.SystemClock.elapsedRealtime() + 2000; // 2 s grace
         // Bind controller to this Activity and ensure the browser is up
         MediaControllerHolder.attachTo(this);
         MediaControllerHolder.ensureConnected(getApplicationContext());
@@ -1025,6 +1029,13 @@ public class PlayActivity extends BaseActivity {
 
     private void checkAndLaunchScreensaver(@Nullable PlaybackUiState s) {
         if (!Option.getScreensaverEnabled() || s == null || screensaverActive) {
+            return;
+        }
+        if (isFinishing()) {
+            return; // Don't launch when user is leaving (e.g. BACK press).
+        }
+        // Don't launch immediately after user opened PlayActivity (e.g. from mini player click).
+        if (android.os.SystemClock.elapsedRealtime() < resumeScreensaverGraceUntilRealtime) {
             return;
         }
 

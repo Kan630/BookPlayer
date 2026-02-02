@@ -69,6 +69,7 @@
             android:name=".player.ScreensaverActivity"
             android:theme="@style/Theme.BookPlayer"
             android:screenOrientation="unspecified"
+            android:configChanges="orientation|screenSize"
             android:exported="false" />
         <activity android:name=".activities.ZikFileActivity"
             android:parentActivityName=".activities.MainActivity"/>
