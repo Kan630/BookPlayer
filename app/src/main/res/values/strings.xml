@@ -417,6 +417,8 @@
     <string name="option_screensaver_title">Screensaver</string>
     <string name="option_screensaver_enabled">Enable screensaver during playback</string>
     <string name="option_screensaver_delay_text">Activate after</string>
+    <string name="option_positioning_title">Positioning</string>
+    <string name="option_if_app_close_title">If app closed</string>
     <string name="frequency_visualizer">Frequency Visualizer</string>
     <string name="option_tech_log_subtitle"><i>
         should the app create technical debug log files.
@@ -1013,7 +1015,7 @@
 
     <string name="vote_too_many">You voted too often for the same station — try again later.</string>
     <string name="Offline_for">Offline for</string>
-    <string name="Track_View">Track View</string>
+    <string name="Track_View">Tracks View</string>
     <string name="All_modes_except_Legacy_are_in_beta">All modes except Legacy are in beta.</string>
     <string name="reset_progress_only_for_this_track">reset progress only for this track</string>
     <string name="pick_a_new_location">pick a new location</string>

@@ -10,7 +10,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.views.SettingsSectionView;
 
-
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -28,12 +27,30 @@ public class SettingsActivity extends BaseBottomNavActivity {
     ScrollView scrollView;
     private SectionHost currentlyExpanded = null;
     private boolean headerTapLocked = false;
-    /** Scroll position to restore after recreate (e.g. theme change). Applied in onResume so it runs after any scroll reset. */
+    /**
+     * Scroll position to restore after recreate (e.g. theme change). Applied in
+     * onResume so it runs after any scroll reset.
+     */
     private int pendingScrollPosition = -1;
 
-    @Override protected int getNavId() { return R.id.nav_settings; }
-    @Override protected int getLayoutResId() { return R.layout.activity_settings; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+
+    //TODO new universal toggle to replace checkboxes
+
+
+    @Override
+    protected int getNavId() {
+        return R.id.nav_settings;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_settings;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,109 +59,89 @@ public class SettingsActivity extends BaseBottomNavActivity {
 
         scrollView = findViewById(R.id.scrollView);
 
-/*  //TODO new universal toggle to replace checkboxes
-        SettingSwitchRow rowOpenPlay = findViewById(R.id.row_sd_card);
-        rowOpenPlay.setChecked(Option.getOpenPlayActivity());
-        rowOpenPlay.setOnCheckedChangeListener((button, checked) -> {
-            Option.setOpenPlayActivity(checked);
-        });
- */
-
         SettingsSectionView sectionLanguage = findViewById(R.id.section_language);
         registerSection(
                 sectionLanguage,
                 "expand_language",
                 () -> new com.driot.bookplayer.settings.ui.LanguageSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionPlay = findViewById(R.id.section_play_behaviour);
         registerSection(
                 sectionPlay,
                 "expand_play_behaviour",
                 () -> new com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionDesign = findViewById(R.id.section_design);
         registerSection(
                 sectionDesign,
                 "expand_design",
                 () -> new com.driot.bookplayer.settings.ui.DesignSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionImport = findViewById(R.id.section_import);
         registerSection(
                 sectionImport,
                 "expand_import",
                 () -> new com.driot.bookplayer.settings.ui.ImportSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionLibrivox = findViewById(R.id.section_librivox);
         registerSection(
                 sectionLibrivox,
                 "expand_librivox",
                 () -> new com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionRadio = findViewById(R.id.section_radio);
         registerSection(
                 sectionRadio,
                 "expand_radio",
                 () -> new com.driot.bookplayer.settings.ui.RadioSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionPodcast = findViewById(R.id.section_podcast);
         registerSection(
                 sectionPodcast,
                 "expand_podcast",
                 () -> new com.driot.bookplayer.settings.ui.PodcastSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionTts = findViewById(R.id.section_tts);
         registerSection(
                 sectionTts,
                 "expand_tts",
                 () -> new com.driot.bookplayer.settings.ui.TtsSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionAutomotive = findViewById(R.id.section_automotive);
         registerSection(
                 sectionAutomotive,
                 "expand_automotive",
                 () -> new com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionNetwork = findViewById(R.id.section_network);
         registerSection(
                 sectionNetwork,
                 "expand_network",
                 () -> new com.driot.bookplayer.settings.ui.NetworkSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionUtilities = findViewById(R.id.section_utilities);
         registerSection(
                 sectionUtilities,
                 "expand_utilities",
                 () -> new com.driot.bookplayer.settings.ui.UtilitiesSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
         SettingsSectionView sectionMassiveImport = findViewById(R.id.section_massive_import);
         registerSection(
                 sectionMassiveImport,
                 "expand_massive_import",
                 () -> new com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment(),
-                savedInstanceState
-        );
+                savedInstanceState);
 
     }
 
@@ -153,34 +150,48 @@ public class SettingsActivity extends BaseBottomNavActivity {
         super.onDestroy();
     }
 
+    @Override
+    public void onBackPressed() {
+        // If a section is currently expanded, collapse it instead of closing the
+        // activity
+        if (currentlyExpanded != null) {
+            collapseSection(currentlyExpanded, false);
+        } else {
+            // No section expanded, proceed with default back behavior
+            super.onBackPressed();
+        }
+    }
+
     // PERMISSIONS REMOVAL
     // adb shell pm revoke com.driot.bookplayer android.permission.RECORD_AUDIO
     // cd C:\Users\adrio\AppData\Local\Android\Sdk\platform-tools\
     // Developer Options => Security settings of USB debugging... = OFF
 
-    //adb shell dumpsys package com.driot.bookplayer
-    //adb -s P7LFRGOFKVKRLNPF shell dumpsys package com.driot.bookplayer
+    // adb shell dumpsys package com.driot.bookplayer
+    // adb -s P7LFRGOFKVKRLNPF shell dumpsys package com.driot.bookplayer
 
-    //adb devices
+    // adb devices
 
     // tablet
-    //R9JT308QFNA
+    // R9JT308QFNA
 
     // old Oppo
-    //P7LFRGOFKVKRLNPF
+    // P7LFRGOFKVKRLNPF
 
     // Xiaomi Redmi
-    //36085d331d5c
+    // 36085d331d5c
 
     @Override
-    public void finish() { //needed because of recreate()
-        if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { //trick to reload MainActivity
+    public void finish() { // needed because of recreate()
+        if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE)
+                .getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { // trick to reload MainActivity
             setResult(Activity.RESULT_OK);
         }
         super.finish();
     }
 
-    //// Saving scroll position where reloading activity (after applying theme color change)
+    //// Saving scroll position where reloading activity (after applying theme color
+    //// change)
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
@@ -190,6 +201,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
         }
 
     }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -203,7 +215,8 @@ public class SettingsActivity extends BaseBottomNavActivity {
         if (pendingScrollPosition >= 0 && scrollView != null) {
             final int position = pendingScrollPosition;
             pendingScrollPosition = -1;
-            // Apply after layout and after any scroll-to-top (e.g. initGoToTop); post twice so we run last
+            // Apply after layout and after any scroll-to-top (e.g. initGoToTop); post twice
+            // so we run last
             scrollView.post(() -> scrollView.post(() -> {
                 myLog("scrolling to position : " + position);
                 scrollView.scrollTo(0, position);
@@ -211,11 +224,12 @@ public class SettingsActivity extends BaseBottomNavActivity {
         }
     }
 
-
     // =====================
-// Inline section helper
-// =====================
-    private interface FragmentFactory { Fragment create(); }
+    // Inline section helper
+    // =====================
+    private interface FragmentFactory {
+        Fragment create();
+    }
 
     private static final class SectionHost {
         final com.driot.bookplayer.views.SettingsSectionView sectionView;
@@ -224,8 +238,8 @@ public class SettingsActivity extends BaseBottomNavActivity {
         boolean expanded;
 
         SectionHost(com.driot.bookplayer.views.SettingsSectionView sectionView,
-                    String stateKey,
-                    FragmentFactory factory) {
+                String stateKey,
+                FragmentFactory factory) {
             this.sectionView = sectionView;
             this.stateKey = stateKey;
             this.factory = factory;
@@ -235,9 +249,9 @@ public class SettingsActivity extends BaseBottomNavActivity {
     private final List<SectionHost> sectionHosts = new ArrayList<>();
 
     private void registerSection(SettingsSectionView sectionView,
-                                 String stateKey,
-                                 FragmentFactory factory,
-                                 Bundle savedInstanceState) {
+            String stateKey,
+            FragmentFactory factory,
+            Bundle savedInstanceState) {
 
         SectionHost host = new SectionHost(sectionView, stateKey, factory);
 
@@ -254,22 +268,23 @@ public class SettingsActivity extends BaseBottomNavActivity {
 
         sectionView.getHeaderView().setOnClickListener(v -> {
             if (host.expanded) {
-                collapseSection(host, /*removeFragment*/ false);
+                collapseSection(host, /* removeFragment */ false);
             } else {
-                expandSection(host, /*scrollToHeader*/ true);
+                expandSection(host, /* scrollToHeader */ true);
             }
         });
 
         // Initial state application (no scroll on first render)
         if (host.expanded) {
-            expandSection(host, /*scrollToHeader*/ false);
+            expandSection(host, /* scrollToHeader */ false);
         } else {
-            collapseSection(host, /*removeFragment*/ false);
+            collapseSection(host, /* removeFragment */ false);
         }
     }
+
     private void expandSection(SectionHost host, boolean scrollToHeader) {
         if (currentlyExpanded != null && currentlyExpanded != host) {
-            collapseSection(currentlyExpanded, /*removeFragment*/ false);
+            collapseSection(currentlyExpanded, /* removeFragment */ false);
         }
 
         host.expanded = true;
@@ -286,12 +301,14 @@ public class SettingsActivity extends BaseBottomNavActivity {
                     .beginTransaction()
                     .replace(containerId, frag)
                     .runOnCommit(() -> {
-                        if (scrollToHeader) scrollHeaderIntoView(host); // <- now safe (no execPending)
+                        if (scrollToHeader)
+                            scrollHeaderIntoView(host); // <- now safe (no execPending)
                     })
                     .commit();
         } else {
             // Fragment already present; just scroll after the container is made visible
-            if (scrollToHeader) scrollHeaderIntoView(host);
+            if (scrollToHeader)
+                scrollHeaderIntoView(host);
         }
 
         currentlyExpanded = host;
@@ -308,17 +325,21 @@ public class SettingsActivity extends BaseBottomNavActivity {
                 getSupportFragmentManager().beginTransaction().remove(f).commit();
             }
         }
-        if (currentlyExpanded == host) currentlyExpanded = null;
+        if (currentlyExpanded == host)
+            currentlyExpanded = null;
     }
 
     private void scrollHeaderIntoView(final SectionHost host) {
-        if (scrollView == null) return;
+        if (scrollView == null)
+            return;
 
         // Avoid focus-stealing auto-scrolls from inputs/spinners
         View current = getCurrentFocus();
-        if (current != null) current.clearFocus();
+        if (current != null)
+            current.clearFocus();
 
-        // Wait until the section lays out (safe whether we just added a fragment or not)
+        // Wait until the section lays out (safe whether we just added a fragment or
+        // not)
         host.sectionView.post(() -> {
             final View header = host.sectionView.getHeaderView();
 
@@ -328,7 +349,8 @@ public class SettingsActivity extends BaseBottomNavActivity {
             scrollView.getLocationOnScreen(svLoc);
 
             int targetY = scrollView.getScrollY() + (headerLoc[1] - svLoc[1]);
-            if (targetY > 16) targetY -= 16;
+            if (targetY > 16)
+                targetY -= 16;
 
             scrollView.smoothScrollTo(0, targetY);
             myLog("smoothScrollTo :" + targetY);
@@ -336,9 +358,13 @@ public class SettingsActivity extends BaseBottomNavActivity {
     }
 
     private void onHeaderClicked(SectionHost host) {
-        if (headerTapLocked) return;
+        if (headerTapLocked)
+            return;
         headerTapLocked = true;
-        if (host.expanded) collapseSection(host, false); else expandSection(host, true);
+        if (host.expanded)
+            collapseSection(host, false);
+        else
+            expandSection(host, true);
         host.sectionView.postDelayed(() -> headerTapLocked = false, 150);
     }
 
