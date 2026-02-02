@@ -549,6 +549,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="init_check_already_imported_please_wait">"正在检查是否已导入，请稍候…"</string>
     <string name="init_check_complementary_checks_please_wait">"正在进行补充检查，请稍候…"</string>
     <string name="error_media_already_loaded_samePath">此媒体已被加载</string>
+    <string name="error_folder_multiple_books">在此文件夹中找到多本书籍。请改用批量导入。</string>
     <string name="ErrorCouldNotLoadAudios">错误 - 无法加载音频。</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">错误 - 此文件夹中未找到音频。</string>
     <string name="loading_voice_3pt">正在加载语音…</string>
