@@ -223,14 +223,15 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             updateScreensaverSectionVisibility(isChecked,
                     llScreensaverDelay, etScreensaverDelay, tvScreensaverDelayMin, tvScreensaverDelayMax,
                     ssGroup, llForceOrient, groupOrient);
+            if (isChecked) groupOrient.setEnabled(chkForceOrient.isChecked());
         });
 
         updateRecordAudioDependentOptions(root);
 
-        // ---- Screensaver Orientation
+        // ---- Screensaver Orientation (landscape/portrait toggle enabled only when force orientation is checked)
         boolean isForceOrient = Option.getScreensaverForceOrientation();
         chkForceOrient.setChecked(isForceOrient);
-        groupOrient.setVisibility(isForceOrient ? View.VISIBLE : View.GONE);
+        groupOrient.setEnabled(isForceOrient);
 
         // Initial state for buttons
         String orientMode = Option.getScreensaverOrientationMode();
@@ -244,7 +245,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         llForceOrient.setOnClickListener(v -> chkForceOrient.toggle());
         chkForceOrient.setOnCheckedChangeListener((b, isChecked) -> {
             Option.setScreensaverForceOrientation(isChecked);
-            groupOrient.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+            groupOrient.setEnabled(isChecked);
         });
 
         // Toggle Group listener
