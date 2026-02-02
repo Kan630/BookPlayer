@@ -97,6 +97,7 @@ public class Option {
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
     private static final int MIN_SCREENSAVER_DELAY_SECONDS = 2;
     private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60;
+    private static final String DEFAULT_SCREENSAVER_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_LEGACY;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -528,6 +529,14 @@ public class Option {
 
     public static int getMaxScreensaverDelaySeconds() {
         return MAX_SCREENSAVER_DELAY_SECONDS;
+    }
+
+    public static void setScreensaverVisualizerType(String str) {
+        prefs.edit().putString("SCREENSAVER_VISUALIZER_TYPE", str).apply();
+    }
+
+    public static String getScreensaverVisualizerType() {
+        return prefs.getString("SCREENSAVER_VISUALIZER_TYPE", DEFAULT_SCREENSAVER_VISUALIZER_TYPE);
     }
 
     /////////////////// COPY FILES ///////////////////

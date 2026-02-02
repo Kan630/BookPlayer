@@ -47,7 +47,7 @@ public class ScreensaverActivity extends BaseActivity {
         if (sessionId > 0 && Option.getVisualizerOn()
                 && isRecordAudioPermissionGranted(this)) {
             try {
-                visualizer.setMode(Option.getVisualizerType());
+                visualizer.setMode(Option.getScreensaverVisualizerType());
                 visualizer.link_toto(sessionId);
                 myLogI("Screensaver visualizer linked to session " + sessionId);
             } catch (Throwable t) {

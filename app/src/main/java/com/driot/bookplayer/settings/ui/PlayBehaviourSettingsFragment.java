@@ -166,7 +166,34 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         llScreensaverDelay = root.findViewById(R.id.ll_screensaver_delay);
         etScreensaverDelay = root.findViewById(R.id.etScreensaverDelay);
 
-        chkScreensaverEnabled.setChecked(Option.getScreensaverEnabled());
+        MaterialButtonToggleGroup ssGroup = root.findViewById(R.id.groupVisualizerScreenSaverMode);
+        boolean ssEnabled = Option.getScreensaverEnabled();
+        ssGroup.setVisibility(ssEnabled ? View.VISIBLE : View.GONE);
+
+        String ssType = Option.getScreensaverVisualizerType();
+        int ssCheckedId = switch (ssType) {
+            case Var.VISUALIZER_TYPE_BARS -> R.id.btnVisualizerScreenSaverBars;
+            case Var.VISUALIZER_TYPE_RADIAL -> R.id.btnVisualizerScreenSaverRadial;
+            case Var.VISUALIZER_TYPE_WAVE -> R.id.btnVisualizerScreenSaverWave;
+            default -> R.id.btnVisualizerScreenSaverLegacy;
+        };
+        ssGroup.check(ssCheckedId);
+
+        ssGroup.addOnButtonCheckedListener((g, checkedId2, isChecked) -> {
+            if (!isChecked)
+                return;
+            if (checkedId2 == R.id.btnVisualizerScreenSaverBars) {
+                Option.setScreensaverVisualizerType(Var.VISUALIZER_TYPE_BARS);
+            } else if (checkedId2 == R.id.btnVisualizerScreenSaverRadial) {
+                Option.setScreensaverVisualizerType(Var.VISUALIZER_TYPE_RADIAL);
+            } else if (checkedId2 == R.id.btnVisualizerScreenSaverWave) {
+                Option.setScreensaverVisualizerType(Var.VISUALIZER_TYPE_WAVE);
+            } else {
+                Option.setScreensaverVisualizerType(Var.VISUALIZER_TYPE_LEGACY);
+            }
+        });
+
+        chkScreensaverEnabled.setChecked(ssEnabled);
         etScreensaverDelay.setText(String.valueOf(Option.getScreensaverDelaySeconds()));
 
         // Enable/disable delay input based on checkbox
@@ -178,6 +205,7 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             Option.setScreensaverEnabled(isChecked);
             llScreensaverDelay.setEnabled(isChecked);
             etScreensaverDelay.setEnabled(isChecked);
+            ssGroup.setVisibility(isChecked ? View.VISIBLE : View.GONE);
         });
 
         // ---- Play behaviour toggles
@@ -227,10 +255,12 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         TextView tvScreensaverDelayMin = root.findViewById(R.id.tvScreensaverDelayMin);
         TextView tvScreensaverDelayMax = root.findViewById(R.id.tvScreensaverDelayMax);
         if (tvScreensaverDelayMin != null) {
-            tvScreensaverDelayMin.setText("Min = " + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
+            tvScreensaverDelayMin
+                    .setText("Min = " + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
         }
         if (tvScreensaverDelayMax != null) {
-            tvScreensaverDelayMax.setText("Max = " + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
+            tvScreensaverDelayMax
+                    .setText("Max = " + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
         }
 
         return root;
