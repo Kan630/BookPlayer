@@ -193,7 +193,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
             int positionInChunk = s - chunkStart;
             int chunkLen = chunkEnd - chunkStart;
             if (chunkLen > 0) {
-                long extraMs = (long) (4000 * (positionInChunk / (double) chunkLen));
+                long extraMs = (long) (3600 * (positionInChunk / (double) chunkLen));
                 delayMs += extraMs;
             }
         }

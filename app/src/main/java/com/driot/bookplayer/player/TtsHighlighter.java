@@ -55,7 +55,7 @@ public class TtsHighlighter {
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
     /** Max extra delay (ms) for words at end of chunk; compensates for network TTS synthesis-vs-playback lag. */
-    private static final long TTS_SYNTHESIS_LEAD_MS = 4000;
+    private static final long TTS_SYNTHESIS_LEAD_MS = 3600;
 
     private static final String TAG = "TtsHighlighter";
 
@@ -253,7 +253,6 @@ public class TtsHighlighter {
         }
 
         // Schedule each word independently so none are skipped when TTS fires ranges rapidly.
-        // Each runnable captures its own (s,e) and applies when its delay elapses.
         long delayMs = Option.getTtsHighlightDelayMs();
         if (chunkStart >= 0 && chunkEnd > chunkStart && s >= chunkStart && s < chunkEnd) {
             int positionInChunk = s - chunkStart;
