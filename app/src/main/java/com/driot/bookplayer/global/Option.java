@@ -95,6 +95,8 @@ public class Option {
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
+    private static final int MIN_SCREENSAVER_DELAY_SECONDS = 2;
+    private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -518,6 +520,14 @@ public class Option {
 
     public static int getScreensaverDelaySeconds() {
         return prefs.getInt("SCREENSAVER_DELAY_SECONDS", DEFAULT_SCREENSAVER_DELAY_SECONDS);
+    }
+
+    public static int getMinScreensaverDelaySeconds() {
+        return MIN_SCREENSAVER_DELAY_SECONDS;
+    }
+
+    public static int getMaxScreensaverDelaySeconds() {
+        return MAX_SCREENSAVER_DELAY_SECONDS;
     }
 
     /////////////////// COPY FILES ///////////////////

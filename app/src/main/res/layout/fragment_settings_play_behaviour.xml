@@ -296,8 +296,14 @@
                     android:textSize="24sp" />
             </LinearLayout>
             
-            <TextView android:text="Min = 10" style="@style/OptionMiniText" />
-            <TextView android:text="Max = 300 (5min)" style="@style/OptionMiniText" />
+            <TextView 
+                android:id="@+id/tvScreensaverDelayMin"
+                android:text="Min = 10" 
+                style="@style/OptionMiniText" />
+            <TextView 
+                android:id="@+id/tvScreensaverDelayMax"
+                android:text="Max = 300 (5min)" 
+                style="@style/OptionMiniText" />
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

@@ -223,6 +223,16 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chk_use_heatmap_seekbar_in_play_activity
                 .setOnCheckedChangeListener((b, isChecked) -> Option.setUseHeatmapSeekbarInPlayActivity(isChecked));
 
+        // Set screensaver delay min/max TextViews from constants
+        TextView tvScreensaverDelayMin = root.findViewById(R.id.tvScreensaverDelayMin);
+        TextView tvScreensaverDelayMax = root.findViewById(R.id.tvScreensaverDelayMax);
+        if (tvScreensaverDelayMin != null) {
+            tvScreensaverDelayMin.setText("Min = " + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
+        }
+        if (tvScreensaverDelayMax != null) {
+            tvScreensaverDelayMax.setText("Max = " + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
+        }
+
         return root;
     }
 
@@ -246,7 +256,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         final int fwd = Option.clampInt(requireContext(), etForwardSeconds, MIN_FORWARD_SECONDS, MAX_FORWARD_SECONDS,
                 Option.DEFAULT_FORWARD_SECONDS, getString(R.string.option_backward_forward_title));
         final int screensaverDelay = Option.clampInt(requireContext(), etScreensaverDelay,
-                10, 300, 10, getString(R.string.option_screensaver_title));
+                Option.getMinScreensaverDelaySeconds(), Option.getMaxScreensaverDelaySeconds(),
+                10, getString(R.string.option_screensaver_title));
 
         // Persist off the UI thread
         Executors.newSingleThreadExecutor().execute(() -> {
