@@ -415,7 +415,7 @@
     <string name="option_visualizer_text_02">Needs [Record Audio]/[Micro phone] permission</string>
     <string name="option_visualizer_permissions_denied_02">Tap the checkbox again to request permission.</string>
     <string name="option_screensaver_title">Screensaver</string>
-    <string name="option_screensaver_enabled">Enable screensaver during playback</string>
+    <string name="option_screensaver_enabled">Enable screensaver</string>
     <string name="option_screensaver_delay_text">Activate after</string>
     <string name="option_positioning_title">Positioning</string>
     <string name="option_if_app_close_title">If app closed</string>
@@ -498,8 +498,8 @@
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
 
-    <string name="optionMinEqual">Min = </string> //short for Minimum
-    <string name="optionMaxEqual">Max = </string> //short for Maximum
+    <string name="optionMinEqual">Min =</string> //short for Minimum
+    <string name="optionMaxEqual">Max =</string> //short for Maximum
 
     <string name="AutoTest_title">Auto Test</string>
     <string name="TextHeaderOpen">Load audio from device</string>
@@ -1093,6 +1093,7 @@
         <item quantity="one">%d track</item>
         <item quantity="other">%d tracks</item>
     </plurals>
+    <string name="option_screensaver_subtitle">Will trigger during playback, if you are on the Play screen</string>
     <string name="screensaver_force_orientation">Force Orientation</string>
     <string name="portrait">Portrait</string>
     <string name="landscape">Landscape</string>

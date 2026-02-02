@@ -293,11 +293,11 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         // Set screensaver delay min/max TextViews from constants
         if (tvScreensaverDelayMin != null) {
             tvScreensaverDelayMin
-                    .setText(getString(R.string.optionMinEqual) + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
+                    .setText(getString(R.string.optionMinEqual) + " " + Option.getMinScreensaverDelaySeconds() + " " + getString(R.string.sec));
         }
         if (tvScreensaverDelayMax != null) {
             tvScreensaverDelayMax
-                    .setText(getString(R.string.optionMaxEqual) + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
+                    .setText(getString(R.string.optionMaxEqual) + " " + Option.getMaxScreensaverDelaySeconds() + " " + getString(R.string.sec));
         }
 
         return root;

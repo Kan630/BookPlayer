@@ -268,6 +268,12 @@
                     style="@style/OptionCheckBoxText"
                     android:text="@string/option_screensaver_enabled" />
             </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_screensaver_subtitle"
+                android:layout_marginBottom="10dp"
+                />
+
 
 
             <com.google.android.material.button.MaterialButtonToggleGroup
@@ -354,45 +360,47 @@
 
             </com.google.android.material.button.MaterialButtonToggleGroup>
 
-            <LinearLayout
-                android:id="@+id/ll_screensaver_delay"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:gravity="center"
-                android:layout_width="match_parent">
+            <LinearLayout style="@style/wideLinearLayout_Vertical"
+                android:layout_marginStart="50dp"
+                >
+                <LinearLayout
+                    android:id="@+id/ll_screensaver_delay"
+                    style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                    android:layout_width="match_parent">
+
+                    <TextView
+                        style="@style/simpleTextWrap"
+                        android:text="@string/option_screensaver_delay_text"
+                        android:textSize="16sp" />
+
+                    <EditText
+                        android:id="@+id/etScreensaverDelay"
+                        style="@style/EditText"
+                        android:layout_height="wrap_content"
+                        android:layout_width="50sp"
+                        android:inputType="number"
+                        android:paddingStart="10sp"
+                        android:paddingEnd="10sp"
+                        android:textAlignment="textEnd"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="8dp"
+                        android:textSize="18sp" />
+
+                    <TextView
+                        style="@style/simpleTextWrap"
+                        android:text="sec."
+                        android:textSize="16sp" />
+                </LinearLayout>
 
                 <TextView
-                    style="@style/simpleTextWrap"
-                    android:layout_marginStart="50sp"
-                    android:text="@string/option_screensaver_delay_text"
-                    android:textSize="24sp" />
-
-                <EditText
-                    android:id="@+id/etScreensaverDelay"
-                    style="@style/EditText"
-                    android:layout_height="wrap_content"
-                    android:layout_width="50sp"
-                    android:inputType="number"
-                    android:paddingStart="10sp"
-                    android:paddingEnd="10sp"
-                    android:textAlignment="textEnd"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:textSize="24sp" />
-                
+                    android:id="@+id/tvScreensaverDelayMin"
+                    android:text="@string/optionMinEqual"
+                    style="@style/OptionMiniText" />
                 <TextView
-                    style="@style/simpleTextWrap"
-                    android:text="sec."
-                    android:textSize="24sp" />
+                    android:id="@+id/tvScreensaverDelayMax"
+                    android:text="@string/optionMaxEqual"
+                    style="@style/OptionMiniText" />
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvScreensaverDelayMin"
-                android:text="Min = 10" 
-                style="@style/OptionMiniText" />
-            <TextView 
-                android:id="@+id/tvScreensaverDelayMax"
-                android:text="Max = 300 (5min)" 
-                style="@style/OptionMiniText" />
         </LinearLayout>
 
 
