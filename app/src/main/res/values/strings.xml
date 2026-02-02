@@ -412,8 +412,12 @@
     <string name="option_beep_for_autostop">Produce a long beep when entering sleep mode <i>(automatic pause after XX minutes)</i></string>
     <string name="option_beep_at_the_end">Produce a triple beep at the book end.</string>
     <string name="option_visualizer_text_01">Displays a minimalist frequency visualizer when audio is playing.</string>
-    <string name="option_visualizer_text_02">Needs [Record Audio]/[Microphone] permission</string>
+    <string name="option_visualizer_text_02">Needs [Record Audio]/[Micro phone] permission</string>
     <string name="option_visualizer_permissions_denied_02">Tap the checkbox again to request permission.</string>
+    <string name="option_screensaver_title">Screensaver</string>
+    <string name="option_screensaver_enabled">Enable screensaver during playback</string>
+    <string name="option_screensaver_delay_text">Activate after</string>
+    <string name="frequency_visualizer">Frequency Visualizer</string>
     <string name="option_tech_log_subtitle"><i>
         should the app create technical debug log files.
     </i></string>
@@ -818,7 +822,6 @@
     <string name="import_task_ebook_split">Ebook parsing</string>
     <string name="import_task_m4b_split">M4b extraction</string>
     <string name="Import_Success_with_warnings">Import completed with warnings</string>
-    <string name="frequency_visualizer">Frequency Visualizer</string>
     <string name="counting_files">counting files</string>
     <string name="tts_phase_loading_text">Loading text…</string>
     <string name="tts_phase_warming_up">Preparing voice…</string>

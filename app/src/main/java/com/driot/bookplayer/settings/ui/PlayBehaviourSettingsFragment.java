@@ -31,16 +31,21 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     // UI
     private EditText etTimeBeforeSleep;
     private EditText etForwardSeconds;
+    private EditText etScreensaverDelay;
 
     private LinearLayout llVisualizerOn, llClickMainContainerPlayPause;
     private MaterialCheckBox chkVisualizerOn, chkClickMainContainerPlayPause;
     private TextView txVisualizerOn;
 
     private LinearLayout llRewindAfterPause, llStartNextTrackAtZero, llStopAudioOnClose, llOpenPlayActivity;
-    private MaterialCheckBox chkRewindAfterPause, chkStartNextTrackAtZero, chkStopAudioIfUserClosesApp, chkOpenPlayActivity;
+    private MaterialCheckBox chkRewindAfterPause, chkStartNextTrackAtZero, chkStopAudioIfUserClosesApp,
+            chkOpenPlayActivity;
 
     private LinearLayout llBeepChapter, llBeepAutostop, llBeepBookend;
     private MaterialCheckBox chkBeepChapter, chkBeepAutostop, chkBeepBookend;
+
+    private LinearLayout llScreensaverEnabled, llScreensaverDelay;
+    private MaterialCheckBox chkScreensaverEnabled;
 
     // Permission helper
     private PermissionRequest mPermissionRequest;
@@ -50,41 +55,43 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
     private static final int MIN_FORWARD_SECONDS = 1;
     private static final int MAX_FORWARD_SECONDS = 300;
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_settings_play_behaviour, container, false);
 
         // Optional local header
         boolean showLocalTitle = true;
         Bundle args = getArguments();
-        if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
+        if (args != null)
+            showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
         View titleContainer = root.findViewById(R.id.ll_title);
-        if (titleContainer != null) titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
+        if (titleContainer != null)
+            titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
 
         // ---- Bind numeric fields
-        etTimeBeforeSleep  = root.findViewById(R.id.etTimeBeforeSleep);
-        etForwardSeconds   = root.findViewById(R.id.etForwardSeconds);
+        etTimeBeforeSleep = root.findViewById(R.id.etTimeBeforeSleep);
+        etForwardSeconds = root.findViewById(R.id.etForwardSeconds);
 
         etTimeBeforeSleep.setText(String.valueOf(Option.getTimeBeforeSleep()));
         etForwardSeconds.setText(String.valueOf(Option.get_ForwardSeconds()));
 
-        //HEAT MAPS
+        // HEAT MAPS
         CheckBox chk_use_heatmap_for_tracks_activity;
         LinearLayout ll_use_heatmap_for_tracks_activity;
         chk_use_heatmap_for_tracks_activity = root.findViewById(R.id.chk_use_heatmap_for_tracks_activity);
-        ll_use_heatmap_for_tracks_activity  = root.findViewById(R.id.ll_use_heatmap_for_tracks_activity);
+        ll_use_heatmap_for_tracks_activity = root.findViewById(R.id.ll_use_heatmap_for_tracks_activity);
         chk_use_heatmap_for_tracks_activity.setChecked(Option.getUseHeatmapForTracksActivity());
         ll_use_heatmap_for_tracks_activity.setOnClickListener(v -> chk_use_heatmap_for_tracks_activity.toggle());
-        chk_use_heatmap_for_tracks_activity.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Option.setUseHeatmapForTracksActivity(isChecked));
-
+        chk_use_heatmap_for_tracks_activity.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> Option.setUseHeatmapForTracksActivity(isChecked));
 
         // ---- Visualizer
-        llVisualizerOn              = root.findViewById(R.id.ll_visualizer_on);
-        chkVisualizerOn             = root.findViewById(R.id.chk_visualizer_on);
-        txVisualizerOn              = root.findViewById(R.id.tx_Visualizer_on);
+        llVisualizerOn = root.findViewById(R.id.ll_visualizer_on);
+        chkVisualizerOn = root.findViewById(R.id.chk_visualizer_on);
+        txVisualizerOn = root.findViewById(R.id.tx_Visualizer_on);
         llClickMainContainerPlayPause = root.findViewById(R.id.ll_visualizer_playpause);
         chkClickMainContainerPlayPause = root.findViewById(R.id.chk_click_visualizer_playpause);
 
@@ -111,10 +118,11 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             case Var.VISUALIZER_TYPE_WAVE -> R.id.btnVisualizerWave;
             default -> R.id.btnVisualizerLegacy;
         };
-        group.check(checkedId);   // ← this actually makes one button look "pressed"
+        group.check(checkedId); // ← this actually makes one button look "pressed"
 
         group.addOnButtonCheckedListener((g, checkedId2, isChecked) -> {
-            if (!isChecked) return;
+            if (!isChecked)
+                return;
             if (checkedId2 == R.id.btnVisualizerBars) {
                 Option.setVisualizerType(Var.VISUALIZER_TYPE_BARS);
             } else if (checkedId2 == R.id.btnVisualizerRadial) {
@@ -128,8 +136,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
 
         chkClickMainContainerPlayPause.setChecked(Option.getClickMainContainerPlayPause());
         llClickMainContainerPlayPause.setOnClickListener(v -> chkClickMainContainerPlayPause.toggle());
-        chkClickMainContainerPlayPause.setOnCheckedChangeListener((button, isChecked) ->
-                Option.setClickVisualizerPlayPause(isChecked));
+        chkClickMainContainerPlayPause
+                .setOnCheckedChangeListener((button, isChecked) -> Option.setClickVisualizerPlayPause(isChecked));
 
         setVisualizerPermissionText();
 
@@ -152,6 +160,26 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         llBeepBookend.setOnClickListener(v -> chkBeepBookend.toggle());
         chkBeepBookend.setOnCheckedChangeListener((b, isChecked) -> Option.setBeepBookEnd(isChecked));
 
+        // ---- Screensaver
+        llScreensaverEnabled = root.findViewById(R.id.ll_screensaver_enabled);
+        chkScreensaverEnabled = root.findViewById(R.id.chk_screensaver_enabled);
+        llScreensaverDelay = root.findViewById(R.id.ll_screensaver_delay);
+        etScreensaverDelay = root.findViewById(R.id.etScreensaverDelay);
+
+        chkScreensaverEnabled.setChecked(Option.getScreensaverEnabled());
+        etScreensaverDelay.setText(String.valueOf(Option.getScreensaverDelaySeconds()));
+
+        // Enable/disable delay input based on checkbox
+        llScreensaverDelay.setEnabled(chkScreensaverEnabled.isChecked());
+        etScreensaverDelay.setEnabled(chkScreensaverEnabled.isChecked());
+
+        llScreensaverEnabled.setOnClickListener(v -> chkScreensaverEnabled.toggle());
+        chkScreensaverEnabled.setOnCheckedChangeListener((b, isChecked) -> {
+            Option.setScreensaverEnabled(isChecked);
+            llScreensaverDelay.setEnabled(isChecked);
+            etScreensaverDelay.setEnabled(isChecked);
+        });
+
         // ---- Play behaviour toggles
         llRewindAfterPause = root.findViewById(R.id.ll_rewind_after_pause);
         chkRewindAfterPause = root.findViewById(R.id.chk_rewind_after_pause);
@@ -169,7 +197,8 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         chkStopAudioIfUserClosesApp = root.findViewById(R.id.chk_stop_audio_if_user_closes_app);
         chkStopAudioIfUserClosesApp.setChecked(Option.getStopAudioIfUserClosesApp());
         llStopAudioOnClose.setOnClickListener(v -> chkStopAudioIfUserClosesApp.toggle());
-        chkStopAudioIfUserClosesApp.setOnCheckedChangeListener((b, isChecked) -> Option.setStopAudioIfUserClosesApp(isChecked));
+        chkStopAudioIfUserClosesApp
+                .setOnCheckedChangeListener((b, isChecked) -> Option.setStopAudioIfUserClosesApp(isChecked));
 
         llOpenPlayActivity = root.findViewById(R.id.ll_open_play_activity);
         chkOpenPlayActivity = root.findViewById(R.id.chk_open_play_activity);
@@ -181,13 +210,18 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         CheckBox chk_lock_orientation_play_activity = root.findViewById(R.id.chk_lock_orientation_play_activity);
         chk_lock_orientation_play_activity.setChecked(Option.getScreenOrientationLock());
         ll_lock_orientation_play_activity.setOnClickListener(v -> chk_lock_orientation_play_activity.toggle());
-        chk_lock_orientation_play_activity.setOnCheckedChangeListener((b, isChecked) -> Option.setScreenOrientationLock(isChecked));
+        chk_lock_orientation_play_activity
+                .setOnCheckedChangeListener((b, isChecked) -> Option.setScreenOrientationLock(isChecked));
 
-        LinearLayout ll_use_heatmap_seekbar_in_play_activity = root.findViewById(R.id.ll_use_heatmap_seekbar_in_play_activity);
-        MaterialCheckBox chk_use_heatmap_seekbar_in_play_activity = root.findViewById(R.id.chk_use_heatmap_seekbar_in_play_activity);
+        LinearLayout ll_use_heatmap_seekbar_in_play_activity = root
+                .findViewById(R.id.ll_use_heatmap_seekbar_in_play_activity);
+        MaterialCheckBox chk_use_heatmap_seekbar_in_play_activity = root
+                .findViewById(R.id.chk_use_heatmap_seekbar_in_play_activity);
         chk_use_heatmap_seekbar_in_play_activity.setChecked(Option.getUseHeatmapSeekbarInPlayActivity());
-        ll_use_heatmap_seekbar_in_play_activity.setOnClickListener(v -> chk_use_heatmap_seekbar_in_play_activity.toggle());
-        chk_use_heatmap_seekbar_in_play_activity.setOnCheckedChangeListener((b, isChecked) -> Option.setUseHeatmapSeekbarInPlayActivity(isChecked));
+        ll_use_heatmap_seekbar_in_play_activity
+                .setOnClickListener(v -> chk_use_heatmap_seekbar_in_play_activity.toggle());
+        chk_use_heatmap_seekbar_in_play_activity
+                .setOnCheckedChangeListener((b, isChecked) -> Option.setUseHeatmapSeekbarInPlayActivity(isChecked));
 
         return root;
     }
@@ -206,18 +240,25 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
 
     private void saveEditTextValues() {
         // Read & validate on UI thread
-        final int tbs = Option.clampInt(requireContext(), etTimeBeforeSleep, Option.MIN_TIME_BEFORE_SLEEP, Option.MAX_TIME_BEFORE_SLEEP, Option.DEFAULT_TIME_BEFORE_SLEEP, getString(R.string.option_timeBeforeSleep));
-        final int fwd = Option.clampInt(requireContext(), etForwardSeconds, MIN_FORWARD_SECONDS, MAX_FORWARD_SECONDS, Option.DEFAULT_FORWARD_SECONDS, getString(R.string.option_backward_forward_title));
+        final int tbs = Option.clampInt(requireContext(), etTimeBeforeSleep, Option.MIN_TIME_BEFORE_SLEEP,
+                Option.MAX_TIME_BEFORE_SLEEP, Option.DEFAULT_TIME_BEFORE_SLEEP,
+                getString(R.string.option_timeBeforeSleep));
+        final int fwd = Option.clampInt(requireContext(), etForwardSeconds, MIN_FORWARD_SECONDS, MAX_FORWARD_SECONDS,
+                Option.DEFAULT_FORWARD_SECONDS, getString(R.string.option_backward_forward_title));
+        final int screensaverDelay = Option.clampInt(requireContext(), etScreensaverDelay,
+                10, 300, 10, getString(R.string.option_screensaver_title));
 
         // Persist off the UI thread
         Executors.newSingleThreadExecutor().execute(() -> {
             Option.setTimeBeforeSleep(tbs);
             Option.set_ForwardSeconds(fwd);
+            Option.setScreensaverDelaySeconds(screensaverDelay);
         });
     }
 
     private void setVisualizerPermissionText() {
-        if (txVisualizerOn == null) return;
+        if (txVisualizerOn == null)
+            return;
         String txt = getString(R.string.option_visualizer_text_01)
                 + "<br><i>"
                 + getString(R.string.option_visualizer_text_02);
@@ -239,11 +280,14 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
                 .denied(R.string.permission_record_audio_denied)
                 .snackbar((ViewGroup) root) // show feedback in fragment root
                 .callback(new PermissionRequest.Callback() {
-                    @Override public void onPermissionsGranted() {
+                    @Override
+                    public void onPermissionsGranted() {
                         myLog("RecordAudio Permission Granted");
                         setVisualizerPermissionText();
                     }
-                    @Override public void onPermissionsDenied() {
+
+                    @Override
+                    public void onPermissionsDenied() {
                         myLog("RecordAudio Permission Denied");
                         setVisualizerPermissionText();
                     }

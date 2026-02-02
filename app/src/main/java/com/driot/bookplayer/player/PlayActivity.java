@@ -78,7 +78,10 @@ public class PlayActivity extends BaseActivity {
     private int lastHeatMapTrackId = -1;
     private long lastHeatMapDurationMs = 0;
     private long lastHeatMapLoadTime = 0;
-    /** Match MediaService.DELAY_CHECK_TIMER_SLEEP (1s) so colored bar updates with new PlayTicks. */
+    /**
+     * Match MediaService.DELAY_CHECK_TIMER_SLEEP (1s) so colored bar updates with
+     * new PlayTicks.
+     */
     private static final long HEATMAP_REFRESH_INTERVAL_MS = 1000;
     /** Position when heatmap drag started (for "AAA → BBB" display). */
     private long heatMapSeekStartPositionMs = 0;
@@ -102,6 +105,8 @@ public class PlayActivity extends BaseActivity {
     private boolean suppressAutoScroll = false;
     private int touchSlop;
     private float downY;
+
+    private boolean screensaverActive = false;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -189,11 +194,13 @@ public class PlayActivity extends BaseActivity {
             heatMapSeek.setVisibility(View.VISIBLE);
             setupHeatMapSeek();
         } else {
-            if (heatMapSeek != null) heatMapSeek.setVisibility(View.GONE);
+            if (heatMapSeek != null)
+                heatMapSeek.setVisibility(View.GONE);
             sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
             sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
                 @Override
-                public void onStartTrackingTouch(@NonNull Slider slider) { }
+                public void onStartTrackingTouch(@NonNull Slider slider) {
+                }
 
                 @Override
                 public void onStopTrackingTouch(@NonNull Slider slider) {
@@ -312,7 +319,8 @@ public class PlayActivity extends BaseActivity {
             reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
             // Title/sub; when heatmap seek, pass null for slider so time is still updated
-            UiHelper.FillUiBasic(s, null, null, tvTitle, tvSubTitle, tvCurTime, null, useHeatMapSeek ? null : sbSeek, null, null);
+            UiHelper.FillUiBasic(s, null, null, tvTitle, tvSubTitle, tvCurTime, null, useHeatMapSeek ? null : sbSeek,
+                    null, null);
 
             // Seek/progress
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
@@ -323,8 +331,10 @@ public class PlayActivity extends BaseActivity {
                 heatMapSeek.setPlayingCursor(norm);
                 heatMapSeek.setCursors(new float[0]);
                 if (s.trackId > 0) {
-                    boolean trackOrDurationChanged = (s.trackId != lastHeatMapTrackId || s.durationMs != lastHeatMapDurationMs);
-                    boolean refreshDue = (System.currentTimeMillis() - lastHeatMapLoadTime >= HEATMAP_REFRESH_INTERVAL_MS);
+                    boolean trackOrDurationChanged = (s.trackId != lastHeatMapTrackId
+                            || s.durationMs != lastHeatMapDurationMs);
+                    boolean refreshDue = (System.currentTimeMillis()
+                            - lastHeatMapLoadTime >= HEATMAP_REFRESH_INTERVAL_MS);
                     if (trackOrDurationChanged || refreshDue) {
                         if (trackOrDurationChanged) {
                             lastHeatMapTrackId = s.trackId;
@@ -380,6 +390,9 @@ public class PlayActivity extends BaseActivity {
 
             // TTS vs Audio UI
             applyTtsToggleUi(s);
+
+            // Check screensaver activation
+            checkAndLaunchScreensaver(s);
 
             String p = s.loadPhase;
             if (p == null)
@@ -507,18 +520,25 @@ public class PlayActivity extends BaseActivity {
         super.onDestroy();
     }
 
-    // ---------- Heatmap seek (when Option.getUseHeatmapSeekbarInPlayActivity()) ----------
+    // ---------- Heatmap seek (when Option.getUseHeatmapSeekbarInPlayActivity())
+    // ----------
 
-    /** Half-width (px) of the touch zone centered on the cursor; total zone = 2 * this. */
+    /**
+     * Half-width (px) of the touch zone centered on the cursor; total zone = 2 *
+     * this.
+     */
     private static final int HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP = 40;
 
     private void setupHeatMapSeek() {
-        if (heatMapSeek == null) return;
+        if (heatMapSeek == null)
+            return;
         heatMapSeek.setOnTouchListener((v, event) -> {
             PlaybackUiState s = vm.getState().getValue();
-            if (s == null || s.durationMs <= 0) return false;
+            if (s == null || s.durationMs <= 0)
+                return false;
             int w = heatMapSeek.getWidth();
-            if (w <= 0) return false;
+            if (w <= 0)
+                return false;
             float x = event.getX();
             float ratio = Math.max(0f, Math.min(1f, x / w));
             long seekMs = (long) (ratio * s.durationMs);
@@ -532,13 +552,15 @@ public class PlayActivity extends BaseActivity {
                     heatMapSeekStartPositionMs = s.positionMs;
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
-                    tvCurTime.setText(Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
+                    tvCurTime.setText(
+                            Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
                     return true;
                 }
                 case MotionEvent.ACTION_MOVE:
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
-                    tvCurTime.setText(Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
+                    tvCurTime.setText(
+                            Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
@@ -554,13 +576,15 @@ public class PlayActivity extends BaseActivity {
     }
 
     private void loadHeatMapIntensities(long zikFileId, long durationMs) {
-        if (heatMapSeek == null || durationMs <= 0) return;
+        if (heatMapSeek == null || durationMs <= 0)
+            return;
         int nbBuckets = Math.max(1, Math.min((int) durationMs / 1000, Var.HEATMAP_PROGRESSBAR_BUCKET_SIZE));
         long bucketSizeMs = Math.max(1L, durationMs / nbBuckets);
         Context appCtx = getApplicationContext();
         AppDatabase.databaseReadExecutor.execute(() -> {
             PlayTickDao tickDao = AppDatabase.getInstance(appCtx).playTickDao();
-            com.driot.bookplayer.player.heatmaps.PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx).playSessionDao();
+            com.driot.bookplayer.player.heatmaps.PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx)
+                    .playSessionDao();
             List<PlayTickBucket> tickBuckets = tickDao.getBucketCounts(zikFileId, bucketSizeMs);
             List<PlaySession> sessions = sessionDao.getAllForFile(zikFileId);
             List<PlayTickBucket> sessionBuckets = PlaySessionDao.getBucketCounts(sessions, bucketSizeMs);
@@ -983,6 +1007,59 @@ public class PlayActivity extends BaseActivity {
     protected void onStop() {
         MediaControllerHolder.detachFrom(this);
         super.onStop();
+    }
+
+    // ---------- Screensaver logic ----------
+
+    private void checkAndLaunchScreensaver(@Nullable PlaybackUiState s) {
+        if (!Option.getScreensaverEnabled() || s == null || screensaverActive) {
+            return;
+        }
+
+        // Don't activate if in TTS mode (highlighted text visible)
+        if (Var.PLAY_MODE_TTS.equals(s.playMode)) {
+            return;
+        }
+
+        // Don't activate if not playing
+        if (!s.playing) {
+            return;
+        }
+
+        // Calculate idle time from sleep timer mechanism
+        int sleepMinutes = vm.getSleepCustomMinutes(s.playMode);
+        if (sleepMinutes <= 0 || s.sleepLeftMS <= 0) {
+            return; // No sleep timer active, can't determine idle time
+        }
+
+        long totalSleepMs = (long) sleepMinutes * 60 * 1000;
+        long idleTimeMs = totalSleepMs - s.sleepLeftMS;
+        long screensaverThresholdMs = (long) Option.getScreensaverDelaySeconds() * 1000;
+
+        if (idleTimeMs >= screensaverThresholdMs) {
+            launchScreensaver(s);
+        }
+    }
+
+    private void launchScreensaver(@NonNull PlaybackUiState s) {
+        Integer sessionId = null;
+        if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
+            sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
+        }
+
+        if (sessionId != null && sessionId > 0) {
+            screensaverActive = true;
+            Intent intent = new Intent(this, ScreensaverActivity.class);
+            intent.putExtra(Intents.EXTRA_AUDIO_SESSION_ID, sessionId);
+            startActivity(intent);
+            myLogI("Launching screensaver");
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        screensaverActive = false; // Reset when returning to activity
     }
 
 }

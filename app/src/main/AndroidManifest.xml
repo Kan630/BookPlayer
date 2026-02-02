@@ -65,6 +65,11 @@
         </activity>
         <activity android:name=".player.PlayActivity"
             android:parentActivityName=".activities.MainActivity"/>
+        <activity 
+            android:name=".player.ScreensaverActivity"
+            android:theme="@style/Theme.BookPlayer"
+            android:screenOrientation="unspecified"
+            android:exported="false" />
         <activity android:name=".activities.ZikFileActivity"
             android:parentActivityName=".activities.MainActivity"/>
         <activity android:name=".activities.GetActivity" />
