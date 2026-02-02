@@ -180,13 +180,13 @@ public final class PlaybackCommands {
     public static void resetSleepTimer(Context ctx) {
         MediaControllerCompat mc = mcOrNull(ctx);
         if (mc != null) {
-            mc.getTransportControls().sendCustomAction("CMD_RESET_SLEEP", null);
+            mc.getTransportControls().sendCustomAction("CMD_RESET_LAST_USER_ACTION", null);
             return;
         }
         myLogE("Fallback resetSleepTimer");
         ContextCompat.startForegroundService(ctx,
                 new Intent(ctx, MediaService.class)
-                        .setAction("CMD_RESET_SLEEP")
+                        .setAction("CMD_RESET_LAST_USER_ACTION")
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 

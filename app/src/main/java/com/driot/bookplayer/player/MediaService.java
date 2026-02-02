@@ -409,8 +409,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                     .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
                     break;
                 }
-                case "CMD_RESET_SLEEP": {
-                    resetSleepTimer();
+                case "CMD_RESET_LAST_USER_ACTION": {
+                    resetLastUserActionTimer();
                     break;
                 }
                 case Intents.CMD_TTS_GET_TEXT: {
@@ -1134,8 +1134,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
             }
 
-            case "CMD_RESET_SLEEP": {
-                resetSleepTimer();
+            case "CMD_RESET_LAST_USER_ACTION": {
+                resetLastUserActionTimer();
                 return START_STICKY;
             }
 
@@ -1636,7 +1636,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             playAudio();
             // Reset sleep timer on user resume
             if (playTimer != null && playTimer.isRunning()) {
-                playTimer.resetTimer();
+                playTimer.resetLastUserAction();
             }
         }
     }
@@ -1693,7 +1693,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         setPosition(position, true); // Default: reset timer on user seek
     }
 
-    public void setPosition(long position, boolean resetSleepTimer) {
+    public void setPosition(long position, boolean resetLastUserAction) {
         myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatHhMmSs(position));
         if (engine != null) {
             progress.suspendOnce(300); // avoid races from progressUpdater => UI
@@ -1701,16 +1701,16 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             updatePlaybackStateForPosition();
             broadcastUiState("setPosition");
             // Reset sleep timer if this is a user-initiated seek
-            if (resetSleepTimer && playTimer != null && playTimer.isRunning()) {
-                playTimer.resetTimer();
+            if (resetLastUserAction && playTimer != null && playTimer.isRunning()) {
+                playTimer.resetLastUserAction();
             }
         }
     }
 
-    public void resetSleepTimer() {
+    public void resetLastUserActionTimer() {
         if (playTimer != null && playTimer.isRunning()) {
-            playTimer.resetTimer();
-            broadcastUiState("resetSleepTimer");
+            playTimer.resetLastUserAction();
+            //broadcastUiState("resetSleepTimer");
         }
     }
 
