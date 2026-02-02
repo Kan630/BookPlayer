@@ -681,6 +681,8 @@ public class PlayActivity extends BaseActivity {
                 .setNegativeButton(android.R.string.cancel, (d, w) -> d.cancel());
 
         AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(d -> startDragResetTimer());
+        dialog.setOnDismissListener(d -> stopDragResetTimer());
         dialog.show();
 
         for (int i = 0; i < SLEEP_PRESET_VALUES.length; i++) {
