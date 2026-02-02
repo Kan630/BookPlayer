@@ -297,7 +297,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                                 + f1.getName() + "]");
                     } else {
                         duration = audioInfo.durationMs;
-                        AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, f1.getName());
+                        AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, l_audioFilePath);
                         audioFileInfoArrayList.add(afi);
                         // audioFileInfoArrayList.add(new AudioFileInfo(l_audioFilePath, duration,
                         // audioInfo.uri.toString()));
