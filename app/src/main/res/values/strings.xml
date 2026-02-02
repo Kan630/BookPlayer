@@ -456,7 +456,7 @@
     <string name="option_night_mode_dialog_title">Choose theme mode</string>
 
     <!-- Theme mode section (Design): override system vs follow, then Light/Dark choice -->
-    <string name="option_theme_mode_title">Theme mode</string>
+    <string name="option_theme_mode_title">Night mode</string>
     <string name="option_theme_mode_force_checkbox">Override system theme</string>
     <string name="option_theme_mode_force_explain">When enabled, the app ignores your device\'s light/dark setting and uses your choice below. When disabled, the app follows the system.</string>
     <string name="option_text_appearance_title">Text appearance</string>
