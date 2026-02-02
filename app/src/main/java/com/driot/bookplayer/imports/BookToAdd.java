@@ -6,7 +6,9 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
@@ -89,6 +91,7 @@ public class BookToAdd extends LoggerHelper {
 
             this.infoMimeExtension = "[" + pickedType + "]";
             this.audioBookName = getBookName_with2folders(pickedUri.getPath(), false);
+            this.playType = inferPlayTypeFromFolder(pickedUri);
 
         }
         trimAudioBookPrefix();
@@ -184,6 +187,64 @@ public class BookToAdd extends LoggerHelper {
         }
         myLog("getBookName_with2folders : [" + zeReturn + "]\nFrom : [" + sFolderPath + "]");
         return zeReturn;
+    }
+
+    /**
+     * Infer playType for a folder by scanning its contents.
+     * - "text" (TTS): only when folder contains plain .txt files and NO audio, video, epub, fb2, odt, m4b, zip, etc.
+     * - "audio": when folder contains any "real" content (audio, video, epub, real ebooks, zip...).
+     * We never import .txt as ebook tracks when the folder is an "audio" folder.
+     */
+    private String inferPlayTypeFromFolder(Uri folderUri) {
+        try {
+            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(appContext, folderUri);
+            if (root == null || !root.exists() || !root.isDirectory()) {
+                return null;
+            }
+            int[] counts = countMediaTypesRecursive(root);
+            boolean hasRealContent = counts[0] > 0;  // audio, video, epub, fb2, odt, m4b, zip...
+            boolean hasPlainTextOnly = counts[1] > 0; // .txt only
+            if (hasRealContent) {
+                return Var.PLAY_TYPE_AUDIO;
+            }
+            if (hasPlainTextOnly) {
+                return Var.PLAY_TYPE_TEXT;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "inferPlayTypeFromFolder");
+        }
+        return null;
+    }
+
+    /** Returns [realContentCount, plainTextCount]. Real = audio/video/epub/fb2/odt/m4b/zip/etc. Plain = .txt only. */
+    private int[] countMediaTypesRecursive(DocumentFile dir) {
+        int realContent = 0;
+        int plainText = 0;
+        DocumentFile[] children = dir.listFiles();
+        if (children == null) return new int[] { 0, 0 };
+        for (DocumentFile child : children) {
+            if (child.isDirectory()) {
+                int[] sub = countMediaTypesRecursive(child);
+                realContent += sub[0];
+                plainText += sub[1];
+            } else if (child.isFile()) {
+                if (isRealBookOrAudioContent(child)) {
+                    realContent++;
+                } else if (SupportedFilesHelper.isText(child)) {
+                    plainText++;
+                }
+            }
+        }
+        return new int[] { realContent, plainText };
+    }
+
+    /** True if file is audio, video, epub, fb2, odt, m4b, zip, 7z, tar - i.e. "real" content we never mix with plain .txt. */
+    private boolean isRealBookOrAudioContent(DocumentFile child) {
+        if (SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)) {
+            return true;
+        }
+        String special = SupportedFilesHelper.getSpecialType(child);
+        return special != null && !SupportedFilesHelper.SPECIAL_TYPE_TXT.equals(special);
     }
 
     private void trimAudioBookPrefix() {

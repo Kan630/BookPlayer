@@ -1086,6 +1086,9 @@ avec la langue [%2$s]</string>
     <plurals name="audio_files_count">//ex : 15 audio files
         <item quantity="one">%d fichier audio</item>
         <item quantity="other">%d fichiers audio</item></plurals>
+    <plurals name="text_files_count">//ex : 2 text files
+        <item quantity="one">%d fichier texte</item>
+        <item quantity="other">%d fichiers texte</item></plurals>
     <plurals name="subfolders_count">//ex : 3 subfolders
         <item quantity="one">%d sous-dossier</item>
         <item quantity="other">%d sous-dossiers</item></plurals>

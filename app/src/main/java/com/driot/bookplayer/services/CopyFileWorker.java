@@ -87,6 +87,7 @@ public class CopyFileWorker extends ImportWorker {
                 "\n.    to folder = [" + destinationFolderPath + "] " +
                 "\n.    with name = [" + destinationFileName + "]" +
                 "\n.    for type = [" + type + "]" +
+                "\n.    playType = [" + j.playType + "]" +
                 "\n.    extension = [" + fileExtension + "]" +
                 "\n.    check size = [" + checkSize + "]" +
                 "\n.    force size = [" + forceSize + "]" +
@@ -123,7 +124,7 @@ public class CopyFileWorker extends ImportWorker {
         try {
             boolean result;
             if ("Folder".equals(type)) {
-                result = copyFolder(uri, destinationFolderPath);
+                result = copyFolder(uri, destinationFolderPath, j.playType);
             } else {
                 result = copyFile(uri, destinationFolderPath, destinationFileName);
             }
@@ -179,7 +180,7 @@ public class CopyFileWorker extends ImportWorker {
         return true;
     }
 
-    private boolean copyFolder(Uri uri, String destinationFolderPath) {
+    private boolean copyFolder(Uri uri, String destinationFolderPath, String playType) {
         try {
             // Uniform wrapper for content:// (tree/single) and file:// paths
             androidx.documentfile.provider.DocumentFile root = com.driot.bookplayer.helpers.UriHelper
@@ -199,7 +200,7 @@ public class CopyFileWorker extends ImportWorker {
                 return false;
             }
 
-            copyFolderRecursiveDoc(root, dest);
+            copyFolderRecursiveDoc(root, dest, playType);
             return !hasBeenCancelled && nbFileCopied > 0; // keep your success criteria
         } catch (Exception e) {
             emitFailed(TASK_NAME, e.getMessage(), null);
@@ -208,7 +209,7 @@ public class CopyFileWorker extends ImportWorker {
     }
 
     private void copyFolderRecursiveDoc(androidx.documentfile.provider.DocumentFile src,
-            File destinationFolder) {
+            File destinationFolder, String playType) {
         if (hasBeenCancelled)
             return;
 
@@ -232,14 +233,21 @@ public class CopyFileWorker extends ImportWorker {
             if (child.isDirectory()) {
                 File subDest = new File(destinationFolder, safeName(child.getName()));
                 myLogD("copyFolder - on folder -> recursive call");
-                copyFolderRecursiveDoc(child, subDest);
+                copyFolderRecursiveDoc(child, subDest, playType);
                 nbFolder++;
             } else if (child.isFile()) {
                 String name = safeName(child.getName());
 
                 boolean isPic = SupportedFilesHelper.isImage(child);
-                boolean doCopy = SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)
-                        || (isPic && nbPic < MAX_NB_PIC);
+                boolean doCopy;
+                if (Var.PLAY_TYPE_TEXT.equals(playType)) {
+                    // Text-only folder: copy plain .txt + images only (no audio/epub/etc)
+                    doCopy = SupportedFilesHelper.isText(child) || (isPic && nbPic < MAX_NB_PIC);
+                } else {
+                    // Audio folder (or null): copy audio, video, images only - never .txt
+                    doCopy = SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)
+                            || (isPic && nbPic < MAX_NB_PIC);
+                }
 
                 if (doCopy) {
                     File out = new File(destinationFolder, name);

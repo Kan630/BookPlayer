@@ -1078,6 +1078,10 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
         <item quantity="one">%d file audio</item>
         <item quantity="other">%d file audio</item>
     </plurals>
+    <plurals name="text_files_count">
+        <item quantity="one">%d file di testo</item>
+        <item quantity="other">%d file di testo</item>
+    </plurals>
     <plurals name="subfolders_count">
         <item quantity="one">%d sottocartella</item>
         <item quantity="other">%d sottocartelle</item>

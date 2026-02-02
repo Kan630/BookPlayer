@@ -1076,6 +1076,10 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
         <item quantity="one">%d 个音频文件</item>
         <item quantity="other">%d 个音频文件</item>
     </plurals>
+    <plurals name="text_files_count">
+        <item quantity="one">%d 个文本文件</item>
+        <item quantity="other">%d 个文本文件</item>
+    </plurals>
     <plurals name="subfolders_count">
         <item quantity="one">%d 个子文件夹</item>
         <item quantity="other">%d 个子文件夹</item>

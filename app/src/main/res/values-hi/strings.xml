@@ -1081,6 +1081,10 @@ Android Auto को कार से जुड़ने पर स्वतः �
             <item quantity="one">%d ऑडियो फ़ाइल</item>
             <item quantity="other">%d ऑडियो फ़ाइलें</item>
         </plurals>
+    <plurals name="text_files_count">
+        <item quantity="one">%d टेक्स्ट फ़ाइल</item>
+        <item quantity="other">%d टेक्स्ट फ़ाइलें</item>
+    </plurals>
     <plurals name="subfolders_count">
             <item quantity="one">%d उप-फ़ोल्डर</item>
             <item quantity="other">%d उप-फ़ोल्डर</item>

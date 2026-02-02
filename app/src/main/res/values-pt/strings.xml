@@ -1078,6 +1078,10 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
         <item quantity="one">%d arquivo de áudio</item>
         <item quantity="other">%d arquivos de áudio</item>
     </plurals>
+    <plurals name="text_files_count">
+        <item quantity="one">%d arquivo de texto</item>
+        <item quantity="other">%d arquivos de texto</item>
+    </plurals>
     <plurals name="subfolders_count">
         <item quantity="one">%d subpasta</item>
         <item quantity="other">%d subpastas</item>

@@ -1077,6 +1077,10 @@ BookPlayer будет использовать <font color="#81C784">встро�
             <item quantity="one">%d аудиофайл</item>
             <item quantity="other">%d аудиофайлов</item>
         </plurals>
+    <plurals name="text_files_count">
+        <item quantity="one">%d текстовый файл</item>
+        <item quantity="other">%d текстовых файлов</item>
+    </plurals>
     <plurals name="subfolders_count">
             <item quantity="one">%d подпапка</item>
             <item quantity="other">%d подпапок</item>

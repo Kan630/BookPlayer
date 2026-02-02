@@ -24,11 +24,14 @@ public class FileCounterHelper {
      * calling callback.onCountUpdated() in realtime as files are discovered.
      *
      * Must be called from a background thread.
+     *
+     * @param countTextFiles when true, count plain .txt files; when false, count audio files
      */
     public static void countFilesFromTreeUriRealtime(
             @NonNull Context context,
             @NonNull Uri treeUri,
             int depth,
+            boolean countTextFiles,
             @NonNull CountCallback callback
     ) {
         DocumentFile root = DocumentFile.fromTreeUri(context, treeUri);
@@ -39,7 +42,7 @@ public class FileCounterHelper {
         int effectiveDepth = normalizeDepth(depth);
         int[] count = new int[]{0};
         int[] countFolder = new int[]{0};
-        traverseDocumentDir(root, effectiveDepth, callback, count, countFolder);
+        traverseDocumentDir(root, effectiveDepth, countTextFiles, callback, count, countFolder);
 
         if (!callback.isCancelled()) {
             callback.onFinished(count[0], countFolder[0]);
@@ -81,6 +84,7 @@ public class FileCounterHelper {
     private static void traverseDocumentDir(
             @NonNull DocumentFile dir,
             int depthLeft,
+            boolean countTextFiles,
             @NonNull CountCallback callback,
             @NonNull int[] count,
             @NonNull int[] countFolder
@@ -98,14 +102,16 @@ public class FileCounterHelper {
             }
 
             if (child.isFile()) {
-                //check type
-                if (SupportedFilesHelper.isAudio(child)) count[0]++;
+                boolean matches = countTextFiles
+                        ? SupportedFilesHelper.isText(child)
+                        : SupportedFilesHelper.isAudio(child);
+                if (matches) count[0]++;
                 String name = child.getName();
                 callback.onCountUpdated(count[0], name, countFolder[0]);
             } else if (child.isDirectory()) {
                 countFolder[0]++;
                 if (depthLeft > 1) {
-                    traverseDocumentDir(child, depthLeft - 1, callback, count, countFolder);
+                    traverseDocumentDir(child, depthLeft - 1, countTextFiles, callback, count, countFolder);
                 }
             }
         }

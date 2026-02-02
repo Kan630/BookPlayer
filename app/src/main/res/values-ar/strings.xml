@@ -1077,6 +1077,10 @@
         <item quantity="one">%d ملف صوتي</item>
         <item quantity="other">%d ملفات صوتية</item>
     </plurals>
+    <plurals name="text_files_count">
+        <item quantity="one">%d ملف نصي</item>
+        <item quantity="other">%d ملفات نصية</item>
+    </plurals>
     <plurals name="subfolders_count">
         <item quantity="one">%d مجلد فرعي</item>
         <item quantity="other">%d مجلدات فرعية</item>

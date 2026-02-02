@@ -171,7 +171,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
 
         if ("Folder".equals(gotten_type)) {
-            startCounting(uri, 10, tvMimeExtension, bookToAdd.getInfoMimeExtension());
+            startCounting(uri, 10, tvMimeExtension, bookToAdd.getInfoMimeExtension(), bookToAdd.getPlayType());
         } else {
             tvMimeExtension.setText(bookToAdd.getInfoMimeExtension());
         }
@@ -755,22 +755,26 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         });
 
     }
-    private void startCounting(Uri folderTreeUri, int depth, TextView tvCountFolder, String prefix) {
+    private void startCounting(Uri folderTreeUri, int depth, TextView tvCountFolder, String prefix, String playType) {
         cancelScan = false;
         countJobRunning = true;
         updateLoadingUi();
+
+        boolean countTextFiles = Var.PLAY_TYPE_TEXT.equals(playType);
+        int filesPluralResId = countTextFiles ? R.plurals.text_files_count : R.plurals.audio_files_count;
 
         Executors.newSingleThreadExecutor().execute(() -> {
             FileCounterHelper.countFilesFromTreeUriRealtime(
                     this,
                     folderTreeUri,
                     depth,
+                    countTextFiles,
                     new CountCallback() {
                         @Override
                         public void onCountUpdated(int fileCount, String currentPath, int subFolderCount) {
                             mainHandler.post(() -> {
                                 Resources res = getResources();
-                                String filesPart = res.getQuantityString(R.plurals.audio_files_count, fileCount, fileCount);
+                                String filesPart = res.getQuantityString(filesPluralResId, fileCount, fileCount);
                                 String txt;
                                 if (subFolderCount >0) {
                                     String foldersPart = res.getQuantityString(R.plurals.subfolders_count, subFolderCount, subFolderCount);
