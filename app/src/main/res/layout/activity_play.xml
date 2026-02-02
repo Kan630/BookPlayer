@@ -172,8 +172,9 @@
         android:layout_height="wrap_content"
         android:layout_above="@+id/textViewTempsTotal"
         android:layout_marginEnd="20sp"
-        android:layout_marginStart="20sp"
+        android:layout_marginStart="5sp"
         android:layout_marginBottom="15sp"
+        android:ellipsize="end"
         android:text="@string/Speed"
         android:textAppearance="?android:attr/textAppearanceMedium" />
     <Button
