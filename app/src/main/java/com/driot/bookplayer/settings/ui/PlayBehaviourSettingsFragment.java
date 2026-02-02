@@ -223,7 +223,20 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
             updateScreensaverSectionVisibility(isChecked,
                     llScreensaverDelay, etScreensaverDelay, tvScreensaverDelayMin, tvScreensaverDelayMax,
                     ssGroup, llForceOrient, groupOrient);
-            if (isChecked) groupOrient.setEnabled(chkForceOrient.isChecked());
+            if (isChecked) {
+                boolean forceOrient = chkForceOrient.isChecked();
+                if (forceOrient) {
+                    groupOrient.setSelectionRequired(true);
+                    String orientMode = Option.getScreensaverOrientationMode();
+                    groupOrient.check("PORTRAIT".equals(orientMode)
+                            ? R.id.btnScreensaverOrientationPortrait
+                            : R.id.btnScreensaverOrientationLandscape);
+                } else {
+                    groupOrient.setSelectionRequired(false);
+                    groupOrient.clearChecked();
+                }
+                groupOrient.setEnabled(forceOrient);
+            }
         });
 
         updateRecordAudioDependentOptions(root);
@@ -231,20 +244,38 @@ public class PlayBehaviourSettingsFragment extends LoggingFragment {
         // ---- Screensaver Orientation (landscape/portrait toggle enabled only when force orientation is checked)
         boolean isForceOrient = Option.getScreensaverForceOrientation();
         chkForceOrient.setChecked(isForceOrient);
-        groupOrient.setEnabled(isForceOrient);
 
-        // Initial state for buttons
-        String orientMode = Option.getScreensaverOrientationMode();
-        if ("PORTRAIT".equals(orientMode)) {
-            groupOrient.check(R.id.btnScreensaverOrientationPortrait);
+        // Initial state: when disabled, clear selection so no button looks selected
+        if (isForceOrient) {
+            groupOrient.setSelectionRequired(true);
+            String orientMode = Option.getScreensaverOrientationMode();
+            if ("PORTRAIT".equals(orientMode)) {
+                groupOrient.check(R.id.btnScreensaverOrientationPortrait);
+            } else {
+                groupOrient.check(R.id.btnScreensaverOrientationLandscape);
+            }
         } else {
-            groupOrient.check(R.id.btnScreensaverOrientationLandscape);
+            groupOrient.setSelectionRequired(false);
+            groupOrient.clearChecked();
         }
+        groupOrient.setEnabled(isForceOrient);
 
         // Checkbox listener
         llForceOrient.setOnClickListener(v -> chkForceOrient.toggle());
         chkForceOrient.setOnCheckedChangeListener((b, isChecked) -> {
             Option.setScreensaverForceOrientation(isChecked);
+            if (isChecked) {
+                groupOrient.setSelectionRequired(true);
+                String orientMode = Option.getScreensaverOrientationMode();
+                if ("PORTRAIT".equals(orientMode)) {
+                    groupOrient.check(R.id.btnScreensaverOrientationPortrait);
+                } else {
+                    groupOrient.check(R.id.btnScreensaverOrientationLandscape);
+                }
+            } else {
+                groupOrient.setSelectionRequired(false);
+                groupOrient.clearChecked();
+            }
             groupOrient.setEnabled(isChecked);
         });
 
