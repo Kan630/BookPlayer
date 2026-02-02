@@ -475,7 +475,7 @@
     <string name="option_podcast_autodownload_subtitle">"If you mark a podcast as a favorite, you can also enable the ‘auto-download’ option.\nBookPlayer will then check for new episodes—both periodically and at startup—and download them."</string>
     <string name="option_playing_behaviour_title">Play behaviour</string>
 
-    <string name="option_start_next_track_at_zero_title_text">Always start the next track from the beginning, even if it was partly listened to before.</string>
+    <string name="option_start_next_track_at_zero_title_text">When a track finishes, start the next track from the beginning, even if it was partly listened to before.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
     <string name="option_network_preference_subtext">
 "An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
