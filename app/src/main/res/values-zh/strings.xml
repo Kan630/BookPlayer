@@ -61,6 +61,10 @@
     <string name="Channels">声道</string>
     <string name="chars">字符</string>
     <string name="Cleaning">清理</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clean_memory_scanning_folders">正在扫描应用使用的文件夹，已过 %1$d 秒…</string>
+    <string name="clean_memory_sdcard_slow">SD 卡访问速度比设备内部存储慢。</string>
+    <string name="clean_memory_empty_internal">BookPlayer 内部存储中无书籍。</string>
+    <string name="clean_memory_empty_sdcard">BookPlayer SD 卡存储中无书籍。</string>
     <string name="clear">清除</string>
     <string name="Close">关闭</string>
     <string name="collapse">折叠</string> //opposite of expand, used for "enlarge" or "show description"
@@ -179,6 +183,7 @@
     <string name="subtitle">副标题</string>
     <string name="tags">标签</string>
     <string name="Technical">技术</string>
+    <string name="Navigation">导航</string>
     <string name="Text">文本</string>
     <string name="text_to_speech">文字转语音</string>
     <string name="Text_To_Speech">文字转语音</string>
@@ -409,6 +414,11 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_visualizer_text_01">播放音频时显示的极简频率可视化图。</string>
     <string name="option_visualizer_text_02">需要 [录音]/[麦克风] 权限</string>
     <string name="option_visualizer_permissions_denied_02">再次点击复选框以请求权限</string>
+    <string name="option_screensaver_title">屏保</string>
+    <string name="option_screensaver_enabled">启用屏保</string>
+    <string name="option_screensaver_delay_text">在以下时间后激活</string>
+    <string name="option_positioning_title">方向</string>
+    <string name="option_if_app_close_title">应用关闭时</string>
     <string name="option_tech_log_subtitle"><i>
         应用是否应创建技术调试日志文件。
 </i></string>
@@ -453,6 +463,8 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_podcast_open_specific_view">打开特定视图</string>
     <string name="option_podcast_open_specific_view_subtitle">点击一种类型为\'播客\'的书时，应该打开包含所有剧集的播客视图，还是只打开已下载剧集的书籍视图？</string>
     <string name="option_podcast_open_specific_view_subtitle2">可通过双击封面在此视图间切换。</string>
+    <string name="option_podcast_open_favorites_first">优先打开收藏</string>
+    <string name="option_podcast_open_favorites_first_subtitle">点击底部栏的「播客」时，先打开收藏界面。按返回可进入搜索并浏览更多播客。</string>
     <string name="option_podcast_autodownloaded_at_the_top">当下载新剧集时，将播客移动到有声书列表的顶部。</string>
     <string name="option_podcast_autodownload_subtitle">"如果您将播客标记为收藏，还可以启用 \'自动下载\' 选项。\nBookPlayer 将定期以及在启动时检查新剧集并下载它们。"</string>
     <string name="option_playing_behaviour_title">播放行为</string>
@@ -480,6 +492,8 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="option_automotive_on">连接到 Android Auto。</string>
     <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
 
+    <string name="optionMinEqual">最小 =</string> //short for Minimum
+    <string name="optionMaxEqual">最大 =</string> //short for Maximum
 
     <string name="AutoTest_title">自动测试</string>
     <string name="TextHeaderOpen">打开设备上的音频</string>
@@ -943,6 +957,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="All_zikFiles_not_readable">本书已损坏。无法播放任何音轨。</string>
     <string name="option_use_heatmap_for_tracks_activity_subtitle">音轨的进度条会准确显示已收听的部分，某段播放次数越多，颜色就越深。</string>
     <string name="option_use_heatmap_for_tracks_activity">显示热力图</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">用热力图进度条替换经典进度条</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">可视化进度指示器，显示音轨各部分已收听程度，带可拖动播放标记。</string>
     <string name="option_lock_orientation_play_activity">锁定屏幕方向</string>
     <string name="in_history">在历史记录中</string>
     <string name="radio_could_not_resolve_url">该电台链接似乎已失效。</string>
@@ -968,8 +984,13 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="by_genre_all_languages">按类别（所有语言）</string>
     <string name="unsupported_language">不支持的语言</string>
     <string name="spam_fake_stations_removed">已移除（疑似垃圾）</string>
+    <string name="dubious_stations_removed">已移除（存疑）</string>
     <string name="option_radio_remove_duplicates">移除重复项</string>
     <string name="option_radio_remove_duplicates_subtitle">如果某个电台名称出现超过 3 次，后续结果将不再显示，以避免列表被重复项淹没。</string>
+    <string name="option_radio_remove_dubious">移除存疑电台</string>
+    <string name="option_radio_remove_dubious_subtitle">部分电台被错误添加到每个国家或标签；从结果中隐藏它们。</string>
+    <string name="option_radio_open_favorites_first">优先打开收藏</string>
+    <string name="option_radio_open_favorites_first_subtitle">点击底部栏的「电台」时，先打开收藏界面。按返回可进入搜索并浏览更多电台。</string>
     <string name="option_radio_sleep_copy_subtitle">在这里可为电台的自动休眠设置自定义值。我们不会保存电台的收听进度，所以睡着了也没关系！</string>
     <string name="no_results_found">无结果</string>
     <string name="getting_first_results_from">首次结果来自</string>
@@ -1061,4 +1082,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
         <item quantity="one">%d 首</item>
         <item quantity="other">%d 首</item>
     </plurals>
+    <string name="option_screensaver_subtitle">在播放界面播放时会激活</string>
+    <string name="screensaver_force_orientation">强制方向</string>
+    <string name="portrait">竖屏</string>
+    <string name="landscape">横屏</string>
 </resources>

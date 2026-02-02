@@ -61,6 +61,10 @@
     <string name="Channels">Canales</string>
     <string name="chars">caracteres</string>
     <string name="Cleaning">Limpieza</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clean_memory_scanning_folders">Escaneando carpetas usadas por la app, %1$d s transcurridas…</string>
+    <string name="clean_memory_sdcard_slow">El acceso a la tarjeta SD es más lento que a la memoria interna.</string>
+    <string name="clean_memory_empty_internal">No hay libros en el almacenamiento interno de BookPlayer.</string>
+    <string name="clean_memory_empty_sdcard">No hay libros en el almacenamiento de tarjeta SD de BookPlayer.</string>
     <string name="clear">borrar</string>
     <string name="Close">Cerrar</string>
     <string name="collapse">contraer</string> //opposite of expand, used for "enlarge" or "show description"
@@ -179,6 +183,7 @@
     <string name="subtitle">subtítulo</string>
     <string name="tags">etiquetas</string>
     <string name="Technical">Técnico</string>
+    <string name="Navigation">Navegación</string>
     <string name="Text">Texto</string>
     <string name="text_to_speech">texto a voz</string>
     <string name="Text_To_Speech">Texto a voz</string>
@@ -409,6 +414,11 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="option_visualizer_text_01">Visualizador de frecuencia minimalista mostrado al reproducir audio.</string>
     <string name="option_visualizer_text_02">Requiere el permiso [Grabar audio]/[Micrófono]</string>
     <string name="option_visualizer_permissions_denied_02">haz clic de nuevo en la casilla para solicitar permiso</string>
+    <string name="option_screensaver_title">Salvapantallas</string>
+    <string name="option_screensaver_enabled">Activar salvapantallas</string>
+    <string name="option_screensaver_delay_text">Activar después de</string>
+    <string name="option_positioning_title">Orientación</string>
+    <string name="option_if_app_close_title">Cuando la app esté cerrada</string>
     <string name="option_tech_log_subtitle"><i>la app debería crear archivos de registro técnico para depuración.</i></string>
     <string name="option_tech_log_text">Registro técnico.</string>
     <string name="option_mail_method">Enviar correo</string>
@@ -450,6 +460,8 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="option_podcast_open_specific_view">Abrir vista específica</string>
     <string name="option_podcast_open_specific_view_subtitle">Al hacer clic en un libro de tipo \'podcast\', ¿debe abrirse la vista de podcast con todos los episodios o la vista del libro solo con los descargados?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Puede cambiar entre estas vistas pulsando dos veces en la portada.</string>
+    <string name="option_podcast_open_favorites_first">Abrir favoritos primero</string>
+    <string name="option_podcast_open_favorites_first_subtitle">Al pulsar Podcast en la barra inferior, abrir primero la pantalla de Favoritos. Pulse Atrás para ir a la búsqueda y explorar más pódcasts.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Cuando se descarguen nuevos episodios, mover el pódcast al principio de la lista de audiolibros.</string>
     <string name="option_podcast_autodownload_subtitle">"Si marcas un pódcast como favorito, también puedes activar la opción \'descarga automática\'.\nBookPlayer verificará nuevos episodios — tanto periódicamente como al iniciar — y los descargará."</string>
     <string name="option_playing_behaviour_title">Comportamiento de reproducción</string>
@@ -477,6 +489,8 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="option_automotive_on">Conectarse a Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Reanudar la reproducción automáticamente al conectarse al coche.</string>
 
+    <string name="optionMinEqual">Mín =</string> //short for Minimum
+    <string name="optionMaxEqual">Máx =</string> //short for Maximum
 
     <string name="AutoTest_title">Prueba automática</string>
     <string name="TextHeaderOpen">Abrir un audio en mi dispositivo</string>
@@ -942,6 +956,8 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="All_zikFiles_not_readable">Este libro está dañado. Ninguna pista se puede reproducir.</string>
     <string name="option_use_heatmap_for_tracks_activity_subtitle">Las barras de progreso de las pistas mostrarán exactamente qué partes se han escuchado, y el color se vuelve más intenso cuanto más se reproduce una sección.</string>
     <string name="option_use_heatmap_for_tracks_activity">mostrar mapas de calor</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">Reemplazar barra de progreso clásica por barra de mapa de calor</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Indicador de progreso visual que muestra cuánto se ha escuchado de cada parte de la pista, con un marcador de reproducción arrastrable.</string>
     <string name="option_lock_orientation_play_activity">bloquear la orientación de la pantalla</string>
     <string name="in_history">en historial</string>
     <string name="radio_could_not_resolve_url">Este enlace de la emisora parece roto.</string>
@@ -967,8 +983,13 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="by_genre_all_languages">por género (todas las lenguas)</string>
     <string name="unsupported_language">idioma no soportado</string>
     <string name="spam_fake_stations_removed">eliminado (¿spam?)</string>
+    <string name="dubious_stations_removed">eliminado (dudoso)</string>
     <string name="option_radio_remove_duplicates">eliminar duplicados</string>
     <string name="option_radio_remove_duplicates_subtitle">Si el nombre de la emisora aparece más de 3 veces, las siguientes no se muestran para evitar saturar la lista con duplicados.</string>
+    <string name="option_radio_remove_dubious">Eliminar emisoras dudosas</string>
+    <string name="option_radio_remove_dubious_subtitle">Algunas emisoras se añadieron incorrectamente a cada país o etiqueta; ocultarlas de los resultados.</string>
+    <string name="option_radio_open_favorites_first">Abrir favoritos primero</string>
+    <string name="option_radio_open_favorites_first_subtitle">Al pulsar Radio en la barra inferior, abrir primero la pantalla de Favoritos. Pulse Atrás para ir a la búsqueda y explorar más emisoras.</string>
     <string name="option_radio_sleep_copy_subtitle">Aquí puedes especificar un valor personalizado para el auto-sueño de radio. Como no guardamos el progreso de la radio, ¡no pasa nada si te quedas dormido!</string>
     <string name="no_results_found">sin resultados</string>
     <string name="getting_first_results_from">Primeros resultados de</string>
@@ -1060,4 +1081,8 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
         <item quantity="one">%d pista</item>
         <item quantity="other">%d pistas</item>
     </plurals>
+    <string name="option_screensaver_subtitle">Se activa durante la reproducción cuando estás en la pantalla de reproducción</string>
+    <string name="screensaver_force_orientation">Forzar orientación</string>
+    <string name="portrait">Vertical</string>
+    <string name="landscape">Apaisado</string>
 </resources>

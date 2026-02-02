@@ -61,6 +61,10 @@
     <string name="Channels">Каналы</string>
     <string name="chars">символы</string>
     <string name="Cleaning">Очистка</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clean_memory_scanning_folders">Проверка папок, используемых приложением, прошло %1$d с…</string>
+    <string name="clean_memory_sdcard_slow">Доступ к SD-карте медленнее, чем к внутренней памяти.</string>
+    <string name="clean_memory_empty_internal">Нет книг во внутреннем хранилище BookPlayer.</string>
+    <string name="clean_memory_empty_sdcard">Нет книг в хранилище SD-карты BookPlayer.</string>
     <string name="clear">очистить</string>
     <string name="Close">Закрыть</string>
     <string name="collapse">свернуть</string> //opposite of expand, used for "enlarge" or "show description"
@@ -179,6 +183,7 @@
     <string name="subtitle">подзаголовок</string>
     <string name="tags">теги</string>
     <string name="Technical">Технический</string>
+    <string name="Navigation">Навигация</string>
     <string name="Text">Текст</string>
     <string name="text_to_speech">синтез речи</string>
     <string name="Text_To_Speech">Преобразование текста в речь</string>
@@ -409,6 +414,11 @@
     <string name="option_visualizer_text_01">Минималистичный визуализатор частот, отображается при воспроизведении.</string>
     <string name="option_visualizer_text_02">Требуется разрешение [Запись звука]/[Микрофон]</string>
     <string name="option_visualizer_permissions_denied_02">нажмите снова на чекбокс, чтобы запросить разрешение</string>
+    <string name="option_screensaver_title">Заставка</string>
+    <string name="option_screensaver_enabled">Включить заставку</string>
+    <string name="option_screensaver_delay_text">Включить через</string>
+    <string name="option_positioning_title">Ориентация</string>
+    <string name="option_if_app_close_title">Когда приложение закрыто</string>
     <string name="option_tech_log_subtitle"><i>
         следует ли приложению создавать технические журналы отладки.
 </i></string>
@@ -453,6 +463,8 @@
     <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
     <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Переключаться между этими видами можно двойным нажатием на обложку.</string>
+    <string name="option_podcast_open_favorites_first">Сначала открывать избранное</string>
+    <string name="option_podcast_open_favorites_first_subtitle">При нажатии «Подкасты» в нижней панели сначала открывать экран «Избранное». Нажмите «Назад», чтобы перейти к поиску и просмотреть другие подкасты.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Когда новые эпизоды загружены, переместить подкаст в начало списка аудиокниг.</string>
     <string name="option_podcast_autodownload_subtitle">"Если вы отметите подкаст как избранный, вы также можете включить опцию \'автозагрузка\'.\nBookPlayer будет проверять новые эпизоды — как периодически, так и при запуске — и загружать их."</string>
     <string name="option_playing_behaviour_title">Поведение воспроизведения</string>
@@ -480,6 +492,8 @@
     <string name="option_automotive_on">Подключиться к Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Автоматически возобновлять воспроизведение при подключении к автомобилю.</string>
 
+    <string name="optionMinEqual">Мин =</string> //short for Minimum
+    <string name="optionMaxEqual">Макс =</string> //short for Maximum
 
     <string name="AutoTest_title">Автотест</string>
     <string name="TextHeaderOpen">Открыть аудио на моём устройстве</string>
@@ -944,6 +958,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="All_zikFiles_not_readable">Книга повреждена. Ни одна дорожка не воспроизводится.</string>
     <string name="option_use_heatmap_for_tracks_activity_subtitle">Полосы прогресса треков показывают, какие части были прослушаны, а цвет становится насыщеннее, чем чаще воспроизводится участок.</string>
     <string name="option_use_heatmap_for_tracks_activity">показывать тепловые карты</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">Заменить обычный ползунок ползунком тепловой карты</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Визуальный индикатор прогресса, показывающий, сколько каждой части трека было прослушано, с перетаскиваемым маркером воспроизведения.</string>
     <string name="option_lock_orientation_play_activity">блокировать ориентацию экрана</string>
     <string name="in_history">в истории</string>
     <string name="radio_could_not_resolve_url">Похоже, ссылка на станцию не работает.</string>
@@ -969,8 +985,13 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="by_genre_all_languages">по жанру (все языки)</string>
     <string name="unsupported_language">неподдерживаемый язык</string>
     <string name="spam_fake_stations_removed">удалено (спам?)</string>
+    <string name="dubious_stations_removed">удалено (сомнительные)</string>
     <string name="option_radio_remove_duplicates">удалить дубликаты</string>
     <string name="option_radio_remove_duplicates_subtitle">Если название станции встречается более 3 раз, последующие не отображаются, чтобы не загромождать список дубликатами.</string>
+    <string name="option_radio_remove_dubious">Скрыть сомнительные станции</string>
+    <string name="option_radio_remove_dubious_subtitle">Некоторые станции были ошибочно добавлены в каждую страну или тег; скрыть их из результатов.</string>
+    <string name="option_radio_open_favorites_first">Сначала открывать избранное</string>
+    <string name="option_radio_open_favorites_first_subtitle">При нажатии «Радио» в нижней панели сначала открывать экран «Избранное». Нажмите «Назад», чтобы перейти к поиску и просмотреть другие станции.</string>
     <string name="option_radio_sleep_copy_subtitle">Здесь вы можете указать пользовательское значение для автоматического сна радио. Так как мы не сохраняем прогресс для радио, неважно, если вы заснёте!</string>
     <string name="no_results_found">нет результатов</string>
     <string name="getting_first_results_from">Первые результаты из</string>
@@ -1062,4 +1083,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
         <item quantity="one">%d трек</item>
         <item quantity="other">%d треков</item>
     </plurals>
+    <string name="option_screensaver_subtitle">Включается при воспроизведении, когда вы на экране воспроизведения</string>
+    <string name="screensaver_force_orientation">Принудительная ориентация</string>
+    <string name="portrait">Книжная</string>
+    <string name="landscape">Альбомная</string>
 </resources>

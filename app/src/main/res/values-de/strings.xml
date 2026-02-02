@@ -61,6 +61,10 @@
     <string name="Channels">Kanäle</string>
     <string name="chars">Zeichen</string>
     <string name="Cleaning">Bereinigung</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clean_memory_scanning_folders">Ordner werden gescannt, die die App nutzt, %1$d Sek. vergangen…</string>
+    <string name="clean_memory_sdcard_slow">Der Zugriff auf die SD-Karte ist langsamer als auf den internen Speicher.</string>
+    <string name="clean_memory_empty_internal">Keine Bücher im internen BookPlayer-Speicher.</string>
+    <string name="clean_memory_empty_sdcard">Keine Bücher im BookPlayer-SD-Karten-Speicher.</string>
     <string name="clear">löschen</string>
     <string name="Close">Schließen</string>
     <string name="collapse">zuklappen</string> //opposite of expand, used for "enlarge" or "show description"
@@ -179,6 +183,7 @@
     <string name="subtitle">Untertitel</string>
     <string name="tags">Tags</string>
     <string name="Technical">Technisch</string>
+    <string name="Navigation">Navigation</string>
     <string name="Text">Text</string>
     <string name="text_to_speech">Text-zu-Sprache</string>
     <string name="Text_To_Speech">Text-zu-Sprache</string>
@@ -410,6 +415,11 @@ Alle Beiträge sind öffentlich lesbar. Melden Sie sich an, um teilzunehmen.
     <string name="option_visualizer_text_01">Minimalistischer Frequenz-Visualizer, der während der Wiedergabe angezeigt wird.</string>
     <string name="option_visualizer_text_02">Benötigt [Audio lesen]/[Mikrofon]-Berechtigung</string>
     <string name="option_visualizer_permissions_denied_02">Klicken Sie erneut auf das Kontrollkästchen, um die Berechtigung anzufordern</string>
+    <string name="option_screensaver_title">Bildschirmschoner</string>
+    <string name="option_screensaver_enabled">Bildschirmschoner aktivieren</string>
+    <string name="option_screensaver_delay_text">Aktivieren nach</string>
+    <string name="option_positioning_title">Ausrichtung</string>
+    <string name="option_if_app_close_title">Wenn die App geschlossen ist</string>
     <string name="option_tech_log_subtitle"><i>
 Soll die App technische Debug-Protokolle erstellen?
 </i></string>
@@ -454,6 +464,8 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_podcast_open_specific_view">Spezifische Ansicht öffnen</string>
     <string name="option_podcast_open_specific_view_subtitle">Beim Klicken auf ein Buch vom Typ \'Podcast\', soll die Podcast-Ansicht mit allen Episoden oder die Buchansicht nur mit den heruntergeladenen geöffnet werden?</string>
     <string name="option_podcast_open_specific_view_subtitle2">Sie können zwischen diesen Ansichten wechseln, indem Sie doppelt auf das Cover tippen.</string>
+    <string name="option_podcast_open_favorites_first">Zuerst Favoriten öffnen</string>
+    <string name="option_podcast_open_favorites_first_subtitle">Beim Tippen auf Podcast in der unteren Leiste zuerst den Favoriten-Bildschirm öffnen. Zurück tippen, um zur Suche zu gelangen und weitere Podcasts zu durchsuchen.</string>
     <string name="option_podcast_autodownloaded_at_the_top">Wenn neue Episoden heruntergeladen werden, den Podcast oben in der Hörbuchliste anzeigen.</string>
     <string name="option_podcast_autodownload_subtitle">"Wenn Sie einen Podcast als Favorit markieren, können Sie auch die Option 'Auto-Download' aktivieren.\nBookPlayer prüft dann auf neue Episoden – sowohl periodisch als auch beim Start – und lädt sie herunter."</string>
     <string name="option_playing_behaviour_title">Wiedergabeverhalten</string>
@@ -481,6 +493,8 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_automotive_on">Mit Android Auto verbinden.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe automatisch fortsetzen, wenn mit dem Auto verbunden.</string>
 
+    <string name="optionMinEqual">Min =</string> //short for Minimum
+    <string name="optionMaxEqual">Max =</string> //short for Maximum
 
     <string name="AutoTest_title">Auto-Test</string>
     <string name="TextHeaderOpen">Audio vom Gerät laden</string>
@@ -945,6 +959,8 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="All_zikFiles_not_readable">Dieses Buch ist fehlerhaft. Kein Titel kann abgespielt werden.</string>
     <string name="option_use_heatmap_for_tracks_activity_subtitle">Fortschrittsbalken der Tracks zeigen genau, welche Teile angehört wurden, und die Farbe wird dunkler, je öfter ein Abschnitt gespielt wurde.</string>
     <string name="option_use_heatmap_for_tracks_activity">Heatmaps anzeigen</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">Klassische Fortschrittsleiste durch Heatmap-Fortschrittsleiste ersetzen</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">Visueller Fortschrittsindikator, der anzeigt, wie viel von jedem Teil des Titels bereits gehört wurde, mit verschiebbarem Wiedergabemarker.</string>
     <string name="option_lock_orientation_play_activity">Bildschirmausrichtung sperren</string>
     <string name="in_history">im Verlauf</string>
     <string name="radio_could_not_resolve_url">Dieser Senderlink scheint defekt zu sein.</string>
@@ -970,8 +986,13 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="by_genre_all_languages">nach Genre (alle Sprachen)</string>
     <string name="unsupported_language">nicht unterstützte Sprache</string>
     <string name="spam_fake_stations_removed">entfernt (Spam?)</string>
+    <string name="dubious_stations_removed">entfernt (fragwürdig)</string>
     <string name="option_radio_remove_duplicates">Duplikate entfernen</string>
     <string name="option_radio_remove_duplicates_subtitle">Wenn der Sendername mehr als 3‑mal vorkommt, werden weitere Treffer ausgeblendet, um die Liste nicht mit Duplikaten zu überladen.</string>
+    <string name="option_radio_remove_dubious">Fragwürdige Sender entfernen</string>
+    <string name="option_radio_remove_dubious_subtitle">Einige Sender wurden fälschlich jedem Land oder Tag hinzugefügt; sie aus den Ergebnissen ausblenden.</string>
+    <string name="option_radio_open_favorites_first">Zuerst Favoriten öffnen</string>
+    <string name="option_radio_open_favorites_first_subtitle">Beim Tippen auf Radio in der unteren Leiste zuerst den Favoriten-Bildschirm öffnen. Zurück tippen, um zur Suche zu gelangen und weitere Sender zu durchsuchen.</string>
     <string name="option_radio_sleep_copy_subtitle">Hier kannst du einen eigenen Wert für das Radio-Autosleep angeben. Da wir beim Radio keinen Fortschritt speichern, ist es egal, wenn du einschläfst!</string>
     <string name="no_results_found">keine Ergebnisse</string>
     <string name="getting_first_results_from">Erste Ergebnisse von</string>
@@ -1063,4 +1084,8 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
         <item quantity="one">%d Titel</item>
         <item quantity="other">%d Titel</item>
     </plurals>
+    <string name="option_screensaver_subtitle">Wird während der Wiedergabe aktiviert, wenn Sie sich auf dem Wiedergabe-Bildschirm befinden</string>
+    <string name="screensaver_force_orientation">Ausrichtung erzwingen</string>
+    <string name="portrait">Hochformat</string>
+    <string name="landscape">Querformat</string>
 </resources>

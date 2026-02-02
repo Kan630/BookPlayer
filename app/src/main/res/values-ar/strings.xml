@@ -61,6 +61,10 @@
     <string name="Channels">القنوات</string>
     <string name="chars">أحرف</string>
     <string name="Cleaning">تنظيف</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clean_memory_scanning_folders">جاري فحص المجلدات المستخدمة من التطبيق، مرّ %1$d ث…</string>
+    <string name="clean_memory_sdcard_slow">الوصول إلى بطاقة SD أبطأ من الذاكرة الداخلية.</string>
+    <string name="clean_memory_empty_internal">لا توجد كتب في التخزين الداخلي لـ BookPlayer.</string>
+    <string name="clean_memory_empty_sdcard">لا توجد كتب في تخزين بطاقة SD لـ BookPlayer.</string>
     <string name="clear">مسح</string>
     <string name="Close">إغلاق</string>
     <string name="collapse">طي</string> //opposite of expand, used for "enlarge" or "show description"
@@ -179,6 +183,7 @@
     <string name="subtitle">عنوان فرعي</string>
     <string name="tags">وسوم</string>
     <string name="Technical">تقني</string>
+    <string name="Navigation">التنقل</string>
     <string name="Text">نص</string>
     <string name="text_to_speech">التحويل النصي إلى كلام</string>
     <string name="Text_To_Speech">تحويل النص إلى كلام</string>
@@ -409,6 +414,11 @@
     <string name="option_visualizer_text_01">عارض تردد بسيط يظهر عند تشغيل الصوت.</string>
     <string name="option_visualizer_text_02">يتطلب إذن [تسجيل الصوت]/[الميكروفون]</string>
     <string name="option_visualizer_permissions_denied_02">اضغط مرة أخرى على خانة الاختيار لطلب الإذن</string>
+    <string name="option_screensaver_title">شاشة التوقف</string>
+    <string name="option_screensaver_enabled">تفعيل شاشة التوقف</string>
+    <string name="option_screensaver_delay_text">تفعيل بعد</string>
+    <string name="option_positioning_title">الاتجاه</string>
+    <string name="option_if_app_close_title">عند إغلاق التطبيق</string>
     <string name="option_tech_log_subtitle"><i>
         هل يجب أن ينشئ التطبيق ملفات سجل تقنية لتصحيح الأخطاء؟
     </i></string>
@@ -453,6 +463,8 @@
     <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
     <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
     <string name="option_podcast_open_specific_view_subtitle2">يمكنك التبديل بين هذه العروض بالنقر المزدوج على الغلاف.</string>
+    <string name="option_podcast_open_favorites_first">فتح المفضلة أولاً</string>
+    <string name="option_podcast_open_favorites_first_subtitle">عند النقر على البودكاست في الشريط السفلي، افتح شاشة المفضلة أولاً. اضغط رجوع للوصول إلى البحث واستعراض المزيد من البودكاست.</string>
     <string name="option_podcast_autodownloaded_at_the_top">عند تنزيل حلقات جديدة، يتم نقل البودكاست إلى أعلى قائمة الكتب الصوتية.</string>
     <string name="option_podcast_autodownload_subtitle">"إذا قمت بوضع علامة على بودكاست كمفضل، يمكنك أيضًا تفعيل خيار \'التنزيل التلقائي\'.\nسيتحقق BookPlayer بعد ذلك من الحلقات الجديدة — دوريًا وعند بدء التشغيل — وسيقوم بتنزيلها."</string>
     <string name="option_playing_behaviour_title">سلوك التشغيل</string>
@@ -480,6 +492,8 @@
     <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
 
+    <string name="optionMinEqual">الحد الأدنى =</string> //short for Minimum
+    <string name="optionMaxEqual">الحد الأقصى =</string> //short for Maximum
 
     <string name="AutoTest_title">اختبار تلقائي</string>
     <string name="TextHeaderOpen">افتح ملفاً صوتياً من جهازي</string>
@@ -944,6 +958,8 @@
     <string name="All_zikFiles_not_readable">هذا الكتاب غير صالح. لا يمكن تشغيل أي مقطع.</string>
     <string name="option_use_heatmap_for_tracks_activity_subtitle">ستُظهر أشرطة التقدّم في المقاطع الأجزاء التي تم الاستماع إليها بالضبط، ويتعمّق اللون كلما تكرّر التشغيل.</string>
     <string name="option_use_heatmap_for_tracks_activity">عرض خرائط الحرارة</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">استبدال شريط التقدّم العادي بشريط خريطة الحرارة</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">مؤشر تقدّم مرئي يوضح مقدار الاستماع إلى كل جزء من المقطع، مع مؤشر تشغيل قابل للسحب.</string>
     <string name="option_lock_orientation_play_activity">قفل اتجاه الشاشة</string>
     <string name="in_history">في السجل</string>
     <string name="radio_could_not_resolve_url">يبدو أنّ رابط المحطة معطّل.</string>
@@ -969,8 +985,13 @@
     <string name="by_genre_all_languages">حسب النوع (جميع اللغات)</string>
     <string name="unsupported_language">لغة غير مدعومة</string>
     <string name="spam_fake_stations_removed">تمت الإزالة (رسائل مزعجة؟)</string>
+    <string name="dubious_stations_removed">تمت الإزالة (مشكوك فيها)</string>
     <string name="option_radio_remove_duplicates">إزالة التكرارات</string>
     <string name="option_radio_remove_duplicates_subtitle">إذا ظهر اسم المحطة أكثر من 3 مرات، فلن نعرض النتائج التالية لتجنب ازدحام القائمة بالتكرارات.</string>
+    <string name="option_radio_remove_dubious">إزالة المحطات المشكوك فيها</string>
+    <string name="option_radio_remove_dubious_subtitle">تمت إضافة بعض المحطات بالخطأ إلى كل بلد أو وسم؛ إخفاؤها من النتائج.</string>
+    <string name="option_radio_open_favorites_first">فتح المفضلة أولاً</string>
+    <string name="option_radio_open_favorites_first_subtitle">عند النقر على الراديو في الشريط السفلي، افتح شاشة المفضلة أولاً. اضغط رجوع للوصول إلى البحث واستعراض المزيد من المحطات.</string>
     <string name="option_radio_sleep_copy_subtitle">يمكنك تحديد قيمة مخصصة للإيقاف التلقائي للراديو. بما أننا لا نحفظ التقدّم في الراديو، فلا مشكلة إن غفوت!</string>
     <string name="no_results_found">لا توجد نتائج</string>
     <string name="getting_first_results_from">أول النتائج من</string>
@@ -1062,4 +1083,8 @@
         <item quantity="one">%d مقطع</item>
         <item quantity="other">%d مقاطع</item>
     </plurals>
+    <string name="option_screensaver_subtitle">يُفعّل أثناء التشغيل عندما تكون على شاشة التشغيل</string>
+    <string name="screensaver_force_orientation">فرض الاتجاه</string>
+    <string name="portrait">عمودي</string>
+    <string name="landscape">أفقي</string>
 </resources>

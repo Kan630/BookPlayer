@@ -61,6 +61,10 @@
     <string name="Channels">चैनल</string>
     <string name="chars">अक्षर</string>
     <string name="Cleaning">सफ़ाई</string> //for the specific cleaning activity where user can delete books take too much storage
+    <string name="clean_memory_scanning_folders">ऐप द्वारा उपयोग किए गए फ़ोल्डर स्कैन हो रहे हैं, %1$d सेकंड बीते…</string>
+    <string name="clean_memory_sdcard_slow">SD कार्ड एक्सेस डिवाइस की आंतरिक मेमोरी की तुलना में धीमा है।</string>
+    <string name="clean_memory_empty_internal">BookPlayer आंतरिक स्टोरेज में कोई किताब नहीं।</string>
+    <string name="clean_memory_empty_sdcard">BookPlayer SD कार्ड स्टोरेज में कोई किताब नहीं।</string>
     <string name="clear">साफ़ करें</string>
     <string name="Close">बंद करें</string>
     <string name="collapse">संक्षिप्त करें</string> //opposite of expand, used for "enlarge" or "show description"
@@ -179,6 +183,7 @@
     <string name="subtitle">उपशीर्षक</string>
     <string name="tags">टैग</string>
     <string name="Technical">तकनीकी</string>
+    <string name="Navigation">नेविगेशन</string>
     <string name="Text">पाठ</string>
     <string name="text_to_speech">टेक्स्ट-टू-स्पीच</string>
     <string name="Text_To_Speech">टेक्स्ट-टू-स्पीच</string>
@@ -410,6 +415,11 @@
     <string name="option_visualizer_text_01">जब ऑडियो चल रहा हो तो न्यूनतम फ़्रीक्वेंसी विज़ुअलाइज़र दिखाएँ।</string>
     <string name="option_visualizer_text_02">[Record Audio]/[Microphone] अनुमति आवश्यक</string>
     <string name="option_visualizer_permissions_denied_02">अनुमति माँगने के लिए चेकबॉक्स फिर से क्लिक करें</string>
+    <string name="option_screensaver_title">स्क्रीनसेवर</string>
+    <string name="option_screensaver_enabled">स्क्रीनसेवर चालू करें</string>
+    <string name="option_screensaver_delay_text">इसके बाद सक्रिय करें</string>
+    <string name="option_positioning_title">दिशा</string>
+    <string name="option_if_app_close_title">जब ऐप बंद हो</string>
     <string name="option_tech_log_subtitle"><i>
         क्या ऐप तकनीकी डिबग लॉग फ़ाइलें बनाए?
     </i></string>
@@ -454,6 +464,8 @@
     <string name="option_podcast_open_specific_view">लाइव व्यू खोलें</string>
     <string name="option_podcast_open_specific_view_subtitle">किसी \'पॉडकास्ट\' आइटम पर क्लिक करने पर, क्या सभी एपिसोड वाले स्ट्रीम पॉडकास्ट व्यू खुले, या डाउनलोड किए गए एपिसोड के साथ \'किताब\' व्यू?</string>
     <string name="option_podcast_open_specific_view_subtitle2">कवर पर डबल-क्लिक करके इन दृश्यों के बीच स्विच कर सकते हैं।</string>
+    <string name="option_podcast_open_favorites_first">पहले पसंदीदा खोलें</string>
+    <string name="option_podcast_open_favorites_first_subtitle">नीचे की पट्टी में पॉडकास्ट पर टैप करने पर पहले पसंदीदा स्क्रीन खोलें। खोज पर जाने और अधिक पॉडकास्ट देखने के लिए वापस दबाएँ।</string>
     <string name="option_podcast_autodownloaded_at_the_top">जब नए एपिसोड डाउनलोड हों, तो पॉडकास्ट को ऑडियोबुक्स सूची के शीर्ष पर ले जाएँ।</string>
     <string name="option_podcast_autodownload_subtitle">"यदि आप किसी पॉडकास्ट को पसंदीदा चिह्नित करते हैं, तो आप ‘स्वतः डाउनलोड’ विकल्प भी सक्षम कर सकते हैं.\nBookPlayer तब नए एपिसोड की जाँच करेगा — समय-समय पर और स्टार्टअप पर — और उन्हें डाउनलोड करेगा."</string>
     <string name="option_playing_behaviour_title">प्लेबैक व्यवहार</string>
@@ -484,6 +496,8 @@
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
     <string name="option_automotive_auto_resume_on_car_connect">कार से कनेक्ट होने पर प्लेबैक स्वतः पुनः आरंभ करें।</string>
 
+    <string name="optionMinEqual">न्यूनतम =</string> //short for Minimum
+    <string name="optionMaxEqual">अधिकतम =</string> //short for Maximum
 
     <string name="AutoTest_title">ऑटो टेस्ट</string>
     <string name="TextHeaderOpen">डिवाइस से ऑडियो लोड करें</string>
@@ -948,6 +962,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="All_zikFiles_not_readable">यह पुस्तक खराब है। कोई भी ट्रैक चल नहीं सकता।</string>
     <string name="option_use_heatmap_for_tracks_activity_subtitle">ट्रैक की प्रगति पट्टियाँ दिखाएँगी कि कौन से भाग सुने गए हैं, और जितना अधिक कोई हिस्सा चलाया जाता है, रंग उतना ही गहरा होता जाता है।</string>
     <string name="option_use_heatmap_for_tracks_activity">हीटमैप दिखाएँ</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity">क्लासिक सीकबार को हीटमैप सीकबार से बदलें</string>
+    <string name="option_use_heatmap_seekbar_in_play_activity_explain">विज़ुअल प्रोग्रेस इंडिकेटर जो दिखाता है कि ट्रैक के हर हिस्से को कितना सुना गया, खींचने योग्य प्ले मार्कर के साथ।</string>
     <string name="option_lock_orientation_play_activity">स्क्रीन ओरिएंटेशन लॉक करें</string>
     <string name="in_history">इतिहास में</string>
     <string name="radio_could_not_resolve_url">यह स्टेशन लिंक टूटा हुआ लगता है।</string>
@@ -973,8 +989,13 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="by_genre_all_languages">शैली के अनुसार (सभी भाषाएँ)</string>
     <string name="unsupported_language">असमर्थित भाषा</string>
     <string name="spam_fake_stations_removed">हटाया (स्पैम?)</string>
+    <string name="dubious_stations_removed">हटाया (संदिग्ध)</string>
     <string name="option_radio_remove_duplicates">डुप्लिकेट हटाएँ</string>
     <string name="option_radio_remove_duplicates_subtitle">यदि स्टेशन का नाम 3 बार से अधिक मिलता है, तो सूची में अव्यवस्था से बचने के लिए आगे की प्रविष्टियाँ नहीं दिखेंगी।</string>
+    <string name="option_radio_remove_dubious">संदिग्ध स्टेशन हटाएँ</string>
+    <string name="option_radio_remove_dubious_subtitle">कुछ स्टेशन गलती से हर देश या टैग में जोड़े गए; परिणामों से छिपाएँ।</string>
+    <string name="option_radio_open_favorites_first">पहले पसंदीदा खोलें</string>
+    <string name="option_radio_open_favorites_first_subtitle">नीचे की पट्टी में रेडियो पर टैप करने पर पहले पसंदीदा स्क्रीन खोलें। खोज पर जाने और अधिक स्टेशन देखने के लिए वापस दबाएँ।</string>
     <string name="option_radio_sleep_copy_subtitle">यहाँ आप रेडियो ऑटो-स्लीप के लिए कस्टम मान सेट कर सकते हैं। हम रेडियो के लिए प्रगति नहीं सहेजते, तो यदि आप सो भी जाएँ तो कोई समस्या नहीं!</string>
     <string name="no_results_found">कोई परिणाम नहीं</string>
     <string name="getting_first_results_from">पहले परिणाम यहाँ से</string>
@@ -1066,4 +1087,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
         <item quantity="one">%d ट्रैक</item>
         <item quantity="other">%d ट्रैक</item>
     </plurals>
+    <string name="option_screensaver_subtitle">प्लेबैक के दौरान सक्रिय होता है जब आप प्ले स्क्रीन पर हों</string>
+    <string name="screensaver_force_orientation">दिशा बल दें</string>
+    <string name="portrait">पोर्ट्रेट</string>
+    <string name="landscape">लैंडस्केप</string>
 </resources>
