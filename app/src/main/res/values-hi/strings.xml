@@ -553,6 +553,7 @@
     <string name="init_check_already_imported_please_wait">"पहले से आयात है या नहीं जाँच रहे हैं, कृपया प्रतीक्षा करें…"</string>
     <string name="init_check_complementary_checks_please_wait">"पूरक जाँचें चल रही हैं, कृपया प्रतीक्षा करें…"</string>
     <string name="error_media_already_loaded_samePath">यह मीडिया पहले से लोड किया जा चुका है</string>
+    <string name="error_folder_multiple_books">इस फ़ोल्डर में कई पुस्तकें मिलीं। कृपया इसके बजाय बड़े पैमाने पर आयात का उपयोग करें।</string>
     <string name="ErrorCouldNotLoadAudios">त्रुटि - ऑडियो लोड नहीं कर सके।</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">त्रुटि - इस फ़ोल्डर में कोई ऑडियो नहीं मिला।</string>
     <string name="loading_voice_3pt">आवाज़ लोड हो रही है…</string>

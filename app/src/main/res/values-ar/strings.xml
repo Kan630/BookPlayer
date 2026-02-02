@@ -549,6 +549,7 @@
     <string name="init_check_already_imported_please_wait">"جارٍ التحقق مما إذا تم استيراده مسبقاً، الرجاء الانتظار…"</string>
     <string name="init_check_complementary_checks_please_wait">"جارٍ إجراء التحقق التكميلي، الرجاء الانتظار…"</string>
     <string name="error_media_already_loaded_samePath">تم تحميل هذا الملف مسبقاً</string>
+    <string name="error_folder_multiple_books">تم العثور على عدة كتب في هذا المجلد. يرجى استخدام الاستيراد الجماعي بدلاً من ذلك.</string>
     <string name="ErrorCouldNotLoadAudios">خطأ - تعذر تحميل الملفات الصوتية.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">خطأ - لم يتم العثور على ملفات صوتية في هذا المجلد.</string>
     <string name="loading_voice_3pt">جاري تحميل الصوت…</string>

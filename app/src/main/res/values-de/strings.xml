@@ -550,6 +550,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="init_check_already_imported_please_wait">"wird geprüft, ob bereits importiert, bitte warten…"</string>
     <string name="init_check_complementary_checks_please_wait">"zusätzliche Prüfungen, bitte warten…"</string>
     <string name="error_media_already_loaded_samePath">Dieses Medium wurde bereits geladen</string>
+    <string name="error_folder_multiple_books">Mehrere Bücher in diesem Ordner gefunden. Bitte verwenden Sie stattdessen den Massenimport.</string>
     <string name="ErrorCouldNotLoadAudios">FEHLER - Audios konnten nicht geladen werden.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">FEHLER - In diesem Ordner wurden keine Audios gefunden.</string>
     <string name="loading_voice_3pt">Stimme wird geladen…</string>

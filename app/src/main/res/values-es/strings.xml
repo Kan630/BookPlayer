@@ -546,6 +546,7 @@ Todas las publicaciones son públicamente visibles. Inicia sesión para particip
     <string name="init_check_already_imported_please_wait">"verificando si ya fue importado, por favor espera…"</string>
     <string name="init_check_complementary_checks_please_wait">"comprobaciones complementarias, por favor espera…"</string>
     <string name="error_media_already_loaded_samePath">Este archivo ya fue cargado</string>
+    <string name="error_folder_multiple_books">Se encontraron varios libros en esta carpeta. Use la importación masiva en su lugar.</string>
     <string name="ErrorCouldNotLoadAudios">ERROR - No se pudieron cargar los audios.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERROR - no se encontraron audios en esta carpeta.</string>
     <string name="loading_voice_3pt">Cargando voz…</string>

@@ -550,6 +550,7 @@
     <string name="init_check_already_imported_please_wait">"verificando se já foi importado, aguarde…"</string>
     <string name="init_check_complementary_checks_please_wait">"verificações adicionais, aguarde…"</string>
     <string name="error_media_already_loaded_samePath">Esta mídia já foi carregada</string>
+    <string name="error_folder_multiple_books">Vários livros encontrados nesta pasta. Use a importação em massa.</string>
     <string name="ErrorCouldNotLoadAudios">ERRO - Não foi possível carregar os áudios.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERRO - nenhum áudio encontrado nessa pasta.</string>
     <string name="loading_voice_3pt">A carregar voz…</string>

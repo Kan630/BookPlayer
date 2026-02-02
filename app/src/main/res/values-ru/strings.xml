@@ -549,6 +549,7 @@
     <string name="init_check_already_imported_please_wait">"проверка уже импортированных, пожалуйста, подождите…"</string>
     <string name="init_check_complementary_checks_please_wait">"дополнительные проверки, пожалуйста, подождите…"</string>
     <string name="error_media_already_loaded_samePath">Этот файл уже был загружен</string>
+    <string name="error_folder_multiple_books">В этой папке найдено несколько книг. Используйте массовый импорт.</string>
     <string name="ErrorCouldNotLoadAudios">ОШИБКА - Не удалось загрузить аудиофайлы.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ОШИБКА - в этой папке не найдено аудиофайлов.</string>
     <string name="loading_voice_3pt">Загрузка голоса…</string>
