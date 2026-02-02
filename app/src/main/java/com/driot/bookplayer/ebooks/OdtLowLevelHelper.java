@@ -1,4 +1,4 @@
-package com.driot.bookplayer.helpers;
+package com.driot.bookplayer.ebooks;
 
 import android.content.Context;
 import android.graphics.Bitmap;
