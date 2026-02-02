@@ -417,7 +417,7 @@
     <string name="option_screensaver_title">Screensaver</string>
     <string name="option_screensaver_enabled">Enable screensaver</string>
     <string name="option_screensaver_delay_text">Activate after</string>
-    <string name="option_positioning_title">Positioning</string>
+    <string name="option_positioning_title">Playback position</string>
     <string name="option_if_app_close_title">When app is closed</string>
     <string name="frequency_visualizer">Frequency Visualizer</string>
     <string name="option_tech_log_subtitle"><i>
@@ -504,7 +504,7 @@
     <string name="AutoTest_title">Auto Test</string>
     <string name="TextHeaderOpen">Load audio from device</string>
     <string name="bOpenFile_desc">Grab any file.</string>
-    <string name="bOpenFilteredFile_desc">Grab any file of a specific type. (filter)</string>
+    <string name="bOpenFilteredFile_desc">Grab any file of a specific type.</string>
     <string name="DirectDownload_title">Direct Download</string>
     <string name="DirectDownload_desc">Paste a link hereunder and press the button to download and integrate an audiobook in one go.</string>
     <string name="DirectDownload_button">Just Get It</string>
@@ -717,7 +717,7 @@
     <string name="stats_radio_time">* Radio</string>
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(These stats started in 2025 (oct-nov))</string>
-    <string name="stats_install_date_label">Install Date : </string>
+    <string name="stats_install_date_label">Install Date:</string>
     
     <string name="bMassImport">📁 Mass Import</string>
     <string name="bOpenMassImport_desc">Mass Import : Create as many audiobooks as there are items in the folder you will pick</string>
