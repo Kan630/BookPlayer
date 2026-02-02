@@ -558,6 +558,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="error_media_already_loaded_samePath">Ce média a déjà été importé</string>
     <string name="ErrorCouldNotLoadAudios">ERREUR - Impossible de charger les fichiers audio.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">ERREUR - Aucun fichier audio trouvé dans ce dossier.</string>
+    <string name="error_folder_multiple_books">Plusieurs livres trouvés dans ce dossier. Veuillez utiliser l\'importation massive.</string>
     <string name="loading_voice_3pt">Chargement voix…</string>
     <string name="Error_Import_OutOfMemory">Erreur générale : Mémoire insuffisante</string>
     <string name="Error_Import_This_folder_may_contain_too_many_books">Ce dossier contient peut-être trop de livres ou de sous-dossiers pour un seul chargement</string>

@@ -555,6 +555,7 @@
     <string name="init_check_already_imported_please_wait">"checking if already imported, please wait…"</string>
     <string name="init_check_complementary_checks_please_wait">"complementary checks, please wait…"</string>
     <string name="error_media_already_loaded_samePath">This media has already been loaded</string>
+    <string name="error_folder_multiple_books">Multiple books found in this folder. Please use Mass Import instead.</string>
     <string name="ErrorCouldNotLoadAudios">Error - Could not load audio files.</string>
     <string name="ErrorCouldNotLoadAudios_emptyfolder">Error - No audio files found in that folder.</string>
     <string name="loading_voice_3pt">Loading voice…</string>

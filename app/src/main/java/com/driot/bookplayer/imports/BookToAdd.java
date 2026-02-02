@@ -33,6 +33,9 @@ public class BookToAdd extends LoggerHelper {
     private String playType;
     private String specialType;
 
+    /** When Folder: count of epub/fb2/odt files (each is typically one book). >= 2 means "multiple books" → use Mass Import. */
+    private int multipleBooksCount = 0;
+
     private String infoMimeExtension = "init...";
     private String infoMimeExtensionSmall = "init...";
     private String infoSourceLocation = "init...";
@@ -92,6 +95,7 @@ public class BookToAdd extends LoggerHelper {
             this.infoMimeExtension = "[" + pickedType + "]";
             this.audioBookName = getBookName_with2folders(pickedUri.getPath(), false);
             this.playType = inferPlayTypeFromFolder(pickedUri);
+            this.multipleBooksCount = countRealEbookFilesRecursive(pickedUri);
 
         }
         trimAudioBookPrefix();
@@ -159,6 +163,11 @@ public class BookToAdd extends LoggerHelper {
 
     public String getPlayType() { return playType; }
     public String getSpecialType() { return specialType; }
+
+    /** True when folder contains 2+ epub/fb2/odt files (each = one book) → user should use Mass Import. */
+    public boolean hasMultipleBooksInFolder() {
+        return multipleBooksCount >= 2;
+    }
 
 
 
@@ -236,6 +245,37 @@ public class BookToAdd extends LoggerHelper {
             }
         }
         return new int[] { realContent, plainText };
+    }
+
+    /** Count epub, fb2, odt files (each is typically one book). Used to detect "multiple books" folder. */
+    private int countRealEbookFilesRecursive(Uri folderUri) {
+        try {
+            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(appContext, folderUri);
+            if (root == null || !root.exists() || !root.isDirectory()) return 0;
+            return countRealEbookFilesRecursive(root);
+        } catch (Exception e) {
+            myLogEE(e, "countRealEbookFilesRecursive");
+            return 0;
+        }
+    }
+
+    private int countRealEbookFilesRecursive(DocumentFile dir) {
+        int count = 0;
+        DocumentFile[] children = dir.listFiles();
+        if (children == null) return 0;
+        for (DocumentFile child : children) {
+            if (child.isDirectory()) {
+                count += countRealEbookFilesRecursive(child);
+            } else if (child.isFile()) {
+                String special = SupportedFilesHelper.getSpecialType(child);
+                if (SupportedFilesHelper.SPECIAL_TYPE_EPUB.equals(special)
+                        || SupportedFilesHelper.SPECIAL_TYPE_FB2.equals(special)
+                        || SupportedFilesHelper.SPECIAL_TYPE_ODT.equals(special)) {
+                    count++;
+                }
+            }
+        }
+        return count;
     }
 
     /** True if file is audio, video, epub, fb2, odt, m4b, zip, 7z, tar - i.e. "real" content we never mix with plain .txt. */

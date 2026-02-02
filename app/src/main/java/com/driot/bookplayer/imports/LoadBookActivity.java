@@ -642,6 +642,13 @@ public class LoadBookActivity extends BaseBottomNavActivity {
     }
 
     private void okContinue() {
+        if ("Folder".equals(bookToAdd.getType()) && bookToAdd.hasMultipleBooksInFolder()) {
+            showError(getString(R.string.error_folder_multiple_books));
+            isKO = true;
+            hashJobRunning = false;
+            updateLoadingUi();
+            return;
+        }
         checkPathDoesNotAlreadyExist();
     }
 
