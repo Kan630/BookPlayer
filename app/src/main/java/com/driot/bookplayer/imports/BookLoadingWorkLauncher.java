@@ -184,11 +184,18 @@ public class BookLoadingWorkLauncher {
 
             if (j.doCopy) steps.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(UncompressWorker.class)
+            if (j.doUnzip) {
+                steps.add(new OneTimeWorkRequest.Builder(UncompressWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+                // After unzip, content may be a single book (epub/odt/fb2/m4b) — UncompressWorker updates job
+                steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+                steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+            }
+            if (j.doSplitM4b && !j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doSplitM4b) steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
-                    .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doSplitEbook) steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
+            if (j.doSplitEbook && !j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
 
             steps.add(new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class)

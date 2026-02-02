@@ -71,6 +71,18 @@ public class M4bSplitWorker extends ImportWorker {
             return Result.failure();
         }
 
+        // No-op when source file does not exist or is not m4b (e.g. zip contained ebook)
+        File m4bFile = new File(m4bFilePath);
+        if (!m4bFile.exists() || !m4bFile.isFile()) {
+            myLogD("M4bSplitWorker: source file does not exist, skipping: " + m4bFilePath);
+            return Result.success();
+        }
+        String ext = com.driot.bookplayer.utils.Tonio.getExtension(m4bFile.getName());
+        if (ext == null || !"m4b".equalsIgnoreCase(ext)) {
+            myLogD("M4bSplitWorker: source is not m4b (.{" + ext + "}), skipping: " + m4bFilePath);
+            return Result.success();
+        }
+
         FirebaseAnalyticsHelper.logEvent("m4b_worker");
 
         boolean success = splitM4bLocal(m4bFilePath, destinationFolderPath);

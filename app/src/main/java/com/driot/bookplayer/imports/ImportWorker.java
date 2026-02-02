@@ -75,8 +75,9 @@ public abstract class ImportWorker extends LoggingWorker {
         } else if (Var.WORKER_TASK_LABEL_SPLIT_EBOOK.equals(taskName)) {
             //TODO ugly, should certainly be somewhere else
             repo.taskCompleted(importId, taskName, destination, Var.PLAY_TYPE_TEXT, progressText);
-        } else if (Var.WORKER_TASK_LABEL_COPY.equals(taskName)) {
-            // Preserve existing playType (e.g. "text" for text-only folders)
+        } else if (Var.WORKER_TASK_LABEL_COPY.equals(taskName)
+                || Var.WORKER_TASK_LABEL_DECOMPRESS.equals(taskName)) {
+            // Preserve existing playType (e.g. "text" for zip-with-single-ebook)
             ImportJob j = jobOrFail();
             String playType = (j.playType != null && !j.playType.isEmpty()) ? j.playType : Var.PLAY_TYPE_AUDIO;
             repo.taskCompleted(importId, taskName, destination, playType, progressText);

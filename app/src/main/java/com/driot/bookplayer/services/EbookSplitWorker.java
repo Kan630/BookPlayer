@@ -76,6 +76,13 @@ public class EbookSplitWorker extends ImportWorker {
             return Result.failure();
         }
 
+        // No-op when source file does not exist (e.g. zip contained audio, not ebook)
+        File ebookFile = new File(ebookPath);
+        if (!ebookFile.exists() || !ebookFile.isFile()) {
+            myLogD("EbookSplitWorker: source file does not exist, skipping: " + ebookPath);
+            return Result.success();
+        }
+
         FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType, sourceLocation);
 
         boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType, sourceLocation);

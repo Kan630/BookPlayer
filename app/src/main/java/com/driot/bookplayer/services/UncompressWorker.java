@@ -3,16 +3,17 @@ package com.driot.bookplayer.services;
 import static com.driot.bookplayer.global.Var.ONLY_MIME_AUDIO;
 import static com.driot.bookplayer.global.Var.SUPPORTED_AUDIO_EXTENSIONS;
 import static com.driot.bookplayer.global.Var.SUPPORTED_COVER_PICTURE_EXTENSIONS;
+import static com.driot.bookplayer.global.Var.SUPPORTED_VIDEO_EXTENSIONS;
 import static com.driot.bookplayer.utils.Tonio.getExtension;
 import static com.driot.bookplayer.utils.Tonio.getMimeType;
 
 import android.content.Context;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -22,12 +23,10 @@ import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.services.archives.ArchiveDispatch;
 import com.driot.bookplayer.services.archives.ArchiveExtractor;
 
-import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
-import java.util.zip.*;
 
 public class UncompressWorker extends ImportWorker {
 
@@ -97,20 +96,28 @@ public class UncompressWorker extends ImportWorker {
 
             if (!zipFile.delete()) myLogEE(null,"Error deleting internal compressed file");
 
-            // Clean non-audio/image
+            // Keep: audio, video, image, and single-book formats (epub, odt, fb2, m4b)
             if (unzipFolder.listFiles() != null) {
                 for (File f : unzipFolder.listFiles()) {
+                    if (f.isDirectory()) continue;
                     String mime = getMimeType(f);
                     String ext = getExtension(f.getName());
-                    // Check if mime is null before calling startsWith
+                    if (ext == null) ext = "";
+                    ext = ext.toLowerCase(Locale.ROOT);
                     boolean isAudioOrImage = (mime != null && mime.startsWith(ONLY_MIME_AUDIO))
                             || SUPPORTED_AUDIO_EXTENSIONS.contains(ext)
+                            || SUPPORTED_VIDEO_EXTENSIONS.contains(ext)
                             || SUPPORTED_COVER_PICTURE_EXTENSIONS.contains(ext);
-                    if (!isAudioOrImage) {
-                        if (!f.delete()) myLogE("Could not delete non-audio/image: " + f.getName());
+                    boolean isBook = Var.SPLITTABLE_EBOOK_EXTENSIONS.contains(ext)
+                            || "m4b".equals(ext);
+                    if (!isAudioOrImage && !isBook) {
+                        if (!f.delete()) myLogE("Could not delete unsupported file: " + f.getName());
                     }
                 }
             }
+
+            // If zip contained a single book (epub/odt/fb2/m4b) and no audio, update job so split runs
+            detectAndUpdateForSingleBookInZip(unzipFolder, j);
 
             emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.Uncompress) + " " + context.getString(R.string.done_));
             return Result.success();
@@ -140,6 +147,56 @@ public class UncompressWorker extends ImportWorker {
             }
             FileHelper.recursiveRemove(unzipFolder);
             return Result.failure();
+        }
+    }
+
+    /**
+     * If the unzipped folder contains exactly one book (epub/odt/fb2/m4b) and no audio files,
+     * update the ImportJob so EbookSplitWorker or M4bSplitWorker will process it.
+     */
+    private void detectAndUpdateForSingleBookInZip(File unzipFolder, ImportJob j) {
+        List<File> bookFiles = new ArrayList<>();
+        int[] audioCount = new int[]{0};
+        collectBookAndAudioRecursive(unzipFolder, bookFiles, audioCount);
+        if (audioCount[0] > 0) return; // Zip has audio → treat as audio folder, no split
+        if (bookFiles.size() != 1) return; // Zero or multiple books → no single-book split
+
+        File bookFile = bookFiles.get(0);
+        String absPath = bookFile.getAbsolutePath();
+        String basePath = unzipFolder.getAbsolutePath();
+        String relPath = absPath.substring(basePath.length());
+        if (relPath.startsWith("/")) relPath = relPath.substring(1);
+        String ext = getExtension(bookFile.getName());
+        if (ext == null) ext = "";
+        ext = ext.toLowerCase(Locale.ROOT);
+
+        j.originalFile = relPath;
+        j.fileExtension = ext;
+        j.playType = "m4b".equals(ext) ? Var.PLAY_TYPE_AUDIO : Var.PLAY_TYPE_TEXT;
+        j.doSplitEbook = Var.SPLITTABLE_EBOOK_EXTENSIONS.contains(ext);
+        j.doSplitM4b = "m4b".equals(ext);
+        AppDatabase.getInstance(context).importJobDao().update(j);
+        myLogD("Post-unzip: single book detected -> originalFile=" + relPath + ", doSplitEbook="
+                + j.doSplitEbook + ", doSplitM4b=" + j.doSplitM4b);
+    }
+
+    private void collectBookAndAudioRecursive(File dir, List<File> bookFiles, int[] audioCount) {
+        File[] children = dir.listFiles();
+        if (children == null) return;
+        for (File f : children) {
+            if (f.isDirectory()) {
+                collectBookAndAudioRecursive(f, bookFiles, audioCount);
+            } else {
+                String ext = getExtension(f.getName());
+                if (ext == null) ext = "";
+                ext = ext.toLowerCase(Locale.ROOT);
+                if (Var.SPLITTABLE_EBOOK_EXTENSIONS.contains(ext) || "m4b".equals(ext)) {
+                    bookFiles.add(f);
+                } else if (SUPPORTED_AUDIO_EXTENSIONS.contains(ext)
+                        || Var.SUPPORTED_VIDEO_EXTENSIONS.contains(ext)) {
+                    audioCount[0]++;
+                }
+            }
         }
     }
 
