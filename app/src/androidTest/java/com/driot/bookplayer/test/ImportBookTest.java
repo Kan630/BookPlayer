@@ -2,6 +2,7 @@ package com.driot.bookplayer.test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
@@ -404,8 +405,6 @@ public class ImportBookTest implements LogSupport {
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
-
-import static androidx.test.espresso.action.ViewActions.scrollTo;
 
             TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 5_000, "LoadBookActivity did not open");
             onView(withId(android.R.id.content)).perform(swipeUp());
