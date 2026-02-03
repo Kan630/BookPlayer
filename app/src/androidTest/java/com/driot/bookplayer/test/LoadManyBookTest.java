@@ -159,6 +159,13 @@ public class LoadManyBookTest implements LogSupport {
         //noinspection ResultOfMethodCallIgnored
         stagingRoot.mkdirs();
 
+        myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
+        myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
+        myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
+        for (TestCase tc : TESTS) {
+            myLog(tc.uri_type + " - " + tc.assetFolderPath);
+        }
+
         for (TestCase tc : TESTS) {
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use testContext
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
