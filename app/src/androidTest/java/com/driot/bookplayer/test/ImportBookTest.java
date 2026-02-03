@@ -468,9 +468,8 @@ public class ImportBookTest implements LogSupport {
         deleteQuiet(stagingRootApp);
         stagingRootApp.mkdirs();
 
-        File stagingRootTest = new File(testContext.getCacheDir(), "fixtures");
-        deleteQuiet(stagingRootTest);
-        stagingRootTest.mkdirs();
+        // Configure StubDocumentProvider to serve from this location
+        com.driot.bookplayer.testutil.StubDocumentProvider.setStaticBaseDir(stagingRootApp);
     }
 
     private static String readAssetAsString(String assetPath) {
@@ -558,17 +557,21 @@ public class ImportBookTest implements LogSupport {
 
     private static Uri stageAssetDirectoryAsContentUri(Context appCtx, Context testCtx, String assetDirPath)
             throws IOException {
-        File stagingRoot = new File(testCtx.getCacheDir(), "fixtures");
-        File outDir = new File(stagingRoot, assetDirPath);
+        // Use appContext cache dir which is writable
+        File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
+        // Avoid double nesting if asset path starts with fixtures/
+        String destRelativePath = assetDirPath;
+        if (destRelativePath.startsWith("fixtures/")) {
+            destRelativePath = destRelativePath.substring("fixtures/".length());
+        }
+        File outDir = new File(stagingRoot, destRelativePath);
+
         copyAssetDirRecursively(testCtx.getAssets(), assetDirPath, outDir);
 
         // Instead of returning file:// URI, return a content:// Tree URI via our
         // StubDocumentProvider
         // The provider serves files from appCtx.getCacheDir()/fixtures
         // We need to construct the document ID relative to that root.
-        // outDir is e.g. .../cache/fixtures/fixtures/folders/MyBook
-        // root of provider is .../cache/fixtures
-        // so docId is fixtures/folders/MyBook
 
         String fullPath = outDir.getAbsolutePath();
         String rootPath = stagingRoot.getAbsolutePath();
@@ -586,8 +589,30 @@ public class ImportBookTest implements LogSupport {
     }
 
     private static void copyAssetDirRecursively(AssetManager am, String assetDir, File destDir) throws IOException {
-        if (!destDir.exists() && !destDir.mkdirs())
-            throw new IOException("Failed to create dir: " + destDir);
+        if (!destDir.exists()) {
+            // Robust creation logic
+            if (!destDir.mkdirs()) {
+                // Try manual parent creation if mkdirs fails
+                File parent = destDir.getParentFile();
+                if (parent != null && !parent.exists()) {
+                    parent.mkdirs();
+                }
+                destDir.mkdir();
+            }
+
+            if (!destDir.exists()) {
+                // Double check if it exists now (race condition or weird FS behavior)
+                if (!destDir.exists()) {
+                    File p = destDir;
+                    while (p != null && !p.exists()) {
+                        p = p.getParentFile();
+                    }
+                    String type = (p == null) ? "null" : (p.isDirectory() ? "dir" : (p.isFile() ? "file" : "unknown"));
+                    throw new IOException(
+                            "Failed to create dir: " + destDir + ". Closest parent: " + p + " (" + type + ")");
+                }
+            }
+        }
         String[] list = am.list(assetDir);
         if (list == null)
             return;

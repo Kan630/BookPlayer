@@ -20,6 +20,11 @@ public class StubDocumentProvider extends DocumentsProvider {
     private static final String AUTHORITY = "com.driot.bookplayer.test.documents";
 
     private File mBaseDir;
+    private static File sStaticBaseDir;
+
+    public static void setStaticBaseDir(File dir) {
+        sStaticBaseDir = dir;
+    }
 
     @Override
     public void attachInfo(android.content.Context context, android.content.pm.ProviderInfo info) {
@@ -34,8 +39,12 @@ public class StubDocumentProvider extends DocumentsProvider {
 
     @Override
     public boolean onCreate() {
-        // We will serve from the app's cache dir where fixtures are staged
-        mBaseDir = new File(getContext().getCacheDir(), "fixtures");
+        if (sStaticBaseDir != null) {
+            mBaseDir = sStaticBaseDir;
+        } else {
+            // We will serve from the app's cache dir where fixtures are staged
+            mBaseDir = new File(getContext().getCacheDir(), "fixtures");
+        }
         mBaseDir.mkdirs();
         return true;
     }
