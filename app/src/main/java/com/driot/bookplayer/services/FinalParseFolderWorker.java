@@ -563,8 +563,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                             insertedFolderId, // the new Folder.id
                             importJob.title, // display title
                             importJob.originalUri.toString(), // source_url
-                            null, // imageLocal if you saved it
-                            null // imageRemote if available
+                            "todo", // imageLocal if you saved it
+                            "todo", // imageRemote if available
+                    -1 // imageRemote if available
                     );
                 });
             }
