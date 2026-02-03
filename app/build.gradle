@@ -132,6 +132,7 @@ android {
     }
     buildFeatures {
         buildConfig = true   // set to false if you don't use BuildConfig in this module
+        resValues = true     // required because debug build type defines custom resValue entries
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
