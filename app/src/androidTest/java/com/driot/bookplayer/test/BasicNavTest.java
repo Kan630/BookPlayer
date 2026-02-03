@@ -98,7 +98,7 @@ public abstract class BasicNavTest implements LogSupport {
 
         //menu_manual
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_manual);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.manual);
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.tvHelpText)).check(matches(isDisplayed()));
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
@@ -107,7 +107,7 @@ public abstract class BasicNavTest implements LogSupport {
 
         //menu_settings
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_settings);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.settings);
         TestNavUtils.logCurrentActivity();
         onView(ViewMatchers.withId(R.id.section_play_behaviour)).perform(scrollTo(), click());
         onView(ViewMatchers.withId(R.id.section_play_behaviour)).perform(scrollTo(), click());
@@ -143,7 +143,7 @@ public abstract class BasicNavTest implements LogSupport {
 */
         //menu_open
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_open);
+        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.open);
         TestNavUtils.logCurrentActivity();
         myLog("in GET");
 

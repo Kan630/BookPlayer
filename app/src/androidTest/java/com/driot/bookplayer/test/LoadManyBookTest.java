@@ -256,7 +256,8 @@ public class LoadManyBookTest implements LogSupport {
                 throw new AssertionError("Timeout " + TIMEOUT_BOOK_LOAD/1000 + "s. last progress='" + lastProgress + "'");
             }
 
-            if (terminal.result == TaskUiState.Result.FAILED) {
+            //TODO CHECK, not sure this is the right check
+            if (terminal.status == "FAILED") {
                 String err = (terminal.errorText == null ? "(no error text)" : terminal.errorText);
                 throw new AssertionError("... Import failed... " + err +
                         "\nprogress='" + terminal.progressPercent + " - " + terminal.progressText +
@@ -266,7 +267,8 @@ public class LoadManyBookTest implements LogSupport {
             }
 
             // Optionally accept CANCELLED as a test failure
-            if (terminal.result == TaskUiState.Result.CANCELLED) {
+            //TODO CHECK, not sure this is the right check
+            if (terminal.status == "CANCELLED") {
                 throw new AssertionError("Import cancelled unexpectedly");
             }
 

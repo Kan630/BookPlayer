@@ -73,7 +73,7 @@ public final class MenuHelpers {
         } catch (Throwable ignored) {
             // Fallback: your custom 3-dots in the toolbar
             Matcher threeDots = allOf(
-                    anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.action_menu_three_dot)),
+                    anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.three_dots)),
                     isDescendantOfA(withId(R.id.toolbar)),
                     isDisplayed()
             );
@@ -98,7 +98,7 @@ public final class MenuHelpers {
             myLog("Opened overflow via Espresso helper");
         } catch (Throwable ignored) {
             onView(allOf(
-                    anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.action_menu_three_dot)),
+                    anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.three_dots)),
                     isDescendantOfA(withId(R.id.toolbar)),
                     isDisplayed()
             )).perform(click());
