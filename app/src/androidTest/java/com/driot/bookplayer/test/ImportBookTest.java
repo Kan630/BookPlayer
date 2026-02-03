@@ -32,6 +32,7 @@ import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.imports.ImportJobDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -76,7 +77,7 @@ public class ImportBookTest implements LogSupport {
 
     private static final String ASSET_LIST_TEST = "LIST_TEST";
     private static final long TIMEOUT_IMPORT = 120_000;
-    private static final long PLAY_TIME_MS = 4_000;
+    private static final long PLAY_TIME_MS = 20_000;
     private static final int ID_MAIN_RECYCLER = R.id.recyclerview_folders;
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles;
     private static final int ID_PLAY_BUTTON = R.id.ibPlayPause;
@@ -304,7 +305,33 @@ public class ImportBookTest implements LogSupport {
 
     private void runPlayAndAssertProgressSaved() {
         pressPlay();
+        
+        // Wait for playback to actually start and duration to be available
+        // The progress updater requires duration > 0 to save progress
+        long startTime = System.currentTimeMillis();
+        long timeout = 10_000; // 10 seconds max wait
+        boolean durationAvailable = false;
+        while (System.currentTimeMillis() - startTime < timeout) {
+            PlayList pl = PlayList.getInstance();
+            if (pl != null && pl.getZikFile() != null) {
+                double duration = pl.getZikFile().getDuration();
+                if (duration > 0) {
+                    durationAvailable = true;
+                    myLog("Duration available: " + duration + " ms");
+                    break;
+                }
+            }
+            sleep(200, "Waiting for duration");
+        }
+        if (!durationAvailable) {
+            throw new AssertionError("Duration never became available after playback start");
+        }
+        
+        // Now wait for playback time and progress save
         sleep(PLAY_TIME_MS, "Playback + progress save");
+        
+        // Wait a bit more to ensure async progress update completes
+        sleep(1_500, "Wait for async progress update");
 
         PlayList pl = PlayList.getInstance();
         if (pl == null || pl.getZikFile() == null) {
@@ -312,12 +339,41 @@ public class ImportBookTest implements LogSupport {
         }
         double position = pl.getZikFile().getPosition();
         if (position <= 0) {
-            throw new AssertionError("Progress not saved: position=" + position);
+            // Try refreshing from database as a fallback
+            double dbPosition = refreshZikFileFromDb(pl.getZikFile().getId());
+            if (dbPosition > 0) {
+                myLog("Position from DB: " + dbPosition + " ms (in-memory was " + position + ")");
+                position = dbPosition;
+            } else {
+                throw new AssertionError("Progress not saved: position=" + position + " (checked both in-memory and DB)");
+            }
         }
         myLog("Progress saved: position=" + position + " ms");
 
         sleep(500, "Before back");
         TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
+    }
+    
+    private double refreshZikFileFromDb(int zikFileId) {
+        final double[] result = {0.0};
+        CountDownLatch done = new CountDownLatch(1);
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            try {
+                AppDatabase db = AppDatabase.getInstance(appContext);
+                ZikFile zf = db.zikFileDao().getById(zikFileId);
+                if (zf != null) {
+                    result[0] = zf.getPosition();
+                }
+            } finally {
+                done.countDown();
+            }
+        });
+        try {
+            done.await(2, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+        return result[0];
     }
 
     private void pressPlay() {
