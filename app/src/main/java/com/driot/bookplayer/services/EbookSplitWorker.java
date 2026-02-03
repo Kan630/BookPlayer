@@ -76,23 +76,6 @@ public class EbookSplitWorker extends ImportWorker {
             return Result.failure();
         }
 
-        // When source file does not exist (e.g. zip contained only audio), report a clear error so the UI is not stuck on "Ebook parsing starting"
-        File ebookFile = new File(ebookPath);
-        if (!ebookFile.exists() || !ebookFile.isFile()) {
-            //TODO XX658 check logic with M4B, import of ODT...
-            // because I just revert some changes (that return return Result.success(); //No-op when source file does not exist (e.g. zip contained audio) or is m4b (handled by M4bSplitWorker))
-            // it was a regression because librivox import didnt work anymore
-            myLogD("EbookSplitWorker: source file does not exist: " + ebookPath);
-            String userMsg = context.getString(R.string.unexpected_error);
-            emitFailed(TASK_NAME, "EbookSplitWorker: source file does not exist (e.g. archive had no ebook)", userMsg);
-            return Result.failure();
-        }
-        String ext = com.driot.bookplayer.utils.Tonio.getExtension(ebookFile.getName());
-        if (ext != null && "m4b".equalsIgnoreCase(ext)) {
-            myLogD("EbookSplitWorker: source is m4b, skipping (M4bSplitWorker handles it): " + ebookPath);
-            return Result.success();
-        }
-
         FirebaseAnalyticsHelper.tellAnalyticsEbookWorker(ebookType, sourceLocation);
 
         boolean ok = splitEbook(ebookPath, destinationFolderPath, ebookType, sourceLocation);
@@ -412,8 +395,10 @@ public class EbookSplitWorker extends ImportWorker {
                 return "fb2";
             case "odt":
                 return "odt";
+            // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add
+            // unzip
             default:
-                return "epub";
+                return "epub"; // safe default if you mostly import EPUBs
         }
     }
 
