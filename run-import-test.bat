@@ -18,7 +18,16 @@ REM cd StudioProjects\BookPlayer
 REM run-import-test.bat ImportBookTest FPMPH18C17900002 keep
 
 setlocal EnableExtensions DisableDelayedExpansion
+cd /d "%~dp0"
 set START_TIME=%DATE% %TIME%
+
+echo ------------------------------------------------------------------------------
+echo Arguments received:
+echo   Arg1: %~1
+echo   Arg2: %~2
+echo   Arg3: %~3
+echo   Total arguments: %*
+echo ------------------------------------------------------------------------------
 
 set TEST_CLASS=com.driot.bookplayer.test.ImportBookTest
 set EXTRA_ARGS=
@@ -39,18 +48,27 @@ if "%~1"=="build" (
         set DEVICE_SERIAL=%~2
     )
 ) else if not "%~1"=="" (
-    REM Arg1: test class (e.g. ImportBookTest) or device serial (e.g. FPMPH18C17900002)
-    REM Serials are typically uppercase+digits; class names have lowercase (PascalCase)
-    echo %~1| findstr /r "[a-z]" >nul
-    if not errorlevel 1 (
-        REM Has lowercase - assume test class
-        set TEST_CLASS=com.driot.bookplayer.test.%~1
+    REM Arg1: known test class name, or device serial
+    if "%~1"=="ImportBookTest" (
+        set TEST_CLASS=com.driot.bookplayer.test.ImportBookTest
+        if not "%~2"=="" (
+            set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
+            set DEVICE_SERIAL=%~2
+        )
+    ) else if "%~1"=="JustOpenAndWait" (
+        set TEST_CLASS=com.driot.bookplayer.test.JustOpenAndWait
+        if not "%~2"=="" (
+            set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
+            set DEVICE_SERIAL=%~2
+        )
+    ) else if "%~1"=="LoadManyBookTest" (
+        set TEST_CLASS=com.driot.bookplayer.test.LoadManyBookTest
         if not "%~2"=="" (
             set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
             set DEVICE_SERIAL=%~2
         )
     ) else (
-        REM Uppercase/digits only - assume device serial
+        REM Unknown first arg = assume device serial
         set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~1
         set DEVICE_SERIAL=%~1
     )
@@ -64,8 +82,8 @@ echo ---------------------------------------------------------------------------
 if %KEEP_APP%==0 (
     echo Cleaning test state...
     if not "%DEVICE_SERIAL%"=="" (
-        adb -s %DEVICE_SERIAL% uninstall com.driot.bookplayer.debug 2>nul
-        adb -s %DEVICE_SERIAL% uninstall com.driot.bookplayer.debug.test 2>nul
+        adb -s "%DEVICE_SERIAL%" uninstall com.driot.bookplayer.debug 2>nul
+        adb -s "%DEVICE_SERIAL%" uninstall com.driot.bookplayer.debug.test 2>nul
     ) else (
         adb uninstall com.driot.bookplayer.debug 2>nul
         adb uninstall com.driot.bookplayer.debug.test 2>nul
@@ -83,34 +101,62 @@ if errorlevel 1 (
 )
 
 echo ------------------------------------------------------------------------------
+echo [%TIME%] Verifying APK files were built...
+set "APK_APP_PATH=%CD%\app\build\outputs\apk\debug\app-debug.apk"
+set "APK_TEST_PATH=%CD%\app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk"
+if exist "%APK_APP_PATH%" (
+    echo   App APK found: %APK_APP_PATH%
+) else (
+    echo   ERROR: App APK not found: %APK_APP_PATH%
+    echo   Checking directory contents:
+    if exist "%CD%\app\build\outputs\apk\debug\" (
+        dir "%CD%\app\build\outputs\apk\debug\"
+    )
+    exit /b 1
+)
+if exist "%APK_TEST_PATH%" (
+    echo   Test APK found: %APK_TEST_PATH%
+) else (
+    echo   ERROR: Test APK not found: %APK_TEST_PATH%
+    echo   Checking directory contents:
+    if exist "%CD%\app\build\outputs\apk\androidTest\debug\" (
+        dir "%CD%\app\build\outputs\apk\androidTest\debug\"
+    )
+    exit /b 1
+)
+
+echo ------------------------------------------------------------------------------
 echo [%TIME%] Installing APKs...
 if not "%DEVICE_SERIAL%"=="" (
-    if not exist "app\build\outputs\apk\debug\app-debug.apk" (
-        echo Missing app APK: app\build\outputs\apk\debug\app-debug.apk
-        exit /b 1
-    )
-    if not exist "app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk" (
-        echo Missing androidTest APK: app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk
-        exit /b 1
-    )
-    for /f "tokens=1 delims=." %%x in ("%TIME%") do set APP_START=%%x
+    REM Use the paths we already verified exist
     echo Installing app APK on %DEVICE_SERIAL% ...
-    adb -s %DEVICE_SERIAL% install -r -g "app\build\outputs\apk\debug\app-debug.apk"
-    if errorlevel 1 (
-        echo Install failed - app APK !
+    echo   APK path: %APK_APP_PATH%
+    if not exist "%APK_APP_PATH%" (
+        echo ERROR: APK file disappeared: %APK_APP_PATH%
         exit /b 1
     )
-    echo App APK install finished at %TIME% (duration: %APP_START% -> %TIME%)
-    for /f "tokens=1 delims=." %%x in ("%TIME%") do set TEST_START=%%x
+    adb -s "%DEVICE_SERIAL%" install -r -g "%APK_APP_PATH%"
+    if errorlevel 1 (
+        echo Install failed - app APK
+        echo   Attempted path: %APK_APP_PATH%
+        exit /b 1
+    )
+    echo App APK install finished at %TIME%
     echo Installing androidTest APK on %DEVICE_SERIAL% ...
-    adb -s %DEVICE_SERIAL% install -r -g "app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk"
-    if errorlevel 1 (
-        echo Install failed - androidTest APK !
+    echo   APK path: %APK_TEST_PATH%
+    if not exist "%APK_TEST_PATH%" (
+        echo ERROR: APK file disappeared: %APK_TEST_PATH%
         exit /b 1
     )
-    echo androidTest APK install finished at %TIME% (duration: %TEST_START% -> %TIME%)
+    adb -s "%DEVICE_SERIAL%" install -r -g "%APK_TEST_PATH%"
+    if errorlevel 1 (
+        echo Install failed - androidTest APK
+        echo   Attempted path: %APK_TEST_PATH%
+        exit /b 1
+    )
+    echo androidTest APK install finished at %TIME%
     echo Verifying test package install...
-    adb -s %DEVICE_SERIAL% shell pm path com.driot.bookplayer.debug.test
+    adb -s "%DEVICE_SERIAL%" shell pm path com.driot.bookplayer.debug.test
 ) else (
     call gradlew.bat :app:installDebug :app:installDebugAndroidTest
     if errorlevel 1 (
