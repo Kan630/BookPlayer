@@ -1,0 +1,5 @@
+
+
+
+cd C:\Users\adrio\StudioProjects\BookPlayer>
+run-import-test.bat LoadManyBookTest FPMPH18C17900002 keep
