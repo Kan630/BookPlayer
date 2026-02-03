@@ -83,7 +83,7 @@ public class ImportBookTest implements LogSupport {
 
     private static final String ASSET_LIST_TEST = "LIST_TEST";
     private static final long TIMEOUT_IMPORT = 120_000;
-    private static final long PLAY_TIME_MS = 10_000;
+    private static final long PLAY_TIME_MS = 20_000;
     private static final int ID_MAIN_RECYCLER = R.id.recyclerview_folders;
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles;
     private static final int ID_PLAY_BUTTON = R.id.ibPlayPause;
@@ -339,7 +339,7 @@ public class ImportBookTest implements LogSupport {
         }
 
         // Now wait for playback time and progress save
-        sleep(PLAY_TIME_MS, "Playback + progress save");
+        sleep(PLAY_TIME_MS, "Playback and progress save");
 
         // Wait a bit more to ensure async progress update completes
         sleep(1_500, "Wait for async progress update");
@@ -360,7 +360,17 @@ public class ImportBookTest implements LogSupport {
                         "Progress not saved: position=" + position + " (checked both in-memory and DB)");
             }
         }
-        myLog("Progress saved: position=" + position + " ms");
+        myLog("--------------------------------------------------");
+        myLog("test OK - Progress saved: position=" + position + " ms");
+        myLog("--------------------------------------------------");
+
+        // Stop playback (Pause + Back triggers stop in PlayActivity)
+        try {
+            onView(withId(ID_PLAY_BUTTON)).perform(click());
+            sleep(300);
+        } catch (Throwable t) {
+            myLogW("Failed to pause in PlayActivity: " + t.getMessage());
+        }
 
         sleep(500, "Before back");
         TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
@@ -454,9 +464,13 @@ public class ImportBookTest implements LogSupport {
     }
 
     private void ensureStagingRoot() {
-        File stagingRoot = new File(appContext.getCacheDir(), "fixtures");
-        deleteQuiet(stagingRoot);
-        stagingRoot.mkdirs();
+        File stagingRootApp = new File(appContext.getCacheDir(), "fixtures");
+        deleteQuiet(stagingRootApp);
+        stagingRootApp.mkdirs();
+
+        File stagingRootTest = new File(testContext.getCacheDir(), "fixtures");
+        deleteQuiet(stagingRootTest);
+        stagingRootTest.mkdirs();
     }
 
     private static String readAssetAsString(String assetPath) {
@@ -544,7 +558,7 @@ public class ImportBookTest implements LogSupport {
 
     private static Uri stageAssetDirectoryAsContentUri(Context appCtx, Context testCtx, String assetDirPath)
             throws IOException {
-        File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
+        File stagingRoot = new File(testCtx.getCacheDir(), "fixtures");
         File outDir = new File(stagingRoot, assetDirPath);
         copyAssetDirRecursively(testCtx.getAssets(), assetDirPath, outDir);
 

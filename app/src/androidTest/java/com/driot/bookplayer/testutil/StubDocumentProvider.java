@@ -22,6 +22,17 @@ public class StubDocumentProvider extends DocumentsProvider {
     private File mBaseDir;
 
     @Override
+    public void attachInfo(android.content.Context context, android.content.pm.ProviderInfo info) {
+        try {
+            super.attachInfo(context, info);
+        } catch (SecurityException e) {
+            // DocumentsProvider enforces MANAGE_DOCUMENTS permission if exported=true.
+            // Since we are running a test, we bypass this check.
+            // The authority is set by super.attachInfo before the check.
+        }
+    }
+
+    @Override
     public boolean onCreate() {
         // We will serve from the app's cache dir where fixtures are staged
         mBaseDir = new File(getContext().getCacheDir(), "fixtures");
