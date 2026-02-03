@@ -104,24 +104,9 @@ echo ---------------------------------------------------------------------------
 echo [%TIME%] Verifying APK files were built...
 set "APK_APP_PATH=%CD%\app\build\outputs\apk\debug\app-debug.apk"
 set "APK_TEST_PATH=%CD%\app\build\outputs\apk\androidTest\debug\app-debug-androidTest.apk"
-set APK_APP_SIZE_MB=0
-set APK_APP_SIZE_GB=0
-set APK_TEST_SIZE_MB=0
-set APK_TEST_SIZE_GB=0
-
 if exist "%APK_APP_PATH%" (
-    for %%A in ("%APK_APP_PATH%") do set "APK_APP_SIZE=%%~zA"
-    if defined APK_APP_SIZE (
-        set /a APK_APP_SIZE_MB=%APK_APP_SIZE% / 1048576 2>nul
-        set /a APK_APP_SIZE_GB=%APK_APP_SIZE% / 1073741824 2>nul
-        if %APK_APP_SIZE_GB% geq 1 (
-            echo   App APK found: %APK_APP_PATH% [%APK_APP_SIZE_GB% GB]
-        ) else (
-            echo   App APK found: %APK_APP_PATH% [%APK_APP_SIZE_MB% MB]
-        )
-    ) else (
-        echo   App APK found: %APK_APP_PATH%
-    )
+    echo   App APK found: %APK_APP_PATH%
+    dir "%APK_APP_PATH%" | findstr /C:"app-debug.apk"
 ) else (
     echo   ERROR: App APK not found: %APK_APP_PATH%
     echo   Checking directory contents:
@@ -131,18 +116,9 @@ if exist "%APK_APP_PATH%" (
     exit /b 1
 )
 if exist "%APK_TEST_PATH%" (
-    for %%A in ("%APK_TEST_PATH%") do set "APK_TEST_SIZE=%%~zA"
-    if defined APK_TEST_SIZE (
-        set /a APK_TEST_SIZE_MB=%APK_TEST_SIZE% / 1048576 2>nul
-        set /a APK_TEST_SIZE_GB=%APK_TEST_SIZE% / 1073741824 2>nul
-        if %APK_TEST_SIZE_GB% geq 1 (
-            echo   Test APK found: %APK_TEST_PATH% [%APK_TEST_SIZE_GB% GB] - WARNING: Very large!
-        ) else (
-            echo   Test APK found: %APK_TEST_PATH% [%APK_TEST_SIZE_MB% MB]
-        )
-    ) else (
-        echo   Test APK found: %APK_TEST_PATH%
-    )
+    echo   Test APK found: %APK_TEST_PATH%
+    dir "%APK_TEST_PATH%" | findstr /C:"app-debug-androidTest.apk"
+    echo     WARNING: Check size above - if over 1GB, this is abnormally large!
 ) else (
     echo   ERROR: Test APK not found: %APK_TEST_PATH%
     echo   Checking directory contents:
@@ -165,13 +141,6 @@ if not "%DEVICE_SERIAL%"=="" (
     REM Use the paths we already verified exist
     echo Installing app APK on %DEVICE_SERIAL% ...
     echo   APK path: %APK_APP_PATH%
-    if defined APK_APP_SIZE_MB (
-        if %APK_APP_SIZE_GB% geq 1 (
-            echo   APK size: %APK_APP_SIZE_GB% GB
-        ) else (
-            echo   APK size: %APK_APP_SIZE_MB% MB
-        )
-    )
     if not exist "%APK_APP_PATH%" (
         echo ERROR: APK file disappeared: %APK_APP_PATH%
         exit /b 1
@@ -185,13 +154,6 @@ if not "%DEVICE_SERIAL%"=="" (
     echo App APK install finished at %TIME%
     echo Installing androidTest APK on %DEVICE_SERIAL% ...
     echo   APK path: %APK_TEST_PATH%
-    if defined APK_TEST_SIZE_MB (
-        if %APK_TEST_SIZE_GB% geq 1 (
-            echo   APK size: %APK_TEST_SIZE_GB% GB - WARNING: Very large test APK!
-        ) else (
-            echo   APK size: %APK_TEST_SIZE_MB% MB
-        )
-    )
     if not exist "%APK_TEST_PATH%" (
         echo ERROR: APK file disappeared: %APK_TEST_PATH%
         exit /b 1
