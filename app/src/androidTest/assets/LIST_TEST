@@ -1,0 +1,5 @@
+LoadWay - filepath --- expected nb of tracks - expected img
+# Run with -e MODE build to auto-generate lines from your fixtures.
+# Example (edit paths to match your fixtures/ content):
+# File - fixtures/m4b/sample.m4b --- 6 - true
+# Folder - fixtures/folders/myaudio --- 18 - false
