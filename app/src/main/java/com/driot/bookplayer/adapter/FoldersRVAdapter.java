@@ -10,12 +10,13 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
-import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.AsyncListDiffer;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -73,6 +74,14 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
 
     // === Highlight état interne ===
     private long highlightedFolderId = -1;
+
+    @Nullable
+    private ActivityResultLauncher<Intent> modifyFolderLauncher;
+
+    /** Set so that returning from ModifyFolder (e.g. after rename) refreshes the folder list. */
+    public void setModifyFolderLauncher(@Nullable ActivityResultLauncher<Intent> launcher) {
+        this.modifyFolderLauncher = launcher;
+    }
 
     public void connectPlayback(@NonNull LifecycleOwner owner,
                                 @NonNull LiveData<PlaybackUiState> playbackState) {
@@ -229,7 +238,14 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         if (pos == RecyclerView.NO_POSITION) return false;
         Folder folder = getItem(pos);
         if (folder == null) return false;
-        runOnUi(() -> context.startActivity(new Intent(context, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder)));
+        Intent intent = new Intent(context, ModifyFolderActivity.class).putExtra(Intents.EXTRA_FOLDER, folder);
+        runOnUi(() -> {
+            if (modifyFolderLauncher != null) {
+                modifyFolderLauncher.launch(intent);
+            } else {
+                context.startActivity(intent);
+            }
+        });
         return true;
     }
 

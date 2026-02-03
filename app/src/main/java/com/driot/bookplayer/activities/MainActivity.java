@@ -15,6 +15,8 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.activity.OnBackPressedCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 
 import androidx.annotation.Nullable;
@@ -83,6 +85,21 @@ public class MainActivity extends BaseBottomNavActivity {
         }
     };
 
+    private final ActivityResultLauncher<Intent> modifyFolderLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+                if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null || mainVm == null)
+                    return;
+                Intent data = result.getData();
+                if (data.getIntExtra("deletedFolderId", -1) != -1 || data.getIntExtra("deleteInProgressFolderId", -1) != -1) {
+                    mainVm.notifyFoldersListChanged();
+                } else {
+                    int folderId = data.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
+                    if (folderId != -1) {
+                        mainVm.notifyFolderChanged(folderId);
+                    }
+                }
+            });
+
     @Override
     protected int getNavId() {
         return R.id.nav_library;
@@ -130,6 +147,7 @@ public class MainActivity extends BaseBottomNavActivity {
 
         adapter = new FoldersRVAdapter(this);
         recyclerView.setAdapter(adapter);
+        adapter.setModifyFolderLauncher(modifyFolderLauncher);
 
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         adapter.connectPlayback(this, playbackVm.getState()); // adapter observe playback (highlight)

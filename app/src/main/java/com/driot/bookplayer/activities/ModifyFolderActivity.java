@@ -311,16 +311,19 @@ public class ModifyFolderActivity extends BaseActivity {
         if (newName.length() < 2) {
             myToast(getString(R.string.Error_FolderNameTooShort));
         } else {
-            new Thread(() -> {
-                AppDatabase.getDatabase(this).folderDao().changeName(folder.getId(), newName);
-                AppDatabase.getDatabase(this).folderDao().updateFolderNameInZikFile(folder.getId(), newName);
+            final int folderId = folder.getId();
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                AppDatabase.getDatabase(this).folderDao().changeName(folderId, newName);
+                AppDatabase.getDatabase(this).folderDao().updateFolderNameInZikFile(folderId, newName);
                 runOnUiThread(() -> {
+                    folder.setName(newName);
+                    setResult(RESULT_OK, new Intent().putExtra(Intents.EXTRA_FOLDER_ID, folderId));
                     myToast(getString(R.string.Folder_Renamed));
                     myLogInFile(
                             getString(R.string.Folder_Renamed) + " : [" + folder.getName() + "] - > [" + newName + "]");
                     finish();
                 });
-            }).start();
+            });
         }
     }
 
@@ -449,6 +452,7 @@ public class ModifyFolderActivity extends BaseActivity {
             runOnUiThread(() -> {
                 myLogInFile(getString(R.string.Folder_Reset) + " : " + folder.getName());
                 myToast(getString(R.string.Folder_Reset));
+                setResult(RESULT_OK, new Intent().putExtra(Intents.EXTRA_FOLDER_ID, folder.getId()));
                 finish();
             });
         }).start();

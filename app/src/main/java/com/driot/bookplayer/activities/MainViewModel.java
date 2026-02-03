@@ -8,6 +8,7 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.SavedStateHandle;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.utils.Event;
@@ -146,6 +147,16 @@ public class MainViewModel extends LoggingAndroidViewModel {
         if (current != null) {
             folders.setValue(sortFolders(current));
         }
+    }
+
+    /** Call when returning from ModifyFolderActivity after a rename/edit so folder list LiveData re-emits. */
+    public void notifyFolderChanged(int folderId) {
+        AppDatabase.databaseWriteExecutor.execute(() -> repo.invalidateFolder(folderId));
+    }
+
+    /** Call when the folder list may have changed (e.g. folder deleted). */
+    public void notifyFoldersListChanged() {
+        AppDatabase.databaseWriteExecutor.execute(repo::invalidateFoldersList);
     }
 
 }
