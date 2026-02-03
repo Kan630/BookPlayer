@@ -64,14 +64,19 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 /**
- * Instrumented test: opens app, imports books from fixtures, optionally plays them.
+ * Instrumented test: opens app, imports books from fixtures, optionally plays
+ * them.
  *
- * <p>Two modes via instrumentation arg: -e MODE build | test
+ * <p>
+ * Two modes via instrumentation arg: -e MODE build | test
  * <ul>
- *   <li>build: discover fixtures, import each, write LIST_TEST to filesDir (and log). Copy output to app/src/androidTest/assets/LIST_TEST</li>
- *   <li>test: read assets/LIST_TEST, run each case (import, assert nb tracks + img, play one track)</li>
+ * <li>build: discover fixtures, import each, write LIST_TEST to filesDir (and
+ * log). Copy output to app/src/androidTest/assets/LIST_TEST</li>
+ * <li>test: read assets/LIST_TEST, run each case (import, assert nb tracks +
+ * img, play one track)</li>
  * </ul>
- * If MODE=test and no LIST_TEST in assets, runs a simple flow: first file + first folder, import+play each.
+ * If MODE=test and no LIST_TEST in assets, runs a simple flow: first file +
+ * first folder, import+play each.
  */
 public class ImportBookTest implements LogSupport {
 
@@ -82,7 +87,8 @@ public class ImportBookTest implements LogSupport {
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles;
     private static final int ID_PLAY_BUTTON = R.id.ibPlayPause;
 
-    private static final String[] FILE_CANDIDATES = {"fixtures/ebooks", "fixtures/single_files", "fixtures/m4b", "fixtures/zip"};
+    private static final String[] FILE_CANDIDATES = { "fixtures/ebooks", "fixtures/single_files", "fixtures/m4b",
+            "fixtures/zip" };
     private static final String FOLDER_CANDIDATE = "fixtures/folders";
 
     private Context appContext;
@@ -160,14 +166,15 @@ public class ImportBookTest implements LogSupport {
         myLogI("=== END_LIST_TEST ===");
     }
 
-    private void importAndRecord(List<TestCase> cases, String loadWay, String assetFilePath, String assetFolderPath) throws Exception {
+    private void importAndRecord(List<TestCase> cases, String loadWay, String assetFilePath, String assetFolderPath)
+            throws Exception {
         Uri uri;
         String filepath;
         if ("File".equals(loadWay)) {
             uri = stageAssetAsContentUri(appContext, testContext, assetFilePath);
             filepath = assetFilePath;
         } else {
-            uri = stageAssetDirectoryAsFileUri(appContext, testContext, assetFolderPath);
+            uri = stageAssetDirectoryAsContentUri(appContext, testContext, assetFolderPath);
             filepath = assetFolderPath;
         }
 
@@ -216,7 +223,7 @@ public class ImportBookTest implements LogSupport {
             if ("File".equals(tc.loadWay)) {
                 uri = stageAssetAsContentUri(appContext, testContext, tc.filepath);
             } else {
-                uri = stageAssetDirectoryAsFileUri(appContext, testContext, tc.filepath);
+                uri = stageAssetDirectoryAsContentUri(appContext, testContext, tc.filepath);
             }
 
             boolean ok = runImport(uri, tc.loadWay);
@@ -233,10 +240,12 @@ public class ImportBookTest implements LogSupport {
             boolean hasImg = folder.image != null && !folder.image.isEmpty();
 
             if (tc.expectedNbTracks >= 0 && nbTracks != tc.expectedNbTracks) {
-                throw new AssertionError("Nb tracks mismatch for " + tc.filepath + ": expected " + tc.expectedNbTracks + ", got " + nbTracks);
+                throw new AssertionError("Nb tracks mismatch for " + tc.filepath + ": expected " + tc.expectedNbTracks
+                        + ", got " + nbTracks);
             }
             if (tc.expectedNbTracks >= 0 && hasImg != tc.expectedImg) {
-                throw new AssertionError("Img mismatch for " + tc.filepath + ": expected " + tc.expectedImg + ", got " + hasImg);
+                throw new AssertionError(
+                        "Img mismatch for " + tc.filepath + ": expected " + tc.expectedImg + ", got " + hasImg);
             }
 
             TestNavUtils.maybePressBackTo(MainActivity.class, 3, 2_000);
@@ -297,7 +306,8 @@ public class ImportBookTest implements LogSupport {
     private void clickFirstTrack() {
         waitForViewVisible(ID_TRACKS_RECYCLER, 5_000, "Tracks RecyclerView not visible");
         int count = getRecyclerItemCount(ID_TRACKS_RECYCLER);
-        if (count <= 0) throw new AssertionError("No tracks to click");
+        if (count <= 0)
+            throw new AssertionError("No tracks to click");
         onView(withId(ID_TRACKS_RECYCLER))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         sleep(200);
@@ -305,7 +315,7 @@ public class ImportBookTest implements LogSupport {
 
     private void runPlayAndAssertProgressSaved() {
         pressPlay();
-        
+
         // Wait for playback to actually start and duration to be available
         // The progress updater requires duration > 0 to save progress
         long startTime = System.currentTimeMillis();
@@ -326,10 +336,10 @@ public class ImportBookTest implements LogSupport {
         if (!durationAvailable) {
             throw new AssertionError("Duration never became available after playback start");
         }
-        
+
         // Now wait for playback time and progress save
         sleep(PLAY_TIME_MS, "Playback + progress save");
-        
+
         // Wait a bit more to ensure async progress update completes
         sleep(1_500, "Wait for async progress update");
 
@@ -345,7 +355,8 @@ public class ImportBookTest implements LogSupport {
                 myLog("Position from DB: " + dbPosition + " ms (in-memory was " + position + ")");
                 position = dbPosition;
             } else {
-                throw new AssertionError("Progress not saved: position=" + position + " (checked both in-memory and DB)");
+                throw new AssertionError(
+                        "Progress not saved: position=" + position + " (checked both in-memory and DB)");
             }
         }
         myLog("Progress saved: position=" + position + " ms");
@@ -353,9 +364,9 @@ public class ImportBookTest implements LogSupport {
         sleep(500, "Before back");
         TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
     }
-    
+
     private double refreshZikFileFromDb(int zikFileId) {
-        final double[] result = {0.0};
+        final double[] result = { 0.0 };
         CountDownLatch done = new CountDownLatch(1);
         AppDatabase.databaseReadExecutor.execute(() -> {
             try {
@@ -391,11 +402,14 @@ public class ImportBookTest implements LogSupport {
                     .putExtra(LoadBookActivity.EXTRA_URI, uri)
                     .putExtra(LoadBookActivity.EXTRA_TYPE, loadWay)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
-                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
+                    .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
+                            | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
+
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 
             TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 5_000, "LoadBookActivity did not open");
             onView(withId(android.R.id.content)).perform(swipeUp());
-            onView(withId(R.id.btnConfirm)).perform(click());
+            onView(withId(R.id.btnConfirm)).perform(scrollTo(), click());
 
             TaskUiState terminal = importProbe.await(TIMEOUT_IMPORT);
             if (terminal == null) {
@@ -412,7 +426,8 @@ public class ImportBookTest implements LogSupport {
             }
             return true;
         } finally {
-            if (importProbe != null) importProbe.stop();
+            if (importProbe != null)
+                importProbe.stop();
         }
     }
 
@@ -451,7 +466,8 @@ public class ImportBookTest implements LogSupport {
             byte[] buf = new byte[4096];
             StringBuilder sb = new StringBuilder();
             int n;
-            while ((n = in.read(buf)) >= 0) sb.append(new String(buf, 0, n));
+            while ((n = in.read(buf)) >= 0)
+                sb.append(new String(buf, 0, n));
             in.close();
             return sb.toString();
         } catch (IOException e) {
@@ -462,11 +478,13 @@ public class ImportBookTest implements LogSupport {
     private static String findFirstFixtureFile(AssetManager am) throws IOException {
         for (String dir : FILE_CANDIDATES) {
             String[] files = am.list(dir);
-            if (files == null || files.length == 0) continue;
+            if (files == null || files.length == 0)
+                continue;
             for (String name : files) {
                 String child = dir + "/" + name;
                 String[] nested = am.list(child);
-                if (nested == null || nested.length == 0) return child;
+                if (nested == null || nested.length == 0)
+                    return child;
             }
         }
         return null;
@@ -480,12 +498,15 @@ public class ImportBookTest implements LogSupport {
         while (!stack.isEmpty()) {
             String dir = stack.pop();
             String[] list = am.list(dir);
-            if (list == null) continue;
+            if (list == null)
+                continue;
             for (String name : list) {
                 String child = dir + "/" + name;
                 String[] nested = am.list(child);
-                if (nested != null && nested.length > 0) stack.push(child);
-                else out.add(child);
+                if (nested != null && nested.length > 0)
+                    stack.push(child);
+                else
+                    out.add(child);
             }
         }
         return out;
@@ -495,11 +516,13 @@ public class ImportBookTest implements LogSupport {
         String normalized = root.endsWith("/") ? root.substring(0, root.length() - 1) : root;
         List<String> out = new ArrayList<>();
         String[] children = am.list(normalized);
-        if (children == null) return out;
+        if (children == null)
+            return out;
         for (String name : children) {
             String child = normalized + "/" + name;
             String[] nested = am.list(child);
-            if (nested != null && nested.length > 0) out.add(child);
+            if (nested != null && nested.length > 0)
+                out.add(child);
         }
         return out;
     }
@@ -508,27 +531,53 @@ public class ImportBookTest implements LogSupport {
         File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
         File outFile = new File(stagingRoot, assetPath);
         File parent = outFile.getParentFile();
-        if (parent != null && !parent.exists()) parent.mkdirs();
+        if (parent != null && !parent.exists())
+            parent.mkdirs();
         try (InputStream in = testCtx.getAssets().open(assetPath);
-             FileOutputStream out = new FileOutputStream(outFile)) {
+                FileOutputStream out = new FileOutputStream(outFile)) {
             byte[] buf = new byte[8192];
             int n;
-            while ((n = in.read(buf)) >= 0) out.write(buf, 0, n);
+            while ((n = in.read(buf)) >= 0)
+                out.write(buf, 0, n);
         }
         return FileProvider.getUriForFile(appCtx, BuildConfig.APPLICATION_ID + ".FileProvider", outFile);
     }
 
-    private static Uri stageAssetDirectoryAsFileUri(Context appCtx, Context testCtx, String assetDirPath) throws IOException {
+    private static Uri stageAssetDirectoryAsContentUri(Context appCtx, Context testCtx, String assetDirPath)
+            throws IOException {
         File stagingRoot = new File(appCtx.getCacheDir(), "fixtures");
         File outDir = new File(stagingRoot, assetDirPath);
         copyAssetDirRecursively(testCtx.getAssets(), assetDirPath, outDir);
-        return Uri.fromFile(outDir);
+
+        // Instead of returning file:// URI, return a content:// Tree URI via our
+        // StubDocumentProvider
+        // The provider serves files from appCtx.getCacheDir()/fixtures
+        // We need to construct the document ID relative to that root.
+        // outDir is e.g. .../cache/fixtures/fixtures/folders/MyBook
+        // root of provider is .../cache/fixtures
+        // so docId is fixtures/folders/MyBook
+
+        String fullPath = outDir.getAbsolutePath();
+        String rootPath = stagingRoot.getAbsolutePath();
+        String docId;
+        if (fullPath.equals(rootPath)) {
+            docId = "stub_root";
+        } else if (fullPath.startsWith(rootPath)) {
+            docId = fullPath.substring(rootPath.length() + 1); // +1 for slash
+        } else {
+            throw new IOException("Staged path " + fullPath + " is not under root " + rootPath);
+        }
+
+        return android.provider.DocumentsContract.buildTreeDocumentUri(
+                "com.driot.bookplayer.test.documents", docId);
     }
 
     private static void copyAssetDirRecursively(AssetManager am, String assetDir, File destDir) throws IOException {
-        if (!destDir.exists() && !destDir.mkdirs()) throw new IOException("Failed to create dir: " + destDir);
+        if (!destDir.exists() && !destDir.mkdirs())
+            throw new IOException("Failed to create dir: " + destDir);
         String[] list = am.list(assetDir);
-        if (list == null) return;
+        if (list == null)
+            return;
         for (String name : list) {
             String childAssetPath = assetDir + "/" + name;
             String[] nested = am.list(childAssetPath);
@@ -536,21 +585,26 @@ public class ImportBookTest implements LogSupport {
                 copyAssetDirRecursively(am, childAssetPath, new File(destDir, name));
             } else {
                 File outFile = new File(destDir, name);
-                if (!outFile.getParentFile().exists()) outFile.getParentFile().mkdirs();
+                if (!outFile.getParentFile().exists())
+                    outFile.getParentFile().mkdirs();
                 try (InputStream in = am.open(childAssetPath); FileOutputStream out = new FileOutputStream(outFile)) {
                     byte[] buf = new byte[8192];
                     int n;
-                    while ((n = in.read(buf)) >= 0) out.write(buf, 0, n);
+                    while ((n = in.read(buf)) >= 0)
+                        out.write(buf, 0, n);
                 }
             }
         }
     }
 
     private static void deleteQuiet(File f) {
-        if (f == null || !f.exists()) return;
+        if (f == null || !f.exists())
+            return;
         if (f.isDirectory()) {
             File[] kids = f.listFiles();
-            if (kids != null) for (File k : kids) deleteQuiet(k);
+            if (kids != null)
+                for (File k : kids)
+                    deleteQuiet(k);
         }
         f.delete();
     }
