@@ -5,6 +5,7 @@ import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 
+import static com.driot.bookplayer.testutil.TestNavUtils.getRecyclerItemCount;
 import static com.driot.bookplayer.testutil.TestNavUtils.sleep;
 import static com.driot.bookplayer.testutil.TestNavUtils.waitForViewVisible;
 
@@ -16,6 +17,7 @@ import android.util.Log;
 
 import androidx.core.content.FileProvider;
 import androidx.test.core.app.ApplicationProvider;
+import androidx.test.espresso.contrib.RecyclerViewActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
@@ -25,6 +27,9 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.activities.ZikFileActivity;
+import com.driot.bookplayer.player.PlayActivity;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -58,7 +63,10 @@ import java.util.concurrent.Executors;
 public class ImportBookTest implements LogSupport {
 
     private static final long TIMEOUT_IMPORT = 120_000;
+    private static final long PLAY_TIME_MS = 4_000;  // play long enough for progress to save (updater runs every 1s)
     private static final int ID_MAIN_RECYCLER = R.id.recyclerview_folders;
+    private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles;
+    private static final int ID_PLAY_BUTTON = R.id.ibPlayPause;
 
     private Context appContext;
     private ImportProbe importProbe;
@@ -143,11 +151,78 @@ public class ImportBookTest implements LogSupport {
                 throw new AssertionError("Import reported success but no book appears in the library");
             }
 
-            myLog("Test passed: book imported and visible in library");
-            sleep(1_000, "Visual confirmation");
+            // Open first book and play it to verify correct import + progress saving
+            openFirstItemThenPlay();
+
+            myLog("Test passed: book imported, played, and progress saved");
+            sleep(500, "Final");
         } finally {
             if (importProbe != null) importProbe.stop();
         }
+    }
+
+    private void openFirstItemThenPlay() {
+        if (!TestNavUtils.waitForWindowFocus(2_000)) {
+            throw new AssertionError("Window never gained focus before click.");
+        }
+        waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
+        onView(withId(ID_MAIN_RECYCLER))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        myLog("Clicked first item in main list");
+        sleep(300);
+
+        TestNavUtils.assertWaitForAnyActivity(5_000, PlayActivity.class, ZikFileActivity.class);
+
+        if (TestNavUtils.isOn(PlayActivity.class)) {
+            myLog("Landed directly on PlayActivity");
+            runPlayAndAssertProgressSaved();
+            return;
+        }
+
+        if (TestNavUtils.isOn(ZikFileActivity.class)) {
+            myLog("On ZikFileActivity → clicking first track");
+            clickFirstTrack();
+            TestNavUtils.assertWaitForActivity(PlayActivity.class, 5_000, "Expected PlayActivity after choosing track");
+            runPlayAndAssertProgressSaved();
+            return;
+        }
+
+        throw new AssertionError("Unexpected navigation: neither PlayActivity nor ZikFileActivity is RESUMED.");
+    }
+
+    private void clickFirstTrack() {
+        waitForViewVisible(ID_TRACKS_RECYCLER, 5_000, "Tracks RecyclerView not visible");
+        int count = getRecyclerItemCount(ID_TRACKS_RECYCLER);
+        if (count <= 0) throw new AssertionError("No tracks to click");
+        onView(withId(ID_TRACKS_RECYCLER))
+                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        sleep(200);
+    }
+
+    private void runPlayAndAssertProgressSaved() {
+        pressPlay();
+        sleep(PLAY_TIME_MS, "Playback + progress save");
+
+        PlayList pl = PlayList.getInstance();
+        if (pl == null || pl.getZikFile() == null) {
+            throw new AssertionError("PlayList not properly instantiated");
+        }
+
+        double position = pl.getZikFile().getPosition();
+        if (position <= 0) {
+            throw new AssertionError("Progress not saved: position=" + position + " (expected > 0 after playing). Import or playback may be broken.");
+        }
+        myLog("Progress saved: position=" + position + " ms");
+
+        sleep(500, "Before back");
+        TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
+    }
+
+    private void pressPlay() {
+        sleep(200);
+        waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible");
+        onView(withId(ID_PLAY_BUTTON)).perform(click());
+        myLog("Pressed Play");
     }
 
     private static String findFirstFixtureFile(AssetManager am) throws IOException {

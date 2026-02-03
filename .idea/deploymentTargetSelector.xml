@@ -118,7 +118,7 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="PodcastSearchResultsActivity">
+      <SelectionState runConfigName="ImportBookTest">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
