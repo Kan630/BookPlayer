@@ -414,5 +414,21 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_22_23 = new Migration(22, 23) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Dummy Migration -> executing step 22 => 23"); // 2026-02-03
+        }
+    };
+
+    static final Migration MIGRATION_23_24 = new Migration(23, 24) {
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Dummy Migration -> executing step 23 => 24"); // 2026-02-03
+            //db.execSQL("ALTER TABLE ImportJob DROP COLUMN imageRemote");
+            //db.execSQL("ALTER TABLE ImportJob DROP COLUMN sourceSize");
+        }
+    };
+
 
 }
