@@ -4,10 +4,10 @@ REM
 REM Usage:
 REM   run-import-test.bat                       - run ImportBookTest (default MODE=test)
 REM   run-import-test.bat build                 - run ImportBookTest with MODE=build
-REM   run-import-test.bat test                  - run ImportBookTest with MODE=test
-REM   run-import-test.bat JustOpenAndWait       - run that specific test class
-REM   run-import-test.bat test <serial>         - run on a specific device
-REM   run-import-test.bat test <serial> keep    - keep app, no uninstall
+REM   run-import-test.bat <serial>              - run ImportBookTest on device (e.g. FPMPH18C17900002)
+REM   run-import-test.bat <serial> keep         - same, keep app, no uninstall
+REM   run-import-test.bat ImportBookTest <serial> - run that test class on device
+REM   run-import-test.bat ImportBookTest <serial> keep
 REM
 REM Ensure a device/emulator is connected: adb devices
 REM
@@ -28,20 +28,35 @@ set KEEP_APP=0
 
 if "%~1"=="build" (
     set EXTRA_ARGS=-Pandroid.testInstrumentationRunnerArguments.MODE=build
+    if not "%~2"=="" (
+        set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
+        set DEVICE_SERIAL=%~2
+    )
 ) else if "%~1"=="test" (
     set EXTRA_ARGS=-Pandroid.testInstrumentationRunnerArguments.MODE=test
+    if not "%~2"=="" (
+        set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
+        set DEVICE_SERIAL=%~2
+    )
 ) else if not "%~1"=="" (
-    set TEST_CLASS=com.driot.bookplayer.test.%~1
+    REM Arg1: test class (e.g. ImportBookTest) or device serial (e.g. FPMPH18C17900002)
+    REM Serials are typically uppercase+digits; class names have lowercase (PascalCase)
+    echo %~1| findstr /r "[a-z]" >nul
+    if not errorlevel 1 (
+        REM Has lowercase - assume test class
+        set TEST_CLASS=com.driot.bookplayer.test.%~1
+        if not "%~2"=="" (
+            set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
+            set DEVICE_SERIAL=%~2
+        )
+    ) else (
+        REM Uppercase/digits only - assume device serial
+        set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~1
+        set DEVICE_SERIAL=%~1
+    )
 )
-
-if not "%~2"=="" (
-    set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
-    set DEVICE_SERIAL=%~2
-)
-
-if "%~3"=="keep" (
-    set KEEP_APP=1
-)
+if "%~2"=="keep" set KEEP_APP=1
+if "%~3"=="keep" set KEEP_APP=1
 
 echo ------------------------------------------------------------------------------
 echo Running: %TEST_CLASS% %EXTRA_ARGS% %DEVICE_ARG%
