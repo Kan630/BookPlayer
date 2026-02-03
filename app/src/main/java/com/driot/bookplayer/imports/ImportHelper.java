@@ -36,6 +36,22 @@ public class ImportHelper {
             if (outFile.exists()) {
                 returnedPath = outFile.getPath();
             } else {
+                //TODO to check, has been commented, (search XX658)
+                /*
+                // Post-unzip: zip was deleted by UncompressWorker; source is inside unzipped folder
+                if (j.futureFolderPath != null && !j.futureFolderPath.isEmpty()) {
+                    if (j.originalFile != null && !j.originalFile.isEmpty()) {
+                        returnedPath = j.futureFolderPath + "/" + j.originalFile;
+                        myLog("getSourceFilePathForWorker: using post-unzip path: " + returnedPath);
+                    } else {
+                        returnedPath = j.futureFolderPath;
+                        myLog("getSourceFilePathForWorker: using unzipped folder (no originalFile): " + returnedPath);
+                    }
+                } else {
+                    returnedPath = null;
+                    myLogEE(null, "getSourceFilePathForWorker, download case, outFile does not exist and no futureFolderPath");
+                }
+                 */
                 returnedPath = null;
                 myLogEE(null, "getSourceFilePathForWorker, download case, outFile does not exist");
             }

@@ -76,11 +76,16 @@ public class EbookSplitWorker extends ImportWorker {
             return Result.failure();
         }
 
-        // No-op when source file does not exist (e.g. zip contained audio) or is m4b (handled by M4bSplitWorker)
+        // When source file does not exist (e.g. zip contained only audio), report a clear error so the UI is not stuck on "Ebook parsing starting"
         File ebookFile = new File(ebookPath);
         if (!ebookFile.exists() || !ebookFile.isFile()) {
-            myLogD("EbookSplitWorker: source file does not exist, skipping: " + ebookPath);
-            return Result.success();
+            //TODO XX658 check logic with M4B, import of ODT...
+            // because I just revert some changes (that return return Result.success(); //No-op when source file does not exist (e.g. zip contained audio) or is m4b (handled by M4bSplitWorker))
+            // it was a regression because librivox import didnt work anymore
+            myLogD("EbookSplitWorker: source file does not exist: " + ebookPath);
+            String userMsg = context.getString(R.string.unexpected_error);
+            emitFailed(TASK_NAME, "EbookSplitWorker: source file does not exist (e.g. archive had no ebook)", userMsg);
+            return Result.failure();
         }
         String ext = com.driot.bookplayer.utils.Tonio.getExtension(ebookFile.getName());
         if (ext != null && "m4b".equalsIgnoreCase(ext)) {
