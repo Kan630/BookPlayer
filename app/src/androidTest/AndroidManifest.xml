@@ -6,8 +6,7 @@
             android:name="com.driot.bookplayer.testutil.StubDocumentProvider"
             android:authorities="com.driot.bookplayer.test.documents"
             android:grantUriPermissions="true"
-            android:exported="true"
-            android:permission="android.permission.MANAGE_DOCUMENTS">
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
             </intent-filter>

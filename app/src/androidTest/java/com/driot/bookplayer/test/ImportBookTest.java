@@ -83,7 +83,7 @@ public class ImportBookTest implements LogSupport {
 
     private static final String ASSET_LIST_TEST = "LIST_TEST";
     private static final long TIMEOUT_IMPORT = 120_000;
-    private static final long PLAY_TIME_MS = 20_000;
+    private static final long PLAY_TIME_MS = 10_000;
     private static final int ID_MAIN_RECYCLER = R.id.recyclerview_folders;
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles;
     private static final int ID_PLAY_BUTTON = R.id.ibPlayPause;
