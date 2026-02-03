@@ -15,5 +15,10 @@ public class ArchiveItem {
 
     public String author;
 
+    /** Remote cover image URL (e.g. archive.org item image). */
+    public String imageRemote;
+    /** Total size in bytes from source (e.g. archive.org). 0 if unknown. */
+    public long source_size;
+
     public boolean isImported() { return idFolder != null && idFolder > 0; }
 }

@@ -72,7 +72,9 @@ public interface BookSourceDao {
             0 AS num_reviews,
             idFolder,
             is_favorite,
-            '' AS author
+            '' AS author,
+            imageRemote AS imageRemote,
+            source_size AS source_size
         FROM BookSource
         WHERE repoType = :repoType 
           AND repoName = :repoName
@@ -91,6 +93,7 @@ public interface BookSourceDao {
             source_url = :sourceUrl,
             imageLocal = :imageLocal,
             imageRemote = :imageRemote,
+            source_size = :sourceSize,
             date_maj = :now
         WHERE repoType = :repoType AND repoName = :repoName AND repoId = :repoId
     """)
@@ -98,14 +101,15 @@ public interface BookSourceDao {
                             long folderId, boolean forceFavorite,
                             String bookTitle, String sourceUrl,
                             @Nullable String imageLocal, @Nullable String imageRemote,
-                            long now);
+                            long sourceSize, long now);
 
     // Default method wrapper (Java 8 interface default)
     @Transaction
     default void markImported(String repoType, String repoName, String repoId,
                               long folderId,
                               String bookTitle, String sourceUrl,
-                              @Nullable String imageLocal, @Nullable String imageRemote) {
+                              @Nullable String imageLocal, @Nullable String imageRemote,
+                              long sourceSize) {
         long now = System.currentTimeMillis();
 
         // Try update existing row
@@ -113,7 +117,7 @@ public interface BookSourceDao {
                 folderId, true, // force favorite on import
                 bookTitle != null ? bookTitle : "",
                 sourceUrl != null ? sourceUrl : "",
-                imageLocal, imageRemote, now);
+                imageLocal, imageRemote, sourceSize, now);
 
         if (u == 0) {
             // Insert new row with favorite=true
@@ -125,6 +129,7 @@ public interface BookSourceDao {
             bs.is_favorite = true;   // new imports are favorited by default
             bs.imageLocal = imageLocal;
             bs.imageRemote = imageRemote;
+            bs.source_size = sourceSize;
             bs.date_add = now;
             bs.date_maj = now;
             upsert(bs);

@@ -418,9 +418,9 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         });
     }
 
-    public void toggleFavorite(ArchiveItem item) {
-        if (item == null) return;
-        boolean newFav = !item.is_favorite;
+    public void toggleFavorite(ArchiveItem archiveItem) {
+        if (archiveItem == null) return;
+        boolean newFav = !archiveItem.is_favorite;
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
             long now = System.currentTimeMillis();
@@ -429,24 +429,26 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             int updated = dao.updateFavoriteFlag(
                     Var.REPO_TYPE_AUDIOBOOK,
                     Var.REPO_NAME_LIBRIVOX,
-                    item.identifier,
+                    archiveItem.identifier,
                     newFav,
                     now
             );
 
             if (updated == 0 && newFav) {
-                String url = "https://archive.org/details/" + item.identifier;
+                String url = "https://archive.org/details/" + archiveItem.identifier;
                 BookSource bs = new BookSource(
-                        item.title != null ? item.title : "",
+                        archiveItem.title != null ? archiveItem.title : "",
                         url,
                         Var.REPO_TYPE_AUDIOBOOK,
                         Var.REPO_NAME_LIBRIVOX,
-                        item.identifier,
+                        archiveItem.identifier,
                         null
                 );
                 bs.is_favorite = true;
                 bs.date_add = now;
                 bs.date_maj = now;
+                bs.imageRemote = archiveItem.imageRemote;
+                bs.source_size = archiveItem.source_size;
                 AppDatabase.getDatabase(getApplication()).bookSourceDao().upsert(bs);
             }
 
@@ -454,7 +456,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             List<ArchiveItem> cur = results.getValue();
             if (cur != null) {
                 for (ArchiveItem it : cur) {
-                    if (it.identifier.equals(item.identifier)) {
+                    if (it.identifier.equals(archiveItem.identifier)) {
                         it.is_favorite = newFav;
                         break;
                     }
