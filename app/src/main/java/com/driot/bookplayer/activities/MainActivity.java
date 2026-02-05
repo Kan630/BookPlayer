@@ -263,16 +263,6 @@ public class MainActivity extends BaseBottomNavActivity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu(Menu menu) {
-        MenuItem seeLogItem = menu.findItem(R.id.menu_seelog);
-        if (seeLogItem != null) {
-            boolean showLog = Option.getTechLog();
-            seeLogItem.setVisible(showLog);
-        }
-        return super.onPrepareOptionsMenu(menu);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int itemId = item.getItemId();
         if (itemId == R.id.action_menu_three_dot) {
@@ -290,9 +280,6 @@ public class MainActivity extends BaseBottomNavActivity {
         } else if (itemId == R.id.menu_manual) {
             myLogI("--- USER clicks MENU : MANUAL ---");
             startActivity(new Intent(getApplicationContext(), HelpActivity.class));
-        } else if (itemId == R.id.menu_seelog) {
-            myLogI("--- USER clicks MENU : SEE LOGS ---");
-            startActivity(new Intent(this, LogListActivity.class));
         } else if (itemId == R.id.menu_stats) {
             myLogI("--- USER clicks MENU : STATS ---");
             startActivity(new Intent(this, StatsActivity.class));

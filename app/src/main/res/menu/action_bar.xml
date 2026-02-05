@@ -19,7 +19,7 @@
         <menu>
 
             <item android:id="@+id/menu_open"
-                android:title="@string/open"
+                android:title="@string/add_book"
                 android:icon="@drawable/ic_menu_open"
                 app:showAsAction="ifRoom"
                 />
@@ -39,12 +39,6 @@
             <item android:id="@+id/menu_settings"
                 android:title="@string/settings"
                 android:icon="@drawable/ic_settings_24"
-                app:showAsAction="ifRoom"
-                />
-
-            <item android:id="@+id/menu_seelog"
-                android:title="@string/menu_seeLog"
-                android:icon="@drawable/ic_handyman_24"
                 app:showAsAction="ifRoom"
                 />
 

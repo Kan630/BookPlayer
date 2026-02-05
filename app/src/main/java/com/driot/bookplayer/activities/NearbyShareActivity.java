@@ -181,7 +181,7 @@ public class NearbyShareActivity extends BaseActivity {
                         getString(R.string.nearby_share_book_info),
                         folder.getName(),
                         zikFiles.size(),
-                        Tonio.formatSizeMB_translate(this, totalSize) + " " + getString(R.string.MB));
+                        Tonio.formatSizeMB_translate(this, totalSize));
                 tvBookInfo.setText(info);
 
                 // Set preview

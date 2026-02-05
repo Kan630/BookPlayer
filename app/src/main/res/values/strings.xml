@@ -1107,9 +1107,9 @@
     <!-- Nearby Sharing -->
     <string name="share_book">Share Book</string>
     <string name="nearby_share_explain">
-Quickly share a book between two nearby devices with BookPlayer installed.\n
-To share a book, open the book, then open its settings (top right icon) and tap [Quick Share] at the bottom.\n
-To receive a book, tap the three-dot menu (top right) on the main screen and select [Quick Share].
+Quickly share a book between two nearby devices with BookPlayer installed. (no internet \n
+➜ To share a book, open the book, then open its settings (top right icon) and tap [Quick Share] at the bottom.\n
+➜ To receive a book, tap the three-dot menu (top right) on the main screen and select [Quick Share].
 </string>
     <string name="Quick_Share_3dots">Quick Share…</string>
     <string name="nearby_share_send_tab">Send</string>
