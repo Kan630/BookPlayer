@@ -25,6 +25,8 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NearbyConnectionsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.ConnectionResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -111,7 +113,34 @@ public class NearbyShareActivity extends BaseActivity {
             updateUI();
         }
 
+        // Log Google Play Services info for diagnostics
+        logPlayServicesInfo();
+
         updateUI();
+    }
+
+    private void logPlayServicesInfo() {
+        try {
+            GoogleApiAvailability apiAvailability = GoogleApiAvailability.getInstance();
+            int resultCode = apiAvailability.isGooglePlayServicesAvailable(this);
+
+            if (resultCode == ConnectionResult.SUCCESS) {
+                myLogI("Google Play Services: Available");
+            } else {
+                myLogW("Google Play Services issue: " + apiAvailability.getErrorString(resultCode));
+            }
+
+            // Try to get version (may not work on all devices)
+            try {
+                int versionCode = getPackageManager()
+                        .getPackageInfo("com.google.android.gms", 0).versionCode;
+                myLogI("Google Play Services version code: " + versionCode);
+            } catch (Exception e) {
+                myLogW("Could not get Play Services version: " + e.getMessage());
+            }
+        } catch (Exception e) {
+            myLogE("Error checking Play Services: " + e.getMessage());
+        }
     }
 
     private void loadBookFiles() {
@@ -165,48 +194,45 @@ public class NearbyShareActivity extends BaseActivity {
     private void checkPermissionsAndStart() {
         myLogI("Checking permissions (SDK " + Build.VERSION.SDK_INT + ")");
 
-        List<String> missing = new ArrayList<>();
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            // Android 12+
+            List<String> missing = new ArrayList<>();
 
-            if (!checkPermission(Manifest.permission.BLUETOOTH_ADVERTISE)) {
+            if (!checkPermission(Manifest.permission.BLUETOOTH_ADVERTISE))
                 missing.add(Manifest.permission.BLUETOOTH_ADVERTISE);
-            }
-            if (!checkPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+            if (!checkPermission(Manifest.permission.BLUETOOTH_CONNECT))
                 missing.add(Manifest.permission.BLUETOOTH_CONNECT);
-            }
-            if (!checkPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+            if (!checkPermission(Manifest.permission.BLUETOOTH_SCAN))
                 missing.add(Manifest.permission.BLUETOOTH_SCAN);
+            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION))
+                missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
+
+            if (missing.isEmpty()) {
+                startProcess();
+            } else {
+                requestPermissions(missing.toArray(new String[0]), PERMISSION_REQUEST_CODE);
             }
 
-            // REQUIRED by Nearby Connections (Play Services), even on SDK 36
-            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                startProcess();
+            } else {
+                requestPermissions(
+                        new String[] { Manifest.permission.ACCESS_FINE_LOCATION },
+                        PERMISSION_REQUEST_CODE);
             }
 
         } else {
-            // Android 11 and below
-            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
-                missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
-            }
-            if (!checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
-                missing.add(Manifest.permission.ACCESS_COARSE_LOCATION);
-            }
-        }
+            // API ≤ 28 — FORCE REQUEST
+            myLogW("SDK ≤ 28: Forcing runtime request of FINE + COARSE location");
 
-        if (missing.isEmpty()) {
-            myLogI("All required permissions granted");
-            startProcess();
-        } else {
-            myLogI("Requesting permissions: " + missing);
             requestPermissions(
-                    missing.toArray(new String[0]),
-                    PERMISSION_REQUEST_CODE
-            );
+                    new String[] {
+                            Manifest.permission.ACCESS_FINE_LOCATION,
+                            Manifest.permission.ACCESS_COARSE_LOCATION
+                    },
+                    PERMISSION_REQUEST_CODE);
         }
     }
-
 
     private boolean checkPermission(String permission) {
         return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
