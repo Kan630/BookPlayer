@@ -33,18 +33,21 @@ public class StorageHelper {
 
     public static boolean isInInternalMemory(String path) {
         String pathLower = path.toLowerCase();
-        return pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_PROD) || pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_DEBUG);
+        return pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_PROD)
+                || pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_DEBUG);
     }
 
-    //TODO should also check if the path/uri whatever, is reachable and if not, another serie of icons with a big red cross in front
-    //TODO add MemoryLocationType : USB "dongle"
+    // TODO should also check if the path/uri whatever, is reachable and if not,
+    // another serie of icons with a big red cross in front
+    // TODO add MemoryLocationType : USB "dongle"
     public static MemoryLocationType getMemoryLocationType(Context context, String path) {
-        if (path == null) return MemoryLocationType.NOT_FOUND;
+        if (path == null)
+            return MemoryLocationType.NOT_FOUND;
         boolean onSDcard = false;
         try {
             onSDcard = isOnSdCard(context, Uri.parse(path));
         } catch (Exception e1) {
-            myLogEE(e1, "MemoryLocationType Uri.parse KO" );
+            myLogEE(e1, "MemoryLocationType Uri.parse KO");
         }
         try {
             String pathLower = path.toLowerCase();
@@ -93,6 +96,17 @@ public class StorageHelper {
         return getDownloadFolder(context).getAbsolutePath();
     }
 
+    // RECEIVED BOOKS (for Nearby Share)
+    public static String getBooksFolderPathForReceivedBooks(Context context) {
+        // Use internal storage Books folder for received books
+        File baseDir = getPreferredBaseDir(context, false);
+        File booksDir = new File(baseDir, "Books");
+        if (!booksDir.exists()) {
+            booksDir.mkdirs();
+        }
+        return booksDir.getAbsolutePath();
+    }
+
     // IMAGES
     public static File getImageFolder(Context context, boolean isCached) {
         if (isCached) {
@@ -125,16 +139,19 @@ public class StorageHelper {
     private static File getRemovableSDCardPath(Context context) {
         try {
             File[] dirs = androidx.core.content.ContextCompat.getExternalFilesDirs(context, null);
-            if (dirs == null || dirs.length == 0) return null;
+            if (dirs == null || dirs.length == 0)
+                return null;
 
             StorageManager sm = (StorageManager) context.getSystemService(Context.STORAGE_SERVICE);
 
             for (File dir : dirs) {
-                if (dir == null) continue;
+                if (dir == null)
+                    continue;
 
                 // Skip obvious non-volume placeholders (seen on some ROMs/emulators)
                 String abs = dir.getAbsolutePath();
-                if (abs.startsWith("/data/")) continue;
+                if (abs.startsWith("/data/"))
+                    continue;
 
                 try {
                     StorageVolume vol = sm.getStorageVolume(dir);
@@ -218,18 +235,19 @@ public class StorageHelper {
     }
 
     public static long getAvailableStorageMB(Context context, boolean internal) {
-        return internal ? getAvailableInternalMemorySize() / 1048576L : getAvailableRemovableSDCardSize(context) / 1048576L;
+        return internal ? getAvailableInternalMemorySize() / 1048576L
+                : getAvailableRemovableSDCardSize(context) / 1048576L;
     }
 
-
-
     public static boolean isOnSdCard(Context appContext, Uri uri) {
-        if (uri == null) return false;
+        if (uri == null)
+            return false;
 
         // Method 2: API 24+ use StorageVolume.isRemovable() + UUID comparison
         try {
             StorageManager sm = (StorageManager) appContext.getSystemService(Context.STORAGE_SERVICE);
-            if (sm == null) return false;
+            if (sm == null)
+                return false;
 
             List<StorageVolume> volumes = sm.getStorageVolumes();
             for (StorageVolume volume : volumes) {
@@ -242,7 +260,7 @@ public class StorageHelper {
                 }
             }
         } catch (Exception e) {
-            myLogEE(e,"isOnSdCard - StorageManager");
+            myLogEE(e, "isOnSdCard - StorageManager");
         }
 
         try {
@@ -250,7 +268,7 @@ public class StorageHelper {
             if ("com.android.externalstorage.documents".equals(uri.getAuthority())) {
                 String docId;
                 if (DocumentsContract.isTreeUri(uri)) {
-                    docId = DocumentsContract.getTreeDocumentId(uri);   // e.g. "3334-3933:Audiobooks/mybook"
+                    docId = DocumentsContract.getTreeDocumentId(uri); // e.g. "3334-3933:Audiobooks/mybook"
                 } else {
                     docId = DocumentsContract.getDocumentId(uri);
                 }
@@ -263,11 +281,12 @@ public class StorageHelper {
                 }
             }
         } catch (Exception e) {
-            myLogEE(e,"isOnSdCard - DocumentsContract");
+            myLogEE(e, "isOnSdCard - DocumentsContract");
         }
 
         return false;
     }
+
     @Nullable
     private static String getVolumeUuid(StorageVolume volume) {
         try {
@@ -288,7 +307,7 @@ public class StorageHelper {
         }
 
         if (imagePath.startsWith("http://") || imagePath.startsWith("https://")) {
-            return imagePath; //let glide deals with it for now, it shall be downloaded later
+            return imagePath; // let glide deals with it for now, it shall be downloaded later
         }
 
         if (imagePath.startsWith("content://")) {
@@ -330,7 +349,7 @@ public class StorageHelper {
             return f3.getAbsolutePath();
         }
 
-        //TODO maybe try redownload from Podcast.imageOriginalUri
+        // TODO maybe try redownload from Podcast.imageOriginalUri
         // use processPendingImage, or run it
         myLogEE(null, "checkAndCleanImagePath : no valid image file - [" + fileName + "]");
         return null;
