@@ -1,5 +1,7 @@
 package com.driot.bookplayer.helpers;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 import android.content.Context;
 import android.net.Uri;
 
@@ -49,6 +51,8 @@ public class NearbyConnectionsHelper {
     // Connection tracking
     private final Map<Long, Integer> payloadProgress = new HashMap<>();
     private final Map<Long, Payload> receivedFilePayloads = new HashMap<>();
+    private final Map<Long, String> payloadNames = new HashMap<>();
+    private final Map<Long, Integer> payloadLastLoggedStep = new HashMap<>();
     private String connectedEndpointId;
 
     public NearbyConnectionsHelper(Context context) {
@@ -179,10 +183,15 @@ public class NearbyConnectionsHelper {
      * Send book data to connected endpoint
      */
     public void sendBookData(String endpointId, Folder folder, List<ZikFile> files) {
+        myLogI("Sending book from folder: " + folder.getPath());
+        payloadNames.clear();
+        payloadLastLoggedStep.clear();
+
         try {
             // Step 1: Send metadata
             JSONObject metadata = createBookMetadata(folder, files);
             Payload metadataPayload = Payload.fromBytes(metadata.toString().getBytes());
+            payloadNames.put(metadataPayload.getId(), "Metadata");
             connectionsClient.sendPayload(endpointId, metadataPayload);
 
             // Step 2: Send cover image if available
@@ -191,6 +200,7 @@ public class NearbyConnectionsHelper {
                 if (coverFile.exists()) {
                     try {
                         Payload coverPayload = Payload.fromFile(coverFile);
+                        payloadNames.put(coverPayload.getId(), "Cover Image");
                         connectionsClient.sendPayload(endpointId, coverPayload);
                     } catch (Exception e) {
                         // Skip cover if we can't read it
@@ -206,6 +216,7 @@ public class NearbyConnectionsHelper {
                 if (audioFile.exists()) {
                     try {
                         Payload filePayload = Payload.fromFile(audioFile);
+                        payloadNames.put(filePayload.getId(), zikFile.getName());
                         connectionsClient.sendPayload(endpointId, filePayload);
                     } catch (Exception e) {
                         // Skip this file if we can't read it
@@ -369,6 +380,21 @@ public class NearbyConnectionsHelper {
 
             // Track progress
             payloadProgress.put(payloadId, bytesTransferred);
+
+            // Log progress for sending
+            if (totalBytes > 0 && payloadNames.containsKey(payloadId)) {
+                int percent = (int) ((long) bytesTransferred * 100 / totalBytes);
+                int step = (percent / 25) * 25; // 0, 25, 50, 75, 100
+
+                Integer lastLogged = payloadLastLoggedStep.get(payloadId);
+                int lastStep = lastLogged != null ? lastLogged : -1;
+
+                if (step > lastStep) {
+                    String name = payloadNames.get(payloadId);
+                    myLogI("Sending " + name + ": " + step + "% (" + bytesTransferred + "/" + totalBytes + ")");
+                    payloadLastLoggedStep.put(payloadId, step);
+                }
+            }
 
             if (payloadCallback != null) {
                 payloadCallback.onPayloadTransferUpdate(payloadId, bytesTransferred, totalBytes);

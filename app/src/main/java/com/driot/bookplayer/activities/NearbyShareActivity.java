@@ -45,6 +45,8 @@ public class NearbyShareActivity extends BaseActivity {
     private List<ZikFile> zikFiles;
     private NearbyConnectionsHelper nearbyHelper;
     private NearbyShareReceiverHelper receiverHelper;
+    private final java.util.concurrent.ExecutorService processingExecutor = java.util.concurrent.Executors
+            .newSingleThreadExecutor();
 
     private TextView tvBookInfo;
     private TextView tvStatus;
@@ -53,6 +55,10 @@ public class NearbyShareActivity extends BaseActivity {
     private RadioGroup rgMode;
     private RadioButton rbSendMode;
     private RadioButton rbReceiveMode;
+
+    private android.widget.LinearLayout layoutBookPreview;
+    private android.widget.ImageView ivCoverPreview;
+    private TextView tvBookTitlePreview;
 
     private boolean isActive = false; // Either advertising or discovering
     private boolean isSendMode = true; // true = send/advertise, false = receive/discover
@@ -83,6 +89,10 @@ public class NearbyShareActivity extends BaseActivity {
         rbSendMode = findViewById(R.id.rbSendMode);
         rbReceiveMode = findViewById(R.id.rbReceiveMode);
 
+        layoutBookPreview = findViewById(R.id.layoutBookPreview);
+        ivCoverPreview = findViewById(R.id.ivCoverPreview);
+        tvBookTitlePreview = findViewById(R.id.tvBookTitlePreview);
+
         // Set up mode change listener
         rgMode.setOnCheckedChangeListener((group, checkedId) -> {
             isSendMode = (checkedId == R.id.rbSendMode);
@@ -96,6 +106,8 @@ public class NearbyShareActivity extends BaseActivity {
             // In receive mode without a folder
             tvBookInfo.setText(getString(R.string.nearby_share_receive_mode_info));
             zikFiles = new ArrayList<>();
+            // Default preview text
+            tvBookTitlePreview.setText("Waiting for book...");
         }
 
         // Initialize Nearby Connections Helper
@@ -165,6 +177,12 @@ public class NearbyShareActivity extends BaseActivity {
                         zikFiles.size(),
                         Tonio.formatMemPadding(NearbyShareActivity.this, totalSize));
                 tvBookInfo.setText(info);
+
+                // Set preview
+                tvBookTitlePreview.setText(folder.getName());
+                if (folder.image != null && !folder.image.isEmpty()) {
+                    ivCoverPreview.setImageURI(android.net.Uri.fromFile(new java.io.File(folder.image)));
+                }
             });
         }).start();
     }
@@ -474,23 +492,33 @@ public class NearbyShareActivity extends BaseActivity {
                                 return;
                             }
 
-                            try {
-                                java.io.File file = filePayload.asFile().asJavaFile();
-                                if (file != null) {
-                                    android.os.ParcelFileDescriptor pfd = android.os.ParcelFileDescriptor.open(file,
-                                            android.os.ParcelFileDescriptor.MODE_READ_ONLY);
+                            processingExecutor.execute(() -> {
+                                try {
+                                    // Try getting PFD directly first (preferred for received files)
+                                    android.os.ParcelFileDescriptor pfd = filePayload.asFile().asParcelFileDescriptor();
 
-                                    // Determine if it's cover or audio based on whether metadata has cover
-                                    // First file after metadata is cover (if hasCover), rest are audio
-                                    if (!receiverHelper.saveCoverFile(pfd)) {
-                                        // If saving cover failed or it's not cover, try as audio
-                                        receiverHelper.saveAudioFile(pfd, file.length());
+                                    // Fallback to Java File if PFD is null
+                                    if (pfd == null) {
+                                        java.io.File file = filePayload.asFile().asJavaFile();
+                                        if (file != null) {
+                                            pfd = android.os.ParcelFileDescriptor.open(file,
+                                                    android.os.ParcelFileDescriptor.MODE_READ_ONLY);
+                                        }
                                     }
-                                    pfd.close();
+
+                                    if (pfd != null) {
+                                        // Determine if it's cover or audio based on whether metadata has cover
+                                        if (!receiverHelper.saveCoverFile(pfd)) {
+                                            receiverHelper.saveAudioFile(pfd, filePayload.asFile().getSize());
+                                        }
+                                        pfd.close();
+                                    } else {
+                                        myLogE("Failed to get file descriptor for payload " + payloadId);
+                                    }
+                                } catch (Exception e) {
+                                    myLogEE(e, "Failed to process file payload");
                                 }
-                            } catch (Exception e) {
-                                myLogEE(e, "Failed to process file payload");
-                            }
+                            });
                         }
 
                         @Override
@@ -552,15 +580,20 @@ public class NearbyShareActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     tvBookInfo.setText("Receiving: " + receiverHelper.getBookName());
                     tvStatus.setText("Preparing to receive " + receiverHelper.getTotalFileCount() + " files...");
+
+                    // Update preview title
+                    tvBookTitlePreview.setText(receiverHelper.getBookName());
                 });
 
-                // Create book folder
-                if (!receiverHelper.createBookFolder()) {
-                    runOnUiThread(() -> {
-                        myToastE("Failed to create book folder");
-                        stopSharing();
-                    });
-                }
+                // Create book folder in background
+                processingExecutor.execute(() -> {
+                    if (!receiverHelper.createBookFolder()) {
+                        runOnUiThread(() -> {
+                            myToastE("Failed to create book folder");
+                            stopSharing();
+                        });
+                    }
+                });
             } else {
                 runOnUiThread(() -> {
                     myToastE("Failed to parse metadata");
@@ -592,12 +625,15 @@ public class NearbyShareActivity extends BaseActivity {
         if (nearbyHelper != null) {
             nearbyHelper.cleanup();
         }
+        if (processingExecutor != null) {
+            processingExecutor.shutdown();
+        }
     }
 
     /**
      * Format bytes into human-readable string
      */
-    private String formatBytes(long bytes) {
+    private static String formatBytes(long bytes) {
         if (bytes < 1024)
             return bytes + " B";
         int exp = (int) (Math.log(bytes) / Math.log(1024));

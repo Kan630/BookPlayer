@@ -111,11 +111,12 @@ public class NearbyShareReceiverHelper {
      */
     public boolean createBookFolder() {
         try {
-            String basePath = StorageHelper.getBooksFolderPathForReceivedBooks(context);
-            File baseDir = new File(basePath);
+            File baseDir = StorageHelper.getUnzipFolder(context);
             if (!baseDir.exists()) {
                 baseDir.mkdirs();
             }
+
+            String basePath = baseDir.getAbsolutePath();
 
             // Check for conflicts and create unique folder name
             bookFolderPath = getUniqueFolderPath(basePath, bookName);
@@ -217,6 +218,9 @@ public class NearbyShareReceiverHelper {
             File audioFile = new File(bookFolderPath, fileInfo.name);
 
             long bytesWritten = 0;
+            long fileSize = fileInfo.size;
+            int lastLoggedStep = -1; // 0, 25, 50, 75, 100
+
             try (InputStream in = new FileInputStream(pfd.getFileDescriptor());
                     FileOutputStream out = new FileOutputStream(audioFile)) {
 
@@ -226,6 +230,17 @@ public class NearbyShareReceiverHelper {
                     out.write(buffer, 0, bytesRead);
                     bytesWritten += bytesRead;
                     totalBytesReceived += bytesRead;
+
+                    // Log progress at steps: 0, 25, 50, 75, 100
+                    if (fileSize > 0) {
+                        int percent = (int) (bytesWritten * 100 / fileSize);
+                        int step = (percent / 25) * 25;
+                        if (step > lastLoggedStep) {
+                            myLogI("Receiving " + fileInfo.name + ": " + step + "% (" + bytesWritten + "/" + fileSize
+                                    + ")");
+                            lastLoggedStep = step;
+                        }
+                    }
 
                     // Report progress periodically
                     if (bytesWritten % (512 * 1024) == 0 && progressCallback != null) {
