@@ -25,6 +25,40 @@
         android:text="Loading book information..."
         />
 
+    <TextView
+        style="@style/myStyleInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
+        android:paddingHorizontal="10dp"
+        android:text="Select mode:"
+        />
+
+    <RadioGroup
+        android:id="@+id/rgMode"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:orientation="horizontal">
+
+        <RadioButton
+            android:id="@+id/rbSendMode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Send (Advertise)"
+            android:checked="true"
+            />
+
+        <RadioButton
+            android:id="@+id/rbReceiveMode"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Receive (Discover)"
+            />
+    </RadioGroup>
+
     <Button
         android:id="@+id/btnStartSharing"
         android:layout_width="match_parent"

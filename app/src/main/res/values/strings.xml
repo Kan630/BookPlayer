@@ -1114,8 +1114,9 @@
     <string name="nearby_share_stop_discovering">Stop Discovering</string>
     <string name="nearby_share_searching">Searching for nearby devices…</string>
     <string name="nearby_share_found_device">Found device: %s</string>
-    <string name="nearby_share_connecting">Connecting…</string>
+    <string name="nearby_share_connecting">Connecting…</string>4
     <string name="nearby_share_transferring">Transferring: %d%%</string>
+    <string name="nearby_share_receiving">Receiving: %d%%</string>
     <string name="nearby_share_complete">Transfer complete!</string>
     <string name="nearby_share_failed">Transfer failed</string>
     <string name="nearby_share_accept_transfer">Accept book from %s?</string>
