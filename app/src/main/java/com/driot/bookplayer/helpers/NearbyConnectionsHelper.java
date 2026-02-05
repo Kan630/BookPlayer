@@ -61,6 +61,8 @@ public class NearbyConnectionsHelper {
 
         void onConnectionInitiated(String endpointId, String endpointName);
 
+        void onConnectionEstablished(String endpointId);
+
         void onConnectionFailed(String error);
     }
 
@@ -72,6 +74,8 @@ public class NearbyConnectionsHelper {
         void onEndpointLost(String endpointId);
 
         void onConnectionInitiated(String endpointId, String endpointName);
+
+        void onConnectionEstablished(String endpointId);
 
         void onConnectionFailed(String error);
     }
@@ -223,6 +227,8 @@ public class NearbyConnectionsHelper {
         metadata.put("fileCount", files.size());
         metadata.put("hasCover", folder.image != null && !folder.image.isEmpty());
 
+        // Calculate total size
+        long totalSize = 0;
         JSONArray fileList = new JSONArray();
         for (ZikFile file : files) {
             JSONObject fileInfo = new JSONObject();
@@ -230,9 +236,11 @@ public class NearbyConnectionsHelper {
             fileInfo.put("displayName", file.getDisplayName());
             fileInfo.put("size", file.getSize());
             fileInfo.put("duration", file.getDuration());
+            totalSize += file.getSize();
             fileList.put(fileInfo);
         }
         metadata.put("files", fileList);
+        metadata.put("totalSize", totalSize);
 
         return metadata;
     }
@@ -287,6 +295,14 @@ public class NearbyConnectionsHelper {
                 connectedEndpointId = endpointId;
                 stopAdvertising();
                 stopDiscovery();
+
+                // Notify callbacks that connection is ready for data transfer
+                if (advertisingCallback != null) {
+                    advertisingCallback.onConnectionEstablished(endpointId);
+                }
+                if (discoveryCallback != null) {
+                    discoveryCallback.onConnectionEstablished(endpointId);
+                }
             } else {
                 // Connection failed
                 String error = "Connection failed with status: " + result.getStatus().getStatusCode();

@@ -297,7 +297,7 @@ public class NearbyShareActivity extends BaseActivity {
                     myLog("Connection initiated with: " + endpointName);
                     tvStatus.setText(String.format(getString(R.string.nearby_share_found_device), endpointName));
 
-                    // Accept the connection automatically
+                    // Accept the connection and set up callbacks
                     nearbyHelper.acceptConnection(endpointId, new NearbyConnectionsHelper.PayloadCallback() {
                         @Override
                         public void onPayloadSent(long payloadId) {
@@ -339,8 +339,16 @@ public class NearbyShareActivity extends BaseActivity {
                             });
                         }
                     });
+                });
+            }
 
-                    // Start sending book data
+            @Override
+            public void onConnectionEstablished(String endpointId) {
+                runOnUiThread(() -> {
+                    myLog("Connection established, starting transfer");
+                    tvStatus.setText(R.string.nearby_share_transferring);
+
+                    // NOW send the book data
                     nearbyHelper.sendBookData(endpointId, folder, zikFiles);
                 });
             }
@@ -441,6 +449,14 @@ public class NearbyShareActivity extends BaseActivity {
                             });
                         }
                     });
+                });
+            }
+
+            @Override
+            public void onConnectionEstablished(String endpointId) {
+                runOnUiThread(() -> {
+                    myLog("Connection established, ready to receive");
+                    tvStatus.setText(R.string.nearby_share_receiving);
                 });
             }
 
