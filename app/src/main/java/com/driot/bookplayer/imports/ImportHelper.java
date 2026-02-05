@@ -36,6 +36,7 @@ public class ImportHelper {
             if (outFile.exists()) {
                 returnedPath = outFile.getPath();
             } else {
+                //test
                 //TODO to check, has been commented, (search XX658)
                 /*
                 // Post-unzip: zip was deleted by UncompressWorker; source is inside unzipped folder
