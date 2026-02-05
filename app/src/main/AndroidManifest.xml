@@ -13,6 +13,16 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO"/> <!--Visualizer-->
     <uses-permission android:name="android.permission.INTERNET"/> <!-- to test internet access -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- to monitor online status -->
+    
+    <!-- Nearby Connections permissions -->
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" android:minSdkVersion="31" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" android:minSdkVersion="31" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:minSdkVersion="31" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:minSdkVersion="33" />
+    
     <!-- <uses-permission android:name="android.permission.BIND_MEDIA_BROWSER_SERVICE"/>Car stuff -->
 
     <!-- <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />  for books download -->
@@ -97,6 +107,7 @@
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CleanMemoryActivity" />
         <activity android:name=".activities.ExportActivity" />
+        <activity android:name=".activities.NearbyShareActivity" />
         <activity android:name=".activities.LibrivoxResultsActivity" />
         <activity android:name=".radio.RadioResultsActivity" />
         <activity android:name=".radio.RadioFavoritesActivity" />

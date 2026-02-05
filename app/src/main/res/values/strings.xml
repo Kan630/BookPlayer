@@ -99,6 +99,7 @@
     <string name="Exit">Exit</string>
     <string name="expand">expand</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Export…"</string>
+    <string name="Share_3pt">"Share…"</string>
     <string name="favorite">favorite</string>
     <string name="favorites">favorites</string>
     <string name="Favorites">Favorites</string>
@@ -1102,4 +1103,25 @@
     <string name="screensaver_force_orientation">Force Orientation</string>
     <string name="portrait">Portrait</string>
     <string name="landscape">Landscape</string>
+    
+    <!-- Nearby Sharing -->
+    <string name="share_book">Share Book</string>
+    <string name="nearby_share_send_tab">Send</string>
+    <string name="nearby_share_receive_tab">Receive</string>
+    <string name="nearby_share_start_advertising">Start Advertising</string>
+    <string name="nearby_share_stop_advertising">Stop Advertising</string>
+    <string name="nearby_share_start_discovering">Start Discovering</string>
+    <string name="nearby_share_stop_discovering">Stop Discovering</string>
+    <string name="nearby_share_searching">Searching for nearby devices…</string>
+    <string name="nearby_share_found_device">Found device: %s</string>
+    <string name="nearby_share_connecting">Connecting…</string>
+    <string name="nearby_share_transferring">Transferring: %d%%</string>
+    <string name="nearby_share_complete">Transfer complete!</string>
+    <string name="nearby_share_failed">Transfer failed</string>
+    <string name="nearby_share_accept_transfer">Accept book from %s?</string>
+    <string name="nearby_share_auto_importing">Auto-importing book…</string>
+    <string name="nearby_share_permissions_required">Bluetooth and location permissions are required for nearby sharing</string>
+    <string name="nearby_share_no_devices">No devices found</string>
+    <string name="nearby_share_book_info">Book: %1$s (%2$d tracks, %3$s)</string>
+    
 </resources>

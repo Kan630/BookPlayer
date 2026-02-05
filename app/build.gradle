@@ -183,6 +183,8 @@ dependencies {
     implementation "com.google.dagger:hilt-android:2.59"
     annotationProcessor "com.google.dagger:hilt-compiler:2.59"
 
+    // Nearby Connections for phone-to-phone sharing
+    implementation 'com.google.android.gms:play-services-nearby:19.3.0'
 
     androidTestUtil "androidx.test:orchestrator:1.6.1"
 

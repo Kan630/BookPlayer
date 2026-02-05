@@ -60,7 +60,7 @@ public class ModifyFolderActivity extends BaseActivity {
     private Folder folder;
     private View blockingOverlay;
     private TextView tvBlockingText;
-    private Button bDelete, bReset, bExport;
+    private Button bDelete, bReset, bExport, bShare;
     private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch, bResetToOriginal;
     private LinearLayout ll_zikfile_resolve_error;
 
@@ -80,6 +80,7 @@ public class ModifyFolderActivity extends BaseActivity {
         bDelete = findViewById(R.id.bDelete);
         bReset = findViewById(R.id.bReset);
         bExport = findViewById(R.id.bExport);
+        bShare = findViewById(R.id.bShare);
         blockingOverlay = findViewById(R.id.blockingOverlay);
         tvBlockingText = findViewById(R.id.tvBlockingText);
         bDeleteCover = findViewById(R.id.bDeleteCover);
@@ -160,6 +161,8 @@ public class ModifyFolderActivity extends BaseActivity {
         bReset.setOnClickListener(view -> bResetClick());
 
         bExport.setOnClickListener(view -> bExportClick());
+
+        bShare.setOnClickListener(view -> bShareClick());
 
         etIntroCut = findViewById(R.id.etIntroCut);
         etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, folder.getId())));
@@ -297,6 +300,8 @@ public class ModifyFolderActivity extends BaseActivity {
             bReset.setEnabled(!deleting);
         if (bExport != null)
             bExport.setEnabled(!deleting);
+        if (bShare != null)
+            bShare.setEnabled(!deleting);
         if (etRename != null)
             etRename.setEnabled(!deleting);
         if (bChangeCover != null)
@@ -342,6 +347,13 @@ public class ModifyFolderActivity extends BaseActivity {
     private void bExportClick() {
         myLogI("user clicks - export");
         Intent intent = new Intent(this, ExportActivity.class);
+        intent.putExtra(Intents.EXTRA_FOLDER, folder);
+        this.startActivity(intent);
+    }
+
+    private void bShareClick() {
+        myLogI("user clicks - share");
+        Intent intent = new Intent(this, NearbyShareActivity.class);
         intent.putExtra(Intents.EXTRA_FOLDER, folder);
         this.startActivity(intent);
     }
