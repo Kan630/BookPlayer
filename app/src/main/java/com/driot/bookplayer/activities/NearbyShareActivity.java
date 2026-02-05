@@ -23,10 +23,13 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NearbyConnectionsHelper;
+import com.driot.bookplayer.helpers.NearbyShareReceiverHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.nearby.connection.Payload;
+import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,6 +44,7 @@ public class NearbyShareActivity extends BaseActivity {
     private Folder folder;
     private List<ZikFile> zikFiles;
     private NearbyConnectionsHelper nearbyHelper;
+    private NearbyShareReceiverHelper receiverHelper;
 
     private TextView tvBookInfo;
     private TextView tvStatus;
@@ -320,6 +324,11 @@ public class NearbyShareActivity extends BaseActivity {
                         }
 
                         @Override
+                        public void onFilePayloadReceived(long payloadId, Payload filePayload) {
+                            // Not used in sender mode
+                        }
+
+                        @Override
                         public void onTransferComplete() {
                             runOnUiThread(() -> {
                                 myLog("Transfer complete");
@@ -404,6 +413,43 @@ public class NearbyShareActivity extends BaseActivity {
                     myLog("Connection initiated with: " + endpointName);
                     tvStatus.setText("Connecting to " + endpointName + "...");
 
+                    // Initialize receiver helper
+                    receiverHelper = new NearbyShareReceiverHelper(NearbyShareActivity.this);
+                    receiverHelper.setProgressCallback(new NearbyShareReceiverHelper.ProgressCallback() {
+                        @Override
+                        public void onProgress(String message, int currentFile, int totalFiles,
+                                long bytesReceived, long totalBytes) {
+                            runOnUiThread(() -> {
+                                String sizeInfo = formatBytes(bytesReceived) + " / " +
+                                        formatBytes(totalBytes);
+                                tvStatus.setText(message + "\n" +
+                                        "File " + currentFile + "/" + totalFiles + "  " + sizeInfo);
+
+                                int progress = totalBytes > 0 ? (int) ((bytesReceived * 100.0) / totalBytes) : 0;
+                                progressBar.setProgress(progress);
+                            });
+                        }
+
+                        @Override
+                        public void onComplete(String bookName) {
+                            runOnUiThread(() -> {
+                                myLog("Transfer complete: " + bookName);
+                                tvStatus.setText("Import complete: " + bookName);
+                                myToast("Book imported successfully: " + bookName);
+                                finish();
+                            });
+                        }
+
+                        @Override
+                        public void onError(String error) {
+                            runOnUiThread(() -> {
+                                myLogE("Receive error: " + error);
+                                tvStatus.setText("Error: " + error);
+                                myToastE("Import failed: " + error);
+                            });
+                        }
+                    });
+
                     // Accept the connection to receive files
                     nearbyHelper.acceptConnection(endpointId, new NearbyConnectionsHelper.PayloadCallback() {
                         @Override
@@ -413,20 +459,38 @@ public class NearbyShareActivity extends BaseActivity {
 
                         @Override
                         public void onPayloadTransferUpdate(long payloadId, int bytesTransferred, int totalBytes) {
-                            int progress = totalBytes > 0 ? (int) ((bytesTransferred * 100.0) / totalBytes) : 0;
-                            runOnUiThread(() -> {
-                                tvStatus.setText(
-                                        String.format(getString(R.string.nearby_share_receiving), progress));
-                                progressBar.setProgress(progress);
-                            });
+                            // Progress handled by receiver helper
                         }
 
                         @Override
                         public void onPayloadReceived(long payloadId, byte[] data) {
-                            // Handle received metadata
-                            runOnUiThread(() -> {
-                                myLog("Received payload: " + payloadId);
-                            });
+                            handleReceivedPayload(payloadId, data);
+                        }
+
+                        @Override
+                        public void onFilePayloadReceived(long payloadId, Payload filePayload) {
+                            if (receiverHelper == null) {
+                                myLogE("Receiver helper not initialized for file payload");
+                                return;
+                            }
+
+                            try {
+                                java.io.File file = filePayload.asFile().asJavaFile();
+                                if (file != null) {
+                                    android.os.ParcelFileDescriptor pfd = android.os.ParcelFileDescriptor.open(file,
+                                            android.os.ParcelFileDescriptor.MODE_READ_ONLY);
+
+                                    // Determine if it's cover or audio based on whether metadata has cover
+                                    // First file after metadata is cover (if hasCover), rest are audio
+                                    if (!receiverHelper.saveCoverFile(pfd)) {
+                                        // If saving cover failed or it's not cover, try as audio
+                                        receiverHelper.saveAudioFile(pfd, file.length());
+                                    }
+                                    pfd.close();
+                                }
+                            } catch (Exception e) {
+                                myLogEE(e, "Failed to process file payload");
+                            }
                         }
 
                         @Override
@@ -472,6 +536,45 @@ public class NearbyShareActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Handle received payload (metadata, cover, or audio file)
+     */
+    private void handleReceivedPayload(long payloadId, byte[] data) {
+        if (receiverHelper == null) {
+            myLogE("Receiver helper not initialized");
+            return;
+        }
+
+        if (!receiverHelper.hasMetadata()) {
+            // First payload should be metadata
+            myLogI("Processing metadata payload");
+            if (receiverHelper.parseMetadata(data)) {
+                runOnUiThread(() -> {
+                    tvBookInfo.setText("Receiving: " + receiverHelper.getBookName());
+                    tvStatus.setText("Preparing to receive " + receiverHelper.getTotalFileCount() + " files...");
+                });
+
+                // Create book folder
+                if (!receiverHelper.createBookFolder()) {
+                    runOnUiThread(() -> {
+                        myToastE("Failed to create book folder");
+                        stopSharing();
+                    });
+                }
+            } else {
+                runOnUiThread(() -> {
+                    myToastE("Failed to parse metadata");
+                    stopSharing();
+                });
+            }
+        } else {
+            // Not a metadata payload, ignore byte[] payloads after metadata
+            // Files come as ParcelFileDescriptor, handled in
+            // NearbyConnectionsHelper.PayloadCallbackImpl
+            myLogI("Ignoring non-metadata byte payload: " + payloadId);
+        }
+    }
+
     private void stopSharing() {
         myLogI("Stopping nearby sharing/discovery");
         isActive = false;
@@ -489,5 +592,16 @@ public class NearbyShareActivity extends BaseActivity {
         if (nearbyHelper != null) {
             nearbyHelper.cleanup();
         }
+    }
+
+    /**
+     * Format bytes into human-readable string
+     */
+    private String formatBytes(long bytes) {
+        if (bytes < 1024)
+            return bytes + " B";
+        int exp = (int) (Math.log(bytes) / Math.log(1024));
+        String pre = "KMGTPE".charAt(exp - 1) + "";
+        return String.format(java.util.Locale.US, "%.1f %sB", bytes / Math.pow(1024, exp), pre);
     }
 }

@@ -48,6 +48,7 @@ public class NearbyConnectionsHelper {
 
     // Connection tracking
     private final Map<Long, Integer> payloadProgress = new HashMap<>();
+    private final Map<Long, Payload> receivedFilePayloads = new HashMap<>();
     private String connectedEndpointId;
 
     public NearbyConnectionsHelper(Context context) {
@@ -86,6 +87,8 @@ public class NearbyConnectionsHelper {
         void onPayloadTransferUpdate(long payloadId, int bytesTransferred, int totalBytes);
 
         void onPayloadReceived(long payloadId, byte[] data);
+
+        void onFilePayloadReceived(long payloadId, Payload filePayload);
 
         void onTransferComplete();
 
@@ -352,8 +355,10 @@ public class NearbyConnectionsHelper {
                 if (payloadCallback != null) {
                     payloadCallback.onPayloadReceived(payload.getId(), data);
                 }
+            } else if (payload.getType() == Payload.Type.FILE) {
+                // Store the payload for processing when transfer completes
+                receivedFilePayloads.put(payload.getId(), payload);
             }
-            // Files and streams are handled via transfer updates
         }
 
         @Override
@@ -371,14 +376,22 @@ public class NearbyConnectionsHelper {
 
             // Check for completion or failure
             if (update.getStatus() == PayloadTransferUpdate.Status.SUCCESS) {
-                if (payloadCallback != null) {
-                    payloadCallback.onPayloadSent(payloadId);
+                // Check if this was a file payload
+                Payload filePayload = receivedFilePayloads.get(payloadId);
+                if (filePayload != null) {
+                    // File transfer complete, notify callback
+                    if (payloadCallback != null) {
+                        payloadCallback.onFilePayloadReceived(payloadId, filePayload);
+                    }
+                    receivedFilePayloads.remove(payloadId);
+                } else {
+                    // Regular payload sent confirmation
+                    if (payloadCallback != null) {
+                        payloadCallback.onPayloadSent(payloadId);
+                    }
                 }
-
-                // Check if all payloads are complete
-                // For simplicity, we'll notify completion on each successful transfer
-                // In a full implementation, you'd track all payload IDs
             } else if (update.getStatus() == PayloadTransferUpdate.Status.FAILURE) {
+                receivedFilePayloads.remove(payloadId); // Clean up on failure
                 if (payloadCallback != null) {
                     payloadCallback.onTransferFailed("Payload transfer failed: " + payloadId);
                 }
