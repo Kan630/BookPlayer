@@ -54,6 +54,8 @@ public class NearbyShareReceiverHelper {
     public interface ProgressCallback {
         void onProgress(String message, int currentFile, int totalFiles, long bytesReceived, long totalBytes);
 
+        void onCoverReceived(String path);
+
         void onComplete(String bookName);
 
         void onError(String error);
@@ -190,6 +192,7 @@ public class NearbyShareReceiverHelper {
             myLogI("Saved cover image: " + coverFile.getAbsolutePath());
 
             if (progressCallback != null) {
+                progressCallback.onCoverReceived(coverFile.getAbsolutePath());
                 progressCallback.onProgress("Received cover image", 0, totalFileCount,
                         totalBytesReceived, totalSize);
             }

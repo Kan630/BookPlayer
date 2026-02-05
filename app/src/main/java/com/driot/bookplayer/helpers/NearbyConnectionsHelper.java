@@ -213,21 +213,29 @@ public class NearbyConnectionsHelper {
                 String filePath = zikFile.getPath() + "/" + zikFile.getName();
                 File audioFile = new File(filePath);
 
+                myLogI("Preparing to send file: " + filePath);
+
                 if (audioFile.exists()) {
                     try {
                         Payload filePayload = Payload.fromFile(audioFile);
                         payloadNames.put(filePayload.getId(), zikFile.getName());
-                        connectionsClient.sendPayload(endpointId, filePayload);
+                        connectionsClient.sendPayload(endpointId, filePayload)
+                                .addOnFailureListener(e -> myLogE("Failed to send payload: " + e.getMessage()));
+
+                        myLogI("Queued payload: " + filePayload.getId() + " for " + zikFile.getName());
                     } catch (Exception e) {
-                        // Skip this file if we can't read it
+                        myLogEE(e, "Skipping file " + zikFile.getName());
                     }
+                } else {
+                    myLogE("File does not exist: " + filePath);
                 }
                 // If file doesn't exist, skip it
             }
 
-        } catch (JSONException e) {
+        } catch (Exception e) {
+            myLogEE(e, "Error sending book data");
             if (payloadCallback != null) {
-                payloadCallback.onTransferFailed("Failed to create metadata: " + e.getMessage());
+                payloadCallback.onTransferFailed("Failed to send book data: " + e.getMessage());
             }
         }
     }

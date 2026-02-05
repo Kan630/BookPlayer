@@ -449,6 +449,15 @@ public class NearbyShareActivity extends BaseActivity {
                         }
 
                         @Override
+                        public void onCoverReceived(String path) {
+                            runOnUiThread(() -> {
+                                if (path != null && !path.isEmpty()) {
+                                    ivCoverPreview.setImageURI(android.net.Uri.fromFile(new java.io.File(path)));
+                                }
+                            });
+                        }
+
+                        @Override
                         public void onComplete(String bookName) {
                             runOnUiThread(() -> {
                                 myLog("Transfer complete: " + bookName);
