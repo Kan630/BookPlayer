@@ -24,6 +24,12 @@
                 app:showAsAction="ifRoom"
                 />
 
+            <item android:id="@+id/menu_receive_book"
+                android:title="@string/nearby_share_receive_book"
+                android:icon="@drawable/ic_menu_open"
+                app:showAsAction="ifRoom"
+                />
+
             <item android:id="@+id/menu_manual"
                 android:title="@string/manual"
                 android:icon="@drawable/ic_menu_book_24"

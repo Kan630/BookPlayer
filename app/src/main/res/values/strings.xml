@@ -1108,13 +1108,14 @@
     <string name="share_book">Share Book</string>
     <string name="nearby_share_send_tab">Send</string>
     <string name="nearby_share_receive_tab">Receive</string>
+    <string name="nearby_share_receive_book">Receive Book</string>
     <string name="nearby_share_start_advertising">Start Advertising</string>
     <string name="nearby_share_stop_advertising">Stop Advertising</string>
     <string name="nearby_share_start_discovering">Start Discovering</string>
     <string name="nearby_share_stop_discovering">Stop Discovering</string>
     <string name="nearby_share_searching">Searching for nearby devices…</string>
     <string name="nearby_share_found_device">Found device: %s</string>
-    <string name="nearby_share_connecting">Connecting…</string>4
+    <string name="nearby_share_connecting">Connecting…</string>
     <string name="nearby_share_transferring">Transferring: %d%%</string>
     <string name="nearby_share_receiving">Receiving: %d%%</string>
     <string name="nearby_share_complete">Transfer complete!</string>
@@ -1124,5 +1125,6 @@
     <string name="nearby_share_permissions_required">Bluetooth and location permissions are required for nearby sharing</string>
     <string name="nearby_share_no_devices">No devices found</string>
     <string name="nearby_share_book_info">Book: %1$s (%2$d tracks, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">Waiting to receive a book from nearby device…</string>
     
 </resources>

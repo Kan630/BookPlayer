@@ -26,6 +26,7 @@ import com.driot.bookplayer.helpers.NearbyConnectionsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -56,9 +57,11 @@ public class NearbyShareActivity extends BaseActivity {
         setContentView(R.layout.activity_nearby_share);
         InsetHelper.apply(this);
 
-        // Get folder from intent
+        // Get folder from intent (optional for receive mode)
         folder = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
-        if (folder == null) {
+        boolean receiveMode = getIntent().getBooleanExtra("RECEIVE_MODE", false);
+
+        if (folder == null && !receiveMode) {
             myLogEE(null, "No folder provided");
             myToastE("Error: No folder to share");
             finish();
@@ -80,8 +83,14 @@ public class NearbyShareActivity extends BaseActivity {
             updateUI();
         });
 
-        // Load book files
-        loadBookFiles();
+        // Load book files only if we have a folder
+        if (folder != null) {
+            loadBookFiles();
+        } else {
+            // In receive mode without a folder
+            tvBookInfo.setText(getString(R.string.nearby_share_receive_mode_info));
+            zikFiles = new ArrayList<>();
+        }
 
         // Initialize Nearby Connections Helper
         nearbyHelper = new NearbyConnectionsHelper(this);
@@ -94,6 +103,13 @@ public class NearbyShareActivity extends BaseActivity {
                 checkPermissionsAndStart();
             }
         });
+
+        // If launched in receive mode, auto-select Receive and hide mode selection
+        if (receiveMode) {
+            rbReceiveMode.setChecked(true);
+            isSendMode = false;
+            updateUI();
+        }
 
         updateUI();
     }
@@ -150,25 +166,42 @@ public class NearbyShareActivity extends BaseActivity {
         // Check required permissions based on Android version
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Android 12+
-            if (checkPermission(Manifest.permission.BLUETOOTH_ADVERTISE) &&
-                    checkPermission(Manifest.permission.BLUETOOTH_CONNECT) &&
-                    checkPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+            myLogI("Checking permissions for Android 12+ (SDK " + Build.VERSION.SDK_INT + ")");
+
+            boolean hasAdvertise = checkPermission(Manifest.permission.BLUETOOTH_ADVERTISE);
+            boolean hasConnect = checkPermission(Manifest.permission.BLUETOOTH_CONNECT);
+            boolean hasScan = checkPermission(Manifest.permission.BLUETOOTH_SCAN);
+            boolean hasCoarse = checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+            myLogI("Permission status: ADVERTISE=" + hasAdvertise + ", CONNECT=" + hasConnect +
+                    ", SCAN=" + hasScan + ", COARSE_LOCATION=" + hasCoarse);
+
+            if (hasAdvertise && hasConnect && hasScan && hasCoarse) {
                 startProcess();
             } else {
                 requestPermissions(new String[] {
                         Manifest.permission.BLUETOOTH_ADVERTISE,
                         Manifest.permission.BLUETOOTH_CONNECT,
                         Manifest.permission.BLUETOOTH_SCAN,
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
                         Manifest.permission.NEARBY_WIFI_DEVICES
                 }, PERMISSION_REQUEST_CODE);
             }
         } else {
             // Android 11 and below
-            if (checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+            myLogI("Checking permissions for Android 11 and below (SDK " + Build.VERSION.SDK_INT + ")");
+
+            boolean hasFine = checkPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            boolean hasCoarse = checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
+
+            myLogI("Permission status: FINE_LOCATION=" + hasFine + ", COARSE_LOCATION=" + hasCoarse);
+
+            if (hasFine && hasCoarse) {
                 startProcess();
             } else {
                 requestPermissions(new String[] {
-                        Manifest.permission.ACCESS_FINE_LOCATION
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.ACCESS_COARSE_LOCATION
                 }, PERMISSION_REQUEST_CODE);
             }
         }
@@ -184,6 +217,14 @@ public class NearbyShareActivity extends BaseActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         if (requestCode == PERMISSION_REQUEST_CODE) {
+            myLogI("Permission request result received");
+
+            for (int i = 0; i < permissions.length; i++) {
+                String permission = permissions[i];
+                boolean granted = grantResults[i] == PackageManager.PERMISSION_GRANTED;
+                myLogI("Permission " + permission + ": " + (granted ? "GRANTED" : "DENIED"));
+            }
+
             boolean allGranted = true;
             for (int result : grantResults) {
                 if (result != PackageManager.PERMISSION_GRANTED) {

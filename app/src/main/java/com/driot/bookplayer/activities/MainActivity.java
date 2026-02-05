@@ -85,12 +85,13 @@ public class MainActivity extends BaseBottomNavActivity {
         }
     };
 
-    private final ActivityResultLauncher<Intent> modifyFolderLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+    private final ActivityResultLauncher<Intent> modifyFolderLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(), result -> {
                 if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null || mainVm == null)
                     return;
                 Intent data = result.getData();
-                if (data.getIntExtra("deletedFolderId", -1) != -1 || data.getIntExtra("deleteInProgressFolderId", -1) != -1) {
+                if (data.getIntExtra("deletedFolderId", -1) != -1
+                        || data.getIntExtra("deleteInProgressFolderId", -1) != -1) {
                     mainVm.notifyFoldersListChanged();
                 } else {
                     int folderId = data.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
@@ -305,6 +306,11 @@ public class MainActivity extends BaseBottomNavActivity {
         } else if (itemId == R.id.menu_open) {
             myLogI("--- USER clicks MENU : OPEN ---");
             startActivity(new Intent(getApplicationContext(), GetActivity.class));
+        } else if (itemId == R.id.menu_receive_book) {
+            myLogI("--- USER clicks MENU : RECEIVE BOOK ---");
+            Intent intent = new Intent(this, NearbyShareActivity.class);
+            intent.putExtra("RECEIVE_MODE", true); // Flag to start in receive mode
+            startActivity(intent);
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
@@ -398,8 +404,10 @@ public class MainActivity extends BaseBottomNavActivity {
         MaterialButton btnAlpha = dialogView.findViewById(R.id.btn_alpha);
         MaterialButton btnAdded = dialogView.findViewById(R.id.btn_added);
 
-        // Set initial checked button + direction suffix (▲ ▼ = filled triangles, more visible than ↑ ↓)
-        // Alphabetical: reversed (▲ = Z→A, ▼ = A→Z) so it matches "list order" intuition
+        // Set initial checked button + direction suffix (▲ ▼ = filled triangles, more
+        // visible than ↑ ↓)
+        // Alphabetical: reversed (▲ = Z→A, ▼ = A→Z) so it matches "list order"
+        // intuition
         int checkedId0;
         String suffix0 = "desc".equals(currentDir) ? " \u25BC" : " \u25B2";
         String suffixAlpha = "desc".equals(currentDir) ? " \u25B2" : " \u25BC";
