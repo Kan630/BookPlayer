@@ -67,37 +67,38 @@ public final class AudioFocusHelper extends LoggerHelper implements AudioManager
                 || change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK) {
             long sinceReq = android.os.SystemClock.uptimeMillis() - lastRequestUptime;
             if (sinceReq < 500) {
-                myLog("Debounce: ignore very-early transients right after we asked for focus (during our own start)");
+                myLogW("Debounce: ignore very-early transients right after we asked for focus (during our own start)");
                 return;
             }
         }
 
         switch (change) {
             case AudioManager.AUDIOFOCUS_GAIN:
-                myLog("AUDIOFOCUS_GAIN");
+                myLog("AUDIO_FOCUS_GAIN");
                 // Leaving duck as well
                 cb.onDuck(false);
                 cb.onFocusGain();
                 break;
 
             case AudioManager.AUDIOFOCUS_LOSS:
-                myLog("AUDIOFOCUS_LOSS");
+                myLog("AUDIO_FOCUS_LOSS");
                 cb.onDuck(false);
                 cb.onFocusLost(AudioManager.AUDIOFOCUS_LOSS);
                 break;
 
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-                myLog("AUDIOFOCUS_LOSS_TRANSIENT");
+                myLog("AUDIO_FOCUS_LOSS_TRANSIENT");
                 cb.onDuck(false);
                 cb.onFocusLost(AudioManager.AUDIOFOCUS_LOSS_TRANSIENT);
                 break;
 
             case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-                myLog("AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK");
+                myLog("AUDIO_FOCUS_LOSS_TRANSIENT_CAN_DUCK");
                 cb.onDuck(true);
                 break;
 
             default:
+                myLogW("Unknown AUDIO FOCUS change : " + change);
                 // ignore
         }
     }
