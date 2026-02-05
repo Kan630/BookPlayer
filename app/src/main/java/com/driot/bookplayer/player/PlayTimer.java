@@ -90,7 +90,7 @@ public final class PlayTimer extends LoggerHelper {
 
     public void start(int customMinutes) {
         myLog("=> starting - (sleep in " + customMinutes + " min.)");
-        this.maxMinutes = Math.max(0, customMinutes);
+        this.maxMinutes = Math.max(1, customMinutes);
         this.elapsedMs = 0L;
         this.msSinceLastUserAction = 0L;
         this.playedSinceLastMinuteMs = 0L;

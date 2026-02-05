@@ -2168,6 +2168,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private boolean playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
         myLogI("playStream " + playMode + " - title = [" + title + "] - url = [" + url + "]");
 
+        if (playTimer != null) {
+            // Always stop timer when starting a stream (Radio/Podcast) to pick up new sleep
+            // settings
+            playTimer.stop();
+        }
         streamTitle = title;
         streamImageUrl = imageUrl;
         streamUri = Uri.parse(url);
