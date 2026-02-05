@@ -31,10 +31,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         default void onDone(String uttId) {}
         default void onError(String uttId, int code) {}
         default void onWordRange(int absStart, int absEnd) {}
-        /** Same as onWordRange but with chunk bounds for progressive highlight delay. */
-        default void onWordRange(int absStart, int absEnd, int chunkStart, int chunkEnd) {
-            onWordRange(absStart, absEnd);
-        }
         default void onUtteranceRange(int absStart, int absEnd) {}
     }
 
@@ -195,12 +191,10 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     if (se != null) {
                         int absStart = se[0] + Math.max(0, start);
                         int absEnd   = se[0] + Math.max(0, end);
-                        int chunkStart = se[0];
-                        int chunkEnd   = se[1];
-                        forEachListener(l -> l.onWordRange(absStart, absEnd, chunkStart, chunkEnd));
+                        forEachListener(l -> l.onWordRange(absStart, absEnd));
                     } else {
-                        // Fallback: pass relative range, no chunk bounds
-                        forEachListener(l -> l.onWordRange(start, end, -1, -1));
+                        // Fallback: pass relative range
+                        forEachListener(l -> l.onWordRange(start, end));
                     }
                 }
             });

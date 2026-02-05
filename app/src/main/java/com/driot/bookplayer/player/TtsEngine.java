@@ -487,34 +487,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         onUtteranceRange(s, e);
     }
 
-    @Override
-    public void onWordRange(int s, int e, int chunkStart, int chunkEnd) {
-        if (disposed)
-            return;
-
-        if (!playing) {
-            myLogD("TTS RANGE....: pos= ignoring callback (not playing) [" + s + "-" + e + "]");
-            return;
-        }
-
-        lastCharSpoken = Math.min(Math.max(0, e), text.length());
-        if (!text.isEmpty() && estDurationMs > 0) {
-            estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
-        }
-
-        String wordAtRange = "";
-        if (!text.isEmpty() && s < text.length() && e <= text.length() && s < e) {
-            wordAtRange = text.substring(s, Math.min(e, text.length()));
-            String[] words = wordAtRange.trim().split("\\s+");
-            if (words.length > 0) {
-                wordAtRange = words[0];
-            }
-        }
-        myLogD("TTS RANGE....: pos=[" + s + "-" + e + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
-
-        listener.onTtsRange(gen, s, Math.min(e, Math.max(0, text.length())), chunkStart, chunkEnd);
-    }
-
     // --------------------- Public helpers specific to TTS ---------------------
 
     /** Expose the loaded raw text for UI. */

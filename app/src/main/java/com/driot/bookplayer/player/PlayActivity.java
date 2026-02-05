@@ -483,9 +483,10 @@ public class PlayActivity extends BaseActivity {
 
         });
 
-        vm.getTtsRange().observe(this, ev -> {
-            if (ev != null)
-                ttsHighlighter.scheduleHighlight(ev.start, ev.end, ev.chunkStart, ev.chunkEnd);
+        vm.getTtsRange().observe(this, p -> {
+            // myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
+            if (p != null)
+                ttsHighlighter.scheduleHighlight(p.first, p.second);
         });
 
         vm.getTtsText().observe(this, txt -> {

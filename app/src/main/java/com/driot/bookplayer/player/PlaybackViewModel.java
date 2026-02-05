@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.support.v4.media.session.MediaControllerCompat;
+import android.util.Pair;
 import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
@@ -80,9 +81,9 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         _seekPreviewMs.setValue(positionMs);
     }
 
-    private final MutableLiveData<TtsRangeEvent> ttsRange = new MutableLiveData<>();
+    private final MutableLiveData<Pair<Integer, Integer>> ttsRange = new MutableLiveData<>();
 
-    public LiveData<TtsRangeEvent> getTtsRange() {
+    public LiveData<Pair<Integer, Integer>> getTtsRange() {
         return ttsRange;
     }
 
@@ -194,10 +195,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             if (Intents.NOTIFICATION_TTS_RANGE.equals(i.getAction())) {
                 int s = i.getIntExtra(Intents.EXTRA_TTS_START, -1);
                 int e = i.getIntExtra(Intents.EXTRA_TTS_END, -1);
-                int cs = i.getIntExtra(Intents.EXTRA_TTS_CHUNK_START, -1);
-                int ce = i.getIntExtra(Intents.EXTRA_TTS_CHUNK_END, -1);
                 if (s >= 0)
-                    ttsRange.postValue(new TtsRangeEvent(s, e, cs, ce));
+                    ttsRange.postValue(new Pair<>(s, e));
             }
         }
     };
