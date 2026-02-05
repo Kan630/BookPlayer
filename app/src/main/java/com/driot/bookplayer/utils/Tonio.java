@@ -522,6 +522,13 @@ public class Tonio {
         return String.format(Locale.US, "%.1fMB", mb);
     }
 
+    public static String formatSizeMB_translate(Context context, long bytes) {
+        double mb = bytes / (1024.0 * 1024.0);
+        String smb = context.getApplicationContext().getString(R.string.MB);
+        String zeReturn = String.format(Locale.US, "%.1f", mb);
+        return zeReturn + " " + smb;
+    }
+
     public static String getFileNameFromUrl(String url) {
         return Uri.parse(url).getLastPathSegment();
     }

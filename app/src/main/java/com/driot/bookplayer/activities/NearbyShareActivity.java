@@ -181,7 +181,7 @@ public class NearbyShareActivity extends BaseActivity {
                         getString(R.string.nearby_share_book_info),
                         folder.getName(),
                         zikFiles.size(),
-                        Tonio.formatMemPadding(NearbyShareActivity.this, totalSize));
+                        Tonio.formatSizeMB_translate(this, totalSize) + " " + getString(R.string.MB));
                 tvBookInfo.setText(info);
 
                 // Set preview
@@ -209,7 +209,7 @@ public class NearbyShareActivity extends BaseActivity {
         }
 
         // Update Title dynamically
-        title.setText(isSendMode ? "Nearby Send" : "Nearby Receive");
+        title.setText(isSendMode ? "Quick Share - Send" : "Quick Share - Receive");
     }
 
     private void checkPermissionsAndStart() {

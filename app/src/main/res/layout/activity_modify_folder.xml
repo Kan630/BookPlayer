@@ -387,14 +387,14 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:src="@drawable/ic_share_24px"
+                    android:src="@drawable/ic_connect_without_contact_24px"
                     />
                 <Button
                     android:layout_marginStart="30dp"
                     android:id="@+id/bShare"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/Share_3pt"
+                    android:text="@string/Quick_Share_3dots"
                     />
             </LinearLayout>
 
