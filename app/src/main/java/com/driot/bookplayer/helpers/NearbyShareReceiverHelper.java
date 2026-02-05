@@ -296,6 +296,8 @@ public class NearbyShareReceiverHelper {
             job.dynamicUri = Uri.fromFile(new File(bookFolderPath)).getPath();
             job.originalType = "Folder";
             job.dynamicType = "Folder";
+            job.futureFolderPath = bookFolderPath;
+            job.sourceLocation = "NEARBY_SHARE";
             job.createdAt = job.updatedAt = System.currentTimeMillis();
 
             ImportJobRepository repo = new ImportJobRepository(context);
@@ -365,7 +367,7 @@ public class NearbyShareReceiverHelper {
                 File[] files = baseDir.listFiles((dir, name) -> name.startsWith("Folder Fun letters"));
                 if (files != null) {
                     for (File f : files) {
-                        //deleteRecursiveStatic(f);
+                        // deleteRecursiveStatic(f);
                         myLogW("Deleted legacy folder: " + f.getName());
                     }
                 } else {

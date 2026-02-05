@@ -16,6 +16,16 @@
         />
 
     <TextView
+        android:id="@+id/title"
+        style="@style/OptionExplainText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        android:text="@string/share_book"
+        android:background="@drawable/bg_chip"
+        />
+
+    <TextView
         android:id="@+id/tvBookInfo"
         style="@style/myStyleInfo"
         android:layout_width="match_parent"
@@ -56,15 +66,6 @@
             />
     </LinearLayout>
 
-    <TextView
-        style="@style/myStyleInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:paddingHorizontal="10dp"
-        android:text="Select mode:"
-        />
-
     <RadioGroup
         android:id="@+id/rgMode"
         android:layout_width="match_parent"
@@ -90,12 +91,13 @@
             />
     </RadioGroup>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/btnStartSharing"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="20dp"
         android:text="@string/nearby_share_start_advertising"
+        android:backgroundTint="?attr/colorPrimary"
         />
 
     <ProgressBar

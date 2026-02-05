@@ -1108,7 +1108,7 @@
     <string name="share_book">Share Book</string>
     <string name="nearby_share_send_tab">Send</string>
     <string name="nearby_share_receive_tab">Receive</string>
-    <string name="nearby_share_receive_book">Receive Book</string>
+    <string name="nearby_share_receive_book">Quick share</string>
     <string name="nearby_share_start_advertising">Start Advertising</string>
     <string name="nearby_share_stop_advertising">Stop Advertising</string>
     <string name="nearby_share_start_discovering">Start Discovering</string>
@@ -1127,4 +1127,5 @@
     <string name="nearby_share_book_info">Book: %1$s (%2$d tracks, %3$s)</string>
     <string name="nearby_share_receive_mode_info">Waiting to receive a book from nearby device…</string>
     
+    <string name="nearby_share_ready">Ready</string>
 </resources>

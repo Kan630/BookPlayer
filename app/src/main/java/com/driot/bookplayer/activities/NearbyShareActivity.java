@@ -3,6 +3,7 @@ package com.driot.bookplayer.activities;
 import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.os.Build;
 import android.os.Bundle;
 import android.widget.Button;
@@ -30,6 +31,7 @@ import com.google.android.gms.common.GoogleApiAvailability;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.nearby.connection.Payload;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
+import com.google.android.material.button.MaterialButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +52,7 @@ public class NearbyShareActivity extends BaseActivity {
 
     private TextView tvBookInfo;
     private TextView tvStatus;
-    private Button btnStartSharing;
+    private MaterialButton btnStartSharing;
     private ProgressBar progressBar;
     private RadioGroup rgMode;
     private RadioButton rbSendMode;
@@ -59,6 +61,7 @@ public class NearbyShareActivity extends BaseActivity {
     private android.widget.LinearLayout layoutBookPreview;
     private android.widget.ImageView ivCoverPreview;
     private TextView tvBookTitlePreview;
+    private TextView title;
 
     private boolean isActive = false; // Either advertising or discovering
     private boolean isSendMode = true; // true = send/advertise, false = receive/discover
@@ -81,6 +84,7 @@ public class NearbyShareActivity extends BaseActivity {
         }
 
         // Initialize views
+        title = findViewById(R.id.title);
         tvBookInfo = findViewById(R.id.tvBookInfo);
         tvStatus = findViewById(R.id.tvStatus);
         btnStartSharing = findViewById(R.id.btnStartSharing);
@@ -122,11 +126,13 @@ public class NearbyShareActivity extends BaseActivity {
             }
         });
 
-        // If launched in receive mode, auto-select Receive and hide mode selection
+        // Hide the mode toggle as requested in UX update
+        findViewById(R.id.rgMode).setVisibility(android.view.View.GONE);
+
+        // If launched in receive mode, auto-select Receive and update UI
         if (receiveMode) {
             rbReceiveMode.setChecked(true);
             isSendMode = false;
-            updateUI();
         }
 
         // Log Google Play Services info for diagnostics
@@ -188,29 +194,22 @@ public class NearbyShareActivity extends BaseActivity {
     }
 
     private void updateUI() {
-        // Disable mode selection when active
-        rgMode.setEnabled(!isActive);
-        rbSendMode.setEnabled(!isActive);
-        rbReceiveMode.setEnabled(!isActive);
-
         if (isActive) {
-            if (isSendMode) {
-                btnStartSharing.setText(R.string.nearby_share_stop_advertising);
-                tvStatus.setText(R.string.nearby_share_searching);
-            } else {
-                btnStartSharing.setText(R.string.nearby_share_stop_discovering);
-                tvStatus.setText(R.string.nearby_share_searching);
-            }
-            progressBar.setVisibility(ProgressBar.VISIBLE);
+            btnStartSharing.setText(
+                    isSendMode ? R.string.nearby_share_stop_advertising : R.string.nearby_share_stop_discovering);
+            btnStartSharing.setBackgroundTintList(getColorStateList(R.color.colorError));
+            progressBar.setVisibility(android.view.View.VISIBLE);
         } else {
-            if (isSendMode) {
-                btnStartSharing.setText(R.string.nearby_share_start_advertising);
-            } else {
-                btnStartSharing.setText(R.string.nearby_share_start_discovering);
-            }
-            tvStatus.setText("");
-            progressBar.setVisibility(ProgressBar.GONE);
+            btnStartSharing.setText(
+                    isSendMode ? R.string.nearby_share_start_advertising : R.string.nearby_share_start_discovering);
+
+            btnStartSharing.setBackgroundTintList(null);
+            progressBar.setVisibility(android.view.View.GONE);
+            tvStatus.setText(R.string.nearby_share_ready);
         }
+
+        // Update Title dynamically
+        title.setText(isSendMode ? "Nearby Send" : "Nearby Receive");
     }
 
     private void checkPermissionsAndStart() {
@@ -598,7 +597,7 @@ public class NearbyShareActivity extends BaseActivity {
                 processingExecutor.execute(() -> {
                     if (!receiverHelper.createBookFolder()) {
                         runOnUiThread(() -> {
-                            myToastE("Failed to create book folder");
+                            myToastE("Import failed: Folder may already exist. Check logs.");
                             stopSharing();
                         });
                     }

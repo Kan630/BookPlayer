@@ -29,6 +29,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
+import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioFileInfo;
@@ -565,7 +566,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                             importJob.originalUri.toString(), // source_url
                             "todo", // imageLocal if you saved it
                             "todo", // imageRemote if available
-                    -1 // imageRemote if available
+                            -1 // imageRemote if available
                     );
                 });
             }
@@ -840,5 +841,33 @@ public class FinalParseFolderWorker extends ImportWorker {
             }
         }
         return null;
+    }
+
+    @Override
+    protected void failNow(String taskName, String devMsg, String userMsg) {
+        // Special cleanup for Nearby Share auto-created folders
+        try {
+            if (importJob != null && "NEARBY_SHARE".equals(importJob.sourceLocation)) {
+                myLogI("Cleaning up failed Nearby Share import folder: " + importJob.futureFolderPath);
+                ImportHelper.cleanUp(context, true, importJob.futureFolderPath);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Failed to cleanup Nearby Share folder");
+        }
+        super.failNow(taskName, devMsg, userMsg);
+    }
+
+    @Override
+    protected androidx.work.ListenableWorker.Result failResult(String taskName, String devMsg, String userMsg) {
+        // Special cleanup for Nearby Share auto-created folders
+        try {
+            if (importJob != null && "NEARBY_SHARE".equals(importJob.sourceLocation)) {
+                myLogI("Cleaning up failed Nearby Share import folder: " + importJob.futureFolderPath);
+                ImportHelper.cleanUp(context, true, importJob.futureFolderPath);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Failed to cleanup Nearby Share folder");
+        }
+        return super.failResult(taskName, devMsg, userMsg);
     }
 }

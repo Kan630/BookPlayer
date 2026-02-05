@@ -26,7 +26,7 @@
 
             <item android:id="@+id/menu_receive_book"
                 android:title="@string/nearby_share_receive_book"
-                android:icon="@drawable/ic_menu_open"
+                android:icon="@drawable/ic_connect_without_contact_24px"
                 app:showAsAction="ifRoom"
                 />
 
