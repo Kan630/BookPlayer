@@ -175,6 +175,12 @@ public class NearbyShareReceiverHelper {
      * Save cover image file
      */
     public boolean saveCoverFile(ParcelFileDescriptor pfd) {
+        // Only save cover if it exists and this is the first file payload (index 1)
+        // Payload 0 is metadata, so Payload 1 is cover (if hasCover=true)
+        if (!hasCover || receivedPayloads != 1) {
+            return false;
+        }
+
         try {
             File coverFile = new File(bookFolderPath, "cover.jpg");
 
