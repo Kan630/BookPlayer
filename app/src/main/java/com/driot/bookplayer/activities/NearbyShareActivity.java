@@ -19,6 +19,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NearbyConnectionsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -47,6 +48,7 @@ public class NearbyShareActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_nearby_share);
+        InsetHelper.apply(this);
 
         // Get folder from intent
         folder = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
