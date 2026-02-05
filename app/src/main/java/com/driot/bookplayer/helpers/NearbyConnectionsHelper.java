@@ -210,8 +210,26 @@ public class NearbyConnectionsHelper {
 
             // Step 3: Send audio files
             for (ZikFile zikFile : files) {
-                String filePath = zikFile.getPath() + "/" + zikFile.getName();
-                File audioFile = new File(filePath);
+                File audioFile = null;
+                String zikPath = zikFile.getPath();
+
+                // Try using zikFile.getPath() first
+                try {
+                    if (zikPath.startsWith("file:")) {
+                        audioFile = new File(Uri.parse(zikPath).getPath());
+                    } else {
+                        audioFile = new File(zikPath);
+                    }
+                } catch (Exception e) {
+                    // Ignore parsing errors
+                }
+
+                // Fallback: if primary path is invalid or points to a directory
+                if (audioFile == null || !audioFile.exists() || !audioFile.isFile()) {
+                    audioFile = new File(folder.getPath(), zikFile.getName());
+                }
+
+                String filePath = audioFile.getAbsolutePath();
 
                 myLogI("Preparing to send file: " + filePath);
 
