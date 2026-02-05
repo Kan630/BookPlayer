@@ -376,11 +376,12 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+            <TextView style="@style/betatest"/>
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:layout_marginTop="20dp"
+                android:layout_marginTop="00dp"
                 >
                 <ImageView
                     android:layout_width="wrap_content"
