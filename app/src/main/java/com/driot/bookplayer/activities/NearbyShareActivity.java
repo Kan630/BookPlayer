@@ -163,49 +163,50 @@ public class NearbyShareActivity extends BaseActivity {
     }
 
     private void checkPermissionsAndStart() {
-        // Check required permissions based on Android version
+        myLogI("Checking permissions (SDK " + Build.VERSION.SDK_INT + ")");
+
+        List<String> missing = new ArrayList<>();
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             // Android 12+
-            myLogI("Checking permissions for Android 12+ (SDK " + Build.VERSION.SDK_INT + ")");
 
-            boolean hasAdvertise = checkPermission(Manifest.permission.BLUETOOTH_ADVERTISE);
-            boolean hasConnect = checkPermission(Manifest.permission.BLUETOOTH_CONNECT);
-            boolean hasScan = checkPermission(Manifest.permission.BLUETOOTH_SCAN);
-            boolean hasCoarse = checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-
-            myLogI("Permission status: ADVERTISE=" + hasAdvertise + ", CONNECT=" + hasConnect +
-                    ", SCAN=" + hasScan + ", COARSE_LOCATION=" + hasCoarse);
-
-            if (hasAdvertise && hasConnect && hasScan && hasCoarse) {
-                startProcess();
-            } else {
-                requestPermissions(new String[] {
-                        Manifest.permission.BLUETOOTH_ADVERTISE,
-                        Manifest.permission.BLUETOOTH_CONNECT,
-                        Manifest.permission.BLUETOOTH_SCAN,
-                        Manifest.permission.ACCESS_COARSE_LOCATION,
-                        Manifest.permission.NEARBY_WIFI_DEVICES
-                }, PERMISSION_REQUEST_CODE);
+            if (!checkPermission(Manifest.permission.BLUETOOTH_ADVERTISE)) {
+                missing.add(Manifest.permission.BLUETOOTH_ADVERTISE);
             }
+            if (!checkPermission(Manifest.permission.BLUETOOTH_CONNECT)) {
+                missing.add(Manifest.permission.BLUETOOTH_CONNECT);
+            }
+            if (!checkPermission(Manifest.permission.BLUETOOTH_SCAN)) {
+                missing.add(Manifest.permission.BLUETOOTH_SCAN);
+            }
+
+            // REQUIRED by Nearby Connections (Play Services), even on SDK 36
+            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+
         } else {
             // Android 11 and below
-            myLogI("Checking permissions for Android 11 and below (SDK " + Build.VERSION.SDK_INT + ")");
-
-            boolean hasFine = checkPermission(Manifest.permission.ACCESS_FINE_LOCATION);
-            boolean hasCoarse = checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION);
-
-            myLogI("Permission status: FINE_LOCATION=" + hasFine + ", COARSE_LOCATION=" + hasCoarse);
-
-            if (hasFine && hasCoarse) {
-                startProcess();
-            } else {
-                requestPermissions(new String[] {
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.ACCESS_COARSE_LOCATION
-                }, PERMISSION_REQUEST_CODE);
+            if (!checkPermission(Manifest.permission.ACCESS_FINE_LOCATION)) {
+                missing.add(Manifest.permission.ACCESS_FINE_LOCATION);
+            }
+            if (!checkPermission(Manifest.permission.ACCESS_COARSE_LOCATION)) {
+                missing.add(Manifest.permission.ACCESS_COARSE_LOCATION);
             }
         }
+
+        if (missing.isEmpty()) {
+            myLogI("All required permissions granted");
+            startProcess();
+        } else {
+            myLogI("Requesting permissions: " + missing);
+            requestPermissions(
+                    missing.toArray(new String[0]),
+                    PERMISSION_REQUEST_CODE
+            );
+        }
     }
+
 
     private boolean checkPermission(String permission) {
         return ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED;
