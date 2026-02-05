@@ -97,4 +97,8 @@
 -dontwarn com.google.re2j.Matcher
 -dontwarn com.google.re2j.Pattern
 
+# ---------- MP4Parser ----------
+-keep class com.googlecode.mp4parser.** { *; }
+-keep class com.coremedia.iso.** { *; }
+
 # ---------- End ----------
