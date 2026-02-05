@@ -34,6 +34,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NearbyShareReceiverHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
@@ -212,6 +213,8 @@ public class MainActivity extends BaseBottomNavActivity {
         // InAppMsgManager.deleteInAppMsgCache(this);
         MyApp.getPeriodicTaskManager(this).start(); // safe
         InAppMsgManager.maybeShowBestMessage(this, "message");
+
+        //NearbyShareReceiverHelper.deleteLegacyTestFolders(this);
     }
 
     @Override

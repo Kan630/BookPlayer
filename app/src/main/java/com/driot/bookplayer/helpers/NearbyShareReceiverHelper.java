@@ -1,6 +1,7 @@
 package com.driot.bookplayer.helpers;
 
 import android.content.Context;
+import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
 import androidx.work.Data;
@@ -20,6 +21,7 @@ import org.json.JSONObject;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -140,35 +142,21 @@ public class NearbyShareReceiverHelper {
     /**
      * Get unique folder path by checking DB and filesystem
      */
-    private String getUniqueFolderPath(String basePath, String folderName) {
+    private String getUniqueFolderPath(String basePath, String folderName) throws IOException {
         FolderDao folderDAO = AppDatabase.getInstance(context).folderDao();
 
-        String candidateName = folderName;
-        int suffix = 2;
-
-        while (true) {
-            // Check if exists in DB
-            boolean existsInDb = folderDAO.folderAlreadyExist_checkFolderName(candidateName) > 0;
-
-            // Check if exists on filesystem
-            File candidateDir = new File(basePath, candidateName);
-            boolean existsOnDisk = candidateDir.exists();
-
-            if (!existsInDb && !existsOnDisk) {
-                return candidateDir.getAbsolutePath();
-            }
-
-            // Try next suffix
-            candidateName = folderName + " (" + suffix + ")";
-            suffix++;
-
-            // Safety limit
-            if (suffix > 100) {
-                // Fallback to UUID
-                candidateName = folderName + " (" + UUID.randomUUID().toString().substring(0, 8) + ")";
-                return new File(basePath, candidateName).getAbsolutePath();
-            }
+        // Check if exists in DB
+        if (folderDAO.folderAlreadyExist_checkFolderName(folderName) > 0) {
+            throw new IOException("Folder already exists in database: " + folderName);
         }
+
+        // Check if exists on filesystem
+        File candidateDir = new File(basePath, folderName);
+        if (candidateDir.exists()) {
+            throw new IOException("Folder already exists on filesystem: " + folderName);
+        }
+
+        return candidateDir.getAbsolutePath();
     }
 
     /**
@@ -303,6 +291,11 @@ public class NearbyShareReceiverHelper {
             job.title = bookName;
             job.futureFolderName = new File(bookFolderPath).getName();
             job.futureFolderPath = bookFolderPath;
+            job.sourceLocation = "NEARBY_SHARE";
+            job.originalUri = Uri.fromFile(new File(bookFolderPath)).getPath();
+            job.dynamicUri = Uri.fromFile(new File(bookFolderPath)).getPath();
+            job.originalType = "Folder";
+            job.dynamicType = "Folder";
             job.createdAt = job.updatedAt = System.currentTimeMillis();
 
             ImportJobRepository repo = new ImportJobRepository(context);
@@ -357,6 +350,41 @@ public class NearbyShareReceiverHelper {
             if (children != null) {
                 for (File child : children) {
                     deleteRecursive(child);
+                }
+            }
+        }
+        file.delete();
+    }
+
+    public static void deleteLegacyTestFolders(Context context) {
+        myLogW("Deleting legacy folder: ");
+        try {
+            File baseDir = StorageHelper.getUnzipFolder(context);
+            myLogW("legacy folder: " + baseDir.getAbsolutePath());
+            if (baseDir.exists()) {
+                File[] files = baseDir.listFiles((dir, name) -> name.startsWith("Folder Fun letters"));
+                if (files != null) {
+                    for (File f : files) {
+                        //deleteRecursiveStatic(f);
+                        myLogW("Deleted legacy folder: " + f.getName());
+                    }
+                } else {
+                    myLogW("legacy no files ");
+                }
+            } else {
+                myLogW("legacy folder does not exist ");
+            }
+        } catch (Exception e) {
+            myLogE("Failed to delete legacy folders");
+        }
+    }
+
+    private static void deleteRecursiveStatic(File file) {
+        if (file.isDirectory()) {
+            File[] children = file.listFiles();
+            if (children != null) {
+                for (File child : children) {
+                    deleteRecursiveStatic(child);
                 }
             }
         }
