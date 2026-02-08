@@ -74,23 +74,46 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
         mp.setDataSource(ctx, uri);
     }
 
-    @Override public void prepareAsync() {
+    @Override
+    public void prepareAsync() {
         prepared = false;
         preparing = true;
         mp.prepareAsync();
     }
 
-    @Override public void start()        {
+    @Override
+    public void start() {
         mp.start();
-// re-apply volume in case system reset it //TODO check that
+        // re-apply volume in case system reset it //TODO check that
         setVolume(volume);
     }
-    @Override public void pause()        { mp.pause(); }
-    @Override public void stop()         { safeStop(mp); }
-    @Override public void reset()        { prepared = false; preparing = false; mp.reset(); }
-    @Override public boolean isPlaying() { return mp.isPlaying(); }
 
-    @Override public boolean isReady()   { return prepared && !preparing; }
+    @Override
+    public void pause() {
+        mp.pause();
+    }
+
+    @Override
+    public void stop() {
+        safeStop(mp);
+    }
+
+    @Override
+    public void reset() {
+        prepared = false;
+        preparing = false;
+        mp.reset();
+    }
+
+    @Override
+    public boolean isPlaying() {
+        return mp.isPlaying();
+    }
+
+    @Override
+    public boolean isReady() {
+        return prepared && !preparing;
+    }
 
     @Override
     public long getCurrentPosition() {
@@ -98,8 +121,12 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
             myLogD("getCurrentPosition() while not prepared -> 0");
             return 0;
         }
-        try { return mp.getCurrentPosition(); }
-        catch (IllegalStateException e) { myLogE("getCurrentPosition() ISE"); return 0; }
+        try {
+            return mp.getCurrentPosition();
+        } catch (IllegalStateException e) {
+            myLogE("getCurrentPosition() ISE");
+            return 0;
+        }
     }
 
     @Override
@@ -108,11 +135,18 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
             myLogD("getDuration() while not prepared -> 0");
             return 0;
         }
-        try { return mp.getDuration(); }
-        catch (IllegalStateException e) { myLogE("getDuration() ISE"); return 0; }
+        try {
+            return mp.getDuration();
+        } catch (IllegalStateException e) {
+            myLogE("getDuration() ISE");
+            return 0;
+        }
     }
 
-    @Override public int getAudioSessionId()  { return mp.getAudioSessionId(); }
+    @Override
+    public int getAudioSessionId() {
+        return mp.getAudioSessionId();
+    }
 
     @Override
     public void seekTo(long ms) {
@@ -121,10 +155,10 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
             return;
         }
         try {
-                //mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
-                //myLogD("seekTo CLOSEST " + ms);
-                mp.seekTo((int) ms);
-                myLogD("seekTo NORMAL " + Tonio.formatHhMmSsMs(ms));
+            // mp.seekTo(ms, MediaPlayer.SEEK_CLOSEST);
+            // myLogD("seekTo CLOSEST " + ms);
+            mp.seekTo((int) ms);
+            myLogD("seekTo NORMAL " + Tonio.formatHhMmSsMs(ms));
         } catch (Throwable t) {
             myLogEE(null, "seekTo failed: " + t.getMessage());
         }
@@ -134,18 +168,22 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
     public void setSpeed(float speed) {
         try {
             mp.setPlaybackParams(mp.getPlaybackParams().setSpeed(speed));
-        } catch (Throwable ignored) { /* old devices / streams */ }
+        } catch (Throwable ignored) {
+            /* old devices / streams */ }
     }
 
-    @Override public void setVolume(float v) {
+    @Override
+    public void setVolume(float v) {
         float nv = Math.max(0f, Math.min(1f, v));
         volume = nv;
         try {
             mp.setVolume(nv, nv);
-        } catch (Throwable ignored) {}
+        } catch (Throwable ignored) {
+        }
     }
 
-    @Override public float getVolume() {
+    @Override
+    public float getVolume() {
         return volume;
     }
 
@@ -160,19 +198,30 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
     // ---------- Helpers ----------
 
     private static void safeStop(MediaPlayer player) {
-        if (player == null) return;
-        try { player.stop(); } catch (IllegalStateException ignored) {}
+        if (player == null)
+            return;
+        try {
+            player.stop();
+        } catch (IllegalStateException ignored) {
+        }
     }
 
     private static void safeRelease(MediaPlayer player) {
-        if (player == null) return;
+        if (player == null)
+            return;
         try {
             if (player.isPlaying()) {
-                try { player.stop(); } catch (IllegalStateException ignored) {}
+                try {
+                    player.stop();
+                } catch (IllegalStateException ignored) {
+                }
             }
-        } catch (IllegalStateException ignored) {}
-        try { player.reset(); } catch (IllegalStateException ignored) {}
-        try { player.release(); } catch (Exception ignored) {}
+        } catch (IllegalStateException ignored) {
+        }
+        try {
+            player.release();
+        } catch (Exception ignored) {
+        }
         LoggerStaticHelper.myLog("safeRelease() done");
     }
 
@@ -192,14 +241,29 @@ public final class MediaPlayerEngine extends LoggerHelper implements PlayerEngin
     private static String classifyError(int what, int extra) {
         String whatString;
         switch (what) {
-            case MediaPlayer.MEDIA_ERROR_UNKNOWN: whatString = "MEDIA_ERROR_UNKNOWN"; break;
-            case MediaPlayer.MEDIA_ERROR_SERVER_DIED: whatString = "MEDIA_ERROR_SERVER_DIED"; break;
-            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK: whatString = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK"; break;
-            case MediaPlayer.MEDIA_ERROR_IO: whatString = "MEDIA_ERROR_IO"; break;
-            case MediaPlayer.MEDIA_ERROR_MALFORMED: whatString = "MEDIA_ERROR_MALFORMED"; break;
-            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED: whatString = "MEDIA_ERROR_UNSUPPORTED"; break;
-            case MediaPlayer.MEDIA_ERROR_TIMED_OUT: whatString = "MEDIA_ERROR_TIMED_OUT"; break;
-            default: whatString = "UNKNOWN_CODE_" + what;
+            case MediaPlayer.MEDIA_ERROR_UNKNOWN:
+                whatString = "MEDIA_ERROR_UNKNOWN";
+                break;
+            case MediaPlayer.MEDIA_ERROR_SERVER_DIED:
+                whatString = "MEDIA_ERROR_SERVER_DIED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK:
+                whatString = "MEDIA_ERROR_NOT_VALID_FOR_PROGRESSIVE_PLAYBACK";
+                break;
+            case MediaPlayer.MEDIA_ERROR_IO:
+                whatString = "MEDIA_ERROR_IO";
+                break;
+            case MediaPlayer.MEDIA_ERROR_MALFORMED:
+                whatString = "MEDIA_ERROR_MALFORMED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_UNSUPPORTED:
+                whatString = "MEDIA_ERROR_UNSUPPORTED";
+                break;
+            case MediaPlayer.MEDIA_ERROR_TIMED_OUT:
+                whatString = "MEDIA_ERROR_TIMED_OUT";
+                break;
+            default:
+                whatString = "UNKNOWN_CODE_" + what;
         }
         return "MediaPlayer Error: " + whatString + " (" + what + "), extra=" + extra;
     }
