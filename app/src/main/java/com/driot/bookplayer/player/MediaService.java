@@ -622,7 +622,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    private void showForegroundNotification(boolean playing) {
+    private boolean showForegroundNotification(boolean playing) {
 
         if ("radio".equals(getPlayMode())) {
             // 1) Limit session capabilities
@@ -672,7 +672,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                             return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this);
                         }
                     });
-            startForegroundWithBuildCheck(n);
+            if (!startForegroundWithBuildCheck(n))
+                return false;
 
             // 3) If you only have a favicon URL, load it and refresh:
             if (currentArt == null && streamImageUrl != null && !streamImageUrl.isEmpty()) {
@@ -732,7 +733,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                             }
                         });
             }
-            return;
+            return true;
         }
 
         CharSequence title = "---";
@@ -777,7 +778,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         return NavHelper.navigateToActivity(MediaService.this);
                     }
                 });
-        startForegroundWithBuildCheck(n);
+        return startForegroundWithBuildCheck(n);
     }
 
     private void startPlayWithEngine() {
@@ -812,7 +813,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             playTimer.start(minutes);
         }
 
-        showForegroundNotification(true);
+        if (!showForegroundNotification(true)) {
+            myLogEE(null, "startPlayWithEngine: failed to start foreground, aborting");
+            // If we can't show notification, we likely can't play (FGS restriction).
+            // We should stop the engine.
+            try {
+                if (engine != null)
+                    engine.stop();
+            } catch (Exception ignored) {
+            }
+            return;
+        }
         broadcastUiState("startPlayWithEngine");
     }
 
@@ -889,7 +900,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f, ACTIONS_FILE);
             media.setMetadata(z.getDisplayName(), z.getFolderName(), z.getFolderName(), 0L,
                     ImageHelper.decodeBitmapFromStringUri(this, cover, 512));
-            showForegroundNotification(isPlaying());
+            if (!showForegroundNotification(isPlaying())) {
+                myLogEE(null, "alertNewTrack: failed to show foreground notification");
+            }
         }
     }
 
@@ -1021,7 +1034,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             case "CMD_PAUSE": {
                 if (engine == null || !engine.isPlaying()) {
                     // Show a paused notification if you want to remain foreground while paused:
-                    showForegroundNotification(false);
+                    if (!showForegroundNotification(false)) {
+                        myLogEE(null, "CMD_PAUSE: failed to show foreground notification");
+                    }
                 }
                 pauseAudio();
                 // If you prefer to drop foreground while paused:
@@ -1142,7 +1157,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             default:
                 // Unknown action — keep service alive and ensure we have a notif if needed
                 myLogEE(null, "onStartCommand() - unknown action : [" + action + "]");
-                showForegroundNotification(isPlaying());
+                if (!showForegroundNotification(isPlaying())) {
+                    myLogEE(null, "onStartCommand default: failed to show foreground notification");
+                }
                 return START_STICKY;
         }
     }
@@ -1187,7 +1204,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             };
 
             Notification n = notif.buildPreparing(t, s, /* content PI */ minimal.content());
-            startForegroundWithBuildCheck(n);
+            if (!startForegroundWithBuildCheck(n)) {
+                myLogEE(null, "goForegroundPreparing: failed to start foreground");
+                return;
+            }
 
             media.setActive(true);
 
@@ -1498,7 +1518,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         ErrorLoadingFile = false;
 
         // Update UI to "buffering" and notif already done...
-        showForegroundNotification(isPlaying());
+        if (!showForegroundNotification(isPlaying())) {
+            myLogEE(null, "loadFile: failed to show foreground notification (FGS restriction?), aborting load.");
+            setUiPhase(Intents.PHASE_ERROR, "Background start restricted");
+            loadFileKO(zf.getPath());
+            return;
+        }
 
         // PHASE: LOADING_TEXT (text extraction / paragraphize happens inside
         // setDataSource)
@@ -1514,7 +1539,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         // zf.getFolderName(), 0L, ImageHelper.decodeBitmapFromStringUri(this, cover,
         // 512));
 
-        showForegroundNotification(isPlaying());
+        // showForegroundNotification(isPlaying()); // Already done above
 
         try {
             engine.reset();
@@ -1710,7 +1735,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public void resetLastUserActionTimer() {
         if (playTimer != null && playTimer.isRunning()) {
             playTimer.resetLastUserAction();
-            //broadcastUiState("resetSleepTimer");
+            // broadcastUiState("resetSleepTimer");
         }
     }
 
@@ -2222,7 +2247,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 /* artist */ playModeString,
                 /* album */ title,
                 /* artBmp */ null);
-        showForegroundNotification(false); // shows paused/buffering style
+        if (!showForegroundNotification(false)) { // shows paused/buffering style
+            myLogEE(null, "playStream: failed to show foreground notification, aborting.");
+            return false;
+        }
 
         try {
             engine.reset();
@@ -2358,11 +2386,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         broadcastUiState("handleTtsSeekChars");
     }
 
-    private void startForegroundWithBuildCheck(Notification n) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
-        } else {
-            startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
+    private boolean startForegroundWithBuildCheck(Notification n) {
+        try {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n, ServiceInfo.FOREGROUND_SERVICE_TYPE_MEDIA_PLAYBACK);
+            } else {
+                startForeground(ID_NOTIFICATION_PLAY_AUDIO_INT, n);
+            }
+            return true;
+        } catch (Exception e) {
+            myLogEE(e, "startForegroundWithBuildCheck failed - FGS restriction?");
+            return false;
         }
     }
 
