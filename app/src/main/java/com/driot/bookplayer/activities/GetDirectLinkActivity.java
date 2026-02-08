@@ -108,12 +108,15 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                         .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                             runOnUiThread(() -> {
                                 checkWWW(canReach -> {
-                                    if (canReach) {
-                                        Intent intent = new Intent(this, LoadBookActivity.class);
-                                        intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                                        loadBookActivityResultLauncher.launch(intent);
-                                        FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
+                                    if (getLifecycle().getCurrentState()
+                                            .isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+                                        if (canReach) {
+                                            Intent intent = new Intent(this, LoadBookActivity.class);
+                                            intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                                            intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                                            loadBookActivityResultLauncher.launch(intent);
+                                            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
+                                        }
                                     }
                                 });
                             });
@@ -124,12 +127,14 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                         .show();
             } else {
                 checkWWW(canReach -> {
-                    if (canReach) {
-                        Intent intent = new Intent(this, LoadBookActivity.class);
-                        intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
-                        loadBookActivityResultLauncher.launch(intent);
-                        FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
+                    if (getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+                        if (canReach) {
+                            Intent intent = new Intent(this, LoadBookActivity.class);
+                            intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                            intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                            loadBookActivityResultLauncher.launch(intent);
+                            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
+                        }
                     }
                 });
             }
