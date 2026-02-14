@@ -34,11 +34,13 @@
                 android:text="Selected file or folder"
                 android:layout_width="0dp"
                 android:textStyle="bold"
-                android:textSize="18sp"
-                android:layout_height="wrap_content"
+                app:autoSizeTextType="uniform"
+                app:autoSizeMinTextSize="10sp"
+                app:autoSizeMaxTextSize="20sp"
+                app:autoSizeStepGranularity="1sp"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:ellipsize="end"
                 android:maxLines="3" />
         </LinearLayout>
 
