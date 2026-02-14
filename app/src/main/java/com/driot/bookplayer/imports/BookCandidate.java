@@ -38,6 +38,19 @@ public class BookCandidate {
     public String playType;
     public String infoMimeExtension = "init...";
     public String infoMimeExtensionSmall = "init...";
+    public String infoSourceLocation = "init...";
+
+    // New fields from BookToAdd (Phase 2)
+    public boolean isBroken = false;
+    public boolean isMimeSupported = true;
+    public String audioBookName = "init..."; // formatted for display
+    public int multipleBooksCount = 0;
+    public boolean hasOnlyZipFilesInFolder = false;
+    public String originalFile;
+    public String originalType;
+    public String fileExtension;
+    public String mimeType;
+    public String specialType;
 
     public BookCandidate(Context context, Uri uri, String name, String type) {
         this.uri = uri;
@@ -62,6 +75,11 @@ public class BookCandidate {
             this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
             this.tracksCount = calculateTrackCount(file);
             this.coverImagePath = detectCoverForFolder(context, file);
+
+            // BookToAdd specifics
+            this.audioBookName = getBookName_with2folders(uri.getPath(), false);
+            this.multipleBooksCount = countRealEbookFilesRecursive(context, uri); // Using context overload
+            this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
         } else {
             this.existingBookName = checkHashExists(context, originalHash);
             this.coverImagePath = detectCoverForFile(context, file, type);
@@ -71,7 +89,25 @@ public class BookCandidate {
             } else if ("ZIP".equals(type)) {
                 this.tracksCount = calculateTrackCountForArchive(context, file);
             }
+
+            // BookToAdd specifics
+            this.originalFile = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(context, uri);
+            this.fileExtension = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileExtension(originalFile);
+            this.mimeType = com.driot.bookplayer.helpers.SupportedFilesHelper.getMimeType(context, uri);
+            this.specialType = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(originalFile);
+
+            if (Objects.toString(fileExtension, "").isEmpty()) {
+                this.isBroken = true;
+            }
+
+            this.audioBookName = Tonio.formatNameForDisplay(originalFile);
+
+            if (!com.driot.bookplayer.helpers.SupportedFilesHelper.isBookSupported(originalFile)) {
+                this.isMimeSupported = false;
+            }
         }
+
+        trimAudioBookPrefix();
 
         // Update selected state based on import status
         if (this.existingBookName != null && !this.existingBookName.isEmpty()) {
@@ -88,13 +124,125 @@ public class BookCandidate {
         } else {
             this.playType = com.driot.bookplayer.helpers.SupportedFilesHelper.getPlayType(name);
 
-            String mimeType = com.driot.bookplayer.helpers.SupportedFilesHelper.getMimeType(context, uri);
-            String fileExtension = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileExtension(name);
-            String specialType = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(name);
+            // Already calculated above in 'else' block
+            // String mimeType =
+            // com.driot.bookplayer.helpers.SupportedFilesHelper.getMimeType(context, uri);
+            // String fileExtension =
+            // com.driot.bookplayer.helpers.SupportedFilesHelper.getFileExtension(name);
+            // String specialType =
+            // com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(name);
 
             this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
         }
+    }
+
+    // --- BookToAdd specific helpers (ported) ---
+
+    private String getBookName_with2folders(String sFolderPath, boolean stripExtension) {
+        // nom par défaut = les deux derniers folders :
+        // ex : "S3 - Finances publiques/Audios"
+        String str = sFolderPath;
+        String zeReturn;
+        if (str == null) {
+            str = "";
+        }
+        str = str.replace(":", "/");
+        int pos1 = str.lastIndexOf("/");
+        if (pos1 > -1) {
+            int pos2 = str.substring(0, pos1).lastIndexOf("/", pos1);
+            if (pos2 > -1) {
+                zeReturn = Tonio.formatNameForDisplay(str.substring(pos2 + 1), stripExtension);
+            } else {
+                zeReturn = Tonio.formatNameForDisplay(str.substring(pos1 + 1), stripExtension);
+            }
+        } else {
+            // especially when foldername is just a string without slash (Android 11 zip
+            // local copy)
+            zeReturn = Tonio.formatNameForDisplay(str, stripExtension);
+        }
+        return zeReturn;
+    }
+
+    private void trimAudioBookPrefix() {
+        if (audioBookName == null)
+            return;
+        String[] prefixes = { "download/", "audiobooks/", "unzipped/" };
+        for (String prefix : prefixes) {
+            if (audioBookName.toLowerCase().startsWith(prefix)) {
+                audioBookName = audioBookName.substring(prefix.length());
+                break; // Stop after the first match
+            }
+        }
+    }
+
+    private int countRealEbookFilesRecursive(Context context, Uri folderUri) {
+        try {
+            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, folderUri);
+            if (root == null || !root.exists() || !root.isDirectory())
+                return 0;
+            return countRealEbookFilesRecursive(root);
+        } catch (Exception e) {
+            return 0;
+        }
+    }
+
+    private int countRealEbookFilesRecursive(DocumentFile dir) {
+        int count = 0;
+        DocumentFile[] children = dir.listFiles();
+        if (children == null)
+            return 0;
+        for (DocumentFile child : children) {
+            if (child.isDirectory()) {
+                count += countRealEbookFilesRecursive(child);
+            } else if (child.isFile()) {
+                String special = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(child);
+                if (com.driot.bookplayer.helpers.SupportedFilesHelper.isSplittableEbookSpecial(special)
+                        || com.driot.bookplayer.helpers.SupportedFilesHelper.isBundleSpecial(special)) {
+                    count++;
+                }
+            }
+        }
+        return count;
+    }
+
+    private boolean checkHasOnlyZipFilesInFolder(Context context, Uri folderUri) {
+        try {
+            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, folderUri);
+            if (root == null || !root.exists() || !root.isDirectory())
+                return false;
+            int[] ab = countAudioAndBundleRecursive(root);
+            return ab[1] >= 1 && ab[0] == 0; // has bundles, no audio
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private int[] countAudioAndBundleRecursive(DocumentFile dir) {
+        int audio = 0, bundle = 0;
+        DocumentFile[] children = dir.listFiles();
+        if (children == null)
+            return new int[] { 0, 0 };
+        for (DocumentFile child : children) {
+            if (child.isDirectory()) {
+                int[] sub = countAudioAndBundleRecursive(child);
+                audio += sub[0];
+                bundle += sub[1];
+            } else if (child.isFile()) {
+                if (com.driot.bookplayer.helpers.SupportedFilesHelper.isAudio(child)
+                        || com.driot.bookplayer.helpers.SupportedFilesHelper.isVideo(child)) {
+                    audio++;
+                } else if (com.driot.bookplayer.helpers.SupportedFilesHelper
+                        .isBundleSpecial(com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(child))) {
+                    bundle++;
+                }
+            }
+        }
+        return new int[] { audio, bundle };
+    }
+
+    public boolean hasMultipleBooksInFolder() {
+        return multipleBooksCount >= 2 || hasOnlyZipFilesInFolder;
     }
 
     // --- Helper Methods ---
