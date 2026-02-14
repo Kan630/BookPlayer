@@ -391,7 +391,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                     s.optionCopy = false; // Scan in place
                     s.optionSplit = false;
                 } else {
-                    // Files (ZIP, M4B, Ebook) must be copied/extracted to internal storage (or
+                    // Files (Archive, M4B, Ebook) must be copied/extracted to internal storage (or
                     // configured SD card)
                     boolean useSd = Option.getUseSdCard();
                     File root = StorageHelper.getUnzipFolder(this, useSd);
@@ -399,10 +399,10 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                     // Important: Destination path, not source path
                     s.futureFolderPath = new File(root, formattedName).getAbsolutePath();
 
-                    if ("ZIP".equals(candidate.sourceType)) {
+                    if ("Archive".equals(candidate.sourceType)) {
                         s.fileExtension = "zip";
                         s.playType = "Folder";
-                        s.optionCopy = true; // ZIP always requires copy
+                        s.optionCopy = true; // Archive always requires copy
                     } else {
                         // Single file (M4B, Ebook)
                         s.fileExtension = com.driot.bookplayer.utils.Tonio.getExtension(candidate.name);
@@ -415,7 +415,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                         }
                     }
 
-                    // For all file types (ZIP, M4B, Ebook), we must provide the filename
+                    // For all file types (Archive, M4B, Ebook), we must provide the filename
                     // so that CopyFileWorker knows what name to use (and doesn't create a "null"
                     // file)
                     s.originalFile = candidate.name;

@@ -2,6 +2,7 @@ package com.driot.bookplayer.imports;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -30,7 +31,7 @@ import java.util.Objects;
 public class BookCandidate {
     public Uri uri;
     public String name;
-    public String sourceType; // Folder, ZIP, M4B, EPUB, Audio File
+    public String sourceType; // Folder, Archive, M4B, EPUB, Audio File
     public String path; // For display
     public long size;
     public int tracksCount;
@@ -62,6 +63,8 @@ public class BookCandidate {
         this.uri = uri;
         if (this.uri == null)
             throw new RuntimeException("constructor : uri is null");
+
+        // Cache filename to avoid redundant calls
         this.name = SupportedFilesHelper.getFileName(context, uri);
         this.sourceType = SupportedFilesHelper.getType(context, uri);
 
@@ -73,14 +76,21 @@ public class BookCandidate {
             }
         }
 
-        // Convert "audio" to "Audio File" to match previous logic if needed,
-        // or ensure SupportedFilesHelper returns compatible types.
-        // SupportedFilesHelper.getType returns "audio" (FILE_TYPE_AUDIO), "video",
-        // "ebook", "bundle".
-        // The old code used "Audio File", "Ebook", "ZIP", "M4B", "Folder".
-        // We need to map `SupportedFilesHelper` output to `BookCandidate` legacy types.
+        // Map SupportedFilesHelper types to BookCandidate legacy types
+        // ("audio" → "Audio File", "bundle" → "Archive", etc.)
+        if (!"Folder".equals(this.sourceType)) {
+            String specialType = SupportedFilesHelper.getSpecialType(this.name);
 
-        this.sourceType = mapSupportedFilesHelperTypeToBookCandidateType(context, uri, this.sourceType);
+            if (SupportedFilesHelper.SPECIAL_TYPE_M4B.equals(specialType)) {
+                this.sourceType = "M4B";
+            } else if (SupportedFilesHelper.isBundleSpecial(specialType)) {
+                this.sourceType = "Archive";
+            } else if (SupportedFilesHelper.isEbookSpecial(specialType)) {
+                this.sourceType = "Ebook";
+            } else if (SupportedFilesHelper.FILE_TYPE_AUDIO.equals(this.sourceType)) {
+                this.sourceType = "Audio File";
+            }
+        }
 
         this.path = this.name; // Default path
         this.selected = true;
@@ -91,29 +101,10 @@ public class BookCandidate {
         enrich(context);
     }
 
-    private String mapSupportedFilesHelperTypeToBookCandidateType(Context context, Uri uri, String helperType) {
-        if ("Folder".equals(helperType))
-            return "Folder";
-
-        String special = SupportedFilesHelper.getSpecialType(context, uri);
-        if (SupportedFilesHelper.SPECIAL_TYPE_M4B.equals(special)) {
-            return "M4B";
-        }
-        if (SupportedFilesHelper.isBundleSpecial(special)) {
-            return "ZIP";
-        }
-        if (SupportedFilesHelper.isEbookSpecial(special)) {
-            return "Ebook";
-        }
-        if (SupportedFilesHelper.FILE_TYPE_AUDIO.equals(helperType)) {
-            return "Audio File";
-        }
-
-        // Fallback or keep original if it matches
-        return helperType;
-    }
-
     private void enrich(Context context) {
+        long startTime = System.currentTimeMillis();
+        Log.d("toto", "BookCandidate - enrich() START for: " + name);
+
         DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
         if (file == null)
             return;
@@ -137,12 +128,17 @@ public class BookCandidate {
             this.tracksCount = 1;
             if ("M4B".equals(sourceType)) {
                 this.tracksCount = calculateTrackCountForM4B(context, file);
-            } else if ("ZIP".equals(sourceType)) {
+            } else if ("Archive".equals(sourceType)) {
+                long zipStart = System.currentTimeMillis();
+                Log.d("toto", "BookCandidate - [Archive] Starting calculateTrackCountForArchive...");
                 this.tracksCount = calculateTrackCountForArchive(context, file);
+                Log.d("toto", "BookCandidate - [Archive] calculateTrackCountForArchive took: "
+                        + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
             }
 
             // BookToAdd specifics
-            this.originalFile = SupportedFilesHelper.getFileName(context, uri);
+            // Reuse this.name instead of calling getFileName again
+            this.originalFile = this.name;
             this.fileExtension = SupportedFilesHelper.getFileExtension(originalFile);
             this.mimeType = SupportedFilesHelper.getMimeType(context, uri);
             this.specialType = SupportedFilesHelper.getSpecialType(originalFile);
@@ -179,6 +175,9 @@ public class BookCandidate {
             this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
         }
+
+        Log.d("toto",
+                "BookCandidate - enrich() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
     }
 
     // --- BookToAdd specific helpers (ported) ---
@@ -664,7 +663,7 @@ public class BookCandidate {
             }
         }
 
-        if ("ZIP".equals(type)) {
+        if ("Archive".equals(type)) {
             try {
                 return detectCoverForZip(context, file);
             } catch (Exception ignored) {

@@ -574,9 +574,9 @@ public class FinalParseFolderWorker extends ImportWorker {
 
         myLogD("deleting source ??"
                 + "\nOption CopyFile : " + importJob.optionCopy + "  -  is a ZIP : "
-                + importJob.dynamicType.equals("ZIP")
+                + importJob.dynamicType.equals("Archive")
                 + "\nOption DeleteSourceFile : " + importJob.optionDelete);
-        if ((importJob.optionCopy || "ZIP".equals(importJob.dynamicType)) && importJob.optionDelete) {
+        if ((importJob.optionCopy || "Archive".equals(importJob.dynamicType)) && importJob.optionDelete) {
             if (!deleteSourceFile()) {
                 emitWarning(context.getString(R.string.Error_Import_could_not_delete_source));
             }
@@ -628,7 +628,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     private boolean deleteSourceFile() {
         myLog("deleteSourceFile() - uri = [" + importJob.originalUri + "]");
         DocumentFile dfPickedDir = null;
-        if (importJob.dynamicType.equals("File") || importJob.dynamicType.equals("ZIP")
+        if (importJob.dynamicType.equals("File") || importJob.dynamicType.equals("Archive")
                 || importJob.dynamicType.equals("Folder")) {
             try {
                 dfPickedDir = UriHelper.getDocumentFileFromAnyUri(context, Uri.parse(importJob.originalUri));

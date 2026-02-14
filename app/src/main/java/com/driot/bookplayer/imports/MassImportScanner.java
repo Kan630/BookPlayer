@@ -153,7 +153,7 @@ public class MassImportScanner extends LoggerHelper {
                 }
             } else {
                 String type = detectBookType(file);
-                if ("ZIP".equals(type)) {
+                if ("Archive".equals(type)) {
                     zipFiles.add(file);
                 } else if (type != null) {
                     fileCandidates.add(file);
@@ -189,7 +189,7 @@ public class MassImportScanner extends LoggerHelper {
                 }
             } else {
                 String type = detectBookType(file);
-                if ("ZIP".equals(type)) {
+                if ("Archive".equals(type)) {
                     deferredArchives.add(file);
                     callback.onProgress(current, total, "Deferring: " + safeName(file));
                 } else {
@@ -267,7 +267,7 @@ public class MassImportScanner extends LoggerHelper {
                 }
             } else {
                 String type = detectBookType(file);
-                if ("ZIP".equals(type)) {
+                if ("Archive".equals(type)) {
                     deferredArchives.add(file);
                 } else if (type != null) {
                     String fileName = safeName(file);
@@ -286,7 +286,7 @@ public class MassImportScanner extends LoggerHelper {
 
         // 1. Archives
         if (Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(ext)) {
-            return "ZIP";
+            return "Archive";
         }
 
         // 2. Audio Files (M4B, etc - single file audiobooks)

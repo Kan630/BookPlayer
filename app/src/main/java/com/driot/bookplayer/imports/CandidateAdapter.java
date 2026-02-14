@@ -70,10 +70,11 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         BookCandidate item = items.get(position);
         holder.tvName.setText(Tonio.formatNameForDisplay(item.name));
         String tracksPart = "";
-        // Show track count for Folders, generic Audio Files, ZIP archives, and M4B
+        // Show track count for Folders, generic Audio Files, Archive archives, and M4B
         // files (where we know the count)
         // For Ebook, we don't know the count yet, so don't show it.
-        if ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType) || "ZIP".equals(item.sourceType)
+        if ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType)
+                || "Archive".equals(item.sourceType)
                 || "M4B".equals(item.sourceType)) {
             tracksPart = " - " + holder.ivCover.getContext().getResources()
                     .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
@@ -101,7 +102,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         int iconRes;
         if ("Folder".equals(item.sourceType)) {
             iconRes = R.drawable.ic_folder_24px;
-        } else if ("ZIP".equals(item.sourceType)) {
+        } else if ("Archive".equals(item.sourceType)) {
             iconRes = R.drawable.ic_folder_zip_24px;
         } else if ("M4B".equals(item.sourceType)) {
             iconRes = R.drawable.ic_file_m4b;

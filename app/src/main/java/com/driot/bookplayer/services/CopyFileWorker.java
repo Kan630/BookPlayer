@@ -241,7 +241,8 @@ public class CopyFileWorker extends ImportWorker {
                 boolean isPic = SupportedFilesHelper.isImage(child);
                 boolean doCopy;
                 if (Var.PLAY_TYPE_TEXT.equals(playType)) {
-                    // Text folder: copy .txt + images only (odt must be split first, not played directly)
+                    // Text folder: copy .txt + images only (odt must be split first, not played
+                    // directly)
                     doCopy = SupportedFilesHelper.isText(child) || (isPic && nbPic < MAX_NB_PIC);
                 } else {
                     // Audio folder (or null): copy audio, video, images only - never .txt
@@ -332,7 +333,7 @@ public class CopyFileWorker extends ImportWorker {
         myLogD("checking size");
         try {
             long size_check_inflate_coefficient = 1;
-            if ("ZIP".equalsIgnoreCase(type)) {
+            if ("Archive".equalsIgnoreCase(type)) {
                 size_check_inflate_coefficient = Var.ZIP_SIZE_MAX_COEF;
             } else if ("M4B".equalsIgnoreCase(type)) {
                 size_check_inflate_coefficient = Var.M4B_SIZE_MAX_COEF;
