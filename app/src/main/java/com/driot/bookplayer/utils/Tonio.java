@@ -363,7 +363,7 @@ public class Tonio {
             myLogE("getSourceLocation - empty uri");
             return "xxx";
         }
-        myLog("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
+        myLogD("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
         if (!Objects.isNull(uri) && !Objects.isNull(uri.getAuthority())) {
             String uriAuthority = uri.getAuthority();
             Set<String> cloudAuthorities = new HashSet<>();
