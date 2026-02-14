@@ -70,12 +70,12 @@ public class LoadBookActivity extends BaseBottomNavActivity {
     private boolean countJobRunning = false;
 
     public static final String EXTRA_URI = "EXTRA_URI";
-    public static final String EXTRA_TYPE = "EXTRA_TYPE";  // File or Folder
-    public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY";  // from OpenWithProxy...
+    public static final String EXTRA_TYPE = "EXTRA_TYPE"; // File or Folder
+    public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
 
     private Uri uri;
     boolean forceCopy;
-    private BookToAdd bookToAdd;
+    private BookCandidate bookCandidate;
 
     private String audioBookTitle; // name can be changed... so keep as separate var
 
@@ -94,9 +94,20 @@ public class LoadBookActivity extends BaseBottomNavActivity {
 
     private PermissionRequest mPermissionRequest;
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_load_book; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_load_book;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,25 +116,24 @@ public class LoadBookActivity extends BaseBottomNavActivity {
 
         uri = getIntent().getParcelableExtra(EXTRA_URI);
         String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
-        forceCopy =  getIntent().getBooleanExtra(EXTRA_FORCE_COPY,false);
+        forceCopy = getIntent().getBooleanExtra(EXTRA_FORCE_COPY, false);
         folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
 
-        if (!(
-                gotten_type.equals("File")
+        if (!(gotten_type.equals("File")
                 || gotten_type.equals("Folder")
-                || gotten_type.equals("Podcast")
-        )) {
-            myToastEE(null,"Error picking audio - unsupported type : [" + gotten_type + "]");
+                || gotten_type.equals("Podcast"))) {
+            myToastEE(null, "Error picking audio - unsupported type : [" + gotten_type + "]");
             finish();
             return;
         }
         if (Objects.isNull(uri)) {
-            myToastEE(null,"Error picking audio : [uri is null]");
+            myToastEE(null, "Error picking audio : [uri is null]");
             finish();
             return;
         }
 
         TextView tvFileName = findViewById(R.id.tvFileName);
+        android.widget.ImageView ivCover = findViewById(R.id.ivCover);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         TextView tvSourceLocation = findViewById(R.id.tvLocation);
         btnConfirm = findViewById(R.id.btnConfirm);
@@ -150,30 +160,54 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         displayAppendWarning();
         buildDestinationFolderSpinner();
 
-        bookToAdd = new BookToAdd(uri, "Podcast".equals(gotten_type) ? "File" : gotten_type );
+        // Refined type logic (moved from BookToAdd)
+        String pickedType = "Podcast".equals(gotten_type) ? "File" : gotten_type;
+        String refinedType = pickedType;
+        if ("File".equals(pickedType)) {
+            String fileName = SupportedFilesHelper.getFileName(getApplicationContext(), uri);
+            String special = SupportedFilesHelper.getSpecialType(fileName);
 
-        if (!bookToAdd.isMimeSupported()) {
-            startActivity(SupportedExtensionsActivity.newIntent(this, bookToAdd.getInfoMimeExtensionSmall()));
+            if (SupportedFilesHelper.isEbookSpecial(special)) {
+                refinedType = "Ebook";
+            } else if (SupportedFilesHelper.isM4bSpecial(special)) {
+                refinedType = "M4B";
+            } else if (SupportedFilesHelper.isBundleSpecial(special)) {
+                refinedType = "ZIP";
+            } else if (SupportedFilesHelper.isAudio(fileName)) {
+                refinedType = "Audio File";
+            }
+        }
+
+        bookCandidate = new BookCandidate(getApplicationContext(), uri, null, refinedType);
+
+        if (!bookCandidate.isMimeSupported) {
+            startActivity(SupportedExtensionsActivity.newIntent(this, bookCandidate.infoMimeExtensionSmall));
             finish();
             return;
         }
-        if (bookToAdd.isBroken()) {
-            myToastEE(null,getString(R.string.could_not_read_resource));
+        if (bookCandidate.isBroken) {
+            myToastEE(null, getString(R.string.could_not_read_resource));
             finish();
             return;
         }
 
-        audioBookTitle = bookToAdd.getAudioBookName();
+        audioBookTitle = bookCandidate.audioBookName;
 
-        myLogD(bookToAdd.toString());
+        myLogD(bookCandidate.toString());
 
         tvFileName.setText(audioBookTitle);
-        tvSourceLocation.setText(bookToAdd.getInfoSourceLocation());
+        if (bookCandidate.coverImagePath != null) {
+            ivCover.setVisibility(View.VISIBLE);
+            ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
+        } else {
+            ivCover.setVisibility(View.GONE);
+        }
+        tvSourceLocation.setText(bookCandidate.infoSourceLocation);
 
         if ("Folder".equals(gotten_type)) {
-            startCounting(uri, 10, tvMimeExtension, bookToAdd.getInfoMimeExtension(), bookToAdd.getPlayType());
+            startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
         } else {
-            tvMimeExtension.setText(bookToAdd.getInfoMimeExtension());
+            tvMimeExtension.setText(bookCandidate.infoMimeExtension);
         }
 
         checkHashDoesNotAlreadyExist();
@@ -184,9 +218,9 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             finish();
         });
 
-//----------------------------------------------------------------------------------------------------------------------------------
-/// CHECKBOXES
-//----------------------------------------------------------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------------------------------------------------------
+        /// CHECKBOXES
+        // ----------------------------------------------------------------------------------------------------------------------------------
 
         llSplit.setOnClickListener(v -> cbSplit.toggle());
         llCopy.setOnClickListener(v -> cbCopy.toggle());
@@ -206,7 +240,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
 
         cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLogI("USER CHECKS -SPLIT- : " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
+            if (!internalCheckBoxStateCalculationInProgress)
+                calculateCheckboxState();
         });
         cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLog("USER CHECKS -COPY- : " + isChecked);
@@ -216,11 +251,13 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             } else {
                 reDo_checkPathDoesNotAlreadyExist();
             }
-            if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
+            if (!internalCheckBoxStateCalculationInProgress)
+                calculateCheckboxState();
         });
         cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLog("USER CHECKS -SD CARD- : " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress) calculateCheckboxState();
+            if (!internalCheckBoxStateCalculationInProgress)
+                calculateCheckboxState();
         });
         cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLog("USER CHECKS -DELETE- " + isChecked);
@@ -238,17 +275,17 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                 }
             }
 
-            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(bookToAdd.getType(), bookToAdd.getFileExtension(), bookToAdd.getSourceLocation(), bookToAdd.getOriginalFile());
+            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(bookCandidate.type, bookCandidate.fileExtension,
+                    bookCandidate.sourceLocation, bookCandidate.originalFile);
 
         });
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------
-// CONFIRM BUTTON
-//-------------------------------------------------------------------------------------------------------------------------------------------------
+        // -------------------------------------------------------------------------------------------------------------------------------------------------
+        // CONFIRM BUTTON
+        // -------------------------------------------------------------------------------------------------------------------------------------------------
 
         btnConfirm.setOnClickListener(v -> {
-                    myLogI("------ USER CLICKS btnConfirm....   ");
-
+            myLogI("------ USER CLICKS btnConfirm....   ");
 
             // Disable immediately to prevent double taps
             btnConfirm.setEnabled(false);
@@ -257,22 +294,26 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                 String futureFolderName;
                 String finalFutureFolderPath;
 
-                if (folderToAddTo==null) {
+                if (folderToAddTo == null) {
                     String futureFolderPath;
                     long lCheck;
                     if (!cbCopy.isChecked()) {
                         lCheck = 0;
                         futureFolderPath = uri.toString();
                     } else {
-                        futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/" + audioBookTitle;
-                        myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : [" + futureFolderPath + "]");
-                        lCheck = AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderPath(futureFolderPath);
+                        futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/"
+                                + audioBookTitle;
+                        myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : ["
+                                + futureFolderPath + "]");
+                        lCheck = AppDatabase.getDatabase(this).folderDao()
+                                .folderAlreadyExist_checkFolderPath(futureFolderPath);
                     }
                     finalFutureFolderPath = futureFolderPath;
-                    //btnConfirm.setEnabled(true);
+                    // btnConfirm.setEnabled(true);
                     if (lCheck > 0) {
                         futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
-                        myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath + "]");
+                        myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath
+                                + "]");
                         myLog("filesystem folder name changed to [" + futureFolderName + "]");
                     } else {
                         futureFolderName = audioBookTitle;
@@ -289,22 +330,22 @@ public class LoadBookActivity extends BaseBottomNavActivity {
 
                 LoadBookTaskState state = new LoadBookTaskState();
                 state.originalUri = uri;
-                state.originalType = bookToAdd.getOriginalType();
+                state.originalType = bookCandidate.originalType;
                 state.dynamicUri = uri;
-                state.dynamicType = bookToAdd.getOriginalType();
+                state.dynamicType = bookCandidate.originalType;
                 state.title = audioBookTitle;
                 state.futureFolderName = futureFolderName;
                 state.futureFolderPath = finalFutureFolderPath;
                 state.optionSplit = cbSplit.isChecked();
                 state.optionCopy = cbCopy.isChecked();
                 state.optionDelete = cbDelete.isChecked();
-                state.originalFile = bookToAdd.getOriginalFile();
+                state.originalFile = bookCandidate.originalFile;
                 state.originalHash = originalHash;
-                state.sourceLocation = bookToAdd.getSourceLocation();
-                state.fileExtension = bookToAdd.getFileExtension();
-                state.mimeType = bookToAdd.getMimeType();
-                state.playType = bookToAdd.getPlayType();
-                state.addToExistingFolderId = (folderToAddTo==null ? -1 : folderToAddTo.getId());
+                state.sourceLocation = bookCandidate.sourceLocation;
+                state.fileExtension = bookCandidate.fileExtension;
+                state.mimeType = bookCandidate.mimeType;
+                state.playType = bookCandidate.playType;
+                state.addToExistingFolderId = (folderToAddTo == null ? -1 : folderToAddTo.getId());
 
                 runOnUiThread(() -> {
                     if (anotherRunning) {
@@ -318,9 +359,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                     setResult(RESULT_OK);
 
                     // Enqueue on background (or main—WorkManager is fine either way)
-                    AppDatabase.databaseWriteExecutor.execute(() ->
-                            BookLoadingWorkLauncher.launch(this.getApplicationContext(), state, /* sequential = */ false)
-                    );
+                    AppDatabase.databaseWriteExecutor.execute(() -> BookLoadingWorkLauncher
+                            .launch(this.getApplicationContext(), state, /* sequential = */ false));
                     finish();
                 });
 
@@ -329,15 +369,16 @@ public class LoadBookActivity extends BaseBottomNavActivity {
 
         desactivateInteractive();
 
-        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookToAdd.getType().replace(".","").toLowerCase(Locale.ROOT))) {
-            showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n" + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
+        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookCandidate.type.replace(".", "").toLowerCase(Locale.ROOT))) {
+            showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n"
+                    + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
         }
 
     }
 
     private void desactivateInteractive() {
         myLog("desactivate Interactive()");
-        //waitTextView.setVisibility(View.VISIBLE);
+        // waitTextView.setVisibility(View.VISIBLE);
         warningTextView.setText("");
         errorTextView.setText("");
         cbSplit.setEnabled(false);
@@ -354,9 +395,10 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         llCopy.setAlpha(0.4f);
         llSplit.setAlpha(0.4f);
     }
+
     private void activateInteractive() {
         myLog("Activate Interactive()");
-        //waitTextView.setVisibility(View.GONE);
+        // waitTextView.setVisibility(View.GONE);
         cbSplit.setEnabled(true);
         llSplit.setEnabled(true);
         cbCopy.setEnabled(true);
@@ -371,17 +413,17 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         llCopy.setAlpha(1.0f);
         llSplit.setAlpha(1.0f);
         calculateCheckboxState();
-}
+    }
 
-//-------------------------------------------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------------------
+    // -------------------------------------------------------------------------------------------------------------------------------------------------
 
     private void calculateCheckboxState() {
         internalCheckBoxStateCalculationInProgress = true;
         myLogD("calculateCheckboxState");
 
-        if (SupportedFilesHelper.isM4bSpecial(bookToAdd.getSpecialType())) {
+        if (SupportedFilesHelper.isM4bSpecial(bookCandidate.specialType)) {
             llSplit.setVisibility(View.VISIBLE);
             if (cbSplit.isChecked()) {
                 cbCopy.setChecked(true);
@@ -397,24 +439,23 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             llSplit.setVisibility(View.GONE);
         }
 
-        if (SupportedFilesHelper.isBundleSpecial(bookToAdd.getSpecialType())) {
+        if (SupportedFilesHelper.isBundleSpecial(bookCandidate.specialType)) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
             llCopy.setAlpha(0.4f);
         }
 
-        if (SupportedFilesHelper.isEbookSpecial(bookToAdd.getSpecialType())) {
+        if (SupportedFilesHelper.isEbookSpecial(bookCandidate.specialType)) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
             llCopy.setAlpha(0.4f);
         }
 
-        if (bookToAdd.getSourceLocation().equals("cloud")
-                || bookToAdd.getSourceLocation().equals("web")
-                || forceCopy
-        ) {
+        if (bookCandidate.sourceLocation.equals("cloud")
+                || bookCandidate.sourceLocation.equals("web")
+                || forceCopy) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
@@ -439,7 +480,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         }
 
         // delete
-        if (cbCopy.isChecked() && !bookToAdd.getSourceLocation().equals("cloud") && !bookToAdd.getSourceLocation().equals("web")) {
+        if (cbCopy.isChecked() && !bookCandidate.sourceLocation.equals("cloud")
+                && !bookCandidate.sourceLocation.equals("web")) {
             cbDelete.setEnabled(true);
             llDelete.setEnabled(true);
             llDelete.setAlpha(1.0f);
@@ -453,10 +495,9 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         internalCheckBoxStateCalculationInProgress = false;
     }
 
-
     // -------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------
-    // --     PERMISSIONS
+    // -- PERMISSIONS
     // -------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------
 
@@ -470,13 +511,14 @@ public class LoadBookActivity extends BaseBottomNavActivity {
     }
 
     private void checkPermissionsReadStorage() {
-        if(Build.VERSION.SDK_INT < 33) {
+        if (Build.VERSION.SDK_INT < 33) {
             myLog("checkPermissionsReadStorage() < 33");
             mPermissionRequest = PermissionRequest
                     .with(this)
-                    .permissions(Manifest.permission.READ_EXTERNAL_STORAGE) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                    .permissions(Manifest.permission.READ_EXTERNAL_STORAGE) // Manifest.permission.READ_EXTERNAL_STORAGE,
                     .rationale(R.string.permission_read_write_rationale_short_text_on_load)
-                    //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                    // .granted(R.string.permission_read_write_granted) // Tonio no need to display
+                    // message if granted OK
                     .denied(R.string.permission_read_write_denied)
                     .snackbar((ViewGroup) findViewById(android.R.id.content))
                     .submit();
@@ -484,9 +526,10 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             myLog("checkPermissionsReadStorage() >= 33");
             mPermissionRequest = PermissionRequest
                     .with(this)
-                    .permissions(Manifest.permission.READ_MEDIA_AUDIO) //Manifest.permission.READ_EXTERNAL_STORAGE,
+                    .permissions(Manifest.permission.READ_MEDIA_AUDIO) // Manifest.permission.READ_EXTERNAL_STORAGE,
                     .rationale(R.string.permission_read_write_rationale_short_text_on_load)
-                    //.granted(R.string.permission_read_write_granted)  // Tonio no need to display message if granted OK
+                    // .granted(R.string.permission_read_write_granted) // Tonio no need to display
+                    // message if granted OK
                     .denied(R.string.permission_read_write_denied)
                     .snackbar((ViewGroup) findViewById(android.R.id.content))
                     .callback(new PermissionRequest.Callback() {
@@ -506,6 +549,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                     .submit();
         }
     }
+
     private void showPermissionDeniedDialog() {
         new AlertDialog.Builder(this)
                 .setTitle(getString(R.string.Permission))
@@ -514,12 +558,13 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                 .setNegativeButton(android.R.string.cancel, null)
                 .show();
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode,
-                                           @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
+            @NonNull String[] permissions,
+            @NonNull int[] grantResults) {
 
-        for (int i=0;i<grantResults.length;i++) {
+        for (int i = 0; i < grantResults.length; i++) {
             myLog(permissions[i] + " => " + grantResults[i] + "   -requestCode=" + requestCode);
         }
         myLog("onRequestPermissionsResult() : " + permissions[0] + " - " + requestCode + " - " + grantResults[0]);
@@ -528,7 +573,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             mPermissionRequest.onRequestPermissionsResult(requestCode, permissions, grantResults);
             mPermissionRequest = null; // request no longer needed
         } else {
-            myLogEE(null,"onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
+            myLogEE(null, "onRequestPermissionsResult() - mPermissionRequest is null ! bad hook");
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
@@ -540,7 +585,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             intent.setData(uri);
             startActivity(intent);
         } catch (Exception e) {
-            myLogEE(e,"openAppSettingsOnPhone()");
+            myLogEE(e, "openAppSettingsOnPhone()");
         }
     }
 
@@ -557,7 +602,6 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         errorTextView.setText(newTxt);
         errorTextView.setVisibility(View.VISIBLE);
     }
-
 
     private void checkHashDoesNotAlreadyExist() {
         myLog("Checking if hash already exists in DB for [" + uri + "]");
@@ -585,7 +629,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             @Override
             public void onChanged(WorkInfo workInfo) {
                 myLogD("WorkInfo changed: " + workInfo);
-                if (workInfo == null || !workInfo.getState().isFinished()) return;
+                if (workInfo == null || !workInfo.getState().isFinished())
+                    return;
 
                 // Remove observer after first result
                 WorkManager.getInstance(getApplicationContext())
@@ -604,25 +649,30 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                     } else {
                         btnConfirm.setEnabled(false);
                         new Thread(() -> {
-                            String existingBook = AppDatabase.getDatabase(getApplicationContext()).folderDao().originalHashAlreadyExist_getBookName(hash);
+                            String existingBook = AppDatabase.getDatabase(getApplicationContext()).folderDao()
+                                    .originalHashAlreadyExist_getBookName(hash);
                             runOnUiThread(() -> {
                                 if (existingBook != null) {
                                     if (uri.toString().startsWith("http")) {
-                                        //TODO, ideally, a second hash column should be computed "realHashOfTheContent"
-                                        myLogW("same Hash [" + hash +  "] for URL " + uri + " for book = " + existingBook);
-                                        showWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " [" + existingBook + "]\n");
-                                        boolAlso=true;
+                                        // TODO, ideally, a second hash column should be computed "realHashOfTheContent"
+                                        myLogW("same Hash [" + hash + "] for URL " + uri + " for book = "
+                                                + existingBook);
+                                        showWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " ["
+                                                + existingBook + "]\n");
+                                        boolAlso = true;
                                         okContinue();
                                     } else {
                                         myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
-                                        showError(getString(R.string.error_media_already_loaded_samePath_under_the_name) + "\n" + existingBook);
+                                        showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
+                                                + "\n" + existingBook);
                                         isKO = true;
                                         hashJobRunning = false;
                                         updateLoadingUi();
                                     }
                                 } else {
                                     myLogD("Hash OK: not found in DB.");
-                                    waitTextView.setText(getString(R.string.init_check_complementary_checks_please_wait));
+                                    waitTextView
+                                            .setText(getString(R.string.init_check_complementary_checks_please_wait));
                                     okContinue();
                                 }
                             });
@@ -642,7 +692,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
     }
 
     private void okContinue() {
-        if ("Folder".equals(bookToAdd.getType()) && bookToAdd.hasMultipleBooksInFolder()) {
+        if ("Folder".equals(bookCandidate.type) && bookCandidate.hasMultipleBooksInFolder()) {
             showError(getString(R.string.error_folder_multiple_books));
             isKO = true;
             hashJobRunning = false;
@@ -658,11 +708,13 @@ public class LoadBookActivity extends BaseBottomNavActivity {
     }
 
     private void checkPathDoesNotAlreadyExist() {
-        if (!cbCopy.isChecked()) { // only for direct link (if file copied, the app must deal it self with duplicates paths)
+        if (!cbCopy.isChecked()) { // only for direct link (if file copied, the app must deal it self with
+                                   // duplicates paths)
             String strPath = uri.toString();
             myLog("Checking Folder Path doesn't already exist in DB (direct link case, no copy) : [" + strPath + "]");
             new Thread(() -> {
-                String audioBookAlreadyThere = AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderPath_getBookName(strPath);
+                String audioBookAlreadyThere = AppDatabase.getDatabase(this).folderDao()
+                        .folderAlreadyExist_checkFolderPath_getBookName(strPath);
                 runOnUiThread(() -> {
                     if (audioBookAlreadyThere != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
@@ -681,7 +733,6 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         }
     }
 
-
     private void checkNameDoesNotAlreadyExist() {
         myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
         new Thread(() -> {
@@ -689,7 +740,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             runOnUiThread(() -> {
                 hashJobRunning = false;
                 updateLoadingUi();
-                if (lCheck>0) {
+                if (lCheck > 0) {
                     myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                     audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
                     String strText;
@@ -698,7 +749,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                     } else {
                         strText = getString(R.string.A_different_media_with_the_same_name_had_already_been_loaded);
                     }
-                    showWarning(strText + getString(R.string.the_name_will_be_changed_to) + "\n[" + audioBookTitle + "]");
+                    showWarning(
+                            strText + getString(R.string.the_name_will_be_changed_to) + "\n[" + audioBookTitle + "]");
                     myLogW("book name changed to [" + audioBookTitle + "]");
                 } else {
                     myLogD("OK, folder name doesn't already exist in DB");
@@ -707,9 +759,10 @@ public class LoadBookActivity extends BaseBottomNavActivity {
         }).start();
     }
 
-
     private void displayAppendWarning() {
-        if (folderToAddTo != null) { myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]"); }
+        if (folderToAddTo != null) {
+            myLog("ADD NEW TRACKS MODE ---> to [" + folderToAddTo.getName() + "]");
+        }
         tvAppendMode.setVisibility(folderToAddTo != null ? View.VISIBLE : View.GONE);
     }
 
@@ -720,8 +773,8 @@ public class LoadBookActivity extends BaseBottomNavActivity {
             List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
             // Create the neutral first item
             Folder neutral = new Folder();
-            neutral.setId(-1);              // special fake ID
-            neutral.setName("New book");    // the label
+            neutral.setId(-1); // special fake ID
+            neutral.setName("New book"); // the label
             // Insert at index 0
             items.add(0, neutral);
             // Compute preselection
@@ -746,7 +799,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                         Folder selected = (Folder) parent.getItemAtPosition(position);
 
-                        boolean isNeutral = selected.getId() == -1;  // check fake item
+                        boolean isNeutral = selected.getId() == -1; // check fake item
                         if (isNeutral) {
                             tvAppendMode.setVisibility(View.GONE);
                             folderToAddTo = null;
@@ -755,13 +808,16 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                             folderToAddTo = selected;
                         }
                     }
+
                     @Override
-                    public void onNothingSelected(AdapterView<?> parent) {}
+                    public void onNothingSelected(AdapterView<?> parent) {
+                    }
                 });
             });
         });
 
     }
+
     private void startCounting(Uri folderTreeUri, int depth, TextView tvCountFolder, String prefix, String playType) {
         cancelScan = false;
         countJobRunning = true;
@@ -783,13 +839,13 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                                 Resources res = getResources();
                                 String filesPart = res.getQuantityString(filesPluralResId, fileCount, fileCount);
                                 String txt;
-                                if (subFolderCount >0) {
-                                    String foldersPart = res.getQuantityString(R.plurals.subfolders_count, subFolderCount, subFolderCount);
-                                     txt = prefix + " : " + getString(
+                                if (subFolderCount > 0) {
+                                    String foldersPart = res.getQuantityString(R.plurals.subfolders_count,
+                                            subFolderCount, subFolderCount);
+                                    txt = prefix + " : " + getString(
                                             R.string.count_status,
                                             filesPart,
-                                            foldersPart
-                                    );
+                                            foldersPart);
                                 } else {
                                     txt = prefix + " " + filesPart;
                                 }
@@ -814,14 +870,14 @@ public class LoadBookActivity extends BaseBottomNavActivity {
                         public void onFinished(int fileCount, int folderCount) {
                             mainHandler.post(() -> {
                                 myLog("FINISHED COUNT: files=" + fileCount + " folders=" + folderCount);
-                                //tvCountFolder.setText(getString(R.string.done) + ": " + tvCountFolder.getText());
+                                // tvCountFolder.setText(getString(R.string.done) + ": " +
+                                // tvCountFolder.getText());
 
                                 countJobRunning = false;
                                 updateLoadingUi();
                             });
                         }
-                    }
-            );
+                    });
         });
     }
 

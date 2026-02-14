@@ -11,11 +11,32 @@
         >
 
         <!-- File name display -->
-        <TextView
-            android:id="@+id/tvFileName"
-            style="@style/OptionAfterPickedTitle"
-            android:text="Selected file or folder"
-            android:layout_marginBottom="12dp" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="12dp">
+
+            <ImageView
+                android:id="@+id/ivCover"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                android:scaleType="centerCrop"
+                android:layout_marginEnd="12dp"
+                android:contentDescription="@null"
+                />
+
+            <TextView
+                android:id="@+id/tvFileName"
+                style="@style/OptionAfterPickedTitle"
+                android:text="Selected file or folder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:ellipsize="end"
+                android:maxLines="2" />
+        </LinearLayout>
 
         <TextView
             android:id="@+id/waitTextView"

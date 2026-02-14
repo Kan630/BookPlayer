@@ -22,7 +22,7 @@ import com.driot.bookplayer.radio.RadioBrowserServiceFactory;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
-import com.driot.bookplayer.imports.BookToAdd;
+
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
 import com.driot.bookplayer.utils.SdCardChecker;
 import com.driot.bookplayer.utils.log.KanLogger;
@@ -46,30 +46,32 @@ public class MyApp extends Application {
         }
         return periodicTaskManager;
     }
+
     /**
-     * Called when the application is starting, before any activity, service, or receiver objects (excluding content providers) have been created.
+     * Called when the application is starting, before any activity, service, or
+     * receiver objects (excluding content providers) have been created.
      */
     public void onCreate() {
         super.onCreate();
         KanLogger.init(getApplicationContext());
-        BookToAdd.init(getApplicationContext());
+
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
-        FirebaseAnalyticsHelper.init(getApplicationContext()); //after pref
+        FirebaseAnalyticsHelper.init(getApplicationContext()); // after pref
 
         myLogNoPrefix("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
         myLogNoPrefix("ooooooooooooooooooo BOOKPLAYER ooooooooooooooooooooooo");
         myLogNoPrefix("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
-        //TaskStateRepository.get().hydrateFromPrefs();
+        // TaskStateRepository.get().hydrateFromPrefs();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { //28
-            //enableStrictModeForDebugBuild();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
+            // enableStrictModeForDebugBuild();
         }
 
         Option.applyNightMode();
 
-        SdCardChecker.isExternalSDCardAvailable(getApplicationContext()); //set cache
+        SdCardChecker.isExternalSDCardAvailable(getApplicationContext()); // set cache
 
         InAppMsgManager.schedule(getApplicationContext());
 
@@ -111,15 +113,16 @@ public class MyApp extends Application {
         });
 
         AppTtsManager.init(getApplicationContext());
-        
+
         // Initialize storage info cache calculation (runs in background)
         com.driot.bookplayer.helpers.StorageInfoCacheHelper.init(getApplicationContext());
     }
-/// STRICT MODE
+    /// STRICT MODE
 
-    @RequiresApi(api = Build.VERSION_CODES.P) //28
+    @RequiresApi(api = Build.VERSION_CODES.P) // 28
     private void enableStrictModeForDebugBuild() {
-        if (!BuildConfig.DEBUG) return;
+        if (!BuildConfig.DEBUG)
+            return;
 
         java.util.concurrent.Executor direct = Runnable::run;
 
@@ -128,16 +131,17 @@ public class MyApp extends Application {
                 .detectDiskReads()
                 .detectDiskWrites()
                 .detectNetwork()
-                //.detectAll()            // catch disk/network/slow calls on main thread
+                // .detectAll() // catch disk/network/slow calls on main thread
                 .penaltyListener(direct, v -> logStrict("ThreadPolicy", v))
-                .penaltyFlashScreen()   // (optional) flash the screen when violation happens
+                .penaltyFlashScreen() // (optional) flash the screen when violation happens
                 .build());
 
         StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                .detectAll()            // catch leaks, file descriptor misuse, etc.
+                .detectAll() // catch leaks, file descriptor misuse, etc.
                 .penaltyListener(direct, v -> logStrict("VmPolicy", v))
                 .build());
     }
+
     private static void logStrict(String policy, Throwable v) {
 
         boolean isMain = Looper.myLooper() == Looper.getMainLooper();
@@ -150,7 +154,10 @@ public class MyApp extends Application {
         StackTraceElement firstApp = (st != null && st.length > 0) ? st[0] : null;
         if (st != null) {
             for (StackTraceElement e : st) {
-                if (e.getClassName().startsWith(appPkg)) { firstApp = e; break; }
+                if (e.getClassName().startsWith(appPkg)) {
+                    firstApp = e;
+                    break;
+                }
             }
         }
         String logMsg = "⚠️ StrictMode " + policy + ": " + type +
@@ -164,12 +171,7 @@ public class MyApp extends Application {
         }
 
         // 3) Full stack for details
-        //myLogE(Log.getStackTraceString(v));
+        // myLogE(Log.getStackTraceString(v));
     }
-
-
-
-
-
 
 }
