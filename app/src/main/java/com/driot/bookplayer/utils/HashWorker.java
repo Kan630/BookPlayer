@@ -3,6 +3,7 @@ package com.driot.bookplayer.utils;
 import android.content.Context;
 import android.net.Uri;
 import android.provider.DocumentsContract;
+import com.driot.bookplayer.helpers.UriHelper;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -89,9 +90,11 @@ public class HashWorker extends LoggingWorker {
 
     private String computeFolderHash(File folder) {
         // NOT USED YET, for background from Main Activity
-        if (!folder.exists() || !folder.isDirectory()) return "";
+        if (!folder.exists() || !folder.isDirectory())
+            return "";
         File[] files = folder.listFiles();
-        if (files == null) return "";
+        if (files == null)
+            return "";
 
         Arrays.sort(files, Comparator.comparing(File::getName));
         try {
@@ -120,7 +123,8 @@ public class HashWorker extends LoggingWorker {
                     long elapsed = System.currentTimeMillis() - startTime;
                     sumElapsed += elapsed;
                     fileCount++;
-                    myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
+                    myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = "
+                            + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
                 }
             }
 
@@ -158,9 +162,9 @@ public class HashWorker extends LoggingWorker {
             long totalStart = System.currentTimeMillis();
 
             // shared counters across the whole operation
-            long[] sumElapsed = new long[]{0};
-            int[]  fileCount  = new int[]{0};
-            int[]  fileIndex  = new int[]{0}; // drives BIG/SMALL tiering
+            long[] sumElapsed = new long[] { 0 };
+            int[] fileCount = new int[] { 0 };
+            int[] fileIndex = new int[] { 0 }; // drives BIG/SMALL tiering
 
             final String scheme = uri.getScheme();
             final String uriStr = uri.toString();
@@ -181,13 +185,15 @@ public class HashWorker extends LoggingWorker {
                     }
                     KanLogger.myLogD("HashWorker", "---Nb of hashed file : " + fileCount[0] + " files.");
                     KanLogger.myLogD("HashWorker", "---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
-                    KanLogger.myLogD("HashWorker", "---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
+                    KanLogger.myLogD("HashWorker", "---[Timing] "
+                            + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
                     return formatHash(digest.digest());
                 } else if (f.isDirectory()) {
                     computeFolderHashRecursiveFs(f, digest, sumElapsed, fileCount, fileIndex);
                     KanLogger.myLogD("HashWorker", "---Nb of hashed file : " + fileCount[0] + " files.");
                     KanLogger.myLogD("HashWorker", "---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
-                    KanLogger.myLogD("HashWorker", "---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
+                    KanLogger.myLogD("HashWorker", "---[Timing] "
+                            + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
                     return formatHash(digest.digest());
                 } else {
                     throw new IllegalArgumentException("file:// is neither regular file nor directory: " + uri);
@@ -196,47 +202,35 @@ public class HashWorker extends LoggingWorker {
 
             // 3) content://
             if ("content".equalsIgnoreCase(scheme)) {
-                boolean isDoc = false, isTree = false;
-                try { isDoc  = DocumentsContract.isDocumentUri(context, uri); } catch (Exception ignore) {}
-                try { isTree = DocumentsContract.isTreeUri(uri); }           catch (Exception ignore) {}
-
-                // IMPORTANT: Check document URI first, because a document URI can be under a tree
-                // (e.g., content://.../tree/.../document/...). In that case, isTreeUri() returns true
-                // but we should treat it as a document (single file), not a tree (directory).
-                if (isDoc) {
-                    DocumentFile doc = DocumentFile.fromSingleUri(context, uri);
-                    if (doc != null && doc.isFile()) {
+                DocumentFile doc = UriHelper.getDocumentFileFromAnyUri(context, uri);
+                if (doc != null) {
+                    if (doc.isFile()) {
                         try (InputStream is = context.getContentResolver().openInputStream(doc.getUri())) {
                             if (is != null) {
                                 hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, doc.getName());
                             }
                         }
-                    } else {
-                        throw new IllegalArgumentException("Document URI is not a file (or null): " + uri);
-                    }
-                } else if (isTree) {
-                    // Only treat as tree if it's not a document URI
-                    DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
-                    if (tree != null && tree.isDirectory()) {
-                        computeFolderHashRecursive(context, tree, digest,
-                                /*rootPathLen*/ (uri.getPath() != null ? uri.getPath().length() : 0),
+                    } else if (doc.isDirectory()) {
+                        computeFolderHashRecursive(context, doc, digest,
+                                /* rootPathLen */ (uri.getPath() != null ? uri.getPath().length() : 0),
                                 sumElapsed, fileCount, fileIndex);
-                    } else {
-                        throw new IllegalArgumentException("Tree URI is not a directory: " + uri);
                     }
                 } else {
-                    // Non-DocumentProvider content:// → treat as a single readable stream
-                    KanLogger.myLogD("HashWorker", "Generic content URI (non-DocumentProvider). Hashing via openInputStream.");
+                    // Non-DocumentProvider content:// (e.g. MediaStore) → treat as a single
+                    // readable stream
+                    KanLogger.myLogD("HashWorker",
+                            "Generic content URI (non-DocumentProvider or null DocFile). Hashing via openInputStream.");
                     try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                        if (is == null) throw new IllegalArgumentException("openInputStream returned null for: " + uri);
-                        // still go through hashAndLog to respect BIG/SMALL tiering & counters
+                        if (is == null)
+                            throw new IllegalArgumentException("openInputStream returned null for: " + uri);
                         hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, "content");
                     }
                 }
 
                 KanLogger.myLogD("HashWorker", "---Nb of hashed file : " + fileCount[0] + " files.");
                 KanLogger.myLogD("HashWorker", "---[Timing] " + sumElapsed[0] + " ms Cumulative hash time");
-                KanLogger.myLogD("HashWorker", "---[Timing] " + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
+                KanLogger.myLogD("HashWorker", "---[Timing] "
+                        + (System.currentTimeMillis() - totalStart - sumElapsed[0]) + " ms other processes time");
                 return formatHash(digest.digest());
             }
 
@@ -247,15 +241,17 @@ public class HashWorker extends LoggingWorker {
         }
     }
 
-
-    private static void computeFolderHashRecursive(Context context, DocumentFile folder, MessageDigest digest, int rootPathLen, long[] sumElapsed, int[] fileCount, int[] fileIndex) {
-        if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+    private static void computeFolderHashRecursive(Context context, DocumentFile folder, MessageDigest digest,
+            int rootPathLen, long[] sumElapsed, int[] fileCount, int[] fileIndex) {
+        if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
+            return;
 
         long listStart = System.currentTimeMillis();
         DocumentFile[] files = folder.listFiles();
-        KanLogger.myLogD("HashWorker", System.currentTimeMillis() - listStart + " ms to list " + files.length + " files in " + folder.getName());
+        KanLogger.myLogD("HashWorker", System.currentTimeMillis() - listStart + " ms to list " + files.length
+                + " files in " + folder.getName());
 
-        //TODO will only sort the first subFolder... but well...
+        // TODO will only sort the first subFolder... but well...
         long sortStart = System.currentTimeMillis();
         int n = files.length;
         String[] names = new String[n];
@@ -265,10 +261,12 @@ public class HashWorker extends LoggingWorker {
             indices[i] = i;
         }
         Arrays.sort(indices, Comparator.comparing(i -> names[i], Comparator.nullsFirst(String::compareToIgnoreCase)));
-        KanLogger.myLogD("HashWorker", System.currentTimeMillis() - sortStart + " ms to sort files in " + folder.getName());
+        KanLogger.myLogD("HashWorker",
+                System.currentTimeMillis() - sortStart + " ms to sort files in " + folder.getName());
 
         for (int i = 0; i < n; i++) {
-            if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+            if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
+                return;
             DocumentFile file = files[indices[i]];
 
             if (file.isFile()) {
@@ -288,18 +286,22 @@ public class HashWorker extends LoggingWorker {
     }
 
     /**
-     * Recursively hash first N files (COUNT_FILE_BIG_HASH then COUNT_FILE_SMALL_HASH) in a file:// folder tree.
+     * Recursively hash first N files (COUNT_FILE_BIG_HASH then
+     * COUNT_FILE_SMALL_HASH) in a file:// folder tree.
      */
     private static void computeFolderHashRecursiveFs(File folder,
-                                              MessageDigest digest,
-                                              long[] sumElapsed,
-                                              int[] fileCount,
-                                              int[] fileIndex) {
-        if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
-        if (folder == null || !folder.exists() || !folder.isDirectory()) return;
+            MessageDigest digest,
+            long[] sumElapsed,
+            int[] fileCount,
+            int[] fileIndex) {
+        if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
+            return;
+        if (folder == null || !folder.exists() || !folder.isDirectory())
+            return;
 
         File[] files = folder.listFiles();
-        if (files == null || files.length == 0) return;
+        if (files == null || files.length == 0)
+            return;
 
         // Sort by name, case-insensitive, nulls first (parity with SAF sorting)
         Arrays.sort(files, Comparator.comparing(
@@ -307,7 +309,8 @@ public class HashWorker extends LoggingWorker {
                 Comparator.nullsFirst(String::compareToIgnoreCase)));
 
         for (File f : files) {
-            if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH) return;
+            if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
+                return;
 
             if (f.isFile()) {
                 try (InputStream is = new FileInputStream(f)) {
@@ -321,13 +324,16 @@ public class HashWorker extends LoggingWorker {
         }
     }
 
-    /** Hash a single file stream with tiering (BIG then SMALL), update counters, and log. */
+    /**
+     * Hash a single file stream with tiering (BIG then SMALL), update counters, and
+     * log.
+     */
     private static void hashAndLog(InputStream is,
-                            MessageDigest digest,
-                            int[] fileIndex,      // shared across the whole traversal
-                            long[] sumElapsed,    // accumulates hashing time
-                            int[] fileCount,      // number of files actually hashed
-                            String displayName) throws Exception {
+            MessageDigest digest,
+            int[] fileIndex, // shared across the whole traversal
+            long[] sumElapsed, // accumulates hashing time
+            int[] fileCount, // number of files actually hashed
+            String displayName) throws Exception {
 
         final boolean bigTier = fileIndex[0] < COUNT_FILE_BIG_HASH;
         final int maxBytes = bigTier ? MAX_BYTES_TO_HASH_PER_FILE_BIG : MAX_BYTES_TO_HASH_PER_FILE_SMALL;
@@ -346,12 +352,11 @@ public class HashWorker extends LoggingWorker {
                 " - " + (displayName != null ? displayName : "(unnamed)"));
     }
 
-
     private static String formatHash(byte[] hashBytes) {
         StringBuilder sb = new StringBuilder();
-        for (byte b : hashBytes) sb.append(String.format("%02x", b));
+        for (byte b : hashBytes)
+            sb.append(String.format("%02x", b));
         return sb.toString();
     }
-
 
 }
