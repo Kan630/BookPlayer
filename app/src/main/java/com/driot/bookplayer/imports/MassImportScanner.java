@@ -5,18 +5,8 @@ import android.net.Uri;
 
 import androidx.documentfile.provider.DocumentFile;
 
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.CoverPictureDetection;
-import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.log.LoggerHelper;
-import com.googlecode.mp4parser.DataSource;
-import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
-import com.googlecode.mp4parser.authoring.Movie;
-import com.googlecode.mp4parser.authoring.Track;
-import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -46,11 +36,14 @@ public class MassImportScanner extends LoggerHelper {
     }
 
     /**
-     * Scans the given root URI for book candidates (epub, m4b, zip, 7z, audio folders, etc.).
+     * Scans the given root URI for book candidates (epub, m4b, zip, 7z, audio
+     * folders, etc.).
      *
-     * @param rootUri          Tree URI of the picked folder
-     * @param includeSubfolders If true, recursively searches subfolders for book files and audio folders.
-     *                          If false, only top-level items under root are considered.
+     * @param rootUri           Tree URI of the picked folder
+     * @param includeSubfolders If true, recursively searches subfolders for book
+     *                          files and audio folders.
+     *                          If false, only top-level items under root are
+     *                          considered.
      */
     public List<BookCandidate> scan(Uri rootUri, boolean includeSubfolders) {
         List<BookCandidate> candidates = new ArrayList<>();
@@ -77,7 +70,8 @@ public class MassImportScanner extends LoggerHelper {
     }
 
     /**
-     * Recursively collects book files (epub, m4b, zip, 7z, etc.) and audio folders from root and all subfolders,
+     * Recursively collects book files (epub, m4b, zip, 7z, etc.) and audio folders
+     * from root and all subfolders,
      * then processes them with progress reporting.
      */
     private void scanRecursive(DocumentFile root, List<BookCandidate> candidates,
@@ -90,9 +84,7 @@ public class MassImportScanner extends LoggerHelper {
 
         List<DocumentFile> processList = new ArrayList<>();
         processList.addAll(folderCandidates);
-        for (DocumentFile f : fileCandidates) {
-            processList.add(f);
-        }
+        processList.addAll(fileCandidates);
         processList.addAll(zipFiles);
 
         int total = processList.size();
@@ -100,7 +92,8 @@ public class MassImportScanner extends LoggerHelper {
 
         // Process folders
         for (DocumentFile file : folderCandidates) {
-            if (isCancelled) return;
+            if (isCancelled)
+                return;
             current++;
             callback.onProgress(current, total, safeName(file));
             myLogD("--------------------------------------------------------");
@@ -108,20 +101,14 @@ public class MassImportScanner extends LoggerHelper {
             myLogD("--------------------------------------------------------");
 
             String fileName = safeName(file);
-            long size = calculateSize(file);
-            String hash = computeHash(file.getUri());
-            String existingBookName = checkFolderAlreadyImported(file.getUri().toString(), hash);
-            int tracksCount = calculateTrackCount(file);
-            String coverPath = detectCoverForFolder(file);
-
-            BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
-                    fileName, size, hash, existingBookName, tracksCount, coverPath);
+            BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder");
             addCandidate(candidate, candidates);
         }
 
         // Process non-ZIP files (epub, m4b, etc.)
         for (DocumentFile file : fileCandidates) {
-            if (isCancelled) return;
+            if (isCancelled)
+                return;
             current++;
             callback.onProgress(current, total, safeName(file));
             myLogD("--------------------------------------------------------");
@@ -131,15 +118,7 @@ public class MassImportScanner extends LoggerHelper {
             String type = detectBookType(file);
             if (type != null) {
                 String fileName = safeName(file);
-                String hash = computeHash(file.getUri());
-                String existingBookName = checkHashExists(hash);
-                String coverPath = detectCoverForFile(file, type);
-                int tracksCount = 1;
-                if ("M4B".equals(type)) {
-                    tracksCount = calculateTrackCountForM4B(file);
-                }
-                BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                        fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
+                BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
                 addCandidate(candidate, candidates);
             }
         }
@@ -149,18 +128,23 @@ public class MassImportScanner extends LoggerHelper {
     }
 
     /**
-     * Recursively collects: (1) directories that contain audio as folder candidates,
-     * (2) book-type files (epub, m4b, etc.) as file candidates, (3) archive files (zip, 7z) for deferred processing.
+     * Recursively collects: (1) directories that contain audio as folder
+     * candidates,
+     * (2) book-type files (epub, m4b, etc.) as file candidates, (3) archive files
+     * (zip, 7z) for deferred processing.
      */
     private void collectCandidatesRecursive(DocumentFile dir,
             List<DocumentFile> folderCandidates, List<DocumentFile> fileCandidates,
             List<DocumentFile> zipFiles) {
-        if (isCancelled) return;
+        if (isCancelled)
+            return;
         DocumentFile[] files = dir.listFiles();
-        if (files == null) return;
+        if (files == null)
+            return;
 
         for (DocumentFile file : files) {
-            if (isCancelled) return;
+            if (isCancelled)
+                return;
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
                     folderCandidates.add(file);
@@ -200,14 +184,7 @@ public class MassImportScanner extends LoggerHelper {
 
                 if (hasAnyAudioRecursive(file)) {
                     String fileName = safeName(file);
-                    long size = calculateSize(file);
-                    String hash = computeHash(file.getUri());
-                    String existingBookName = checkFolderAlreadyImported(file.getUri().toString(), hash);
-                    int tracksCount = calculateTrackCount(file);
-                    String coverPath = detectCoverForFolder(file);
-
-                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
-                            fileName, size, hash, existingBookName, tracksCount, coverPath);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder");
                     addCandidate(candidate, candidates);
                 }
             } else {
@@ -224,15 +201,7 @@ public class MassImportScanner extends LoggerHelper {
 
                     if (type != null) {
                         String fileName = safeName(file);
-                        String hash = computeHash(file.getUri());
-                        String existingBookName = checkHashExists(hash);
-                        String coverPath = detectCoverForFile(file, type);
-                        int tracksCount = 1;
-                        if ("M4B".equals(type)) {
-                            tracksCount = calculateTrackCountForM4B(file);
-                        }
-                        BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                                fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
+                        BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
                         addCandidate(candidate, candidates);
                     }
                 }
@@ -262,14 +231,7 @@ public class MassImportScanner extends LoggerHelper {
 
             String type = detectBookType(file);
             if (type != null) {
-                String hash = computeHash(file.getUri());
-                String existingBookName = checkHashExists(hash);
-                String coverPath = detectCoverForFile(file, type);
-                // Calculate track count for archives (ZIP/7Z/TAR)
-                int tracksCount = calculateTrackCountForArchive(file);
-
-                BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                        fileName, file.length(), hash, existingBookName, tracksCount, coverPath);
+                BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
                 addCandidate(candidate, candidates);
             }
         }
@@ -300,32 +262,16 @@ public class MassImportScanner extends LoggerHelper {
                 // Check logic for folder
                 if (hasAnyAudioRecursive(file)) {
                     String fileName = safeName(file);
-                    long size = calculateSize(file);
-                    String hash = computeHash(file.getUri());
-                    String existingBookName = checkHashExists(hash);
-                    int tracksCount = calculateTrackCount(file);
-                    String coverPath = detectCoverForFolder(file);
-                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, "Folder",
-                            fileName, size, hash, existingBookName, tracksCount, coverPath);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder");
                     addCandidate(candidate, candidates);
                 }
             } else {
-                // This method still uses the old processCandidate logic, which is now inlined
-                // in scan()
-                // For consistency, it should probably be updated to match scan()'s new inlined
-                // logic.
-                // For now, keeping it as is, but noting the discrepancy.
                 String type = detectBookType(file);
                 if ("ZIP".equals(type)) {
                     deferredArchives.add(file);
                 } else if (type != null) {
                     String fileName = safeName(file);
-                    String hash = computeHash(file.getUri());
-                    String existingBookName = checkHashExists(hash);
-                    String coverPath = detectCoverForFile(file, type);
-
-                    BookCandidate candidate = new BookCandidate(file.getUri(), fileName, type,
-                                fileName, file.length(), hash, existingBookName, 1, coverPath);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
                     addCandidate(candidate, candidates);
                 }
             }
@@ -390,732 +336,8 @@ public class MassImportScanner extends LoggerHelper {
         return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
     }
 
-    private long calculateSize(DocumentFile file) {
-        if (!file.isDirectory()) {
-            return file.length();
-        }
-        long size = 0;
-        for (DocumentFile child : file.listFiles()) {
-            size += calculateSize(child);
-        }
-        return size;
-    }
-
-    private int calculateTrackCount(DocumentFile file) {
-        if (!file.isDirectory()) {
-            // If it's a file, check if it's audio
-            return isAudio(file) ? 1 : 0;
-        }
-        int count = 0;
-        for (DocumentFile child : file.listFiles()) {
-            count += calculateTrackCount(child);
-        }
-        return count;
-    }
-
-    /**
-     * Counts audio tracks inside an archive (ZIP, 7Z, TAR).
-     * Returns 0 if archive cannot be read or if no audio files are found.
-     */
-    private int calculateTrackCountForArchive(DocumentFile archiveFile) {
-        if (isCancelled)
-            return 0;
-
-        String fileName = safeName(archiveFile).toLowerCase();
-        String ext = getExt(fileName);
-
-        try {
-            // 1. 7Z Files (Requires seeking via FileChannel)
-            if (ext.equals("7z")) {
-                return calculateTrackCountFor7Z(archiveFile);
-            }
-            // 2. TAR Files (including compressed variants)
-            else if (ext.equals("tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
-                    || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
-                    || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
-                return calculateTrackCountForTar(archiveFile);
-            }
-            // 3. ZIP Files (default)
-            else {
-                return calculateTrackCountForZip(archiveFile);
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error counting tracks in archive: " + safeName(archiveFile));
-            return 0;
-        }
-    }
-
-    private int calculateTrackCountForZip(DocumentFile archiveFile) {
-        int count = 0;
-        try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
-            if (inputStream != null) {
-                try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream)) {
-                    java.util.zip.ZipEntry entry;
-                    while ((entry = zis.getNextEntry()) != null) {
-                        if (isCancelled)
-                            return count;
-                        if (!entry.isDirectory()) {
-                            String entryName = entry.getName();
-                            if (isAudioFileName(entryName)) {
-                                count++;
-                            }
-                        }
-                        zis.closeEntry();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error counting tracks in ZIP: " + safeName(archiveFile));
-        }
-        return count;
-    }
-
-    private int calculateTrackCountFor7Z(DocumentFile archiveFile) {
-        int count = 0;
-        try {
-            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
-                    .openFileDescriptor(archiveFile.getUri(), "r")) {
-                if (pfd != null) {
-                    try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
-                            pfd.getFileDescriptor()).getChannel()) {
-                        try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
-                                channel)) {
-                            org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
-                            while ((entry = sevenZFile.getNextEntry()) != null) {
-                                if (isCancelled)
-                                    return count;
-                                if (!entry.isDirectory()) {
-                                    String entryName = entry.getName();
-                                    if (isAudioFileName(entryName)) {
-                                        count++;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error counting tracks in 7Z: " + safeName(archiveFile));
-        }
-        return count;
-    }
-
-    private int calculateTrackCountForTar(DocumentFile archiveFile) {
-        int count = 0;
-        try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
-            if (inputStream != null) {
-                try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
-                        java.io.InputStream cis = maybeWrapCompressor(bis);
-                        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
-                                cis)) {
-                    org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
-                    while ((entry = tis.getNextTarEntry()) != null) {
-                        if (isCancelled)
-                            return count;
-                        if (!entry.isDirectory()) {
-                            String entryName = entry.getName();
-                            if (isAudioFileName(entryName)) {
-                                count++;
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error counting tracks in TAR: " + safeName(archiveFile));
-        }
-        return count;
-    }
-
-    /**
-     * Checks if a file name (from archive entry) represents an audio file.
-     * Uses the same logic as isAudio() but works with just the filename string.
-     */
-    private boolean isAudioFileName(String fileName) {
-        String ext = getExt(fileName);
-        return Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext);
-    }
-
-    /**
-     * Counts chapters/tracks in an M4B file.
-     * Returns 1 if no chapters are found or if the file cannot be parsed.
-     */
-    private int calculateTrackCountForM4B(DocumentFile m4bFile) {
-        if (isCancelled)
-            return 1;
-
-        java.io.File tempFile = null;
-        try {
-            // Try to get a file path from URI (prefer direct access)
-            String filePath = UriHelper.getPathFromUri(context, m4bFile.getUri());
-            if (filePath != null) {
-                java.io.File directFile = new java.io.File(filePath);
-                if (directFile.exists() && directFile.isFile()) {
-                    return countM4BChapters(directFile.getAbsolutePath());
-                }
-            }
-
-            // Fallback: copy to temp file for SAF URIs
-            // Note: This might be slow for large files, but necessary for SAF access
-            tempFile = UriHelper.getFileFromUri(context, m4bFile.getUri());
-            if (tempFile != null && tempFile.exists()) {
-                int count = countM4BChapters(tempFile.getAbsolutePath());
-                // Clean up temp file if we created it (check if it's in cache dir)
-                if (tempFile.getParentFile() != null
-                        && tempFile.getParentFile().equals(context.getCacheDir())
-                        && (tempFile.getName().startsWith("uri_tmp_") || tempFile.getName().startsWith("uri_temp_"))) {
-                    // Delete temp file after use
-                    try {
-                        tempFile.delete();
-                    } catch (Exception e) {
-                        myLogE("Could not delete temp file: " + tempFile.getAbsolutePath());
-                    }
-                }
-                return count;
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error counting chapters in M4B: " + safeName(m4bFile));
-            // Clean up temp file on error
-            if (tempFile != null && tempFile.exists()) {
-                try {
-                    tempFile.delete();
-                } catch (Exception ignored) {
-                }
-            }
-        }
-        return 1; // Default: single track
-    }
-
-    /**
-     * Counts chapters in an M4B file using MP4Parser.
-     * Returns 1 if no chapters found or parsing fails.
-     */
-    private int countM4BChapters(String m4bFilePath) {
-        DataSource dataSource = null;
-        try {
-            // Use FileDataSourceViaHeapImpl (same as M4bSplitWorker) to avoid mmap issues
-            dataSource = new FileDataSourceViaHeapImpl(m4bFilePath);
-            Movie movie = MovieCreator.build(dataSource);
-
-            // Find the chapter track
-            Track chapterTrack = null;
-            for (Track track : movie.getTracks()) {
-                if (isCancelled)
-                    return 1;
-                String handler = track.getHandler();
-                if ("text".equals(handler) || "sbtl".equals(handler)) {
-                    chapterTrack = track;
-                    break;
-                }
-            }
-
-            if (chapterTrack != null) {
-                int chapterCount = chapterTrack.getSamples().size();
-                myLogD("M4B chapter count: " + chapterCount + " for file: " + m4bFilePath);
-                return chapterCount > 0 ? chapterCount : 1;
-            } else {
-                // No chapter track found - it's a single-track M4B
-                myLogD("No chapter track found in M4B, treating as single track: " + m4bFilePath);
-                return 1;
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error parsing M4B for chapter count: " + m4bFilePath);
-            return 1; // Default: single track
-        } finally {
-            if (dataSource != null) {
-                try {
-                    dataSource.close();
-                } catch (Exception ignored) {
-                }
-            }
-        }
-    }
-
     private String safeName(DocumentFile f) {
         String n = f.getName();
         return n == null ? "Untitled" : n;
-    }
-
-    private String computeHash(Uri uri) {
-        try {
-            String hash = HashWorker.computeHashFromUri(context, uri);
-            if (hash != null && !hash.isEmpty()) {
-                // Try to get name for logging, but don't fail if it doesn't work
-                String name = uri.getLastPathSegment();
-                if (name != null && name.contains("/")) {
-                    name = name.substring(name.lastIndexOf('/') + 1);
-                }
-                myLogD("Computed hash for [" + (name != null ? name : "item") + "]: " + hash);
-                return hash;
-            } else {
-                myLogW("Failed to compute hash for URI: " + uri);
-                return null;
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error computing hash for URI: " + uri);
-            return null;
-        }
-    }
-
-    private String checkHashExists(String hash) {
-        if (hash == null || hash.isEmpty()) {
-            return null;
-        }
-        try {
-            String existingBookName = AppDatabase.getDatabase(context).folderDao()
-                    .originalHashAlreadyExist_getBookName(hash);
-            if (existingBookName != null) {
-                myLogD("Hash already exists in DB for book: " + existingBookName);
-            }
-            return existingBookName;
-        } catch (Exception e) {
-            myLogEE(e, "Error checking if hash exists in DB: " + hash);
-            return null;
-        }
-    }
-
-    /**
-     * Check if a folder is already imported by checking both path and hash.
-     * This matches the logic in LoadBookActivity.checkPathDoesNotAlreadyExist().
-     * For folders imported "in place" (without copying), the path is the identifier.
-     */
-    private String checkFolderAlreadyImported(String folderPath, String hash) {
-        if (folderPath == null || folderPath.isEmpty())
-            return checkHashExists(hash); // Fallback to hash only
-        
-        try {
-            AppDatabase db = AppDatabase.getDatabase(context);
-            // First check by path (like LoadBookActivity does for folders)
-            String existingByPath = db.folderDao().folderAlreadyExist_checkFolderPath_getBookName(folderPath);
-            if (existingByPath != null && !existingByPath.isEmpty()) {
-                myLogD("Folder already imported (by path): " + folderPath + " -> " + existingByPath);
-                return existingByPath;
-            }
-            
-            // Also check by hash (in case it was imported with a different path or copied)
-            if (hash != null && !hash.isEmpty()) {
-                String existingByHash = db.folderDao().originalHashAlreadyExist_getBookName(hash);
-                if (existingByHash != null && !existingByHash.isEmpty()) {
-                    myLogD("Folder already imported (by hash): " + hash + " -> " + existingByHash);
-                    return existingByHash;
-                }
-            }
-            
-            return null;
-        } catch (Exception e) {
-            myLogEE(e, "Error checking folder import status");
-            // Fallback to hash check only
-            return checkHashExists(hash);
-        }
-    }
-
-    /**
-     * Detects cover image for a folder by scanning for image files.
-     * If no image found, tries to extract embedded cover from audio files.
-     * 
-     * @param folder DocumentFile representing the folder
-     * @return Path to detected cover image, or null if none found
-     */
-    private String detectCoverForFolder(DocumentFile folder) {
-        try {
-            // Step 1: Try to find image files in folder
-            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(context,
-                    folder, null);
-
-            if (result != null && result.imagePath != null) {
-                myLogD("Cover image detected for folder: " + safeName(folder) + " -> " + result.imagePath);
-                return result.imagePath;
-            }
-
-            // Step 2: No image found - try to extract embedded cover from audio files
-            myLogD("No image file found, checking audio metadata for folder: " + safeName(folder));
-            String embeddedCover = extractEmbeddedCoverFromFolder(folder);
-            if (embeddedCover != null) {
-                myLogD("Embedded cover extracted from audio for folder: " + safeName(folder) + " -> " + embeddedCover);
-                return embeddedCover;
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error detecting cover for folder: " + safeName(folder));
-        }
-        return null;
-    }
-
-    /**
-     * Extracts embedded cover from the first audio file found in folder.
-     * 
-     * @param folder DocumentFile representing the folder
-     * @return Path to extracted cover, or null if none found
-     */
-    private String extractEmbeddedCoverFromFolder(DocumentFile folder) {
-        try {
-            // Scan folder for audio files
-            for (DocumentFile file : folder.listFiles()) {
-                if (file.isFile() && isAudio(file)) {
-                    // Try to extract embedded cover from this audio file
-                    android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
-                    try {
-                        mmr.setDataSource(context, file.getUri());
-                        CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
-                                .extractEmbeddedCover(mmr);
-
-                        if (result != null && result.bitmap != null) {
-                            // Save bitmap to temp file with unique suffix to avoid collision
-                            String suffix = "_" + file.getUri().hashCode();
-                            String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                    result.bitmap, suffix);
-                            if (tempPath != null) {
-                                myLogD("Embedded cover saved from audio file: " + safeName(file));
-                                return tempPath;
-                            }
-                        }
-                    } finally {
-                        try {
-                            mmr.release();
-                        } catch (Exception ignored) {
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error extracting embedded cover from folder: " + safeName(folder));
-        }
-        return null;
-    }
-
-    /**
-     * Detects cover image for a file (M4B, EPUB, etc).
-     * Extracts embedded covers from M4B/audio files.
-     * EPUB extraction skipped (too complex for scan).
-     * 
-     * @param file DocumentFile representing the file
-     * @param type Type of file (M4B, Ebook, etc)
-     * @return Path to detected cover image, or null if none found
-     */
-    private String detectCoverForFile(DocumentFile file, String type) {
-        // Extract embedded cover from M4B and audio files
-        if ("M4B".equals(type) || "Audio File".equals(type)) {
-            try {
-                android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
-                try {
-                    mmr.setDataSource(context, file.getUri());
-                    CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.extractEmbeddedCover(mmr);
-
-                    if (result != null && result.bitmap != null) {
-                        // Save bitmap to temp file with unique suffix to avoid collision
-                        String suffix = "_" + file.getUri().hashCode();
-                        String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                result.bitmap, suffix);
-                        if (tempPath != null) {
-                            myLogD("Embedded cover extracted from M4B/audio file: " + safeName(file));
-                            return tempPath;
-                        }
-                    }
-                } finally {
-                    try {
-                        mmr.release();
-                    } catch (Exception ignored) {
-                    }
-                }
-            } catch (Exception e) {
-                myLogEE(e, "Error extracting embedded cover from file: " + safeName(file));
-            }
-        }
-
-        // Extract cover from EPUB and FB2 files
-        if ("Ebook".equals(type)) {
-            String fileName = safeName(file).toLowerCase();
-
-            if (fileName.endsWith(".epub")) {
-                try {
-                    // Unzip EPUB
-                    java.util.Map<String, byte[]> zip = com.driot.bookplayer.ebooks.EpubCommonHelper.readZip(
-                            file.getUri(), context);
-
-                    // Find and parse OPF
-                    byte[] containerXml = zip.get("META-INF/container.xml");
-                    if (containerXml != null) {
-                        String opfPath = com.driot.bookplayer.ebooks.EpubCommonHelper.findOpfPath(containerXml);
-                        byte[] opfBytes = zip.get(opfPath);
-
-                        if (opfBytes != null) {
-                            // Parse OPF using EpubLowLevelHelper
-                            com.driot.bookplayer.ebooks.EpubLowLevelHelper.OpfInfo opf = com.driot.bookplayer.ebooks.EpubLowLevelHelper
-                                    .parseOpf(opfBytes);
-                            opf.opfPath = opfPath; // Set the OPF path
-
-                            // Extract cover
-                            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
-                                    .detectCoverFromEpub(zip, opf);
-
-                            if (result != null && result.bitmap != null) {
-                                String suffix = "_" + file.getUri().hashCode();
-                                String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                        result.bitmap, suffix);
-                                if (tempPath != null) {
-                                    myLogD("Cover extracted from EPUB: " + safeName(file));
-                                    return tempPath;
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "Error extracting EPUB cover: " + safeName(file));
-                }
-            } else if (fileName.endsWith(".fb2")) {
-                // Extract cover from FB2 files
-                try {
-                    String xml = com.driot.bookplayer.ebooks.Fb2LowLevelHelper.readAllText(context, file.getUri());
-                    Fb2LowLevelHelper.Meta meta = com.driot.bookplayer.ebooks.Fb2LowLevelHelper
-                            .parseMetaAndBinaries(xml);
-
-                    // Extract cover bitmap
-                    if (meta.coverImageId != null && !meta.coverImageId.isEmpty()) {
-                        byte[] imageBytes = meta.binaries.get(meta.coverImageId);
-                        if (imageBytes != null) {
-                            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                    imageBytes, 0, imageBytes.length);
-
-                            if (bitmap != null) {
-                                String suffix = "_" + file.getUri().hashCode();
-                                String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                        bitmap, suffix);
-                                if (tempPath != null) {
-                                    myLogD("Cover extracted from FB2: " + safeName(file));
-                                    return tempPath;
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "Error extracting FB2 cover: " + safeName(file));
-                }
-            }
-        }
-
-        // Extract cover from ZIP, 7Z and TAR files
-        if ("ZIP".equals(type)) {
-            String fileName = safeName(file).toLowerCase();
-
-            // 1. 7Z Files (Requires seeking)
-            if (fileName.endsWith(".7z")) {
-                try {
-                    try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
-                            .openFileDescriptor(file.getUri(), "r")) {
-                        if (pfd != null) {
-                            try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
-                                    pfd.getFileDescriptor()).getChannel()) {
-                                try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
-                                        channel)) {
-
-                                    org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
-                                    byte[] largestImage = null;
-                                    long largestSize = 0;
-                                    String largestName = null;
-
-                                    while ((entry = sevenZFile.getNextEntry()) != null) {
-                                        if (!entry.isDirectory()) {
-                                            String entryName = entry.getName().toLowerCase();
-                                            if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
-                                                    entryName.endsWith(".png") || entryName.endsWith(".webp")) {
-                                                long size = entry.getSize();
-                                                if (size > largestSize || (size == -1 && largestImage == null)) {
-                                                    if (size > 10 * 1024 * 1024)
-                                                        continue;
-                                                    int contentSize = (int) size;
-                                                    byte[] content = new byte[contentSize];
-                                                    int bytesRead = 0;
-                                                    while (bytesRead < contentSize) {
-                                                        int read = sevenZFile.read(content, bytesRead,
-                                                                contentSize - bytesRead);
-                                                        if (read == -1)
-                                                            break;
-                                                        bytesRead += read;
-                                                    }
-                                                    if (bytesRead == contentSize) {
-                                                        byte[] imageBytes = content;
-                                                        if (imageBytes.length > largestSize) {
-                                                            largestImage = imageBytes;
-                                                            largestSize = imageBytes.length;
-                                                            largestName = entry.getName();
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                    if (largestImage != null) {
-                                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                                largestImage, 0, largestImage.length);
-                                        if (bitmap != null) {
-                                            String suffix = "_" + file.getUri().hashCode();
-                                            String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(
-                                                    context, bitmap, suffix);
-                                            if (tempPath != null) {
-                                                myLogD("Cover extracted from 7Z: " + safeName(file) + " -> "
-                                                        + largestName);
-                                                return tempPath;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "Error extracting 7Z cover: " + safeName(file));
-                }
-            }
-            // 2. TAR Files (inc. tgz, tbz2, txz)
-            else if (fileName.endsWith(".tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
-                    || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
-                    || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
-
-                try {
-                    java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
-                    if (inputStream != null) {
-                        try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
-                                java.io.InputStream cis = maybeWrapCompressor(bis);
-                                org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
-                                        cis)) {
-
-                            org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
-                            byte[] largestImage = null;
-                            long largestSize = 0;
-                            String largestName = null;
-
-                            while ((entry = tis.getNextTarEntry()) != null) {
-                                if (!entry.isDirectory()) {
-                                    String entryName = entry.getName().toLowerCase();
-                                    if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
-                                            entryName.endsWith(".png") || entryName.endsWith(".webp")) {
-
-                                        long size = entry.getSize();
-                                        if (size > largestSize || (size == -1 && largestImage == null)) {
-                                            if (size > 10 * 1024 * 1024)
-                                                continue; // Skip huge images to avoid OOM
-
-                                            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                            byte[] buffer = new byte[8192];
-                                            int len;
-                                            // TarInputStream reads until end of entry
-                                            while ((len = tis.read(buffer)) > 0) {
-                                                baos.write(buffer, 0, len);
-                                            }
-                                            byte[] imageBytes = baos.toByteArray();
-
-                                            if (imageBytes.length > largestSize) {
-                                                largestImage = imageBytes;
-                                                largestSize = imageBytes.length;
-                                                largestName = entry.getName();
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            if (largestImage != null) {
-                                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                        largestImage, 0, largestImage.length);
-                                if (bitmap != null) {
-                                    String suffix = "_" + file.getUri().hashCode();
-                                    String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                            bitmap, suffix);
-                                    if (tempPath != null) {
-                                        myLogD("Cover extracted from TAR: " + safeName(file) + " -> " + largestName);
-                                        return tempPath;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "Error extracting TAR cover: " + safeName(file));
-                }
-            }
-            // 3. ZIP Files (Streamable) - Default fallback
-            else {
-                try {
-                    // Stream through ZIP entries to find largest image file
-                    java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
-                    if (inputStream != null) {
-                        java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream);
-                        java.util.zip.ZipEntry entry;
-
-                        byte[] largestImage = null;
-                        long largestSize = 0;
-                        String largestName = null;
-
-                        while ((entry = zis.getNextEntry()) != null) {
-                            if (!entry.isDirectory()) {
-                                String entryName = entry.getName().toLowerCase();
-                                // Check if it's an image file
-                                if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
-                                        entryName.endsWith(".png") || entryName.endsWith(".webp")) {
-
-                                    long size = entry.getSize();
-                                    // If size unknown or larger than current largest
-                                    if (size > largestSize || (size == -1 && largestImage == null)) {
-                                        // Read this image
-                                        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                        byte[] buffer = new byte[8192];
-                                        int len;
-                                        while ((len = zis.read(buffer)) > 0) {
-                                            baos.write(buffer, 0, len);
-                                        }
-                                        byte[] imageBytes = baos.toByteArray();
-
-                                        // Update if this is larger
-                                        if (imageBytes.length > largestSize) {
-                                            largestImage = imageBytes;
-                                            largestSize = imageBytes.length;
-                                            largestName = entry.getName();
-                                        }
-                                    }
-                                    zis.closeEntry();
-                                }
-                            }
-                        }
-                        zis.close();
-
-                        // Decode largest image if found
-                        if (largestImage != null) {
-                            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                    largestImage, 0, largestImage.length);
-
-                            if (bitmap != null) {
-                                String suffix = "_" + file.getUri().hashCode();
-                                String tempPath = com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
-                                        bitmap, suffix);
-                                if (tempPath != null) {
-                                    myLogD("Cover extracted from ZIP: " + safeName(file) + " -> " + largestName);
-                                    return tempPath;
-                                }
-                            }
-                        }
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "Error extracting ZIP cover: " + safeName(file));
-                }
-            }
-
-        }
-
-        return null;
-    }
-
-    private static java.io.InputStream maybeWrapCompressor(java.io.InputStream in)
-            throws org.apache.commons.compress.compressors.CompressorException {
-        // auto-detect gzip/bzip2/xz by magic bytes
-        org.apache.commons.compress.compressors.CompressorStreamFactory f = new org.apache.commons.compress.compressors.CompressorStreamFactory(
-                true);
-        try {
-            return f.createCompressorInputStream(in); // compressed tar
-        } catch (org.apache.commons.compress.compressors.CompressorException notCompressed) {
-            // plain .tar (no compression)
-            return in;
-        }
     }
 }
