@@ -15,7 +15,9 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
-            android:layout_marginBottom="12dp">
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_chip"
+            >
 
             <ImageView
                 android:id="@+id/ivCover"
@@ -28,12 +30,14 @@
 
             <TextView
                 android:id="@+id/tvFileName"
-                style="@style/OptionAfterPickedTitle"
+                style="@style/simpleText"
                 android:text="Selected file or folder"
                 android:layout_width="0dp"
+                android:textStyle="bold"
+                android:textSize="18sp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:ellipsize="end"
                 android:maxLines="3" />
         </LinearLayout>
@@ -57,8 +61,15 @@
             android:textColor="@color/orange"
             android:text="@string/Warning"
             />
-        <!-- Horizontal divider -->
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+    <LinearLayout
+        style="@style/wideLinearLayout_Vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/bg_chip"
+        >
 
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="10dp"
@@ -78,8 +89,8 @@
                 android:text="[mime] - .toto"
                 />
         </LinearLayout>
+    </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <LinearLayout
             style="@style/wideLinearLayout_Vertical">
