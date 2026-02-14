@@ -148,16 +148,16 @@
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
-        <item name="android:layout_marginTop">20sp</item>
-        <item name="android:layout_marginBottom">20sp</item>
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
     </style>
 
     <style name="LinearLayoutOptionsCheckBoxHorizontal">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">horizontal</item>
-        <item name="android:layout_marginStart">0sp</item>
-        <item name="android:layout_marginTop">20sp</item>
+        <item name="android:layout_marginStart">0dp</item>
+        <item name="android:layout_marginTop">20dp</item>
     </style>
 
 

@@ -8,8 +8,13 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.ebooks.EpubCommonHelper;
+import com.driot.bookplayer.ebooks.EpubLowLevelHelper;
+import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
+import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.Tonio;
@@ -93,10 +98,10 @@ public class BookCandidate {
             }
 
             // BookToAdd specifics
-            this.originalFile = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileName(context, uri);
-            this.fileExtension = com.driot.bookplayer.helpers.SupportedFilesHelper.getFileExtension(originalFile);
-            this.mimeType = com.driot.bookplayer.helpers.SupportedFilesHelper.getMimeType(context, uri);
-            this.specialType = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(originalFile);
+            this.originalFile = SupportedFilesHelper.getFileName(context, uri);
+            this.fileExtension = SupportedFilesHelper.getFileExtension(originalFile);
+            this.mimeType = SupportedFilesHelper.getMimeType(context, uri);
+            this.specialType = SupportedFilesHelper.getSpecialType(originalFile);
 
             if (Objects.toString(fileExtension, "").isEmpty()) {
                 this.isBroken = true;
@@ -104,7 +109,7 @@ public class BookCandidate {
 
             this.audioBookName = Tonio.formatNameForDisplay(originalFile);
 
-            if (!com.driot.bookplayer.helpers.SupportedFilesHelper.isBookSupported(originalFile)) {
+            if (!SupportedFilesHelper.isBookSupported(originalFile)) {
                 this.isMimeSupported = false;
             }
         }
@@ -118,24 +123,15 @@ public class BookCandidate {
 
         // Extra info fields
         this.sourceLocation = Tonio.getSourceLocation(context, uri);
-        this.infoSourceLocation = context.getString(R.string.Location) + ": " + this.sourceLocation;
-        this.infoLine1 = this.originalType +  " - " + this.infoSourceLocation;
+        this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
+        this.infoLine1 = this.type +  " - " + this.infoSourceLocation;
 
         if ("Folder".equals(type)) {
             this.playType = inferPlayTypeFromFolder(context, uri);
             this.infoMimeExtension = "[" + "Folder" + "]";
             this.infoMimeExtensionSmall = "init...";
         } else {
-            this.playType = com.driot.bookplayer.helpers.SupportedFilesHelper.getPlayType(name);
-
-            // Already calculated above in 'else' block
-            // String mimeType =
-            // com.driot.bookplayer.helpers.SupportedFilesHelper.getMimeType(context, uri);
-            // String fileExtension =
-            // com.driot.bookplayer.helpers.SupportedFilesHelper.getFileExtension(name);
-            // String specialType =
-            // com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(name);
-
+            this.playType = SupportedFilesHelper.getPlayType(name);
             this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
         }
@@ -200,9 +196,9 @@ public class BookCandidate {
             if (child.isDirectory()) {
                 count += countRealEbookFilesRecursive(child);
             } else if (child.isFile()) {
-                String special = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(child);
-                if (com.driot.bookplayer.helpers.SupportedFilesHelper.isSplittableEbookSpecial(special)
-                        || com.driot.bookplayer.helpers.SupportedFilesHelper.isBundleSpecial(special)) {
+                String special = SupportedFilesHelper.getSpecialType(child);
+                if (SupportedFilesHelper.isSplittableEbookSpecial(special)
+                        || SupportedFilesHelper.isBundleSpecial(special)) {
                     count++;
                 }
             }
@@ -233,11 +229,11 @@ public class BookCandidate {
                 audio += sub[0];
                 bundle += sub[1];
             } else if (child.isFile()) {
-                if (com.driot.bookplayer.helpers.SupportedFilesHelper.isAudio(child)
-                        || com.driot.bookplayer.helpers.SupportedFilesHelper.isVideo(child)) {
+                if (SupportedFilesHelper.isAudio(child)
+                        || SupportedFilesHelper.isVideo(child)) {
                     audio++;
-                } else if (com.driot.bookplayer.helpers.SupportedFilesHelper
-                        .isBundleSpecial(com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(child))) {
+                } else if (SupportedFilesHelper
+                        .isBundleSpecial(SupportedFilesHelper.getSpecialType(child))) {
                     bundle++;
                 }
             }
@@ -536,7 +532,7 @@ public class BookCandidate {
 
                             if (result != null && result.bitmap != null) {
                                 String suffix = "_" + file.getUri().hashCode();
-                                return com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                return ImageHelper.saveTempBitmap(context,
                                         result.bitmap, suffix);
                             }
                         } finally {
@@ -563,7 +559,7 @@ public class BookCandidate {
 
                     if (result != null && result.bitmap != null) {
                         String suffix = "_" + file.getUri().hashCode();
-                        return com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                        return ImageHelper.saveTempBitmap(context,
                                 result.bitmap, suffix);
                     }
                 } finally {
@@ -580,21 +576,21 @@ public class BookCandidate {
             String fileName = safeName(file).toLowerCase();
             if (fileName.endsWith(".epub")) {
                 try {
-                    java.util.Map<String, byte[]> zip = com.driot.bookplayer.ebooks.EpubCommonHelper.readZip(
+                    java.util.Map<String, byte[]> zip = EpubCommonHelper.readZip(
                             file.getUri(), context);
                     byte[] containerXml = zip.get("META-INF/container.xml");
                     if (containerXml != null) {
-                        String opfPath = com.driot.bookplayer.ebooks.EpubCommonHelper.findOpfPath(containerXml);
+                        String opfPath = EpubCommonHelper.findOpfPath(containerXml);
                         byte[] opfBytes = zip.get(opfPath);
                         if (opfBytes != null) {
-                            com.driot.bookplayer.ebooks.EpubLowLevelHelper.OpfInfo opf = com.driot.bookplayer.ebooks.EpubLowLevelHelper
+                            EpubLowLevelHelper.OpfInfo opf = EpubLowLevelHelper
                                     .parseOpf(opfBytes);
                             opf.opfPath = opfPath;
                             CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
                                     .detectCoverFromEpub(zip, opf);
                             if (result != null && result.bitmap != null) {
                                 String suffix = "_" + file.getUri().hashCode();
-                                return com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                return ImageHelper.saveTempBitmap(context,
                                         result.bitmap, suffix);
                             }
                         }
@@ -603,8 +599,8 @@ public class BookCandidate {
                 }
             } else if (fileName.endsWith(".fb2")) {
                 try {
-                    String xml = com.driot.bookplayer.ebooks.Fb2LowLevelHelper.readAllText(context, file.getUri());
-                    com.driot.bookplayer.ebooks.Fb2LowLevelHelper.Meta meta = com.driot.bookplayer.ebooks.Fb2LowLevelHelper
+                    String xml = Fb2LowLevelHelper.readAllText(context, file.getUri());
+                    Fb2LowLevelHelper.Meta meta = Fb2LowLevelHelper
                             .parseMetaAndBinaries(xml);
 
                     if (meta.coverImageId != null && !meta.coverImageId.isEmpty()) {
@@ -614,7 +610,7 @@ public class BookCandidate {
                                     imageBytes, 0, imageBytes.length);
                             if (bitmap != null) {
                                 String suffix = "_" + file.getUri().hashCode();
-                                return com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                                return ImageHelper.saveTempBitmap(context,
                                         bitmap, suffix);
                             }
                         }
@@ -677,7 +673,7 @@ public class BookCandidate {
                             largestImage, 0, largestImage.length);
                     if (bitmap != null) {
                         String suffix = "_" + file.getUri().hashCode();
-                        return com.driot.bookplayer.helpers.ImageHelper.saveTempBitmap(context,
+                        return ImageHelper.saveTempBitmap(context,
                                 bitmap, suffix);
                     }
                 }
@@ -689,7 +685,7 @@ public class BookCandidate {
 
     private String inferPlayTypeFromFolder(android.content.Context context, Uri folderUri) {
         try {
-            androidx.documentfile.provider.DocumentFile root = com.driot.bookplayer.helpers.UriHelper
+            androidx.documentfile.provider.DocumentFile root = UriHelper
                     .getDocumentFileFromAnyUri(context, folderUri);
             if (root == null || !root.exists() || !root.isDirectory()) {
                 return null;
@@ -698,10 +694,10 @@ public class BookCandidate {
             boolean hasRealContent = counts[0] > 0;
             boolean hasPlainTextOnly = counts[1] > 0;
             if (hasRealContent) {
-                return com.driot.bookplayer.global.Var.PLAY_TYPE_AUDIO;
+                return Var.PLAY_TYPE_AUDIO;
             }
             if (hasPlainTextOnly) {
-                return com.driot.bookplayer.global.Var.PLAY_TYPE_TEXT;
+                return Var.PLAY_TYPE_TEXT;
             }
         } catch (Exception e) {
             // ignore
@@ -723,7 +719,7 @@ public class BookCandidate {
             } else if (child.isFile()) {
                 if (isRealBookOrAudioContent(child)) {
                     realContent++;
-                } else if (com.driot.bookplayer.helpers.SupportedFilesHelper.isText(child)) {
+                } else if (SupportedFilesHelper.isText(child)) {
                     plainText++;
                 }
             }
@@ -732,14 +728,14 @@ public class BookCandidate {
     }
 
     private boolean isRealBookOrAudioContent(androidx.documentfile.provider.DocumentFile child) {
-        if (com.driot.bookplayer.helpers.SupportedFilesHelper.isAudio(child)
-                || com.driot.bookplayer.helpers.SupportedFilesHelper.isVideo(child)) {
+        if (SupportedFilesHelper.isAudio(child)
+                || SupportedFilesHelper.isVideo(child)) {
             return true;
         }
-        String special = com.driot.bookplayer.helpers.SupportedFilesHelper.getSpecialType(child);
-        return com.driot.bookplayer.helpers.SupportedFilesHelper.isSplittableEbookSpecial(special)
-                || com.driot.bookplayer.helpers.SupportedFilesHelper.isBundleSpecial(special)
-                || com.driot.bookplayer.helpers.SupportedFilesHelper.isM4bSpecial(special);
+        String special = SupportedFilesHelper.getSpecialType(child);
+        return SupportedFilesHelper.isSplittableEbookSpecial(special)
+                || SupportedFilesHelper.isBundleSpecial(special)
+                || SupportedFilesHelper.isM4bSpecial(special);
     }
 
     public boolean isSelected() {

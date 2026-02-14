@@ -106,7 +106,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
     @Override
     protected boolean enableOngoingTaskOverlay() {
-        return true;
+        return false;
     }
 
     @Override

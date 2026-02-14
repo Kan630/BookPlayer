@@ -13,7 +13,7 @@
         <!-- File name display -->
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="80dp"
             android:orientation="horizontal"
             android:layout_marginBottom="12dp"
             android:background="@drawable/bg_chip"
@@ -22,7 +22,7 @@
             <ImageView
                 android:id="@+id/ivCover"
                 android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_height="match_parent"
                 android:scaleType="centerCrop"
                 android:layout_marginEnd="12dp"
                 android:contentDescription="@null"
@@ -65,34 +65,25 @@
             android:text="@string/Warning"
             />
 
-    <LinearLayout
-        style="@style/wideLinearLayout_Vertical"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="12dp"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_chip"
-        >
-
-        <LinearLayout style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="0dp"
-            android:id="@+id/llLocation">
-            <TextView
-                android:id="@+id/tvInfoLine1"
-                style="@style/OptionAfterPickedInfo"
-                android:text="[sourceLocation]"
-                />
+        <LinearLayout
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:layout_marginTop="12dp"
+            android:background="@drawable/bg_chip"
+            >
+                <TextView
+                    android:id="@+id/tvInfoLine1"
+                    style="@style/OptionAfterPickedInfo"
+                    android:text="[sourceLocation]"
+                    />
+                <TextView
+                    android:id="@+id/tvMimeExtension"
+                    style="@style/OptionAfterPickedInfo"
+                    android:text="[mime] - .toto"
+                    />
         </LinearLayout>
-        <LinearLayout style="@style/LinearLayoutOptionsVertical"
-            android:id="@+id/llMimeExtension">
-            <TextView
-                android:id="@+id/tvMimeExtension"
-                style="@style/OptionAfterPickedInfo"
-                android:text="[mime] - .toto"
-                />
-        </LinearLayout>
-    </LinearLayout>
 
 
         <LinearLayout
