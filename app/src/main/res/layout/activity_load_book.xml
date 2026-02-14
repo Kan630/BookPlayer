@@ -41,6 +41,7 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:ellipsize="end"
                 android:maxLines="3" />
         </LinearLayout>
 
@@ -78,7 +79,7 @@
             android:layout_marginBottom="0dp"
             android:id="@+id/llLocation">
             <TextView
-                android:id="@+id/tvLocation"
+                android:id="@+id/tvInfoLine1"
                 style="@style/OptionAfterPickedInfo"
                 android:text="[sourceLocation]"
                 />

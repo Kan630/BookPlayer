@@ -6,6 +6,7 @@ import android.net.Uri;
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
@@ -34,11 +35,12 @@ public class BookCandidate {
     private boolean selected; // User selection for mass import (false if already imported)
 
     // New fields from BookToAdd
-    public String sourceLocation = "init...";
+    public String sourceLocation = "sourceLocation...";
     public String playType;
     public String infoMimeExtension = "init...";
     public String infoMimeExtensionSmall = "init...";
-    public String infoSourceLocation = "init...";
+    public String infoSourceLocation = "infoSourceLocation...";
+    public String infoLine1 = "init...";
 
     // New fields from BookToAdd (Phase 2)
     public boolean isBroken = false;
@@ -116,6 +118,8 @@ public class BookCandidate {
 
         // Extra info fields
         this.sourceLocation = Tonio.getSourceLocation(context, uri);
+        this.infoSourceLocation = context.getString(R.string.Location) + ": " + this.sourceLocation;
+        this.infoLine1 = this.originalType +  " - " + this.infoSourceLocation;
 
         if ("Folder".equals(type)) {
             this.playType = inferPlayTypeFromFolder(context, uri);

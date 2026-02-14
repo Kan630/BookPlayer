@@ -134,7 +134,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         TextView tvFileName = findViewById(R.id.tvFileName);
         android.widget.ImageView ivCover = findViewById(R.id.ivCover);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
-        TextView tvSourceLocation = findViewById(R.id.tvLocation);
+        TextView tvInfoLine1 = findViewById(R.id.tvInfoLine1);
         btnConfirm = findViewById(R.id.btnConfirm);
         Button btnCancel = findViewById(R.id.btnCancel);
 
@@ -201,7 +201,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         } else {
             ivCover.setVisibility(View.GONE);
         }
-        tvSourceLocation.setText(bookCandidate.infoSourceLocation);
+        tvInfoLine1.setText(bookCandidate.infoLine1);
 
         if ("Folder".equals(gotten_type)) {
             startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
