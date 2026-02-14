@@ -89,7 +89,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
             boolean isFolderComputed = UriHelper.isFolder(context, Uri.parse(importJob.dynamicUri));
             myLogD("isFolderComputed : " + isFolderComputed);
-            myLogD("original Type : " + importJob.originalType);
+            myLogD("source Type (in code, originalType in DB) : " + importJob.originalType);
             myLogD("dynamic Type : " + importJob.dynamicType + "   <--- we check that");
             myLogD("dynamic Uri : " + importJob.dynamicUri);
             myLogW("addToExistingFolderId : " + importJob.addToExistingFolderId);
@@ -466,7 +466,7 @@ public class FinalParseFolderWorker extends ImportWorker {
             folder.setIszipfile(false); // 2023-10-22 deprecated (live zip reading - code has been removed)
             folder.setOriginalHash(importJob.originalHash);
             folder.setOriginalFile(importJob.originalFile);
-            folder.setOriginalType(importJob.originalType);
+            folder.setOriginalType(importJob.originalType); // DB field name
             folder.setSourceLocation(importJob.sourceLocation);
             folder.playType = importJob.playType;
             folder.date_added = System.currentTimeMillis();

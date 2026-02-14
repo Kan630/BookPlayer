@@ -239,7 +239,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         // Expected memory = selected candidates that need copying (not Folder)
         long expectedSize = 0;
         for (BookCandidate c : candidates) {
-            if (c.isSelected() && !c.isAlreadyImported() && !"Folder".equals(c.type)) {
+            if (c.isSelected() && !c.isAlreadyImported() && !"Folder".equals(c.sourceType)) {
                 expectedSize += c.size;
             }
         }
@@ -258,7 +258,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         adapter.setOnItemClickListener(candidate -> {
             android.content.Intent intent = new android.content.Intent(this, ImportBookSingleActivity.class);
             intent.putExtra(ImportBookSingleActivity.EXTRA_URI, candidate.uri);
-            String typeToPass = "Folder".equals(candidate.type) ? "Folder" : "File";
+            String typeToPass = "Folder".equals(candidate.sourceType) ? "Folder" : "File";
             intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, typeToPass);
             intent.putExtra(ImportBookSingleActivity.EXTRA_DETAIL_MODE, true);
             startActivity(intent);
@@ -373,16 +373,16 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
                 s.title = formattedName;
                 s.originalUri = candidate.uri;
-                s.originalType = candidate.type;
+                s.sourceType = candidate.sourceType;
                 s.dynamicUri = candidate.uri;
-                s.dynamicType = candidate.type; // Folder, ZIP, M4B, Ebook
+                s.dynamicType = "Folder".equals(candidate.sourceType) ? "Folder" : "File";
                 s.sourceLocation = "MassImport"; // Prevent NPE
 
                 // Use global copy file preference
                 boolean copyEnabled = Option.getCopyFile();
 
                 // Correctly configure path and options based on type
-                if ("Folder".equals(candidate.type)) {
+                if ("Folder".equals(candidate.sourceType)) {
                     s.futureFolderName = formattedName;
                     s.futureFolderPath = candidate.uri.toString(); // For folders, this is the source (in-place)
                     s.fileExtension = null;
@@ -399,7 +399,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                     // Important: Destination path, not source path
                     s.futureFolderPath = new File(root, formattedName).getAbsolutePath();
 
-                    if ("ZIP".equals(candidate.type)) {
+                    if ("ZIP".equals(candidate.sourceType)) {
                         s.fileExtension = "zip";
                         s.playType = "Folder";
                         s.optionCopy = true; // ZIP always requires copy
@@ -407,7 +407,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                         // Single file (M4B, Ebook)
                         s.fileExtension = com.driot.bookplayer.utils.Tonio.getExtension(candidate.name);
                         // M4B always requires copy, other types only if checkbox is enabled
-                        if ("M4B".equals(candidate.type) || "m4b".equalsIgnoreCase(s.fileExtension)) {
+                        if ("M4B".equals(candidate.sourceType) || "m4b".equalsIgnoreCase(s.fileExtension)) {
                             s.optionCopy = true; // M4B always requires copy
                             s.optionSplit = Option.getSplitM4b();
                         } else {

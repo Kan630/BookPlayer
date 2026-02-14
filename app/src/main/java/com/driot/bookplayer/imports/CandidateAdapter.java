@@ -73,12 +73,12 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         // Show track count for Folders, generic Audio Files, ZIP archives, and M4B
         // files (where we know the count)
         // For Ebook, we don't know the count yet, so don't show it.
-        if ("Folder".equals(item.type) || "Audio File".equals(item.type) || "ZIP".equals(item.type)
-                || "M4B".equals(item.type)) {
+        if ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType) || "ZIP".equals(item.sourceType)
+                || "M4B".equals(item.sourceType)) {
             tracksPart = " - " + holder.ivCover.getContext().getResources()
                     .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
         }
-        String txtInfo = item.type
+        String txtInfo = item.sourceType
                 + " - " + Tonio.getReadableSize(item.size)
                 + tracksPart
                 + "\n" + item.path;
@@ -99,13 +99,13 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
         // Set type icon (smaller, overlaid in top-left)
         int iconRes;
-        if ("Folder".equals(item.type)) {
+        if ("Folder".equals(item.sourceType)) {
             iconRes = R.drawable.ic_folder_24px;
-        } else if ("ZIP".equals(item.type)) {
+        } else if ("ZIP".equals(item.sourceType)) {
             iconRes = R.drawable.ic_folder_zip_24px;
-        } else if ("M4B".equals(item.type)) {
+        } else if ("M4B".equals(item.sourceType)) {
             iconRes = R.drawable.ic_file_m4b;
-        } else if ("Ebook".equals(item.type)) {
+        } else if ("Ebook".equals(item.sourceType)) {
             iconRes = R.drawable.ic_docs_24px;
         } else {
             iconRes = R.drawable.ic_audio_file_24px;

@@ -53,32 +53,43 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
     // If later you download cover to a local file, store its path here
     private String localCoverPath;
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_ebook_detail; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_ebook_detail;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        coverView       = findViewById(R.id.imageDetailCover);
-        tvTitle         = findViewById(R.id.textDetailTitle);
-        tvAuthors       = findViewById(R.id.textDetailAuthors);
-        tvInfo          = findViewById(R.id.textDetailInfo);
+        coverView = findViewById(R.id.imageDetailCover);
+        tvTitle = findViewById(R.id.textDetailTitle);
+        tvAuthors = findViewById(R.id.textDetailAuthors);
+        tvInfo = findViewById(R.id.textDetailInfo);
         tvGutenbergLink = findViewById(R.id.tvGutenbergLink);
-        tvStatus        = findViewById(R.id.tvStatus);
-        bGet            = findViewById(R.id.bGet);
+        tvStatus = findViewById(R.id.tvStatus);
+        bGet = findViewById(R.id.bGet);
 
         // --- Read extras ---
         Intent intent = getIntent();
         gutendexId = intent.getIntExtra("gutendex_id", 0);
-        title      = intent.getStringExtra("title");
-        authors    = intent.getStringExtra("authors");
-        language   = intent.getStringExtra("language");
-        downloads  = intent.getIntExtra("downloads", 0);
-        coverUrl   = intent.getStringExtra("cover_url");
-        epubUrl    = intent.getStringExtra("epub_url");
+        title = intent.getStringExtra("title");
+        authors = intent.getStringExtra("authors");
+        language = intent.getStringExtra("language");
+        downloads = intent.getIntExtra("downloads", 0);
+        coverUrl = intent.getStringExtra("cover_url");
+        epubUrl = intent.getStringExtra("epub_url");
 
         if (epubUrl == null || epubUrl.isEmpty() || gutendexId == 0) {
             myLogE("EbookDetailActivity: invalid extras, finishing.");
@@ -86,9 +97,12 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
             return;
         }
 
-        if (title == null) title = "";
-        if (authors == null) authors = "";
-        if (language == null) language = "";
+        if (title == null)
+            title = "";
+        if (authors == null)
+            authors = "";
+        if (language == null)
+            language = "";
 
         // --- Populate UI ---
 
@@ -100,7 +114,8 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
             info += getString(R.string.Language_2pt) + language;
         }
         if (downloads > 0) {
-            if (!info.isEmpty()) info += " · ";
+            if (!info.isEmpty())
+                info += " · ";
             info += String.format(Locale.US, "%,d %s", downloads, getString(R.string.downloads));
         }
         tvInfo.setText(info);
@@ -128,7 +143,8 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
             coverView.setImageResource(R.drawable.placeholder_cover);
         }
 
-        // For now, no local cover download → importer will rely on embedded cover in EPUB
+        // For now, no local cover download → importer will rely on embedded cover in
+        // EPUB
         localCoverPath = null;
 
         // Initial status
@@ -195,7 +211,8 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
                     })
                     .show();
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING)
+            if (Option.getNetworkPolicyManualDownload()
+                    .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING)
                     && !NetworkHelper.isRoaming(this)) {
                 new AlertDialog.Builder(this)
                         .setTitle(R.string.download_warning_title_roaming)
@@ -219,7 +236,7 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
 
         Uri epubUri = Uri.parse(url);
         state.originalUri = epubUri;
-        state.originalType = "EPUB";
+        state.sourceType = "EPUB";
         state.dynamicUri = epubUri;
         state.dynamicType = "EPUB";
 

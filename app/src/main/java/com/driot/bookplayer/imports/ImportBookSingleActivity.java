@@ -272,7 +272,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 }
             }
 
-            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(bookCandidate.type, bookCandidate.fileExtension,
+            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(bookCandidate.sourceType, bookCandidate.fileExtension,
                     bookCandidate.sourceLocation, bookCandidate.originalFile);
 
         });
@@ -327,9 +327,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
                 ImportBookTaskState state = new ImportBookTaskState();
                 state.originalUri = uri;
-                state.originalType = bookCandidate.originalType;
+                state.sourceType = bookCandidate.sourceType;
                 state.dynamicUri = uri;
-                state.dynamicType = bookCandidate.originalType;
+                state.dynamicType = "Folder".equals(bookCandidate.sourceType) ? "Folder" : "File";
                 state.title = audioBookTitle;
                 state.futureFolderName = futureFolderName;
                 state.futureFolderPath = finalFutureFolderPath;
@@ -366,7 +366,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         desactivateInteractive();
 
-        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookCandidate.type.replace(".", "").toLowerCase(Locale.ROOT))) {
+        if (Var.SUPPORTED_EBOOK_EXTENSIONS
+                .contains(bookCandidate.sourceType.replace(".", "").toLowerCase(Locale.ROOT))) {
             showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n"
                     + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
         }
@@ -697,7 +698,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     }
 
     private void okContinue() {
-        if ("Folder".equals(bookCandidate.type) && bookCandidate.hasMultipleBooksInFolder()) {
+        if ("Folder".equals(bookCandidate.sourceType) && bookCandidate.hasMultipleBooksInFolder()) {
             showError(getString(R.string.error_folder_multiple_books));
             isKO = true;
             hashJobRunning = false;

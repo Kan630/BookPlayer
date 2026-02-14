@@ -11,7 +11,7 @@ import com.driot.bookplayer.utils.log.KanLogger;
 
 public class ImportBookTaskState implements Parcelable {
     public Uri originalUri;
-    public String originalType;
+    public String sourceType;
     public Uri dynamicUri;
     public String dynamicType;
     public String title;
@@ -50,8 +50,8 @@ public class ImportBookTaskState implements Parcelable {
     public int addToExistingFolderId;
 
     // --- Batch tracking (for MassImport) ---
-    public int batchIndex = -1;      // 1-based position in batch, -1 if not part of a batch
-    public int batchTotal = -1;       // Total count in batch, -1 if not part of a batch
+    public int batchIndex = -1; // 1-based position in batch, -1 if not part of a batch
+    public int batchTotal = -1; // Total count in batch, -1 if not part of a batch
 
     public ImportBookTaskState() {
         myLog("ImportBookTaskState() constructor - creating new Workflow");
@@ -59,7 +59,7 @@ public class ImportBookTaskState implements Parcelable {
 
     protected ImportBookTaskState(Parcel in) {
         originalUri = in.readParcelable(Uri.class.getClassLoader());
-        originalType = in.readString();
+        sourceType = in.readString();
         dynamicUri = in.readParcelable(Uri.class.getClassLoader());
         dynamicType = in.readString();
         title = trimOrNull(in.readString());
@@ -115,7 +115,7 @@ public class ImportBookTaskState implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(originalUri, flags);
-        dest.writeString(originalType);
+        dest.writeString(sourceType);
         dest.writeParcelable(dynamicUri, flags);
         dest.writeString(dynamicType);
         dest.writeString(title);
@@ -166,7 +166,7 @@ public class ImportBookTaskState implements Parcelable {
     public String toString() {
         return "ImportBookTaskState{" +
                 "uri=" + originalUri +
-                ", type='" + originalType + '\'' +
+                ", type='" + sourceType + '\'' +
                 ", dynamicUri=" + dynamicUri +
                 ", type='" + dynamicType + '\'' +
                 ", title='" + title + '\'' +
@@ -205,31 +205,46 @@ public class ImportBookTaskState implements Parcelable {
                 ", addToExistingFolderId=" + addToExistingFolderId +
                 '}';
     }
+
     public String toStringN() {
-        return toString().replace(", ","\n");
+        return toString().replace(", ", "\n");
     }
 
     private static String trimOrNull(String s) {
         return s == null ? null : s.trim();
     }
 
-
     public void setDownloadWorkId(@Nullable java.util.UUID id) {
         this.downloadWorkId = (id != null) ? id.toString() : null;
     }
+
     @Nullable
     public java.util.UUID getDownloadWorkUUID() {
-        try { return (downloadWorkId != null) ? java.util.UUID.fromString(downloadWorkId) : null; }
-        catch (IllegalArgumentException ignore) { return null; }
+        try {
+            return (downloadWorkId != null) ? java.util.UUID.fromString(downloadWorkId) : null;
+        } catch (IllegalArgumentException ignore) {
+            return null;
+        }
     }
-
 
     ////////////////////////////////////////////////////////
     ///////// Loggers
     ////////////////////////////////////////////////////////
     private static final String TAG = "ImportBookTaskState";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
+
+    private static void myLog(String str) {
+        KanLogger.myLog(TAG, str);
+    }
+
+    private static void myLogD(String str) {
+        KanLogger.myLogD(TAG, str);
+    }
+
+    private static void myLogI(String str) {
+        KanLogger.myLogI(TAG, str);
+    }
+
+    private static void myLogE(String str) {
+        KanLogger.myLogE(TAG, str);
+    }
 }

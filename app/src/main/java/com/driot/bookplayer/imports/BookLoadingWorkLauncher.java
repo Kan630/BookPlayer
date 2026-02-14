@@ -41,7 +41,8 @@ public class BookLoadingWorkLauncher {
     public static final String BOOK_LOADING_WORKERS = "BOOK_LOADING_WORKERS";
 
     public static void launch(Context ctx, ImportBookTaskState s, boolean sequential) {
-        if (s == null) throw new IllegalStateException("No task bookState found for BookLoadingWorkLauncher");
+        if (s == null)
+            throw new IllegalStateException("No task bookState found for BookLoadingWorkLauncher");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             String importId = (s.futureFolderName != null ? s.futureFolderName : "book") + ":" + UUID.randomUUID();
 
@@ -55,15 +56,16 @@ public class BookLoadingWorkLauncher {
             myLog("*********************************************************************************************************");
             myLog("** title =            " + s.title + " **");
             myLog("---------------------------------------------------------------------------------------------------------");
-            if (s.addToExistingFolderId>0) myLog("** ADD TO EXISTING BOOK - ID : [" + s.addToExistingFolderId + "] **");
+            if (s.addToExistingFolderId > 0)
+                myLog("** ADD TO EXISTING BOOK - ID : [" + s.addToExistingFolderId + "] **");
             myLog("** futureFolderName = " + s.futureFolderName + " **");
             myLog("** futureFolderPath = " + s.futureFolderPath + " **");
             myLog("---------------------------------------------------------------------------------------------------------");
             myLog("** original uri =  " + s.originalUri + " **");
-            myLog("** original type = " + s.originalType + " **");
+            myLog("** source type =  " + s.sourceType + " **");
             myLog("---------------------------------------------------------------------------------------------------------");
             myLog("** dynamic uri =  " + s.dynamicUri + " **");
-            myLog("** dynamic type =  " + s.dynamicType + " **");
+            myLog("** dynamic type = " + s.dynamicType + " ** (File or Folder)");
             myLog("---------------------------------------------------------------------------------------------------------");
             myLog("** extension =  " + s.fileExtension + " **");
             myLog("** playType =  " + s.playType + " **");
@@ -72,8 +74,8 @@ public class BookLoadingWorkLauncher {
             myLog("** option split =  " + s.optionSplit + " **");
             myLog("** option delete =  " + s.optionDelete + " **");
             myLog("---------------------------------------------------------------------------------------------------------");
-            //myLog("---------------------------------------------------------------------------------------------------------");
-            //myLog(bookState.toString().replace(",", "\n"));
+            // myLog("---------------------------------------------------------------------------------------------------------");
+            // myLog(bookState.toString().replace(",", "\n"));
             myLog("*********************************************************************************************************");
             myLog("*********************************************************************************************************");
 
@@ -90,12 +92,14 @@ public class BookLoadingWorkLauncher {
                 doCopy = true;
                 doSplitM4b = true;
             }
-            if (s.fileExtension != null && Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(s.fileExtension.toLowerCase(Locale.ROOT))) {
+            if (s.fileExtension != null
+                    && Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(s.fileExtension.toLowerCase(Locale.ROOT))) {
                 myLogD("COMPRESSED => unzip + copy");
                 doCopy = true;
                 doUncompress = true;
             }
-            if (s.fileExtension != null && Var.SPLITTABLE_EBOOK_EXTENSIONS.contains(s.fileExtension.toLowerCase(Locale.ROOT))) {
+            if (s.fileExtension != null
+                    && Var.SPLITTABLE_EBOOK_EXTENSIONS.contains(s.fileExtension.toLowerCase(Locale.ROOT))) {
                 myLogD("splittable ebook: " + s.fileExtension);
                 doCopy = true;
                 doSplitEbook = true;
@@ -108,7 +112,7 @@ public class BookLoadingWorkLauncher {
             }
 
             FirebaseAnalyticsHelper.tellAnalyticsWork(s, doDownload);
-            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalType", s.originalType);
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceType", s.sourceType);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", s.fileExtension);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", s.sourceLocation);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", s.playType);
@@ -118,8 +122,23 @@ public class BookLoadingWorkLauncher {
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doUnzip", String.valueOf(doUncompress));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doSplitM4b", String.valueOf(doSplitM4b));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doSplitEbook", String.valueOf(doSplitEbook));
-            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_addToExistingFolderId", String.valueOf(s.addToExistingFolderId));
-            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_futureFolderName", String.valueOf(s.futureFolderName));
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_addToExistingFolderId",
+                    String.valueOf(s.addToExistingFolderId));
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_futureFolderName",
+                    String.valueOf(s.futureFolderName));
+
+            // ✅ FIX: Set dynamicType based on worker chain
+            if (doUncompress || doSplitM4b || doSplitEbook) {
+                // These workers extract/split to folder
+                s.dynamicType = "Folder";
+                myLogD("dynamicType set to 'Folder' (worker will create folder)");
+            } else if ("Folder".equals(s.sourceType)) {
+                s.dynamicType = "Folder";
+                myLogD("dynamicType set to 'Folder' (source is folder)");
+            } else {
+                s.dynamicType = "File";
+                myLogD("dynamicType set to 'File' (single file, no transformation)");
+            }
 
             // Create job row
             ImportJob j = new ImportJob();
@@ -127,9 +146,10 @@ public class BookLoadingWorkLauncher {
             j.title = s.title;
 
             j.originalUri = s.originalUri != null ? s.originalUri.toString() : null;
-            j.originalType = s.originalType;
+            j.originalType = s.sourceType; // Map: state uses sourceType, DB uses originalType
             j.dynamicUri = s.dynamicUri != null ? s.dynamicUri.toString() : null;
-            j.dynamicType = s.dynamicType;
+            j.dynamicType = s.dynamicType; // Now correctly set to File/Folder
+            j.playType = s.playType;
             j.futureFolderName = s.futureFolderName;
             j.futureFolderPath = s.futureFolderPath;
 
@@ -156,9 +176,9 @@ public class BookLoadingWorkLauncher {
             j.batchIndex = s.batchIndex;
             j.batchTotal = s.batchTotal;
 
-            j.status = Var.IMPORT_STATUS_RUNNING; //_QUEUED;
+            j.status = Var.IMPORT_STATUS_RUNNING; // _QUEUED;
             j.createdAt = j.updatedAt = System.currentTimeMillis();
-            //j.showToUser = true;
+            // j.showToUser = true;
 
             Data common = new Data.Builder().putString(ImportWorker.KEY_IMPORT_ID, importId).build();
             List<OneTimeWorkRequest> steps = new ArrayList<>();
@@ -181,14 +201,18 @@ public class BookLoadingWorkLauncher {
             ImportJobRepository repo = new ImportJobRepository(ctx);
             repo.upsert(j);
 
-            if (j.doCopy) steps.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class)
-                    .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doUnzip) steps.add(new OneTimeWorkRequest.Builder(UncompressWorker.class)
-                    .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doSplitM4b) steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
-                    .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
-            if (j.doSplitEbook) steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
-                    .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+            if (j.doCopy)
+                steps.add(new OneTimeWorkRequest.Builder(CopyFileWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+            if (j.doUnzip)
+                steps.add(new OneTimeWorkRequest.Builder(UncompressWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+            if (j.doSplitM4b)
+                steps.add(new OneTimeWorkRequest.Builder(M4bSplitWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
+            if (j.doSplitEbook)
+                steps.add(new OneTimeWorkRequest.Builder(EbookSplitWorker.class)
+                        .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
 
             steps.add(new OneTimeWorkRequest.Builder(FinalParseFolderWorker.class)
                     .setInputData(common).addTag(BOOK_LOADING_WORKERS).addTag("import:" + importId).build());
@@ -197,7 +221,7 @@ public class BookLoadingWorkLauncher {
 
             String uniqueName = sequential ? "bookload-queue" : "bookload:" + importId;
             myLogD("uniqueName = " + uniqueName);
-            
+
             // Check if there's active work in the queue before deciding policy
             ExistingWorkPolicy policy;
             if (sequential) {
@@ -240,12 +264,13 @@ public class BookLoadingWorkLauncher {
             }
 
             WorkContinuation cont = wm.beginUniqueWork(uniqueName, policy, steps.get(0));
-            for (int i = 1; i < steps.size(); i++) cont = cont.then(steps.get(i));
-            
+            for (int i = 1; i < steps.size(); i++)
+                cont = cont.then(steps.get(i));
+
             myLogD("BookLoadingWorkLauncher: Calling enqueue() for importId=" + importId);
             Operation result = cont.enqueue();
             myLogD("BookLoadingWorkLauncher: Enqueue operation submitted");
-            
+
             // Log work info after a short delay to see if it starts
             Handler main = new Handler(Looper.getMainLooper());
             final String checkImportId = importId; // Capture for lambda
@@ -258,15 +283,17 @@ public class BookLoadingWorkLauncher {
                         int activeWorkCount = 0;
                         for (WorkInfo wi : infos) {
                             boolean isNewWork = wi.getTags().contains("import:" + checkImportId);
-                            boolean isActive = wi.getState() == WorkInfo.State.RUNNING || 
-                                            wi.getState() == WorkInfo.State.ENQUEUED ||
-                                            wi.getState() == WorkInfo.State.BLOCKED;
-                            if (isNewWork) newWorkCount++;
-                            if (isActive) activeWorkCount++;
-                            
+                            boolean isActive = wi.getState() == WorkInfo.State.RUNNING ||
+                                    wi.getState() == WorkInfo.State.ENQUEUED ||
+                                    wi.getState() == WorkInfo.State.BLOCKED;
+                            if (isNewWork)
+                                newWorkCount++;
+                            if (isActive)
+                                activeWorkCount++;
+
                             if (isNewWork || isActive) {
-                                myLogD("  - " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags() + 
-                                    (isNewWork ? " [NEW]" : "") + (isActive ? " [ACTIVE]" : ""));
+                                myLogD("  - " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags() +
+                                        (isNewWork ? " [NEW]" : "") + (isActive ? " [ACTIVE]" : ""));
                             }
                             if (wi.getState() == WorkInfo.State.BLOCKED) {
                                 myLogW("  Work is BLOCKED - may be waiting for previous work to complete");
@@ -276,9 +303,11 @@ public class BookLoadingWorkLauncher {
                                 myLogD("  Work is RUNNING");
                             }
                         }
-                        myLogD("Summary: " + newWorkCount + " new work items, " + activeWorkCount + " active work items");
+                        myLogD("Summary: " + newWorkCount + " new work items, " + activeWorkCount
+                                + " active work items");
                         if (newWorkCount == 0) {
-                            myLogE("ERROR: No new work items found for importId=" + checkImportId + " - work may not have been enqueued!");
+                            myLogE("ERROR: No new work items found for importId=" + checkImportId
+                                    + " - work may not have been enqueued!");
                         }
                     } else {
                         myLogW("WM unique '" + uniqueName + "' -> No work found!");
@@ -290,41 +319,46 @@ public class BookLoadingWorkLauncher {
 
             // some logging
             /*
-            Handler main = new Handler(Looper.getMainLooper());
-            main.post(() -> {
-                        wm.getWorkInfosForUniqueWorkLiveData("bookload-queue").observeForever(infos -> {
-                            if (infos == null) return;
-                            for (WorkInfo wi : infos) {
-                                myLogD("WM unique 'bookload-queue' -> " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags());
-                            }
-                        });
-                    });
-
-
-            for (int i = 0; i < steps.size(); i++) {
-                myLogD("step[" + i + "] id=" + steps.get(i).getId() + " cls=" + steps.get(i).getClass().getSimpleName());
-            }
-
-            Handler main = new Handler(Looper.getMainLooper());
-            main.post(() -> {
-                WorkManager.getInstance(ctx)
-                        .getWorkInfosForUniqueWorkLiveData(uniqueName)
-                        .observeForever(infos -> {
-                            if (infos == null) return;
-                            for (WorkInfo wi : infos) {
-                                myLogD("WM unique '" + uniqueName + "' -> " + wi.getId() + " state=" + wi.getState() + " tags=" + wi.getTags());
-                            }
-                        });
-                WorkManager.getInstance(ctx)
-                        .getWorkInfosByTagLiveData("import:" + importId)
-                        .observeForever(infos -> {
-                            if (infos == null) return;
-                            for (WorkInfo wi : infos) {
-                                myLogD("WM tag 'import:" + importId + "' -> " + wi.getId() + " state=" + wi.getState());
-                            }
-                        });
-            });
-
+             * Handler main = new Handler(Looper.getMainLooper());
+             * main.post(() -> {
+             * wm.getWorkInfosForUniqueWorkLiveData("bookload-queue").observeForever(infos
+             * -> {
+             * if (infos == null) return;
+             * for (WorkInfo wi : infos) {
+             * myLogD("WM unique 'bookload-queue' -> " + wi.getId() + " state=" +
+             * wi.getState() + " tags=" + wi.getTags());
+             * }
+             * });
+             * });
+             * 
+             * 
+             * for (int i = 0; i < steps.size(); i++) {
+             * myLogD("step[" + i + "] id=" + steps.get(i).getId() + " cls=" +
+             * steps.get(i).getClass().getSimpleName());
+             * }
+             * 
+             * Handler main = new Handler(Looper.getMainLooper());
+             * main.post(() -> {
+             * WorkManager.getInstance(ctx)
+             * .getWorkInfosForUniqueWorkLiveData(uniqueName)
+             * .observeForever(infos -> {
+             * if (infos == null) return;
+             * for (WorkInfo wi : infos) {
+             * myLogD("WM unique '" + uniqueName + "' -> " + wi.getId() + " state=" +
+             * wi.getState() + " tags=" + wi.getTags());
+             * }
+             * });
+             * WorkManager.getInstance(ctx)
+             * .getWorkInfosByTagLiveData("import:" + importId)
+             * .observeForever(infos -> {
+             * if (infos == null) return;
+             * for (WorkInfo wi : infos) {
+             * myLogD("WM tag 'import:" + importId + "' -> " + wi.getId() + " state=" +
+             * wi.getState());
+             * }
+             * });
+             * });
+             * 
              */
         });
     }

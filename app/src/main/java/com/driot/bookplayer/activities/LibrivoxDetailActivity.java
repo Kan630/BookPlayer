@@ -515,7 +515,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         ImportBookTaskState state = new ImportBookTaskState();
 
         state.originalUri = Uri.parse(url);
-        state.originalType = "ZIP";
+        state.sourceType = "ZIP";
         state.dynamicUri = Uri.parse(url);
         state.dynamicType = "ZIP";
         state.title = viewModel.title;

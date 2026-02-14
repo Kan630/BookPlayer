@@ -30,7 +30,7 @@ import java.util.Objects;
 public class BookCandidate {
     public Uri uri;
     public String name;
-    public String type; // Folder, ZIP, M4B, EPUB.
+    public String sourceType; // Folder, ZIP, M4B, EPUB, Audio File
     public String path; // For display
     public long size;
     public int tracksCount;
@@ -54,22 +54,22 @@ public class BookCandidate {
     public int multipleBooksCount = 0;
     public boolean hasOnlyZipFilesInFolder = false;
     public String originalFile;
-    public String originalType;
     public String fileExtension;
     public String mimeType;
     public String specialType;
 
     public BookCandidate(Context context, Uri uri) {
         this.uri = uri;
-        if (this.uri == null) throw new RuntimeException("constructor : uri is null");
+        if (this.uri == null)
+            throw new RuntimeException("constructor : uri is null");
         this.name = SupportedFilesHelper.getFileName(context, uri);
-        this.type = SupportedFilesHelper.getType(context, uri);
+        this.sourceType = SupportedFilesHelper.getType(context, uri);
 
         // Special handling for Folder type which might return null or generic type
-        if (this.type == null) {
+        if (this.sourceType == null) {
             DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
             if (file != null && file.isDirectory()) {
-                this.type = "Folder";
+                this.sourceType = "Folder";
             }
         }
 
@@ -80,12 +80,13 @@ public class BookCandidate {
         // The old code used "Audio File", "Ebook", "ZIP", "M4B", "Folder".
         // We need to map `SupportedFilesHelper` output to `BookCandidate` legacy types.
 
-        this.type = mapSupportedFilesHelperTypeToBookCandidateType(context, uri, this.type);
+        this.sourceType = mapSupportedFilesHelperTypeToBookCandidateType(context, uri, this.sourceType);
 
         this.path = this.name; // Default path
         this.selected = true;
 
-        if (this.type == null) throw new RuntimeException("constructor : type is null");
+        if (this.sourceType == null)
+            throw new RuntimeException("constructor : sourceType is null");
 
         enrich(context);
     }
@@ -121,7 +122,7 @@ public class BookCandidate {
         this.size = calculateSize(file);
         this.originalHash = computeHash(context, uri);
 
-        if ("Folder".equals(type)) {
+        if ("Folder".equals(sourceType)) {
             this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
             this.tracksCount = calculateTrackCount(file);
             this.coverImagePath = detectCoverForFolder(context, file);
@@ -132,11 +133,11 @@ public class BookCandidate {
             this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
         } else {
             this.existingBookName = checkHashExists(context, originalHash);
-            this.coverImagePath = detectCoverForFile(context, file, type);
+            this.coverImagePath = detectCoverForFile(context, file, sourceType);
             this.tracksCount = 1;
-            if ("M4B".equals(type)) {
+            if ("M4B".equals(sourceType)) {
                 this.tracksCount = calculateTrackCountForM4B(context, file);
-            } else if ("ZIP".equals(type)) {
+            } else if ("ZIP".equals(sourceType)) {
                 this.tracksCount = calculateTrackCountForArchive(context, file);
             }
 
@@ -167,9 +168,9 @@ public class BookCandidate {
         // Extra info fields
         this.sourceLocation = Tonio.getSourceLocation(context, uri);
         this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
-        this.infoLine1 = this.type + " - " + this.infoSourceLocation;
+        this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
 
-        if ("Folder".equals(type)) {
+        if ("Folder".equals(sourceType)) {
             this.playType = inferPlayTypeFromFolder(context, uri);
             this.infoMimeExtension = "[" + "Folder" + "]";
             this.infoMimeExtensionSmall = "init...";
@@ -796,6 +797,6 @@ public class BookCandidate {
     @NonNull
     @Override
     public String toString() {
-        return "[" + type + "] " + name;
+        return "[" + sourceType + "] " + name;
     }
 }
