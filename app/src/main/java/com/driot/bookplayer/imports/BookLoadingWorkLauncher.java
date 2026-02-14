@@ -21,7 +21,6 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.services.CopyFileWorker;
 import com.driot.bookplayer.services.DownloadWorker;
 import com.driot.bookplayer.services.EbookSplitWorker;
@@ -41,7 +40,7 @@ public class BookLoadingWorkLauncher {
 
     public static final String BOOK_LOADING_WORKERS = "BOOK_LOADING_WORKERS";
 
-    public static void launch(Context ctx, LoadBookTaskState s, boolean sequential) {
+    public static void launch(Context ctx, ImportBookTaskState s, boolean sequential) {
         if (s == null) throw new IllegalStateException("No task bookState found for BookLoadingWorkLauncher");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             String importId = (s.futureFolderName != null ? s.futureFolderName : "book") + ":" + UUID.randomUUID();

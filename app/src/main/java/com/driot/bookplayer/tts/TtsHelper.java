@@ -17,8 +17,6 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.CallerHelper;
-import com.driot.bookplayer.objects.VoiceItem;
-import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 

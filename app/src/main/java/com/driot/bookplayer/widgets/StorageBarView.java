@@ -86,7 +86,7 @@ public class StorageBarView extends View {
     }
 
     /**
-     * Set storage values including expected added memory (for MassImportActivity)
+     * Set storage values including expected added memory (for ImportBookMultipleActivity)
      * @param totalStorage Total storage space
      * @param usedByOthers Storage used by others (not BookPlayer)
      * @param usedByBookPlayer Storage used by BookPlayer

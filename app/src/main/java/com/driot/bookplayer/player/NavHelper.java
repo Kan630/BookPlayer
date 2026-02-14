@@ -12,6 +12,7 @@ import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.activities.GetPodcastActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
+import com.driot.bookplayer.imports.ImportBookMultipleActivity;
 import com.driot.bookplayer.radio.GetRadioActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.PodcastFavoritesActivity;
@@ -132,7 +133,7 @@ public class NavHelper {
                 Boolean finished = repo.getIsScanFinished().getValue();
 
                 if (Boolean.TRUE.equals(scanning) || Boolean.TRUE.equals(finished)) {
-                    Intent intent = new Intent(activity, com.driot.bookplayer.imports.MassImportActivity.class);
+                    Intent intent = new Intent(activity, ImportBookMultipleActivity.class);
                     intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                     activity.startActivity(intent);
                     return true;

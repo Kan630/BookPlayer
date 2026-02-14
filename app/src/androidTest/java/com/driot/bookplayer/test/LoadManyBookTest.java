@@ -28,13 +28,13 @@ import androidx.work.testing.WorkManagerTestInitHelper;
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
-import com.driot.bookplayer.imports.LoadBookActivity;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.imports.TaskUiState;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.testutil.ImportProbe;
 import com.driot.bookplayer.testutil.LogSupport;
@@ -235,14 +235,14 @@ public class LoadManyBookTest implements LogSupport {
         importProbe.start();
 
         try {
-            appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
-                    .putExtra(LoadBookActivity.EXTRA_URI, uri_content)
-                    .putExtra(LoadBookActivity.EXTRA_TYPE, uri_type)
+            appContext.startActivity(new Intent(appContext, ImportBookSingleActivity.class)
+                    .putExtra(ImportBookSingleActivity.EXTRA_URI, uri_content)
+                    .putExtra(ImportBookSingleActivity.EXTRA_TYPE, uri_type)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
-            myLog("LoadBookActivity launched");
-            TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000, "arfff");
-            myLogD("ok, on LoadBookActivity");
+            myLog("ImportBookSingleActivity launched");
+            TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000, "arfff");
+            myLogD("ok, on ImportBookSingleActivity");
 
             onView(withId(android.R.id.content)).perform(swipeUp());
             onView(withId(R.id.btnConfirm)).perform(click());
@@ -256,9 +256,9 @@ public class LoadManyBookTest implements LogSupport {
  */
 
             // --- Wait for terminal state from Room ---
-            TaskUiState terminal = importProbe.await(TIMEOUT_BOOK_LOAD);
+            OngoingTaskUiState terminal = importProbe.await(TIMEOUT_BOOK_LOAD);
             if (terminal == null) {
-                TaskUiState last = importProbe.lastState();
+                OngoingTaskUiState last = importProbe.lastState();
                 String lastProgress = (last == null || last.progressText == null) ? "" : last.progressText;
                 throw new AssertionError("Timeout " + TIMEOUT_BOOK_LOAD/1000 + "s. last progress='" + lastProgress + "'");
             }

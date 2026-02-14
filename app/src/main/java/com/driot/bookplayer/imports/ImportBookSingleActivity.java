@@ -46,7 +46,6 @@ import com.driot.bookplayer.helpers.CountCallback;
 import com.driot.bookplayer.helpers.FileCounterHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.PermissionRequest;
@@ -60,7 +59,7 @@ import java.util.concurrent.Executors;
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class LoadBookActivity extends BaseBottomNavActivity {
+public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private volatile boolean cancelScan = false;
@@ -328,7 +327,7 @@ public class LoadBookActivity extends BaseBottomNavActivity {
 
                 final boolean anotherRunning = ImportHelper.isAnyImportActiveSync(this.getApplicationContext());
 
-                LoadBookTaskState state = new LoadBookTaskState();
+                ImportBookTaskState state = new ImportBookTaskState();
                 state.originalUri = uri;
                 state.originalType = bookCandidate.originalType;
                 state.dynamicUri = uri;

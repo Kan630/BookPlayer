@@ -1,8 +1,6 @@
 // testutil/ImportProbe.java
 package com.driot.bookplayer.testutil;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
-
 import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
@@ -10,7 +8,7 @@ import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.imports.ImportJob;
-import com.driot.bookplayer.imports.TaskUiState;
+import com.driot.bookplayer.imports.OngoingTaskUiState;
 
 import android.content.Context;
 import android.os.Handler;
@@ -26,7 +24,7 @@ public final class ImportProbe {
     private LiveData<ImportJob> src;
     private Observer<ImportJob> obs;
 
-    private final AtomicReference<TaskUiState> last = new AtomicReference<>(TaskUiState.idle());
+    private final AtomicReference<OngoingTaskUiState> last = new AtomicReference<>(OngoingTaskUiState.idle());
     private final CountDownLatch done = new CountDownLatch(1);
 
     public ImportProbe(Context appCtx) {
@@ -37,7 +35,7 @@ public final class ImportProbe {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             src = db.importJobDao().observeUniqueJob();
             obs = job -> {
-                TaskUiState ui = (job == null) ? TaskUiState.idle() : TaskUiState.from(job, -1, -1);
+                OngoingTaskUiState ui = (job == null) ? OngoingTaskUiState.idle() : OngoingTaskUiState.from(job, -1, -1);
                 last.set(ui);
                 if (ui.isFinished()) {
                     // ensure latch countDown happens even if this callback reenters
@@ -49,7 +47,7 @@ public final class ImportProbe {
     }
 
     @Nullable
-    public TaskUiState await(long timeoutMs) {
+    public OngoingTaskUiState await(long timeoutMs) {
         try {
             if (!done.await(timeoutMs, TimeUnit.MILLISECONDS)) return null;
             return last.get();
@@ -59,7 +57,7 @@ public final class ImportProbe {
         }
     }
 
-    public TaskUiState lastState() { return last.get(); }
+    public OngoingTaskUiState lastState() { return last.get(); }
 
     public void stop() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {

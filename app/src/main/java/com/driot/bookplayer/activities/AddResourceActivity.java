@@ -15,9 +15,8 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
-import com.driot.bookplayer.imports.TaskUiState;
-import com.driot.bookplayer.objects.AppViewModelStoreOwner;
 import com.driot.bookplayer.services.DownloadControl;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -134,7 +133,7 @@ public class AddResourceActivity extends BaseBottomNavActivity {
         enterExitMode();
     }
 
-    private void checkAndClose(TaskUiState ui) {
+    private void checkAndClose(OngoingTaskUiState ui) {
         myLog("checkAndClose(result=" + ui.status + ")");
 
         enterExitMode(); // buttons → Exit mode

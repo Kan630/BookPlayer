@@ -34,7 +34,7 @@ public class MassImportRepository {
     private final MutableLiveData<Boolean> isScanning = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isScanFinished = new MutableLiveData<>(false);
 
-    // Additional state for UI (optional, helpful for TaskUiState)
+    // Additional state for UI (optional, helpful for OngoingTaskUiState)
     private final MutableLiveData<Integer> progressCurrent = new MutableLiveData<>(0);
     private final MutableLiveData<Integer> progressTotal = new MutableLiveData<>(0);
 

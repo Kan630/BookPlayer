@@ -22,7 +22,7 @@ import android.widget.ImageView;
 import com.driot.bookplayer.activities.TtsReaderActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.PodcastDao;
-import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.tts.VoiceItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
 import android.widget.Spinner;

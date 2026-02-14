@@ -19,14 +19,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 @HiltViewModel
 public class OngoingTaskViewModel extends LoggingAndroidViewModel {
 
-    private final MediatorLiveData<TaskUiState> ui = new MediatorLiveData<>();
+    private final MediatorLiveData<OngoingTaskUiState> ui = new MediatorLiveData<>();
     private final MassImportRepository massImportRepo;
 
     @Inject
     public OngoingTaskViewModel(@NonNull Application app, MassImportRepository massImportRepo) {
         super(app);
         this.massImportRepo = massImportRepo;
-        ui.setValue(TaskUiState.idle());
+        ui.setValue(OngoingTaskUiState.idle());
 
         AppDatabase db = AppDatabase.getInstance(app);
         LiveData<ImportJob> dbSrc = db.importJobDao().observeUniqueJob();
@@ -52,35 +52,35 @@ public class OngoingTaskViewModel extends LoggingAndroidViewModel {
             List<BookCandidate> candidates) {
         if (Boolean.TRUE.equals(isScanning)) {
             // Priority 1: Scanning
-            ui.setValue(TaskUiState.scanning(getApplication(), scanProgress != null ? scanProgress : getApplication().getString(R.string.Scanning_3dots)));
+            ui.setValue(OngoingTaskUiState.scanning(getApplication(), scanProgress != null ? scanProgress : getApplication().getString(R.string.Scanning_3dots)));
         } else if (Boolean.TRUE.equals(isScanFinished)) {
             // Priority 2: Scan Finished (waiting for user confirmation)
             int count = candidates != null ? candidates.size() : 0;
             if (count == 0) {
                 // No book candidates: don't show the OngoingTaskFragment, consume state and go idle
                 massImportRepo.consumeScanState();
-                ui.setValue(TaskUiState.idle());
+                ui.setValue(OngoingTaskUiState.idle());
             } else {
-                ui.setValue(TaskUiState.scanFinished(getApplication(), count));
+                ui.setValue(OngoingTaskUiState.scanFinished(getApplication(), count));
             }
         } else if (job != null) {
             // Priority 3: Import Job - calculate position in queue
             calculateQueuePosition(job);
         } else {
-            ui.setValue(TaskUiState.idle());
+            ui.setValue(OngoingTaskUiState.idle());
         }
     }
 
     private void calculateQueuePosition(ImportJob job) {
         // Simply read batch info directly from the job - no calculation needed!
         if ("MassImport".equals(job.sourceLocation) && job.batchIndex > 0 && job.batchTotal > 0) {
-            ui.setValue(TaskUiState.from(job, job.batchIndex, job.batchTotal));
+            ui.setValue(OngoingTaskUiState.from(job, job.batchIndex, job.batchTotal));
         } else {
-            ui.setValue(TaskUiState.from(job, -1, -1));
+            ui.setValue(OngoingTaskUiState.from(job, -1, -1));
         }
     }
 
-    public LiveData<TaskUiState> getUi() {
+    public LiveData<OngoingTaskUiState> getUi() {
         return ui;
     }
 }

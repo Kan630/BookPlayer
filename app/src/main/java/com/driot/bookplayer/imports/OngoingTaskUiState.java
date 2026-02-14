@@ -7,7 +7,7 @@ import com.driot.bookplayer.global.Var;
 
 import java.util.Objects;
 
-public final class TaskUiState {
+public final class OngoingTaskUiState {
 
         @NonNull
         public final String status;
@@ -44,22 +44,22 @@ public final class TaskUiState {
         @NonNull
         public final String tag; // IMPORT or SCAN
 
-        private TaskUiState(@NonNull String tag, @NonNull String status,
-                        boolean showToUser,
-                        boolean pauseAvailable,
-                        boolean paused,
-                        @NonNull String title,
-                        @NonNull String progressText,
-                        int progressPercent,
-                        @Nullable String warningText,
-                        @Nullable String errorText,
-                        // tech
-                        @Nullable String extension,
-                        @Nullable String originalUri,
-                        @Nullable String currentOperation,
-                        boolean doDownload,
-                        int currentPosition,
-                        int totalCount) {
+        private OngoingTaskUiState(@NonNull String tag, @NonNull String status,
+                                   boolean showToUser,
+                                   boolean pauseAvailable,
+                                   boolean paused,
+                                   @NonNull String title,
+                                   @NonNull String progressText,
+                                   int progressPercent,
+                                   @Nullable String warningText,
+                                   @Nullable String errorText,
+                                   // tech
+                                   @Nullable String extension,
+                                   @Nullable String originalUri,
+                                   @Nullable String currentOperation,
+                                   boolean doDownload,
+                                   int currentPosition,
+                                   int totalCount) {
                 this.tag = tag;
                 this.status = status;
                 this.showToUser = showToUser;
@@ -79,21 +79,21 @@ public final class TaskUiState {
                 this.totalCount = totalCount;
         }
 
-        public static TaskUiState idle() {
-                return new TaskUiState(TAG_IMPORT, Var.IMPORT_STATUS_IDLE, false, false, false, "", "", 0, null, null,
+        public static OngoingTaskUiState idle() {
+                return new OngoingTaskUiState(TAG_IMPORT, Var.IMPORT_STATUS_IDLE, false, false, false, "", "", 0, null, null,
                                 null,
                                 null, null, false, -1, -1);
         }
 
-        public static TaskUiState scanning(android.content.Context context, String progressText) {
-                return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_RUNNING, true, false, false,
+        public static OngoingTaskUiState scanning(android.content.Context context, String progressText) {
+                return new OngoingTaskUiState(TAG_SCAN, Var.IMPORT_STATUS_RUNNING, true, false, false,
                                 context.getString(com.driot.bookplayer.R.string.mass_import_scanning_title),
                                 progressText, 0,
                                 null, null, null, null, null, false, -1, -1);
         }
 
-        public static TaskUiState scanFinished(android.content.Context context, int count) {
-                return new TaskUiState(TAG_SCAN, Var.IMPORT_STATUS_SUCCEEDED, true, false, false,
+        public static OngoingTaskUiState scanFinished(android.content.Context context, int count) {
+                return new OngoingTaskUiState(TAG_SCAN, Var.IMPORT_STATUS_SUCCEEDED, true, false, false,
                                 context.getString(com.driot.bookplayer.R.string.mass_import_scan_complete),
                                 context.getString(com.driot.bookplayer.R.string.mass_import_found_candidates_click,
                                                 count),
@@ -101,7 +101,7 @@ public final class TaskUiState {
                                 false, -1, -1);
         }
 
-        public static TaskUiState from(@NonNull ImportJob j, int currentPosition, int totalCount) {
+        public static OngoingTaskUiState from(@NonNull ImportJob j, int currentPosition, int totalCount) {
 
                 String status = j.status;
                 boolean finished = Var.IMPORT_STATUS_SUCCEEDED.equals(status) ||
@@ -124,7 +124,7 @@ public final class TaskUiState {
                                                 : j.errorTextDev)
                                 : null;
 
-                return new TaskUiState(
+                return new OngoingTaskUiState(
                                 TAG_IMPORT,
                                 status,
                                 showToUser,
@@ -159,7 +159,7 @@ public final class TaskUiState {
         public boolean equals(Object o) {
                 if (this == o)
                         return true;
-                if (!(o instanceof TaskUiState that))
+                if (!(o instanceof OngoingTaskUiState that))
                         return false;
                 return showToUser == that.showToUser &&
                                 pauseAvailable == that.pauseAvailable &&

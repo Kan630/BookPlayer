@@ -26,7 +26,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.GetOtherActivity;
-import com.driot.bookplayer.imports.LoadBookActivity;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
@@ -160,7 +160,7 @@ public abstract class BasicNavTest implements LogSupport {
         onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bAutoTest_b1)).perform(click());
         TestNavUtils.sleep(1_000);
         TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 1_000, "not in load book");
+        TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000, "not in load book");
         myLog("in LOAD BOOK");
 
         onView(withId(android.R.id.content)).perform(swipeUp());

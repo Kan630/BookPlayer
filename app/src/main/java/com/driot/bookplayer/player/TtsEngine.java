@@ -18,7 +18,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.tts.TtsErrorUtils;
 import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.tts.VoiceItem;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 

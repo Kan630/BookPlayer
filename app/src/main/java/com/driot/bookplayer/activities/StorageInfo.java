@@ -7,7 +7,7 @@ public class StorageInfo {
     public final long totalStorageBytes;
     public final long usedByOthersBytes;
     public final long usedByBookPlayerBytes;
-    public final long expectedAddedMemoryBytes; // For MassImportActivity
+    public final long expectedAddedMemoryBytes; // For ImportBookMultipleActivity
     public final long linkedAudiosBytes; // Linked audios (files outside BookPlayer reserved space)
     public final long appStorageBytes; // BookPlayer app storage (app + db + logs + images, excluding audio)
     public final String displayText;

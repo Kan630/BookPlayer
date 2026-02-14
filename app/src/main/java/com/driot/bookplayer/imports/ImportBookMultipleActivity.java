@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -20,18 +19,15 @@ import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.widgets.StorageBarView;
 
 import java.io.File;
 import java.util.List;
 
-import com.driot.bookplayer.activities.StorageInfo;
-
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class MassImportActivity extends BaseBottomNavActivity {
+public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_URI = "EXTRA_URI";
 
@@ -348,7 +344,7 @@ public class MassImportActivity extends BaseBottomNavActivity {
                 
                 batchIndex++; // Increment before creating job (1-based)
 
-                LoadBookTaskState s = new LoadBookTaskState();
+                ImportBookTaskState s = new ImportBookTaskState();
                 // Set batch tracking info
                 s.batchIndex = batchIndex;
                 s.batchTotal = totalInBatch;

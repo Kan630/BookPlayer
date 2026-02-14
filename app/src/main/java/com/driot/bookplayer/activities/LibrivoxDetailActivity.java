@@ -34,7 +34,7 @@ import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.librivox.ItemMetadata;
 import com.driot.bookplayer.librivox.LibrivoxApi;
 import com.driot.bookplayer.librivox.LanguageMapper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
+import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -512,7 +512,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     }
 
     private void proceedWithDownload(String url, String futurePath) {
-        LoadBookTaskState state = new LoadBookTaskState();
+        ImportBookTaskState state = new ImportBookTaskState();
 
         state.originalUri = Uri.parse(url);
         state.originalType = "ZIP";

@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import androidx.annotation.LayoutRes;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.objects.OngoingTaskHost;
+import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.player.NavHelper;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.navigation.NavigationBarView;

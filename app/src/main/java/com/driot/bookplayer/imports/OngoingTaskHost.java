@@ -1,12 +1,10 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.imports;
 
 import android.content.Intent;
 
 import androidx.annotation.IdRes;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.FragmentActivity;
-
-import com.driot.bookplayer.imports.OngoingTaskFragment;
 
 public final class OngoingTaskHost {
     private OngoingTaskHost() {}

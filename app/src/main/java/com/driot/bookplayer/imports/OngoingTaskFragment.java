@@ -114,7 +114,7 @@ public class OngoingTaskFragment extends LoggingFragment {
                     } else {
                         tvProgressText.setTextColor(
                                 ContextCompat.getColor(requireContext(), R.color.green_500));
-                        if (!TaskUiState.TAG_SCAN.equals(ui.tag)) {
+                        if (!OngoingTaskUiState.TAG_SCAN.equals(ui.tag)) {
                             startOrUpdateHideTimer(HideMode.SUCCESS, SUCCESS_AUTO_HIDE_MS);
                         } else {
                             // Don't auto-hide for scan results
@@ -129,10 +129,10 @@ public class OngoingTaskFragment extends LoggingFragment {
 
                 // Dynamic Click Listener
                 if (container != null) {
-                    if (TaskUiState.TAG_SCAN.equals(ui.tag)) {
+                    if (OngoingTaskUiState.TAG_SCAN.equals(ui.tag)) {
                         container.setOnClickListener(v -> {
                             myLogI("--- user CLICKS ON-GOING BANNER (SCAN) ---");
-                            Intent i = new Intent(requireContext(), MassImportActivity.class);
+                            Intent i = new Intent(requireContext(), ImportBookMultipleActivity.class);
                             i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
                             startActivity(i);
                         });

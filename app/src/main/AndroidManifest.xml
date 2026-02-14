@@ -98,12 +98,12 @@
             android:launchMode="singleTop"
             />
         <activity android:name=".radio.GetRadioCardListActivity" />
-        <activity android:name=".imports.LoadBookActivity" />
+        <activity android:name=".imports.ImportBookSingleActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
         <activity android:name=".activities.ModifyZikFileActivity" />
         <activity android:name=".activities.AddResourceActivity" />
-        <activity android:name=".imports.MassImportActivity"
+        <activity android:name=".imports.ImportBookMultipleActivity"
             android:label="@string/Mass_Import" />
         <activity android:name=".activities.HelpActivity" />
         <activity android:name=".activities.SettingsActivity" />

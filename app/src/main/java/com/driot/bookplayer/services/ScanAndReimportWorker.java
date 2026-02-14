@@ -1,13 +1,10 @@
 package com.driot.bookplayer.services;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
-
 import android.content.Context;
 import android.net.Uri;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
-import androidx.work.Data;
 import androidx.work.WorkManager;
 import androidx.work.WorkerParameters;
 
@@ -15,16 +12,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
-import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportJob;
-import com.driot.bookplayer.imports.ImportJobRepository;
 import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.UUID;
 
 /**
  * Scans a root folder (SAF tree URI) and re-enqueues missing audiobooks
@@ -115,7 +109,7 @@ public class ScanAndReimportWorker extends ImportWorker {
         WorkManager.getInstance(ctx).cancelUniqueWork("bookload-queue"); // stop active items
         WorkManager.getInstance(ctx).pruneWork(); // removes finished work with no dependents
 
-        // 3) For each missing folder, create a LoadBookTaskState and launch via the new pipeline
+        // 3) For each missing folder, create a ImportBookTaskState and launch via the new pipeline
         // We enqueue with sequential=true so everything is appended to the global "bookload-queue"
         for (int i = 0; i < toImport.size(); i++) {
             DocumentFile bookFolder = toImport.get(i);
@@ -130,7 +124,7 @@ public class ScanAndReimportWorker extends ImportWorker {
 
             // Build state for the new pipeline.
             // We’re importing an EXISTING folder → no download, no copy, no split.
-            LoadBookTaskState s = new LoadBookTaskState();
+            ImportBookTaskState s = new ImportBookTaskState();
             s.title            = safeName(bookFolder);
             s.originalUri      = null; // legacy field; we rely on dynamicUri for the current source
             s.originalType     = "Folder";

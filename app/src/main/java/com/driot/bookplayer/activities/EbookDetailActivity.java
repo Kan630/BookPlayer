@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -19,17 +18,15 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
+import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.HashWorker;
 
-import java.io.File;
 import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -218,7 +215,7 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
     }
 
     private void proceedWithDownload(String url, String futurePath) {
-        LoadBookTaskState state = new LoadBookTaskState();
+        ImportBookTaskState state = new ImportBookTaskState();
 
         Uri epubUri = Uri.parse(url);
         state.originalUri = epubUri;

@@ -20,7 +20,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.imports.LoadBookActivity;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText2linesWithPaste;
@@ -111,9 +111,9 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                                     if (getLifecycle().getCurrentState()
                                             .isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
                                         if (canReach) {
-                                            Intent intent = new Intent(this, LoadBookActivity.class);
-                                            intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                                            intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                                            Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                                            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                                            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                                             loadBookActivityResultLauncher.launch(intent);
                                             FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
                                         }
@@ -129,9 +129,9 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 checkWWW(canReach -> {
                     if (getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
                         if (canReach) {
-                            Intent intent = new Intent(this, LoadBookActivity.class);
-                            intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                            intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                            Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                             loadBookActivityResultLauncher.launch(intent);
                             FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
                         }

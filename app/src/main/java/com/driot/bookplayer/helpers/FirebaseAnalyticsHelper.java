@@ -8,14 +8,13 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportJob;
-import com.driot.bookplayer.objects.LoadBookTaskState;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
 
 import java.util.Locale;
-import java.util.TimeZone;
 
 public final class FirebaseAnalyticsHelper {
 
@@ -166,7 +165,7 @@ public final class FirebaseAnalyticsHelper {
         logBundleEvent("playlist_load_from_storage", bundle);
     }
 
-    public static void tellAnalyticsWork(LoadBookTaskState s, boolean doDownload) {
+    public static void tellAnalyticsWork(ImportBookTaskState s, boolean doDownload) {
         Bundle bundle = new Bundle();
         bundle.putString("originalUri", trimFA(String.valueOf(s.originalUri)));
         bundle.putString("originalFile", trimFA(s.originalFile));

@@ -14,7 +14,7 @@ import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.objects.VoiceItem;
+import com.driot.bookplayer.tts.VoiceItem;
 import java.util.List;
 
 public class VoiceSpinnerAdapter extends ArrayAdapter<VoiceItem> {

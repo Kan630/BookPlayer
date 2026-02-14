@@ -8,8 +8,6 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
-import android.os.Handler;
-import android.os.Looper;
 import android.provider.Settings;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,9 +21,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
-import androidx.work.Data;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.Folder;
@@ -35,11 +30,8 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.imports.ImportJob;
-import com.driot.bookplayer.imports.ImportJobRepository;
-import com.driot.bookplayer.imports.ImportWorker;
-import com.driot.bookplayer.imports.LoadBookActivity;
+import com.driot.bookplayer.imports.ImportBookMultipleActivity;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
@@ -47,9 +39,6 @@ import com.driot.bookplayer.utils.MediaScanner2;
 import com.driot.bookplayer.utils.PermissionRequest;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
-
-import java.util.UUID;
-import java.util.concurrent.Executors;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -83,16 +72,16 @@ public class GetOtherActivity extends BaseBottomNavActivity {
 
                     if (type.equals("MassImport")) {
 
-                        Intent intent = new Intent(this, com.driot.bookplayer.imports.MassImportActivity.class);
-                        intent.putExtra(com.driot.bookplayer.imports.MassImportActivity.EXTRA_URI, uri);
+                        Intent intent = new Intent(this, ImportBookMultipleActivity.class);
+                        intent.putExtra(ImportBookMultipleActivity.EXTRA_URI, uri);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                         startActivity(intent);
                         overridePendingTransition(0, 0);
 
                     } else {
-                        Intent intent = new Intent(this, LoadBookActivity.class);
-                        intent.putExtra(LoadBookActivity.EXTRA_URI, uri);
-                        intent.putExtra(LoadBookActivity.EXTRA_TYPE, type);
+                        Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                        intent.putExtra(ImportBookSingleActivity.EXTRA_URI, uri);
+                        intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, type);
                         if (folderToAddTo != null)
                             intent.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folderToAddTo);
                         loadBookActivityResultLauncher.launch(intent);
@@ -330,9 +319,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             myLogI("Button click : AUTO TEST 01");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadBookActivity.class);
-                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
-                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });
@@ -341,9 +330,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             myLogI("Button click : AUTO TEST 02");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadBookActivity.class);
-                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
-                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });
@@ -352,9 +341,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             myLogI("Button click : AUTO TEST 03");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadBookActivity.class);
-                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
-                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });
@@ -363,9 +352,9 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             myLogI("Button click : AUTO TEST 04");
             checkWWW(canReach -> {
                 if (canReach) {
-                    Intent intent = new Intent(this, LoadBookActivity.class);
-                    intent.putExtra(LoadBookActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
-                    intent.putExtra(LoadBookActivity.EXTRA_TYPE, "File");
+                    Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
+                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });

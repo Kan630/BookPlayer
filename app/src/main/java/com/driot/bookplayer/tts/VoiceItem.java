@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.tts;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;

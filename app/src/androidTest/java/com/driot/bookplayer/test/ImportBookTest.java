@@ -34,12 +34,12 @@ import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.imports.ImportJobDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.imports.ImportHelper;
-import com.driot.bookplayer.imports.LoadBookActivity;
-import com.driot.bookplayer.imports.TaskUiState;
+import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.testutil.ImportProbe;
@@ -409,20 +409,20 @@ public class ImportBookTest implements LogSupport {
         importProbe = new ImportProbe(appContext);
         importProbe.start();
         try {
-            appContext.startActivity(new Intent(appContext, LoadBookActivity.class)
-                    .putExtra(LoadBookActivity.EXTRA_URI, uri)
-                    .putExtra(LoadBookActivity.EXTRA_TYPE, loadWay)
+            appContext.startActivity(new Intent(appContext, ImportBookSingleActivity.class)
+                    .putExtra(ImportBookSingleActivity.EXTRA_URI, uri)
+                    .putExtra(ImportBookSingleActivity.EXTRA_TYPE, loadWay)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_GRANT_READ_URI_PERMISSION)
                     .addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION | Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION
                             | Intent.FLAG_GRANT_PREFIX_URI_PERMISSION));
 
-            TestNavUtils.assertWaitForActivity(LoadBookActivity.class, 5_000, "LoadBookActivity did not open");
+            TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 5_000, "ImportBookSingleActivity did not open");
             onView(withId(android.R.id.content)).perform(swipeUp());
             onView(withId(R.id.btnConfirm)).perform(scrollTo(), click());
 
-            TaskUiState terminal = importProbe.await(TIMEOUT_IMPORT);
+            OngoingTaskUiState terminal = importProbe.await(TIMEOUT_IMPORT);
             if (terminal == null) {
-                TaskUiState last = importProbe.lastState();
+                OngoingTaskUiState last = importProbe.lastState();
                 String lastProgress = (last == null || last.progressText == null) ? "" : last.progressText;
                 throw new AssertionError("Import timeout. Last progress: " + lastProgress);
             }

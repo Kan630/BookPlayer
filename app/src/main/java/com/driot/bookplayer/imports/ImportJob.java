@@ -21,7 +21,7 @@ public class ImportJob {
     @PrimaryKey @NonNull
     public String importId;               // "futureFolderName:UUID"
 
-    // --- Copied from LoadBookTaskState (as strings/booleans for Room simplicity) ---
+    // --- Copied from ImportBookTaskState (as strings/booleans for Room simplicity) ---
     public String originalUri;            // stringified Uri
     public String originalType;
     public String dynamicUri;

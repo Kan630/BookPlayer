@@ -1,4 +1,4 @@
-package com.driot.bookplayer.objects;
+package com.driot.bookplayer.imports;
 
 import android.net.Uri;
 import android.os.Parcel;
@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.utils.log.KanLogger;
 
-public class LoadBookTaskState implements Parcelable {
+public class ImportBookTaskState implements Parcelable {
     public Uri originalUri;
     public String originalType;
     public Uri dynamicUri;
@@ -53,11 +53,11 @@ public class LoadBookTaskState implements Parcelable {
     public int batchIndex = -1;      // 1-based position in batch, -1 if not part of a batch
     public int batchTotal = -1;       // Total count in batch, -1 if not part of a batch
 
-    public LoadBookTaskState() {
-        myLog("LoadBookTaskState() constructor - creating new Workflow");
+    public ImportBookTaskState() {
+        myLog("ImportBookTaskState() constructor - creating new Workflow");
     }
 
-    protected LoadBookTaskState(Parcel in) {
+    protected ImportBookTaskState(Parcel in) {
         originalUri = in.readParcelable(Uri.class.getClassLoader());
         originalType = in.readString();
         dynamicUri = in.readParcelable(Uri.class.getClassLoader());
@@ -100,15 +100,15 @@ public class LoadBookTaskState implements Parcelable {
         batchTotal = in.readInt();
     }
 
-    public static final Creator<LoadBookTaskState> CREATOR = new Creator<LoadBookTaskState>() {
+    public static final Creator<ImportBookTaskState> CREATOR = new Creator<ImportBookTaskState>() {
         @Override
-        public LoadBookTaskState createFromParcel(Parcel in) {
-            return new LoadBookTaskState(in);
+        public ImportBookTaskState createFromParcel(Parcel in) {
+            return new ImportBookTaskState(in);
         }
 
         @Override
-        public LoadBookTaskState[] newArray(int size) {
-            return new LoadBookTaskState[size];
+        public ImportBookTaskState[] newArray(int size) {
+            return new ImportBookTaskState[size];
         }
     };
 
@@ -164,7 +164,7 @@ public class LoadBookTaskState implements Parcelable {
     @Override
     @NonNull
     public String toString() {
-        return "LoadBookTaskState{" +
+        return "ImportBookTaskState{" +
                 "uri=" + originalUri +
                 ", type='" + originalType + '\'' +
                 ", dynamicUri=" + dynamicUri +
@@ -227,7 +227,7 @@ public class LoadBookTaskState implements Parcelable {
     ////////////////////////////////////////////////////////
     ///////// Loggers
     ////////////////////////////////////////////////////////
-    private static final String TAG = "LoadBookTaskState";
+    private static final String TAG = "ImportBookTaskState";
     private static void myLog(String str) { KanLogger.myLog(TAG, str); }
     private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
     private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
