@@ -101,7 +101,7 @@ public class MassImportScanner extends LoggerHelper {
             myLogD("--------------------------------------------------------");
 
             String fileName = safeName(file);
-            BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder");
+            BookCandidate candidate = new BookCandidate(context, file.getUri());
             addCandidate(candidate, candidates);
         }
 
@@ -118,7 +118,7 @@ public class MassImportScanner extends LoggerHelper {
             String type = detectBookType(file);
             if (type != null) {
                 String fileName = safeName(file);
-                BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
+                BookCandidate candidate = new BookCandidate(context, file.getUri());
                 addCandidate(candidate, candidates);
             }
         }
@@ -184,7 +184,7 @@ public class MassImportScanner extends LoggerHelper {
 
                 if (hasAnyAudioRecursive(file)) {
                     String fileName = safeName(file);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder");
+                    BookCandidate candidate = new BookCandidate(context, file.getUri());
                     addCandidate(candidate, candidates);
                 }
             } else {
@@ -201,7 +201,7 @@ public class MassImportScanner extends LoggerHelper {
 
                     if (type != null) {
                         String fileName = safeName(file);
-                        BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
+                        BookCandidate candidate = new BookCandidate(context, file.getUri());
                         addCandidate(candidate, candidates);
                     }
                 }
@@ -231,7 +231,7 @@ public class MassImportScanner extends LoggerHelper {
 
             String type = detectBookType(file);
             if (type != null) {
-                BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
+                BookCandidate candidate = new BookCandidate(context, file.getUri());
                 addCandidate(candidate, candidates);
             }
         }
@@ -262,7 +262,7 @@ public class MassImportScanner extends LoggerHelper {
                 // Check logic for folder
                 if (hasAnyAudioRecursive(file)) {
                     String fileName = safeName(file);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder");
+                    BookCandidate candidate = new BookCandidate(context, file.getUri());
                     addCandidate(candidate, candidates);
                 }
             } else {
@@ -271,7 +271,7 @@ public class MassImportScanner extends LoggerHelper {
                     deferredArchives.add(file);
                 } else if (type != null) {
                     String fileName = safeName(file);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri());
                     addCandidate(candidate, candidates);
                 }
             }

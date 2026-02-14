@@ -59,14 +59,57 @@ public class BookCandidate {
     public String mimeType;
     public String specialType;
 
-    public BookCandidate(Context context, Uri uri, String name, String type) {
+    public BookCandidate(Context context, Uri uri) {
         this.uri = uri;
-        this.name = name;
-        this.type = type;
-        this.path = name; // Default path
+        if (this.uri == null) throw new RuntimeException("constructor : uri is null");
+        this.name = SupportedFilesHelper.getFileName(context, uri);
+        this.type = SupportedFilesHelper.getType(context, uri);
+
+        // Special handling for Folder type which might return null or generic type
+        if (this.type == null) {
+            DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+            if (file != null && file.isDirectory()) {
+                this.type = "Folder";
+            }
+        }
+
+        // Convert "audio" to "Audio File" to match previous logic if needed,
+        // or ensure SupportedFilesHelper returns compatible types.
+        // SupportedFilesHelper.getType returns "audio" (FILE_TYPE_AUDIO), "video",
+        // "ebook", "bundle".
+        // The old code used "Audio File", "Ebook", "ZIP", "M4B", "Folder".
+        // We need to map `SupportedFilesHelper` output to `BookCandidate` legacy types.
+
+        this.type = mapSupportedFilesHelperTypeToBookCandidateType(context, uri, this.type);
+
+        this.path = this.name; // Default path
         this.selected = true;
 
+        if (this.type == null) throw new RuntimeException("constructor : type is null");
+
         enrich(context);
+    }
+
+    private String mapSupportedFilesHelperTypeToBookCandidateType(Context context, Uri uri, String helperType) {
+        if ("Folder".equals(helperType))
+            return "Folder";
+
+        String special = SupportedFilesHelper.getSpecialType(context, uri);
+        if (SupportedFilesHelper.SPECIAL_TYPE_M4B.equals(special)) {
+            return "M4B";
+        }
+        if (SupportedFilesHelper.isBundleSpecial(special)) {
+            return "ZIP";
+        }
+        if (SupportedFilesHelper.isEbookSpecial(special)) {
+            return "Ebook";
+        }
+        if (SupportedFilesHelper.FILE_TYPE_AUDIO.equals(helperType)) {
+            return "Audio File";
+        }
+
+        // Fallback or keep original if it matches
+        return helperType;
     }
 
     private void enrich(Context context) {
@@ -124,7 +167,7 @@ public class BookCandidate {
         // Extra info fields
         this.sourceLocation = Tonio.getSourceLocation(context, uri);
         this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
-        this.infoLine1 = this.type +  " - " + this.infoSourceLocation;
+        this.infoLine1 = this.type + " - " + this.infoSourceLocation;
 
         if ("Folder".equals(type)) {
             this.playType = inferPlayTypeFromFolder(context, uri);

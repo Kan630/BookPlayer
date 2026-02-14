@@ -160,57 +160,54 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         displayAppendWarning();
         buildDestinationFolderSpinner();
 
-        // Refined type logic (moved from BookToAdd)
-        String pickedType = "Podcast".equals(gotten_type) ? "File" : gotten_type;
-        String refinedType = pickedType;
-        if ("File".equals(pickedType)) {
-            String fileName = SupportedFilesHelper.getFileName(getApplicationContext(), uri);
-            String special = SupportedFilesHelper.getSpecialType(fileName);
+        // Initialize BookCandidate in background to avoid ANR
+        new Thread(() -> {
+            BookCandidate candidate = new BookCandidate(getApplicationContext(), uri);
 
-            if (SupportedFilesHelper.isEbookSpecial(special)) {
-                refinedType = "Ebook";
-            } else if (SupportedFilesHelper.isM4bSpecial(special)) {
-                refinedType = "M4B";
-            } else if (SupportedFilesHelper.isBundleSpecial(special)) {
-                refinedType = "ZIP";
-            } else if (SupportedFilesHelper.isAudio(fileName)) {
-                refinedType = "Audio File";
-            }
-        }
+            runOnUiThread(() -> {
+                if (isDestroyed() || isFinishing())
+                    return;
 
-        bookCandidate = new BookCandidate(getApplicationContext(), uri, null, refinedType);
+                bookCandidate = candidate;
 
-        if (!bookCandidate.isMimeSupported) {
-            startActivity(SupportedExtensionsActivity.newIntent(this, bookCandidate.infoMimeExtensionSmall));
-            finish();
-            return;
-        }
-        if (bookCandidate.isBroken) {
-            myToastEE(null, getString(R.string.could_not_read_resource));
-            finish();
-            return;
-        }
+                if (!bookCandidate.isMimeSupported) {
+                    startActivity(SupportedExtensionsActivity.newIntent(this, bookCandidate.infoMimeExtensionSmall));
+                    finish();
+                    return;
+                }
+                if (bookCandidate.isBroken) {
+                    myToastEE(null, getString(R.string.could_not_read_resource));
+                    finish();
+                    return;
+                }
 
-        audioBookTitle = bookCandidate.audioBookName;
+                audioBookTitle = bookCandidate.audioBookName;
 
-        myLogD(bookCandidate.toString());
+                myLogD(bookCandidate.toString());
 
-        tvFileName.setText(audioBookTitle);
-        if (bookCandidate.coverImagePath != null) {
-            ivCover.setVisibility(View.VISIBLE);
-            ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
-        } else {
-            ivCover.setVisibility(View.GONE);
-        }
-        tvInfoLine1.setText(bookCandidate.infoLine1);
+                tvFileName.setText(audioBookTitle);
+                if (bookCandidate.coverImagePath != null) {
+                    ivCover.setVisibility(View.VISIBLE);
+                    ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
+                } else {
+                    ivCover.setVisibility(View.GONE);
+                }
+                tvInfoLine1.setText(bookCandidate.infoLine1);
 
-        if ("Folder".equals(gotten_type)) {
-            startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
-        } else {
-            tvMimeExtension.setText(bookCandidate.infoMimeExtension);
-        }
+                if ("Folder".equals(gotten_type)) {
+                    startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
+                } else {
+                    tvMimeExtension.setText(bookCandidate.infoMimeExtension);
+                }
 
-        checkHashDoesNotAlreadyExist();
+                // Now that candidate is ready, activate UI interaction if needed (checks)
+                // (Pre-existing logic continues here)
+                checkHashDoesNotAlreadyExist();
+
+                // Trigger checkbox state calculation now that bookCandidate is available
+                calculateCheckboxState();
+            });
+        }).start();
 
         btnCancel.setOnClickListener(v -> {
             myLogI("------ USER CLICKS btn CANCEL....   ");
@@ -236,7 +233,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         cbUseSdCard.setChecked(Option.getUseSdCard());
         cbDelete.setChecked(Option.getDeleteSourceFile());
 
-        calculateCheckboxState();
+        // calculateCheckboxState(); -> Moved to async callback
 
         cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLogI("USER CHECKS -SPLIT- : " + isChecked);
