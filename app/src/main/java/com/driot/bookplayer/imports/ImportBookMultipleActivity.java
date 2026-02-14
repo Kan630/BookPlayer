@@ -84,7 +84,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
         setupRecyclerView();
         observeViewModel();
-        
+
         // If we already have candidates (re-entry), calculate storage once
         if (hasState) {
             recalculateStorageBar();
@@ -122,7 +122,8 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        // When returning from Massive Import settings, refresh storage section visibility
+        // When returning from Massive Import settings, refresh storage section
+        // visibility
         if (llStorageSection != null) {
             boolean showStorageBar = Option.getMassImportDisplayStorageBar();
             llStorageSection.setVisibility(showStorageBar ? View.VISIBLE : View.GONE);
@@ -141,7 +142,10 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         finish();
     }
 
-    /** Opens Massive Import settings fragment (Display Storage Bar, etc.) in SettingsHostActivity. */
+    /**
+     * Opens Massive Import settings fragment (Display Storage Bar, etc.) in
+     * SettingsHostActivity.
+     */
     private void clickSettings() {
         myLogI("--- User clicks MASSIVE IMPORT SETTINGS ---");
         SettingsHostActivity.start(this, MassiveImportSettingsFragment.class, true, R.string.Mass_Import);
@@ -159,40 +163,43 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         llStorageSection = findViewById(R.id.llStorageSection);
         tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
 
-        // Storage section visible only when "Display Storage Bar" is enabled in Settings > Massive Import
+        // Storage section visible only when "Display Storage Bar" is enabled in
+        // Settings > Massive Import
         boolean showStorageBar = Option.getMassImportDisplayStorageBar();
         llStorageSection.setVisibility(showStorageBar ? View.VISIBLE : View.GONE);
 
-        // Observe internal storage: one bar with label "Storage" or "Device storage" (when SD exists)
+        // Observe internal storage: one bar with label "Storage" or "Device storage"
+        // (when SD exists)
         viewModel.getInternalStorageInfo().observe(this, info -> {
-            if (info == null || storageBarInternal == null || !Option.getMassImportDisplayStorageBar()) return;
+            if (info == null || storageBarInternal == null || !Option.getMassImportDisplayStorageBar())
+                return;
             if (info.totalStorageBytes > 0) {
                 storageBarInternal.setStorageValues(
-                    info.totalStorageBytes,
-                    info.usedByOthersBytes,
-                    info.usedByBookPlayerBytes,
-                    info.expectedAddedMemoryBytes,
-                    info.linkedAudiosBytes
-                );
+                        info.totalStorageBytes,
+                        info.usedByOthersBytes,
+                        info.usedByBookPlayerBytes,
+                        info.expectedAddedMemoryBytes,
+                        info.linkedAudiosBytes);
                 storageBarInternal.setVisibility(View.VISIBLE);
                 llStorageSection.setVisibility(View.VISIBLE);
             }
         });
 
-        // Observe SD card storage: second bar when SD exists; update internal label to "Device storage"
+        // Observe SD card storage: second bar when SD exists; update internal label to
+        // "Device storage"
         viewModel.getSdCardStorageInfo().observe(this, info -> {
             if (tvStorageLabelInternal != null) {
                 tvStorageLabelInternal.setText(info != null ? R.string.storage_device : R.string.Storage);
             }
-            if (llSdCardStorage == null || storageBarSdCard == null) return;
+            if (llSdCardStorage == null || storageBarSdCard == null)
+                return;
             if (info != null && info.totalStorageBytes > 0 && Option.getMassImportDisplayStorageBar()) {
                 storageBarSdCard.setStorageValues(
-                    info.totalStorageBytes,
-                    info.usedByOthersBytes,
-                    info.usedByBookPlayerBytes,
-                    info.expectedAddedMemoryBytes,
-                    info.linkedAudiosBytes
-                );
+                        info.totalStorageBytes,
+                        info.usedByOthersBytes,
+                        info.usedByBookPlayerBytes,
+                        info.expectedAddedMemoryBytes,
+                        info.linkedAudiosBytes);
                 llSdCardStorage.setVisibility(View.VISIBLE);
             } else {
                 llSdCardStorage.setVisibility(View.GONE);
@@ -203,9 +210,13 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         viewModel.updateStorageInfo(0);
     }
 
-    /** Updates "x book candidates selected for import (size)" from current selection. */
+    /**
+     * Updates "x book candidates selected for import (size)" from current
+     * selection.
+     */
     private void updateSelectedSummary() {
-        if (adapter == null || tvSelectedSummary == null) return;
+        if (adapter == null || tvSelectedSummary == null)
+            return;
         List<BookCandidate> items = adapter.getItems();
         int selectedCount = 0;
         long selectedSize = 0;
@@ -218,9 +229,10 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         String sizeStr = com.driot.bookplayer.utils.Tonio.getReadableSize(selectedSize);
         tvSelectedSummary.setText(getString(R.string.mass_import_selected_summary, selectedCount, sizeStr));
     }
-    
+
     private void recalculateStorageBar() {
-        if (adapter == null) return;
+        if (adapter == null)
+            return;
 
         List<BookCandidate> candidates = adapter.getItems();
 
@@ -242,6 +254,14 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         adapter.setOnSelectionChanged(() -> {
             updateSelectedSummary();
             recalculateStorageBar();
+        });
+        adapter.setOnItemClickListener(candidate -> {
+            android.content.Intent intent = new android.content.Intent(this, ImportBookSingleActivity.class);
+            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, candidate.uri);
+            String typeToPass = "Folder".equals(candidate.type) ? "Folder" : "File";
+            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, typeToPass);
+            intent.putExtra(ImportBookSingleActivity.EXTRA_DETAIL_MODE, true);
+            startActivity(intent);
         });
         rv.setAdapter(adapter);
     }
@@ -341,7 +361,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                             + getString(R.string.imported_as) + ": " + candidate.existingBookName + ")");
                     continue;
                 }
-                
+
                 batchIndex++; // Increment before creating job (1-based)
 
                 ImportBookTaskState s = new ImportBookTaskState();

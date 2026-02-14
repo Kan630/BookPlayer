@@ -33,6 +33,16 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         this.onSelectionChanged = onSelectionChanged;
     }
 
+    public interface OnItemClickListener {
+        void onItemClick(BookCandidate candidate);
+    }
+
+    private OnItemClickListener onItemClickListener;
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.onItemClickListener = listener;
+    }
+
     public void setItems(List<BookCandidate> items) {
         this.items = items;
         // Initialize selection: checked by default for non-imported, unchecked and
@@ -132,6 +142,12 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             item.setSelected(isChecked);
             if (onSelectionChanged != null)
                 onSelectionChanged.run();
+        });
+
+        holder.itemView.setOnClickListener(v -> {
+            if (onItemClickListener != null) {
+                onItemClickListener.onItemClick(item);
+            }
         });
     }
 

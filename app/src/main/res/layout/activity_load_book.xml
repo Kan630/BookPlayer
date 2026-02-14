@@ -96,6 +96,7 @@
 
 
         <LinearLayout
+            android:id="@+id/llAppendAndDest"
             style="@style/wideLinearLayout_Vertical">
             <TextView
                 android:id="@+id/tvAppendMode"
@@ -123,10 +124,14 @@
             </LinearLayout>
         </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        <View
+            android:id="@+id/vSeparator1"
+            style="@style/myStyleViewSimpleHorizontalBar" />
 
         <!-- Options group -->
-        <LinearLayout style="@style/LinearLayoutOptionsVertical">
+        <LinearLayout
+            android:id="@+id/llOptions"
+            style="@style/LinearLayoutOptionsVertical">
 
             <!-- Split M4B option -->
             <LinearLayout
@@ -182,11 +187,14 @@
 
         </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar" />
+        <View
+            android:id="@+id/vSeparator2"
+            style="@style/myStyleViewSimpleHorizontalBar" />
 
 
         <!-- Buttons -->
         <LinearLayout
+            android:id="@+id/llButtons"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"

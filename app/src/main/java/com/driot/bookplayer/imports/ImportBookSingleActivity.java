@@ -71,6 +71,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     public static final String EXTRA_URI = "EXTRA_URI";
     public static final String EXTRA_TYPE = "EXTRA_TYPE"; // File or Folder
     public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
+    public static final String EXTRA_DETAIL_MODE = "EXTRA_DETAIL_MODE";
 
     private Uri uri;
     boolean forceCopy;
@@ -371,6 +372,14 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(bookCandidate.type.replace(".", "").toLowerCase(Locale.ROOT))) {
             showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n"
                     + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
+        }
+
+        if (getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false)) {
+            findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
+            findViewById(R.id.vSeparator1).setVisibility(View.GONE);
+            findViewById(R.id.llOptions).setVisibility(View.GONE);
+            findViewById(R.id.vSeparator2).setVisibility(View.GONE);
+            findViewById(R.id.llButtons).setVisibility(View.GONE);
         }
 
     }
