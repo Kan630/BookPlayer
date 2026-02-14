@@ -73,9 +73,11 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
     public static final String EXTRA_DETAIL_MODE = "EXTRA_DETAIL_MODE";
 
+    private ImportBookSingleViewModel viewModel;
+
     private Uri uri;
     boolean forceCopy;
-    private BookCandidate bookCandidate;
+    // bookCandidate is now accessed via viewModel.getBookCandidate()
 
     private String audioBookTitle; // name can be changed... so keep as separate var
 
@@ -113,6 +115,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
+
+        // Initialize ViewModel
+        viewModel = new androidx.lifecycle.ViewModelProvider(this).get(ImportBookSingleViewModel.class);
 
         uri = getIntent().getParcelableExtra(EXTRA_URI);
         String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
@@ -160,54 +165,77 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         displayAppendWarning();
         buildDestinationFolderSpinner();
 
-        // Initialize BookCandidate in background to avoid ANR
-        new Thread(() -> {
-            BookCandidate candidate = new BookCandidate(getApplicationContext(), uri);
+        // Observe BookCandidate from ViewModel
+        viewModel.getBookCandidate().observe(this, bookCandidate -> {
+            if (bookCandidate == null)
+                return;
 
-            runOnUiThread(() -> {
-                if (isDestroyed() || isFinishing())
-                    return;
+            if (!bookCandidate.isMimeSupported) {
+                startActivity(SupportedExtensionsActivity.newIntent(this, bookCandidate.infoMimeExtensionSmall));
+                finish();
+                return;
+            }
+            if (bookCandidate.isBroken) {
+                myToastEE(null, getString(R.string.could_not_read_resource));
+                finish();
+                return;
+            }
 
-                bookCandidate = candidate;
+            audioBookTitle = bookCandidate.audioBookName;
+            myLogD(bookCandidate.toString());
 
-                if (!bookCandidate.isMimeSupported) {
-                    startActivity(SupportedExtensionsActivity.newIntent(this, bookCandidate.infoMimeExtensionSmall));
-                    finish();
-                    return;
-                }
-                if (bookCandidate.isBroken) {
-                    myToastEE(null, getString(R.string.could_not_read_resource));
-                    finish();
-                    return;
-                }
+            tvFileName.setText(audioBookTitle);
+            if (bookCandidate.coverImagePath != null) {
+                ivCover.setVisibility(View.VISIBLE);
+                ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
+            } else {
+                ivCover.setVisibility(View.GONE);
+            }
+            tvInfoLine1.setText(bookCandidate.infoLine1);
 
-                audioBookTitle = bookCandidate.audioBookName;
+            if ("Folder".equals(gotten_type)) {
+                startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
+            } else {
+                tvMimeExtension.setText(bookCandidate.infoMimeExtension);
+            }
 
-                myLogD(bookCandidate.toString());
+            // Now that candidate is ready, activate UI
+            checkHashDoesNotAlreadyExist();
+            calculateCheckboxState(bookCandidate);
+            setupCheckboxListeners(bookCandidate);
 
-                tvFileName.setText(audioBookTitle);
-                if (bookCandidate.coverImagePath != null) {
-                    ivCover.setVisibility(View.VISIBLE);
-                    ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
-                } else {
-                    ivCover.setVisibility(View.GONE);
-                }
-                tvInfoLine1.setText(bookCandidate.infoLine1);
+            // Check for ebook warning
+            if (Var.SUPPORTED_EBOOK_EXTENSIONS
+                    .contains(bookCandidate.sourceType.replace(".", "").toLowerCase(Locale.ROOT))) {
+                showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n"
+                        + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
+            }
+        });
 
-                if ("Folder".equals(gotten_type)) {
-                    startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
-                } else {
-                    tvMimeExtension.setText(bookCandidate.infoMimeExtension);
-                }
+        // Observe originalHash from ViewModel
+        viewModel.getOriginalHash().observe(this, hash -> {
+            originalHash = hash;
+        });
 
-                // Now that candidate is ready, activate UI interaction if needed (checks)
-                // (Pre-existing logic continues here)
-                checkHashDoesNotAlreadyExist();
+        // Observe loading state
+        viewModel.getIsLoading().observe(this, isLoading -> {
+            if (isLoading) {
+                waitTextView.setVisibility(View.VISIBLE);
+            } else {
+                waitTextView.setVisibility(View.GONE);
+            }
+        });
 
-                // Trigger checkbox state calculation now that bookCandidate is available
-                calculateCheckboxState();
-            });
-        }).start();
+        // Observe errors
+        viewModel.getErrorMessage().observe(this, errorMsg -> {
+            if (errorMsg != null && !errorMsg.isEmpty()) {
+                myToastEE(null, errorMsg);
+                finish();
+            }
+        });
+
+        // Start BookCandidate initialization
+        viewModel.initializeBookCandidate(uri);
 
         btnCancel.setOnClickListener(v -> {
             myLogI("------ USER CLICKS btn CANCEL....   ");
@@ -237,8 +265,11 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLogI("USER CHECKS -SPLIT- : " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress)
-                calculateCheckboxState();
+            if (!internalCheckBoxStateCalculationInProgress) {
+                BookCandidate bc = viewModel.getBookCandidate().getValue();
+                if (bc != null)
+                    calculateCheckboxState(bc);
+            }
         });
         cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLog("USER CHECKS -COPY- : " + isChecked);
@@ -248,13 +279,19 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             } else {
                 reDo_checkPathDoesNotAlreadyExist();
             }
-            if (!internalCheckBoxStateCalculationInProgress)
-                calculateCheckboxState();
+            if (!internalCheckBoxStateCalculationInProgress) {
+                BookCandidate bc = viewModel.getBookCandidate().getValue();
+                if (bc != null)
+                    calculateCheckboxState(bc);
+            }
         });
         cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLog("USER CHECKS -SD CARD- : " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress)
-                calculateCheckboxState();
+            if (!internalCheckBoxStateCalculationInProgress) {
+                BookCandidate bc = viewModel.getBookCandidate().getValue();
+                if (bc != null)
+                    calculateCheckboxState(bc);
+            }
         });
         cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
             myLog("USER CHECKS -DELETE- " + isChecked);
@@ -264,17 +301,17 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                             .setTitle(getString(R.string.option_alert_delete_picked_source_file_title))
                             .setMessage(getString(R.string.option_alert_delete_picked_source_file_message))
                             .setCancelable(false)
-                            .setPositiveButton(android.R.string.ok, (dialog, which) -> calculateCheckboxState())
+                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                BookCandidate bc = viewModel.getBookCandidate().getValue();
+                                if (bc != null)
+                                    calculateCheckboxState(bc);
+                            })
                             .setNegativeButton(android.R.string.cancel, (dialog, which) -> cbDelete.setChecked(false))
                             .show();
                 } else {
                     Option.setDeleteSourceFile(false);
                 }
             }
-
-            FirebaseAnalyticsHelper.tellAnalyticsManualLoad(bookCandidate.sourceType, bookCandidate.fileExtension,
-                    bookCandidate.sourceLocation, bookCandidate.originalFile);
-
         });
 
         // -------------------------------------------------------------------------------------------------------------------------------------------------
@@ -286,6 +323,14 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             // Disable immediately to prevent double taps
             btnConfirm.setEnabled(false);
+
+            // Get bookCandidate from ViewModel
+            BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
+            if (bookCandidate == null) {
+                myLogEE(null, "bookCandidate is null when confirm clicked");
+                btnConfirm.setEnabled(true);
+                return;
+            }
 
             AppDatabase.databaseReadExecutor.execute(() -> {
                 String futureFolderName;
@@ -366,12 +411,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         desactivateInteractive();
 
-        if (Var.SUPPORTED_EBOOK_EXTENSIONS
-                .contains(bookCandidate.sourceType.replace(".", "").toLowerCase(Locale.ROOT))) {
-            showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n"
-                    + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
-        }
-
         if (getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false)) {
             findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
             findViewById(R.id.vSeparator1).setVisibility(View.GONE);
@@ -380,6 +419,19 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             findViewById(R.id.llButtons).setVisibility(View.GONE);
         }
 
+    }
+
+    /**
+     * Setup checkbox listeners that depend on bookCandidate being initialized.
+     * This is called from the async callback after bookCandidate is ready.
+     */
+    private void setupCheckboxListeners(BookCandidate bookCandidate) {
+        // Firebase analytics tracking when delete checkbox changes
+        FirebaseAnalyticsHelper.tellAnalyticsManualLoad(
+                bookCandidate.sourceType,
+                bookCandidate.fileExtension,
+                bookCandidate.sourceLocation,
+                bookCandidate.originalFile);
     }
 
     private void desactivateInteractive() {
@@ -418,14 +470,14 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         llDelete.setAlpha(1.0f);
         llCopy.setAlpha(1.0f);
         llSplit.setAlpha(1.0f);
-        calculateCheckboxState();
+        calculateCheckboxState(viewModel.getBookCandidate().getValue());
     }
 
     // -------------------------------------------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------------------------------------------
     // -------------------------------------------------------------------------------------------------------------------------------------------------
 
-    private void calculateCheckboxState() {
+    private void calculateCheckboxState(BookCandidate bookCandidate) {
         internalCheckBoxStateCalculationInProgress = true;
         myLogD("calculateCheckboxState");
 
@@ -651,7 +703,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     if (hash == null || hash.isEmpty() || hash.equals(HASH_NOT_COMPUTED)) {
                         myLogEE(null, "bad returned Hash for uri " + uri);
                         showWarning(getString(R.string.could_not_check_already_imported));
-                        okContinue();
+                        okContinue(viewModel.getBookCandidate().getValue());
                     } else {
                         btnConfirm.setEnabled(false);
                         new Thread(() -> {
@@ -666,7 +718,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                         showWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " ["
                                                 + existingBook + "]\n");
                                         boolAlso = true;
-                                        okContinue();
+                                        okContinue(viewModel.getBookCandidate().getValue());
                                     } else {
                                         myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
                                         showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
@@ -679,7 +731,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                     myLogD("Hash OK: not found in DB.");
                                     waitTextView
                                             .setText(getString(R.string.init_check_complementary_checks_please_wait));
-                                    okContinue();
+                                    okContinue(viewModel.getBookCandidate().getValue());
                                 }
                             });
                         }).start();
@@ -687,7 +739,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 } else if (workInfo.getState() == WorkInfo.State.FAILED) {
                     myLogEE(null, "Hash computation failed for uri: " + uri);
                     showWarning(getString(R.string.could_not_check_already_imported));
-                    okContinue();
+                    okContinue(viewModel.getBookCandidate().getValue());
                 }
             }
         };
@@ -697,7 +749,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 .observe(this, observer);
     }
 
-    private void okContinue() {
+    private void okContinue(BookCandidate bookCandidate) {
         if ("Folder".equals(bookCandidate.sourceType) && bookCandidate.hasMultipleBooksInFolder()) {
             showError(getString(R.string.error_folder_multiple_books));
             isKO = true;
