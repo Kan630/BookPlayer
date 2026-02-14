@@ -102,7 +102,7 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
         long totalInternal = 0, usedByOthersInternal = 0, usedByBookPlayerInternal = 0;
         long cachedTimestampInternal = StorageInfoCacheHelper.getCachedInternalTimestamp();
         if (cachedTimestampInternal > 0) {
-            myLogD("MassImportViewModel: Using cached internal storage info");
+            //myLogD("MassImportViewModel: Using cached internal storage info");
             totalInternal = StorageInfoCacheHelper.getCachedInternalTotal();
             usedByOthersInternal = StorageInfoCacheHelper.getCachedInternalUsedByOthers();
             usedByBookPlayerInternal = StorageInfoCacheHelper.getCachedInternalUsedByBookPlayer();
@@ -131,7 +131,7 @@ public class MassImportViewModel extends LoggingAndroidViewModel {
             long totalSd = 0, usedByOthersSd = 0, usedByBookPlayerSd = 0;
             long cachedTimestampSd = StorageInfoCacheHelper.getCachedSDCardTimestamp();
             if (cachedTimestampSd > 0) {
-                myLogD("MassImportViewModel: Using cached SD card storage info");
+                //myLogD("MassImportViewModel: Using cached SD card storage info");
                 totalSd = StorageInfoCacheHelper.getCachedSDCardTotal();
                 usedByOthersSd = StorageInfoCacheHelper.getCachedSDCardUsedByOthers();
                 usedByBookPlayerSd = StorageInfoCacheHelper.getCachedSDCardUsedByBookPlayer();
