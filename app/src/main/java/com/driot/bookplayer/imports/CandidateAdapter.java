@@ -23,7 +23,10 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
     private List<BookCandidate> items = new ArrayList<>();
 
-    /** Called when user checks/unchecks a candidate; use to update selection summary and storage bar. */
+    /**
+     * Called when user checks/unchecks a candidate; use to update selection summary
+     * and storage bar.
+     */
     private Runnable onSelectionChanged;
 
     public void setOnSelectionChanged(Runnable onSelectionChanged) {
@@ -32,7 +35,8 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
     public void setItems(List<BookCandidate> items) {
         this.items = items;
-        // Initialize selection: checked by default for non-imported, unchecked and disabled for already-imported
+        // Initialize selection: checked by default for non-imported, unchecked and
+        // disabled for already-imported
         for (BookCandidate c : items) {
             c.setSelected(!c.isAlreadyImported());
         }
@@ -56,9 +60,11 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         BookCandidate item = items.get(position);
         holder.tvName.setText(Tonio.formatNameForDisplay(item.name));
         String tracksPart = "";
-        // Show track count for Folders, generic Audio Files, ZIP archives, and M4B files (where we know the count)
+        // Show track count for Folders, generic Audio Files, ZIP archives, and M4B
+        // files (where we know the count)
         // For Ebook, we don't know the count yet, so don't show it.
-        if ("Folder".equals(item.type) || "Audio File".equals(item.type) || "ZIP".equals(item.type) || "M4B".equals(item.type)) {
+        if ("Folder".equals(item.type) || "Audio File".equals(item.type) || "ZIP".equals(item.type)
+                || "M4B".equals(item.type)) {
             tracksPart = " - " + holder.ivCover.getContext().getResources()
                     .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
         }
@@ -96,6 +102,9 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         }
         holder.ivTypeIcon.setImageResource(iconRes);
 
+        // Detach listener first to avoid firing it while setting state
+        holder.cbSelect.setOnCheckedChangeListener(null);
+
         // Check if already imported
         if (item.isAlreadyImported()) {
             // Apply red tint to type icon
@@ -118,10 +127,11 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             holder.cbSelect.setChecked(item.isSelected());
         }
 
-        // Sync checkbox with item selection (avoid triggering during setChecked above)
+        // Re-attach listener
         holder.cbSelect.setOnCheckedChangeListener((CompoundButton buttonView, boolean isChecked) -> {
             item.setSelected(isChecked);
-            if (onSelectionChanged != null) onSelectionChanged.run();
+            if (onSelectionChanged != null)
+                onSelectionChanged.run();
         });
     }
 
