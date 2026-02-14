@@ -104,7 +104,7 @@ public class SupportedFilesHelper {
                     if (index != -1) {
                         name = cursor.getString(index);
                         if (name != null) {
-                            myLog("getFileNameFromUri - OpenableColumns: [" + name + "]");
+                            myLogD("getFileNameFromUri - OpenableColumns: [" + name + "]");
                             return name;
                         }
                     }

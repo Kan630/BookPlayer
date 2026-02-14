@@ -2,7 +2,8 @@ package com.driot.bookplayer.imports;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
@@ -27,6 +28,8 @@ import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
 import java.util.Locale;
 import java.util.Objects;
+
+import com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class BookCandidate {
     public Uri uri;
@@ -66,7 +69,8 @@ public class BookCandidate {
 
         // Cache filename to avoid redundant calls
         this.name = SupportedFilesHelper.getFileName(context, uri);
-        this.sourceType = SupportedFilesHelper.getType(context, uri);
+        // Use filename-based getType to avoid calling getFileName again
+        this.sourceType = SupportedFilesHelper.getType(this.name);
 
         // Special handling for Folder type which might return null or generic type
         if (this.sourceType == null) {
@@ -103,7 +107,7 @@ public class BookCandidate {
 
     private void enrich(Context context) {
         long startTime = System.currentTimeMillis();
-        Log.d("toto", "BookCandidate - enrich() START for: " + name);
+        myLogD("enrich() START for: " + name);
 
         DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
         if (file == null)
@@ -130,9 +134,9 @@ public class BookCandidate {
                 this.tracksCount = calculateTrackCountForM4B(context, file);
             } else if ("Archive".equals(sourceType)) {
                 long zipStart = System.currentTimeMillis();
-                Log.d("toto", "BookCandidate - [Archive] Starting calculateTrackCountForArchive...");
+                myLogD("[Archive] Starting calculateTrackCountForArchive...");
                 this.tracksCount = calculateTrackCountForArchive(context, file);
-                Log.d("toto", "BookCandidate - [Archive] calculateTrackCountForArchive took: "
+                myLogD("[Archive] calculateTrackCountForArchive took: "
                         + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
             }
 
@@ -176,8 +180,7 @@ public class BookCandidate {
             this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
         }
 
-        Log.d("toto",
-                "BookCandidate - enrich() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
+        myLogD("enrich() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
     }
 
     // --- BookToAdd specific helpers (ported) ---
@@ -646,19 +649,38 @@ public class BookCandidate {
                     Fb2LowLevelHelper.Meta meta = Fb2LowLevelHelper
                             .parseMetaAndBinaries(xml);
 
+                    myLogD("FB2 cover detection - coverImageId: [" + meta.coverImageId
+                            + "], binaries count: " + meta.binaries.size());
+
+                    byte[] imageBytes = null;
+
                     if (meta.coverImageId != null && !meta.coverImageId.isEmpty()) {
-                        byte[] imageBytes = meta.binaries.get(meta.coverImageId);
-                        if (imageBytes != null) {
-                            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                                    imageBytes, 0, imageBytes.length);
-                            if (bitmap != null) {
-                                String suffix = "_" + file.getUri().hashCode();
-                                return ImageHelper.saveTempBitmap(context,
-                                        bitmap, suffix);
-                            }
+                        // Important: binaries are stored with lowercase keys
+                        String lookupKey = meta.coverImageId.toLowerCase(java.util.Locale.ROOT);
+                        imageBytes = meta.binaries.get(lookupKey);
+
+                        myLogD("FB2 - Looking up cover with key: [" + lookupKey + "], found: " + (imageBytes != null));
+                    } else if (!meta.binaries.isEmpty()) {
+                        // Fallback: No explicit cover defined, use first available image
+                        myLogD("FB2 - No coverImageId, using first image as fallback");
+                        imageBytes = meta.binaries.values().iterator().next();
+                    }
+
+                    if (imageBytes != null) {
+                        android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                                imageBytes, 0, imageBytes.length);
+                        if (bitmap != null) {
+                            myLogD("FB2 - Successfully decoded cover bitmap: " + bitmap.getWidth() + "x"
+                                    + bitmap.getHeight());
+                            String suffix = "_" + file.getUri().hashCode();
+                            return ImageHelper.saveTempBitmap(context,
+                                    bitmap, suffix);
+                        } else {
+                            myLogD("FB2 - Failed to decode bitmap from bytes");
                         }
                     }
-                } catch (Exception ignored) {
+                } catch (Exception e) {
+                    myLogEE(e, "FB2 cover detection error");
                 }
             }
         }

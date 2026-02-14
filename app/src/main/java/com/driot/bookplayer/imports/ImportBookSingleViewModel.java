@@ -44,6 +44,7 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
         executorService.execute(() -> {
             try {
                 BookCandidate candidate = new BookCandidate(getApplication(), uri);
+                myLogD("BookCandidate is READY: " + candidate.name);
                 bookCandidate.postValue(candidate);
                 isLoading.postValue(false);
             } catch (Exception e) {
