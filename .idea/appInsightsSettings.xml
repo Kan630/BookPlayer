@@ -31,20 +31,6 @@
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
               <option name="timeIntervalDays" value="SEVEN_DAYS" />
-              <option name="versions">
-                <list>
-                  <VersionSetting>
-                    <option name="buildVersion" value="253" />
-                    <option name="displayName" value="253 - Placid Beaver (253)" />
-                    <option name="displayVersion" value="253 - Placid Beaver" />
-                  </VersionSetting>
-                  <VersionSetting>
-                    <option name="buildVersion" value="245" />
-                    <option name="displayName" value="245 - Placid Beaver (245)" />
-                    <option name="displayVersion" value="245 - Placid Beaver" />
-                  </VersionSetting>
-                </list>
-              </option>
               <option name="visibilityType" value="ALL" />
             </InsightsFilterSettings>
           </value>
