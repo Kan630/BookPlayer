@@ -661,9 +661,38 @@ public class BookCandidate {
 
                         myLogD("FB2 - Looking up cover with key: [" + lookupKey + "], found: " + (imageBytes != null));
                     } else if (!meta.binaries.isEmpty()) {
-                        // Fallback: No explicit cover defined, use first available image
-                        myLogD("FB2 - No coverImageId, using first image as fallback");
-                        imageBytes = meta.binaries.values().iterator().next();
+                        // Fallback: No explicit cover defined
+                        // 1. Try to find image with 'cover' in the name
+                        String coverKey = null;
+                        for (String key : meta.binaries.keySet()) {
+                            if (key.toLowerCase().contains("cover")) {
+                                coverKey = key;
+                                myLogD("FB2 - Found image with 'cover' in name: " + key);
+                                break;
+                            }
+                        }
+
+                        if (coverKey != null) {
+                            imageBytes = meta.binaries.get(coverKey);
+                        } else {
+                            // 2. Use the first valid image (size > 2KB) as fallback
+                            myLogD("FB2 - No cover-named image, scanning for first valid image (>2KB)");
+                            for (java.util.Map.Entry<String, byte[]> entry : meta.binaries.entrySet()) {
+                                int size = entry.getValue().length;
+                                // Filter out tiny images (icons, spacers) - 2KB threshold
+                                if (size > 2048) {
+                                    imageBytes = entry.getValue();
+                                    myLogD("FB2 - Found candidate image: " + entry.getKey() + " (" + size + " bytes)");
+                                    break;
+                                }
+                            }
+
+                            // 3. Last resort: just take the very first image if nothing else matched
+                            if (imageBytes == null && !meta.binaries.isEmpty()) {
+                                imageBytes = meta.binaries.values().iterator().next();
+                                myLogD("FB2 - No image > 2KB found, taking first available image");
+                            }
+                        }
                     }
 
                     if (imageBytes != null) {
