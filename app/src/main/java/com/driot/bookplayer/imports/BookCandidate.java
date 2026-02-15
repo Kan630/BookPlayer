@@ -105,97 +105,246 @@ public class BookCandidate {
         if (this.sourceType == null)
             throw new RuntimeException("constructor : sourceType is null");
 
-        enrich(context);
+        enrich(context, false); // Default to fast enrichment
     }
 
-    private void enrich(Context context) {
+    /**
+     * Secondary initialization for heavy operations (zip scanning).
+     * Call this from a background thread after the initial fast load.
+     */
+    public void loadHeavyMetadata(Context context) {
+        enrich(context, true);
+    }
+
+    private void enrich(Context context, boolean heavyEnrich) {
         long startTime = System.currentTimeMillis();
-        myLogD("enrich() START for: " + name);
+        myLogD("enrich() START (heavy=" + heavyEnrich + ") for: " + name);
 
         DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
         if (file == null)
             return;
 
-        myLogD("document file ok");
-        // Calculate fields
-        this.size = calculateSize(file);
-        myLogD("calculateSize ok");
-        this.originalHash = computeHash(context, uri);
-        myLogD("Hash ok");
+        if (!heavyEnrich) {
+            // FAST PHASE
+            myLogD("document file ok");
+            // Calculate fields
+            this.size = calculateSize(file);
+            myLogD("calculateSize ok");
+            this.originalHash = computeHash(context, uri);
+            myLogD("Hash ok");
 
-        if ("Folder".equals(sourceType)) {
-            this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
-            myLogD("checkFolderAlreadyImported ok");
-            this.tracksCount = calculateTrackCount(file);
-            myLogD("calculateTrackCount ok");
-            this.coverImagePath = detectCoverForFolder(context, file);
-            myLogD("detectCoverForFolder ok");
+            if ("Folder".equals(sourceType)) {
+                this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
+                myLogD("checkFolderAlreadyImported ok");
+                // Skipping heavy folder calcs for now or keeping them if they are fast enough?
+                // Folder scanning can be slow too, but let's stick to the plan for Zip first.
+                // For now, let's keep Folder logic as is or maybe split it too if needed.
+                // The user specifically mentioned Zip files.
+                // Let's keep existing synchronous logic for Folder for now to check regression
+                // risks,
+                // but we might want to move recursive counts to heavy.
 
-            // BookToAdd specifics
-            this.audioBookName = getBookName_with2folders(uri.getPath(), false);
-            myLogD("getBookName_with2folders ok");
-            this.multipleBooksCount = countRealEbookFilesRecursive(context, uri); // Using context overload
-            myLogD("countRealEbookFilesRecursive ok");
-            this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
-            myLogD("checkHasOnlyZipFilesInFolder ok");
+                // For safety and complying with "non-blocking" request, let's move heavy
+                // recursive counts to heavy phase for Folder too.
+
+                this.audioBookName = getBookName_with2folders(uri.getPath(), false);
+                myLogD("getBookName_with2folders ok");
+            } else {
+                this.existingBookName = checkHashExists(context, originalHash);
+                myLogD("checkHashExists ok");
+
+                // M4B and Audio File cover detection is usually fast (header read), but better
+                // safe than sorry.
+                // Ebook cover detection involves zip reading too (epub).
+
+                // BookToAdd specifics
+                // Reuse this.name instead of calling getFileName again
+                this.originalFile = this.name;
+                this.fileExtension = SupportedFilesHelper.getFileExtension(originalFile);
+                this.mimeType = SupportedFilesHelper.getMimeType(context, uri);
+                this.specialType = SupportedFilesHelper.getSpecialType(originalFile);
+
+                if (Objects.toString(fileExtension, "").isEmpty()) {
+                    this.isBroken = true;
+                }
+
+                this.audioBookName = Tonio.formatNameForDisplay(originalFile);
+
+                if (!SupportedFilesHelper.isBookSupported(originalFile)) {
+                    this.isMimeSupported = false;
+                }
+            }
+
+            trimAudioBookPrefix();
+
+            // Update selected state based on import status
+            if (this.existingBookName != null && !this.existingBookName.isEmpty()) {
+                this.selected = false;
+            }
+
+            // Extra info fields
+            this.sourceLocation = Tonio.getSourceLocation(context, uri);
+            this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
+            this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
+
+            if ("Folder".equals(sourceType)) {
+                this.playType = inferPlayTypeFromFolder(context, uri);
+                this.infoMimeExtension = "[" + "Folder" + "]";
+                this.infoMimeExtensionSmall = "init...";
+            } else {
+                this.playType = SupportedFilesHelper.getPlayType(name);
+                this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+                this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
+            }
         } else {
-            this.existingBookName = checkHashExists(context, originalHash);
-            myLogD("checkHashExists ok");
-            this.coverImagePath = detectCoverForFile(context, file, sourceType);
-            myLogD("detectCoverForFile ok");
-            this.tracksCount = 1;
-            if ("M4B".equals(sourceType)) {
-                this.tracksCount = calculateTrackCountForM4B(context, file);
-                myLogD("calculateTrackCountForM4B ok");
-            } else if ("Archive".equals(sourceType)) {
-                long zipStart = System.currentTimeMillis();
-                myLogD("[Archive] Starting calculateTrackCountForArchive...");
-                this.tracksCount = calculateTrackCountForArchive(context, file);
-                myLogD("[Archive] calculateTrackCountForArchive took: "
-                        + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
-            }
+            // HEAVY PHASE
+            if (Thread.currentThread().isInterrupted())
+                return;
 
-            // BookToAdd specifics
-            // Reuse this.name instead of calling getFileName again
-            this.originalFile = this.name;
-            this.fileExtension = SupportedFilesHelper.getFileExtension(originalFile);
-            this.mimeType = SupportedFilesHelper.getMimeType(context, uri);
-            this.specialType = SupportedFilesHelper.getSpecialType(originalFile);
+            if ("Folder".equals(sourceType)) {
+                this.tracksCount = calculateTrackCount(file);
+                myLogD("calculateTrackCount ok");
+                this.coverImagePath = detectCoverForFolder(context, file);
+                myLogD("detectCoverForFolder ok");
 
-            if (Objects.toString(fileExtension, "").isEmpty()) {
-                this.isBroken = true;
-            }
+                this.multipleBooksCount = countRealEbookFilesRecursive(context, uri);
+                myLogD("countRealEbookFilesRecursive ok");
+                this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
+                myLogD("checkHasOnlyZipFilesInFolder ok");
+            } else {
+                this.coverImagePath = detectCoverForFile(context, file, sourceType);
+                myLogD("detectCoverForFile ok");
+                this.tracksCount = 1;
 
-            this.audioBookName = Tonio.formatNameForDisplay(originalFile);
-
-            if (!SupportedFilesHelper.isBookSupported(originalFile)) {
-                this.isMimeSupported = false;
+                if ("M4B".equals(sourceType)) {
+                    this.tracksCount = calculateTrackCountForM4B(context, file);
+                    myLogD("calculateTrackCountForM4B ok");
+                } else if ("Archive".equals(sourceType)) {
+                    // OPTIMIZED ZIP SCANNING
+                    scanArchiveForCoverAndTracks(context, file);
+                }
             }
         }
 
-        trimAudioBookPrefix();
+        myLogD("enrich() TOTAL (heavy=" + heavyEnrich + "): " + (System.currentTimeMillis() - startTime) + "ms for: "
+                + name);
+    }
 
-        // Update selected state based on import status
-        if (this.existingBookName != null && !this.existingBookName.isEmpty()) {
-            this.selected = false;
-        }
+    private void scanArchiveForCoverAndTracks(Context context, DocumentFile archiveFile) {
+        long zipStart = System.currentTimeMillis();
+        myLogD("[Archive] Starting scanArchiveForCoverAndTracks...");
 
-        // Extra info fields
-        this.sourceLocation = Tonio.getSourceLocation(context, uri);
-        this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
-        this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
+        String fileName = safeName(archiveFile).toLowerCase();
+        String ext = getExt(fileName);
 
-        if ("Folder".equals(sourceType)) {
-            this.playType = inferPlayTypeFromFolder(context, uri);
-            this.infoMimeExtension = "[" + "Folder" + "]";
-            this.infoMimeExtensionSmall = "init...";
+        // For 7z and Tar, we stick to separate methods for now as they use different
+        // libraries/logic
+        // creating a unified scanner for all is complex.
+        // But for Zip (most common), we optimize.
+
+        if (ext.equals("7z")) {
+            this.tracksCount = calculateTrackCountFor7Z(context, archiveFile);
+            this.coverImagePath = detectCoverForZip(context, archiveFile); // separate for 7z? detectCoverForZip
+                                                                           // actually uses ZipInputStream so it fails
+                                                                           // for 7z usually?
+            // Logic in original code calls detectCoverForZip for "Archive" type, which uses
+            // ZipInputStream.
+            // If 7z is passed to ZipInputStream it might fail.
+            // Assuming existing logic was: calculateTrackCountForArchive delegates, but
+            // detectCoverForFile -> detectCoverForZip ONLY uses ZipInputStream.
+            // So 7z cover detection might not have been working or was relying on something
+            // else?
+            // Re-reading original `detectCoverForZip`: it opens
+            // `context.getContentResolver().openInputStream`.
+            // `detectCoverForFile` calls `detectCoverForZip` for "Archive".
+            // So actually, for 7z, the original code WAS calling `detectCoverForZip`.
+            // If `ZipInputStream` handles it (unlikely for 7z) ok, otherwise it returns
+            // null.
+            // So we just replicate that behavior but optimized for Zip.
+
+        } else if (ext.equals("tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
+                || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
+                || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
+            this.tracksCount = calculateTrackCountForTar(context, archiveFile);
+            this.coverImagePath = detectCoverForZip(context, archiveFile); // Same dubious logic as original
         } else {
-            this.playType = SupportedFilesHelper.getPlayType(name);
-            this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
-            this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
+            // Real Zip Optimization
+            scanZipCombined(context, archiveFile);
         }
 
-        myLogD("enrich() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
+        myLogD("[Archive] scanArchiveForCoverAndTracks took: "
+                + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
+    }
+
+    private void scanZipCombined(Context context, DocumentFile file) {
+        int trackCount = 0;
+        byte[] largestImage = null;
+        long largestSize = 0;
+
+        try {
+            java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
+            if (inputStream != null) {
+                try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream)) {
+                    java.util.zip.ZipEntry entry;
+                    while ((entry = zis.getNextEntry()) != null) {
+                        if (Thread.currentThread().isInterrupted()) {
+                            myLogD("scanZipCombined interrupted");
+                            return;
+                        }
+                        if (!entry.isDirectory()) {
+                            String entryName = entry.getName();
+                            String lowName = entryName.toLowerCase();
+
+                            // 1. Track Count
+                            if (isAudioFileName(entry.getName())) { // isAudioFileName uses getExt
+                                trackCount++;
+                            }
+
+                            // 2. Cover Detection
+                            if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
+                                    lowName.endsWith(".png") || lowName.endsWith(".webp")) {
+
+                                long size = entry.getSize();
+                                // If size is unknown (-1), we might need to read it to know size,
+                                // but reading every image might be slow if there are many.
+                                // Standard approach: read if looks like cover.
+                                // Using largest logic from original:
+
+                                // Original logic read ALL images to find largest.
+                                // We can do the same.
+
+                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                byte[] buffer = new byte[8192];
+                                int len;
+                                while ((len = zis.read(buffer)) > 0) {
+                                    baos.write(buffer, 0, len);
+                                }
+                                byte[] imageBytes = baos.toByteArray();
+                                if (imageBytes.length > largestSize) {
+                                    largestImage = imageBytes;
+                                    largestSize = imageBytes.length;
+                                }
+                            }
+                        }
+                        zis.closeEntry();
+                    }
+                }
+            }
+
+            this.tracksCount = trackCount;
+
+            if (largestImage != null) {
+                android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                        largestImage, 0, largestImage.length);
+                if (bitmap != null) {
+                    String suffix = "_" + file.getUri().hashCode();
+                    this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
+                }
+            }
+
+        } catch (Exception ignored) {
+            myLogEE(ignored, "Error scanning zip");
+        }
     }
 
     // --- BookToAdd specific helpers (ported) ---
@@ -868,6 +1017,7 @@ public class BookCandidate {
     }
 
     private void myLogD(String txt) {
-        if (LOG_DEBUG) KanLogger.myLogD(txt);
+        if (LOG_DEBUG)
+            KanLogger.myLogD(txt);
     }
 }

@@ -22,6 +22,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -234,6 +235,29 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
         });
 
+        // Observe loading status for ProgressBar
+        android.widget.ProgressBar progressBar = findViewById(R.id.loadingProgressBar);
+        viewModel.getLoadingStatus().observe(this, status -> {
+            if (status == 0) {
+                // Fast Init - Yellow
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setIndeterminate(true);
+                progressBar.getIndeterminateDrawable().setColorFilter(
+                        getResources().getColor(R.color.yellow, null),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+            } else if (status == 1) {
+                // Heavy Init - Light Green
+                progressBar.setVisibility(View.VISIBLE);
+                progressBar.setIndeterminate(true);
+                progressBar.getIndeterminateDrawable().setColorFilter(
+                        getResources().getColor(R.color.green_300, null),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+            } else {
+                // Done
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+
         // Start BookCandidate initialization
         viewModel.initializeBookCandidate(uri);
 
@@ -323,6 +347,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             // Disable immediately to prevent double taps
             btnConfirm.setEnabled(false);
+
+            // Cancel any ongoing heavy initialization
+            viewModel.cancelInitialization();
 
             // Get bookCandidate from ViewModel
             BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();

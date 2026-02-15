@@ -39,20 +39,68 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
      * Initialize BookCandidate from URI in background thread.
      * Result will be posted to bookCandidate LiveData.
      */
+    // 0 = Fast Init (Yellow), 1 = Heavy Init (Green), 2 = Done (Gone)
+    private final MutableLiveData<Integer> loadingStatus = new MutableLiveData<>(0);
+
+    // ...
+
+    /**
+     * Initialize BookCandidate from URI in background thread.
+     * Result will be posted to bookCandidate LiveData.
+     */
+    private java.util.concurrent.Future<?> loadingFuture;
+
+    /**
+     * Initialize BookCandidate from URI in background thread.
+     * Result will be posted to bookCandidate LiveData.
+     */
     public void initializeBookCandidate(Uri uri) {
         isLoading.postValue(true);
-        executorService.execute(() -> {
+        loadingStatus.postValue(0); // Yellow/Fast start
+
+        loadingFuture = executorService.submit(() -> {
             try {
+                // Phase 1: Fast Init
                 BookCandidate candidate = new BookCandidate(getApplication(), uri);
-                myLogD("BookCandidate is READY: " + candidate.name);
+                myLogD("BookCandidate FAST init DONE: " + candidate.name);
                 bookCandidate.postValue(candidate);
+
+                if (Thread.currentThread().isInterrupted())
+                    return;
+
+                // Signal Phase 2 start
+                loadingStatus.postValue(1); // Green/Heavy start
+
+                // Phase 2: Heavy Init
+                candidate.loadHeavyMetadata(getApplication());
+
+                if (Thread.currentThread().isInterrupted())
+                    return;
+
+                myLogD("BookCandidate HEAVY init DONE: " + candidate.name);
+                bookCandidate.postValue(candidate); // Post again with full data
+
                 isLoading.postValue(false);
+                loadingStatus.postValue(2); // Done
+
             } catch (Exception e) {
                 myLogEE(e, "Error initializing BookCandidate");
                 errorMessage.postValue("Error loading file: " + e.getMessage());
                 isLoading.postValue(false);
+                loadingStatus.postValue(2);
             }
         });
+    }
+
+    public void cancelInitialization() {
+        if (loadingFuture != null && !loadingFuture.isDone()) {
+            myLogD("Cancelling BookCandidate initialization");
+            loadingFuture.cancel(true); // Interrupt running thread
+        }
+    }
+
+    public LiveData<Integer> getLoadingStatus() {
+        return loadingStatus;
     }
 
     /**

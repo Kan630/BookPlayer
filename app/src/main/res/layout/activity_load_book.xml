@@ -10,6 +10,16 @@
         android:padding="16dp"
         >
 
+        <ProgressBar
+            android:id="@+id/loadingProgressBar"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:max="100"
+            android:visibility="visible"
+            android:layout_marginBottom="8dp"/>
+
         <!-- File name display -->
         <LinearLayout
             android:layout_width="match_parent"
