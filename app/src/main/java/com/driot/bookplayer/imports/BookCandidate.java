@@ -327,22 +327,12 @@ public class BookCandidate implements Parcelable {
             if (Thread.currentThread().isInterrupted())
                 return;
 
-            this.tracksCount = 1;
-
             if ("M4B".equals(sourceType)) {
-                this.coverImagePath = detectCoverForFile(context, file, sourceType);
-                myLogD("detectCoverForFile ok");
-                if (this.coverImagePath != null && listener != null) {
-                    listener.onCoverFound(this.coverImagePath);
-                }
-                this.tracksCount = calculateTrackCountForM4B(context, file);
-                // M4B chapters could be "tracks", but user asked for zip files mostly.
-                // We'll skip M4B track listing for now or implement later if requested.
-                myLogD("calculateTrackCountForM4B ok");
+                scanM4BCombined(context, file, listener);
             } else if ("Archive".equals(sourceType)) {
-                // OPTIMIZED ZIP SCANNING
-                scanArchiveForCoverAndTracks(context, file, listener);
+                scanArchiveCombined(context, file, listener);
             } else {
+                this.tracksCount = 1;
                 this.coverImagePath = detectCoverForFile(context, file, sourceType);
                 myLogD("detectCoverForFile ok");
                 if (this.coverImagePath != null && listener != null) {
@@ -357,35 +347,149 @@ public class BookCandidate implements Parcelable {
                 + name);
     }
 
-    private void scanArchiveForCoverAndTracks(Context context, DocumentFile archiveFile,
-            OnMetadataListener listener) {
-        long zipStart = System.currentTimeMillis();
-        myLogD("[Archive] Starting scanArchiveForCoverAndTracks...");
+    private void scanM4BCombined(Context context, DocumentFile file, OnMetadataListener listener) {
+        long startTime = System.currentTimeMillis();
+        myLogD("scanM4BCombined() START for: " + name);
+
+        try (android.os.ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(file.getUri(),
+                "r")) {
+            if (pfd != null) {
+                java.io.FileDescriptor fd = pfd.getFileDescriptor();
+
+                // 1. Cover Detection (MetadataRetriever supports FileDescriptor)
+                android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+                try {
+                    mmr.setDataSource(fd);
+                    com.driot.bookplayer.helpers.CoverPictureDetection.CoverDetectionResult result = com.driot.bookplayer.helpers.CoverPictureDetection
+                            .extractEmbeddedCover(mmr);
+
+                    if (result != null && result.bitmap != null) {
+                        String suffix = "_" + file.getUri().hashCode();
+                        this.coverImagePath = ImageHelper.saveTempBitmap(context, result.bitmap, suffix);
+                        if (this.coverImagePath != null && listener != null) {
+                            listener.onCoverFound(this.coverImagePath);
+                        }
+                    }
+                } finally {
+                    try {
+                        mmr.release();
+                    } catch (Exception ignored) {
+                    }
+                }
+
+                // 2. Track Count (mp4parser supports FileChannel/File)
+                // We use FileChannel from FileDescriptor to avoid temp file creation
+                try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(fd).getChannel()) {
+                    dataSource = new com.googlecode.mp4parser.FileDataSourceImpl(channel);
+                    Movie movie = MovieCreator.build(dataSource);
+                    Track chapterTrack = null;
+                    for (Track track : movie.getTracks()) {
+                        String handler = track.getHandler();
+                        if ("text".equals(handler) || "sbtl".equals(handler)) {
+                            chapterTrack = track;
+                            break;
+                        }
+                    }
+                    if (chapterTrack != null) {
+                        int chapterCount = chapterTrack.getSamples().size();
+                        this.tracksCount = chapterCount > 0 ? chapterCount : 1;
+                    } else {
+                        this.tracksCount = 1;
+                    }
+                } finally {
+                    if (dataSource != null) {
+                        try {
+                            dataSource.close();
+                        } catch (Exception ignored) {
+                        }
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error during combined M4B scan");
+            this.tracksCount = 1; // Fallback
+        }
+
+        myLogD("scanM4BCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. tracks=" + tracksCount);
+    }
+
+    private com.googlecode.mp4parser.DataSource dataSource; // Temporary helper for scanM4BCombined
+
+    private void scanArchiveCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
+        long startTime = System.currentTimeMillis();
+        myLogD("scanArchiveCombined() START for: " + name);
 
         String fileName = safeName(archiveFile).toLowerCase();
         String ext = getExt(fileName);
 
-        // For 7z and Tar, we stick to separate methods for now as they use different
-        // libraries/logic
-        // creating a unified scanner for all is complex.
-        // But for Zip (most common), we optimize.
-
         if (ext.equals("7z")) {
-            this.tracksCount = calculateTrackCountFor7Z(context, archiveFile);
-            this.coverImagePath = detectCoverForArchive(context, archiveFile);
-
+            scan7ZCombined(context, archiveFile, listener);
         } else if (ext.equals("tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
                 || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
                 || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
-            this.tracksCount = calculateTrackCountForTar(context, archiveFile);
-            this.coverImagePath = detectCoverForArchive(context, archiveFile); // Same dubious logic as original
+            scanTarCombined(context, archiveFile, listener);
         } else {
-            // Real Zip Optimization
+            // Real Zip Optimization (already combined)
             scanZipCombined(context, archiveFile, listener);
         }
 
-        myLogD("[Archive] scanArchiveForCoverAndTracks took: "
-                + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
+        myLogD("scanArchiveCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. tracks="
+                + this.tracksCount);
+    }
+
+    private void scan7ZCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
+        int count = 0;
+        try {
+            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
+                    .openFileDescriptor(archiveFile.getUri(), "r")) {
+                if (pfd != null) {
+                    try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
+                            pfd.getFileDescriptor()).getChannel()) {
+                        try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
+                                channel)) {
+                            org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
+                            while ((entry = sevenZFile.getNextEntry()) != null) {
+                                if (Thread.currentThread().isInterrupted())
+                                    return;
+                                if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
+                                    count++;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        this.tracksCount = count;
+        // 7z cover detection is separate and dubious (usually not embedded),
+        // we keep it as is if needed, but for now we focus on single pass for tracks.
+        // If 7z embedded cover is needed, it would require extracting each file to
+        // check metadata, which is slow.
+    }
+
+    private void scanTarCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
+        int count = 0;
+        try {
+            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
+            if (inputStream != null) {
+                try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
+                        java.io.InputStream cis = maybeWrapCompressor(bis);
+                        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+                                cis)) {
+                    org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+                    while ((entry = tis.getNextTarEntry()) != null) {
+                        if (Thread.currentThread().isInterrupted())
+                            return;
+                        if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
+                            count++;
+                        }
+                    }
+                }
+            }
+        } catch (Exception ignored) {
+        }
+        this.tracksCount = count;
     }
 
     private void scanZipCombined(Context context, DocumentFile file, OnMetadataListener listener) {
@@ -661,154 +765,56 @@ public class BookCandidate implements Parcelable {
         }
     }
 
-    private int calculateTrackCountForM4B(Context context, DocumentFile m4bFile) {
-        java.io.File tempFile = null;
+    private String detectCoverForArchive(Context context, DocumentFile file) {
         try {
-            String filePath = UriHelper.getPathFromUri(context, m4bFile.getUri());
-            if (filePath != null) {
-                java.io.File directFile = new java.io.File(filePath);
-                if (directFile.exists() && directFile.isFile()) {
-                    return countM4BChapters(directFile.getAbsolutePath());
-                }
-            }
-            tempFile = UriHelper.getFileFromUri(context, m4bFile.getUri());
-            if (tempFile != null && tempFile.exists()) {
-                int count = countM4BChapters(tempFile.getAbsolutePath());
-                if (tempFile.getParentFile() != null
-                        && tempFile.getParentFile().equals(context.getCacheDir())
-                        && (tempFile.getName().startsWith("uri_tmp_") || tempFile.getName().startsWith("uri_temp_"))) {
-                    try {
-                        tempFile.delete();
-                    } catch (Exception ignored) {
-                    }
-                }
-                return count;
-            }
-        } catch (Exception e) {
-            if (tempFile != null && tempFile.exists()) {
-                try {
-                    tempFile.delete();
-                } catch (Exception ignored) {
-                }
-            }
-        }
-        return 1;
-    }
-
-    private int countM4BChapters(String m4bFilePath) {
-        DataSource dataSource = null;
-        try {
-            dataSource = new FileDataSourceViaHeapImpl(m4bFilePath);
-            Movie movie = MovieCreator.build(dataSource);
-            Track chapterTrack = null;
-            for (Track track : movie.getTracks()) {
-                String handler = track.getHandler();
-                if ("text".equals(handler) || "sbtl".equals(handler)) {
-                    chapterTrack = track;
-                    break;
-                }
-            }
-            if (chapterTrack != null) {
-                int chapterCount = chapterTrack.getSamples().size();
-                return chapterCount > 0 ? chapterCount : 1;
-            }
-            return 1;
-        } catch (Exception e) {
-            return 1;
-        } finally {
-            if (dataSource != null) {
-                try {
-                    dataSource.close();
-                } catch (Exception ignored) {
-                }
-            }
-        }
-    }
-
-    private int calculateTrackCountForArchive(Context context, DocumentFile archiveFile) {
-        String fileName = safeName(archiveFile).toLowerCase();
-        String ext = getExt(fileName);
-        try {
-            if (ext.equals("7z")) {
-                return calculateTrackCountFor7Z(context, archiveFile);
-            } else if (ext.equals("tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
-                    || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
-                    || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
-                return calculateTrackCountForTar(context, archiveFile);
-            } else {
-                return calculateTrackCountForZip(context, archiveFile);
-            }
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private int calculateTrackCountForZip(Context context, DocumentFile archiveFile) {
-        int count = 0;
-        try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
+            java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
             if (inputStream != null) {
-                try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream)) {
-                    java.util.zip.ZipEntry entry;
-                    while ((entry = zis.getNextEntry()) != null) {
-                        if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
-                            myLogD("calculateTrackCountForZip : " + entry.getName());
-                            count++;
-                        }
-                        zis.closeEntry();
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
-        return count;
-    }
+                java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream);
+                java.util.zip.ZipEntry entry;
 
-    private int calculateTrackCountFor7Z(Context context, DocumentFile archiveFile) {
-        int count = 0;
-        try {
-            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
-                    .openFileDescriptor(archiveFile.getUri(), "r")) {
-                if (pfd != null) {
-                    try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
-                            pfd.getFileDescriptor()).getChannel()) {
-                        try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
-                                channel)) {
-                            org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
-                            while ((entry = sevenZFile.getNextEntry()) != null) {
-                                if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
-                                    count++;
+                byte[] largestImage = null;
+                long largestSize = 0;
+
+                while ((entry = zis.getNextEntry()) != null) {
+                    if (!entry.isDirectory()) {
+                        String entryName = entry.getName().toLowerCase();
+                        myLogD("detectCoverForZip : " + entryName);
+                        if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
+                                entryName.endsWith(".png") || entryName.endsWith(".webp")) {
+
+                            long size = entry.getSize();
+                            if (size > largestSize || (size == -1 && largestImage == null)) {
+                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                byte[] buffer = new byte[8192];
+                                int len;
+                                while ((len = zis.read(buffer)) > 0) {
+                                    baos.write(buffer, 0, len);
+                                }
+                                byte[] imageBytes = baos.toByteArray();
+                                if (imageBytes.length > largestSize) {
+                                    largestImage = imageBytes;
+                                    largestSize = imageBytes.length;
                                 }
                             }
+                            zis.closeEntry();
                         }
                     }
                 }
-            }
-        } catch (Exception ignored) {
-        }
-        return count;
-    }
+                zis.close();
 
-    private int calculateTrackCountForTar(Context context, DocumentFile archiveFile) {
-        int count = 0;
-        try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
-            if (inputStream != null) {
-                try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
-                        java.io.InputStream cis = maybeWrapCompressor(bis);
-                        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
-                                cis)) {
-                    org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
-                    while ((entry = tis.getNextTarEntry()) != null) {
-                        if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
-                            count++;
-                        }
+                if (largestImage != null) {
+                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                            largestImage, 0, largestImage.length);
+                    if (bitmap != null) {
+                        String suffix = "_" + file.getUri().hashCode();
+                        return ImageHelper.saveTempBitmap(context,
+                                bitmap, suffix);
                     }
                 }
             }
         } catch (Exception ignored) {
         }
-        return count;
+        return null;
     }
 
     private static java.io.InputStream maybeWrapCompressor(java.io.InputStream in)
@@ -991,60 +997,6 @@ public class BookCandidate implements Parcelable {
             }
         }
 
-        return null;
-    }
-
-    private String detectCoverForArchive(Context context, DocumentFile file) {
-        try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
-            if (inputStream != null) {
-                java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream);
-                java.util.zip.ZipEntry entry;
-
-                byte[] largestImage = null;
-                long largestSize = 0;
-                String largestName = null;
-
-                while ((entry = zis.getNextEntry()) != null) {
-                    if (!entry.isDirectory()) {
-                        String entryName = entry.getName().toLowerCase();
-                        myLogD("detectCoverForZip : " + entryName);
-                        if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
-                                entryName.endsWith(".png") || entryName.endsWith(".webp")) {
-
-                            long size = entry.getSize();
-                            if (size > largestSize || (size == -1 && largestImage == null)) {
-                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                byte[] buffer = new byte[8192];
-                                int len;
-                                while ((len = zis.read(buffer)) > 0) {
-                                    baos.write(buffer, 0, len);
-                                }
-                                byte[] imageBytes = baos.toByteArray();
-                                if (imageBytes.length > largestSize) {
-                                    largestImage = imageBytes;
-                                    largestSize = imageBytes.length;
-                                    largestName = entry.getName();
-                                }
-                            }
-                            zis.closeEntry();
-                        }
-                    }
-                }
-                zis.close();
-
-                if (largestImage != null) {
-                    android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                            largestImage, 0, largestImage.length);
-                    if (bitmap != null) {
-                        String suffix = "_" + file.getUri().hashCode();
-                        return ImageHelper.saveTempBitmap(context,
-                                bitmap, suffix);
-                    }
-                }
-            }
-        } catch (Exception ignored) {
-        }
         return null;
     }
 
