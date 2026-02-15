@@ -76,59 +76,15 @@ public class MassImportScanner extends LoggerHelper {
      */
     private void scanRecursive(DocumentFile root, List<BookCandidate> candidates,
             List<DocumentFile> deferredArchives) {
-        List<DocumentFile> folderCandidates = new ArrayList<>();
-        List<DocumentFile> fileCandidates = new ArrayList<>();
-        List<DocumentFile> zipFiles = new ArrayList<>();
+        List<BookCandidate> foundCandidates = new ArrayList<>();
 
         if (callback != null) {
             callback.onProgress("scanning", 0, 0, "Counting items...");
         }
 
-        collectCandidatesRecursive(root, folderCandidates, fileCandidates, zipFiles, new int[] { 0 });
+        collectCandidatesRecursive(root, foundCandidates, new int[] { 0 });
 
-        List<DocumentFile> processList = new ArrayList<>();
-        processList.addAll(folderCandidates);
-        processList.addAll(fileCandidates);
-        processList.addAll(zipFiles);
-
-        int total = processList.size();
-        int current = 0;
-
-        // Process folders
-        for (DocumentFile file : folderCandidates) {
-            if (isCancelled)
-                return;
-            current++;
-            callback.onProgress("scanning", current, total, safeName(file));
-            myLogD("--------------------------------------------------------");
-            myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
-            myLogD("--------------------------------------------------------");
-
-            String fileName = safeName(file);
-            BookCandidate candidate = new BookCandidate(context, file.getUri());
-            addCandidate(candidate, candidates);
-        }
-
-        // Process non-ZIP files (epub, m4b, etc.)
-        for (DocumentFile file : fileCandidates) {
-            if (isCancelled)
-                return;
-            current++;
-            callback.onProgress("scanning", current, total, safeName(file));
-            myLogD("--------------------------------------------------------");
-            myLog("Scanning File n°" + current + "/" + total + " : " + safeName(file));
-            myLogD("--------------------------------------------------------");
-
-            String type = detectBookType(file);
-            if (type != null) {
-                String fileName = safeName(file);
-                BookCandidate candidate = new BookCandidate(context, file.getUri());
-                addCandidate(candidate, candidates);
-            }
-        }
-
-        // Process deferred archives (ZIP, 7z, etc.)
-        processDeferredFiles(zipFiles, candidates, current, total);
+        candidates.addAll(foundCandidates);
     }
 
     /**
@@ -138,41 +94,38 @@ public class MassImportScanner extends LoggerHelper {
      * (zip, 7z) for deferred processing.
      */
     private void collectCandidatesRecursive(DocumentFile dir,
-            List<DocumentFile> folderCandidates, List<DocumentFile> fileCandidates,
-            List<DocumentFile> zipFiles, int[] count) {
+            List<BookCandidate> candidates, int[] count) {
         if (isCancelled)
             return;
         DocumentFile[] files = dir.listFiles();
         if (files == null)
             return;
 
-        // Update progress every now and then (or for every item if not too fast)
-        // For smoother UI, maybe every 10 items or just every item ?
-        // Let's report every item for "Counting... X"
-        // But to avoid flooding, maybe we can throttle in UI or here.
-        // For now, simple report.
-
         for (DocumentFile file : files) {
             if (isCancelled)
                 return;
 
             count[0]++;
-            //if (count[0] % 5 == 0 && callback != null) { // Report every 5 items to reduce spam
-                callback.onProgress("counting", count[0], 0, "");
-            //}
+            callback.onProgress("counting", count[0], 0, "");
+            myLogD("counting: " + count[0] + " : " + safeName(file));
+            myLogD("--------------------------------------------------------");
 
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
-                    folderCandidates.add(file);
+                    // It's a candidate folder
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), "Folder", -1);
+                    addCandidate(candidate, candidates);
                 } else {
-                    collectCandidatesRecursive(file, folderCandidates, fileCandidates, zipFiles, count);
+                    // Not a candidate folder, keep searching
+                    collectCandidatesRecursive(file, candidates, count);
                 }
             } else {
                 String type = detectBookType(file);
-                if ("Archive".equals(type)) {
-                    zipFiles.add(file);
-                } else if (type != null) {
-                    fileCandidates.add(file);
+                if (type != null) {
+                    // If it's an archive, we treat it as a container/candidate similarly
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), type,
+                            file.length());
+                    addCandidate(candidate, candidates);
                 }
             }
         }
@@ -184,6 +137,8 @@ public class MassImportScanner extends LoggerHelper {
     private void scanRootOnly(DocumentFile root, List<BookCandidate> candidates,
             List<DocumentFile> deferredArchives) {
         DocumentFile[] files = root.listFiles();
+        if (files == null)
+            return;
         int total = files.length;
         int current = 0;
 
@@ -191,66 +146,33 @@ public class MassImportScanner extends LoggerHelper {
             if (isCancelled)
                 break;
 
-            if (file.isDirectory()) {
-                current++;
-                callback.onProgress("scanning", current, total, safeName(file));
-                myLogD("--------------------------------------------------------");
-                myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
-                myLogD("--------------------------------------------------------");
+            current++;
+            callback.onProgress("counting", current, total, safeName(file));
+            myLogD("--------------------------------------------------------");
+            myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
+            myLogD("--------------------------------------------------------");
 
+
+            if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
-                    String fileName = safeName(file);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri());
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), "Folder", -1);
                     addCandidate(candidate, candidates);
                 }
             } else {
                 String type = detectBookType(file);
-                if ("Archive".equals(type)) {
-                    deferredArchives.add(file);
-                    callback.onProgress("scanning", current, total, "Deferring: " + safeName(file));
-                } else {
-                    current++;
-                    callback.onProgress("scanning", current, total, safeName(file));
-                    myLogD("--------------------------------------------------------");
-                    myLog("Scanning File n°" + current + "/" + total + " : " + safeName(file));
-                    myLogD("--------------------------------------------------------");
-
-                    if (type != null) {
-                        String fileName = safeName(file);
-                        BookCandidate candidate = new BookCandidate(context, file.getUri());
-                        addCandidate(candidate, candidates);
-                    }
+                if (type != null) {
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), type,
+                            file.length());
+                    addCandidate(candidate, candidates);
                 }
             }
         }
-        myLogD("--------------------------------------------------------");
-        processDeferredFiles(deferredArchives, candidates, current, total);
     }
 
-    // Process deferred archives at the end
+    // Process deferred archives at the end - DEPRECATED in new three-phase logic
     private void processDeferredFiles(List<DocumentFile> deferredArchives, List<BookCandidate> candidates,
             int currentCount, int totalItems) {
-        if (deferredArchives.isEmpty())
-            return;
-
-        for (DocumentFile file : deferredArchives) {
-            if (isCancelled)
-                return;
-
-            // Increment now that we are actually processing it
-            currentCount++;
-            String fileName = safeName(file);
-            callback.onProgress("scanning", currentCount, totalItems, "Processing archive: " + fileName);
-            myLogD("--------------------------------------------------------");
-            myLog("Scanning Bundle " + currentCount + "/" + totalItems + " : " + fileName);
-            myLogD("--------------------------------------------------------");
-
-            String type = detectBookType(file);
-            if (type != null) {
-                BookCandidate candidate = new BookCandidate(context, file.getUri());
-                addCandidate(candidate, candidates);
-            }
-        }
+        // No longer used in three-phase logic as everything is a candidate now
     }
 
     private void addCandidate(BookCandidate candidate, List<BookCandidate> list) {
@@ -264,35 +186,31 @@ public class MassImportScanner extends LoggerHelper {
             return;
 
         DocumentFile[] files = root.listFiles();
+        if (files == null)
+            return;
         int total = files.length;
         int count = 0;
-        List<DocumentFile> deferredArchives = new ArrayList<>();
 
         for (DocumentFile file : files) {
             if (isCancelled)
                 break;
             count++;
-            callback.onProgress("scanning", count, total, safeName(file));
+            callback.onProgress("counting", count, total, safeName(file));
 
             if (file.isDirectory()) {
-                // Check logic for folder
                 if (hasAnyAudioRecursive(file)) {
-                    String fileName = safeName(file);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri());
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), "Folder", -1);
                     addCandidate(candidate, candidates);
                 }
             } else {
                 String type = detectBookType(file);
-                if ("Archive".equals(type)) {
-                    deferredArchives.add(file);
-                } else if (type != null) {
-                    String fileName = safeName(file);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri());
+                if (type != null) {
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), type,
+                            file.length());
                     addCandidate(candidate, candidates);
                 }
             }
         }
-        processDeferredFiles(deferredArchives, candidates, count, total);
     }
 
     private String detectBookType(DocumentFile file) {

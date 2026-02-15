@@ -118,10 +118,6 @@ public class MassImportRepository {
 
         // Reset scanner cancelled state if reused? No, we create new one.
         scanner = new MassImportScanner(context, new MassImportScanner.Callback() {
-            private long[] lastUpdate = new long[] { 0 };
-            private List<BookCandidate> runningList = new ArrayList<>();
-            final long UPDATE_INTERVAL_MS = 250;
-
             @Override
             public void onProgress(String progressType, int current, int total, String currentPath) {
                 if (scanId != currentScanId)
@@ -145,43 +141,65 @@ public class MassImportRepository {
             public void onFound(BookCandidate candidate) {
                 if (scanId != currentScanId)
                     return;
-                runningList.add(candidate);
-                long now = System.currentTimeMillis();
-                if (now - lastUpdate[0] > UPDATE_INTERVAL_MS) {
-                    lastUpdate[0] = now;
-                    final List<BookCandidate> update = new java.util.ArrayList<>(runningList);
-                    if (scanId == currentScanId) {
-                        candidates.postValue(update);
-                    }
-                }
+                // Simplified: we'll post everything at the end of Phase 1 or throttle
+                // For Phase 1 (Scanning), we don't necessarily need to update the list live
+                // if it's very fast, but let's keep it responsive.
+                mainHandler.post(() -> {
+                    if (scanId != currentScanId)
+                        return;
+                    List<BookCandidate> currentList = candidates.getValue();
+                    if (currentList == null)
+                        currentList = new ArrayList<>();
+                    currentList.add(candidate);
+                    candidates.setValue(new ArrayList<>(currentList));
+                });
             }
         });
 
         executor.execute(() -> {
             boolean includeSubfolders = Option.getMassImportIncludeSubfolders();
             List<BookCandidate> result = scanner.scan(rootUri, includeSubfolders);
-            mainHandler.post(() -> {
-                // Robust cancellation check using scanId
-                if (scanId != currentScanId) {
-                    LoggerStaticHelper.myLogD("Scan result ignored because scanId mismatch (cancelled?)");
-                    return;
-                }
 
-                // Update scanning state FIRST so observers who check it (like candidates
-                // observer) see the correct state
+            if (scanId != currentScanId || result.isEmpty()) {
+                mainHandler.post(() -> {
+                    if (scanId == currentScanId) {
+                        isScanning.setValue(false);
+                        isScanFinished.setValue(true);
+                        loadingStatus.setValue(2);
+                        progressText.setValue("No books found.");
+                    }
+                });
+                return;
+            }
+
+            // PHASE 2: EASY ENRICHMENT
+            mainHandler.post(() -> {
+                progressText.setValue("Initializing " + result.size() + " books...");
+                progressTotal.setValue(result.size());
+            });
+
+            for (int i = 0; i < result.size(); i++) {
+                if (scanId != currentScanId)
+                    return;
+                BookCandidate c = result.get(i);
+                c.loadEasyMetadata(context);
+                int current = i + 1;
+                mainHandler.post(() -> {
+                    progressCurrent.setValue(current);
+                    candidates.setValue(result); // Refresh list for names/types
+                });
+            }
+
+            mainHandler.post(() -> {
+                // Update scanning state AFTER Easy Enrichment
                 isScanning.setValue(false);
-                candidates.setValue(result);
                 isScanFinished.setValue(true);
-                progressText.setValue("Scan complete. Found " + result.size() + " items.");
+                progressText.setValue("Found " + result.size() + " items.");
                 progressCurrent.setValue(0);
                 progressTotal.setValue(0);
 
-                if (result.isEmpty()) {
-                    loadingStatus.setValue(2); // Nothing to do
-                } else {
-                    // Start Heavy Load automatically
-                    startHeavyLoad(result, currentScanId);
-                }
+                // Start Phase 3: Heavy Load automatically
+                startHeavyLoad(result, currentScanId);
             });
         });
     }

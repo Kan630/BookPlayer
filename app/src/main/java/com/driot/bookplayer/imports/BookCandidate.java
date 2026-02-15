@@ -60,6 +60,8 @@ public class BookCandidate implements Parcelable {
     public boolean isMimeSupported = true;
     public boolean isHeavyLoaded = false;
     public boolean isCalculating = false; // UI state for heavy load progress
+    public boolean isEasyLoaded = false;
+    public boolean isSizeCalculated = false;
     public String audioBookName = "init..."; // formatted for display
     public int multipleBooksCount = 0;
     public boolean hasOnlyZipFilesInFolder = false;
@@ -96,6 +98,8 @@ public class BookCandidate implements Parcelable {
         isBroken = in.readByte() != 0;
         isMimeSupported = in.readByte() != 0;
         isHeavyLoaded = in.readByte() != 0;
+        isEasyLoaded = in.readByte() != 0;
+        isSizeCalculated = in.readByte() != 0;
         audioBookName = in.readString();
         multipleBooksCount = in.readInt();
         hasOnlyZipFilesInFolder = in.readByte() != 0;
@@ -127,6 +131,8 @@ public class BookCandidate implements Parcelable {
         dest.writeByte((byte) (isBroken ? 1 : 0));
         dest.writeByte((byte) (isMimeSupported ? 1 : 0));
         dest.writeByte((byte) (isHeavyLoaded ? 1 : 0));
+        dest.writeByte((byte) (isEasyLoaded ? 1 : 0));
+        dest.writeByte((byte) (isSizeCalculated ? 1 : 0));
         dest.writeString(audioBookName);
         dest.writeInt(multipleBooksCount);
         dest.writeByte((byte) (hasOnlyZipFilesInFolder ? 1 : 0));
@@ -172,6 +178,39 @@ public class BookCandidate implements Parcelable {
             }
         }
 
+        initializeTypes();
+
+        this.path = this.name; // Default path
+        this.selected = true;
+
+        if (this.sourceType == null)
+            throw new RuntimeException("constructor : sourceType is null");
+
+        // Legacy: synchronous load for backward compatibility?
+        // Let's keep it but ideally we should move away from it.
+        loadEasyMetadata(context);
+    }
+
+    /**
+     * Lightweight constructor for MassImportScanner.
+     * Identification phase only.
+     */
+    public BookCandidate(Context context, Uri uri, String name, String sourceType, long size) {
+        this.uri = uri;
+        this.name = name;
+        this.sourceType = sourceType;
+        this.size = size;
+        if (size >= 0) {
+            this.isSizeCalculated = true;
+        }
+
+        initializeTypes();
+
+        this.path = this.name;
+        this.selected = true;
+    }
+
+    private void initializeTypes() {
         // Map SupportedFilesHelper types to BookCandidate legacy types
         // ("audio" → "Audio File", "bundle" → "Archive", etc.)
         if (!"Folder".equals(this.sourceType)) {
@@ -187,14 +226,6 @@ public class BookCandidate implements Parcelable {
                 this.sourceType = "Audio File";
             }
         }
-
-        this.path = this.name; // Default path
-        this.selected = true;
-
-        if (this.sourceType == null)
-            throw new RuntimeException("constructor : sourceType is null");
-
-        enrich(context, false); // Default to fast enrichment
     }
 
     /**
@@ -202,106 +233,86 @@ public class BookCandidate implements Parcelable {
      * Call this from a background thread after the initial fast load.
      */
     public void loadHeavyMetadata(Context context) {
-        enrich(context, true);
+        loadHeavyMetadata(context, null);
     }
 
-    private void enrich(Context context, boolean heavyEnrich) {
+    public void loadEasyMetadata(Context context) {
+        if (isEasyLoaded)
+            return;
+
         long startTime = System.currentTimeMillis();
-        myLogD("enrich() START (heavy=" + heavyEnrich + ") for: " + name);
+        myLogD("loadEasyMetadata() START for: " + name);
 
         DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
         if (file == null)
             return;
 
-        if (!heavyEnrich) {
-            // FAST PHASE
-            myLogD("document file ok");
-            // Calculate fields
-            // Calculate fields
-            // this.size = calculateSize(file); // Moved to individual blocks (deferred for
-            // Folder)
-            myLogD("calculateSize ok");
-            this.originalHash = computeHash(context, uri);
-            myLogD("Hash ok");
+        myLogD("document file ok");
+        // Calculate fields
+        this.originalHash = computeHash(context, uri);
+        myLogD("Hash ok");
 
-            if ("Folder".equals(sourceType)) {
+        if ("Folder".equals(sourceType)) {
+            if (!isSizeCalculated) {
                 this.size = -1; // Defer calculation to heavy phase
-                this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
-                myLogD("checkFolderAlreadyImported ok");
-                // Skipping heavy folder calcs for now or keeping them if they are fast enough?
-                // Folder scanning can be slow too, but let's stick to the plan for Zip first.
-                // For now, let's keep Folder logic as is or maybe split it too if needed.
-                // The user specifically mentioned Zip files.
-                // Let's keep existing synchronous logic for Folder for now to check regression
-                // risks,
-                // but we might want to move recursive counts to heavy.
-
-                // For safety and complying with "non-blocking" request, let's move heavy
-                // recursive counts to heavy phase for Folder too.
-
-                this.audioBookName = getBookName_with2folders(uri.getPath(), false);
-                myLogD("getBookName_with2folders ok");
-            } else {
-                // Calculate fields (files are fast)
-                this.size = file.length();
-                myLogD("calculateSize ok");
-
-                this.existingBookName = checkHashExists(context, originalHash);
-                myLogD("checkHashExists ok");
-
-                // M4B and Audio File cover detection is usually fast (header read), but better
-                // safe than sorry.
-                // Ebook cover detection involves zip reading too (epub).
-
-                // BookToAdd specifics
-                // Reuse this.name instead of calling getFileName again
-                this.originalFile = this.name;
-                this.fileExtension = SupportedFilesHelper.getFileExtension(originalFile);
-                this.mimeType = SupportedFilesHelper.getMimeType(context, uri);
-                this.specialType = SupportedFilesHelper.getSpecialType(originalFile);
-
-                if (Objects.toString(fileExtension, "").isEmpty()) {
-                    this.isBroken = true;
-                }
-
-                this.audioBookName = Tonio.formatNameForDisplay(originalFile);
-
-                if (!SupportedFilesHelper.isBookSupported(originalFile)) {
-                    this.isMimeSupported = false;
-                }
             }
+            this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
+            myLogD("checkFolderAlreadyImported ok");
 
-            trimAudioBookPrefix();
-
-            // Update selected state based on import status
-            if (this.existingBookName != null && !this.existingBookName.isEmpty()) {
-                this.selected = false;
-            }
-
-            // Extra info fields
-            this.sourceLocation = Tonio.getSourceLocation(context, uri);
-            this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
-            this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
-
-            if ("Folder".equals(sourceType)) {
-                // this.playType = inferPlayTypeFromFolder(context, uri); // Moved to heavy
-                // phase
-                this.infoMimeExtension = "[" + "Folder" + "]";
-                this.infoMimeExtensionSmall = "init...";
-            } else {
-                this.playType = SupportedFilesHelper.getPlayType(name);
-                this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
-                this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
-            }
+            this.audioBookName = getBookName_with2folders(uri.getPath(), false);
+            myLogD("getBookName_with2folders ok");
         } else {
-            // HEAVY PHASE
-            if (Thread.currentThread().isInterrupted())
-                return;
-            loadHeavyMetadata(context, null);
+            // Calculate fields (files are fast)
+            if (!isSizeCalculated) {
+                this.size = file.length();
+                this.isSizeCalculated = true;
+            }
+            myLogD("calculateSize ok");
+
+            this.existingBookName = checkHashExists(context, originalHash);
+            myLogD("checkHashExists ok");
+
+            // BookToAdd specifics
+            // Reuse this.name instead of calling getFileName again
+            this.originalFile = this.name;
+            this.fileExtension = SupportedFilesHelper.getFileExtension(originalFile);
+            this.mimeType = SupportedFilesHelper.getMimeType(context, uri);
+            this.specialType = SupportedFilesHelper.getSpecialType(originalFile);
+
+            if (Objects.toString(fileExtension, "").isEmpty()) {
+                this.isBroken = true;
+            }
+
+            this.audioBookName = Tonio.formatNameForDisplay(originalFile);
+
+            if (!SupportedFilesHelper.isBookSupported(originalFile)) {
+                this.isMimeSupported = false;
+            }
         }
 
-        myLogD("enrich() TOTAL (heavy=" + heavyEnrich + "): " + (System.currentTimeMillis() - startTime) + "ms for: "
-                + name);
+        trimAudioBookPrefix();
+
+        // Update selected state based on import status
+        if (this.existingBookName != null && !this.existingBookName.isEmpty()) {
+            this.selected = false;
+        }
+
+        // Extra info fields
+        this.sourceLocation = Tonio.getSourceLocation(context, uri);
+        this.infoSourceLocation = context.getString(R.string.Location) + ": [" + this.sourceLocation + "]";
+        this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
+
+        if ("Folder".equals(sourceType)) {
+            this.infoMimeExtension = "[" + "Folder" + "]";
+            this.infoMimeExtensionSmall = "init...";
+        } else {
+            this.playType = SupportedFilesHelper.getPlayType(name);
+            this.infoMimeExtension = "[" + specialType + "] :    [" + mimeType + "] - [." + fileExtension + "]";
+            this.infoMimeExtensionSmall = "[" + mimeType + "] - [." + fileExtension + "]";
+        }
+
+        isEasyLoaded = true;
+        myLogD("loadEasyMetadata() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
     }
 
     /**
