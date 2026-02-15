@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +47,9 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
     private LinearLayout llSdCardStorage;
     private LinearLayout llStorageSection;
     private TextView tvSelectedSummary;
+
+    private ProgressBar progressBarStep1, progressBarStep2;
+    private TextView tvProgressStatusStep1, tvProgressStatusStep2;
 
     @Override
     protected int getNavId() {
@@ -163,6 +167,11 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         llSdCardStorage = findViewById(R.id.llSdCardStorage);
         llStorageSection = findViewById(R.id.llStorageSection);
         tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
+
+        progressBarStep1 = findViewById(R.id.loadingProgressBarStep1);
+        tvProgressStatusStep1 = findViewById(R.id.tvProgressStatusStep1);
+        progressBarStep2 = findViewById(R.id.loadingProgressBarStep2);
+        tvProgressStatusStep2 = findViewById(R.id.tvProgressStatusStep2);
 
         // Storage section visible only when "Display Storage Bar" is enabled in
         // Settings > Massive Import
@@ -287,6 +296,43 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
         viewModel.getProgressText().observe(this, text -> {
             tvProgress.setText(text);
+        });
+
+        viewModel.getLoadingStatus().observe(this, status -> {
+            if (status == 0) {
+                llScanning.setVisibility(View.VISIBLE);
+                progressBarStep2.setVisibility(View.GONE);
+                tvProgressStatusStep2.setVisibility(View.GONE);
+
+                // Phase 1: Scanning - Yellow
+                progressBarStep1.setVisibility(View.VISIBLE);
+                progressBarStep1.setIndeterminate(true);
+                progressBarStep1.getIndeterminateDrawable().setColorFilter(
+                        getResources().getColor(R.color.yellow, null),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+
+                tvProgressStatusStep1.setVisibility(View.VISIBLE);
+                tvProgressStatusStep1.setTextColor(getResources().getColor(R.color.yellow, null));
+
+            } else if (status == 1) {
+                llScanning.setVisibility(View.VISIBLE);
+                progressBarStep1.setVisibility(View.GONE);
+                tvProgressStatusStep1.setVisibility(View.GONE);
+
+                // Phase 2: Heavy Load - Green
+                progressBarStep2.setVisibility(View.VISIBLE);
+                progressBarStep2.setIndeterminate(true);
+                progressBarStep2.getIndeterminateDrawable().setColorFilter(
+                        getResources().getColor(R.color.green_300, null),
+                        android.graphics.PorterDuff.Mode.SRC_IN);
+
+                tvProgressStatusStep2.setVisibility(View.VISIBLE);
+                tvProgressStatusStep2.setTextColor(getResources().getColor(R.color.green_300, null));
+
+            } else {
+                // Done
+                llScanning.setVisibility(View.GONE);
+            }
         });
 
         viewModel.getCandidates().observe(this, candidates -> {

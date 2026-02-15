@@ -42,19 +42,54 @@
         android:visibility="gone"
         tools:visibility="visible">
 
+        <ProgressBar
+            android:id="@+id/loadingProgressBarStep1"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:max="100"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvProgressStatusStep1"
+            style="@style/simpleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_step_1"
+            android:textColor="@color/yellow"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"/>
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBarStep2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:max="100"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvProgressStatusStep2"
+            style="@style/simpleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/loading_step_2"
+            android:textColor="@color/green_300"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"/>
+
         <TextView
             android:id="@+id/tvMassImportProgress"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Scanning..."
+            android:gravity="center"
+            android:textSize="11sp"
             android:layout_marginBottom="8dp"/>
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            style="?android:attr/progressBarStyleHorizontal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:indeterminate="true" />
     </LinearLayout>
 
     <!-- Storage Section (below scanning, above list; shown immediately from cache) -->

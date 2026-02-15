@@ -35,6 +35,8 @@ public class MassImportRepository {
     private final MutableLiveData<String> progressText = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isScanning = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isScanFinished = new MutableLiveData<>(false);
+    // 0 = Scanning (Yellow), 1 = Heavy Loading (Green), 2 = Done (Gone)
+    private final MutableLiveData<Integer> loadingStatus = new MutableLiveData<>(2);
 
     // Additional state for UI (optional, helpful for OngoingTaskUiState)
     private final MutableLiveData<Integer> progressCurrent = new MutableLiveData<>(0);
@@ -72,6 +74,10 @@ public class MassImportRepository {
         return isScanFinished;
     }
 
+    public LiveData<Integer> getLoadingStatus() {
+        return loadingStatus;
+    }
+
     public boolean hasResults() {
         return candidates.getValue() != null && !candidates.getValue().isEmpty();
     }
@@ -101,6 +107,7 @@ public class MassImportRepository {
 
         isScanning.setValue(true);
         isScanFinished.setValue(false);
+        loadingStatus.setValue(0); // Scanning phase
         progressText.setValue("Initializing scan...");
         progressCurrent.setValue(0);
         progressTotal.setValue(0);
@@ -169,8 +176,12 @@ public class MassImportRepository {
                 progressCurrent.setValue(0);
                 progressTotal.setValue(0);
 
-                // Start Heavy Load automatically
-                startHeavyLoad(result, currentScanId);
+                if (result.isEmpty()) {
+                    loadingStatus.setValue(2); // Nothing to do
+                } else {
+                    // Start Heavy Load automatically
+                    startHeavyLoad(result, currentScanId);
+                }
             });
         });
     }
@@ -180,6 +191,7 @@ public class MassImportRepository {
             return;
 
         LoggerStaticHelper.myLogD("Repository: Starting Heavy Load for " + candidates.size() + " candidates.");
+        loadingStatus.postValue(1); // Heavy Loading phase
 
         // Use the single-thread repository executor for sequential processing
         executor.execute(() -> {
@@ -257,6 +269,7 @@ public class MassImportRepository {
             // Final update/log
             mainHandler.post(() -> {
                 if (scanId == processingScanId) {
+                    loadingStatus.setValue(2); // Done
                     LoggerStaticHelper.myLogD("Repository: Heavy Load Complete.");
                 }
             });
@@ -270,6 +283,7 @@ public class MassImportRepository {
         }
         isScanning.setValue(false);
         isScanFinished.setValue(false);
+        loadingStatus.setValue(2);
         candidates.setValue(Collections.emptyList());
 
         // Clean up temp images
@@ -281,6 +295,7 @@ public class MassImportRepository {
     public void consumeScanState() {
         isScanning.setValue(false);
         isScanFinished.setValue(false);
+        loadingStatus.setValue(2);
         candidates.setValue(Collections.emptyList());
         // Do NOT delete temp images here, they are needed for import
     }
