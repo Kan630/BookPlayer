@@ -408,8 +408,18 @@ public class BookCandidate implements Parcelable {
                         }
                     }
                     if (chapterTrack != null) {
-                        int chapterCount = chapterTrack.getSamples().size();
+                        java.util.List<com.googlecode.mp4parser.authoring.Sample> samples = chapterTrack.getSamples();
+                        int chapterCount = samples.size();
                         this.tracksCount = chapterCount > 0 ? chapterCount : 1;
+
+                        for (int i = 0; i < chapterCount; i++) {
+                            String title = extractCleanChapterTitle(samples.get(i));
+                            String tName = (i + 1) + ". " + title;
+                            trackList.add(tName);
+                            if (listener != null) {
+                                listener.onTrackFound(tName);
+                            }
+                        }
                     } else {
                         this.tracksCount = 1;
                     }
@@ -478,6 +488,14 @@ public class BookCandidate implements Parcelable {
                                 // 1. Track count
                                 if (isAudioFileName(entryName)) {
                                     count++;
+                                    String fileNameOnly = new java.io.File(entryName).getName();
+                                    String displayName = com.driot.bookplayer.utils.Tonio
+                                            .formatNameForDisplay(fileNameOnly);
+                                    String tName = count + ". " + displayName;
+                                    trackList.add(tName);
+                                    if (listener != null) {
+                                        listener.onTrackFound(tName);
+                                    }
                                 }
 
                                 // 2. Cover detection
@@ -545,6 +563,13 @@ public class BookCandidate implements Parcelable {
                         // 1. Track counting
                         if (isAudioFileName(entryName)) {
                             count++;
+                            String fileNameOnly = new java.io.File(entryName).getName();
+                            String displayName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(fileNameOnly);
+                            String tName = count + ". " + displayName;
+                            trackList.add(tName);
+                            if (listener != null) {
+                                listener.onTrackFound(tName);
+                            }
                         }
 
                         // 2. Cover detection
@@ -1119,5 +1144,20 @@ public class BookCandidate implements Parcelable {
     private void myLogD(String txt) {
         if (LOG_DEBUG)
             KanLogger.myLogD(txt);
+    }
+
+    private String extractCleanChapterTitle(com.googlecode.mp4parser.authoring.Sample sample) {
+        java.nio.ByteBuffer buffer = sample.asByteBuffer();
+        byte[] data = new byte[buffer.remaining()];
+        buffer.get(data);
+        if (data.length < 2)
+            return "chapter";
+        String raw = new String(java.util.Arrays.copyOfRange(data, 2, data.length),
+                java.nio.charset.StandardCharsets.UTF_8);
+        raw = raw.replaceAll("encd.*$", "")
+                .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")
+                .replace("\uFEFF", "")
+                .trim();
+        return raw.isEmpty() ? "chapter" : raw;
     }
 }
