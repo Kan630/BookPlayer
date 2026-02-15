@@ -237,6 +237,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         // Observe loading status for ProgressBar
         android.widget.ProgressBar progressBar = findViewById(R.id.loadingProgressBar);
+        TextView tvProgressStatus = findViewById(R.id.tvProgressStatus);
+
         viewModel.getLoadingStatus().observe(this, status -> {
             if (status == 0) {
                 // Fast Init - Yellow
@@ -245,6 +247,11 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 progressBar.getIndeterminateDrawable().setColorFilter(
                         getResources().getColor(R.color.yellow, null),
                         android.graphics.PorterDuff.Mode.SRC_IN);
+
+                tvProgressStatus.setVisibility(View.VISIBLE);
+                tvProgressStatus.setText(R.string.loading_step_1);
+                tvProgressStatus.setTextColor(getResources().getColor(R.color.yellow, null));
+
             } else if (status == 1) {
                 // Heavy Init - Light Green
                 progressBar.setVisibility(View.VISIBLE);
@@ -252,9 +259,15 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 progressBar.getIndeterminateDrawable().setColorFilter(
                         getResources().getColor(R.color.green_300, null),
                         android.graphics.PorterDuff.Mode.SRC_IN);
+
+                tvProgressStatus.setVisibility(View.VISIBLE);
+                tvProgressStatus.setText(R.string.loading_step_2);
+                tvProgressStatus.setTextColor(getResources().getColor(R.color.green_300, null));
+
             } else {
                 // Done
                 progressBar.setVisibility(View.GONE);
+                tvProgressStatus.setVisibility(View.GONE);
             }
         });
 

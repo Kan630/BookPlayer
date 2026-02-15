@@ -18,6 +18,18 @@
             android:indeterminate="true"
             android:max="100"
             android:visibility="visible"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvProgressStatus"
+            style="@style/simpleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/loading"
+            android:textColor="@color/yellow"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:visibility="gone"
             android:layout_marginBottom="8dp"/>
 
         <!-- File name display -->

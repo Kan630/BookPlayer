@@ -135,6 +135,8 @@
     <string name="links">links</string>
     <string name="listened">"listened"</string>
     <string name="loading">loading</string>
+    <string name="loading_step_1">initializing...</string>
+    <string name="loading_step_2">scanning tracks and cover... You can proceed.</string>
     <string name="Location">Location</string> //for values such as sdcard, cloud or internal storage
     <string name="Logging">Logging</string>
     <string name="manual">manual</string>

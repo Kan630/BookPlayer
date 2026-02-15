@@ -30,8 +30,6 @@ import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import java.util.Locale;
 import java.util.Objects;
 
-import com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
-
 public class BookCandidate {
     private boolean LOG_DEBUG = true;
 
@@ -212,16 +210,19 @@ public class BookCandidate {
                 this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
                 myLogD("checkHasOnlyZipFilesInFolder ok");
             } else {
-                this.coverImagePath = detectCoverForFile(context, file, sourceType);
-                myLogD("detectCoverForFile ok");
                 this.tracksCount = 1;
 
                 if ("M4B".equals(sourceType)) {
+                    this.coverImagePath = detectCoverForFile(context, file, sourceType);
+                    myLogD("detectCoverForFile ok");
                     this.tracksCount = calculateTrackCountForM4B(context, file);
                     myLogD("calculateTrackCountForM4B ok");
                 } else if ("Archive".equals(sourceType)) {
                     // OPTIMIZED ZIP SCANNING
                     scanArchiveForCoverAndTracks(context, file);
+                } else {
+                    this.coverImagePath = detectCoverForFile(context, file, sourceType);
+                    myLogD("detectCoverForFile ok");
                 }
             }
         }
@@ -244,29 +245,13 @@ public class BookCandidate {
 
         if (ext.equals("7z")) {
             this.tracksCount = calculateTrackCountFor7Z(context, archiveFile);
-            this.coverImagePath = detectCoverForZip(context, archiveFile); // separate for 7z? detectCoverForZip
-                                                                           // actually uses ZipInputStream so it fails
-                                                                           // for 7z usually?
-            // Logic in original code calls detectCoverForZip for "Archive" type, which uses
-            // ZipInputStream.
-            // If 7z is passed to ZipInputStream it might fail.
-            // Assuming existing logic was: calculateTrackCountForArchive delegates, but
-            // detectCoverForFile -> detectCoverForZip ONLY uses ZipInputStream.
-            // So 7z cover detection might not have been working or was relying on something
-            // else?
-            // Re-reading original `detectCoverForZip`: it opens
-            // `context.getContentResolver().openInputStream`.
-            // `detectCoverForFile` calls `detectCoverForZip` for "Archive".
-            // So actually, for 7z, the original code WAS calling `detectCoverForZip`.
-            // If `ZipInputStream` handles it (unlikely for 7z) ok, otherwise it returns
-            // null.
-            // So we just replicate that behavior but optimized for Zip.
+            this.coverImagePath = detectCoverForArchive(context, archiveFile);
 
         } else if (ext.equals("tar") || fileName.endsWith(".tgz") || fileName.endsWith(".tar.gz")
                 || fileName.endsWith(".tbz2") || fileName.endsWith(".tar.bz2")
                 || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
             this.tracksCount = calculateTrackCountForTar(context, archiveFile);
-            this.coverImagePath = detectCoverForZip(context, archiveFile); // Same dubious logic as original
+            this.coverImagePath = detectCoverForArchive(context, archiveFile); // Same dubious logic as original
         } else {
             // Real Zip Optimization
             scanZipCombined(context, archiveFile);
@@ -881,7 +866,7 @@ public class BookCandidate {
 
         if ("Archive".equals(type)) {
             try {
-                return detectCoverForZip(context, file);
+                return detectCoverForArchive(context, file);
             } catch (Exception ignored) {
             }
         }
@@ -889,7 +874,7 @@ public class BookCandidate {
         return null;
     }
 
-    private String detectCoverForZip(Context context, DocumentFile file) {
+    private String detectCoverForArchive(Context context, DocumentFile file) {
         try {
             java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
             if (inputStream != null) {
