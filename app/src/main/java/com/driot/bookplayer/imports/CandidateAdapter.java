@@ -88,8 +88,16 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
                 tracksPart = " - counting... " + count + " tracks";
             }
         }
+
+        String sizeStr;
+        if (item.size == -1) {
+            sizeStr = "calculating size..."; // Pending size
+        } else {
+            sizeStr = Tonio.getReadableSize(item.size);
+        }
+
         String txtInfo = item.sourceType
-                + " - " + Tonio.getReadableSize(item.size)
+                + " - " + sizeStr
                 + tracksPart
                 + "\n" + item.path;
 

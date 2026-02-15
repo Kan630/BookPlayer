@@ -214,12 +214,15 @@ public class BookCandidate implements Parcelable {
             // FAST PHASE
             myLogD("document file ok");
             // Calculate fields
-            this.size = calculateSize(file);
+            // Calculate fields
+            // this.size = calculateSize(file); // Moved to individual blocks (deferred for
+            // Folder)
             myLogD("calculateSize ok");
             this.originalHash = computeHash(context, uri);
             myLogD("Hash ok");
 
             if ("Folder".equals(sourceType)) {
+                this.size = -1; // Defer calculation to heavy phase
                 this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
                 myLogD("checkFolderAlreadyImported ok");
                 // Skipping heavy folder calcs for now or keeping them if they are fast enough?
@@ -236,6 +239,10 @@ public class BookCandidate implements Parcelable {
                 this.audioBookName = getBookName_with2folders(uri.getPath(), false);
                 myLogD("getBookName_with2folders ok");
             } else {
+                // Calculate fields (files are fast)
+                this.size = calculateSize(file);
+                myLogD("calculateSize ok");
+
                 this.existingBookName = checkHashExists(context, originalHash);
                 myLogD("checkHashExists ok");
 
@@ -311,6 +318,12 @@ public class BookCandidate implements Parcelable {
                 return;
 
             if ("Folder".equals(sourceType)) {
+                // Calculate size if deferred
+                if (this.size == -1) {
+                    this.size = calculateSize(file);
+                    myLogD("calculateSize (heavy) ok");
+                }
+
                 this.tracksCount = calculateTrackCount(file, listener);
                 // TODO: scan folder tracks for listener?
                 myLogD("calculateTrackCount ok");

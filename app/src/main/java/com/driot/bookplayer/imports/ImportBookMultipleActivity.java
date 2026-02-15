@@ -223,7 +223,9 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         for (BookCandidate c : items) {
             if (c.isSelected() && !c.isAlreadyImported()) {
                 selectedCount++;
-                selectedSize += c.size;
+                if (c.size > 0) {
+                    selectedSize += c.size;
+                }
             }
         }
         String sizeStr = com.driot.bookplayer.utils.Tonio.getReadableSize(selectedSize);
@@ -240,7 +242,9 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         long expectedSize = 0;
         for (BookCandidate c : candidates) {
             if (c.isSelected() && !c.isAlreadyImported() && !"Folder".equals(c.sourceType)) {
-                expectedSize += c.size;
+                if (c.size > 0) {
+                    expectedSize += c.size;
+                }
             }
         }
 
@@ -293,7 +297,9 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
             for (BookCandidate c : candidates) {
                 if (!c.isAlreadyImported()) {
                     importableCandidates.add(c);
-                    totalSize += c.size;
+                    if (c.size > 0) {
+                        totalSize += c.size;
+                    }
                 }
             }
 
