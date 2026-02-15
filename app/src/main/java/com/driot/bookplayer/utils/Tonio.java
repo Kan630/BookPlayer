@@ -363,7 +363,7 @@ public class Tonio {
             myLogE("getSourceLocation - empty uri");
             return "xxx";
         }
-        //myLogD("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
+        // myLogD("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
         if (!Objects.isNull(uri) && !Objects.isNull(uri.getAuthority())) {
             String uriAuthority = uri.getAuthority();
             Set<String> cloudAuthorities = new HashSet<>();
@@ -468,7 +468,7 @@ public class Tonio {
     }
 
     public static long getFolderSize(String folderName) {
-        //myLog("getFolderSize for [" + folderName + "]  (from path)");
+        // myLog("getFolderSize for [" + folderName + "] (from path)");
         return getFolderSize(new File(folderName));
     }
 
@@ -644,4 +644,7 @@ public class Tonio {
         return parent != null ? parent : "";
     }
 
+    public static float dpToPx(float dp, Context context) {
+        return dp * context.getResources().getDisplayMetrics().density;
+    }
 }

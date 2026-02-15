@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
 import androidx.recyclerview.widget.RecyclerView;
+import com.google.android.material.card.MaterialCardView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
@@ -105,6 +106,13 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
         holder.tvType.setText(txtInfo);
 
+        // Highlight active calculation with a green border
+        if (item.isCalculating) {
+            holder.cvRoot.setStrokeWidth((int) Tonio.dpToPx(2, holder.itemView.getContext()));
+        } else {
+            holder.cvRoot.setStrokeWidth(0);
+        }
+
         // Load cover image if available
         if (item.coverImagePath != null && !item.coverImagePath.isEmpty()) {
             Glide.with(holder.itemView.getContext())
@@ -183,6 +191,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         ImageView ivCover;
         ImageView ivTypeIcon;
         MaterialCheckBox cbSelect;
+        MaterialCardView cvRoot;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -192,6 +201,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             ivCover = itemView.findViewById(R.id.ivCover);
             ivTypeIcon = itemView.findViewById(R.id.ivTypeIcon);
             cbSelect = itemView.findViewById(R.id.cbSelect);
+            cvRoot = (MaterialCardView) itemView;
         }
     }
 }
