@@ -130,7 +130,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         BookCandidate passedCandidate = getIntent().getParcelableExtra(EXTRA_BOOK_CANDIDATE);
         boolean detailMode = getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false);
         if (detailMode) {
-            if (passedCandidate==null) {
+            if (passedCandidate == null) {
                 myToastE("no candidate passed in detail mode");
                 return;
             } else {
@@ -157,7 +157,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
         }
 
-
         TextView tvFileName = findViewById(R.id.tvFileName);
         ImageView ivCover = findViewById(R.id.ivCover);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
@@ -177,7 +176,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         progressBar = findViewById(R.id.loadingProgressBar);
         tvProgressStatus = findViewById(R.id.tvProgressStatus);
-
 
         cbSplit = findViewById(R.id.cbSplitM4B);
         cbCopy = findViewById(R.id.cbCopyInternal);
@@ -218,11 +216,12 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             tvInfoLine1.setText(bookCandidate.infoLine1);
 
             /*
-            if ("Folder".equals(gotten_type)) {
-                startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
-            } else {
-                tvMimeExtension.setText(bookCandidate.infoMimeExtension);
-            }
+             if ("Folder".equals(gotten_type)) {
+             startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension,
+             bookCandidate.playType);
+             } else {
+             tvMimeExtension.setText(bookCandidate.infoMimeExtension);
+             }
              */
             tvMimeExtension.setText(bookCandidate.infoMimeExtension);
 
@@ -257,7 +256,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             } else {
                 llTrackListContainer.setVisibility(View.VISIBLE);
 
-                String txtTitle = tracks.size() + " " + getString(R.string.tracks_found);
+                String txtTitle = getResources().getQuantityString(R.plurals.tracks_found_count, tracks.size(),
+                        tracks.size());
                 tvTrackListTitle.setText(txtTitle);
 
                 llTrackList.removeAllViews();
@@ -272,7 +272,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 }
             }
         });
-
 
         if (detailMode) {
             // DETAIL MODE
@@ -297,7 +296,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             tvProgressStatus.setVisibility(View.GONE);
             waitTextView.setVisibility(View.GONE);
             progressBar.setVisibility(View.GONE);
-
 
         } else {
             // SINGLE IMPORT MODE
@@ -434,7 +432,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                     if (bc != null)
                                         calculateCheckboxState(bc);
                                 })
-                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> cbDelete.setChecked(false))
+                                .setNegativeButton(android.R.string.cancel,
+                                        (dialog, which) -> cbDelete.setChecked(false))
                                 .show();
                     } else {
                         Option.setDeleteSourceFile(false);
@@ -487,7 +486,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                         // btnConfirm.setEnabled(true);
                         if (lCheck > 0) {
                             futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
-                            myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath
+                            myLogW("folder path does already exist in DB (internal copy case) : ["
+                                    + finalFutureFolderPath
                                     + "]");
                             myLog("filesystem folder name changed to [" + futureFolderName + "]");
                         } else {
@@ -545,9 +545,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             desactivateInteractive();
 
         }
-
-
-
 
     }
 

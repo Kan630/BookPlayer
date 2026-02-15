@@ -692,7 +692,7 @@
     <string name="listing_and_sorting_tracks">listing and sorting tracks</string>
     <string name="Scanning_3dots">Scanning…</string>
     <string name="scanning_tracks">scanning tracks</string>
-    <string name="tracks_found">tracks found</string>
+
     <string name="saving_folder">registering folder</string>
     <string name="saving_track">registering track</string>
     <string name="MB_taken_by_images">" MB taken by images"</string>
@@ -1138,5 +1138,8 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
     <string name="nearby_share_book_info">Book: %1$s (%2$d tracks, %3$s)</string>
     <string name="nearby_share_receive_mode_info">Waiting to receive a book from nearby device…</string>
     
-    <string name="nearby_share_ready">Ready</string>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d track found</item>
+        <item quantity="other">%d tracks found</item>
+    </plurals>
 </resources>
