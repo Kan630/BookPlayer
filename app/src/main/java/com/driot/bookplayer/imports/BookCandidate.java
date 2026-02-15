@@ -55,6 +55,7 @@ public class BookCandidate {
     // New fields from BookToAdd (Phase 2)
     public boolean isBroken = false;
     public boolean isMimeSupported = true;
+    public boolean isHeavyLoaded = false;
     public String audioBookName = "init..."; // formatted for display
     public int multipleBooksCount = 0;
     public boolean hasOnlyZipFilesInFolder = false;

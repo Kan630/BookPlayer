@@ -16,6 +16,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -160,6 +162,86 @@ public class MassImportRepository {
                 progressText.setValue("Scan complete. Found " + result.size() + " items.");
                 progressCurrent.setValue(0);
                 progressTotal.setValue(0);
+
+                // Start Heavy Load automatically
+                startHeavyLoad(result, currentScanId);
+            });
+        });
+    }
+
+    private void startHeavyLoad(List<BookCandidate> candidates, int processingScanId) {
+        if (candidates == null || candidates.isEmpty())
+            return;
+
+        LoggerStaticHelper.myLogD("Repository: Starting Heavy Load for " + candidates.size() + " candidates.");
+
+        // Use a separate thread to manage the heavy load queue
+        executor.execute(() -> {
+            int total = candidates.size();
+            int current = 0;
+
+            // Create a thread pool for parallel processing (e.g., 4 threads)
+            ExecutorService heavyExecutor = Executors.newFixedThreadPool(4);
+            List<java.util.concurrent.Future<?>> futures = new ArrayList<>();
+
+            for (BookCandidate candidate : candidates) {
+                if (scanId != processingScanId)
+                    break;
+
+                // Submit heavy load task
+                futures.add(heavyExecutor.submit(() -> {
+                    if (scanId != processingScanId)
+                        return;
+                    // Check if already loaded (unlikely here but good practice)
+                    if (!candidate.isHeavyLoaded) {
+                        try {
+                            candidate.loadHeavyMetadata(context, null);
+                        } catch (Exception e) {
+                            LoggerStaticHelper.myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
+                        }
+                    }
+                }));
+            }
+
+            // Wait for all to finish or cancel
+            for (java.util.concurrent.Future<?> f : futures) {
+                try {
+                    if (scanId != processingScanId) {
+                        f.cancel(true);
+                    } else {
+                        f.get(); // wait
+                    }
+                } catch (Exception e) {
+                    // ignore
+                }
+                current++;
+                if (scanId != processingScanId)
+                    break;
+
+                // Throttled UI update logic could go here, but for now we rely on the fact that
+                // the adapter binds the cover image from the candidate object.
+                // However, the LiveData needs to be poked to refresh the UI?
+                // Or we observe the candidate itself?
+                // The candidates list instance is the SAME, but the objects inside are
+                // mutating.
+                // We need to notify observers.
+
+                // Update UI after each candidate (as requested)
+                mainHandler.post(() -> {
+                    if (scanId == processingScanId) {
+                        this.candidates.setValue(candidates); // Force update
+                    }
+                });
+            }
+
+            heavyExecutor.shutdown();
+
+            // Final update
+            mainHandler.post(() -> {
+                if (scanId == processingScanId) {
+                    this.candidates.setValue(candidates);
+                    LoggerStaticHelper.myLogD("Repository: Heavy Load Complete.");
+                }
             });
         });
     }
