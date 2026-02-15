@@ -54,7 +54,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
     @Override
     protected int getLayoutResId() {
-        return R.layout.activity_mass_import;
+        return R.layout.activity_import_book_multiple;
     }
 
     @Override

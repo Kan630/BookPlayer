@@ -111,7 +111,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
     @Override
     protected int getLayoutResId() {
-        return R.layout.activity_load_book;
+        return R.layout.activity_import_book_single;
     }
 
     @Override
