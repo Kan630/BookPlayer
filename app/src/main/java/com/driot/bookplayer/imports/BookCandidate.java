@@ -320,7 +320,10 @@ public class BookCandidate {
                             // 1. Track Count
                             if (isAudioFileName(entry.getName())) { // isAudioFileName uses getExt
                                 trackCount++;
-                                String tName = entry.getName();
+                                String entryNameFull = entry.getName();
+                                String fileName = new java.io.File(entryNameFull).getName();
+                                String displayName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(fileName);
+                                String tName = trackCount + ". " + displayName;
                                 trackList.add(tName);
                                 if (listener != null)
                                     listener.onTrackFound(tName);

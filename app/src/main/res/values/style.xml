@@ -180,12 +180,12 @@
     </style>
 
     <style name="OptionSubTitle" parent="textColorFont">
-        <item name="android:layout_marginTop">10sp</item>
-        <item name="android:layout_marginEnd">5sp</item>
+        <item name="android:layout_marginTop">10dp</item>
+        <item name="android:layout_marginEnd">5dp</item>
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
         <item name="android:layout_gravity">center</item>
-        <item name="android:layout_marginStart">10sp</item>
+        <item name="android:layout_marginStart">10dp</item>
         <item name="android:textAlignment">textEnd</item>
         <item name="android:textSize">14sp</item>
     </style>

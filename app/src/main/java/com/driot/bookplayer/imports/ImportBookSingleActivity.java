@@ -22,7 +22,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -272,23 +271,20 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         });
 
         // Observe real-time tracks
-        android.widget.LinearLayout llTrackListContainer = findViewById(R.id.llTrackListContainer);
-        android.widget.LinearLayout llTrackList = findViewById(R.id.llTrackList);
+        LinearLayout llTrackListContainer = findViewById(R.id.llTrackListContainer);
+        LinearLayout llTrackList = findViewById(R.id.llTrackList);
+        TextView tvTrackListTitle = findViewById(R.id.tvTrackListTitle);
+        llTrackListContainer.setVisibility(View.GONE);
 
         viewModel.getRealTimeTracks().observe(this, tracks -> {
             if (tracks == null || tracks.isEmpty()) {
                 llTrackListContainer.setVisibility(View.GONE);
             } else {
                 llTrackListContainer.setVisibility(View.VISIBLE);
-                // Update list
-                // Basic implementation: clear and rebuild (might be slow for many tracks, but
-                // ok for incremental updates if not too frequent)
-                // Optimization: only add new tracks?
-                // For now, full rebuild to ensure order and correctness, but check count to
-                // avoid flicker if list is same size (unlikely with this logic)
 
-                // Actually, let's just add the difference if we want to be fancy, but full
-                // rebuild is safer for "eventually consistent" approach from VM
+                String txtTitle = tracks.size() + " " + getString(R.string.tracks_found);
+                tvTrackListTitle.setText(txtTitle);
+
                 llTrackList.removeAllViews();
                 for (String track : tracks) {
                     TextView tv = new TextView(this);

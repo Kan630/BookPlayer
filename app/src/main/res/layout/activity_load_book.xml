@@ -121,30 +121,6 @@
                     />
         </LinearLayout>
 
-        <!-- Track List Container -->
-        <LinearLayout
-            android:id="@+id/llTrackListContainer"
-            style="@style/wideLinearLayout_Vertical"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="12dp"
-            android:background="@drawable/bg_chip"
-            android:visibility="gone"
-            android:padding="8dp">
-
-            <TextView
-                android:text="Tracks found:"
-                style="@style/OptionSubTitle"
-                android:layout_marginBottom="8dp"/>
-
-            <LinearLayout
-                android:id="@+id/llTrackList"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical" />
-        </LinearLayout>
-
-
         <LinearLayout
             android:id="@+id/llAppendAndDest"
             style="@style/wideLinearLayout_Vertical">
@@ -249,6 +225,7 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="20dp"
+            android:layout_marginBottom="30dp"
             >
 
             <Button
@@ -268,5 +245,32 @@
                 android:layout_height="wrap_content"
                 android:text="Confirm" />
         </LinearLayout>
+
+
+        <!-- Track List Container -->
+        <LinearLayout
+            android:id="@+id/llTrackListContainer"
+            style="@style/wideLinearLayout_Vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            android:background="@drawable/bg_chip"
+            android:padding="8dp">
+
+            <TextView
+                android:id="@+id/tvTrackListTitle"
+                android:text="Tracks found:"
+                style="@style/OptionSubTitle"
+                android:layout_marginTop="0dp"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/llTrackList"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical" />
+        </LinearLayout>
+
     </LinearLayout>
+
 </ScrollView>
