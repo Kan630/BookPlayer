@@ -2,6 +2,7 @@ package com.driot.bookplayer.imports;
 
 import android.net.Uri;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
@@ -38,7 +39,6 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
     // UI Elements
     private LinearLayout llScanning;
-    private TextView tvProgress;
     private TextView tvCount;
     private Button btnConfirmImport;
     private StorageBarView storageBarInternal;
@@ -48,8 +48,8 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
     private LinearLayout llStorageSection;
     private TextView tvSelectedSummary;
 
-    private ProgressBar progressBarStep1, progressBarStep2;
-    private TextView tvProgressStatusStep1, tvProgressStatusStep2;
+    private ProgressBar massImportprogressBar;
+    private TextView tvMassImportProgressText;
 
     @Override
     protected int getNavId() {
@@ -158,7 +158,6 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
     private void initializeViews() {
         llScanning = findViewById(R.id.llScanning);
-        tvProgress = findViewById(R.id.tvMassImportProgress);
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
         storageBarInternal = findViewById(R.id.storageBarInternal);
@@ -168,10 +167,10 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         llStorageSection = findViewById(R.id.llStorageSection);
         tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
 
-        progressBarStep1 = findViewById(R.id.loadingProgressBarStep1);
-        tvProgressStatusStep1 = findViewById(R.id.tvProgressStatusStep1);
-        progressBarStep2 = findViewById(R.id.loadingProgressBarStep2);
-        tvProgressStatusStep2 = findViewById(R.id.tvProgressStatusStep2);
+        massImportprogressBar = findViewById(R.id.massImportprogressBar);
+        tvMassImportProgressText = findViewById(R.id.tvMassImportProgressText);
+        tvMassImportProgressText.setText(R.string.loading_step_1);
+
 
         // Storage section visible only when "Display Storage Bar" is enabled in
         // Settings > Massive Import
@@ -295,39 +294,33 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         });
 
         viewModel.getProgressText().observe(this, text -> {
-            tvProgress.setText(text);
+            tvMassImportProgressText.setGravity(Gravity.NO_GRAVITY);
+            tvMassImportProgressText.setText(text);
         });
 
         viewModel.getLoadingStatus().observe(this, status -> {
             if (status == 0) {
                 llScanning.setVisibility(View.VISIBLE);
-                progressBarStep2.setVisibility(View.GONE);
-                tvProgressStatusStep2.setVisibility(View.GONE);
 
                 // Phase 1: Scanning - Yellow
-                progressBarStep1.setVisibility(View.VISIBLE);
-                progressBarStep1.setIndeterminate(true);
-                progressBarStep1.getIndeterminateDrawable().setColorFilter(
+                massImportprogressBar.setIndeterminate(true);
+                massImportprogressBar.getIndeterminateDrawable().setColorFilter(
                         getResources().getColor(R.color.yellow, null),
                         android.graphics.PorterDuff.Mode.SRC_IN);
 
-                tvProgressStatusStep1.setVisibility(View.VISIBLE);
-                tvProgressStatusStep1.setTextColor(getResources().getColor(R.color.yellow, null));
 
             } else if (status == 1) {
                 llScanning.setVisibility(View.VISIBLE);
-                progressBarStep1.setVisibility(View.GONE);
-                tvProgressStatusStep1.setVisibility(View.GONE);
 
                 // Phase 2: Heavy Load - Green
-                progressBarStep2.setVisibility(View.VISIBLE);
-                progressBarStep2.setIndeterminate(true);
-                progressBarStep2.getIndeterminateDrawable().setColorFilter(
+                massImportprogressBar.setIndeterminate(true);
+                massImportprogressBar.getIndeterminateDrawable().setColorFilter(
                         getResources().getColor(R.color.green_300, null),
                         android.graphics.PorterDuff.Mode.SRC_IN);
 
-                tvProgressStatusStep2.setVisibility(View.VISIBLE);
-                tvProgressStatusStep2.setTextColor(getResources().getColor(R.color.green_300, null));
+                tvMassImportProgressText.setGravity(Gravity.CENTER);
+                tvMassImportProgressText.setText(R.string.loading_step_2);
+                tvMassImportProgressText.setTextColor(getResources().getColor(R.color.green_300, null));
 
             } else {
                 // Done
