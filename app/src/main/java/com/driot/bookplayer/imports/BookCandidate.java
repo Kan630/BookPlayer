@@ -311,7 +311,7 @@ public class BookCandidate implements Parcelable {
                 return;
 
             if ("Folder".equals(sourceType)) {
-                this.tracksCount = calculateTrackCount(file);
+                this.tracksCount = calculateTrackCount(file, listener);
                 // TODO: scan folder tracks for listener?
                 myLogD("calculateTrackCount ok");
                 this.coverImagePath = detectCoverForFolder(context, file);
@@ -645,15 +645,22 @@ public class BookCandidate implements Parcelable {
         }
     }
 
-    private int calculateTrackCount(DocumentFile file) {
+    private int calculateTrackCount(DocumentFile file, OnTrackFoundListener listener) {
         if (!file.isDirectory()) {
-            return isAudio(file) ? 1 : 0;
+            boolean isAudio = isAudio(file);
+            if (isAudio && listener != null) {
+                // We'll report just the filename as "track found"
+                listener.onTrackFound(file.getName());
+            }
+            return isAudio ? 1 : 0;
         }
         int count = 0;
         DocumentFile[] files = file.listFiles();
         if (files != null) {
             for (DocumentFile child : files) {
-                count += calculateTrackCount(child);
+                if (Thread.currentThread().isInterrupted())
+                    break;
+                count += calculateTrackCount(child, listener);
             }
         }
         return count;
