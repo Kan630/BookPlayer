@@ -165,7 +165,9 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         tvStorageLabelInternal = findViewById(R.id.tvStorageLabelInternal);
         llSdCardStorage = findViewById(R.id.llSdCardStorage);
         llStorageSection = findViewById(R.id.llStorageSection);
+
         tvSelectedSummary = findViewById(R.id.tvSelectedSummary);
+        tvSelectedSummary.setVisibility(View.GONE);
 
         massImportprogressBar = findViewById(R.id.massImportprogressBar);
         tvMassImportProgressText = findViewById(R.id.tvMassImportProgressText);
@@ -365,7 +367,13 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                 btnConfirmImport.setEnabled(false);
             } else {
                 boolean scanning = Boolean.TRUE.equals(viewModel.getIsScanning().getValue());
-                btnConfirmImport.setEnabled(importableCount > 0 && !scanning);
+                if (importableCount > 0 && !scanning) {
+                    btnConfirmImport.setEnabled(true);
+                    tvSelectedSummary.setVisibility(View.VISIBLE);
+                } else {
+                    btnConfirmImport.setEnabled(false);
+                    tvSelectedSummary.setVisibility(View.GONE);
+                }
             }
 
             updateSelectedSummary();
