@@ -59,6 +59,23 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
     // ...
 
     /**
+     * Set BookCandidate directly (e.g. passed from another activity).
+     * Skips background initialization.
+     */
+    public void setBookCandidate(BookCandidate candidate) {
+        if (candidate == null)
+            return;
+        isLoading.setValue(false);
+        loadingStatus.setValue(2); // Done
+        bookCandidate.setValue(candidate); // This will trigger UI updates in Activity
+
+        // If trackList is already populated, update realTimeTracks
+        if (candidate.trackList != null && !candidate.trackList.isEmpty()) {
+            realTimeTracks.setValue(new java.util.ArrayList<>(candidate.trackList));
+        }
+    }
+
+    /**
      * Initialize BookCandidate from URI in background thread.
      * Result will be posted to bookCandidate LiveData.
      */

@@ -30,7 +30,10 @@ import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import java.util.Locale;
 import java.util.Objects;
 
-public class BookCandidate {
+import android.os.Parcel;
+import android.os.Parcelable;
+
+public class BookCandidate implements Parcelable {
     private boolean LOG_DEBUG = true;
 
     public Uri uri;
@@ -69,6 +72,84 @@ public class BookCandidate {
     public interface OnTrackFoundListener {
         void onTrackFound(String name);
     }
+
+    protected BookCandidate(Parcel in) {
+        uri = in.readParcelable(Uri.class.getClassLoader());
+        name = in.readString();
+        sourceType = in.readString();
+        path = in.readString();
+        size = in.readLong();
+        tracksCount = in.readInt();
+        originalHash = in.readString();
+        existingBookName = in.readString();
+        coverImagePath = in.readString();
+        selected = in.readByte() != 0;
+        sourceLocation = in.readString();
+        playType = in.readString();
+        infoMimeExtension = in.readString();
+        infoMimeExtensionSmall = in.readString();
+        infoSourceLocation = in.readString();
+        infoLine1 = in.readString();
+        isBroken = in.readByte() != 0;
+        isMimeSupported = in.readByte() != 0;
+        isHeavyLoaded = in.readByte() != 0;
+        audioBookName = in.readString();
+        multipleBooksCount = in.readInt();
+        hasOnlyZipFilesInFolder = in.readByte() != 0;
+        originalFile = in.readString();
+        fileExtension = in.readString();
+        mimeType = in.readString();
+        specialType = in.readString();
+        in.readStringList(trackList);
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeParcelable(uri, flags);
+        dest.writeString(name);
+        dest.writeString(sourceType);
+        dest.writeString(path);
+        dest.writeLong(size);
+        dest.writeInt(tracksCount);
+        dest.writeString(originalHash);
+        dest.writeString(existingBookName);
+        dest.writeString(coverImagePath);
+        dest.writeByte((byte) (selected ? 1 : 0));
+        dest.writeString(sourceLocation);
+        dest.writeString(playType);
+        dest.writeString(infoMimeExtension);
+        dest.writeString(infoMimeExtensionSmall);
+        dest.writeString(infoSourceLocation);
+        dest.writeString(infoLine1);
+        dest.writeByte((byte) (isBroken ? 1 : 0));
+        dest.writeByte((byte) (isMimeSupported ? 1 : 0));
+        dest.writeByte((byte) (isHeavyLoaded ? 1 : 0));
+        dest.writeString(audioBookName);
+        dest.writeInt(multipleBooksCount);
+        dest.writeByte((byte) (hasOnlyZipFilesInFolder ? 1 : 0));
+        dest.writeString(originalFile);
+        dest.writeString(fileExtension);
+        dest.writeString(mimeType);
+        dest.writeString(specialType);
+        dest.writeStringList(trackList);
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<BookCandidate> CREATOR = new Creator<BookCandidate>() {
+        @Override
+        public BookCandidate createFromParcel(Parcel in) {
+            return new BookCandidate(in);
+        }
+
+        @Override
+        public BookCandidate[] newArray(int size) {
+            return new BookCandidate[size];
+        }
+    };
 
     public BookCandidate(Context context, Uri uri) {
         this.uri = uri;

@@ -72,6 +72,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     public static final String EXTRA_TYPE = "EXTRA_TYPE"; // File or Folder
     public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
     public static final String EXTRA_DETAIL_MODE = "EXTRA_DETAIL_MODE";
+    public static final String EXTRA_BOOK_CANDIDATE = "EXTRA_BOOK_CANDIDATE";
 
     private ImportBookSingleViewModel viewModel;
 
@@ -299,7 +300,36 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         });
 
         // Start BookCandidate initialization
-        viewModel.initializeBookCandidate(uri);
+        // Start BookCandidate initialization or use passed candidate
+        BookCandidate passedCandidate = getIntent().getParcelableExtra(EXTRA_BOOK_CANDIDATE);
+        boolean detailMode = getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false);
+
+        if (passedCandidate != null) {
+            myLogI("Using passed BookCandidate: " + passedCandidate.name);
+            viewModel.setBookCandidate(passedCandidate);
+        } else {
+            // Start async initialization if no candidate passed
+            // Only if not already initialized (ViewModel survives config changes)
+            if (viewModel.getBookCandidate().getValue() == null) {
+                viewModel.initializeBookCandidate(uri);
+            }
+        }
+
+        // Detail Mode UI adjustments
+        if (detailMode) {
+            btnConfirm.setVisibility(View.GONE);
+            btnCancel.setText(R.string.Close); // Change Cancel to Close
+            // Hide other editing/importing options if needed
+            llSplit.setVisibility(View.GONE);
+            llCopy.setVisibility(View.GONE);
+            llUseSdCard.setVisibility(View.GONE);
+            llDelete.setVisibility(View.GONE);
+            tvAppendMode.setVisibility(View.GONE);
+            // Hide Folder spinner
+            Spinner spinner = findViewById(R.id.spinner_destination_folder);
+            if (spinner != null)
+                spinner.setVisibility(View.GONE);
+        }
 
         btnCancel.setOnClickListener(v -> {
             myLogI("------ USER CLICKS btn CANCEL....   ");
@@ -389,6 +419,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             btnConfirm.setEnabled(false);
 
             // Cancel any ongoing heavy initialization
+
+            // Observe Real-time tracks
             viewModel.cancelInitialization();
 
             // Get bookCandidate from ViewModel

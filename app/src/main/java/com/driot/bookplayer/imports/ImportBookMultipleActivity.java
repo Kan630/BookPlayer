@@ -261,6 +261,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
             String typeToPass = "Folder".equals(candidate.sourceType) ? "Folder" : "File";
             intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, typeToPass);
             intent.putExtra(ImportBookSingleActivity.EXTRA_DETAIL_MODE, true);
+            intent.putExtra(ImportBookSingleActivity.EXTRA_BOOK_CANDIDATE, candidate);
             startActivity(intent);
         });
         rv.setAdapter(adapter);
