@@ -93,8 +93,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private CheckBox cbSplit, cbCopy, cbDelete, cbUseSdCard;
     private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
     private Button btnConfirm, btnCancel;
-    private ProgressBar progressBar;
-    private TextView tvProgressStatus;
+    private ProgressBar progressBarStep1, progressBarStep2;
+    private TextView tvProgressStatusStep1, tvProgressStatusStep2;
 
     private boolean internalCheckBoxStateCalculationInProgress;
     private boolean isKO = false;
@@ -174,8 +174,10 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         tvAppendMode = findViewById(R.id.tvAppendMode);
         destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
 
-        progressBar = findViewById(R.id.loadingProgressBar);
-        tvProgressStatus = findViewById(R.id.tvProgressStatus);
+        progressBarStep1 = findViewById(R.id.loadingProgressBarStep1);
+        tvProgressStatusStep1 = findViewById(R.id.tvProgressStatusStep1);
+        progressBarStep2 = findViewById(R.id.loadingProgressBarStep2);
+        tvProgressStatusStep2 = findViewById(R.id.tvProgressStatusStep2);
 
         cbSplit = findViewById(R.id.cbSplitM4B);
         cbCopy = findViewById(R.id.cbCopyInternal);
@@ -293,9 +295,12 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             llDelete.setVisibility(View.GONE);
             tvAppendMode.setVisibility(View.GONE);
             destinationFolderSpinner.setVisibility(View.GONE);
-            tvProgressStatus.setVisibility(View.GONE);
             waitTextView.setVisibility(View.GONE);
-            progressBar.setVisibility(View.GONE);
+            progressBarStep1.setVisibility(View.GONE);
+            tvProgressStatusStep1.setVisibility(View.GONE);
+            progressBarStep2.setVisibility(View.GONE);
+            tvProgressStatusStep2.setVisibility(View.GONE);
+
 
         } else {
             // SINGLE IMPORT MODE
@@ -333,33 +338,42 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             viewModel.getLoadingStatus().observe(this, status -> {
                 if (status == 0) {
+                    progressBarStep2.setVisibility(View.GONE);
+                    tvProgressStatusStep2.setVisibility(View.GONE);
+
                     // Fast Init - Yellow
-                    progressBar.setVisibility(View.VISIBLE);
-                    progressBar.setIndeterminate(true);
-                    progressBar.getIndeterminateDrawable().setColorFilter(
+                    progressBarStep1.setVisibility(View.VISIBLE);
+                    progressBarStep1.setIndeterminate(true);
+                    progressBarStep1.getIndeterminateDrawable().setColorFilter(
                             getResources().getColor(R.color.yellow, null),
                             android.graphics.PorterDuff.Mode.SRC_IN);
 
-                    tvProgressStatus.setVisibility(View.VISIBLE);
-                    tvProgressStatus.setText(R.string.loading_step_1);
-                    tvProgressStatus.setTextColor(getResources().getColor(R.color.yellow, null));
+                    tvProgressStatusStep1.setVisibility(View.VISIBLE);
+                    tvProgressStatusStep1.setText(R.string.loading_step_1);
+                    tvProgressStatusStep1.setTextColor(getResources().getColor(R.color.yellow, null));
 
                 } else if (status == 1) {
                     // Heavy Init - Light Green
-                    progressBar.setVisibility(View.VISIBLE);
-                    progressBar.setIndeterminate(true);
-                    progressBar.getIndeterminateDrawable().setColorFilter(
+                    progressBarStep1.setVisibility(View.GONE);
+                    tvProgressStatusStep1.setVisibility(View.GONE);
+
+                    progressBarStep2.setVisibility(View.VISIBLE);
+                    progressBarStep2.setIndeterminate(true);
+                    progressBarStep2.getIndeterminateDrawable().setColorFilter(
                             getResources().getColor(R.color.green_300, null),
                             android.graphics.PorterDuff.Mode.SRC_IN);
 
-                    tvProgressStatus.setVisibility(View.VISIBLE);
-                    tvProgressStatus.setText(R.string.loading_step_2);
-                    tvProgressStatus.setTextColor(getResources().getColor(R.color.green_300, null));
+                    tvProgressStatusStep2.setVisibility(View.VISIBLE);
+                    tvProgressStatusStep2.setText(R.string.loading_step_2);
+                    tvProgressStatusStep2.setTextColor(getResources().getColor(R.color.green_300, null));
 
                 } else {
                     // Done
-                    progressBar.setVisibility(View.GONE);
-                    tvProgressStatus.setVisibility(View.GONE);
+                    progressBarStep1.setVisibility(View.GONE);
+                    tvProgressStatusStep1.setVisibility(View.GONE);
+                    progressBarStep2.setVisibility(View.GONE);
+                    tvProgressStatusStep2.setVisibility(View.GONE);
+
                 }
             });
 

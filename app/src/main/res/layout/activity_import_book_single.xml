@@ -11,17 +11,16 @@
         >
 
         <ProgressBar
-            android:id="@+id/loadingProgressBar"
+            android:id="@+id/loadingProgressBarStep1"
             style="?android:attr/progressBarStyleHorizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:indeterminate="true"
             android:max="100"
-            android:visibility="visible"
             android:layout_marginBottom="4dp"/>
 
         <TextView
-            android:id="@+id/tvProgressStatus"
+            android:id="@+id/tvProgressStatusStep1"
             style="@style/simpleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -29,7 +28,6 @@
             android:textColor="@color/yellow"
             android:gravity="center"
             android:textSize="12sp"
-            android:visibility="gone"
             android:layout_marginBottom="8dp"/>
 
         <!-- File name display -->
@@ -246,6 +244,26 @@
                 android:text="Confirm" />
         </LinearLayout>
 
+
+        <ProgressBar
+            android:id="@+id/loadingProgressBarStep2"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:indeterminate="true"
+            android:max="100"
+            android:layout_marginBottom="4dp"/>
+
+        <TextView
+            android:id="@+id/tvProgressStatusStep2"
+            style="@style/simpleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/loading"
+            android:textColor="@color/yellow"
+            android:gravity="center"
+            android:textSize="12sp"
+            android:layout_marginBottom="8dp"/>
 
         <!-- Track List Container -->
         <LinearLayout
