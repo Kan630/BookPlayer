@@ -70,11 +70,23 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         // Show track count for Folders, generic Audio Files, Archive archives, and M4B
         // files (where we know the count)
         // For Ebook, we don't know the count yet, so don't show it.
-        if (item.isHeavyLoaded && ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType)
-                || "Archive".equals(item.sourceType)
-                || "M4B".equals(item.sourceType))) {
-            tracksPart = " - " + holder.ivCover.getContext().getResources()
-                    .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
+        // Show track count for Folders, generic Audio Files, Archive archives, and M4B
+        // files (where we know the count)
+        // For Ebook, we don't know the count yet, so don't show it.
+        if (item.isHeavyLoaded) {
+            if ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType)
+                    || "Archive".equals(item.sourceType)
+                    || "M4B".equals(item.sourceType)) {
+                tracksPart = " - " + holder.ivCover.getContext().getResources()
+                        .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount,
+                                item.tracksCount);
+            }
+        } else {
+            // Not loaded yet, check if we have partial results (Archive scanning)
+            if ("Archive".equals(item.sourceType) && !item.trackList.isEmpty()) {
+                int count = item.trackList.size();
+                tracksPart = " - counting... " + count + " tracks";
+            }
         }
         String txtInfo = item.sourceType
                 + " - " + Tonio.getReadableSize(item.size)

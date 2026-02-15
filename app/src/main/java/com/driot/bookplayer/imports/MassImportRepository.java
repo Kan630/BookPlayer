@@ -191,7 +191,24 @@ public class MassImportRepository {
                 // Skip if already loaded (unlikely here but ensuring idempotency)
                 if (!candidate.isHeavyLoaded) {
                     try {
-                        candidate.loadHeavyMetadata(context, null);
+                        // Throttled UI update listener
+                        BookCandidate.OnTrackFoundListener listener = new BookCandidate.OnTrackFoundListener() {
+                            long lastUpdate = 0;
+
+                            @Override
+                            public void onTrackFound(String name) {
+                                long now = System.currentTimeMillis();
+                                if (now - lastUpdate > 500) { // Update every 500ms
+                                    lastUpdate = now;
+                                    mainHandler.post(() -> {
+                                        if (scanId == processingScanId) {
+                                            MassImportRepository.this.candidates.setValue(candidates);
+                                        }
+                                    });
+                                }
+                            }
+                        };
+                        candidate.loadHeavyMetadata(context, listener);
                     } catch (Exception e) {
                         LoggerStaticHelper.myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
                     }
