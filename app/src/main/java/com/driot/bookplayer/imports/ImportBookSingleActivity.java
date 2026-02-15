@@ -64,6 +64,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private final Handler mainHandler = new Handler(Looper.getMainLooper());
     private volatile boolean cancelScan = false;
     private boolean warningTooManyFilesHasBeenShown = false;
+    private boolean initialHashCheckTriggered = false;
 
     private boolean hashJobRunning = false;
     private boolean countJobRunning = false;
@@ -201,7 +202,10 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
 
             // Now that candidate is ready, activate UI
-            checkHashDoesNotAlreadyExist();
+            if (!initialHashCheckTriggered) {
+                checkHashDoesNotAlreadyExist();
+                initialHashCheckTriggered = true;
+            }
             calculateCheckboxState(bookCandidate);
             setupCheckboxListeners(bookCandidate);
 
