@@ -187,10 +187,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             tvFileName.setText(audioBookTitle);
             if (bookCandidate.coverImagePath != null) {
-                ivCover.setVisibility(View.VISIBLE);
                 ivCover.setImageURI(Uri.parse(bookCandidate.coverImagePath));
             } else {
-                ivCover.setVisibility(View.GONE);
+                ivCover.setImageResource(R.drawable.no_image_icon);
             }
             tvInfoLine1.setText(bookCandidate.infoLine1);
 

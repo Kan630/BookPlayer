@@ -19,14 +19,24 @@
             android:background="@drawable/bg_chip"
             >
 
-            <ImageView
-                android:id="@+id/ivCover"
+            <androidx.cardview.widget.CardView
                 android:layout_width="80dp"
                 android:layout_height="match_parent"
-                android:scaleType="centerCrop"
-                android:layout_marginEnd="12dp"
-                android:contentDescription="@null"
-                />
+                app:cardCornerRadius="4dp"
+                app:cardElevation="0dp"
+                android:layout_marginEnd="6dp"
+                >
+
+                <ImageView
+                    android:id="@+id/ivCover"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="centerCrop"
+                    android:contentDescription="@string/cover_preview"
+                    android:src="@drawable/no_image_icon"
+                    />
+
+            </androidx.cardview.widget.CardView>
 
             <TextView
                 android:id="@+id/tvFileName"
