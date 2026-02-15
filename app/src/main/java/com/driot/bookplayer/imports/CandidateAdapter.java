@@ -45,11 +45,8 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
 
     public void setItems(List<BookCandidate> items) {
         this.items = items;
-        // Initialize selection: checked by default for non-imported, unchecked and
-        // disabled for already-imported
-        for (BookCandidate c : items) {
-            c.setSelected(!c.isAlreadyImported());
-        }
+        // Do NOT reset selection here. BookCandidate initializes it correctly.
+        // Resetting here obliterates user changes during progressive updates.
         notifyDataSetChanged();
     }
 
@@ -73,9 +70,9 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         // Show track count for Folders, generic Audio Files, Archive archives, and M4B
         // files (where we know the count)
         // For Ebook, we don't know the count yet, so don't show it.
-        if ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType)
+        if (item.isHeavyLoaded && ("Folder".equals(item.sourceType) || "Audio File".equals(item.sourceType)
                 || "Archive".equals(item.sourceType)
-                || "M4B".equals(item.sourceType)) {
+                || "M4B".equals(item.sourceType))) {
             tracksPart = " - " + holder.ivCover.getContext().getResources()
                     .getQuantityString(com.driot.bookplayer.R.plurals.tracks_count, item.tracksCount, item.tracksCount);
         }

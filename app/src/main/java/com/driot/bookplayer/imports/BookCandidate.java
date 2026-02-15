@@ -264,6 +264,8 @@ public class BookCandidate {
             }
         }
 
+        this.isHeavyLoaded = true;
+
         myLogD("loadHeavyMetadata() DONE: " + (System.currentTimeMillis() - startTime) + "ms for: "
                 + name);
     }

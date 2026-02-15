@@ -175,71 +175,46 @@ public class MassImportRepository {
 
         LoggerStaticHelper.myLogD("Repository: Starting Heavy Load for " + candidates.size() + " candidates.");
 
-        // Use a separate thread to manage the heavy load queue
+        // Use the single-thread repository executor for sequential processing
         executor.execute(() -> {
             int total = candidates.size();
-            int current = 0;
 
-            // Create a thread pool for parallel processing (e.g., 4 threads)
-            ExecutorService heavyExecutor = Executors.newFixedThreadPool(4);
-            List<java.util.concurrent.Future<?>> futures = new ArrayList<>();
-
-            for (BookCandidate candidate : candidates) {
+            for (int i = 0; i < total; i++) {
+                // Check if scan cancelled or changed
                 if (scanId != processingScanId)
                     break;
+                if (Thread.currentThread().isInterrupted())
+                    break;
 
-                // Submit heavy load task
-                futures.add(heavyExecutor.submit(() -> {
-                    if (scanId != processingScanId)
-                        return;
-                    // Check if already loaded (unlikely here but good practice)
-                    if (!candidate.isHeavyLoaded) {
-                        try {
-                            candidate.loadHeavyMetadata(context, null);
-                        } catch (Exception e) {
-                            LoggerStaticHelper.myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
-                        }
-                    }
-                }));
-            }
+                BookCandidate candidate = candidates.get(i);
 
-            // Wait for all to finish or cancel
-            for (java.util.concurrent.Future<?> f : futures) {
-                try {
-                    if (scanId != processingScanId) {
-                        f.cancel(true);
-                    } else {
-                        f.get(); // wait
+                // Skip if already loaded (unlikely here but ensuring idempotency)
+                if (!candidate.isHeavyLoaded) {
+                    try {
+                        candidate.loadHeavyMetadata(context, null);
+                    } catch (Exception e) {
+                        LoggerStaticHelper.myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
                     }
-                } catch (Exception e) {
-                    // ignore
                 }
-                current++;
+
                 if (scanId != processingScanId)
                     break;
 
-                // Throttled UI update logic could go here, but for now we rely on the fact that
-                // the adapter binds the cover image from the candidate object.
-                // However, the LiveData needs to be poked to refresh the UI?
-                // Or we observe the candidate itself?
-                // The candidates list instance is the SAME, but the objects inside are
-                // mutating.
-                // We need to notify observers.
-
-                // Update UI after each candidate (as requested)
+                // Update UI immediately after this candidate is done
+                // We must post to main thread to update LiveData
                 mainHandler.post(() -> {
                     if (scanId == processingScanId) {
-                        this.candidates.setValue(candidates); // Force update
+                        // Notify observers. Since the list reference is the same,
+                        // observers relying on DiffUtil might need a nudge, but
+                        // Adapter.setItems simply notifies changed, which redraws visible items.
+                        this.candidates.setValue(candidates);
                     }
                 });
             }
 
-            heavyExecutor.shutdown();
-
-            // Final update
+            // Final update/log
             mainHandler.post(() -> {
                 if (scanId == processingScanId) {
-                    this.candidates.setValue(candidates);
                     LoggerStaticHelper.myLogD("Repository: Heavy Load Complete.");
                 }
             });
