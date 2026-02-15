@@ -356,7 +356,7 @@ public class BookCandidate implements Parcelable {
             if (pfd != null) {
                 java.io.FileDescriptor fd = pfd.getFileDescriptor();
 
-                // 1. Cover Detection (MetadataRetriever supports FileDescriptor)
+                // 1. Cover Detection
                 android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
                 try {
                     mmr.setDataSource(fd);
@@ -377,10 +377,27 @@ public class BookCandidate implements Parcelable {
                     }
                 }
 
-                // 2. Track Count (mp4parser supports FileChannel/File)
-                // We use FileChannel from FileDescriptor to avoid temp file creation
+                // IMPORTANT: MediaMetadataRetriever might have moved the FD position.
+                // Reset it to 0 before giving it to mp4parser, otherwise it reads garbage and
+                // crashes (OOM/Large allocation).
+                try {
+                    android.system.Os.lseek(fd, 0, android.system.OsConstants.SEEK_SET);
+                } catch (Exception e) {
+                    myLogW("Could not seek FD back to 0: " + e.getMessage());
+                }
+
+                // 2. Track Count
                 try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(fd).getChannel()) {
-                    dataSource = new com.googlecode.mp4parser.FileDataSourceImpl(channel);
+                    // Try refreshing path if possible to use FileDataSourceViaHeapImpl as it was
+                    // working before
+                    String directPath = UriHelper.getPathFromUri(context, file.getUri());
+                    if (directPath != null && new java.io.File(directPath).exists()) {
+                        dataSource = new com.googlecode.mp4parser.FileDataSourceViaHeapImpl(directPath);
+                    } else {
+                        // Fallback to channel based datasource (with offset 0)
+                        dataSource = new com.googlecode.mp4parser.FileDataSourceImpl(channel);
+                    }
+
                     Movie movie = MovieCreator.build(dataSource);
                     Track chapterTrack = null;
                     for (Track track : movie.getTracks()) {
@@ -439,6 +456,9 @@ public class BookCandidate implements Parcelable {
 
     private void scan7ZCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
         int count = 0;
+        byte[] largestImage = null;
+        long largestSize = 0;
+
         try {
             try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
                     .openFileDescriptor(archiveFile.getUri(), "r")) {
@@ -451,8 +471,34 @@ public class BookCandidate implements Parcelable {
                             while ((entry = sevenZFile.getNextEntry()) != null) {
                                 if (Thread.currentThread().isInterrupted())
                                     return;
-                                if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
+                                String entryName = entry.getName();
+                                if (entry.isDirectory())
+                                    continue;
+
+                                // 1. Track count
+                                if (isAudioFileName(entryName)) {
                                     count++;
+                                }
+
+                                // 2. Cover detection
+                                String lowName = entryName.toLowerCase();
+                                if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
+                                        lowName.endsWith(".png") || lowName.endsWith(".webp")) {
+                                    long size = entry.getSize();
+                                    if (size > largestSize || (size == -1 && largestImage == null)) {
+                                        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                        byte[] buffer = new byte[8192];
+                                        int len;
+                                        // SevenZFile.read() reads the current entry
+                                        while ((len = sevenZFile.read(buffer)) > 0) {
+                                            baos.write(buffer, 0, len);
+                                        }
+                                        byte[] imageBytes = baos.toByteArray();
+                                        if (imageBytes.length > largestSize) {
+                                            largestImage = imageBytes;
+                                            largestSize = imageBytes.length;
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -462,14 +508,25 @@ public class BookCandidate implements Parcelable {
         } catch (Exception ignored) {
         }
         this.tracksCount = count;
-        // 7z cover detection is separate and dubious (usually not embedded),
-        // we keep it as is if needed, but for now we focus on single pass for tracks.
-        // If 7z embedded cover is needed, it would require extracting each file to
-        // check metadata, which is slow.
+
+        if (largestImage != null) {
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                    largestImage, 0, largestImage.length);
+            if (bitmap != null) {
+                String suffix = "_" + archiveFile.getUri().hashCode();
+                this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
+                if (this.coverImagePath != null && listener != null) {
+                    listener.onCoverFound(this.coverImagePath);
+                }
+            }
+        }
     }
 
     private void scanTarCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
         int count = 0;
+        byte[] largestImage = null;
+        long largestSize = 0;
+
         try {
             java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
             if (inputStream != null) {
@@ -481,8 +538,33 @@ public class BookCandidate implements Parcelable {
                     while ((entry = tis.getNextTarEntry()) != null) {
                         if (Thread.currentThread().isInterrupted())
                             return;
-                        if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
+                        String entryName = entry.getName();
+                        if (entry.isDirectory())
+                            continue;
+
+                        // 1. Track counting
+                        if (isAudioFileName(entryName)) {
                             count++;
+                        }
+
+                        // 2. Cover detection
+                        String lowName = entryName.toLowerCase();
+                        if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
+                                lowName.endsWith(".png") || lowName.endsWith(".webp")) {
+                            long size = entry.getSize();
+                            if (size > largestSize || (size == -1 && largestImage == null)) {
+                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                byte[] buffer = new byte[8192];
+                                int len;
+                                while ((len = tis.read(buffer)) > 0) {
+                                    baos.write(buffer, 0, len);
+                                }
+                                byte[] imageBytes = baos.toByteArray();
+                                if (imageBytes.length > largestSize) {
+                                    largestImage = imageBytes;
+                                    largestSize = imageBytes.length;
+                                }
+                            }
                         }
                     }
                 }
@@ -490,6 +572,18 @@ public class BookCandidate implements Parcelable {
         } catch (Exception ignored) {
         }
         this.tracksCount = count;
+
+        if (largestImage != null) {
+            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
+                    largestImage, 0, largestImage.length);
+            if (bitmap != null) {
+                String suffix = "_" + archiveFile.getUri().hashCode();
+                this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
+                if (this.coverImagePath != null && listener != null) {
+                    listener.onCoverFound(this.coverImagePath);
+                }
+            }
+        }
     }
 
     private void scanZipCombined(Context context, DocumentFile file, OnMetadataListener listener) {
