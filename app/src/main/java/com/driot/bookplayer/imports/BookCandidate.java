@@ -987,6 +987,10 @@ public class BookCandidate implements Parcelable {
     }
 
     private String extractEmbeddedCoverFromFile(Context context, DocumentFile file) {
+        if (Tonio.getExtension(file.getName()).equalsIgnoreCase("mp3")) {
+            myLogD("bypassing extract embedded cover for mp3 - 2");
+            return null;
+        }
         try {
             android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
             try {
