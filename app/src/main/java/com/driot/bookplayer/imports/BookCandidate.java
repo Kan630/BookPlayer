@@ -325,6 +325,7 @@ public class BookCandidate implements Parcelable {
                     myLogD("calculateSize (heavy) ok");
                 }
 
+                trackList.clear(); // Clear previous tracks if any
                 this.tracksCount = calculateTrackCount(file, listener);
                 // TODO: scan folder tracks for listener?
                 myLogD("calculateTrackCount ok");
@@ -662,15 +663,27 @@ public class BookCandidate implements Parcelable {
     private int calculateTrackCount(DocumentFile file, OnTrackFoundListener listener) {
         if (!file.isDirectory()) {
             boolean isAudio = isAudio(file);
-            if (isAudio && listener != null) {
-                // We'll report just the filename as "track found"
-                listener.onTrackFound(file.getName());
+            if (isAudio) {
+                // Add to trackList for display
+                String displayName = Tonio.formatNameForDisplay(safeName(file));
+                String tName = (trackList.size() + 1) + ". " + displayName;
+                trackList.add(tName);
+
+                if (listener != null) {
+                    listener.onTrackFound(tName);
+                }
             }
             return isAudio ? 1 : 0;
         }
         int count = 0;
         DocumentFile[] files = file.listFiles();
         if (files != null) {
+            // Sort files to ensure deterministic order (and matching display usually)
+            java.util.Arrays.sort(files, (f1, f2) -> {
+                String n1 = f1 != null ? f1.getName() : "";
+                String n2 = f2 != null ? f2.getName() : "";
+                return String.CASE_INSENSITIVE_ORDER.compare(n1 != null ? n1 : "", n2 != null ? n2 : "");
+            });
             for (DocumentFile child : files) {
                 if (Thread.currentThread().isInterrupted())
                     break;
