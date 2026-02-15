@@ -271,6 +271,37 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
         });
 
+        // Observe real-time tracks
+        android.widget.LinearLayout llTrackListContainer = findViewById(R.id.llTrackListContainer);
+        android.widget.LinearLayout llTrackList = findViewById(R.id.llTrackList);
+
+        viewModel.getRealTimeTracks().observe(this, tracks -> {
+            if (tracks == null || tracks.isEmpty()) {
+                llTrackListContainer.setVisibility(View.GONE);
+            } else {
+                llTrackListContainer.setVisibility(View.VISIBLE);
+                // Update list
+                // Basic implementation: clear and rebuild (might be slow for many tracks, but
+                // ok for incremental updates if not too frequent)
+                // Optimization: only add new tracks?
+                // For now, full rebuild to ensure order and correctness, but check count to
+                // avoid flicker if list is same size (unlikely with this logic)
+
+                // Actually, let's just add the difference if we want to be fancy, but full
+                // rebuild is safer for "eventually consistent" approach from VM
+                llTrackList.removeAllViews();
+                for (String track : tracks) {
+                    TextView tv = new TextView(this);
+                    tv.setText(track);
+                    tv.setTextSize(12);
+                    tv.setMaxLines(1);
+                    tv.setEllipsize(android.text.TextUtils.TruncateAt.END);
+                    tv.setPadding(0, 4, 0, 4);
+                    llTrackList.addView(tv);
+                }
+            }
+        });
+
         // Start BookCandidate initialization
         viewModel.initializeBookCandidate(uri);
 

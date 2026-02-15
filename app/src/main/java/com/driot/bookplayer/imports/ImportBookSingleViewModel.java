@@ -54,9 +54,18 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
      * Initialize BookCandidate from URI in background thread.
      * Result will be posted to bookCandidate LiveData.
      */
+    private final MutableLiveData<java.util.List<String>> realTimeTracks = new MutableLiveData<>();
+
+    // ...
+
+    /**
+     * Initialize BookCandidate from URI in background thread.
+     * Result will be posted to bookCandidate LiveData.
+     */
     public void initializeBookCandidate(Uri uri) {
         isLoading.postValue(true);
         loadingStatus.postValue(0); // Yellow/Fast start
+        realTimeTracks.postValue(new java.util.ArrayList<>());
 
         loadingFuture = executorService.submit(() -> {
             try {
@@ -72,7 +81,26 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
                 loadingStatus.postValue(1); // Green/Heavy start
 
                 // Phase 2: Heavy Init
-                candidate.loadHeavyMetadata(getApplication());
+                candidate.loadHeavyMetadata(getApplication(), trackName -> {
+                    // On track found
+                    // We need to update LiveData.
+                    // Note: Arrays.asList() or copy?
+                    // postValue might be slow if called very frequently (e.g. 1000 tracks in 100ms)
+                    // But for UI feedback, "eventually consistent" is fine?
+                    // Actually, if we just post the *latest* list, it's fine.
+                    // But candidate.trackList is being modified by this thread.
+                    // LiveData logic usually requires main thread for getValue/setValue, postValue
+                    // is safe.
+                    // But if we pass reference to candidate.trackList, and it's modified here...
+                    // concurrency issue?
+                    // postValue posts a task to main thread.
+                    // We should create a copy.
+                    java.util.List<String> copy;
+                    synchronized (candidate.trackList) {
+                        copy = new java.util.ArrayList<>(candidate.trackList);
+                    }
+                    realTimeTracks.postValue(copy);
+                });
 
                 if (Thread.currentThread().isInterrupted())
                     return;
@@ -130,6 +158,10 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
 
     public LiveData<Boolean> getIsLoading() {
         return isLoading;
+    }
+
+    public LiveData<java.util.List<String>> getRealTimeTracks() {
+        return realTimeTracks;
     }
 
     public LiveData<String> getErrorMessage() {

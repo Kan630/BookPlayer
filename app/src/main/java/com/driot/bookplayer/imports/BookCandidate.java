@@ -63,6 +63,12 @@ public class BookCandidate {
     public String mimeType;
     public String specialType;
 
+    public final java.util.List<String> trackList = new java.util.ArrayList<>();
+
+    public interface OnTrackFoundListener {
+        void onTrackFound(String name);
+    }
+
     public BookCandidate(Context context, Uri uri) {
         this.uri = uri;
         if (this.uri == null)
@@ -198,9 +204,33 @@ public class BookCandidate {
             // HEAVY PHASE
             if (Thread.currentThread().isInterrupted())
                 return;
+            loadHeavyMetadata(context, null);
+        }
+
+        myLogD("enrich() TOTAL (heavy=" + heavyEnrich + "): " + (System.currentTimeMillis() - startTime) + "ms for: "
+                + name);
+    }
+
+    /**
+     * Heavy initialization: scans zip for covers, counts tracks.
+     * This is blocking and should be called in background.
+     */
+    public void loadHeavyMetadata(Context context, OnTrackFoundListener listener) {
+        long startTime = System.currentTimeMillis();
+        myLogD("loadHeavyMetadata() START for: " + name);
+
+        DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
+        if (file == null)
+            return;
+
+        if ("Folder".equals(sourceType)) {
+            // HEAVY PHASE
+            if (Thread.currentThread().isInterrupted())
+                return;
 
             if ("Folder".equals(sourceType)) {
                 this.tracksCount = calculateTrackCount(file);
+                // TODO: scan folder tracks for listener?
                 myLogD("calculateTrackCount ok");
                 this.coverImagePath = detectCoverForFolder(context, file);
                 myLogD("detectCoverForFolder ok");
@@ -209,29 +239,36 @@ public class BookCandidate {
                 myLogD("countRealEbookFilesRecursive ok");
                 this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
                 myLogD("checkHasOnlyZipFilesInFolder ok");
-            } else {
-                this.tracksCount = 1;
+            }
+        } else {
+            // HEAVY PHASE
+            if (Thread.currentThread().isInterrupted())
+                return;
 
-                if ("M4B".equals(sourceType)) {
-                    this.coverImagePath = detectCoverForFile(context, file, sourceType);
-                    myLogD("detectCoverForFile ok");
-                    this.tracksCount = calculateTrackCountForM4B(context, file);
-                    myLogD("calculateTrackCountForM4B ok");
-                } else if ("Archive".equals(sourceType)) {
-                    // OPTIMIZED ZIP SCANNING
-                    scanArchiveForCoverAndTracks(context, file);
-                } else {
-                    this.coverImagePath = detectCoverForFile(context, file, sourceType);
-                    myLogD("detectCoverForFile ok");
-                }
+            this.tracksCount = 1;
+
+            if ("M4B".equals(sourceType)) {
+                this.coverImagePath = detectCoverForFile(context, file, sourceType);
+                myLogD("detectCoverForFile ok");
+                this.tracksCount = calculateTrackCountForM4B(context, file);
+                // M4B chapters could be "tracks", but user asked for zip files mostly.
+                // We'll skip M4B track listing for now or implement later if requested.
+                myLogD("calculateTrackCountForM4B ok");
+            } else if ("Archive".equals(sourceType)) {
+                // OPTIMIZED ZIP SCANNING
+                scanArchiveForCoverAndTracks(context, file, listener);
+            } else {
+                this.coverImagePath = detectCoverForFile(context, file, sourceType);
+                myLogD("detectCoverForFile ok");
             }
         }
 
-        myLogD("enrich() TOTAL (heavy=" + heavyEnrich + "): " + (System.currentTimeMillis() - startTime) + "ms for: "
+        myLogD("loadHeavyMetadata() DONE: " + (System.currentTimeMillis() - startTime) + "ms for: "
                 + name);
     }
 
-    private void scanArchiveForCoverAndTracks(Context context, DocumentFile archiveFile) {
+    private void scanArchiveForCoverAndTracks(Context context, DocumentFile archiveFile,
+            OnTrackFoundListener listener) {
         long zipStart = System.currentTimeMillis();
         myLogD("[Archive] Starting scanArchiveForCoverAndTracks...");
 
@@ -254,14 +291,14 @@ public class BookCandidate {
             this.coverImagePath = detectCoverForArchive(context, archiveFile); // Same dubious logic as original
         } else {
             // Real Zip Optimization
-            scanZipCombined(context, archiveFile);
+            scanZipCombined(context, archiveFile, listener);
         }
 
         myLogD("[Archive] scanArchiveForCoverAndTracks took: "
                 + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
     }
 
-    private void scanZipCombined(Context context, DocumentFile file) {
+    private void scanZipCombined(Context context, DocumentFile file, OnTrackFoundListener listener) {
         int trackCount = 0;
         byte[] largestImage = null;
         long largestSize = 0;
@@ -283,6 +320,10 @@ public class BookCandidate {
                             // 1. Track Count
                             if (isAudioFileName(entry.getName())) { // isAudioFileName uses getExt
                                 trackCount++;
+                                String tName = entry.getName();
+                                trackList.add(tName);
+                                if (listener != null)
+                                    listener.onTrackFound(tName);
                             }
 
                             // 2. Cover Detection
