@@ -20,6 +20,7 @@ import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.googlecode.mp4parser.DataSource;
 import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
 import com.googlecode.mp4parser.authoring.Movie;
@@ -32,6 +33,8 @@ import java.util.Objects;
 import com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class BookCandidate {
+    private boolean LOG_DEBUG = true;
+
     public Uri uri;
     public String name;
     public String sourceType; // Folder, Archive, M4B, EPUB, Audio File
@@ -113,25 +116,37 @@ public class BookCandidate {
         if (file == null)
             return;
 
+        myLogD("document file ok");
         // Calculate fields
         this.size = calculateSize(file);
+        myLogD("calculateSize ok");
         this.originalHash = computeHash(context, uri);
+        myLogD("Hash ok");
 
         if ("Folder".equals(sourceType)) {
             this.existingBookName = checkFolderAlreadyImported(context, uri.toString(), originalHash);
+            myLogD("checkFolderAlreadyImported ok");
             this.tracksCount = calculateTrackCount(file);
+            myLogD("calculateTrackCount ok");
             this.coverImagePath = detectCoverForFolder(context, file);
+            myLogD("detectCoverForFolder ok");
 
             // BookToAdd specifics
             this.audioBookName = getBookName_with2folders(uri.getPath(), false);
+            myLogD("getBookName_with2folders ok");
             this.multipleBooksCount = countRealEbookFilesRecursive(context, uri); // Using context overload
+            myLogD("countRealEbookFilesRecursive ok");
             this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
+            myLogD("checkHasOnlyZipFilesInFolder ok");
         } else {
             this.existingBookName = checkHashExists(context, originalHash);
+            myLogD("checkHashExists ok");
             this.coverImagePath = detectCoverForFile(context, file, sourceType);
+            myLogD("detectCoverForFile ok");
             this.tracksCount = 1;
             if ("M4B".equals(sourceType)) {
                 this.tracksCount = calculateTrackCountForM4B(context, file);
+                myLogD("calculateTrackCountForM4B ok");
             } else if ("Archive".equals(sourceType)) {
                 long zipStart = System.currentTimeMillis();
                 myLogD("[Archive] Starting calculateTrackCountForArchive...");
@@ -473,6 +488,7 @@ public class BookCandidate {
                     java.util.zip.ZipEntry entry;
                     while ((entry = zis.getNextEntry()) != null) {
                         if (!entry.isDirectory() && isAudioFileName(entry.getName())) {
+                            myLogD("calculateTrackCountForZip : " + entry.getName());
                             count++;
                         }
                         zis.closeEntry();
@@ -738,6 +754,7 @@ public class BookCandidate {
                 while ((entry = zis.getNextEntry()) != null) {
                     if (!entry.isDirectory()) {
                         String entryName = entry.getName().toLowerCase();
+                        myLogD("detectCoverForZip : " + entryName);
                         if (entryName.endsWith(".jpg") || entryName.endsWith(".jpeg") ||
                                 entryName.endsWith(".png") || entryName.endsWith(".webp")) {
 
@@ -848,5 +865,9 @@ public class BookCandidate {
     @Override
     public String toString() {
         return "[" + sourceType + "] " + name;
+    }
+
+    private void myLogD(String txt) {
+        if (LOG_DEBUG) KanLogger.myLogD(txt);
     }
 }
