@@ -83,8 +83,7 @@ public class MassImportScanner extends LoggerHelper {
             callback.onProgress("scanning", 0, 0, "Counting items...");
         }
 
-        collectCandidatesRecursive(root, foundCandidates, new int[] { 0 }, 0,
-                root.getName() != null ? root.getName() : "");
+        collectCandidatesRecursive(root, foundCandidates, new int[] { 0 }, 0, "");
 
         candidates.addAll(foundCandidates);
     }
@@ -103,7 +102,7 @@ public class MassImportScanner extends LoggerHelper {
         if (files == null)
             return;
 
-        myLogD("L" + level + " | Scanning path: " + currentPath);
+        myLogD(Tonio.lpad(level, (level + 1) * 3) + " | Scanning path: " + currentPath);
 
         for (DocumentFile file : files) {
             if (isCancelled)
@@ -118,7 +117,7 @@ public class MassImportScanner extends LoggerHelper {
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
                     // It's a candidate folder
-                    myLog(Tonio.lpad(level, (level+1)*3) + " | Registered Folder Candidate: " + childPath);
+                    myLog(Tonio.lpad(level, (level + 1) * 3) + " | Registered Folder Candidate: " + childPath);
                     BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder", -1);
                     candidate.path = childPath;
                     addCandidate(candidate, candidates);
@@ -130,7 +129,7 @@ public class MassImportScanner extends LoggerHelper {
                 String type = detectBookType(file);
                 if (type != null) {
                     // If it's an archive, we treat it as a container/candidate similarly
-                    myLog(Tonio.lpad(level, (level+1)*3) + " | Registered " + type + " Candidate: " + childPath);
+                    myLog(Tonio.lpad(level, (level + 1) * 3) + " | Registered " + type + " Candidate: " + childPath);
                     BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type, file.length());
                     candidate.path = childPath;
                     addCandidate(candidate, candidates);

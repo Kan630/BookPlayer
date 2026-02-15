@@ -974,6 +974,7 @@ public class BookCandidate implements Parcelable {
     // --- Cover Detection Helpers ---
 
     private String detectCoverForFolderExternally(Context context, DocumentFile folder) {
+        myLogD("using general helper to find a cover at the root level");
         try {
             CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(context,
                     folder, null);
