@@ -80,7 +80,11 @@ public class MassImportScanner extends LoggerHelper {
         List<DocumentFile> fileCandidates = new ArrayList<>();
         List<DocumentFile> zipFiles = new ArrayList<>();
 
-        collectCandidatesRecursive(root, folderCandidates, fileCandidates, zipFiles);
+        if (callback != null) {
+            callback.onProgress(0, 0, "Counting items...");
+        }
+
+        collectCandidatesRecursive(root, folderCandidates, fileCandidates, zipFiles, new int[] { 0 });
 
         List<DocumentFile> processList = new ArrayList<>();
         processList.addAll(folderCandidates);
@@ -135,21 +139,33 @@ public class MassImportScanner extends LoggerHelper {
      */
     private void collectCandidatesRecursive(DocumentFile dir,
             List<DocumentFile> folderCandidates, List<DocumentFile> fileCandidates,
-            List<DocumentFile> zipFiles) {
+            List<DocumentFile> zipFiles, int[] count) {
         if (isCancelled)
             return;
         DocumentFile[] files = dir.listFiles();
         if (files == null)
             return;
 
+        // Update progress every now and then (or for every item if not too fast)
+        // For smoother UI, maybe every 10 items or just every item ?
+        // Let's report every item for "Counting... X"
+        // But to avoid flooding, maybe we can throttle in UI or here.
+        // For now, simple report.
+
         for (DocumentFile file : files) {
             if (isCancelled)
                 return;
+
+            count[0]++;
+            if (count[0] % 5 == 0 && callback != null) { // Report every 5 items to reduce spam
+                callback.onProgress(0, 0, "counting... " + count[0] + " items found");
+            }
+
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
                     folderCandidates.add(file);
                 } else {
-                    collectCandidatesRecursive(file, folderCandidates, fileCandidates, zipFiles);
+                    collectCandidatesRecursive(file, folderCandidates, fileCandidates, zipFiles, count);
                 }
             } else {
                 String type = detectBookType(file);

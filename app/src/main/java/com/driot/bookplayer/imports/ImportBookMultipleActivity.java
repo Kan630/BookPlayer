@@ -100,6 +100,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
             }
         });
         findViewById(R.id.btnCancel).setOnClickListener(v -> {
+            myLogI("user clicked CANCEL");
             viewModel.cancelScan();
             navigateBackToMain();
         });
