@@ -21,7 +21,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -87,9 +89,13 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
     private TextView waitTextView, warningTextView, errorTextView;
     private TextView tvAppendMode;
+    private Spinner destinationFolderSpinner;
     private CheckBox cbSplit, cbCopy, cbDelete, cbUseSdCard;
     private LinearLayout llSplit, llCopy, llDelete, llUseSdCard;
-    Button btnConfirm;
+    private Button btnConfirm, btnCancel;
+    private ProgressBar progressBar;
+    private TextView tvProgressStatus;
+
     private boolean internalCheckBoxStateCalculationInProgress;
     private boolean isKO = false;
     private boolean boolAlso = false;
@@ -121,30 +127,43 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         // Initialize ViewModel
         viewModel = new androidx.lifecycle.ViewModelProvider(this).get(ImportBookSingleViewModel.class);
 
-        uri = getIntent().getParcelableExtra(EXTRA_URI);
-        String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
-        forceCopy = getIntent().getBooleanExtra(EXTRA_FORCE_COPY, false);
-        folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
+        BookCandidate passedCandidate = getIntent().getParcelableExtra(EXTRA_BOOK_CANDIDATE);
+        boolean detailMode = getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false);
+        if (detailMode) {
+            if (passedCandidate==null) {
+                myToastE("no candidate passed in detail mode");
+                return;
+            } else {
+                myLog("detail mode");
+            }
 
-        if (!(gotten_type.equals("File")
-                || gotten_type.equals("Folder")
-                || gotten_type.equals("Podcast"))) {
-            myToastEE(null, "Error picking audio - unsupported type : [" + gotten_type + "]");
-            finish();
-            return;
+        } else {
+            uri = getIntent().getParcelableExtra(EXTRA_URI);
+            String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
+            forceCopy = getIntent().getBooleanExtra(EXTRA_FORCE_COPY, false);
+            folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
+
+            if (!(gotten_type.equals("File")
+                    || gotten_type.equals("Folder")
+                    || gotten_type.equals("Podcast"))) {
+                myToastEE(null, "Error picking audio - unsupported type : [" + gotten_type + "]");
+                finish();
+                return;
+            }
+            if (Objects.isNull(uri)) {
+                myToastEE(null, "Error picking audio : [uri is null]");
+                finish();
+                return;
+            }
         }
-        if (Objects.isNull(uri)) {
-            myToastEE(null, "Error picking audio : [uri is null]");
-            finish();
-            return;
-        }
+
 
         TextView tvFileName = findViewById(R.id.tvFileName);
-        android.widget.ImageView ivCover = findViewById(R.id.ivCover);
+        ImageView ivCover = findViewById(R.id.ivCover);
         TextView tvMimeExtension = findViewById(R.id.tvMimeExtension);
         TextView tvInfoLine1 = findViewById(R.id.tvInfoLine1);
         btnConfirm = findViewById(R.id.btnConfirm);
-        Button btnCancel = findViewById(R.id.btnCancel);
+        btnCancel = findViewById(R.id.btnCancel);
 
         waitTextView = findViewById(R.id.waitTextView);
         waitTextView.setText(getString(R.string.init_please_wait));
@@ -154,6 +173,11 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         errorTextView.setVisibility(View.GONE);
 
         tvAppendMode = findViewById(R.id.tvAppendMode);
+        destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
+
+        progressBar = findViewById(R.id.loadingProgressBar);
+        tvProgressStatus = findViewById(R.id.tvProgressStatus);
+
 
         cbSplit = findViewById(R.id.cbSplitM4B);
         cbCopy = findViewById(R.id.cbCopyInternal);
@@ -165,8 +189,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         llDelete = findViewById(R.id.ll_delete_source);
 
         tvFileName.setText("...");
-        displayAppendWarning();
-        buildDestinationFolderSpinner();
 
         // Observe BookCandidate from ViewModel
         viewModel.getBookCandidate().observe(this, bookCandidate -> {
@@ -195,19 +217,25 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
             tvInfoLine1.setText(bookCandidate.infoLine1);
 
+            /*
             if ("Folder".equals(gotten_type)) {
                 startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension, bookCandidate.playType);
             } else {
                 tvMimeExtension.setText(bookCandidate.infoMimeExtension);
             }
+             */
+            tvMimeExtension.setText(bookCandidate.infoMimeExtension);
 
-            // Now that candidate is ready, activate UI
-            if (!initialHashCheckTriggered) {
-                checkHashDoesNotAlreadyExist();
-                initialHashCheckTriggered = true;
+            if (!detailMode) {
+                // Now that candidate is ready, activate UI
+                if (!initialHashCheckTriggered) {
+                    checkHashDoesNotAlreadyExist();
+                    initialHashCheckTriggered = true;
+                }
+                calculateCheckboxState(bookCandidate);
+                setupCheckboxListeners(bookCandidate);
+
             }
-            calculateCheckboxState(bookCandidate);
-            setupCheckboxListeners(bookCandidate);
 
             // Check for ebook warning
             if (Var.SUPPORTED_EBOOK_EXTENSIONS
@@ -215,66 +243,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 showWarning(getString(R.string.text_to_speech) + " " + getString(R.string.still_in_development) + "\n"
                         + getString(R.string.beta_test) + "\n" + getString(R.string.weird_behavior_could_happen));
             }
+
         });
-
-        // Observe originalHash from ViewModel
-        viewModel.getOriginalHash().observe(this, hash -> {
-            originalHash = hash;
-        });
-
-        // Observe loading state
-        viewModel.getIsLoading().observe(this, isLoading -> {
-            if (isLoading) {
-                waitTextView.setVisibility(View.VISIBLE);
-            } else {
-                waitTextView.setVisibility(View.GONE);
-            }
-        });
-
-        // Observe errors
-        viewModel.getErrorMessage().observe(this, errorMsg -> {
-            if (errorMsg != null && !errorMsg.isEmpty()) {
-                myToastEE(null, errorMsg);
-                finish();
-            }
-        });
-
-        // Observe loading status for ProgressBar
-        android.widget.ProgressBar progressBar = findViewById(R.id.loadingProgressBar);
-        TextView tvProgressStatus = findViewById(R.id.tvProgressStatus);
-
-        viewModel.getLoadingStatus().observe(this, status -> {
-            if (status == 0) {
-                // Fast Init - Yellow
-                progressBar.setVisibility(View.VISIBLE);
-                progressBar.setIndeterminate(true);
-                progressBar.getIndeterminateDrawable().setColorFilter(
-                        getResources().getColor(R.color.yellow, null),
-                        android.graphics.PorterDuff.Mode.SRC_IN);
-
-                tvProgressStatus.setVisibility(View.VISIBLE);
-                tvProgressStatus.setText(R.string.loading_step_1);
-                tvProgressStatus.setTextColor(getResources().getColor(R.color.yellow, null));
-
-            } else if (status == 1) {
-                // Heavy Init - Light Green
-                progressBar.setVisibility(View.VISIBLE);
-                progressBar.setIndeterminate(true);
-                progressBar.getIndeterminateDrawable().setColorFilter(
-                        getResources().getColor(R.color.green_300, null),
-                        android.graphics.PorterDuff.Mode.SRC_IN);
-
-                tvProgressStatus.setVisibility(View.VISIBLE);
-                tvProgressStatus.setText(R.string.loading_step_2);
-                tvProgressStatus.setTextColor(getResources().getColor(R.color.green_300, null));
-
-            } else {
-                // Done
-                progressBar.setVisibility(View.GONE);
-                tvProgressStatus.setVisibility(View.GONE);
-            }
-        });
-
         // Observe real-time tracks
         LinearLayout llTrackListContainer = findViewById(R.id.llTrackListContainer);
         LinearLayout llTrackList = findViewById(R.id.llTrackList);
@@ -303,24 +273,18 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
         });
 
-        // Start BookCandidate initialization
-        // Start BookCandidate initialization or use passed candidate
-        BookCandidate passedCandidate = getIntent().getParcelableExtra(EXTRA_BOOK_CANDIDATE);
-        boolean detailMode = getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false);
 
-        if (passedCandidate != null) {
+        if (detailMode) {
+            // DETAIL MODE
+
             myLogI("Using passed BookCandidate: " + passedCandidate.name);
             viewModel.setBookCandidate(passedCandidate);
-        } else {
-            // Start async initialization if no candidate passed
-            // Only if not already initialized (ViewModel survives config changes)
-            if (viewModel.getBookCandidate().getValue() == null) {
-                viewModel.initializeBookCandidate(uri);
-            }
-        }
 
-        // Detail Mode UI adjustments
-        if (detailMode) {
+            findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
+            findViewById(R.id.vSeparator1).setVisibility(View.GONE);
+            findViewById(R.id.llOptions).setVisibility(View.GONE);
+            findViewById(R.id.vSeparator2).setVisibility(View.GONE);
+            findViewById(R.id.llButtons).setVisibility(View.GONE);
             btnConfirm.setVisibility(View.GONE);
             btnCancel.setText(R.string.Close); // Change Cancel to Close
             // Hide other editing/importing options if needed
@@ -329,198 +293,261 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             llUseSdCard.setVisibility(View.GONE);
             llDelete.setVisibility(View.GONE);
             tvAppendMode.setVisibility(View.GONE);
-            // Hide Folder spinner
-            Spinner spinner = findViewById(R.id.spinner_destination_folder);
-            if (spinner != null)
-                spinner.setVisibility(View.GONE);
-        }
+            destinationFolderSpinner.setVisibility(View.GONE);
+            tvProgressStatus.setVisibility(View.GONE);
+            waitTextView.setVisibility(View.GONE);
+            progressBar.setVisibility(View.GONE);
 
-        btnCancel.setOnClickListener(v -> {
-            myLogI("------ USER CLICKS btn CANCEL....   ");
-            cancelScan = true;
-            finish();
-        });
 
-        // ----------------------------------------------------------------------------------------------------------------------------------
-        /// CHECKBOXES
-        // ----------------------------------------------------------------------------------------------------------------------------------
-
-        llSplit.setOnClickListener(v -> cbSplit.toggle());
-        llCopy.setOnClickListener(v -> cbCopy.toggle());
-        llUseSdCard.setOnClickListener(v -> cbUseSdCard.toggle());
-        llDelete.setOnClickListener(v -> cbDelete.toggle());
-
-        cbSplit.setChecked(Option.getSplitM4b());
-        if (forceCopy) {
-            cbCopy.setChecked(true);
         } else {
-            cbCopy.setChecked(Option.getCopyFile());
-        }
-        cbUseSdCard.setChecked(Option.getUseSdCard());
-        cbDelete.setChecked(Option.getDeleteSourceFile());
+            // SINGLE IMPORT MODE
 
-        // calculateCheckboxState(); -> Moved to async callback
-
-        cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLogI("USER CHECKS -SPLIT- : " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress) {
-                BookCandidate bc = viewModel.getBookCandidate().getValue();
-                if (bc != null)
-                    calculateCheckboxState(bc);
-            }
-        });
-        cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("USER CHECKS -COPY- : " + isChecked);
-            if (!isChecked) {
-                askForPermission();
-                reDo_checkPathDoesNotAlreadyExist();
-            } else {
-                reDo_checkPathDoesNotAlreadyExist();
-            }
-            if (!internalCheckBoxStateCalculationInProgress) {
-                BookCandidate bc = viewModel.getBookCandidate().getValue();
-                if (bc != null)
-                    calculateCheckboxState(bc);
-            }
-        });
-        cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("USER CHECKS -SD CARD- : " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress) {
-                BookCandidate bc = viewModel.getBookCandidate().getValue();
-                if (bc != null)
-                    calculateCheckboxState(bc);
-            }
-        });
-        cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            myLog("USER CHECKS -DELETE- " + isChecked);
-            if (!internalCheckBoxStateCalculationInProgress) {
-                if (isChecked) {
-                    new AlertDialog.Builder(this)
-                            .setTitle(getString(R.string.option_alert_delete_picked_source_file_title))
-                            .setMessage(getString(R.string.option_alert_delete_picked_source_file_message))
-                            .setCancelable(false)
-                            .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                BookCandidate bc = viewModel.getBookCandidate().getValue();
-                                if (bc != null)
-                                    calculateCheckboxState(bc);
-                            })
-                            .setNegativeButton(android.R.string.cancel, (dialog, which) -> cbDelete.setChecked(false))
-                            .show();
-                } else {
-                    Option.setDeleteSourceFile(false);
-                }
-            }
-        });
-
-        // -------------------------------------------------------------------------------------------------------------------------------------------------
-        // CONFIRM BUTTON
-        // -------------------------------------------------------------------------------------------------------------------------------------------------
-
-        btnConfirm.setOnClickListener(v -> {
-            myLogI("------ USER CLICKS btnConfirm....   ");
-
-            // Disable immediately to prevent double taps
-            btnConfirm.setEnabled(false);
-
-            // Cancel any ongoing heavy initialization
-
-            // Observe Real-time tracks
-            viewModel.cancelInitialization();
-
-            // Get bookCandidate from ViewModel
-            BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
-            if (bookCandidate == null) {
-                myLogEE(null, "bookCandidate is null when confirm clicked");
-                btnConfirm.setEnabled(true);
-                return;
+            if (viewModel.getBookCandidate().getValue() == null) {
+                viewModel.initializeBookCandidate(uri);
             }
 
-            AppDatabase.databaseReadExecutor.execute(() -> {
-                String futureFolderName;
-                String finalFutureFolderPath;
+            displayAppendWarning();
+            buildDestinationFolderSpinner();
 
-                if (folderToAddTo == null) {
-                    String futureFolderPath;
-                    long lCheck;
-                    if (!cbCopy.isChecked()) {
-                        lCheck = 0;
-                        futureFolderPath = uri.toString();
-                    } else {
-                        futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/"
-                                + audioBookTitle;
-                        myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : ["
-                                + futureFolderPath + "]");
-                        lCheck = AppDatabase.getDatabase(this).folderDao()
-                                .folderAlreadyExist_checkFolderPath(futureFolderPath);
-                    }
-                    finalFutureFolderPath = futureFolderPath;
-                    // btnConfirm.setEnabled(true);
-                    if (lCheck > 0) {
-                        futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
-                        myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath
-                                + "]");
-                        myLog("filesystem folder name changed to [" + futureFolderName + "]");
-                    } else {
-                        futureFolderName = audioBookTitle;
-                        myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
-                    }
-                } else {
-                    myLogD("adding to existing book => overwriting folder values");
-                    audioBookTitle = folderToAddTo.getName();
-                    futureFolderName = folderToAddTo.getName();
-                    finalFutureFolderPath = folderToAddTo.getPath();
-                }
-
-                final boolean anotherRunning = ImportHelper.isAnyImportActiveSync(this.getApplicationContext());
-
-                ImportBookTaskState state = new ImportBookTaskState();
-                state.originalUri = uri;
-                state.sourceType = bookCandidate.sourceType;
-                state.dynamicUri = uri;
-                state.dynamicType = "Folder".equals(bookCandidate.sourceType) ? "Folder" : "File";
-                state.title = audioBookTitle;
-                state.futureFolderName = futureFolderName;
-                state.futureFolderPath = finalFutureFolderPath;
-                state.optionSplit = cbSplit.isChecked();
-                state.optionCopy = cbCopy.isChecked();
-                state.optionDelete = cbDelete.isChecked();
-                state.originalFile = bookCandidate.originalFile;
-                state.originalHash = originalHash;
-                state.sourceLocation = bookCandidate.sourceLocation;
-                state.fileExtension = bookCandidate.fileExtension;
-                state.mimeType = bookCandidate.mimeType;
-                state.playType = bookCandidate.playType;
-                state.addToExistingFolderId = (folderToAddTo == null ? -1 : folderToAddTo.getId());
-
-                runOnUiThread(() -> {
-                    if (anotherRunning) {
-                        // Re-enable so user can try again later
-                        btnConfirm.setEnabled(true);
-                        showWarning(getString(R.string.please_wait_another_book));
-                        return;
-                    }
-
-                    // No active import -> enqueue and finish
-                    setResult(RESULT_OK);
-
-                    // Enqueue on background (or main—WorkManager is fine either way)
-                    AppDatabase.databaseWriteExecutor.execute(() -> BookLoadingWorkLauncher
-                            .launch(this.getApplicationContext(), state, /* sequential = */ false));
-                    finish();
-                });
-
+            // Observe originalHash from ViewModel
+            viewModel.getOriginalHash().observe(this, hash -> {
+                originalHash = hash;
             });
-        });
 
-        desactivateInteractive();
+            // Observe loading state
+            viewModel.getIsLoading().observe(this, isLoading -> {
+                if (isLoading) {
+                    waitTextView.setVisibility(View.VISIBLE);
+                } else {
+                    waitTextView.setVisibility(View.GONE);
+                }
+            });
 
-        if (getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false)) {
-            findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
-            findViewById(R.id.vSeparator1).setVisibility(View.GONE);
-            findViewById(R.id.llOptions).setVisibility(View.GONE);
-            findViewById(R.id.vSeparator2).setVisibility(View.GONE);
-            findViewById(R.id.llButtons).setVisibility(View.GONE);
+            // Observe errors
+            viewModel.getErrorMessage().observe(this, errorMsg -> {
+                if (errorMsg != null && !errorMsg.isEmpty()) {
+                    myToastEE(null, errorMsg);
+                    finish();
+                }
+            });
+
+            // Observe loading status for ProgressBar
+
+            viewModel.getLoadingStatus().observe(this, status -> {
+                if (status == 0) {
+                    // Fast Init - Yellow
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setIndeterminate(true);
+                    progressBar.getIndeterminateDrawable().setColorFilter(
+                            getResources().getColor(R.color.yellow, null),
+                            android.graphics.PorterDuff.Mode.SRC_IN);
+
+                    tvProgressStatus.setVisibility(View.VISIBLE);
+                    tvProgressStatus.setText(R.string.loading_step_1);
+                    tvProgressStatus.setTextColor(getResources().getColor(R.color.yellow, null));
+
+                } else if (status == 1) {
+                    // Heavy Init - Light Green
+                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setIndeterminate(true);
+                    progressBar.getIndeterminateDrawable().setColorFilter(
+                            getResources().getColor(R.color.green_300, null),
+                            android.graphics.PorterDuff.Mode.SRC_IN);
+
+                    tvProgressStatus.setVisibility(View.VISIBLE);
+                    tvProgressStatus.setText(R.string.loading_step_2);
+                    tvProgressStatus.setTextColor(getResources().getColor(R.color.green_300, null));
+
+                } else {
+                    // Done
+                    progressBar.setVisibility(View.GONE);
+                    tvProgressStatus.setVisibility(View.GONE);
+                }
+            });
+
+            btnCancel.setOnClickListener(v -> {
+                myLogI("------ USER CLICKS btn CANCEL....   ");
+                cancelScan = true;
+                finish();
+            });
+
+            // ----------------------------------------------------------------------------------------------------------------------------------
+            /// CHECKBOXES
+            // ----------------------------------------------------------------------------------------------------------------------------------
+
+            llSplit.setOnClickListener(v -> cbSplit.toggle());
+            llCopy.setOnClickListener(v -> cbCopy.toggle());
+            llUseSdCard.setOnClickListener(v -> cbUseSdCard.toggle());
+            llDelete.setOnClickListener(v -> cbDelete.toggle());
+
+            cbSplit.setChecked(Option.getSplitM4b());
+            if (forceCopy) {
+                cbCopy.setChecked(true);
+            } else {
+                cbCopy.setChecked(Option.getCopyFile());
+            }
+            cbUseSdCard.setChecked(Option.getUseSdCard());
+            cbDelete.setChecked(Option.getDeleteSourceFile());
+
+            // calculateCheckboxState(); -> Moved to async callback
+
+            cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                myLogI("USER CHECKS -SPLIT- : " + isChecked);
+                if (!internalCheckBoxStateCalculationInProgress) {
+                    BookCandidate bc = viewModel.getBookCandidate().getValue();
+                    if (bc != null)
+                        calculateCheckboxState(bc);
+                }
+            });
+            cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                myLog("USER CHECKS -COPY- : " + isChecked);
+                if (!isChecked) {
+                    askForPermission();
+                    reDo_checkPathDoesNotAlreadyExist();
+                } else {
+                    reDo_checkPathDoesNotAlreadyExist();
+                }
+                if (!internalCheckBoxStateCalculationInProgress) {
+                    BookCandidate bc = viewModel.getBookCandidate().getValue();
+                    if (bc != null)
+                        calculateCheckboxState(bc);
+                }
+            });
+            cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                myLog("USER CHECKS -SD CARD- : " + isChecked);
+                if (!internalCheckBoxStateCalculationInProgress) {
+                    BookCandidate bc = viewModel.getBookCandidate().getValue();
+                    if (bc != null)
+                        calculateCheckboxState(bc);
+                }
+            });
+            cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                myLog("USER CHECKS -DELETE- " + isChecked);
+                if (!internalCheckBoxStateCalculationInProgress) {
+                    if (isChecked) {
+                        new AlertDialog.Builder(this)
+                                .setTitle(getString(R.string.option_alert_delete_picked_source_file_title))
+                                .setMessage(getString(R.string.option_alert_delete_picked_source_file_message))
+                                .setCancelable(false)
+                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
+                                    BookCandidate bc = viewModel.getBookCandidate().getValue();
+                                    if (bc != null)
+                                        calculateCheckboxState(bc);
+                                })
+                                .setNegativeButton(android.R.string.cancel, (dialog, which) -> cbDelete.setChecked(false))
+                                .show();
+                    } else {
+                        Option.setDeleteSourceFile(false);
+                    }
+                }
+            });
+
+            // -------------------------------------------------------------------------------------------------------------------------------------------------
+            // CONFIRM BUTTON
+            // -------------------------------------------------------------------------------------------------------------------------------------------------
+
+            btnConfirm.setOnClickListener(v -> {
+                myLogI("------ USER CLICKS btnConfirm....   ");
+
+                // Disable immediately to prevent double taps
+                btnConfirm.setEnabled(false);
+
+                // Cancel any ongoing heavy initialization
+
+                // Observe Real-time tracks
+                viewModel.cancelInitialization();
+
+                // Get bookCandidate from ViewModel
+                BookCandidate bookCandidate = viewModel.getBookCandidate().getValue();
+                if (bookCandidate == null) {
+                    myLogEE(null, "bookCandidate is null when confirm clicked");
+                    btnConfirm.setEnabled(true);
+                    return;
+                }
+
+                AppDatabase.databaseReadExecutor.execute(() -> {
+                    String futureFolderName;
+                    String finalFutureFolderPath;
+
+                    if (folderToAddTo == null) {
+                        String futureFolderPath;
+                        long lCheck;
+                        if (!cbCopy.isChecked()) {
+                            lCheck = 0;
+                            futureFolderPath = uri.toString();
+                        } else {
+                            futureFolderPath = getUnzipFolder(this, cbUseSdCard.isChecked()).getAbsolutePath() + "/"
+                                    + audioBookTitle;
+                            myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : ["
+                                    + futureFolderPath + "]");
+                            lCheck = AppDatabase.getDatabase(this).folderDao()
+                                    .folderAlreadyExist_checkFolderPath(futureFolderPath);
+                        }
+                        finalFutureFolderPath = futureFolderPath;
+                        // btnConfirm.setEnabled(true);
+                        if (lCheck > 0) {
+                            futureFolderName = audioBookTitle + " " + getCurrentDateTimeString();
+                            myLogW("folder path does already exist in DB (internal copy case) : [" + finalFutureFolderPath
+                                    + "]");
+                            myLog("filesystem folder name changed to [" + futureFolderName + "]");
+                        } else {
+                            futureFolderName = audioBookTitle;
+                            myLogD("ok, filesystem folder name = [" + futureFolderName + "]");
+                        }
+                    } else {
+                        myLogD("adding to existing book => overwriting folder values");
+                        audioBookTitle = folderToAddTo.getName();
+                        futureFolderName = folderToAddTo.getName();
+                        finalFutureFolderPath = folderToAddTo.getPath();
+                    }
+
+                    final boolean anotherRunning = ImportHelper.isAnyImportActiveSync(this.getApplicationContext());
+
+                    ImportBookTaskState state = new ImportBookTaskState();
+                    state.originalUri = uri;
+                    state.sourceType = bookCandidate.sourceType;
+                    state.dynamicUri = uri;
+                    state.dynamicType = "Folder".equals(bookCandidate.sourceType) ? "Folder" : "File";
+                    state.title = audioBookTitle;
+                    state.futureFolderName = futureFolderName;
+                    state.futureFolderPath = finalFutureFolderPath;
+                    state.optionSplit = cbSplit.isChecked();
+                    state.optionCopy = cbCopy.isChecked();
+                    state.optionDelete = cbDelete.isChecked();
+                    state.originalFile = bookCandidate.originalFile;
+                    state.originalHash = originalHash;
+                    state.sourceLocation = bookCandidate.sourceLocation;
+                    state.fileExtension = bookCandidate.fileExtension;
+                    state.mimeType = bookCandidate.mimeType;
+                    state.playType = bookCandidate.playType;
+                    state.addToExistingFolderId = (folderToAddTo == null ? -1 : folderToAddTo.getId());
+
+                    runOnUiThread(() -> {
+                        if (anotherRunning) {
+                            // Re-enable so user can try again later
+                            btnConfirm.setEnabled(true);
+                            showWarning(getString(R.string.please_wait_another_book));
+                            return;
+                        }
+
+                        // No active import -> enqueue and finish
+                        setResult(RESULT_OK);
+
+                        // Enqueue on background (or main—WorkManager is fine either way)
+                        AppDatabase.databaseWriteExecutor.execute(() -> BookLoadingWorkLauncher
+                                .launch(this.getApplicationContext(), state, /* sequential = */ false));
+                        finish();
+                    });
+
+                });
+            });
+
+            desactivateInteractive();
+
         }
+
+
+
 
     }
 
@@ -928,7 +955,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     }
 
     private void buildDestinationFolderSpinner() {
-        Spinner destinationFolderSpinner = findViewById(R.id.spinner_destination_folder);
 
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<Folder> items = AppDatabase.getDatabase(this).folderDao().getAll();
