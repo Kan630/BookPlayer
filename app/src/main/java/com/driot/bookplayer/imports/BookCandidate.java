@@ -35,6 +35,7 @@ import android.os.Parcelable;
 
 public class BookCandidate implements Parcelable {
     private boolean LOG_DEBUG = true;
+    private boolean VERBOSE_DEBUG = false;
 
     public Uri uri;
     public String name;
@@ -714,7 +715,7 @@ public class BookCandidate implements Parcelable {
         // 2. Recursive Scan
         trackList.clear();
         FolderScanState state = new FolderScanState();
-        scanFolderRecursive(context, rootDir, listener, state);
+        scanFolderRecursive(context, rootDir, listener, state, 0, "");
 
         this.size = state.totalSize;
         this.tracksCount = state.audioCount;
@@ -741,7 +742,7 @@ public class BookCandidate implements Parcelable {
     }
 
     private void scanFolderRecursive(Context context, DocumentFile dir, OnMetadataListener listener,
-            FolderScanState state) {
+            FolderScanState state, int level, String currentPath) {
         DocumentFile[] files = dir.listFiles();
         if (files == null)
             return;
@@ -757,9 +758,12 @@ public class BookCandidate implements Parcelable {
             if (Thread.currentThread().isInterrupted())
                 return;
 
-            myLogD("scanFolderRecursive: " + child.getName());
+            String fileName = safeName(child);
+            String childPath = currentPath.isEmpty() ? fileName : currentPath + "/" + fileName;
+            myLogD(Tonio.lpad(level, (level + 1) * 3) + " | scanFolderRecursive: " + childPath);
+
             if (child.isDirectory()) {
-                scanFolderRecursive(context, child, listener, state);
+                scanFolderRecursive(context, child, listener, state, level + 1, childPath);
             } else {
                 state.totalSize += child.length();
 
@@ -980,6 +984,7 @@ public class BookCandidate implements Parcelable {
                     folder, null);
 
             if (result != null && result.imagePath != null) {
+                myLog("image found through external helper");
                 return result.imagePath;
             }
         } catch (Exception ignored) {
@@ -989,6 +994,7 @@ public class BookCandidate implements Parcelable {
 
     private String extractEmbeddedCoverFromFile(Context context, DocumentFile file) {
         if (Tonio.getExtension(file.getName()).equalsIgnoreCase("mp3")) {
+            myLogDD("bypassing extract embedded cover for mp3 - 2");
             myLogD("bypassing extract embedded cover for mp3 - 2");
             return null;
         }
@@ -1168,6 +1174,10 @@ public class BookCandidate implements Parcelable {
     private void myLogD(String txt) {
         if (LOG_DEBUG)
             KanLogger.myLogD(txt);
+    }
+    private void myLogDD(String txt) {
+        if (VERBOSE_DEBUG)
+            myLogD(txt);
     }
 
     private String extractCleanChapterTitle(com.googlecode.mp4parser.authoring.Sample sample) {

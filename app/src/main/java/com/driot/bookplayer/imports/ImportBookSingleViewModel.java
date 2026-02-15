@@ -110,7 +110,7 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
 
                     @Override
                     public void onCoverFound(String imagePath) {
-                        myLogD("Early cover found: " + imagePath);
+                        myLog("Early cover found: " + imagePath);
                         bookCandidate.postValue(candidate); // Trigger UI update to show cover
                     }
                 });
@@ -118,7 +118,9 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
                 if (Thread.currentThread().isInterrupted())
                     return;
 
-                myLogD("BookCandidate HEAVY init DONE: " + candidate.name);
+                myLog("-----------------------");
+                myLog("HEAVY init DONE: " + candidate.name);
+                myLog("-----------------------");
                 bookCandidate.postValue(candidate); // Post again with full data
 
                 isLoading.postValue(false);
