@@ -90,8 +90,10 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         }
 
         String sizeStr;
-        if (item.size == -1) {
-            sizeStr = "calculating size..."; // Pending size
+        if (item.isCalculating) {
+            sizeStr = "calculating size...";
+        } else if (item.size == -1) {
+            sizeStr = ""; // Pending but waiting its turn
         } else {
             sizeStr = Tonio.getReadableSize(item.size);
         }

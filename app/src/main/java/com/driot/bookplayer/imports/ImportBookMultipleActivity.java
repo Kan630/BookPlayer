@@ -154,7 +154,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
 
     private void initializeViews() {
         llScanning = findViewById(R.id.llScanning);
-        tvProgress = findViewById(R.id.tvProgress);
+        tvProgress = findViewById(R.id.tvMassImportProgress);
         tvCount = findViewById(R.id.tvCount);
         btnConfirmImport = findViewById(R.id.btnConfirmImport);
         storageBarInternal = findViewById(R.id.storageBarInternal);

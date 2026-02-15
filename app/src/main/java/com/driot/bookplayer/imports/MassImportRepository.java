@@ -116,13 +116,19 @@ public class MassImportRepository {
             final long UPDATE_INTERVAL_MS = 250;
 
             @Override
-            public void onProgress(int current, int total, String currentPath) {
+            public void onProgress(String progressType, int current, int total, String currentPath) {
                 if (scanId != currentScanId)
                     return;
                 mainHandler.post(() -> {
                     if (scanId != currentScanId)
                         return;
-                    progressText.setValue("Scanning " + current + "/" + total + ": " + currentPath);
+                    if (("scanning").equalsIgnoreCase(progressType)) {
+                        progressText.setValue("Scanning " + current + "/" + total + ": " + currentPath);
+                    } else if (("counting").equalsIgnoreCase(progressType)) {
+                        progressText.setValue("Counting...   " + current + " items found");
+                    } else {
+                        progressText.setValue("Error...");
+                    }
                     progressCurrent.setValue(current);
                     progressTotal.setValue(total);
                 });
@@ -190,6 +196,14 @@ public class MassImportRepository {
 
                 // Skip if already loaded (unlikely here but ensuring idempotency)
                 if (!candidate.isHeavyLoaded) {
+                    // Update UI to show "calculating..."
+                    candidate.isCalculating = true;
+                    mainHandler.post(() -> {
+                        if (scanId == processingScanId) {
+                            this.candidates.setValue(candidates);
+                        }
+                    });
+
                     try {
                         // Throttled UI update listener
                         BookCandidate.OnTrackFoundListener listener = new BookCandidate.OnTrackFoundListener() {
@@ -212,6 +226,8 @@ public class MassImportRepository {
                     } catch (Exception e) {
                         LoggerStaticHelper.myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
                     }
+
+                    candidate.isCalculating = false;
                 }
 
                 if (scanId != processingScanId)

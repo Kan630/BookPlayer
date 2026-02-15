@@ -59,6 +59,7 @@ public class BookCandidate implements Parcelable {
     public boolean isBroken = false;
     public boolean isMimeSupported = true;
     public boolean isHeavyLoaded = false;
+    public boolean isCalculating = false; // UI state for heavy load progress
     public String audioBookName = "init..."; // formatted for display
     public int multipleBooksCount = 0;
     public boolean hasOnlyZipFilesInFolder = false;

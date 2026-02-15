@@ -20,7 +20,7 @@ public class MassImportScanner extends LoggerHelper {
     private volatile boolean isCancelled = false;
 
     public interface Callback {
-        void onProgress(int current, int total, String currentPath);
+        void onProgress(String type, int current, int total, String currentPath);
 
         void onFound(BookCandidate candidate);
     }
@@ -81,7 +81,7 @@ public class MassImportScanner extends LoggerHelper {
         List<DocumentFile> zipFiles = new ArrayList<>();
 
         if (callback != null) {
-            callback.onProgress(0, 0, "Counting items...");
+            callback.onProgress("scanning", 0, 0, "Counting items...");
         }
 
         collectCandidatesRecursive(root, folderCandidates, fileCandidates, zipFiles, new int[] { 0 });
@@ -99,7 +99,7 @@ public class MassImportScanner extends LoggerHelper {
             if (isCancelled)
                 return;
             current++;
-            callback.onProgress(current, total, safeName(file));
+            callback.onProgress("scanning", current, total, safeName(file));
             myLogD("--------------------------------------------------------");
             myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
             myLogD("--------------------------------------------------------");
@@ -114,7 +114,7 @@ public class MassImportScanner extends LoggerHelper {
             if (isCancelled)
                 return;
             current++;
-            callback.onProgress(current, total, safeName(file));
+            callback.onProgress("scanning", current, total, safeName(file));
             myLogD("--------------------------------------------------------");
             myLog("Scanning File n°" + current + "/" + total + " : " + safeName(file));
             myLogD("--------------------------------------------------------");
@@ -157,9 +157,9 @@ public class MassImportScanner extends LoggerHelper {
                 return;
 
             count[0]++;
-            if (count[0] % 5 == 0 && callback != null) { // Report every 5 items to reduce spam
-                callback.onProgress(0, 0, "counting... " + count[0] + " items found");
-            }
+            //if (count[0] % 5 == 0 && callback != null) { // Report every 5 items to reduce spam
+                callback.onProgress("counting", count[0], 0, "");
+            //}
 
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
@@ -193,7 +193,7 @@ public class MassImportScanner extends LoggerHelper {
 
             if (file.isDirectory()) {
                 current++;
-                callback.onProgress(current, total, safeName(file));
+                callback.onProgress("scanning", current, total, safeName(file));
                 myLogD("--------------------------------------------------------");
                 myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
                 myLogD("--------------------------------------------------------");
@@ -207,10 +207,10 @@ public class MassImportScanner extends LoggerHelper {
                 String type = detectBookType(file);
                 if ("Archive".equals(type)) {
                     deferredArchives.add(file);
-                    callback.onProgress(current, total, "Deferring: " + safeName(file));
+                    callback.onProgress("scanning", current, total, "Deferring: " + safeName(file));
                 } else {
                     current++;
-                    callback.onProgress(current, total, safeName(file));
+                    callback.onProgress("scanning", current, total, safeName(file));
                     myLogD("--------------------------------------------------------");
                     myLog("Scanning File n°" + current + "/" + total + " : " + safeName(file));
                     myLogD("--------------------------------------------------------");
@@ -240,7 +240,7 @@ public class MassImportScanner extends LoggerHelper {
             // Increment now that we are actually processing it
             currentCount++;
             String fileName = safeName(file);
-            callback.onProgress(currentCount, totalItems, "Processing archive: " + fileName);
+            callback.onProgress("scanning", currentCount, totalItems, "Processing archive: " + fileName);
             myLogD("--------------------------------------------------------");
             myLog("Scanning Bundle " + currentCount + "/" + totalItems + " : " + fileName);
             myLogD("--------------------------------------------------------");
@@ -272,7 +272,7 @@ public class MassImportScanner extends LoggerHelper {
             if (isCancelled)
                 break;
             count++;
-            callback.onProgress(count, total, safeName(file));
+            callback.onProgress("scanning", count, total, safeName(file));
 
             if (file.isDirectory()) {
                 // Check logic for folder
