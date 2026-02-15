@@ -108,7 +108,6 @@ public class MassImportScanner extends LoggerHelper {
             count[0]++;
             callback.onProgress("counting", count[0], 0, "");
             myLogD("counting: " + count[0] + " : " + safeName(file));
-            myLogD("--------------------------------------------------------");
 
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {

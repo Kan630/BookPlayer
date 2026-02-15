@@ -107,8 +107,15 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         holder.tvType.setText(txtInfo);
 
         // Highlight active calculation with a green border
+        // Highlight active calculation with a border
         if (item.isCalculating) {
+            // green border during the heavy phase
             holder.cvRoot.setStrokeWidth((int) Tonio.dpToPx(2, holder.itemView.getContext()));
+            holder.cvRoot.setStrokeColor(holder.itemView.getContext().getColor(R.color.green_500));
+        } else if (item.isEasyCalculating) {
+            // yellow border during the easy phase
+            holder.cvRoot.setStrokeWidth((int) Tonio.dpToPx(2, holder.itemView.getContext()));
+            holder.cvRoot.setStrokeColor(holder.itemView.getContext().getColor(R.color.yellow_500));
         } else {
             holder.cvRoot.setStrokeWidth(0);
         }

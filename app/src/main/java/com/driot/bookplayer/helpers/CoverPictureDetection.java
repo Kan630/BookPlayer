@@ -93,6 +93,7 @@ public class CoverPictureDetection {
 
         // Scan folder for images
         for (DocumentFile file : folder.listFiles()) {
+            myLogD("scanning for cover image : " + file.getName());
             if (file.isFile() && isCoverImage(file)) {
                 long imageSize = file.length();
                 if (bestImagePath == null || imageSize > bestImageSize) {

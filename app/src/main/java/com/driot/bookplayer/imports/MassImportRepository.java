@@ -182,12 +182,18 @@ public class MassImportRepository {
                 if (scanId != currentScanId)
                     return;
                 BookCandidate c = result.get(i);
-                c.loadEasyMetadata(context);
                 int current = i + 1;
+                int total = result.size();
+                c.isEasyCalculating = true;
                 mainHandler.post(() -> {
+                    progressText.setValue("checking " + current + "/" + total + "... (if not already imported)");
                     progressCurrent.setValue(current);
-                    candidates.setValue(result); // Refresh list for names/types
+                    candidates.setValue(result); // Refresh list for names/types and highlighting
                 });
+
+                c.loadEasyMetadata(context);
+
+                c.isEasyCalculating = false;
             }
 
             mainHandler.post(() -> {

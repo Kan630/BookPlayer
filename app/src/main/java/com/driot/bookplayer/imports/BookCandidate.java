@@ -62,6 +62,7 @@ public class BookCandidate implements Parcelable {
     public boolean isCalculating = false; // UI state for heavy load progress
     public boolean isEasyLoaded = false;
     public boolean isSizeCalculated = false;
+    public boolean isEasyCalculating = false; // UI state for easy load progress
     public String audioBookName = "init..."; // formatted for display
     public int multipleBooksCount = 0;
     public boolean hasOnlyZipFilesInFolder = false;
@@ -100,6 +101,7 @@ public class BookCandidate implements Parcelable {
         isHeavyLoaded = in.readByte() != 0;
         isEasyLoaded = in.readByte() != 0;
         isSizeCalculated = in.readByte() != 0;
+        isEasyCalculating = in.readByte() != 0;
         audioBookName = in.readString();
         multipleBooksCount = in.readInt();
         hasOnlyZipFilesInFolder = in.readByte() != 0;
@@ -133,6 +135,7 @@ public class BookCandidate implements Parcelable {
         dest.writeByte((byte) (isHeavyLoaded ? 1 : 0));
         dest.writeByte((byte) (isEasyLoaded ? 1 : 0));
         dest.writeByte((byte) (isSizeCalculated ? 1 : 0));
+        dest.writeByte((byte) (isEasyCalculating ? 1 : 0));
         dest.writeString(audioBookName);
         dest.writeInt(multipleBooksCount);
         dest.writeByte((byte) (hasOnlyZipFilesInFolder ? 1 : 0));
@@ -703,6 +706,7 @@ public class BookCandidate implements Parcelable {
         if (this.coverImagePath != null && listener != null) {
             listener.onCoverFound(this.coverImagePath);
         }
+        myLogD("cover done for: " + name);
 
         // 2. Recursive Scan
         trackList.clear();
@@ -750,6 +754,7 @@ public class BookCandidate implements Parcelable {
             if (Thread.currentThread().isInterrupted())
                 return;
 
+            myLogD("scanFolderRecursive: " + child.getName());
             if (child.isDirectory()) {
                 scanFolderRecursive(context, child, listener, state);
             } else {
