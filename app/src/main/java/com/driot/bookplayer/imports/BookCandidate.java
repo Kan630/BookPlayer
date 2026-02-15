@@ -70,8 +70,10 @@ public class BookCandidate implements Parcelable {
 
     public final java.util.List<String> trackList = new java.util.ArrayList<>();
 
-    public interface OnTrackFoundListener {
+    public interface OnMetadataListener {
         void onTrackFound(String name);
+
+        void onCoverFound(String imagePath);
     }
 
     protected BookCandidate(Parcel in) {
@@ -305,7 +307,7 @@ public class BookCandidate implements Parcelable {
      * Heavy initialization: scans zip for covers, counts tracks.
      * This is blocking and should be called in background.
      */
-    public void loadHeavyMetadata(Context context, OnTrackFoundListener listener) {
+    public void loadHeavyMetadata(Context context, OnMetadataListener listener) {
         long startTime = System.currentTimeMillis();
         myLogD("loadHeavyMetadata() START for: " + name);
 
@@ -327,10 +329,12 @@ public class BookCandidate implements Parcelable {
 
                 trackList.clear(); // Clear previous tracks if any
                 this.tracksCount = calculateTrackCount(file, listener);
-                // TODO: scan folder tracks for listener?
                 myLogD("calculateTrackCount ok");
                 this.coverImagePath = detectCoverForFolder(context, file);
                 myLogD("detectCoverForFolder ok");
+                if (this.coverImagePath != null && listener != null) {
+                    listener.onCoverFound(this.coverImagePath);
+                }
 
                 this.multipleBooksCount = countRealEbookFilesRecursive(context, uri);
                 myLogD("countRealEbookFilesRecursive ok");
@@ -347,6 +351,9 @@ public class BookCandidate implements Parcelable {
             if ("M4B".equals(sourceType)) {
                 this.coverImagePath = detectCoverForFile(context, file, sourceType);
                 myLogD("detectCoverForFile ok");
+                if (this.coverImagePath != null && listener != null) {
+                    listener.onCoverFound(this.coverImagePath);
+                }
                 this.tracksCount = calculateTrackCountForM4B(context, file);
                 // M4B chapters could be "tracks", but user asked for zip files mostly.
                 // We'll skip M4B track listing for now or implement later if requested.
@@ -357,6 +364,9 @@ public class BookCandidate implements Parcelable {
             } else {
                 this.coverImagePath = detectCoverForFile(context, file, sourceType);
                 myLogD("detectCoverForFile ok");
+                if (this.coverImagePath != null && listener != null) {
+                    listener.onCoverFound(this.coverImagePath);
+                }
             }
         }
 
@@ -367,7 +377,7 @@ public class BookCandidate implements Parcelable {
     }
 
     private void scanArchiveForCoverAndTracks(Context context, DocumentFile archiveFile,
-            OnTrackFoundListener listener) {
+            OnMetadataListener listener) {
         long zipStart = System.currentTimeMillis();
         myLogD("[Archive] Starting scanArchiveForCoverAndTracks...");
 
@@ -397,7 +407,7 @@ public class BookCandidate implements Parcelable {
                 + (System.currentTimeMillis() - zipStart) + "ms - tracks=" + this.tracksCount);
     }
 
-    private void scanZipCombined(Context context, DocumentFile file, OnTrackFoundListener listener) {
+    private void scanZipCombined(Context context, DocumentFile file, OnMetadataListener listener) {
         int trackCount = 0;
         byte[] largestImage = null;
         long largestSize = 0;
@@ -467,6 +477,9 @@ public class BookCandidate implements Parcelable {
                 if (bitmap != null) {
                     String suffix = "_" + file.getUri().hashCode();
                     this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
+                    if (this.coverImagePath != null && listener != null) {
+                        listener.onCoverFound(this.coverImagePath);
+                    }
                 }
             }
 
@@ -660,7 +673,7 @@ public class BookCandidate implements Parcelable {
         }
     }
 
-    private int calculateTrackCount(DocumentFile file, OnTrackFoundListener listener) {
+    private int calculateTrackCount(DocumentFile file, OnMetadataListener listener) {
         if (!file.isDirectory()) {
             boolean isAudio = isAudio(file);
             if (isAudio) {

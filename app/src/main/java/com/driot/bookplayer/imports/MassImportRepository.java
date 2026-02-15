@@ -206,7 +206,7 @@ public class MassImportRepository {
 
                     try {
                         // Throttled UI update listener
-                        BookCandidate.OnTrackFoundListener listener = new BookCandidate.OnTrackFoundListener() {
+                        BookCandidate.OnMetadataListener listener = new BookCandidate.OnMetadataListener() {
                             long lastUpdate = 0;
 
                             @Override
@@ -220,6 +220,15 @@ public class MassImportRepository {
                                         }
                                     });
                                 }
+                            }
+
+                            @Override
+                            public void onCoverFound(String imagePath) {
+                                mainHandler.post(() -> {
+                                    if (scanId == processingScanId) {
+                                        MassImportRepository.this.candidates.setValue(candidates);
+                                    }
+                                });
                             }
                         };
                         candidate.loadHeavyMetadata(context, listener);

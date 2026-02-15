@@ -98,25 +98,21 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
                 loadingStatus.postValue(1); // Green/Heavy start
 
                 // Phase 2: Heavy Init
-                candidate.loadHeavyMetadata(getApplication(), trackName -> {
-                    // On track found
-                    // We need to update LiveData.
-                    // Note: Arrays.asList() or copy?
-                    // postValue might be slow if called very frequently (e.g. 1000 tracks in 100ms)
-                    // But for UI feedback, "eventually consistent" is fine?
-                    // Actually, if we just post the *latest* list, it's fine.
-                    // But candidate.trackList is being modified by this thread.
-                    // LiveData logic usually requires main thread for getValue/setValue, postValue
-                    // is safe.
-                    // But if we pass reference to candidate.trackList, and it's modified here...
-                    // concurrency issue?
-                    // postValue posts a task to main thread.
-                    // We should create a copy.
-                    java.util.List<String> copy;
-                    synchronized (candidate.trackList) {
-                        copy = new java.util.ArrayList<>(candidate.trackList);
+                candidate.loadHeavyMetadata(getApplication(), new BookCandidate.OnMetadataListener() {
+                    @Override
+                    public void onTrackFound(String trackName) {
+                        java.util.List<String> copy;
+                        synchronized (candidate.trackList) {
+                            copy = new java.util.ArrayList<>(candidate.trackList);
+                        }
+                        realTimeTracks.postValue(copy);
                     }
-                    realTimeTracks.postValue(copy);
+
+                    @Override
+                    public void onCoverFound(String imagePath) {
+                        myLogD("Early cover found: " + imagePath);
+                        bookCandidate.postValue(candidate); // Trigger UI update to show cover
+                    }
                 });
 
                 if (Thread.currentThread().isInterrupted())
