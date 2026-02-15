@@ -243,7 +243,7 @@ public class BookCandidate implements Parcelable {
                 myLogD("getBookName_with2folders ok");
             } else {
                 // Calculate fields (files are fast)
-                this.size = calculateSize(file);
+                this.size = file.length();
                 myLogD("calculateSize ok");
 
                 this.existingBookName = checkHashExists(context, originalHash);
@@ -284,7 +284,8 @@ public class BookCandidate implements Parcelable {
             this.infoLine1 = this.sourceType + " - " + this.infoSourceLocation;
 
             if ("Folder".equals(sourceType)) {
-                this.playType = inferPlayTypeFromFolder(context, uri);
+                // this.playType = inferPlayTypeFromFolder(context, uri); // Moved to heavy
+                // phase
                 this.infoMimeExtension = "[" + "Folder" + "]";
                 this.infoMimeExtensionSmall = "init...";
             } else {
@@ -320,27 +321,7 @@ public class BookCandidate implements Parcelable {
             if (Thread.currentThread().isInterrupted())
                 return;
 
-            if ("Folder".equals(sourceType)) {
-                // Calculate size if deferred
-                if (this.size == -1) {
-                    this.size = calculateSize(file);
-                    myLogD("calculateSize (heavy) ok");
-                }
-
-                trackList.clear(); // Clear previous tracks if any
-                this.tracksCount = calculateTrackCount(file, listener);
-                myLogD("calculateTrackCount ok");
-                this.coverImagePath = detectCoverForFolder(context, file);
-                myLogD("detectCoverForFolder ok");
-                if (this.coverImagePath != null && listener != null) {
-                    listener.onCoverFound(this.coverImagePath);
-                }
-
-                this.multipleBooksCount = countRealEbookFilesRecursive(context, uri);
-                myLogD("countRealEbookFilesRecursive ok");
-                this.hasOnlyZipFilesInFolder = checkHasOnlyZipFilesInFolder(context, uri);
-                myLogD("checkHasOnlyZipFilesInFolder ok");
-            }
+            scanFolderCombined(context, file, listener);
         } else {
             // HEAVY PHASE
             if (Thread.currentThread().isInterrupted())
@@ -442,15 +423,6 @@ public class BookCandidate implements Parcelable {
                             if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
                                     lowName.endsWith(".png") || lowName.endsWith(".webp")) {
 
-                                long size = entry.getSize();
-                                // If size is unknown (-1), we might need to read it to know size,
-                                // but reading every image might be slow if there are many.
-                                // Standard approach: read if looks like cover.
-                                // Using largest logic from original:
-
-                                // Original logic read ALL images to find largest.
-                                // We can do the same.
-
                                 java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
                                 byte[] buffer = new byte[8192];
                                 int len;
@@ -486,6 +458,105 @@ public class BookCandidate implements Parcelable {
         } catch (Exception ignored) {
             myLogEE(ignored, "Error scanning zip");
         }
+    }
+
+    private void scanFolderCombined(Context context, DocumentFile rootDir, OnMetadataListener listener) {
+        long startTime = System.currentTimeMillis();
+        myLogD("scanFolderCombined() START for: " + name);
+
+        // 1. Initial Cover Detection (Root only, external images) - this is fast
+        this.coverImagePath = detectCoverForFolderExternally(context, rootDir);
+        if (this.coverImagePath != null && listener != null) {
+            listener.onCoverFound(this.coverImagePath);
+        }
+
+        // 2. Recursive Scan
+        trackList.clear();
+        FolderScanState state = new FolderScanState();
+        scanFolderRecursive(context, rootDir, listener, state);
+
+        this.size = state.totalSize;
+        this.tracksCount = state.audioCount;
+        this.multipleBooksCount = state.ebookCount + state.bundleCount;
+        this.hasOnlyZipFilesInFolder = state.bundleCount >= 1 && state.audioCount == 0;
+
+        // Infer playType
+        boolean hasRealContent = state.audioCount > 0 || state.ebookCount > 0 || state.bundleCount > 0;
+        if (hasRealContent) {
+            this.playType = Var.PLAY_TYPE_AUDIO;
+        } else if (state.plainTextCount > 0) {
+            this.playType = Var.PLAY_TYPE_TEXT;
+        }
+
+        // If still no cover, we might have found one embedded during the recursive scan
+        if (this.coverImagePath == null && state.embeddedCoverPath != null) {
+            this.coverImagePath = state.embeddedCoverPath;
+            if (listener != null)
+                listener.onCoverFound(this.coverImagePath);
+        }
+
+        myLogD("scanFolderCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. " +
+                "tracks=" + tracksCount + ", size=" + size + ", multipleBooks=" + multipleBooksCount);
+    }
+
+    private void scanFolderRecursive(Context context, DocumentFile dir, OnMetadataListener listener,
+            FolderScanState state) {
+        DocumentFile[] files = dir.listFiles();
+        if (files == null)
+            return;
+
+        // Sort files to ensure deterministic track order (matching original logic)
+        java.util.Arrays.sort(files, (f1, f2) -> {
+            String n1 = f1 != null ? f1.getName() : "";
+            String n2 = f2 != null ? f2.getName() : "";
+            return String.CASE_INSENSITIVE_ORDER.compare(n1 != null ? n1 : "", n2 != null ? n2 : "");
+        });
+
+        for (DocumentFile child : files) {
+            if (Thread.currentThread().isInterrupted())
+                return;
+
+            if (child.isDirectory()) {
+                scanFolderRecursive(context, child, listener, state);
+            } else {
+                state.totalSize += child.length();
+
+                String special = SupportedFilesHelper.getSpecialType(child);
+                if (SupportedFilesHelper.isAudio(child) || SupportedFilesHelper.isVideo(child)) {
+                    state.audioCount++;
+
+                    // Track List for display
+                    String displayName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(safeName(child));
+                    String tName = state.audioCount + ". " + displayName;
+                    trackList.add(tName);
+                    if (listener != null)
+                        listener.onTrackFound(tName);
+
+                    // Embedded Cover Detection (if not found yet)
+                    if (this.coverImagePath == null && state.embeddedCoverPath == null) {
+                        state.embeddedCoverPath = extractEmbeddedCoverFromFile(context, child);
+                        if (state.embeddedCoverPath != null && listener != null) {
+                            listener.onCoverFound(state.embeddedCoverPath);
+                        }
+                    }
+                } else if (SupportedFilesHelper.isSplittableEbookSpecial(special)) {
+                    state.ebookCount++;
+                } else if (SupportedFilesHelper.isBundleSpecial(special)) {
+                    state.bundleCount++;
+                } else if (SupportedFilesHelper.isText(child)) {
+                    state.plainTextCount++;
+                }
+            }
+        }
+    }
+
+    private static class FolderScanState {
+        long totalSize = 0;
+        int audioCount = 0;
+        int ebookCount = 0;
+        int bundleCount = 0;
+        int plainTextCount = 0;
+        String embeddedCoverPath = null;
     }
 
     // --- BookToAdd specific helpers (ported) ---
@@ -527,75 +598,6 @@ public class BookCandidate implements Parcelable {
         }
     }
 
-    private int countRealEbookFilesRecursive(Context context, Uri folderUri) {
-        try {
-            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, folderUri);
-            if (root == null || !root.exists() || !root.isDirectory())
-                return 0;
-            return countRealEbookFilesRecursive(root);
-        } catch (Exception e) {
-            return 0;
-        }
-    }
-
-    private int countRealEbookFilesRecursive(DocumentFile dir) {
-        int count = 0;
-        DocumentFile[] children = dir.listFiles();
-        if (children == null)
-            return 0;
-        for (DocumentFile child : children) {
-            if (child.isDirectory()) {
-                count += countRealEbookFilesRecursive(child);
-            } else if (child.isFile()) {
-                String special = SupportedFilesHelper.getSpecialType(child);
-                if (SupportedFilesHelper.isSplittableEbookSpecial(special)
-                        || SupportedFilesHelper.isBundleSpecial(special)) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    private boolean checkHasOnlyZipFilesInFolder(Context context, Uri folderUri) {
-        try {
-            DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, folderUri);
-            if (root == null || !root.exists() || !root.isDirectory())
-                return false;
-            int[] ab = countAudioAndBundleRecursive(root);
-            return ab[1] >= 1 && ab[0] == 0; // has bundles, no audio
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private int[] countAudioAndBundleRecursive(DocumentFile dir) {
-        int audio = 0, bundle = 0;
-        DocumentFile[] children = dir.listFiles();
-        if (children == null)
-            return new int[] { 0, 0 };
-        for (DocumentFile child : children) {
-            if (child.isDirectory()) {
-                int[] sub = countAudioAndBundleRecursive(child);
-                audio += sub[0];
-                bundle += sub[1];
-            } else if (child.isFile()) {
-                if (SupportedFilesHelper.isAudio(child)
-                        || SupportedFilesHelper.isVideo(child)) {
-                    audio++;
-                } else if (SupportedFilesHelper
-                        .isBundleSpecial(SupportedFilesHelper.getSpecialType(child))) {
-                    bundle++;
-                }
-            }
-        }
-        return new int[] { audio, bundle };
-    }
-
-    public boolean hasMultipleBooksInFolder() {
-        return multipleBooksCount >= 2 || hasOnlyZipFilesInFolder;
-    }
-
     // --- Helper Methods ---
 
     private String safeName(DocumentFile f) {
@@ -615,20 +617,6 @@ public class BookCandidate implements Parcelable {
         if (mime != null && mime.startsWith(Var.ONLY_MIME_AUDIO))
             return true;
         return Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext);
-    }
-
-    private long calculateSize(DocumentFile file) {
-        if (!file.isDirectory()) {
-            return file.length();
-        }
-        long size = 0;
-        DocumentFile[] children = file.listFiles();
-        if (children != null) {
-            for (DocumentFile child : children) {
-                size += calculateSize(child);
-            }
-        }
-        return size;
     }
 
     private String computeHash(Context context, Uri uri) {
@@ -671,39 +659,6 @@ public class BookCandidate implements Parcelable {
         } catch (Exception e) {
             return checkHashExists(context, hash);
         }
-    }
-
-    private int calculateTrackCount(DocumentFile file, OnMetadataListener listener) {
-        if (!file.isDirectory()) {
-            boolean isAudio = isAudio(file);
-            if (isAudio) {
-                // Add to trackList for display
-                String displayName = Tonio.formatNameForDisplay(safeName(file));
-                String tName = (trackList.size() + 1) + ". " + displayName;
-                trackList.add(tName);
-
-                if (listener != null) {
-                    listener.onTrackFound(tName);
-                }
-            }
-            return isAudio ? 1 : 0;
-        }
-        int count = 0;
-        DocumentFile[] files = file.listFiles();
-        if (files != null) {
-            // Sort files to ensure deterministic order (and matching display usually)
-            java.util.Arrays.sort(files, (f1, f2) -> {
-                String n1 = f1 != null ? f1.getName() : "";
-                String n2 = f2 != null ? f2.getName() : "";
-                return String.CASE_INSENSITIVE_ORDER.compare(n1 != null ? n1 : "", n2 != null ? n2 : "");
-            });
-            for (DocumentFile child : files) {
-                if (Thread.currentThread().isInterrupted())
-                    break;
-                count += calculateTrackCount(child, listener);
-            }
-        }
-        return count;
     }
 
     private int calculateTrackCountForM4B(Context context, DocumentFile m4bFile) {
@@ -874,7 +829,7 @@ public class BookCandidate implements Parcelable {
 
     // --- Cover Detection Helpers ---
 
-    private String detectCoverForFolder(Context context, DocumentFile folder) {
+    private String detectCoverForFolderExternally(Context context, DocumentFile folder) {
         try {
             CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(context,
                     folder, null);
@@ -882,37 +837,27 @@ public class BookCandidate implements Parcelable {
             if (result != null && result.imagePath != null) {
                 return result.imagePath;
             }
-
-            return extractEmbeddedCoverFromFolder(context, folder);
-        } catch (Exception e) {
-            return null;
+        } catch (Exception ignored) {
         }
+        return null;
     }
 
-    private String extractEmbeddedCoverFromFolder(Context context, DocumentFile folder) {
+    private String extractEmbeddedCoverFromFile(Context context, DocumentFile file) {
         try {
-            DocumentFile[] files = folder.listFiles();
-            if (files != null) {
-                for (DocumentFile file : files) {
-                    if (file.isFile() && isAudio(file)) {
-                        android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
-                        try {
-                            mmr.setDataSource(context, file.getUri());
-                            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
-                                    .extractEmbeddedCover(mmr);
+            android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
+            try {
+                mmr.setDataSource(context, file.getUri());
+                CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.extractEmbeddedCover(mmr);
 
-                            if (result != null && result.bitmap != null) {
-                                String suffix = "_" + file.getUri().hashCode();
-                                return ImageHelper.saveTempBitmap(context,
-                                        result.bitmap, suffix);
-                            }
-                        } finally {
-                            try {
-                                mmr.release();
-                            } catch (Exception ignored) {
-                            }
-                        }
-                    }
+                if (result != null && result.bitmap != null) {
+                    String suffix = "_" + file.getUri().hashCode();
+                    return ImageHelper.saveTempBitmap(context,
+                            result.bitmap, suffix);
+                }
+            } finally {
+                try {
+                    mmr.release();
+                } catch (Exception ignored) {
                 }
             }
         } catch (Exception ignored) {
@@ -1103,59 +1048,8 @@ public class BookCandidate implements Parcelable {
         return null;
     }
 
-    private String inferPlayTypeFromFolder(android.content.Context context, Uri folderUri) {
-        try {
-            androidx.documentfile.provider.DocumentFile root = UriHelper
-                    .getDocumentFileFromAnyUri(context, folderUri);
-            if (root == null || !root.exists() || !root.isDirectory()) {
-                return null;
-            }
-            int[] counts = countMediaTypesRecursive(root);
-            boolean hasRealContent = counts[0] > 0;
-            boolean hasPlainTextOnly = counts[1] > 0;
-            if (hasRealContent) {
-                return Var.PLAY_TYPE_AUDIO;
-            }
-            if (hasPlainTextOnly) {
-                return Var.PLAY_TYPE_TEXT;
-            }
-        } catch (Exception e) {
-            // ignore
-        }
-        return null;
-    }
-
-    private int[] countMediaTypesRecursive(androidx.documentfile.provider.DocumentFile dir) {
-        int realContent = 0;
-        int plainText = 0;
-        androidx.documentfile.provider.DocumentFile[] children = dir.listFiles();
-        if (children == null)
-            return new int[] { 0, 0 };
-        for (androidx.documentfile.provider.DocumentFile child : children) {
-            if (child.isDirectory()) {
-                int[] sub = countMediaTypesRecursive(child);
-                realContent += sub[0];
-                plainText += sub[1];
-            } else if (child.isFile()) {
-                if (isRealBookOrAudioContent(child)) {
-                    realContent++;
-                } else if (SupportedFilesHelper.isText(child)) {
-                    plainText++;
-                }
-            }
-        }
-        return new int[] { realContent, plainText };
-    }
-
-    private boolean isRealBookOrAudioContent(androidx.documentfile.provider.DocumentFile child) {
-        if (SupportedFilesHelper.isAudio(child)
-                || SupportedFilesHelper.isVideo(child)) {
-            return true;
-        }
-        String special = SupportedFilesHelper.getSpecialType(child);
-        return SupportedFilesHelper.isSplittableEbookSpecial(special)
-                || SupportedFilesHelper.isBundleSpecial(special)
-                || SupportedFilesHelper.isM4bSpecial(special);
+    public boolean hasMultipleBooksInFolder() {
+        return multipleBooksCount >= 2 || hasOnlyZipFilesInFolder;
     }
 
     public boolean isSelected() {
