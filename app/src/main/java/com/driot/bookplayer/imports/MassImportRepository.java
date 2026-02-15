@@ -171,6 +171,9 @@ public class MassImportRepository {
                 });
                 return;
             }
+            LoggerStaticHelper.myLog("-------------------------------------------------------------");
+            LoggerStaticHelper.myLogI("start EASY ENRICHMENT");
+            LoggerStaticHelper.myLog("-------------------------------------------------------------");
 
             // PHASE 2: EASY ENRICHMENT
             mainHandler.post(() -> {
@@ -214,7 +217,9 @@ public class MassImportRepository {
         if (candidates == null || candidates.isEmpty())
             return;
 
-        LoggerStaticHelper.myLogD("Repository: Starting Heavy Load for " + candidates.size() + " candidates.");
+        LoggerStaticHelper.myLog("-------------------------------------------------------------");
+        LoggerStaticHelper.myLogI("start HEAVY ENRICHMENT : Heavy Load for " + candidates.size() + " candidates.");
+        LoggerStaticHelper.myLog("-------------------------------------------------------------");
         loadingStatus.postValue(1); // Heavy Loading phase
 
         // Use the single-thread repository executor for sequential processing
@@ -294,7 +299,9 @@ public class MassImportRepository {
             mainHandler.post(() -> {
                 if (scanId == processingScanId) {
                     loadingStatus.setValue(2); // Done
-                    LoggerStaticHelper.myLogD("Repository: Heavy Load Complete.");
+                    LoggerStaticHelper.myLog("-------------------------------------");
+                    LoggerStaticHelper.myLogI("-- MASS SCANNING COMPLETED --");
+                    LoggerStaticHelper.myLog("-------------------------------------");
                 }
             });
         });

@@ -33,6 +33,8 @@ public class HashWorker extends LoggingWorker {
     public static final int COUNT_FILE_SMALL_HASH = 10;
     public static final String HASH_NOT_COMPUTED = "0";
 
+    public static final boolean VERBOSE_DEBUG = false;
+
     public HashWorker(@NonNull Context context, @NonNull WorkerParameters params) {
         super(context, params);
     }
@@ -123,8 +125,7 @@ public class HashWorker extends LoggingWorker {
                     long elapsed = System.currentTimeMillis() - startTime;
                     sumElapsed += elapsed;
                     fileCount++;
-                    myLogD(elapsed + " ms to hash - HashType = " + type + " - Read = "
-                            + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
+                    myLogDD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
                 }
             }
 
@@ -248,7 +249,7 @@ public class HashWorker extends LoggingWorker {
 
         long listStart = System.currentTimeMillis();
         DocumentFile[] files = folder.listFiles();
-        KanLogger.myLogD("HashWorker", System.currentTimeMillis() - listStart + " ms to list " + files.length
+        myLogDD(System.currentTimeMillis() - listStart + " ms to list " + files.length
                 + " files in " + folder.getName());
 
         // TODO will only sort the first subFolder... but well...
@@ -261,8 +262,7 @@ public class HashWorker extends LoggingWorker {
             indices[i] = i;
         }
         Arrays.sort(indices, Comparator.comparing(i -> names[i], Comparator.nullsFirst(String::compareToIgnoreCase)));
-        KanLogger.myLogD("HashWorker",
-                System.currentTimeMillis() - sortStart + " ms to sort files in " + folder.getName());
+        myLogDD(System.currentTimeMillis() - sortStart + " ms to sort files in " + folder.getName());
 
         for (int i = 0; i < n; i++) {
             if (fileIndex[0] >= COUNT_FILE_BIG_HASH + COUNT_FILE_SMALL_HASH)
@@ -347,7 +347,7 @@ public class HashWorker extends LoggingWorker {
         fileCount[0]++;
         fileIndex[0]++;
 
-        KanLogger.myLogD("HashWorker", elapsed + " ms to hash - HashType = " + type +
+        myLogDD(elapsed + " ms to hash - HashType = " + type +
                 " - Read = " + Tonio.getReadableSize(bytesRead) +
                 " - " + (displayName != null ? displayName : "(unnamed)"));
     }
@@ -357,6 +357,10 @@ public class HashWorker extends LoggingWorker {
         for (byte b : hashBytes)
             sb.append(String.format("%02x", b));
         return sb.toString();
+    }
+
+    private static void myLogDD(String txt) {
+        if (VERBOSE_DEBUG) KanLogger.myLogD(txt);
     }
 
 }

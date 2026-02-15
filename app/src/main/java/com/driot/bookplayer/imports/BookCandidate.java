@@ -315,7 +315,9 @@ public class BookCandidate implements Parcelable {
         }
 
         isEasyLoaded = true;
-        myLogD("loadEasyMetadata() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
+        myLog("loadEasyMetadata() TOTAL: " + (System.currentTimeMillis() - startTime) + "ms for: " + name);
+        myLog("--------------------");
+
     }
 
     /**
@@ -357,8 +359,9 @@ public class BookCandidate implements Parcelable {
 
         this.isHeavyLoaded = true;
 
-        myLogD("loadHeavyMetadata() DONE: " + (System.currentTimeMillis() - startTime) + "ms for: "
+        myLog("loadHeavyMetadata() DONE: " + (System.currentTimeMillis() - startTime) + "ms for: "
                 + name);
+        myLog("--------------------");
     }
 
     private void scanM4BCombined(Context context, DocumentFile file, OnMetadataListener listener) {

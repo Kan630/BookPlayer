@@ -6,6 +6,7 @@ import android.net.Uri;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.ArrayList;
@@ -82,7 +83,8 @@ public class MassImportScanner extends LoggerHelper {
             callback.onProgress("scanning", 0, 0, "Counting items...");
         }
 
-        collectCandidatesRecursive(root, foundCandidates, new int[] { 0 });
+        collectCandidatesRecursive(root, foundCandidates, new int[] { 0 }, 0,
+                root.getName() != null ? root.getName() : "");
 
         candidates.addAll(foundCandidates);
     }
@@ -94,12 +96,14 @@ public class MassImportScanner extends LoggerHelper {
      * (zip, 7z) for deferred processing.
      */
     private void collectCandidatesRecursive(DocumentFile dir,
-            List<BookCandidate> candidates, int[] count) {
+            List<BookCandidate> candidates, int[] count, int level, String currentPath) {
         if (isCancelled)
             return;
         DocumentFile[] files = dir.listFiles();
         if (files == null)
             return;
+
+        myLogD("L" + level + " | Scanning path: " + currentPath);
 
         for (DocumentFile file : files) {
             if (isCancelled)
@@ -107,23 +111,28 @@ public class MassImportScanner extends LoggerHelper {
 
             count[0]++;
             callback.onProgress("counting", count[0], 0, "");
-            myLogD("counting: " + count[0] + " : " + safeName(file));
+
+            String fileName = safeName(file);
+            String childPath = currentPath.isEmpty() ? fileName : currentPath + "/" + fileName;
 
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
                     // It's a candidate folder
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), "Folder", -1);
+                    myLog(Tonio.lpad(level, (level+1)*3) + " | Registered Folder Candidate: " + childPath);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder", -1);
+                    candidate.path = childPath;
                     addCandidate(candidate, candidates);
                 } else {
                     // Not a candidate folder, keep searching
-                    collectCandidatesRecursive(file, candidates, count);
+                    collectCandidatesRecursive(file, candidates, count, level + 1, childPath);
                 }
             } else {
                 String type = detectBookType(file);
                 if (type != null) {
                     // If it's an archive, we treat it as a container/candidate similarly
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), type,
-                            file.length());
+                    myLog(Tonio.lpad(level, (level+1)*3) + " | Registered " + type + " Candidate: " + childPath);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type, file.length());
+                    candidate.path = childPath;
                     addCandidate(candidate, candidates);
                 }
             }
@@ -141,27 +150,30 @@ public class MassImportScanner extends LoggerHelper {
         int total = files.length;
         int current = 0;
 
+        myLogD("L0 | Scanning path (root only): " + root.getName());
+
         for (DocumentFile file : files) {
             if (isCancelled)
                 break;
 
             current++;
             callback.onProgress("counting", current, total, safeName(file));
-            myLogD("--------------------------------------------------------");
-            myLog("Scanning Folder n°" + current + "/" + total + " : " + safeName(file));
-            myLogD("--------------------------------------------------------");
 
-
+            String fileName = safeName(file);
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), "Folder", -1);
+                    myLog("Registered Folder Candidate: " + fileName);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder", -1);
+                    candidate.path = fileName;
                     addCandidate(candidate, candidates);
                 }
             } else {
                 String type = detectBookType(file);
                 if (type != null) {
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), type,
+                    myLog("Registered " + type + " Candidate: " + fileName);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type,
                             file.length());
+                    candidate.path = fileName;
                     addCandidate(candidate, candidates);
                 }
             }
@@ -190,22 +202,29 @@ public class MassImportScanner extends LoggerHelper {
         int total = files.length;
         int count = 0;
 
+        myLogD("L0 | Scanning immediate children: " + root.getName());
+
         for (DocumentFile file : files) {
             if (isCancelled)
                 break;
             count++;
             callback.onProgress("counting", count, total, safeName(file));
 
+            String fileName = safeName(file);
             if (file.isDirectory()) {
                 if (hasAnyAudioRecursive(file)) {
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), "Folder", -1);
+                    myLog("L0 | Registered Folder Candidate: " + fileName);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, "Folder", -1);
+                    candidate.path = fileName;
                     addCandidate(candidate, candidates);
                 }
             } else {
                 String type = detectBookType(file);
                 if (type != null) {
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), safeName(file), type,
+                    myLog("L0 | Registered " + type + " Candidate: " + fileName);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type,
                             file.length());
+                    candidate.path = fileName;
                     addCandidate(candidate, candidates);
                 }
             }
