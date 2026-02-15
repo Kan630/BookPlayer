@@ -162,6 +162,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         llUseSdCard = findViewById(R.id.ll_use_sdcard);
         llDelete = findViewById(R.id.ll_delete_source);
 
+        tvFileName.setText("...");
         displayAppendWarning();
         buildDestinationFolderSpinner();
 

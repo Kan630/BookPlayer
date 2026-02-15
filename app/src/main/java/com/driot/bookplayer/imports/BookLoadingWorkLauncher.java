@@ -113,9 +113,10 @@ public class BookLoadingWorkLauncher {
 
             FirebaseAnalyticsHelper.tellAnalyticsWork(s, doDownload);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceType", s.sourceType);
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_dynamicType", s.dynamicType);
+            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", s.playType);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_extension", s.fileExtension);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_sourceLocation", s.sourceLocation);
-            FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_playType", s.playType);
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_originalUri", String.valueOf(s.originalUri));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doDownload", String.valueOf(doDownload));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_doCopy", String.valueOf(doCopy));
@@ -126,19 +127,6 @@ public class BookLoadingWorkLauncher {
                     String.valueOf(s.addToExistingFolderId));
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("worker_futureFolderName",
                     String.valueOf(s.futureFolderName));
-
-            // ✅ FIX: Set dynamicType based on worker chain
-            if (doUncompress || doSplitM4b || doSplitEbook) {
-                // These workers extract/split to folder
-                s.dynamicType = "Folder";
-                myLogD("dynamicType set to 'Folder' (worker will create folder)");
-            } else if ("Folder".equals(s.sourceType)) {
-                s.dynamicType = "Folder";
-                myLogD("dynamicType set to 'Folder' (source is folder)");
-            } else {
-                s.dynamicType = "File";
-                myLogD("dynamicType set to 'File' (single file, no transformation)");
-            }
 
             // Create job row
             ImportJob j = new ImportJob();
