@@ -104,6 +104,7 @@ public class CopyFileWorker extends ImportWorker {
             emitFailed(TASK_NAME, "Not_enough_memory", context.getString(R.string.Not_enough_memory));
             return Result.failure();
         }
+        emitTextOnlyProgress(context.getString(R.string.creating_folder));
 
         // Create destination folder if needed
         File destinationFolderFile = new File(destinationFolderPath);
@@ -123,6 +124,7 @@ public class CopyFileWorker extends ImportWorker {
         // run the actual stuff
         try {
             boolean result;
+            myLogD("Copy about to start for " + type);
             if ("Folder".equals(type)) {
                 result = copyFolder(uri, destinationFolderPath, j.playType);
             } else {

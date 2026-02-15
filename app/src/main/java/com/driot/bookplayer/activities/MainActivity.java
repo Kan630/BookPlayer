@@ -35,6 +35,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NearbyShareReceiverHelper;
+import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
@@ -207,7 +208,7 @@ public class MainActivity extends BaseBottomNavActivity {
         });
 
         if (savedInstanceState == null) {
-            handleDeepLink(getIntent());
+            ShareHelper.handleDeepLink(this, getIntent());
         }
 
         // InAppMsgManager.deleteInAppMsgCache(this);
@@ -230,7 +231,7 @@ public class MainActivity extends BaseBottomNavActivity {
             myLog("scrollToTop");
             mainVm.requestScrollToTopNow();
         }
-        handleDeepLink(intent);
+        ShareHelper.handleDeepLink(this, getIntent());
     }
 
     @Override
@@ -331,55 +332,6 @@ public class MainActivity extends BaseBottomNavActivity {
         intent.removeExtra(EXTRA_REQUESTED_NAV_ID);
 
         NavHelper.handleBottomNavClick(this, requestedNavId);
-    }
-
-    private void handleDeepLink(Intent intent) {
-        myLogD("=== handleDeepLink called ===");
-
-        if (intent == null) {
-            myLogI("Intent is NULL, return");
-            return;
-        }
-
-        myLogD("Intent action: " + intent.getAction());
-
-        Uri data = intent.getData();
-
-        if (data == null) {
-            myLogD("URI data is NULL, return");
-            return;
-        }
-
-        if (data != null) {
-            String host = data.getHost();
-            String path = data.getPath();
-
-            myLogI("DeepLink: host=[" + host + "] - path=[" + path + "] - data=[" + data.toString() + "]");
-
-            if (host != null) {
-
-                switch (path) {
-
-                    case "/share/radio":
-                        String url = data.getQueryParameter("url");
-                        String uuid = data.getQueryParameter("uuid");
-                        myLog("url=[" + url + "] - uuid=[" + uuid + "]");
-
-                        if (uuid != null) {
-                            Intent i = new Intent(this, RadioStationActivity.class);
-                            i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
-                            i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            startActivity(i);
-                        }
-                        if (url != null) {
-                            StartPlayHelper.playRadioFromUuidAndUrl(this, uuid, url, "DeepLink");
-                        }
-
-                        break;
-
-                }
-            }
-        }
     }
 
     private void showSortOrderDialog() {

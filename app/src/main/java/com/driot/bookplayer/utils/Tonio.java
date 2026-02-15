@@ -468,7 +468,7 @@ public class Tonio {
     }
 
     public static long getFolderSize(String folderName) {
-        myLog("getFolderSize for [" + folderName + "]  (from path)");
+        //myLog("getFolderSize for [" + folderName + "]  (from path)");
         return getFolderSize(new File(folderName));
     }
 

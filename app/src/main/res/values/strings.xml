@@ -804,6 +804,7 @@
     <string name="download_resuming">Download resuming</string>
     <string name="importing_book">Importing Book</string>
     <string name="checking_size">checking size</string>
+    <string name="creating_folder">creating folder</string>
     <string name="rounded_corners">rounded corners</string>
     <string name="cover_preview">cover preview</string>
     <string name="return_max">return max</string>
