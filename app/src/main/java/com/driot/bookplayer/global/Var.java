@@ -225,6 +225,9 @@ public class Var {
                     "rtttl", // Ring Tone Text Transfer Language
                     "rtx",   // Ringtone Extension
                     "ota"    // Over-the-Air ringtone
+
+                    //New ones
+                    ,"wma"
             )
     );
     public static final Set<String> SUPPORTED_AUDIO_MIMES = new HashSet<>(

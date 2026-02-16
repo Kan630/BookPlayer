@@ -57,7 +57,7 @@ public class MyApp extends Application {
         KanLogger.init(getApplicationContext());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
-            StrictModeHelper.enableStrictModeForDebugBuild();
+            //StrictModeHelper.enableStrictModeForDebugBuild();
         }
 
         // Centralized Prefs warm-up in background
