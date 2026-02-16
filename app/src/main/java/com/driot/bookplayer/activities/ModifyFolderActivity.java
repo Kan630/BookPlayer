@@ -995,7 +995,7 @@ public class ModifyFolderActivity extends BaseActivity {
                 src = UriHelper.resolveUriFromPath(context, path);
                 if (src == null) {
                     nbKO = nbKO + 1;
-                    String errMessage = ErrorUi.getErrorMessage(context, path);
+                    String errMessage = ErrorUi.getErrorMessageConsideringZikFilePath(context, path);
                     String fullError = logStrPrefix
                             + "\n" + errMessage
                             + "\npath = [" + pathType + path + "]";

@@ -63,7 +63,7 @@ public class DbClean {
                     if (src == null) {
                         nbInvalid = nbInvalid + 1;
 
-                        String errMessage = ErrorUi.getErrorMessage(ctx, path);
+                        String errMessage = ErrorUi.getErrorMessageConsideringZikFilePath(ctx, path);
                         String fullError = logStrPrefix
                                 + "\n" + errMessage
                                 + "\npath = [" + pathType + path + "]";

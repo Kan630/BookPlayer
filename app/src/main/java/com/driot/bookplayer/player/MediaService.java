@@ -1943,6 +1943,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Non-TTS = real fatal
         alertError(null, null);
+        shutdown(false);
     }
 
     private void onEngineFatal(String msg, int what, int extra) {
@@ -1951,6 +1952,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         ErrorLoadingFile = true;
         playTimer.stop();
         alertError(null, null);
+        shutdown(false);
         if ("podcast".equals(getPlayMode())) {
             if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {
                 myToastEE(null, getString(R.string.Podcast_source_error));

@@ -9,7 +9,6 @@ import android.provider.Settings;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.MsgBox;
@@ -32,7 +31,7 @@ public class ErrorUi {
             }
             if (zikFilePath != null) {
                 pathText = context.getString(R.string.source_file_path) + " = \n[" + Uri.decode(zikFilePath) + "]";
-                newErrorMessage = getErrorMessage(context, zikFilePath);
+                newErrorMessage = getErrorMessageConsideringZikFilePath(context, zikFilePath);
             }
 
             if (errMessage == null && newErrorMessage != null) {
@@ -62,9 +61,10 @@ public class ErrorUi {
         } catch (Throwable t) {
             myToastEE(t, context.getString(R.string.error_reading_track));
         }
+        myLog("displayed error message : [" + errMessage + "]");
     }
 
-    public static String getErrorMessage(Context context, String zikFilePath) {
+    public static String getErrorMessageConsideringZikFilePath(Context context, String zikFilePath) {
         String errMessage;
 
         Uri uri = UriHelper.resolveUriFromPath(context, zikFilePath);
@@ -88,7 +88,7 @@ public class ErrorUi {
             } else {
                 long size = 0;
                 try {
-                    DocumentFile df = DocumentFile.fromSingleUri(context, uri);
+                    DocumentFile df = UriHelper.getDocumentFileFromAnyUri(context, uri);
                     if (df != null)
                         size = df.length();
                 } catch (Throwable t) {
@@ -104,6 +104,7 @@ public class ErrorUi {
                 }
             }
         }
+        myLog("error message considering ZikFilePath : [" + errMessage + "]");
         return errMessage;
     }
 }
