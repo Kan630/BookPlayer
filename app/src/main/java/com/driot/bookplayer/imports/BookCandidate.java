@@ -187,8 +187,11 @@ public class BookCandidate implements Parcelable {
         this.path = this.name; // Default path
         this.selected = true;
 
-        if (this.sourceType == null)
-            throw new RuntimeException("constructor : sourceType is null");
+        if (this.sourceType == null) {
+            // throw new RuntimeException("constructor : sourceType is null");
+            myLogW("constructor : sourceType is null for " + this.name);
+            this.isMimeSupported = false;
+        }
 
         // Legacy: synchronous load for backward compatibility?
         // Let's keep it but ideally we should move away from it.
@@ -291,6 +294,8 @@ public class BookCandidate implements Parcelable {
 
             if (!SupportedFilesHelper.isBookSupported(originalFile)) {
                 this.isMimeSupported = false;
+            } else {
+                this.isMimeSupported = true; // explicitly set if supported
             }
         }
 

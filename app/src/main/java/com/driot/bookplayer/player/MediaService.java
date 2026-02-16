@@ -1880,6 +1880,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void onEngineError(String msg, int what, int extra) {
+        if (ErrorLoadingFile) {
+            myLogW("onEngineError() - ErrorLoadingFile is already true, skipping alert to avoid UI duplication");
+            return;
+        }
         myLogEE(null, "Engine error: " + msg + " (" + what + "," + extra + ")");
         ErrorLoadingFile = true;
         playTimer.stop();

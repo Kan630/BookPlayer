@@ -13,6 +13,7 @@ import android.text.TextUtils;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.ZikFile;
@@ -508,10 +509,16 @@ public class UriHelper {
             String base = zf.getPath();
             if (base == null)
                 return null;
-            if (fileExists(base))
-                return Uri.fromFile(new File(base));
-            String withName = base + "/" + zf.getName();
-            return fileExists(withName) ? Uri.fromFile(new File(withName)) : null;
+
+            File f = new File(base);
+            if (f.exists() && f.isFile())
+                return useFileProviderIfReserved(context, f);
+
+            File fWithName = new File(base, zf.getName());
+            if (fWithName.exists() && fWithName.isFile())
+                return useFileProviderIfReserved(context, fWithName);
+
+            return null;
 
         } catch (Throwable t) {
             myLogEE(t, "resolvePlayableUri");
@@ -544,7 +551,7 @@ public class UriHelper {
 
             // Plain filesystem path
             if (fileExists(path))
-                return Uri.fromFile(new File(path));
+                return useFileProviderIfReserved(context, new File(path));
 
         } catch (Throwable t) {
             myLogEE(t, "resolvePlayableUri");
@@ -607,6 +614,20 @@ public class UriHelper {
             }
         }
         return false;
+    }
+
+    private static Uri useFileProviderIfReserved(Context context, File file) {
+        StorageHelper.MemoryLocationType location = StorageHelper.getMemoryLocationType(context,
+                file.getAbsolutePath());
+        if (location == StorageHelper.MemoryLocationType.INTERNAL_RESERVED
+                || location == StorageHelper.MemoryLocationType.SDCARD_RESERVED) {
+            try {
+                return FileProvider.getUriForFile(context, context.getPackageName() + ".FileProvider", file);
+            } catch (Exception e) {
+                myLogEE(e, "useFileProviderIfReserved failed for " + file.getAbsolutePath());
+            }
+        }
+        return Uri.fromFile(file);
     }
 
 }

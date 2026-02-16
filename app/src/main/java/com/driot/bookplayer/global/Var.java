@@ -194,7 +194,7 @@ public class Var {
                     "aac",   // Raw AAC (less common than .m4a)
                     "mp4",   // MP4 container (may contain AAC/ALAC)
                     "m4b",   // Audiobook variant of .m4a
-                    "wav",   // Uncompressed PCM/WAVE
+                    "wav",   // Uncompressed PCM/WAVE   // TODO try again with another file, currently import fails "no usable item found"
                     "ogg",   // Ogg Vorbis (open alternative to MP3)
                     "oga",   // Ogg Audio (legacy, rarely used)
                     "flac",  // Free Lossless Audio Codec (Android 3.1+)
@@ -227,7 +227,8 @@ public class Var {
                     "ota"    // Over-the-Air ringtone
 
                     //New ones
-                    ,"wma"
+                    ,"wma"   // TODO try again with another file, currently play fails "mediaplayer error -38"
+                    ,"ac3"   // TODO try again with another file, currently import fails "no usable item found"
             )
     );
     public static final Set<String> SUPPORTED_AUDIO_MIMES = new HashSet<>(
@@ -248,7 +249,7 @@ public class Var {
     public static final Set<String> SUPPORTED_VIDEO_EXTENSIONS = new HashSet<>(
             Arrays.asList(
                     "mpg",
-                    "mpeg",
+                    "mpeg",   // TODO try again with another file, currently import fails "no usable item found"
                     "avi"
             )
     );
