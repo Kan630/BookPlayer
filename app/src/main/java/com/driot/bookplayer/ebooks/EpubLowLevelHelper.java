@@ -32,6 +32,9 @@ import java.util.regex.Pattern;
  * - Optional Jsoup usage (toggle with USE_JSOUP).
  */
 public final class EpubLowLevelHelper {
+
+    private static final boolean VERBOSE_DEBUG = false;
+
     private EpubLowLevelHelper() {}
 
     // ===== Config =====
@@ -221,9 +224,9 @@ public final class EpubLowLevelHelper {
             body.add(it);
 
             int nl = 0; for (int i=0;i<plain.length();i++) if (plain.charAt(i)=='\n') nl++;
-            myLogD("KEEP: " + it);
-            myLogD("  NL count = " + nl); //TODO not working, then reading in activity, got 0 NL... currently failback in audioService do add some (ends up with like 200 instead of 40 NL)
-            myLogD("  text-snippet: " + snippet(it.text));
+            myLogDD("KEEP: " + it);
+            myLogDD("  NL count = " + nl); //TODO not working, then reading in activity, got 0 NL... currently failback in audioService do add some (ends up with like 200 instead of 40 NL)
+            myLogDD("  text-snippet: " + snippet(it.text));
         }
 
         myLog("Usable content items: " + body.size());
@@ -572,6 +575,10 @@ public final class EpubLowLevelHelper {
         t = t.replaceAll("[ ]*\\*\\*\\*[ ]*", "\n\n***\n\n");
 
         return t;
+    }
+
+    private static void myLogDD (String txt) {
+        if (VERBOSE_DEBUG) myLogD(txt);
     }
 
 }

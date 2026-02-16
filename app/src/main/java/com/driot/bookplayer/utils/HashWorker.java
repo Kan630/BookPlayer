@@ -125,7 +125,8 @@ public class HashWorker extends LoggingWorker {
                     long elapsed = System.currentTimeMillis() - startTime;
                     sumElapsed += elapsed;
                     fileCount++;
-                    myLogDD(elapsed + " ms to hash - HashType = " + type + " - Read = " + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
+                    myLogDD(elapsed + " ms to hash - HashType = " + type + " - Read = "
+                            + Tonio.getReadableSize(bytesRead) + " - " + file.getName());
                 }
             }
 
@@ -204,27 +205,21 @@ public class HashWorker extends LoggingWorker {
             // 3) content://
             if ("content".equalsIgnoreCase(scheme)) {
                 DocumentFile doc = UriHelper.getDocumentFileFromAnyUri(context, uri);
-                if (doc != null) {
-                    if (doc.isFile()) {
-                        try (InputStream is = context.getContentResolver().openInputStream(doc.getUri())) {
-                            if (is != null) {
-                                hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, doc.getName());
-                            }
-                        }
-                    } else if (doc.isDirectory()) {
-                        computeFolderHashRecursive(context, doc, digest,
-                                /* rootPathLen */ (uri.getPath() != null ? uri.getPath().length() : 0),
-                                sumElapsed, fileCount, fileIndex);
-                    }
+                if (doc != null && doc.isDirectory()) {
+                    computeFolderHashRecursive(context, doc, digest,
+                            /* rootPathLen */ (uri.getPath() != null ? uri.getPath().length() : 0),
+                            sumElapsed, fileCount, fileIndex);
                 } else {
-                    // Non-DocumentProvider content:// (e.g. MediaStore) → treat as a single
-                    // readable stream
-                    KanLogger.myLogD("HashWorker",
-                            "Generic content URI (non-DocumentProvider or null DocFile). Hashing via openInputStream.");
-                    try (InputStream is = context.getContentResolver().openInputStream(uri)) {
-                        if (is == null)
+                    // Single file or generic content URI (e.g. FileProvider, MediaStore)
+                    Uri targetUri = (doc != null) ? doc.getUri() : uri;
+                    String targetName = (doc != null) ? doc.getName() : "content";
+
+                    try (InputStream is = context.getContentResolver().openInputStream(targetUri)) {
+                        if (is != null) {
+                            hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, targetName);
+                        } else if (doc == null) {
                             throw new IllegalArgumentException("openInputStream returned null for: " + uri);
-                        hashAndLog(is, digest, fileIndex, sumElapsed, fileCount, "content");
+                        }
                     }
                 }
 
@@ -360,7 +355,8 @@ public class HashWorker extends LoggingWorker {
     }
 
     private static void myLogDD(String txt) {
-        if (VERBOSE_DEBUG) KanLogger.myLogD(txt);
+        if (VERBOSE_DEBUG)
+            KanLogger.myLogD(txt);
     }
 
 }

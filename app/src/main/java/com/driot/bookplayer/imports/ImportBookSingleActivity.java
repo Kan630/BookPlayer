@@ -861,7 +861,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                         boolAlso = true;
                                         okContinue(viewModel.getBookCandidate().getValue());
                                     } else {
+                                        myLog("-----------------------------------------------------------------------------------");
                                         myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
+                                        myLog("-----------------------------------------------------------------------------------");
                                         showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
                                                 + "\n" + existingBook);
                                         isKO = true;
