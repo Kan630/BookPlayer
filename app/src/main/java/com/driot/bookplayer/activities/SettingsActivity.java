@@ -351,11 +351,11 @@ public class SettingsActivity extends BaseBottomNavActivity {
                 targetY -= 16;
 
             scrollView.smoothScrollTo(0, targetY);
-            myLog("smoothScrollTo :" + targetY);
         });
     }
 
     private void onHeaderClicked(SectionHost host) {
+        myLogI(" user clicks header : " + host.stateKey);
         if (headerTapLocked)
             return;
         headerTapLocked = true;

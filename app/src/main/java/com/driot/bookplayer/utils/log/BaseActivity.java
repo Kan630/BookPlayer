@@ -46,9 +46,6 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 public abstract class BaseActivity extends AppCompatActivity {
 
     private static final String LOG_TAG = "Lifecycle";
-    private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
-    private static final String PREF_LIVE_LOG_HEIGHT = "live_log_height";
-    private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
 
     protected final String TAG_FROM_BRACKET = "[" + getClass().getSimpleName() + "]: ";
     protected final String TAG_FROM = "." + getClass().getSimpleName();
@@ -298,24 +295,6 @@ public abstract class BaseActivity extends AppCompatActivity {
         KanLogger.myToastLong(TAG_FROM, str);
     }
 
-    protected void myKeyFirebase(String strKey, String strValue) {
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);
-    }
-
-    protected void myLogFirebase(String strLog) {
-        FirebaseAnalyticsHelper.logCrashlytics(strLog);
-    }
-
-    /// ///////////////////////////////////////////////////////////////////
-    /// LOGGER (For this specific Helper Class)
-    /// ///////////////////////////////////////////////////////////////////
-    /*
-     * private void myLifecycleLog(String str) { KanLogger.myLogD(LOG_TAG, str); }
-     * private void myLifecycleLogE(String str) { KanLogger.myLogE(LOG_TAG, str); }
-     * private void myLifecycleLogEE(Throwable t, String str) { KanLogger.myLogEE(t,
-     * LOG_TAG, str); }
-     * 
-     */
     private void myLifecycleLog(String str) {
         KanLogger.myLogD(LOG_TAG, str);
     }
