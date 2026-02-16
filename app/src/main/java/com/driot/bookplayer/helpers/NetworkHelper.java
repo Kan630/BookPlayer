@@ -6,6 +6,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.TrafficStats;
 import android.os.Build;
 import android.security.NetworkSecurityPolicy;
 
@@ -188,6 +189,7 @@ public class NetworkHelper {
 
     /** Simple GET 200 check; closes connection; 5s connect timeout. */
     public static boolean canReachUrl(String urlString) {
+        TrafficStats.setThreadStatsTag(0x2000);
         HttpURLConnection conn = null;
         try {
             URL url = new URL(urlString);
