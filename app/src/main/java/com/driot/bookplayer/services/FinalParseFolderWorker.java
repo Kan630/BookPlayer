@@ -235,6 +235,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     private void addAudioFileUnique(DocumentFile df) {
         myLogD("* New Audio File : [" + df.getName() + ']');
+        nbFileScan = 1;
         AudioInfo audioInfo = AudioProber.probe(context, df.getUri(), true);
         if (audioInfo == null || audioInfo.durationMs <= 0) {
             failNow(
@@ -259,10 +260,8 @@ public class FinalParseFolderWorker extends ImportWorker {
         nbAudioScanned = 0;
         countAudioFiles(f0);
         addAudioFileRecursive(f0, "");
-        if (totalDuration == 0) {
-            failNow(TASK_NAME, "addAudioFileRecursive - Error_Import_track_duration_extraction",
-                    context.getString(R.string.Error_Import_track_duration_extraction));
-        }
+        // Simplified: goFolder() will handle the case where audioFileInfoArrayList is
+        // empty.
     }
 
     private void addAudioFileRecursive(DocumentFile f0, String recursivFolder) {
@@ -341,6 +340,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         String name = Objects.toString(df.getName());
         String mime = Objects.toString(df.getType());
         myLogD("* New Text File : [" + name + ']');
+        nbFileScan = 1;
 
         long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
         myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
@@ -417,34 +417,34 @@ public class FinalParseFolderWorker extends ImportWorker {
     }
 
     private void goFolder() {
-        if (audioFileInfoArrayList != null) {
-            if (!audioFileInfoArrayList.isEmpty()) {
-                myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
-                if (CoverPictureDetection.shouldCreateFallbackCover()) {
-                    try {
-                        if (importJob.imagePath == null || importJob.imagePath.isEmpty()) {
-                            myLog("creating fallback bitmap as cover");
-                            String path = CoverPictureDetection.createFallbackCover(
-                                    context,
-                                    importJob.title,
-                                    importJob.futureFolderPath,
-                                    Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS);
-                            if (path != null) {
-                                importJob.imagePath = path;
-                            }
+        if (audioFileInfoArrayList != null && !audioFileInfoArrayList.isEmpty()) {
+            myLog(audioFileInfoArrayList.size() + " " + context.getString(R.string.Import_nMediaInFolder));
+            if (CoverPictureDetection.shouldCreateFallbackCover()) {
+                try {
+                    if (importJob.imagePath == null || importJob.imagePath.isEmpty()) {
+                        myLog("creating fallback bitmap as cover");
+                        String path = CoverPictureDetection.createFallbackCover(
+                                context,
+                                importJob.title,
+                                importJob.futureFolderPath,
+                                Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS);
+                        if (path != null) {
+                            importJob.imagePath = path;
                         }
-                    } catch (Exception e) {
-                        myLogEE(e, "Error creating cover");
                     }
+                } catch (Exception e) {
+                    myLogEE(e, "Error creating cover");
                 }
-                saveFolder();
+            }
+            saveFolder();
+        } else {
+            if (nbFileScan > 0) {
+                failNow(TASK_NAME, "Error_Import_No_Usable_item_Found",
+                        context.getString(R.string.Error_Import_No_Usable_item_Found));
             } else {
                 failNow(TASK_NAME, "Error_Import_NoMediaInFolder",
                         context.getString(R.string.Error_Import_NoMediaInFolder));
             }
-        } else {
-            failNow(TASK_NAME, "Error_Import_NoMediaInFolder",
-                    context.getString(R.string.Error_Import_NoMediaInFolder));
         }
     }
 
