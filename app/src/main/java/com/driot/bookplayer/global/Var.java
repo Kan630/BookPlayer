@@ -185,7 +185,7 @@ public class Var {
                     "aac",   // Raw AAC (less common than .m4a)
                     "mp4",   // WORKS   // MP4 container (may contain AAC/ALAC)
                     "m4b",   // Audiobook variant of .m4a
-                    "wav",   // Uncompressed PCM/WAVE   // TODO currently import fails "no usable item found"
+                    //"wav",   // Uncompressed PCM/WAVE   // TODO currently import fails "no usable item found"
                     "ogg",   // WORKS // Ogg Vorbis (open alternative to MP3)
                     "oga",   // Ogg Audio (legacy, rarely used)
                     "flac",  // WORKS   // Free Lossless Audio Codec (Android 3.1+)
@@ -218,20 +218,20 @@ public class Var {
                     "ota"    // Over-the-Air ringtone
 
                     //New ones
-                    ,"wma"   // TODO currently play fails "mediaplayer error -38"
-                    ,"ac3"   // TODO currently import fails "no usable item found"
+                    //,"wma"   // TODO currently play fails "mediaplayer error -38"
+                    //,"ac3"   // TODO currently import fails "no usable item found"
             )
     );
 
     // --- Video files ---
     public static final Set<String> SUPPORTED_VIDEO_EXTENSIONS = new HashSet<>(
             Arrays.asList(
-                    "mpg",   // TODO currently import fails "no usable item found"
-                    "mpeg",   // TODO currently import fails "no usable item found"
+                    //"mpg",   // TODO currently import fails "no usable item found"
+                    //"mpeg",   // TODO currently import fails "no usable item found"
                     "avi" // WORKS
-                    ,"wmv"  // TODO currently play fails "mediaplayer error -38"
+                    //,"wmv"  // TODO currently play fails "mediaplayer error -38"
                     ,"mov" // WORKS
-                    ,"asf"  // TODO currently play fails "mediaplayer error -38"
+                    //,"asf"  // TODO currently play fails "mediaplayer error -38"
             )
     );
 
