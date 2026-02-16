@@ -26,16 +26,23 @@ public final class ImportProbe {
 
     private final AtomicReference<OngoingTaskUiState> last = new AtomicReference<>(OngoingTaskUiState.idle());
     private final CountDownLatch done = new CountDownLatch(1);
+    private final long startTime;
 
     public ImportProbe(Context appCtx) {
         this.db = AppDatabase.getInstance(appCtx.getApplicationContext());
+        this.startTime = System.currentTimeMillis();
     }
 
     public void start() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
             src = db.importJobDao().observeUniqueJob();
             obs = job -> {
-                OngoingTaskUiState ui = (job == null) ? OngoingTaskUiState.idle() : OngoingTaskUiState.from(job, -1, -1);
+                if (job != null && job.updatedAt < startTime) {
+                    // Ignore old jobs from previous imports/runs
+                    return;
+                }
+                OngoingTaskUiState ui = (job == null) ? OngoingTaskUiState.idle()
+                        : OngoingTaskUiState.from(job, -1, -1);
                 last.set(ui);
                 if (ui.isFinished()) {
                     // ensure latch countDown happens even if this callback reenters
@@ -49,7 +56,8 @@ public final class ImportProbe {
     @Nullable
     public OngoingTaskUiState await(long timeoutMs) {
         try {
-            if (!done.await(timeoutMs, TimeUnit.MILLISECONDS)) return null;
+            if (!done.await(timeoutMs, TimeUnit.MILLISECONDS))
+                return null;
             return last.get();
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -57,11 +65,14 @@ public final class ImportProbe {
         }
     }
 
-    public OngoingTaskUiState lastState() { return last.get(); }
+    public OngoingTaskUiState lastState() {
+        return last.get();
+    }
 
     public void stop() {
         InstrumentationRegistry.getInstrumentation().runOnMainSync(() -> {
-            if (src != null && obs != null) src.removeObserver(obs);
+            if (src != null && obs != null)
+                src.removeObserver(obs);
         });
     }
 }
