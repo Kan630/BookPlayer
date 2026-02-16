@@ -265,7 +265,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
         sectionHosts.add(host);
 
         sectionView.getHeaderView().setOnClickListener(v -> {
-            myLogI(" user clicks header : " + host.stateKey);
+            myLogI("--- user clicks header : " + host.stateKey);
             if (host.expanded) {
                 collapseSection(host, /* removeFragment */ false);
             } else {
