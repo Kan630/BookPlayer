@@ -1,6 +1,9 @@
 package com.driot.bookplayer.utils.log;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -90,6 +93,7 @@ public class KanLogger {
     /// IS DEV
     ///////////////////////////////// -----------------------------------------------------------
     public static boolean isMyPhoneDev() {
+        /*
         boolean ret = false;
         String strToCheck = MD5(Build.FINGERPRINT);
         if (strToCheck != null) {
@@ -102,20 +106,29 @@ public class KanLogger {
         }
         // Log.d("toto", "writeTechLogs : End");
         return ret;
+         */
+        return false;
     }
 
-    /////////////////////////////////
-    /// IS DEV
-    ///////////////////////////////// -----------------------------------------------------------
     public static boolean writeTechLogs() {
-        boolean ret = false;
-        if (getMyAppContext() != null) {
-            ret = Option.getTechLog();
+        if (appContext != null) {
+            try {
+                return Option.getTechLog();
+            } catch (Exception e) {
+                Log.v("toto", "Option.getTechLog() => SharedPrefs not Initialized");
+                //Because logger could be called before Pref init
+                try {
+                    SharedPreferences prefs = appContext.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+                    return prefs.getBoolean("TECH_LOG", Option.DEFAULT_TECH_LOG);
+                } catch (Exception ex) {
+                    Log.e("toto", "writeTechLogs() => BIG ERROR");
+                    return false;
+                }
+            }
         } else {
-            ret = isMyPhoneDev();
             Log.e(kanLogger_TAG, "writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");
+            return isMyPhoneDev();
         }
-        return ret;
     }
 
     /////////////////////////////////

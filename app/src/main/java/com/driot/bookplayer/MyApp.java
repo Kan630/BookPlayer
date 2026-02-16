@@ -55,6 +55,10 @@ public class MyApp extends Application {
         super.onCreate();
         KanLogger.init(getApplicationContext());
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
+            enableStrictModeForDebugBuild();
+        }
+
         Option.init(getApplicationContext());
         Pref.init(getApplicationContext());
         FirebaseAnalyticsHelper.init(getApplicationContext()); // after pref
@@ -65,9 +69,7 @@ public class MyApp extends Application {
 
         // TaskStateRepository.get().hydrateFromPrefs();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
-            enableStrictModeForDebugBuild();
-        }
+
 
         Option.applyNightMode();
 

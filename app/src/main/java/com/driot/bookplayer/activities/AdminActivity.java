@@ -26,6 +26,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
@@ -39,10 +40,6 @@ import java.util.List;
 import java.util.Map;
 
 public class AdminActivity extends BaseActivity {
-
-    private static final String PREF_SHOW_LIVE_LOGS = "show_live_logs";
-    private static final String PREF_LIVE_LOG_HEIGHT = "live_log_height";
-    private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
 
     private LinearLayout btnContainer;
     private ListView listActivities;
@@ -72,21 +69,19 @@ public class AdminActivity extends BaseActivity {
         // Live log viewer
         MaterialCheckBox chkLiveLog = findViewById(R.id.chk_live_log);
         LinearLayout llLiveLog = findViewById(R.id.ll_live_log);
-        boolean showLiveLogs = getSharedPreferences("admin_prefs", MODE_PRIVATE)
-                .getBoolean(PREF_SHOW_LIVE_LOGS, false);
+        boolean showLiveLogs = Pref.getShowLiveLogs();
         chkLiveLog.setChecked(showLiveLogs);
         llLiveLog.setOnClickListener(v -> chkLiveLog.toggle());
         chkLiveLog.setOnCheckedChangeListener((b, checked) -> {
-            getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
-                    .putBoolean(PREF_SHOW_LIVE_LOGS, checked).apply();
+            Pref.setShowLiveLogs(checked);
         });
 
         // Live log height slider
         SeekBar seekBar = findViewById(R.id.seekbar_live_log_height);
         TextView tvHeight = findViewById(R.id.tv_live_log_height);
-        int savedHeight = getSharedPreferences("admin_prefs", MODE_PRIVATE)
-                .getInt(PREF_LIVE_LOG_HEIGHT, DEFAULT_LIVE_LOG_HEIGHT);
-        int progress = Math.max(0, Math.min(5, (savedHeight - 10) / 12)); // Convert percentage to slider position (0-5), range 10-70%
+        int savedHeight = Pref.getLiveLogsSavedHeight();
+        int progress = Math.max(0, Math.min(5, (savedHeight - 10) / 12)); // Convert percentage to slider position
+                                                                          // (0-5), range 10-70%
         seekBar.setProgress(progress);
         tvHeight.setText("Live Log Height: " + savedHeight + "%");
 
@@ -96,8 +91,7 @@ public class AdminActivity extends BaseActivity {
                 int percentage = 10 + (progress * 12); // 0->10%, 1->22%, 2->34%, 3->46%, 4->58%, 5->70%
                 tvHeight.setText("Live Log Height: " + percentage + "%");
                 if (fromUser) {
-                    getSharedPreferences("admin_prefs", MODE_PRIVATE).edit()
-                            .putInt(PREF_LIVE_LOG_HEIGHT, percentage).apply();
+                    Pref.setLiveLogsSavedHeight(percentage);
                 }
             }
 

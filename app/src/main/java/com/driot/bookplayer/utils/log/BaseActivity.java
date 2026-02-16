@@ -34,6 +34,7 @@ import static com.driot.bookplayer.utils.log.KanLogger.LOG_LIFECYCLE_TRACE;
 import com.driot.bookplayer.fragments.LiveLogFragment;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LocaleHelper;
 //import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
@@ -55,8 +56,11 @@ public abstract class BaseActivity extends AppCompatActivity {
     private LiveLogFragment liveLogFragment;
     private FrameLayout liveLogContainer;
 
-    //WRAPPING OF THE CONTEXT - DO NOT DO IN MYAPP, or you will fix the context forever, and then device system changes like darkmode are just ignored by the app... here : any conf change trigger an activity recreation, so context will be wrapped again
-    //It's supposed to allow easier App Language change for old devices
+    // WRAPPING OF THE CONTEXT - DO NOT DO IN MYAPP, or you will fix the context
+    // forever, and then device system changes like darkmode are just ignored by the
+    // app... here : any conf change trigger an activity recreation, so context will
+    // be wrapped again
+    // It's supposed to allow easier App Language change for old devices
     @Override
     protected void attachBaseContext(Context newBase) {
         super.attachBaseContext(LocaleHelper.wrapContextWithAppLocale(newBase));
@@ -233,12 +237,13 @@ public abstract class BaseActivity extends AppCompatActivity {
             myLifecycleLog(TAG_FROM_BRACKET + "onNewIntent() + intent : " + intent.getAction());
     }
 
-    // Pour le changement de Locale (Language) + NightMode ? Does not seem really useful... since should be automatic, maybe do not temper !
+    // Pour le changement de Locale (Language) + NightMode ? Does not seem really
+    // useful... since should be automatic, maybe do not temper !
     @Override
     public void onConfigurationChanged(@NonNull Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
-        //if (LOG_LIFECYCLE_TRACE)
-            myLifecycleLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
+        // if (LOG_LIFECYCLE_TRACE)
+        myLifecycleLog(TAG_FROM_BRACKET + "onConfigurationChanged() newConfig=" + newConfig.toString());
     }
 
     /// ///////////////////////////////////////////////////////////////////
@@ -330,8 +335,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     @Override
     public void setContentView(int layoutResID) {
         // Check if live logs are enabled
-        boolean showLiveLogs = getSharedPreferences("admin_prefs", MODE_PRIVATE)
-                .getBoolean(PREF_SHOW_LIVE_LOGS, false);
+        boolean showLiveLogs = Pref.getShowLiveLogs();
 
         // Exclude LogTextActivity and LogListActivity from showing live logs
         // (redundant)
@@ -342,8 +346,7 @@ public abstract class BaseActivity extends AppCompatActivity {
 
         if (showLiveLogs) {
             // Get height percentage from preferences
-            int heightPercentage = getSharedPreferences("admin_prefs", MODE_PRIVATE)
-                    .getInt(PREF_LIVE_LOG_HEIGHT, DEFAULT_LIVE_LOG_HEIGHT);
+            int heightPercentage = Pref.getLiveLogsSavedHeight();
 
             // Calculate weights: if fragment is 50%, content is 50%, so weights are equal
             // (1.0f each)
@@ -392,7 +395,7 @@ public abstract class BaseActivity extends AppCompatActivity {
                 getSupportFragmentManager().beginTransaction()
                         .replace(liveLogContainer.getId(), liveLogFragment, "live_log")
                         .commit();
-                //myLogD("Live log fragment initialized");
+                // myLogD("Live log fragment initialized");
             } catch (Exception e) {
                 myLogEE(e, "initializeLiveLogFragment");
             }

@@ -46,7 +46,7 @@ public class Option {
                                                               // releases
     private static final boolean DEFAULT_COPY_FILES = true;
     private static final boolean DEFAULT_CLICK_VISUALIZER_PLAYPAUSE = false;
-    private static final boolean DEFAULT_TECH_LOG = false;
+    public static final boolean DEFAULT_TECH_LOG = false;
     private static final boolean DEFAULT_OPEN_WITH = true;
     private static final boolean DEFAULT_OPEN_WITH_ALL = false;
     private static final boolean DEFAULT_SPLIT_M4B = true;

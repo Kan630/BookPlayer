@@ -13,36 +13,60 @@ import androidx.annotation.Nullable;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.Tonio;
 
-import java.util.concurrent.Executors;
-
 public class Pref {
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
     private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
     private static final String SHARED_PREFERENCE_TIMESTAMP = "SHARED_PREFERENCE_TIMESTAMP";
+    private static final String SHARED_PREFERENCE_SPEED = "SHARED_PREFERENCE_SPEED";
+    private static final String SHARED_PREFERENCES_ADMIN = "SHARED_PREFERENCES_ADMIN";
+    private static final String SHARED_PREFERENCE_BOOK = "book_prefs";
     public static final String SHARED_PREFERENCE_MIGRATION = "SHARED_PREFERENCE_MIGRATION";
 
+    private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
+    private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
+
     private static Context appContext;
-    private static android.content.SharedPreferences prefs;
-    private static android.content.SharedPreferences stats;
-    private static android.content.SharedPreferences timeStamp;
+    private static SharedPreferences prefs;
+    private static SharedPreferences stats;
+    private static SharedPreferences timeStamp;
+    private static SharedPreferences introCut;
+    private static SharedPreferences speed;
+    private static SharedPreferences admin;
+    private static SharedPreferences book;
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         PrefMigration.run(appContext);
-
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
         stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
         timeStamp = appContext.getSharedPreferences(SHARED_PREFERENCE_TIMESTAMP, MODE_PRIVATE);
+        introCut = appContext.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE);
+        speed = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
+        admin = appContext.getSharedPreferences(SHARED_PREFERENCES_ADMIN, MODE_PRIVATE);
+        book = appContext.getSharedPreferences(SHARED_PREFERENCE_BOOK, MODE_PRIVATE);
 
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                if (getFirstOpenTimeStamp() == 0)
-                    setFirstOpen();
-            } catch (Exception ignored) {
-            }
-        });
+        if (getFirstOpenTimeStamp() == 0)
+            setFirstOpen();
+    }
+
+    public static boolean getShowLiveLogs() {
+        return admin.getBoolean("SHOW_LIVE_LOGS", DEFAULT_SHOW_LIVE_LOGS);
+    }
+    public static void setShowLiveLogs(boolean value) {
+        admin.edit().putBoolean("SHOW_LIVE_LOGS", value).apply();
+    }
+
+    public static int getLiveLogsSavedHeight() {
+        return admin.getInt("LIVE_LOG_HEIGHT", DEFAULT_LIVE_LOG_HEIGHT);
+    }
+    public static void setLiveLogsSavedHeight(int value) {
+        admin.edit().putInt("LIVE_LOG_HEIGHT", value).apply();
+    }
+
+    public static SharedPreferences getBookPrefs() {
+        return book;
     }
 
     public static long getLastDbClean() {
@@ -77,10 +101,9 @@ public class Pref {
 
     /////////////////// PER BOOK ID ///////////////////
 
-    public static void saveIntroCutToPref(Context c, int idFolder, int introCut) {
+    public static void saveIntroCutToPref(Context c, int idFolder, int introCutValue) {
         try {
-            SharedPreferences.Editor editor = c.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE).edit();
-            editor.putInt(Integer.toString(idFolder), introCut).apply();
+            introCut.edit().putInt(Integer.toString(idFolder), introCutValue).apply();
         } catch (Exception e) {
             myLogEE(e, "error saving introCut in prefs");
         }
@@ -88,19 +111,16 @@ public class Pref {
 
     public static int getIntroCutFromPref(Context c, int idFolder) {
         try {
-            SharedPreferences prefs = c.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE);
-            return prefs.getInt(String.valueOf(idFolder), 0);
+            return introCut.getInt(String.valueOf(idFolder), 0);
         } catch (Exception e) {
             myLogEE(e, "error getting introCut from prefs");
             return 0;
         }
     }
 
-    public static void saveSpeedToPref(int idFolder, double speed) {
+    public static void saveSpeedToPref(int idFolder, double speedValue) {
         try {
-            SharedPreferences.Editor editor = appContext.getSharedPreferences("SHARED_PREFERENCE_SPEED", MODE_PRIVATE)
-                    .edit();
-            editor.putString(String.valueOf(idFolder), Double.toString(speed)).apply();
+            speed.edit().putString(String.valueOf(idFolder), Double.toString(speedValue)).apply();
         } catch (Exception e) {
             myLogEE(e, "error saving speed in prefs");
         }
@@ -108,8 +128,7 @@ public class Pref {
 
     public static double getSpeedFromPref(int idFolder) {
         try {
-            SharedPreferences prefs = appContext.getSharedPreferences("SHARED_PREFERENCE_SPEED", MODE_PRIVATE);
-            return Double.parseDouble(prefs.getString(String.valueOf(idFolder), "1.0"));
+            return Double.parseDouble(speed.getString(String.valueOf(idFolder), "1.0"));
         } catch (Exception e) {
             myLogEE(e, "error getting speed from prefs");
             return 1.0;
@@ -160,12 +179,11 @@ public class Pref {
     }
 
     public static void setBookTtsVoiceName(Context c, int folderId, String voiceName) {
-        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).edit()
-                .putString("BOOK_TTS_VOICE_" + folderId, voiceName).apply();
+        book.edit().putString("BOOK_TTS_VOICE_" + folderId, voiceName).apply();
     }
 
     public static String getBookTtsVoiceName(Context c, int folderId) {
-        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getString("BOOK_TTS_VOICE_" + folderId, null);
+        return book.getString("BOOK_TTS_VOICE_" + folderId, null);
     }
 
     /////////////////// STATS ///////////////////
@@ -265,39 +283,35 @@ public class Pref {
 
     // Setters
     public static void setBookCoverInitials(Context c, long folderId, String initials) {
-        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
-                .edit().putString(kCoverInitials(folderId), initials).apply();
+        book.edit().putString(kCoverInitials(folderId), initials).apply();
     }
 
     public static void setBookCoverColor(Context c, long folderId, int color) {
-        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
-                .edit().putInt(kCoverColor(folderId), color).apply();
+        book.edit().putInt(kCoverColor(folderId), color).apply();
     }
 
     public static void setBookCoverRounded(Context c, long folderId, boolean rounded) {
-        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
-                .edit().putBoolean(kCoverRounded(folderId), rounded).apply();
+        book.edit().putBoolean(kCoverRounded(folderId), rounded).apply();
     }
 
     // Getters
     @Nullable
     public static String getBookCoverInitials(Context c, long folderId) {
-        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
-                .getString(kCoverInitials(folderId), null);
+        return book.getString(kCoverInitials(folderId), null);
     }
 
     public static Integer getBookCoverColorOrNull(Context c, long folderId) {
         String key = kCoverColor(folderId);
-        if (!c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).contains(key))
+        if (!book.contains(key))
             return null;
-        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getInt(key, 0);
+        return book.getInt(key, 0);
     }
 
     public static Boolean getBookCoverRoundedOrNull(Context c, long folderId) {
         String key = kCoverRounded(folderId);
-        if (!c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).contains(key))
+        if (!book.contains(key))
             return null;
-        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getBoolean(key, true);
+        return book.getBoolean(key, true);
     }
 
     // New Params
@@ -306,13 +320,11 @@ public class Pref {
     }
 
     public static void setBookCoverTextSize(Context c, long folderId, int size) {
-        c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
-                .edit().putInt(kCoverTextSize(folderId), size).apply();
+        book.edit().putInt(kCoverTextSize(folderId), size).apply();
     }
 
     public static int getBookCoverTextSize(Context c, long folderId) {
-        return c.getSharedPreferences("book_prefs", Context.MODE_PRIVATE)
-                .getInt(kCoverTextSize(folderId), 16); // Default 16 (mid of 12-20)
+        return book.getInt(kCoverTextSize(folderId), 16); // Default 16 (mid of 12-20)
     }
 
     /////////////////// STORAGE INFO CACHE ///////////////////
@@ -409,7 +421,8 @@ public class Pref {
         return prefs.getLong("STORAGE_INTERNAL_APP", 0);
     }
 
-    // Per-folder sizes for Clean Memory (internal unzip subfolders), JSON: path -> size in bytes
+    // Per-folder sizes for Clean Memory (internal unzip subfolders), JSON: path ->
+    // size in bytes
     public static void setStorageInternalFolderSizesJson(String value) {
         prefs.edit().putString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", value != null ? value : "").apply();
     }
@@ -418,7 +431,8 @@ public class Pref {
         return prefs.getString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", "");
     }
 
-    // Per-folder sizes for Clean Memory (SD card unzip subfolders), JSON: path -> size in bytes
+    // Per-folder sizes for Clean Memory (SD card unzip subfolders), JSON: path ->
+    // size in bytes
     public static void setStorageSDCardFolderSizesJson(String value) {
         prefs.edit().putString("STORAGE_SDCARD_FOLDER_SIZES_JSON", value != null ? value : "").apply();
     }
