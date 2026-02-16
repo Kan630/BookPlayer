@@ -104,13 +104,12 @@ public final class AudioProber {
     @Nullable
     private static AudioInfo tryWithFd(Context context, Uri uri, boolean doExtractCover) {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
-        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(uri, "r")) {
-            if (pfd == null)
+        // AssetFileDescriptor is often more robust for passing to native media code.
+        try (AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
+            if (afd == null)
                 return null;
-            // Using FD with explicit offset and length is sometimes more robust than raw
-            // FD.
-            mmr.setDataSource(pfd.getFileDescriptor(), 0, pfd.getStatSize());
-            return buildInfoFromRetriever(context, uri, mmr, hintFromUri(uri) + "+fd", doExtractCover);
+            mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
+            return buildInfoFromRetriever(context, uri, mmr, hintFromUri(uri) + "+afd", doExtractCover);
         } catch (Exception e) {
             myLogD("tryWithFd failed for " + uri + " : " + e.getMessage());
             return null;
@@ -173,9 +172,10 @@ public final class AudioProber {
     @Nullable
     private static AudioInfo tryWithMediaExtractor(Context context, Uri uri, String display, String sourceHint) {
         MediaExtractor ex = new MediaExtractor();
-        try {
-            // (API 23+ path; if you support <23, add the AFD fallback again)
-            ex.setDataSource(context, uri, null);
+        try (AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
+            if (afd == null)
+                return null;
+            ex.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
 
             long durUs = extractMaxDurationUs(ex);
             long durMs = (durUs > 0 ? durUs / 1000 : 0);

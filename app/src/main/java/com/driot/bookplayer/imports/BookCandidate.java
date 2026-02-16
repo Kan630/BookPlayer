@@ -369,15 +369,17 @@ public class BookCandidate implements Parcelable {
         long startTime = System.currentTimeMillis();
         myLogD("scanM4BCombined() START for: " + name);
 
-        try (android.os.ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(file.getUri(),
-                "r")) {
-            if (pfd != null) {
-                java.io.FileDescriptor fd = pfd.getFileDescriptor();
+        try (android.content.res.AssetFileDescriptor afd = context.getContentResolver()
+                .openAssetFileDescriptor(file.getUri(), "r")) {
+            if (afd != null) {
+                java.io.FileDescriptor fd = afd.getFileDescriptor();
+                long offset = afd.getStartOffset();
+                long length = afd.getLength();
 
                 // 1. Cover Detection
                 android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
                 try {
-                    mmr.setDataSource(context, file.getUri());
+                    mmr.setDataSource(fd, offset, length);
                     com.driot.bookplayer.helpers.CoverPictureDetection.CoverDetectionResult result = com.driot.bookplayer.helpers.CoverPictureDetection
                             .extractEmbeddedCover(mmr);
 
@@ -396,12 +398,11 @@ public class BookCandidate implements Parcelable {
                 }
 
                 // IMPORTANT: MediaMetadataRetriever might have moved the FD position.
-                // Reset it to 0 before giving it to mp4parser, otherwise it reads garbage and
-                // crashes (OOM/Large allocation).
+                // Reset it to the starting offset before giving it to mp4parser.
                 try {
-                    android.system.Os.lseek(fd, 0, android.system.OsConstants.SEEK_SET);
+                    android.system.Os.lseek(fd, offset, android.system.OsConstants.SEEK_SET);
                 } catch (Exception e) {
-                    myLogW("Could not seek FD back to 0: " + e.getMessage());
+                    myLogW("Could not seek FD back to offset " + offset + " : " + e.getMessage());
                 }
 
                 // 2. Track Count
