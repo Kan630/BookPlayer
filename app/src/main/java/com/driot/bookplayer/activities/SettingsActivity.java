@@ -216,7 +216,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
             // Apply after layout and after any scroll-to-top (e.g. initGoToTop); post twice
             // so we run last
             scrollView.post(() -> scrollView.post(() -> {
-                myLog("scrolling to position : " + position);
+                myLogD("scrolling to position : " + position);
                 scrollView.scrollTo(0, position);
             }));
         }
@@ -265,6 +265,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
         sectionHosts.add(host);
 
         sectionView.getHeaderView().setOnClickListener(v -> {
+            myLogI(" user clicks header : " + host.stateKey);
             if (host.expanded) {
                 collapseSection(host, /* removeFragment */ false);
             } else {
@@ -355,7 +356,6 @@ public class SettingsActivity extends BaseBottomNavActivity {
     }
 
     private void onHeaderClicked(SectionHost host) {
-        myLogI(" user clicks header : " + host.stateKey);
         if (headerTapLocked)
             return;
         headerTapLocked = true;
