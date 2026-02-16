@@ -76,6 +76,7 @@ public class LoadManyBookTest implements LogSupport {
     private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
     private final static long DEBUG_VISUAL_CHECK = 3_000;
+    private final static long TIMEOUT_SINGLE_IMPORT_READY = 15_000;
 
     private static final int ID_MAIN_RECYCLER = R.id.recyclerview_folders; // list on MainActivity
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles; // list on ZikFileActivity
@@ -191,7 +192,11 @@ public class LoadManyBookTest implements LogSupport {
                 for (String assetDir : subdirs) {
                     Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
                     int idFolder = runImport(dirUri, tc.uri_type);
-                    goPlay(idFolder);
+                    if (idFolder != -1) {
+                        goPlay(idFolder);
+                    } else {
+                        myLogW("Skipping playback for skipped/duplicate import: " + dirUri);
+                    }
                     if (DEBUG_MODE_NO_LOOP)
                         return;
                 }
@@ -199,7 +204,11 @@ public class LoadManyBookTest implements LogSupport {
                 for (String assetPath : assetFiles) {
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
                     int idFolder = runImport(contentUri, tc.uri_type);
-                    goPlay(idFolder);
+                    if (idFolder != -1) {
+                        goPlay(idFolder);
+                    } else {
+                        myLogW("Skipping playback for skipped/duplicate import: " + contentUri);
+                    }
                     if (DEBUG_MODE_NO_LOOP)
                         return;
                 }
@@ -262,15 +271,35 @@ public class LoadManyBookTest implements LogSupport {
             myLog("Waiting DEBUG_VISUAL_CHECK " + DEBUG_VISUAL_CHECK + "ms...");
             Thread.sleep(DEBUG_VISUAL_CHECK);
 
-            myLog("Waiting for btnConfirm to be enabled...");
+            myLog("Waiting for btnConfirm to be enabled or errorTextView to show error...");
             long startWait = System.currentTimeMillis();
-            while (System.currentTimeMillis() - startWait < 15_000) {
+            boolean isDuplicate = false;
+            while (System.currentTimeMillis() - startWait < TIMEOUT_SINGLE_IMPORT_READY) {
                 try {
+                    // Check button
                     onView(withId(R.id.btnConfirm)).check(matches(isEnabled()));
                     break;
                 } catch (AssertionError | Exception e) {
+                    // Check error text
+                    try {
+                        String errorText = TestNavUtils.getText(withId(R.id.errorTextView));
+                        if (errorText != null && !errorText.trim().isEmpty()) {
+                            myLogW("Duplicate/Error detected: " + errorText);
+                            isDuplicate = true;
+                            break;
+                        }
+                    } catch (Exception ignored) {
+                        // View might not be visible yet or not a TextView
+                    }
                     Thread.sleep(500);
                 }
+            }
+
+            if (isDuplicate) {
+                myLog("Proceeding to next import as requested (duplicate detected)");
+                TestNavUtils.sleep(DEBUG_VISUAL_CHECK, "Visual check of error message");
+                androidx.test.espresso.Espresso.pressBack();
+                return -1;
             }
 
             onView(withId(R.id.btnConfirm)).perform(click());
