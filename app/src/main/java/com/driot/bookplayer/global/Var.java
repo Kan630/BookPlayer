@@ -175,30 +175,21 @@ public class Var {
                     ,"gif"  // optional if you allow animated covers
             )
     );
-    public static final Set<String> SUPPORTED_IMAGE_MIMES = new HashSet<>(
-            Arrays.asList(
-                    "image/jpeg",
-                    "image/png",
-                    "image/webp",
-                    "image/bmp"
-                    // "image/gif"
-            )
-    );
 
     // --- Audio files ---
     public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = new HashSet<>(
             Arrays.asList(
                     // Common Formats
-                    "mp3",   // MPEG-1/2 Audio Layer 3 (universal support)
-                    "m4a",   // AAC in MP4 container (Apple/iTunes default)
+                    "mp3",   // WORKS   // MPEG-1/2 Audio Layer 3 (universal support)
+                    "m4a",   // WORKS   // AAC in MP4 container (Apple/iTunes default)
                     "aac",   // Raw AAC (less common than .m4a)
-                    "mp4",   // MP4 container (may contain AAC/ALAC)
+                    "mp4",   // WORKS   // MP4 container (may contain AAC/ALAC)
                     "m4b",   // Audiobook variant of .m4a
-                    "wav",   // Uncompressed PCM/WAVE   // TODO try again with another file, currently import fails "no usable item found"
-                    "ogg",   // Ogg Vorbis (open alternative to MP3)
+                    "wav",   // Uncompressed PCM/WAVE   // TODO currently import fails "no usable item found"
+                    "ogg",   // WORKS // Ogg Vorbis (open alternative to MP3)
                     "oga",   // Ogg Audio (legacy, rarely used)
-                    "flac",  // Free Lossless Audio Codec (Android 3.1+)
-                    "opus",  // Opus (Android 5.0+, efficient for voice/streaming)
+                    "flac",  // WORKS   // Free Lossless Audio Codec (Android 3.1+)
+                    "opus",  // WORKS // Opus (Android 5.0+, efficient for voice/streaming)
 
                     // MIDI/Synthetic Audio
                     "mid",   // Standard MIDI
@@ -227,10 +218,57 @@ public class Var {
                     "ota"    // Over-the-Air ringtone
 
                     //New ones
-                    ,"wma"   // TODO try again with another file, currently play fails "mediaplayer error -38"
-                    ,"ac3"   // TODO try again with another file, currently import fails "no usable item found"
+                    ,"wma"   // TODO currently play fails "mediaplayer error -38"
+                    ,"ac3"   // TODO currently import fails "no usable item found"
             )
     );
+
+    // --- Video files ---
+    public static final Set<String> SUPPORTED_VIDEO_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    "mpg",   // TODO currently import fails "no usable item found"
+                    "mpeg",   // TODO currently import fails "no usable item found"
+                    "avi" // WORKS
+                    ,"wmv"  // TODO currently play fails "mediaplayer error -38"
+                    ,"mov" // WORKS
+                    ,"asf"  // TODO currently play fails "mediaplayer error -38"
+            )
+    );
+
+    // --- Ebooks/Text files ---
+    // Plain text: used directly as TTS tracks/chapters, no splitting
+    public static final Set<String> PLAIN_TEXT_EXTENSIONS = new HashSet<>(Arrays.asList("txt"));
+
+    // Structured ebooks: need EbookSplitWorker to extract chapters (each file = one book)
+    public static final Set<String> SPLITTABLE_EBOOK_EXTENSIONS = new HashSet<>(
+            Arrays.asList(
+                    "epub",  // Kobo kepub is still .epub
+                    "fb2",   // FictionBook 2
+                    "odt"    // OpenDocument Text – must be split to .txt before TTS
+            ));
+    public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>();
+    static {
+        SUPPORTED_EBOOK_EXTENSIONS.addAll(PLAIN_TEXT_EXTENSIONS);
+        SUPPORTED_EBOOK_EXTENSIONS.addAll(SPLITTABLE_EBOOK_EXTENSIONS);
+    }
+
+
+
+
+// MIMES SECTION
+
+
+
+    public static final Set<String> SUPPORTED_IMAGE_MIMES = new HashSet<>(
+            Arrays.asList(
+                    "image/jpeg",
+                    "image/png",
+                    "image/webp",
+                    "image/bmp"
+                    // "image/gif"
+            )
+    );
+
     public static final Set<String> SUPPORTED_AUDIO_MIMES = new HashSet<>(
             Arrays.asList(
                     "audio/mpeg",
@@ -244,15 +282,6 @@ public class Var {
                     "audio/opus"
             )
     );
-
-    // --- Video files ---
-    public static final Set<String> SUPPORTED_VIDEO_EXTENSIONS = new HashSet<>(
-            Arrays.asList(
-                    "mpg",
-                    "mpeg",   // TODO try again with another file, currently import fails "no usable item found"
-                    "avi"
-            )
-    );
     public static final Set<String> SUPPORTED_VIDEO_MIMES = new HashSet<>(
             Arrays.asList(
                     "video/mpeg",
@@ -260,18 +289,8 @@ public class Var {
             )
     );
 
-    // --- Ebooks/Text files ---
-    // Plain text: used directly as TTS tracks/chapters, no splitting
-    public static final Set<String> PLAIN_TEXT_EXTENSIONS = new HashSet<>(Arrays.asList("txt"));
     public static final Set<String> PLAIN_TEXT_MIMES = new HashSet<>(Arrays.asList("text/plain"));
 
-    // Structured ebooks: need EbookSplitWorker to extract chapters (each file = one book)
-    public static final Set<String> SPLITTABLE_EBOOK_EXTENSIONS = new HashSet<>(
-            Arrays.asList(
-                    "epub",  // Kobo kepub is still .epub
-                    "fb2",   // FictionBook 2
-                    "odt"    // OpenDocument Text – must be split to .txt before TTS
-            ));
     public static final Set<String> SPLITTABLE_EBOOK_MIMES = new HashSet<>(
             Arrays.asList(
                     "application/epub+zip",
@@ -281,15 +300,13 @@ public class Var {
                     "application/xhtml+xml"               // some epub internals
             ));
 
-    /** All formats that result in TTS playback (for type resolution, display, etc.). */
-    public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>();
+    // All formats that result in TTS playback (for type resolution, display, etc.).
     public static final Set<String> SUPPORTED_EBOOK_MIMES = new HashSet<>();
 
     static {
-        SUPPORTED_EBOOK_EXTENSIONS.addAll(PLAIN_TEXT_EXTENSIONS);
-        SUPPORTED_EBOOK_EXTENSIONS.addAll(SPLITTABLE_EBOOK_EXTENSIONS);
         SUPPORTED_EBOOK_MIMES.addAll(PLAIN_TEXT_MIMES);
         SUPPORTED_EBOOK_MIMES.addAll(SPLITTABLE_EBOOK_MIMES);
     }
+
 
 }
