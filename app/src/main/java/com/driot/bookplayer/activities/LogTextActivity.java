@@ -28,6 +28,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -50,6 +53,7 @@ public class LogTextActivity extends BaseActivity {
     private TextOptions textOptions;
 
     private boolean destroyedByFlip = false;
+    private final ExecutorService logExecutor = Executors.newSingleThreadExecutor();
 
     private static final int LOG_TEXT_CHAR_SIZE = 12;
 
@@ -118,7 +122,8 @@ public class LogTextActivity extends BaseActivity {
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         setContentView(R.layout.activity_log_text);
 
-        // Add top insets only so header is below status bar and buttons remain clickable (no left/right)
+        // Add top insets only so header is below status bar and buttons remain
+        // clickable (no left/right)
         View root = findViewById(android.R.id.content);
         if (root != null) {
             InsetHelper.applyTopInsetsOnlyTo(this, root);
@@ -163,14 +168,29 @@ public class LogTextActivity extends BaseActivity {
     }
 
     private void loadRecyclerView() {
-        myTextChunkArrayList = getTextFileContentInArrayList(this, typeStorage, file, "log", LOG_TEXT_CHAR_SIZE);
-        // Reverse to show most recent at top
-        java.util.Collections.reverse(myTextChunkArrayList);
-        originalTextChunkArrayList = new ArrayList<>(myTextChunkArrayList);
-        adapter = new MyTextChunkRVAdapter(myTextChunkArrayList);
-        recyclerView.setAdapter(adapter);
-        textOptions.setScrollPosition(this, file, recyclerView);
-        myLog("loadRecyclerView()");
+        logExecutor.execute(() -> {
+            final ArrayList<MyTextChunk> loadedLogs = getTextFileContentInArrayList(
+                    getApplicationContext(),
+                    typeStorage,
+                    file,
+                    "log",
+                    LOG_TEXT_CHAR_SIZE);
+
+            if (loadedLogs != null) {
+                // Reverse to show most recent at top
+                Collections.reverse(loadedLogs);
+
+                runOnUiThread(() -> {
+                    myTextChunkArrayList = loadedLogs;
+                    originalTextChunkArrayList = new ArrayList<>(myTextChunkArrayList);
+                    adapter = new MyTextChunkRVAdapter(myTextChunkArrayList);
+                    recyclerView.setAdapter(adapter);
+                    textOptions.setScrollPosition(this, file, recyclerView);
+                    myLog("loadRecyclerView() - background load complete");
+                    filterList();
+                });
+            }
+        });
     }
 
     private void setupFilters() {
@@ -207,6 +227,8 @@ public class LogTextActivity extends BaseActivity {
     }
 
     private void filterList() {
+        if (originalTextChunkArrayList == null)
+            return;
         String searchText = etSearch.getText().toString().toLowerCase();
         boolean filterWAR = switchWAR.isChecked();
         boolean filterERR = switchERR.isChecked();
@@ -247,6 +269,8 @@ public class LogTextActivity extends BaseActivity {
     }
 
     private void applyOrderAndFilter() {
+        if (myTextChunkArrayList == null)
+            return;
         ArrayList<MyTextChunk> resultList = new ArrayList<>(myTextChunkArrayList);
 
         // Apply 5-minute filter if enabled
@@ -287,6 +311,8 @@ public class LogTextActivity extends BaseActivity {
     }
 
     private void shareLog() {
+        if (file == null)
+            return;
         try {
             // Create MyFile object from filename
             MyFile myFile = new MyFile(file);
@@ -323,6 +349,7 @@ public class LogTextActivity extends BaseActivity {
                 myLogEE(e, "onDestroy() -  saveHighlightedText");
             }
         }
+        logExecutor.shutdown();
         super.onDestroy();
     }
 
