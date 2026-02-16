@@ -32,6 +32,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.google.gson.Gson;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -456,7 +457,7 @@ public final class InAppMsgManager {
     }
 
     static String fetchJson(String url, @Nullable String etag, Context context) throws Exception {
-        TrafficStats.setThreadStatsTag(0x1000);
+        TrafficStats.setThreadStatsTag(Var.TRAFFIC_TAG_IN_APP_MSG);
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(5000);
         c.setReadTimeout(7000);

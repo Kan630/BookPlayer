@@ -64,20 +64,21 @@ public class NetworkHelper {
                 return;
             }
 
-            boolean wifi      = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
-            boolean cellular  = caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
-            boolean ethernet  = caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
-            boolean vpn       = caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
+            boolean wifi = caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
+            boolean cellular = caps.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR);
+            boolean ethernet = caps.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET);
+            boolean vpn = caps.hasTransport(NetworkCapabilities.TRANSPORT_VPN);
 
-            boolean hasInternet  = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
-            boolean validated    = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
-            boolean unmetered    = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
+            boolean hasInternet = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET);
+            boolean validated = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED);
+            boolean unmetered = caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_NOT_METERED);
 
             // Best-effort roaming (legacy API)
             boolean roaming = false;
             @SuppressLint("MissingPermission")
             NetworkInfo info = cm.getActiveNetworkInfo();
-            if (info != null) roaming = info.isRoaming();
+            if (info != null)
+                roaming = info.isRoaming();
 
             myLogI("---- Network Debug ----");
             myLog("Wi-Fi: " + wifi + " | Cellular: " + cellular + " | Ethernet: " + ethernet + " | VPN: " + vpn);
@@ -88,7 +89,6 @@ public class NetworkHelper {
             myLog("Option auto download : " + Option.getNetworkPolicyAutoDownload().toString());
             myLogI("------------------------");
 
-
         } catch (Exception e) {
             myLogEE(e, "Error checking network state");
         }
@@ -97,15 +97,11 @@ public class NetworkHelper {
     // ---------- Policies (placeholders if you need them here) ----------
 
     public enum NetworkPolicyManual {
-         NETWORK_POLICY_NEVER_ASK
-        ,NETWORK_POLICY_NOT_ROAMING
-        ,NETWORK_POLICY_UNMETERED
+        NETWORK_POLICY_NEVER_ASK, NETWORK_POLICY_NOT_ROAMING, NETWORK_POLICY_UNMETERED
     }
 
     public enum NetworkPolicyAuto {
-         NETWORK_POLICY_NEVER_ASK
-        ,NETWORK_POLICY_NOT_ROAMING
-        ,NETWORK_POLICY_UNMETERED
+        NETWORK_POLICY_NEVER_ASK, NETWORK_POLICY_NOT_ROAMING, NETWORK_POLICY_UNMETERED
     }
 
     // ---------- Connectivity helpers ----------
@@ -113,9 +109,11 @@ public class NetworkHelper {
     /** Quick connected check using modern APIs; no legacy NetworkInfo reliance. */
     public static boolean isConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
+        if (cm == null)
+            return false;
         Network active = cm.getActiveNetwork();
-        if (active == null) return false;
+        if (active == null)
+            return false;
         NetworkCapabilities caps = cm.getNetworkCapabilities(active);
         return caps != null
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -126,12 +124,16 @@ public class NetworkHelper {
     @SuppressLint("MissingPermission")
     public static boolean isNetworkAvailable(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
+        if (cm == null)
+            return false;
         NetworkInfo info = cm.getActiveNetworkInfo(); // deprecated but still functional
         return info != null && info.isConnected();
     }
 
-    /** True if active network is unmetered (Wi-Fi/Ethernet/etc.). Conservative default = false. */
+    /**
+     * True if active network is unmetered (Wi-Fi/Ethernet/etc.). Conservative
+     * default = false.
+     */
     public static boolean isUnmeteredConnected(Context context) {
         boolean response;
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -152,13 +154,15 @@ public class NetworkHelper {
         return response;
     }
 
-    //TODO check for roaming
-    @RequiresApi(api = Build.VERSION_CODES.P) //sdk 28...
+    // TODO check for roaming
+    @RequiresApi(api = Build.VERSION_CODES.P) // sdk 28...
     public static boolean isRoaming(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
+        if (cm == null)
+            return false;
         Network active = cm.getActiveNetwork();
-        if (active == null) return false;
+        if (active == null)
+            return false;
         NetworkCapabilities caps = cm.getNetworkCapabilities(active);
         return caps != null
                 && caps.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
@@ -169,9 +173,11 @@ public class NetworkHelper {
     /** True if active transport is Wi-Fi (does not imply unmetered). */
     public static boolean isWifiConnected(Context context) {
         ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (cm == null) return false;
+        if (cm == null)
+            return false;
         Network active = cm.getActiveNetwork();
-        if (active == null) return false;
+        if (active == null)
+            return false;
         NetworkCapabilities caps = cm.getNetworkCapabilities(active);
         return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
@@ -179,7 +185,8 @@ public class NetworkHelper {
     /** Walks cause chain to detect UnknownHostException. */
     public static boolean isUnknownHost(Throwable e) {
         while (e != null) {
-            if (e instanceof java.net.UnknownHostException) return true;
+            if (e instanceof java.net.UnknownHostException)
+                return true;
             e = e.getCause();
         }
         return false;
@@ -189,7 +196,7 @@ public class NetworkHelper {
 
     /** Simple GET 200 check; closes connection; 5s connect timeout. */
     public static boolean canReachUrl(String urlString) {
-        TrafficStats.setThreadStatsTag(0x2000);
+        TrafficStats.setThreadStatsTag(Var.TRAFFIC_TAG_REACHABILITY_CHECK);
         HttpURLConnection conn = null;
         try {
             URL url = new URL(urlString);
@@ -203,12 +210,14 @@ public class NetworkHelper {
         } catch (IOException ignored) {
             return false;
         } finally {
-            if (conn != null) conn.disconnect();
+            if (conn != null)
+                conn.disconnect();
         }
     }
 
     /** HEAD with short timeouts; treats 2xx–3xx as reachable. */
     public static boolean isUrlReachable(String urlString) {
+        TrafficStats.setThreadStatsTag(Var.TRAFFIC_TAG_REACHABILITY_CHECK);
         HttpURLConnection conn = null;
         try {
             URL url = new URL(urlString);
@@ -222,11 +231,15 @@ public class NetworkHelper {
         } catch (Exception ignored) {
             return false;
         } finally {
-            if (conn != null) conn.disconnect();
+            if (conn != null)
+                conn.disconnect();
         }
     }
 
-    /** Returns true if this exception (or any cause) indicates cleartext is blocked by policy. */
+    /**
+     * Returns true if this exception (or any cause) indicates cleartext is blocked
+     * by policy.
+     */
     public static boolean isCleartextNotPermitted(Throwable t) {
         while (t != null) {
             String msg = t.getMessage();
@@ -249,25 +262,29 @@ public class NetworkHelper {
     public static boolean isCleartextBlockedForUrl(Context ctx, String urlStr) {
         try {
             URL u = new URL(urlStr);
-            if (!"http".equalsIgnoreCase(u.getProtocol())) return false;
+            if (!"http".equalsIgnoreCase(u.getProtocol()))
+                return false;
             return !NetworkSecurityPolicy.getInstance().isCleartextTrafficPermitted(u.getHost());
         } catch (Exception ignored) {
             return false;
         }
     }
 
-    /** Safely convert http://… to https://… (keeps path/query/fragment). Returns null if not http. */
+    /**
+     * Safely convert http://… to https://… (keeps path/query/fragment). Returns
+     * null if not http.
+     */
     public static String upgradeToHttps(String urlStr) {
         try {
             URL u = new URL(urlStr);
-            if (!"http".equalsIgnoreCase(u.getProtocol())) return null;
+            if (!"http".equalsIgnoreCase(u.getProtocol()))
+                return null;
             // Simple & robust: replace only the scheme.
             return "https://" + u.getHost() + (u.getPort() > 0 ? (":" + u.getPort()) : "") + u.getFile();
         } catch (Exception e) {
             return null;
         }
     }
-
 
     // -----------------------------------------------------
     // ---- Getting images covers from URLs ----
@@ -279,11 +296,13 @@ public class NetworkHelper {
     private static final Set<String> GET_IMAGE_ALLOWED_MIME_PREFIXES = new HashSet<>(Arrays.asList(
             "image/", "application/octet-stream" // some servers lie; allow, but verify decode later
     ));
+
     // ---- Public one-liner your ImageHelper will call ----
     public static @Nullable byte[] fetchBytesWithHttpsFallbackForImage(String startUrl) {
         // Try as-is
         byte[] data = fetchImageBytesWithRedirects(startUrl);
-        if (data != null) return data;
+        if (data != null)
+            return data;
 
         // If http or we hit a cleartext error, try upgrading once to https
         if (shouldAttemptHttpsUpgrade(startUrl)) {
@@ -295,6 +314,7 @@ public class NetworkHelper {
         }
         return null;
     }
+
     // ---- Core fetcher with redirects/size cap/timeouts/content-type sanity ----
     private static @Nullable byte[] fetchImageBytesWithRedirects(String startUrl) {
         String url = startUrl;
@@ -303,6 +323,7 @@ public class NetworkHelper {
             InputStream in = null;
             try {
                 URL u = new URL(url);
+                TrafficStats.setThreadStatsTag(Var.TRAFFIC_TAG_COVER_DOWNLOAD);
                 conn = (HttpURLConnection) u.openConnection();
                 conn.setInstanceFollowRedirects(false); // manual
                 conn.setConnectTimeout(GET_IMAGE_CONNECT_TIMEOUT_MS);
@@ -332,7 +353,10 @@ public class NetworkHelper {
                     String low = ctype.toLowerCase(Locale.US);
                     boolean ok = false;
                     for (String p : GET_IMAGE_ALLOWED_MIME_PREFIXES) {
-                        if (low.startsWith(p)) { ok = true; break; }
+                        if (low.startsWith(p)) {
+                            ok = true;
+                            break;
+                        }
                     }
                     if (!ok) {
                         myLogEE(null, "Unexpected content-type '" + ctype + "' for: " + url);
@@ -364,8 +388,13 @@ public class NetworkHelper {
                 myLogEE(t, "fetch failed for: " + url);
                 return null;
             } finally {
-                try { if (in != null) in.close(); } catch (Exception ignored) {}
-                if (conn != null) conn.disconnect();
+                try {
+                    if (in != null)
+                        in.close();
+                } catch (Exception ignored) {
+                }
+                if (conn != null)
+                    conn.disconnect();
             }
         }
         myLogEE(null, "Too many redirects for: " + startUrl);
@@ -397,8 +426,11 @@ public class NetworkHelper {
 
     // ---- Small helpers reused above ----
     private static boolean shouldAttemptHttpsUpgrade(String url) {
-        try { return "http".equalsIgnoreCase(new URL(url).getProtocol()); }
-        catch (Exception ignored) { return false; }
+        try {
+            return "http".equalsIgnoreCase(new URL(url).getProtocol());
+        } catch (Exception ignored) {
+            return false;
+        }
     }
 
 }

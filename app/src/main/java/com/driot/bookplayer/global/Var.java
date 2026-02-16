@@ -13,6 +13,10 @@ import okhttp3.logging.HttpLoggingInterceptor;
  */
 public class Var {
 
+        public static final int TRAFFIC_TAG_IN_APP_MSG = 0x1100;
+        public static final int TRAFFIC_TAG_COVER_DOWNLOAD = 0x1200;
+        public static final int TRAFFIC_TAG_REACHABILITY_CHECK = 0x1300;
+
     public static final int HEATMAP_PROGRESSBAR_BUCKET_SIZE = 400;
 
     public static final int PERIODIC_TASK_MANAGER_INITIAL_DELAY_IN_SECONDS = 15;
