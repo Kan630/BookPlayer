@@ -63,10 +63,11 @@ public class MyApp extends Application {
         Executors.newSingleThreadExecutor().execute(() -> {
             Option.init(getApplicationContext());
             Pref.init(getApplicationContext());
+            Option.warmUp();
+            Pref.warmUp();
+            FirebaseAnalyticsHelper.init(getApplicationContext());
             myLog("SharedPreferences warmed up in background");
         });
-
-        FirebaseAnalyticsHelper.init(getApplicationContext()); // after pref
 
         myLogNoPrefix("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
         myLogNoPrefix("ooooooooooooooooooo BOOKPLAYER ooooooooooooooooooooooo");
@@ -120,7 +121,9 @@ public class MyApp extends Application {
         AppTtsManager.init(getApplicationContext());
 
         // Initialize storage info cache calculation (runs in background)
-        com.driot.bookplayer.helpers.StorageInfoCacheHelper.init(getApplicationContext());
+        Executors.newSingleThreadExecutor().execute(() -> {
+            com.driot.bookplayer.helpers.StorageInfoCacheHelper.init(getApplicationContext());
+        });
     }
     /// STRICT MODE
 

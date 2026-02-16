@@ -70,22 +70,48 @@ public class Pref {
         migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
         playlist = appContext.getSharedPreferences(SHARED_PREFERENCE_PLAYLIST, MODE_PRIVATE);
 
-        if (getFirstOpenTimeStamp(appContext) == 0) setFirstOpen();
+        if (getFirstOpenTimeStamp(appContext) == 0)
+            setFirstOpen();
     }
 
-
-
+    public static void warmUp() {
+        if (prefs != null)
+            prefs.getAll();
+        if (stats != null)
+            stats.getAll();
+        if (timeStamp != null)
+            timeStamp.getAll();
+        if (introCut != null)
+            introCut.getAll();
+        if (speed != null)
+            speed.getAll();
+        if (admin != null)
+            admin.getAll();
+        if (book != null)
+            book.getAll();
+        if (searchHistory != null)
+            searchHistory.getAll();
+        if (charSize != null)
+            charSize.getAll();
+        if (scrollPos != null)
+            scrollPos.getAll();
+        if (highlightedText != null)
+            highlightedText.getAll();
+        if (inAppMsgs != null)
+            inAppMsgs.getAll();
+        if (radioFavorites != null)
+            radioFavorites.getAll();
+        if (migration != null)
+            migration.getAll();
+        if (playlist != null)
+            playlist.getAll();
+    }
 
     public static SharedPreferences getStats(Context context) {
         if (prefs == null)
             init(context);
         return prefs;
     }
-
-
-
-
-
 
     public static boolean getShowLiveLogs() {
         return admin.getBoolean("SHOW_LIVE_LOGS", DEFAULT_SHOW_LIVE_LOGS);

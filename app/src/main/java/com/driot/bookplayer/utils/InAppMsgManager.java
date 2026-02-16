@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
+import android.net.TrafficStats;
 import android.net.Uri;
 import android.os.Build;
 import android.text.Spanned;
@@ -455,6 +456,7 @@ public final class InAppMsgManager {
     }
 
     static String fetchJson(String url, @Nullable String etag, Context context) throws Exception {
+        TrafficStats.setThreadStatsTag(0x1000);
         HttpURLConnection c = (HttpURLConnection) new URL(url).openConnection();
         c.setConnectTimeout(5000);
         c.setReadTimeout(7000);

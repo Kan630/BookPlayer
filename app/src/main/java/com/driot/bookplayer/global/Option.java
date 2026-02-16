@@ -113,6 +113,11 @@ public class Option {
         }
     }
 
+    public static void warmUp() {
+        if (prefs != null)
+            prefs.getAll();
+    }
+
     public static android.content.SharedPreferences getSharedPrefs(Context context) {
         if (prefs == null)
             init(context);
