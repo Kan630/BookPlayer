@@ -94,7 +94,7 @@ public class LoadManyBookTest implements LogSupport {
     }
 
     private static final List<TestCase> TESTS = Arrays.asList(
-            new TestCase("File", "fixtures/m4b"),
+            new TestCase("File", "fixtures/single_files"),
             new TestCase("File", "fixtures/zip"), new TestCase("File", "fixtures/ebooks"),
             new TestCase("Folder", "fixtures/folders"), new TestCase("File", "fixtures/m4b"),
             new TestCase("File", "fixtures/single_files"));

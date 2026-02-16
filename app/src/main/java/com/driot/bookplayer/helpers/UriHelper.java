@@ -105,11 +105,10 @@ public class UriHelper {
 
                 // Generic content URI fallback (e.g. FileProvider, MediaStore)
                 DocumentFile generic = DocumentFile.fromSingleUri(context, uri);
-                if (generic != null && generic.exists()) {
-                    myLogW("new check");
+                if (safeExists(context, generic)) {
+                    myLogW("new check - safeExists passed for " + Uri.decode(uri.toString()));
                     return generic;
                 }
-
 
                 // Not a DocumentsProvider → cannot create a DocumentFile
                 // (MediaStore: content://media/..., Xiaomi, gallery, cloud, etc.)
@@ -317,8 +316,8 @@ public class UriHelper {
                 } else {
                     // Folder is fileName !
                     Uri uriToPlay = Uri.parse(folderPathOrUri);
-                    DocumentFile file = DocumentFile.fromSingleUri(context, Uri.parse(folderPathOrUri));
-                    if (!file.exists() || !file.isFile()) {
+                    DocumentFile file = DocumentFile.fromSingleUri(context, uriToPlay);
+                    if (!safeExists(context, file)) {
                         myLogEE(null, "Invalid or non-file SAF Uri in single file case : " + uriToPlay);
                     }
                     return uriToPlay;
@@ -481,13 +480,13 @@ public class UriHelper {
                 if (u == null)
                     return null;
                 DocumentFile f = DocumentFile.fromSingleUri(context, u);
-                if (f != null && f.exists() && f.isFile())
+                if (safeExists(context, f))
                     return u;
 
                 // fallback: try the raw content Uri
                 u = Uri.parse(zf.getPath());
                 f = DocumentFile.fromSingleUri(context, u);
-                return (f != null && f.exists() && f.isFile()) ? u : null;
+                return safeExists(context, f) ? u : null;
             }
 
             // file://
@@ -529,7 +528,7 @@ public class UriHelper {
             if (path.startsWith("content://")) {
                 Uri u = Uri.parse(path);
                 DocumentFile f = DocumentFile.fromSingleUri(context, u);
-                return (f.exists() && f.isFile()) ? u : null;
+                return safeExists(context, f) ? u : null;
             }
 
             // file://
@@ -583,6 +582,31 @@ public class UriHelper {
             myLogEE(e, "checkDataOk is KO");
             return false;
         }
+    }
+
+    /**
+     * More robust check than DocumentFile.exists() which fails for FileProvider
+     * URIs.
+     */
+    private static boolean safeExists(Context context, DocumentFile df) {
+        if (df == null)
+            return false;
+        if (df.exists())
+            return true;
+
+        // If DocumentsContract.exists() failed, but it's a content URI,
+        // it might be a FileProvider or other non-SAF provider.
+        Uri uri = df.getUri();
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            try {
+                // If we can get a mime type, it exists.
+                String type = context.getContentResolver().getType(uri);
+                return type != null;
+            } catch (Exception e) {
+                return false;
+            }
+        }
+        return false;
     }
 
 }
