@@ -87,7 +87,10 @@ public class PlayActivity extends BaseActivity {
     private static final long HEATMAP_REFRESH_INTERVAL_MS = 1000;
     /** Position when heatmap drag started (for "AAA → BBB" display). */
     private long heatMapSeekStartPositionMs = 0;
-    /** Reset last user action every second while user is dragging seekbar or heatmap. */
+    /**
+     * Reset last user action every second while user is dragging seekbar or
+     * heatmap.
+     */
     private static final long DRAG_RESET_INTERVAL_MS = 1000;
     private final Handler dragResetHandler = new Handler(Looper.getMainLooper());
     private final Runnable dragResetRunnable = new Runnable() {
@@ -117,7 +120,10 @@ public class PlayActivity extends BaseActivity {
     private float downY;
 
     private boolean screensaverActive = false;
-    /** After onResume, don't launch screensaver for this long (avoids launching when user just opened PlayActivity). */
+    /**
+     * After onResume, don't launch screensaver for this long (avoids launching when
+     * user just opened PlayActivity).
+     */
     private long resumeScreensaverGraceUntilRealtime = 0L;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
@@ -134,7 +140,8 @@ public class PlayActivity extends BaseActivity {
                     return;
                 }
                 // Non-TTS: keep the old fatal path
-                finishAndShowFatalError(em);
+                String path = i.getStringExtra(MediaService.TRACK_PATH);
+                finishAndShowFatalError(em, path);
             } else if (MediaService.NOTIFICATION_PLAYLISTFINISHED.equals(action)) {
                 myToast(getString(R.string.notification_playlist_finished));
                 finish();
@@ -1021,8 +1028,8 @@ public class PlayActivity extends BaseActivity {
         }
     }
 
-    private void finishAndShowFatalError(String errMessage) {
-        ErrorUi.showPlayAudioErrorMessage(this, errMessage, null);
+    private void finishAndShowFatalError(String errMessage, String path) {
+        ErrorUi.showPlayAudioErrorMessage(this, errMessage, path);
         finish();
     }
 
@@ -1043,7 +1050,8 @@ public class PlayActivity extends BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // Grace period must be set before LiveData delivers to observer (which happens in STARTED state).
+        // Grace period must be set before LiveData delivers to observer (which happens
+        // in STARTED state).
         resumeScreensaverGraceUntilRealtime = android.os.SystemClock.elapsedRealtime() + 2000; // 2 s grace
         // Bind controller to this Activity and ensure the browser is up
         MediaControllerHolder.attachTo(this);
@@ -1065,7 +1073,8 @@ public class PlayActivity extends BaseActivity {
         if (isFinishing()) {
             return; // Don't launch when user is leaving (e.g. BACK press).
         }
-        // Don't launch immediately after user opened PlayActivity (e.g. from mini player click).
+        // Don't launch immediately after user opened PlayActivity (e.g. from mini
+        // player click).
         if (android.os.SystemClock.elapsedRealtime() < resumeScreensaverGraceUntilRealtime) {
             return;
         }

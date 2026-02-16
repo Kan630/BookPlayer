@@ -136,6 +136,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
     public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
     public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
+    public static final String TRACK_PATH = "track_path";
 
     private com.driot.bookplayer.player.PlaybackNotificationManager notif;
     private com.driot.bookplayer.player.MediaSessionController media;
@@ -913,7 +914,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         Intent i = new Intent(NOTIFICATION_ERROR)
                 .putExtra(FROM, from)
                 .putExtra(ERR_MSG, errMsg);
+
         PlayList pl = PlayList.getInstance();
+        if (pl != null) {
+            ZikFile zf = pl.getZikFile();
+            if (zf != null) {
+                i.putExtra(TRACK_PATH, zf.getPath());
+            }
+        }
         if (pl != null && pl.getNumZikFile() > 0
                 && !("radio".equals(getPlayMode()) || "podcast".equals(getPlayMode()))) {
             i.putExtra(TRACKNUMBER, pl.getNumZikFile());
@@ -1942,7 +1950,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
 
         // Non-TTS = real fatal
-        alertError(null, null);
+        alertError("onEngineError", msg);
         shutdown(false);
     }
 
@@ -1951,7 +1959,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         emitUiTick("onEngineFatal");
         ErrorLoadingFile = true;
         playTimer.stop();
-        alertError(null, null);
+        alertError("onEngineFatal", msg);
         shutdown(false);
         if ("podcast".equals(getPlayMode())) {
             if (msg.contains("ERROR_CODE_IO_BAD_HTTP_STATUS")) {

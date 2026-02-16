@@ -30,14 +30,23 @@ public class ErrorUi {
                 }
             }
             if (zikFilePath != null) {
+                myLogD("zikFilePath found: " + zikFilePath);
                 pathText = context.getString(R.string.source_file_path) + " = \n[" + Uri.decode(zikFilePath) + "]";
                 newErrorMessage = getErrorMessageConsideringZikFilePath(context, zikFilePath);
+                myLogD("newErrorMessage from diagnostics: [" + newErrorMessage + "]");
+            } else {
+                myLogW("zikFilePath is still null after PlayList check");
             }
 
             if (errMessage == null && newErrorMessage != null) {
                 errMessage = newErrorMessage;
             } else if (newErrorMessage != null) {
                 errMessage = errMessage + "\n\n" + newErrorMessage;
+            }
+
+            if (errMessage == null || errMessage.trim().isEmpty()) {
+                myLogW("errMessage is null or empty, using fallback generic error");
+                errMessage = context.getString(R.string.error_generic);
             }
 
             if (newErrorMessage != null && newErrorMessage.equals(context.getString(R.string.permission_not_set))) {
@@ -97,7 +106,9 @@ public class ErrorUi {
 
                 if (size > 0) {
                     errMessage = context.getString(R.string.error_mediaplayer_unsupported);
+                    myLogI("File exists and size > 0 (" + size + "), returning error_mediaplayer_unsupported");
                 } else {
+                    myLogW("File exists but size is 0: " + zikFilePath);
                     myLogW(Var.SHOULD_NOT_HAPPEN);
                     errMessage = context.getString(R.string.source_not_found) + "\n- this " + Var.SHOULD_NOT_HAPPEN
                             + " -";
