@@ -13,6 +13,8 @@ import androidx.annotation.Nullable;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.Tonio;
 
+import java.util.concurrent.Executors;
+
 public class Pref {
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
@@ -29,11 +31,18 @@ public class Pref {
     public static void init(Context context) {
         appContext = context.getApplicationContext();
         PrefMigration.run(appContext);
+
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
         stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
         timeStamp = appContext.getSharedPreferences(SHARED_PREFERENCE_TIMESTAMP, MODE_PRIVATE);
-        if (getFirstOpenTimeStamp() == 0)
-            setFirstOpen();
+
+        Executors.newSingleThreadExecutor().execute(() -> {
+            try {
+                if (getFirstOpenTimeStamp() == 0)
+                    setFirstOpen();
+            } catch (Exception ignored) {
+            }
+        });
     }
 
     public static long getLastDbClean() {

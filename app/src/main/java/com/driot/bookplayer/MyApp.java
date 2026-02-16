@@ -66,7 +66,7 @@ public class MyApp extends Application {
         // TaskStateRepository.get().hydrateFromPrefs();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
-            // enableStrictModeForDebugBuild();
+            enableStrictModeForDebugBuild();
         }
 
         Option.applyNightMode();
