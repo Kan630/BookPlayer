@@ -18,8 +18,10 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.LogTextActivity;
 import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
 import com.driot.bookplayer.objects.MyTextChunk;
-import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,6 +46,7 @@ public class LiveLogFragment extends LoggingFragment {
     private Handler refreshHandler;
     private Runnable refreshRunnable;
     private String currentLogFile;
+    private final ExecutorService logExecutor = Executors.newSingleThreadExecutor();
 
     public static LiveLogFragment newInstance() {
         return new LiveLogFragment();
@@ -123,47 +126,58 @@ public class LiveLogFragment extends LoggingFragment {
         if (refreshHandler != null && refreshRunnable != null) {
             refreshHandler.removeCallbacks(refreshRunnable);
         }
+        logExecutor.shutdown();
     }
 
     private void loadLatestLogs() {
         if (getContext() == null)
             return;
 
-        try {
-            // Get current log file
-            currentLogFile = getCurrentLogFileName();
+        Context appContext = getContext().getApplicationContext();
 
-            // Read logs
-            ArrayList<MyTextChunk> newLogs = getTextFileContentInArrayList(
-                    getContext(),
-                    "classic",
-                    currentLogFile,
-                    "log",
-                    10 // smaller text size for compact view
-            );
+        logExecutor.execute(() -> {
+            try {
+                // Get current log file
+                String newestLogFile = getCurrentLogFileName(appContext);
+                currentLogFile = newestLogFile;
 
-            if (newLogs != null && !newLogs.isEmpty()) {
-                // Reverse to show newest first
-                Collections.reverse(newLogs);
+                // Read logs
+                ArrayList<MyTextChunk> newLogs = getTextFileContentInArrayList(
+                        appContext,
+                        "classic",
+                        newestLogFile,
+                        "log",
+                        10 // smaller text size for compact view
+                );
 
-                // Limit to last 100 lines
-                if (newLogs.size() > MAX_LOG_LINES) {
-                    newLogs = new ArrayList<>(newLogs.subList(0, MAX_LOG_LINES));
+                if (newLogs != null && !newLogs.isEmpty()) {
+                    // Reverse to show newest first
+                    Collections.reverse(newLogs);
+
+                    // Limit to last MAX_LOG_LINES
+                    final ArrayList<MyTextChunk> finalLogs;
+                    if (newLogs.size() > MAX_LOG_LINES) {
+                        finalLogs = new ArrayList<>(newLogs.subList(0, MAX_LOG_LINES));
+                    } else {
+                        finalLogs = newLogs;
+                    }
+
+                    refreshHandler.post(() -> {
+                        logChunks.clear();
+                        logChunks.addAll(finalLogs);
+                        adapter.updateData(logChunks);
+                    });
                 }
-
-                logChunks.clear();
-                logChunks.addAll(newLogs);
-                adapter.updateData(logChunks);
+            } catch (Exception e) {
+                myLogEE(e, "loadLatestLogs");
             }
-        } catch (Exception e) {
-            myLogEE(e, "loadLatestLogs");
-        }
+        });
     }
 
-    private String getCurrentLogFileName() {
+    private String getCurrentLogFileName(Context context) {
         // Get the most recent log file from the log directory
         try {
-            File logDir = new File(requireContext().getFilesDir(), "log");
+            File logDir = new File(context.getFilesDir(), "log");
             if (!logDir.exists())
                 return "";
 
