@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.Parcelable;
 
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.global.Option;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class KanMail {
         s_body = body;
         u_attachment = attachmentUri;
 
-        if (com.driot.bookplayer.global.Option.getMailMethod(appContext)) {
+        if (Option.getMailMethod(appContext)) {
             sendMail_DefaultApp();
         } else {
             sendMail_andLetUserChooseEmailApp();
@@ -50,7 +51,7 @@ public class KanMail {
         s_body = body;
         s_subject = subject;
 
-        if (com.driot.bookplayer.global.Option.getMailMethod(appContext)) {
+        if (Option.getMailMethod(appContext)) {
             sendMail_DefaultApp();
         } else {
             sendMail_andLetUserChooseEmailApp();

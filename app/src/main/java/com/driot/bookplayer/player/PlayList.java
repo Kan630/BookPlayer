@@ -16,6 +16,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.global.Pref;
 
 import java.util.Collections;
 import java.util.List;
@@ -343,7 +344,7 @@ public final class PlayList {
     private static final String KEY_URL = "KEY_URL";
 
     private void saveToStorage() {
-        SharedPreferences prefs = com.driot.bookplayer.global.Pref.getPlaylistPrefs();
+        SharedPreferences prefs = Pref.getPlaylistPrefs();
         SharedPreferences.Editor e = prefs.edit();
         synchronized (lock) {
             e.putInt(KEY_TRACK_ID, trackId);
@@ -354,7 +355,7 @@ public final class PlayList {
     }
 
     private void getFromStorage() {
-        SharedPreferences prefs = com.driot.bookplayer.global.Pref.getPlaylistPrefs();
+        SharedPreferences prefs = Pref.getPlaylistPrefs();
         synchronized (lock) {
             this.playMode = prefs.getString(KEY_PLAY_MODE, null);
             this.trackId = prefs.getInt(KEY_TRACK_ID, -1);
@@ -365,7 +366,7 @@ public final class PlayList {
     }
 
     private void clearStorage() {
-        SharedPreferences prefs = com.driot.bookplayer.global.Pref.getPlaylistPrefs();
+        SharedPreferences prefs = Pref.getPlaylistPrefs();
         prefs.edit().clear().apply();
         myLogW("clearStorage()");
     }

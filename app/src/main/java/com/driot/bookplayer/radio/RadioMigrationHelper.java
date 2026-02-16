@@ -33,7 +33,7 @@ public class RadioMigrationHelper {
     public static void migrateFavoritesFromPrefsToRoomOnce(@NonNull Context context,
             @NonNull SupportSQLiteDatabase db) {
         Context appCtx = context.getApplicationContext();
-        SharedPreferences migrationPrefs = com.driot.bookplayer.global.Pref.getMigrationPrefs(appCtx);
+        SharedPreferences migrationPrefs = Pref.getMigrationPrefs(appCtx);
 
         boolean alreadyDone = migrationPrefs.getBoolean(KEY_RADIO_FAVORITES_MOVED_TO_ROOM, false);
         if (alreadyDone) {

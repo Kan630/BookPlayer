@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.driot.bookplayer.global.Pref;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -27,7 +28,7 @@ public class RadioFavoritesStore {
     private final SharedPreferences sp;
 
     public RadioFavoritesStore(@NonNull Context ctx) {
-        sp = com.driot.bookplayer.global.Pref.getRadioFavoritesPrefs();
+        sp = Pref.getRadioFavoritesPrefs();
     }
 
     public synchronized boolean isFavorite(@NonNull String uuid) {

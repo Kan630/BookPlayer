@@ -23,6 +23,7 @@ import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.global.Pref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -69,7 +70,7 @@ public class EditText2linesWithPaste extends LinearLayout {
         }
 
         // --- Suggestions adapter from history ---
-        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
+        List<String> history = Pref.getSearchHistory(historyKey);
         adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(history));
         editText.setAdapter(adapter);
         editText.setThreshold(completionThreshold);
@@ -115,7 +116,7 @@ public class EditText2linesWithPaste extends LinearLayout {
             return;
 
         // Persist
-        com.driot.bookplayer.global.Pref.addSearchHistory(historyKey, text, maxHistory);
+        Pref.addSearchHistory(historyKey, text, maxHistory);
 
         // Update adapter (move to front / dedupe)
         adapter.remove(text);
@@ -154,7 +155,7 @@ public class EditText2linesWithPaste extends LinearLayout {
             return;
         this.historyKey = key;
         // reload list for the new key
-        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
+        List<String> history = Pref.getSearchHistory(historyKey);
         adapter.clear();
         adapter.addAll(history);
         adapter.notifyDataSetChanged();
@@ -178,7 +179,7 @@ public class EditText2linesWithPaste extends LinearLayout {
 
     /** Clear the stored history for this key. */
     public void clearHistory() {
-        com.driot.bookplayer.global.Pref.clearSearchHistory(historyKey);
+        Pref.clearSearchHistory(historyKey);
         adapter.clear();
         adapter.notifyDataSetChanged();
     }

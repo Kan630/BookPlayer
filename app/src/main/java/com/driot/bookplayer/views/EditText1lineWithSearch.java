@@ -20,6 +20,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingLinearLayout;
+import com.driot.bookplayer.global.Pref;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -67,7 +68,7 @@ public class EditText1lineWithSearch extends LoggingLinearLayout {
         }
 
         // --- Suggestions adapter from history ---
-        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
+        List<String> history = Pref.getSearchHistory(historyKey);
         adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(history));
         editText.setAdapter(adapter);
         editText.setThreshold(completionThreshold);
@@ -107,7 +108,7 @@ public class EditText1lineWithSearch extends LoggingLinearLayout {
             return;
 
         // Persist
-        com.driot.bookplayer.global.Pref.addSearchHistory(historyKey, text, maxHistory);
+        Pref.addSearchHistory(historyKey, text, maxHistory);
 
         // Update adapter (move to front / dedupe)
         adapter.remove(text);
@@ -146,7 +147,7 @@ public class EditText1lineWithSearch extends LoggingLinearLayout {
             return;
         this.historyKey = key;
         // reload list for the new key
-        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
+        List<String> history = Pref.getSearchHistory(historyKey);
         adapter.clear();
         adapter.addAll(history);
         adapter.notifyDataSetChanged();
@@ -166,7 +167,7 @@ public class EditText1lineWithSearch extends LoggingLinearLayout {
     }
 
     public void clearHistory() {
-        com.driot.bookplayer.global.Pref.clearSearchHistory(historyKey);
+        Pref.clearSearchHistory(historyKey);
         adapter.clear();
         adapter.notifyDataSetChanged();
     }

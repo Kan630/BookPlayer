@@ -30,6 +30,7 @@ import androidx.work.WorkerParameters;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.google.gson.Gson;
+import com.driot.bookplayer.global.Pref;
 
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -775,7 +776,7 @@ public final class InAppMsgManager {
     }
 
     private static SharedPreferences prefs(Context ctx) {
-        return com.driot.bookplayer.global.Pref.getInAppMsgPrefs();
+        return Pref.getInAppMsgPrefs();
     }
 
     private static Context AppCtx(Context c) {

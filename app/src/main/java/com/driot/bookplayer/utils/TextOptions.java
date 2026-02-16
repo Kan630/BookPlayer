@@ -17,6 +17,7 @@ import static android.content.Context.MODE_PRIVATE;
 
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.global.Pref;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 02/12/20
@@ -62,7 +63,7 @@ public class TextOptions {
     }
 
     private void setCharSize(Context c) {
-        charSize = com.driot.bookplayer.global.Pref.getCharSize(CHAR_SIZE_DEFAULT);
+        charSize = Pref.getCharSize(CHAR_SIZE_DEFAULT);
         if (charSize < CHAR_SIZE_MINI || charSize > CHAR_SIZE_MAX)
             charSize = CHAR_SIZE_DEFAULT;
     }
@@ -98,7 +99,7 @@ public class TextOptions {
     }
 
     private void saveCharSize(Context c) {
-        com.driot.bookplayer.global.Pref.setCharSize(charSize);
+        Pref.setCharSize(charSize);
         myLog("savingCharSize :" + charSize);
     }
 
@@ -107,12 +108,12 @@ public class TextOptions {
      */
 
     public void saveScrollPosition(Context c, String file, ScrollView scrollView, TextView textView) {
-        com.driot.bookplayer.global.Pref.setTextScrollPos(file, getScrollSpot(scrollView, textView));
+        Pref.setTextScrollPos(file, getScrollSpot(scrollView, textView));
     }
 
     public void setScrollPosition(Context c, String file, ScrollView scrollView, TextView textView) {
         try {
-            float spot = com.driot.bookplayer.global.Pref.getTextScrollPos(file);
+            float spot = Pref.getTextScrollPos(file);
             setScrollSpot(spot, scrollView, textView);
         } catch (Exception e) {
             myLogEE(e, "sharedPref setScrollPosition scrollview");
@@ -148,11 +149,11 @@ public class TextOptions {
     }
 
     public void saveHighlightedText(Context c, String file, String highLightedWord) {
-        com.driot.bookplayer.global.Pref.setTextHighlightedText(file, highLightedWord);
+        Pref.setTextHighlightedText(file, highLightedWord);
     }
 
     public String getHighlightedText(Context c, String file) {
-        return com.driot.bookplayer.global.Pref.getTextHighlightedText(file);
+        return Pref.getTextHighlightedText(file);
     }
 
     /**
@@ -160,13 +161,13 @@ public class TextOptions {
      */
 
     public void saveScrollPosition(Context c, String file, int posRecyclerView) {
-        com.driot.bookplayer.global.Pref.setTextScrollPos(file, (float) posRecyclerView);
+        Pref.setTextScrollPos(file, (float) posRecyclerView);
         // myLog("saving " + posRecyclerView);
     }
 
     public void setScrollPosition(Context c, String file, RecyclerView recyclerView) {
         try {
-            float spot = com.driot.bookplayer.global.Pref.getTextScrollPos(file);
+            float spot = Pref.getTextScrollPos(file);
             // myLog("scroll to " + spot);
             recyclerView.scrollToPosition((int) spot);
         } catch (Exception e) {

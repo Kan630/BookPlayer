@@ -28,6 +28,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.MyApp;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.global.Intents;
@@ -272,7 +273,7 @@ public class MainActivity extends BaseBottomNavActivity {
             showSortOrderDialog();
         } else if (itemId == R.id.menu_settings) {
             myLogI("--- USER clicks MENU : SETTINGS ---");
-            com.driot.bookplayer.global.Option.getSharedPrefs(this).edit()
+            Option.getSharedPrefs(this).edit()
                     .putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); // trick to reload MainActivity if color
                                                                               // changed in OptionActivity, by allowing
                                                                               // to set Result=OK only if color is
