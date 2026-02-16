@@ -1,6 +1,8 @@
 package com.driot.bookplayer.helpers;
 
 import android.content.Context;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.StatFs;
@@ -22,6 +24,50 @@ import java.lang.reflect.Method;
 import java.util.List;
 
 public class StorageHelper {
+
+    public static long getAppSize(Context c) {
+        long size = 0;
+        final PackageManager pm = c.getPackageManager();
+        ApplicationInfo applicationInfo;
+        try {
+            applicationInfo = pm.getApplicationInfo(c.getPackageName(), 0);
+            File file = new File(applicationInfo.publicSourceDir);
+            size = file.length();
+        } catch (Exception e) {
+            myLogEE(e, "Error getting size taken by app");
+        }
+        return size;
+    }
+
+    public static long getFolderSize(String folderName) {
+        // myLog("getFolderSize for [" + folderName + "] (from path)");
+        return getFolderSize(new File(folderName));
+    }
+
+    public static long getFolderSize(File dir) {
+        long size = 0;
+        // myLog("getFolderSize for [" + dir.getAbsolutePath() + "] (from File
+        // object)");
+
+        File[] files = dir.listFiles();
+
+        if (files != null) {
+            for (File file : files) {
+                if (file.isFile()) {
+                    size += file.length(); // Get the file size and add it to the total
+                } else if (file.isDirectory()) {
+                    size += getFolderSize(file); // Recursively calculate the size of subdirectories
+                }
+            }
+        } else {
+            myLogW("ko Folder Not Found [" + dir.getAbsolutePath() + "]");
+        }
+        if (size == 0) {
+            myLogW("getFolderSize returns zero size - Seems empty [" + dir.getAbsolutePath() + "]");
+        }
+
+        return size;
+    }
 
     public enum MemoryLocationType {
         INTERNAL_RESERVED,

@@ -16,12 +16,10 @@ import com.driot.bookplayer.helpers.StorageInfoCacheHelper;
 import com.driot.bookplayer.objects.FolderSummary;
 import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.helpers.StorageHelper;
-import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -151,7 +149,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
                 for (File f : unzip_folders) {
                     Long sizeBytes = cachedSizes.get(f.getAbsolutePath());
                     if (sizeBytes == null) {
-                        sizeBytes = Tonio.getFolderSize(f); // fallback for new folders not in cache
+                        sizeBytes = StorageHelper.getFolderSize(f); // fallback for new folders not in cache
                     }
                     folderSizeCache.put(f.getPath(), sizeBytes);
                     totalSizeBytes += sizeBytes;
@@ -189,7 +187,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
             long folderSizeBytes = folderSizeCache.containsKey(file.getPath())
                     ? folderSizeCache.get(file.getPath())
                     : (folderSizeCache.containsKey(file.getAbsolutePath()) ? folderSizeCache.get(file.getAbsolutePath())
-                    : Tonio.getFolderSize(file)); // fallback for cache miss
+                    : StorageHelper.getFolderSize(file)); // fallback for cache miss
             folderSizeCache.putIfAbsent(file.getPath(), folderSizeBytes);
 
             enriched.add(new FolderWithSummary(file, percentDone, sourceLocation, playType, folderSizeBytes, image, folderName));

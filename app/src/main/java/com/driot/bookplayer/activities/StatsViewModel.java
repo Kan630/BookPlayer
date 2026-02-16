@@ -4,8 +4,8 @@ import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMem
 import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotaLInternalMemorySize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotalRemovableSDCardSize;
-import static com.driot.bookplayer.utils.Tonio.getAppSize;
-import static com.driot.bookplayer.utils.Tonio.getFolderSize;
+import static com.driot.bookplayer.helpers.StorageHelper.getAppSize;
+import static com.driot.bookplayer.helpers.StorageHelper.getFolderSize;
 
 import android.app.Application;
 import android.content.Context;
@@ -113,7 +113,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
             File unzipFolder = StorageHelper.getUnzipFolder(app, false);
             long currentAudiosSizeInternal = 0;
             if (unzipFolder != null && unzipFolder.exists()) {
-                currentAudiosSizeInternal = Tonio.getFolderSize(unzipFolder) / 1048576L;
+                currentAudiosSizeInternal = StorageHelper.getFolderSize(unzipFolder) / 1048576L;
             }
 
             File imagesFolder = new File(app.getFilesDir(), "images");
@@ -318,7 +318,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
             myLogI("StatsViewModel: Calculating getFolderSize for internal unzipped folder: "
                     + unzipFolder.getAbsolutePath());
             long startTime = System.currentTimeMillis();
-            currentAudiosSizeInternal = Tonio.getFolderSize(unzipFolder) / 1048576L;
+            currentAudiosSizeInternal = StorageHelper.getFolderSize(unzipFolder) / 1048576L;
             long duration = System.currentTimeMillis() - startTime;
             myLogI("StatsViewModel: getFolderSize for internal unzipped completed in " + duration + "ms, size: "
                     + currentAudiosSizeInternal + " MB");
@@ -553,7 +553,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                         myLogI("StatsViewModel: Calculating getFolderSize for SD card: "
                                 + sdUnzipFolder.getAbsolutePath());
                         long startTime = System.currentTimeMillis();
-                        currentAudiosSizeSD = Tonio.getFolderSize(sdUnzipFolder) / 1048576L;
+                        currentAudiosSizeSD = StorageHelper.getFolderSize(sdUnzipFolder) / 1048576L;
                         long duration = System.currentTimeMillis() - startTime;
                         myLogI("StatsViewModel: getFolderSize for SD card completed in " + Tonio.formatTime(duration)
                                 + ", size: " + currentAudiosSizeSD + " MB");

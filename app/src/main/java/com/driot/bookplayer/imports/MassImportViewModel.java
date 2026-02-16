@@ -4,8 +4,8 @@ import static com.driot.bookplayer.helpers.StorageHelper.getAvailableInternalMem
 import static com.driot.bookplayer.helpers.StorageHelper.getAvailableRemovableSDCardSize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotaLInternalMemorySize;
 import static com.driot.bookplayer.helpers.StorageHelper.getTotalRemovableSDCardSize;
-import static com.driot.bookplayer.utils.Tonio.getAppSize;
-import static com.driot.bookplayer.utils.Tonio.getFolderSize;
+import static com.driot.bookplayer.helpers.StorageHelper.getAppSize;
+import static com.driot.bookplayer.helpers.StorageHelper.getFolderSize;
 
 import android.app.Application;
 import android.net.Uri;

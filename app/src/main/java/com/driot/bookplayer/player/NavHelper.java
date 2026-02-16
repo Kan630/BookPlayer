@@ -27,6 +27,9 @@ import com.driot.bookplayer.radio.RadioStationDao;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class NavHelper {
+
+    private static final boolean VERBOSE_DEBUG = false;
+
     public static PendingIntent navigateToMain(Context context) {
         final int pendingFlags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         return PendingIntent.getActivity(
@@ -102,7 +105,7 @@ public class NavHelper {
      * Starts the requested activity with a full back-stack (Main -> Target).
      */
     public static boolean handleBottomNavClick(Activity activity, int navId) {
-        myLogD("NavHelper.handleBottomNavClick id=" + navId);
+        myLogDD("NavHelper.handleBottomNavClick id=" + navId);
         if (navId == R.id.nav_library) {
             myLogD("NavLibrary clicked");
             // Just go back to MainActivity (singleTop will handle it if we are already
@@ -250,4 +253,7 @@ public class NavHelper {
                         .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
                 flags);
     }
+
+    private static void myLogDD(String txt) {if (VERBOSE_DEBUG) myLogD(txt);}
+
 }

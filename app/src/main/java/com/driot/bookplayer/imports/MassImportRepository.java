@@ -9,15 +9,13 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.utils.log.LoggerStaticHelper;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -97,7 +95,7 @@ public class MassImportRepository {
         // If we already have candidates for this URI, don't rescan (unless force?)
         // Similar logic to ViewModel
         if (rootUri.equals(lastScannedUri) && candidates.getValue() != null && !candidates.getValue().isEmpty()) {
-            LoggerStaticHelper.myLogD("Repository: Scan already completed for this URI, skipping rescan.");
+            myLogD("Repository: Scan already completed for this URI, skipping rescan.");
             // We might want to notify that we are "done" or restore state
             isScanFinished.setValue(true);
             return;
@@ -171,9 +169,9 @@ public class MassImportRepository {
                 });
                 return;
             }
-            LoggerStaticHelper.myLog("-------------------------------------------------------------");
-            LoggerStaticHelper.myLogI("start EASY ENRICHMENT");
-            LoggerStaticHelper.myLog("-------------------------------------------------------------");
+            myLog("-------------------------------------------------------------");
+            myLogI("start EASY ENRICHMENT");
+            myLog("-------------------------------------------------------------");
 
             // PHASE 2: EASY ENRICHMENT
             mainHandler.post(() -> {
@@ -217,9 +215,9 @@ public class MassImportRepository {
         if (candidates == null || candidates.isEmpty())
             return;
 
-        LoggerStaticHelper.myLog("-------------------------------------------------------------");
-        LoggerStaticHelper.myLogI("start HEAVY ENRICHMENT : Heavy Load for " + candidates.size() + " candidates.");
-        LoggerStaticHelper.myLog("-------------------------------------------------------------");
+        myLog("-------------------------------------------------------------");
+        myLogI("start HEAVY ENRICHMENT : Heavy Load for " + candidates.size() + " candidates.");
+        myLog("-------------------------------------------------------------");
         loadingStatus.postValue(1); // Heavy Loading phase
 
         // Use the single-thread repository executor for sequential processing
@@ -274,7 +272,7 @@ public class MassImportRepository {
                         };
                         candidate.loadHeavyMetadata(context, listener);
                     } catch (Exception e) {
-                        LoggerStaticHelper.myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
+                        myLogEE(e, "Error inside loadHeavyMetadata for " + candidate.name);
                     }
 
                     candidate.isCalculating = false;
@@ -299,9 +297,9 @@ public class MassImportRepository {
             mainHandler.post(() -> {
                 if (scanId == processingScanId) {
                     loadingStatus.setValue(2); // Done
-                    LoggerStaticHelper.myLog("-------------------------------------");
-                    LoggerStaticHelper.myLogI("-- MASS SCANNING COMPLETED --");
-                    LoggerStaticHelper.myLog("-------------------------------------");
+                    myLog("-------------------------------------");
+                    myLogI("-- MASS SCANNING COMPLETED --");
+                    myLog("-------------------------------------");
                 }
             });
         });

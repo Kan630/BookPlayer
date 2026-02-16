@@ -37,6 +37,8 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
     private boolean navSelectionFromCode = false;
 
+    private final boolean VERBOSE_DEBUG = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,14 +78,14 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
     private void setupBottomNav() {
         bottomNav = findViewById(R.id.bottomNav);
-        myLogD("setupBottomNav() -  navId=" + getNavId());
+        myLogDD("setupBottomNav() -  navId=" + getNavId());
 
         bottomNav.setOnItemSelectedListener(item -> {
             boolean fromCode = navSelectionFromCode;
             navSelectionFromCode = false; // reset for next time
 
             if (fromCode) {
-                myLogD("BottomNav selection changed programmatically: item="
+                myLogDD("BottomNav selection changed programmatically: item="
                         + item.getItemId() + " - " + item.getTitle());
                 return true; // keep the item checked, but don't treat as user click
             }
@@ -146,4 +148,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         intent.putExtra(EXTRA_REQUESTED_NAV_ID, requestedNavId);
         ctx.startActivity(intent);
     }
+
+    private void myLogDD(String txt) {if (VERBOSE_DEBUG) myLogD(txt);}
+
 }
