@@ -215,7 +215,7 @@ public class MainActivity extends BaseBottomNavActivity {
         MyApp.getPeriodicTaskManager(this).start(); // safe
         InAppMsgManager.maybeShowBestMessage(this, "message");
 
-        //NearbyShareReceiverHelper.deleteLegacyTestFolders(this);
+        // NearbyShareReceiverHelper.deleteLegacyTestFolders(this);
     }
 
     @Override
@@ -272,7 +272,7 @@ public class MainActivity extends BaseBottomNavActivity {
             showSortOrderDialog();
         } else if (itemId == R.id.menu_settings) {
             myLogI("--- USER clicks MENU : SETTINGS ---");
-            this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE).edit()
+            com.driot.bookplayer.global.Option.getSharedPrefs(this).edit()
                     .putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); // trick to reload MainActivity if color
                                                                               // changed in OptionActivity, by allowing
                                                                               // to set Result=OK only if color is

@@ -35,7 +35,7 @@ public class EditText2linesWithPaste extends LinearLayout {
     private String historyKey = "default_search_history";
     private int maxHistory = 20;
     private int completionThreshold = 1;
-    private boolean suggestOnFocus = false; //true = show suggestion as soon as user enter, even with nothing typed
+    private boolean suggestOnFocus = false; // true = show suggestion as soon as user enter, even with nothing typed
 
     private boolean scrollOnFocus = false; // custom to set in the layout
 
@@ -69,13 +69,15 @@ public class EditText2linesWithPaste extends LinearLayout {
         }
 
         // --- Suggestions adapter from history ---
-        List<String> history = SearchHistoryStore.get(context, historyKey);
+        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
         adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(history));
         editText.setAdapter(adapter);
         editText.setThreshold(completionThreshold);
 
         editText.setOnFocusChangeListener((v, hasFocus) -> {
-            //KanLogger.myLog("EditText1lineWithPasteDelete", "hasFocus = " + hasFocus + " - scrollOnFocus = " + scrollOnFocus + " - suggestOnFocus = " + suggestOnFocus);
+            // KanLogger.myLog("EditText1lineWithPasteDelete", "hasFocus = " + hasFocus + "
+            // - scrollOnFocus = " + scrollOnFocus + " - suggestOnFocus = " +
+            // suggestOnFocus);
 
             if (hasFocus && suggestOnFocus && TextUtils.isEmpty(editText.getText())) {
                 editText.post(editText::showDropDown);
@@ -84,12 +86,13 @@ public class EditText2linesWithPaste extends LinearLayout {
             if (hasFocus && scrollOnFocus) {
                 v.postDelayed(() -> {
                     ScrollView scroll = ((Activity) getContext()).findViewById(R.id.mainScroll);
-                    if (scroll == null) KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
-                    if (scroll != null) scroll.fullScroll(View.FOCUS_DOWN);
+                    if (scroll == null)
+                        KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
+                    if (scroll != null)
+                        scroll.fullScroll(View.FOCUS_DOWN);
                 }, 300);
             }
         });
-
 
         // Enter/IME action can commit to history too (if you use actionSearch)
         editText.setOnEditorActionListener((tv, actionId, event) -> {
@@ -108,10 +111,11 @@ public class EditText2linesWithPaste extends LinearLayout {
     /** Call this when your search actually runs to persist the query. */
     public void saveCurrentTextToHistory() {
         String text = getText().trim();
-        if (text.isEmpty()) return;
+        if (text.isEmpty())
+            return;
 
         // Persist
-        SearchHistoryStore.add(getContext(), historyKey, text, maxHistory);
+        com.driot.bookplayer.global.Pref.addSearchHistory(historyKey, text, maxHistory);
 
         // Update adapter (move to front / dedupe)
         adapter.remove(text);
@@ -141,12 +145,16 @@ public class EditText2linesWithPaste extends LinearLayout {
 
     // --- Knob setters ---
 
-    /** Use a per-screen key to keep histories separate (e.g., "podcast_search", "librivox_search"). */
+    /**
+     * Use a per-screen key to keep histories separate (e.g., "podcast_search",
+     * "librivox_search").
+     */
     public void setHistoryKey(String key) {
-        if (TextUtils.isEmpty(key)) return;
+        if (TextUtils.isEmpty(key))
+            return;
         this.historyKey = key;
         // reload list for the new key
-        List<String> history = SearchHistoryStore.get(getContext(), historyKey);
+        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
         adapter.clear();
         adapter.addAll(history);
         adapter.notifyDataSetChanged();
@@ -170,7 +178,7 @@ public class EditText2linesWithPaste extends LinearLayout {
 
     /** Clear the stored history for this key. */
     public void clearHistory() {
-        SearchHistoryStore.clear(getContext(), historyKey);
+        com.driot.bookplayer.global.Pref.clearSearchHistory(historyKey);
         adapter.clear();
         adapter.notifyDataSetChanged();
     }

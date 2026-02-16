@@ -20,8 +20,15 @@ public class Pref {
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
     private static final String SHARED_PREFERENCE_TIMESTAMP = "SHARED_PREFERENCE_TIMESTAMP";
     private static final String SHARED_PREFERENCE_SPEED = "SHARED_PREFERENCE_SPEED";
-    private static final String SHARED_PREFERENCES_ADMIN = "SHARED_PREFERENCES_ADMIN";
+    private static final String SHARED_PREFERENCE_ADMIN = "SHARED_PREFERENCES_ADMIN";
     private static final String SHARED_PREFERENCE_BOOK = "book_prefs";
+    private static final String SHARED_PREFERENCE_SEARCH_HISTORY = "search_history_store";
+    public static final String SHARED_PREFERENCE_CHAR_SIZE = "SHARED_PREFERENCE_CHAR_SIZE";
+    public static final String SHARED_PREFERENCE_POS_SCROLLVIEW = "SHARED_PREFERENCE_POSITION_SCROLLVIEW";
+    public static final String SHARED_PREFERENCE_HIGHLIGHTED_TEXT = "SHARED_PREFERENCE_HIGHLIGHTED_TEXT";
+    private static final String SHARED_PREFERENCE_IN_APP_MSG = "inapp_msgs";
+    private static final String SHARED_PREFERENCE_RADIO_FAVORITES = "radio_favorites_store";
+    private static final String SHARED_PREFERENCE_PLAYLIST = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
     public static final String SHARED_PREFERENCE_MIGRATION = "SHARED_PREFERENCE_MIGRATION";
 
     private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
@@ -35,6 +42,14 @@ public class Pref {
     private static SharedPreferences speed;
     private static SharedPreferences admin;
     private static SharedPreferences book;
+    private static SharedPreferences searchHistory;
+    private static SharedPreferences charSize;
+    private static SharedPreferences scrollPos;
+    private static SharedPreferences highlightedText;
+    private static SharedPreferences inAppMsgs;
+    private static SharedPreferences radioFavorites;
+    private static SharedPreferences migration;
+    private static SharedPreferences playlist;
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
@@ -44,16 +59,38 @@ public class Pref {
         timeStamp = appContext.getSharedPreferences(SHARED_PREFERENCE_TIMESTAMP, MODE_PRIVATE);
         introCut = appContext.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE);
         speed = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
-        admin = appContext.getSharedPreferences(SHARED_PREFERENCES_ADMIN, MODE_PRIVATE);
+        admin = appContext.getSharedPreferences(SHARED_PREFERENCE_ADMIN, MODE_PRIVATE);
         book = appContext.getSharedPreferences(SHARED_PREFERENCE_BOOK, MODE_PRIVATE);
+        searchHistory = appContext.getSharedPreferences(SHARED_PREFERENCE_SEARCH_HISTORY, MODE_PRIVATE);
+        charSize = appContext.getSharedPreferences(SHARED_PREFERENCE_CHAR_SIZE, MODE_PRIVATE);
+        scrollPos = appContext.getSharedPreferences(SHARED_PREFERENCE_POS_SCROLLVIEW, MODE_PRIVATE);
+        highlightedText = appContext.getSharedPreferences(SHARED_PREFERENCE_HIGHLIGHTED_TEXT, MODE_PRIVATE);
+        inAppMsgs = appContext.getSharedPreferences(SHARED_PREFERENCE_IN_APP_MSG, MODE_PRIVATE);
+        radioFavorites = appContext.getSharedPreferences(SHARED_PREFERENCE_RADIO_FAVORITES, MODE_PRIVATE);
+        migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
+        playlist = appContext.getSharedPreferences(SHARED_PREFERENCE_PLAYLIST, MODE_PRIVATE);
 
-        if (getFirstOpenTimeStamp() == 0)
-            setFirstOpen();
+        if (getFirstOpenTimeStamp(appContext) == 0) setFirstOpen();
     }
+
+
+
+
+    public static SharedPreferences getStats(Context context) {
+        if (prefs == null)
+            init(context);
+        return prefs;
+    }
+
+
+
+
+
 
     public static boolean getShowLiveLogs() {
         return admin.getBoolean("SHOW_LIVE_LOGS", DEFAULT_SHOW_LIVE_LOGS);
     }
+
     public static void setShowLiveLogs(boolean value) {
         admin.edit().putBoolean("SHOW_LIVE_LOGS", value).apply();
     }
@@ -61,6 +98,7 @@ public class Pref {
     public static int getLiveLogsSavedHeight() {
         return admin.getInt("LIVE_LOG_HEIGHT", DEFAULT_LIVE_LOG_HEIGHT);
     }
+
     public static void setLiveLogsSavedHeight(int value) {
         admin.edit().putInt("LIVE_LOG_HEIGHT", value).apply();
     }
@@ -193,8 +231,8 @@ public class Pref {
         stats.edit().putString("FIRST_OPEN_DATE", Tonio.getCurrentDateTimeString()).apply();
     }
 
-    public static Long getFirstOpenTimeStamp() {
-        return stats.getLong("FIRST_OPEN_TIMESTAMP", 0);
+    public static Long getFirstOpenTimeStamp(Context context) {
+        return getStats(context).getLong("FIRST_OPEN_TIMESTAMP", 0);
     }
 
     public static String getFirstOpenDate() {
@@ -439,5 +477,101 @@ public class Pref {
 
     public static String getStorageSDCardFolderSizesJson() {
         return prefs.getString("STORAGE_SDCARD_FOLDER_SIZES_JSON", "");
+    }
+
+    /////////////////// SEARCH HISTORY ///////////////////
+
+    public static java.util.List<String> getSearchHistory(String key) {
+        String raw = searchHistory.getString(key, "");
+        java.util.List<String> out = new java.util.ArrayList<>();
+        if (raw.isEmpty())
+            return out;
+        String[] parts = raw.split("\\|\\|", -1);
+        for (String p : parts) {
+            if (!p.isEmpty())
+                out.add(p);
+        }
+        return out;
+    }
+
+    public static void addSearchHistory(String key, String value, int max) {
+        value = value.trim();
+        if (value.isEmpty())
+            return;
+
+        java.util.List<String> current = getSearchHistory(key);
+
+        // MRU: remove if exists, then add to front
+        current.remove(value);
+        current.add(0, value);
+
+        // trim to max
+        while (current.size() > max)
+            current.remove(current.size() - 1);
+
+        // dedupe while preserving order
+        java.util.LinkedHashSet<String> set = new java.util.LinkedHashSet<>(current);
+        current.clear();
+        current.addAll(set);
+
+        saveSearchHistory(key, current);
+    }
+
+    public static void clearSearchHistory(String key) {
+        searchHistory.edit().remove(key).apply();
+    }
+
+    private static void saveSearchHistory(String key, java.util.List<String> items) {
+        StringBuilder sb = new StringBuilder();
+        for (String s : items) {
+            if (sb.length() != 0)
+                sb.append("||");
+            sb.append(s.replace("||", "¦¦"));
+        }
+        searchHistory.edit().putString(key, sb.toString()).apply();
+    }
+
+    /////////////////// TEXT OPTIONS ///////////////////
+
+    public static int getCharSize(int defaultValue) {
+        return charSize.getInt("charSize", defaultValue);
+    }
+
+    public static void setCharSize(int value) {
+        charSize.edit().putInt("charSize", value).apply();
+    }
+
+    public static void setTextScrollPos(String file, float pos) {
+        scrollPos.edit().putFloat(file, pos).apply();
+    }
+
+    public static float getTextScrollPos(String file) {
+        return scrollPos.getFloat(file, 0.0f);
+    }
+
+    public static void setTextHighlightedText(String file, String word) {
+        highlightedText.edit().putString(file, word).apply();
+    }
+
+    public static String getTextHighlightedText(String file) {
+        return highlightedText.getString(file, "");
+    }
+
+    public static SharedPreferences getInAppMsgPrefs() {
+        return inAppMsgs;
+    }
+
+    public static SharedPreferences getRadioFavoritesPrefs() {
+        return radioFavorites;
+    }
+
+    public static SharedPreferences getMigrationPrefs(Context context) {
+        if (migration == null)
+            init(context);
+        return migration;
+    }
+
+    public static SharedPreferences getPlaylistPrefs() {
+        return playlist;
     }
 }

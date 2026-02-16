@@ -33,9 +33,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
      */
     private int pendingScrollPosition = -1;
 
-
-    //TODO new universal toggle to replace checkboxes
-
+    // TODO new universal toggle to replace checkboxes
 
     @Override
     protected int getNavId() {
@@ -183,7 +181,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
 
     @Override
     public void finish() { // needed because of recreate()
-        if (this.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE)
+        if (com.driot.bookplayer.global.Option.getSharedPrefs(this)
                 .getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { // trick to reload MainActivity
             setResult(Activity.RESULT_OK);
         }

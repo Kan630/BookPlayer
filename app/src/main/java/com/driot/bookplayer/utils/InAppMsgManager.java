@@ -775,7 +775,7 @@ public final class InAppMsgManager {
     }
 
     private static SharedPreferences prefs(Context ctx) {
-        return ctx.getSharedPreferences(PREF, Context.MODE_PRIVATE);
+        return com.driot.bookplayer.global.Pref.getInAppMsgPrefs();
     }
 
     private static Context AppCtx(Context c) {

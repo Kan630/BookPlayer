@@ -42,8 +42,7 @@ public class LocaleHelper {
     public static Context wrapContextWithAppLocale(Context base) {
         if (base == null)
             return base;
-        String tag = base.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
-                .getString(PREF_KEY_APP_LANGUAGE, Option.DEFAULT_LANGUAGE);
+        String tag = Option.getAppLanguage(base);
         if (TextUtils.isEmpty(tag) || Option.DEFAULT_LANGUAGE.equals(tag)) {
             return base;
         }

@@ -105,8 +105,18 @@ public class Option {
     private static android.content.SharedPreferences prefs;
 
     public static void init(Context context) {
-        appContext = context.getApplicationContext();
-        prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        if (appContext == null) {
+            appContext = context.getApplicationContext();
+        }
+        if (prefs == null) {
+            prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
+        }
+    }
+
+    public static android.content.SharedPreferences getSharedPrefs(Context context) {
+        if (prefs == null)
+            init(context);
+        return prefs;
     }
 
     // in Option.java
@@ -303,6 +313,10 @@ public class Option {
 
     public static boolean getMailMethod() {
         return prefs.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT);
+    }
+
+    public static boolean getMailMethod(Context context) {
+        return getSharedPrefs(context).getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT);
     }
 
     /////////////////// BEEP options ///////////////////
@@ -575,6 +589,10 @@ public class Option {
         return prefs.getBoolean("TECH_LOG", DEFAULT_TECH_LOG);
     }
 
+    public static boolean getTechLog(Context context) {
+        return getSharedPrefs(context).getBoolean("TECH_LOG", DEFAULT_TECH_LOG);
+    }
+
     /////////////////// OPEN WITH ///////////////////
     public static void setOpenWith(boolean bool) {
         prefs.edit().putBoolean("OPEN_WITH", bool).apply();
@@ -761,6 +779,10 @@ public class Option {
 
     public static String getAppLanguage() {
         return prefs.getString("APP_LANGUAGE", DEFAULT_LANGUAGE);
+    }
+
+    public static String getAppLanguage(Context context) {
+        return getSharedPrefs(context).getString("APP_LANGUAGE", DEFAULT_LANGUAGE);
     }
 
     /////////////////// TTS ///////////////////

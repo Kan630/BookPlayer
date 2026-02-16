@@ -59,8 +59,13 @@ public class MyApp extends Application {
             enableStrictModeForDebugBuild();
         }
 
-        Option.init(getApplicationContext());
-        Pref.init(getApplicationContext());
+        // Centralized Prefs warm-up in background
+        Executors.newSingleThreadExecutor().execute(() -> {
+            Option.init(getApplicationContext());
+            Pref.init(getApplicationContext());
+            myLog("SharedPreferences warmed up in background");
+        });
+
         FirebaseAnalyticsHelper.init(getApplicationContext()); // after pref
 
         myLogNoPrefix("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
@@ -68,8 +73,6 @@ public class MyApp extends Application {
         myLogNoPrefix("oooooooooooooooooooooooooooooooooooooooooooooooooooooo");
 
         // TaskStateRepository.get().hydrateFromPrefs();
-
-
 
         Option.applyNightMode();
 

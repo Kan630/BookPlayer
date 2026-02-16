@@ -19,18 +19,21 @@ public class RadioMigrationHelper {
     // Flag to ensure we only do this once per install
     private static final String KEY_RADIO_FAVORITES_MOVED_TO_ROOM = "radio_favorites_moved_to_room";
 
-    private RadioMigrationHelper() {}
+    private RadioMigrationHelper() {
+    }
 
     /**
-     * One-off migration: copy favorites from SharedPreferences (RadioFavoritesStore)
+     * One-off migration: copy favorites from SharedPreferences
+     * (RadioFavoritesStore)
      * into the new Room table RadioStation.
      *
-     * Called from RoomDatabase.Callback.onOpen(), AFTER Room has run all schema migrations.
+     * Called from RoomDatabase.Callback.onOpen(), AFTER Room has run all schema
+     * migrations.
      */
     public static void migrateFavoritesFromPrefsToRoomOnce(@NonNull Context context,
-                                                           @NonNull SupportSQLiteDatabase db) {
+            @NonNull SupportSQLiteDatabase db) {
         Context appCtx = context.getApplicationContext();
-        SharedPreferences migrationPrefs = appCtx.getSharedPreferences(Pref.SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
+        SharedPreferences migrationPrefs = com.driot.bookplayer.global.Pref.getMigrationPrefs(appCtx);
 
         boolean alreadyDone = migrationPrefs.getBoolean(KEY_RADIO_FAVORITES_MOVED_TO_ROOM, false);
         if (alreadyDone) {
@@ -39,7 +42,8 @@ public class RadioMigrationHelper {
         }
 
         try {
-            // If table already has rows, don't import from migrationPrefs (probably fresh install or manual test)
+            // If table already has rows, don't import from migrationPrefs (probably fresh
+            // install or manual test)
             long count = 0;
             try (Cursor c = db.query("SELECT COUNT(*) FROM RadioStation")) {
                 if (c.moveToFirst()) {
@@ -53,7 +57,8 @@ public class RadioMigrationHelper {
                 return;
             }
         } catch (Exception e) {
-            // In case table does not exist or query fails, log & bail (Room will handle schema issues)
+            // In case table does not exist or query fails, log & bail (Room will handle
+            // schema issues)
             myLogW("RadioMigration: could not count RadioStation rows, skipping migrationPrefs migration: " + e);
             return;
         }
@@ -74,7 +79,8 @@ public class RadioMigrationHelper {
             db.beginTransaction();
             try {
                 for (RadioFavoriteItem f : favItems) {
-                    if (f.stationuuid == null || f.stationuuid.isEmpty()) continue;
+                    if (f.stationuuid == null || f.stationuuid.isEmpty())
+                        continue;
 
                     // Insert OR REPLACE into RadioStation
                     db.execSQL(
@@ -84,7 +90,7 @@ public class RadioMigrationHelper {
                                     "clickcount, lastcheckok, display_order, isFavorite, " +
                                     "date_last_played, date_added, date_maj" +
                                     ") VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                            new Object[]{
+                            new Object[] {
                                     f.stationuuid,
                                     f.name,
                                     f.url,
@@ -99,13 +105,12 @@ public class RadioMigrationHelper {
                                     f.tags,
                                     f.clickcount,
                                     f.lastcheckok,
-                                    order++,          // display_order based on old order
-                                    1,                // isFavorite = true
-                                    null,             // date_last_played
-                                    now,              // date_added
-                                    now               // date_maj
-                            }
-                    );
+                                    order++, // display_order based on old order
+                                    1, // isFavorite = true
+                                    null, // date_last_played
+                                    now, // date_added
+                                    now // date_maj
+                            });
                 }
 
                 db.setTransactionSuccessful();

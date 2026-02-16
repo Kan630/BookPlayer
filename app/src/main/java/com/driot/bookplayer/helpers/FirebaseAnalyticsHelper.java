@@ -34,7 +34,7 @@ public final class FirebaseAnalyticsHelper {
             String sdkVersion = String.valueOf(Build.VERSION.SDK_INT);
             String androidVersion = Build.VERSION.RELEASE;
             String countryFromLocale = Locale.getDefault().getCountry();
-            long installTimestamp = Pref.getFirstOpenTimeStamp();
+            long installTimestamp = Pref.getFirstOpenTimeStamp(appContext);
             long days = installTimestamp > 0
                     ? (System.currentTimeMillis() - installTimestamp) / (24 * 60 * 60 * 1000L)
                     : 0;

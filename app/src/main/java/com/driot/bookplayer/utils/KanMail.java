@@ -35,8 +35,7 @@ public class KanMail {
         s_body = body;
         u_attachment = attachmentUri;
 
-        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        if (prefs.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT)) {
+        if (com.driot.bookplayer.global.Option.getMailMethod(appContext)) {
             sendMail_DefaultApp();
         } else {
             sendMail_andLetUserChooseEmailApp();
@@ -51,8 +50,7 @@ public class KanMail {
         s_body = body;
         s_subject = subject;
 
-        SharedPreferences prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-        if (prefs.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT)) {
+        if (com.driot.bookplayer.global.Option.getMailMethod(appContext)) {
             sendMail_DefaultApp();
         } else {
             sendMail_andLetUserChooseEmailApp();

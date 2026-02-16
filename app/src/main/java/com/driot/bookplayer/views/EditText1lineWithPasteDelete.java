@@ -69,13 +69,15 @@ public class EditText1lineWithPasteDelete extends LoggingLinearLayout {
         }
 
         // --- Suggestions adapter from history ---
-        List<String> history = SearchHistoryStore.get(context, historyKey);
+        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
         adapter = new ArrayAdapter<>(context, android.R.layout.simple_dropdown_item_1line, new ArrayList<>(history));
         editText.setAdapter(adapter);
         editText.setThreshold(completionThreshold);
 
         editText.setOnFocusChangeListener((v, hasFocus) -> {
-            //KanLogger.myLog("EditText1lineWithPasteDelete", "hasFocus = " + hasFocus + " - scrollOnFocus = " + scrollOnFocus + " - suggestOnFocus = " + suggestOnFocus);
+            // KanLogger.myLog("EditText1lineWithPasteDelete", "hasFocus = " + hasFocus + "
+            // - scrollOnFocus = " + scrollOnFocus + " - suggestOnFocus = " +
+            // suggestOnFocus);
 
             if (hasFocus && suggestOnFocus && TextUtils.isEmpty(editText.getText())) {
                 editText.post(editText::showDropDown);
@@ -84,8 +86,10 @@ public class EditText1lineWithPasteDelete extends LoggingLinearLayout {
             if (hasFocus && scrollOnFocus) {
                 v.postDelayed(() -> {
                     ScrollView scroll = ((Activity) getContext()).findViewById(R.id.mainScroll);
-                    if (scroll == null) KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
-                    if (scroll != null) scroll.fullScroll(View.FOCUS_DOWN);
+                    if (scroll == null)
+                        KanLogger.myLogE("no ScrollView with id [mainScroll] in xml");
+                    if (scroll != null)
+                        scroll.fullScroll(View.FOCUS_DOWN);
                 }, 300);
             }
         });
@@ -109,10 +113,11 @@ public class EditText1lineWithPasteDelete extends LoggingLinearLayout {
     /** Call this when your search actually runs to persist the query. */
     public void saveCurrentTextToHistory() {
         String text = Tonio.cleanSearchString(getText());
-        if (text.isEmpty()) return;
+        if (text.isEmpty())
+            return;
 
         // Persist
-        SearchHistoryStore.add(getContext(), historyKey, text, maxHistory);
+        com.driot.bookplayer.global.Pref.addSearchHistory(historyKey, text, maxHistory);
 
         // Update adapter (move to front / dedupe)
         adapter.remove(text);
@@ -142,12 +147,16 @@ public class EditText1lineWithPasteDelete extends LoggingLinearLayout {
 
     // --- Knob setters ---
 
-    /** Use a per-screen key to keep histories separate (e.g., "podcast_search", "librivox_search"). */
+    /**
+     * Use a per-screen key to keep histories separate (e.g., "podcast_search",
+     * "librivox_search").
+     */
     public void setHistoryKey(String key) {
-        if (TextUtils.isEmpty(key)) return;
+        if (TextUtils.isEmpty(key))
+            return;
         this.historyKey = key;
         // reload list for the new key
-        List<String> history = SearchHistoryStore.get(getContext(), historyKey);
+        List<String> history = com.driot.bookplayer.global.Pref.getSearchHistory(historyKey);
         adapter.clear();
         adapter.addAll(history);
         adapter.notifyDataSetChanged();
@@ -171,7 +180,7 @@ public class EditText1lineWithPasteDelete extends LoggingLinearLayout {
 
     /** Clear the stored history for this key. */
     public void clearHistory() {
-        SearchHistoryStore.clear(getContext(), historyKey);
+        com.driot.bookplayer.global.Pref.clearSearchHistory(historyKey);
         adapter.clear();
         adapter.notifyDataSetChanged();
     }

@@ -94,18 +94,18 @@ public class KanLogger {
     ///////////////////////////////// -----------------------------------------------------------
     public static boolean isMyPhoneDev() {
         /*
-        boolean ret = false;
-        String strToCheck = MD5(Build.FINGERPRINT);
-        if (strToCheck != null) {
-            for (String s : MD5_MY_PHONE) {
-                if (s.contains(strToCheck)) {
-                    ret = true;
-                    break;
-                }
-            }
-        }
-        // Log.d("toto", "writeTechLogs : End");
-        return ret;
+         * boolean ret = false;
+         * String strToCheck = MD5(Build.FINGERPRINT);
+         * if (strToCheck != null) {
+         * for (String s : MD5_MY_PHONE) {
+         * if (s.contains(strToCheck)) {
+         * ret = true;
+         * break;
+         * }
+         * }
+         * }
+         * // Log.d("toto", "writeTechLogs : End");
+         * return ret;
          */
         return false;
     }
@@ -113,17 +113,10 @@ public class KanLogger {
     public static boolean writeTechLogs() {
         if (appContext != null) {
             try {
-                return Option.getTechLog();
+                return Option.getTechLog(appContext);
             } catch (Exception e) {
-                Log.v("toto", "Option.getTechLog() => SharedPrefs not Initialized");
-                //Because logger could be called before Pref init
-                try {
-                    SharedPreferences prefs = appContext.getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, MODE_PRIVATE);
-                    return prefs.getBoolean("TECH_LOG", Option.DEFAULT_TECH_LOG);
-                } catch (Exception ex) {
-                    Log.e("toto", "writeTechLogs() => BIG ERROR");
-                    return false;
-                }
+                Log.e("toto", "writeTechLogs() => BIG ERROR", e);
+                return false;
             }
         } else {
             Log.e(kanLogger_TAG, "writeTechLogs() => ERROR in getting Context => using isMyPhoneDev()");
