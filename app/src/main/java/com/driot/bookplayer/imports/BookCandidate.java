@@ -377,7 +377,7 @@ public class BookCandidate implements Parcelable {
                 // 1. Cover Detection
                 android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
                 try {
-                    mmr.setDataSource(fd);
+                    mmr.setDataSource(context, file.getUri());
                     com.driot.bookplayer.helpers.CoverPictureDetection.CoverDetectionResult result = com.driot.bookplayer.helpers.CoverPictureDetection
                             .extractEmbeddedCover(mmr);
 
@@ -1175,6 +1175,7 @@ public class BookCandidate implements Parcelable {
         if (LOG_DEBUG)
             KanLogger.myLogD(txt);
     }
+
     private void myLogDD(String txt) {
         if (VERBOSE_DEBUG)
             myLogD(txt);
