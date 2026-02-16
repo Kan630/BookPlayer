@@ -93,11 +93,13 @@ public class LoadManyBookTest implements LogSupport {
         }
     }
 
+    //Do not change that List layout, I like it like this for easy change
     private static final List<TestCase> TESTS = Arrays.asList(
-            new TestCase("File", "fixtures/single_files"),
-            new TestCase("File", "fixtures/zip"), new TestCase("File", "fixtures/ebooks"),
-            new TestCase("Folder", "fixtures/folders"), new TestCase("File", "fixtures/m4b"),
-            new TestCase("File", "fixtures/single_files"));
+              new TestCase("File", "fixtures/zip")
+            , new TestCase("File", "fixtures/ebooks")
+            , new TestCase("Folder", "fixtures/folders")
+            , new TestCase("File", "fixtures/m4b")
+            , new TestCase("File", "fixtures/single_files"));
 
     private ImportProbe importProbe;
 
