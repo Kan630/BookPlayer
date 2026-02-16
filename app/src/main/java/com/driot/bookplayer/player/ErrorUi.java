@@ -15,6 +15,8 @@ import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.MsgBox;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import androidx.documentfile.provider.DocumentFile;
+
 public class ErrorUi {
 
     public static void showPlayAudioErrorMessage(Context context, String errMessage, String zikFilePath) {
@@ -65,7 +67,8 @@ public class ErrorUi {
     public static String getErrorMessage(Context context, String zikFilePath) {
         String errMessage;
 
-        boolean exists = (UriHelper.resolveUriFromPath(context, zikFilePath) != null);
+        Uri uri = UriHelper.resolveUriFromPath(context, zikFilePath);
+        boolean exists = (uri != null);
         myLog("playlist file exist = " + exists + " : [" + zikFilePath + "]");
 
         if (!exists) {
@@ -83,11 +86,24 @@ public class ErrorUi {
             if (!isReadAudioPermissionGranted(context) && !isReserved) {
                 errMessage = context.getString(R.string.permission_not_set);
             } else {
-                myLogW(Var.SHOULD_NOT_HAPPEN);
-                errMessage = context.getString(R.string.source_not_found) + "\n- this " + Var.SHOULD_NOT_HAPPEN + " -";
+                long size = 0;
+                try {
+                    DocumentFile df = DocumentFile.fromSingleUri(context, uri);
+                    if (df != null)
+                        size = df.length();
+                } catch (Throwable t) {
+                    myLogEE(t, "getErrorMessage size check failed");
+                }
+
+                if (size > 0) {
+                    errMessage = context.getString(R.string.error_mediaplayer_unsupported);
+                } else {
+                    myLogW(Var.SHOULD_NOT_HAPPEN);
+                    errMessage = context.getString(R.string.source_not_found) + "\n- this " + Var.SHOULD_NOT_HAPPEN
+                            + " -";
+                }
             }
         }
         return errMessage;
     }
-
 }

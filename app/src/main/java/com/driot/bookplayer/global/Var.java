@@ -192,7 +192,7 @@ public class Var {
                     "opus",  // WORKS // Opus (Android 5.0+, efficient for voice/streaming)
 
                     // MIDI/Synthetic Audio
-                    "mid",   // Standard MIDI
+                    "mid",   // WORKS   // Standard MIDI
                     "midi",  // Alternate MIDI extension
                     "smf",   // Standard MIDI File
                     "xmf",   // Extended MIDI
