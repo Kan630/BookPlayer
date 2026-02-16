@@ -3,6 +3,8 @@ package com.driot.bookplayer.test;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
+import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 
@@ -73,6 +75,7 @@ public class LoadManyBookTest implements LogSupport {
     private final static long TIMEOUT_TEST_END = 1 * 60_000;
     private final static long TIMEOUT_BOOK_LOAD = 120_000;
     private final static long TIMEOUT_VISUAL_CHECK = 3_000;
+    private final static long DEBUG_VISUAL_CHECK = 3_000;
 
     private static final int ID_MAIN_RECYCLER = R.id.recyclerview_folders; // list on MainActivity
     private static final int ID_TRACKS_RECYCLER = R.id.recyclerview_zikfiles; // list on ZikFileActivity
@@ -216,7 +219,7 @@ public class LoadManyBookTest implements LogSupport {
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
     }
 
-    private void goPlay(int idFolder) {
+    private void goPlay(int idFolder) throws InterruptedException {
         TestNavUtils.logCurrentActivity();
         TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
         TestNavUtils.logCurrentActivity();
@@ -255,6 +258,21 @@ public class LoadManyBookTest implements LogSupport {
             myLogD("ok, on ImportBookSingleActivity");
 
             onView(withId(android.R.id.content)).perform(swipeUp());
+
+            myLog("Waiting DEBUG_VISUAL_CHECK " + DEBUG_VISUAL_CHECK + "ms...");
+            Thread.sleep(DEBUG_VISUAL_CHECK);
+
+            myLog("Waiting for btnConfirm to be enabled...");
+            long startWait = System.currentTimeMillis();
+            while (System.currentTimeMillis() - startWait < 15_000) {
+                try {
+                    onView(withId(R.id.btnConfirm)).check(matches(isEnabled()));
+                    break;
+                } catch (AssertionError | Exception e) {
+                    Thread.sleep(500);
+                }
+            }
+
             onView(withId(R.id.btnConfirm)).perform(click());
             /*
              * appContext.startActivity(new Intent(appContext, AddResourceActivity.class)
@@ -464,7 +482,7 @@ public class LoadManyBookTest implements LogSupport {
     }
 
     /** Call this right after an import when you're back on MainActivity. */
-    private void openTargetedItemThenPlay(int idFolder, long playTime) {
+    private void openTargetedItemThenPlay(int idFolder, long playTime) throws InterruptedException {
         // 1) ensure window focused before Espresso checks
         if (!TestNavUtils.waitForWindowFocus(2_000)) {
             throw new AssertionError("Window never gained focus before click.");
@@ -478,6 +496,10 @@ public class LoadManyBookTest implements LogSupport {
 
         // 3) click the specific item in the main list
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
+
+        myLog("Waiting DEBUG_VISUAL_CHECK before clicking folder...");
+        Thread.sleep(DEBUG_VISUAL_CHECK);
+
         onView(withId(ID_MAIN_RECYCLER))
                 .perform(RecyclerViewActions.actionOnItem(hasDescendant(withText(title)), click()));
         myLog("Clicked targeted item: " + title);
@@ -527,13 +549,17 @@ public class LoadManyBookTest implements LogSupport {
     }
 
     /** Clicks a random item in the given RecyclerView (by id). */
-    private void clickRandomItemInRecycler(@IdRes int recyclerId) {
+    private void clickRandomItemInRecycler(@IdRes int recyclerId) throws InterruptedException {
         waitForViewVisible(recyclerId, 5_000, "Recycler view not visible: " + recyclerId);
         int count = getRecyclerItemCount(recyclerId);
         if (count <= 0)
             throw new AssertionError("Recycler has no items to click (id=" + recyclerId + ")");
         int index = (int) (Math.random() * count);
         myLog("Clicking item index " + index + " / " + count);
+
+        myLog("Waiting DEBUG_VISUAL_CHECK before clicking track...");
+        Thread.sleep(DEBUG_VISUAL_CHECK);
+
         onView(withId(recyclerId))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(index, click()));
         TestNavUtils.sleep(200);
@@ -544,6 +570,10 @@ public class LoadManyBookTest implements LogSupport {
         TestNavUtils.sleep(200);
         try {
             waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible by id");
+
+            myLog("Waiting DEBUG_VISUAL_CHECK before clicking Play...");
+            Thread.sleep(DEBUG_VISUAL_CHECK);
+
             onView(withId(ID_PLAY_BUTTON)).perform(click());
             nbPlayed += 1;
             myLog("Pressed Play n°" + nbPlayed);

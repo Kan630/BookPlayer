@@ -28,20 +28,23 @@ public class UriHelper {
     private static final int MAX_RECURSION_DEPTH = 10;
 
     /**
-     * Returns a DocumentFile regardless of whether the input URI is file-based or content-based.
+     * Returns a DocumentFile regardless of whether the input URI is file-based or
+     * content-based.
      */
     @Nullable
     public static DocumentFile getDocumentFileFromAnyUri(Context context, Uri uri) {
-        //problems with :
-        //content://media/external/audio/media/1000028186 (Samsung SM-F721B   Android 15)
-        //content://com.android.fileexplorer.myprovider/external_files/Nyla/Brainwashed%20by%20Nyla%20K.mp3   (Xiaomi 24117RN76E  Android 15)
-        //content://com.android.providers.downloads.documents/document/4204
-        //content://com.android.providers.media.documents/document/audio%3A1000131747
-        //content://com.android.providers.downloads.documents/document/msf%3A1000016621
-        //content://com.android.externalstorage.documents/document/primary%3AAudiobooks%2FFrom%20Blood%20and%20Ash%20%231%20(2%20of%202)%20.mp3
-        //content://com.android.externalstorage.documents/document/primary%3AMusic%2FTelegram%2FPrison%20Healer%20(Tome%201)%20-%20Lynette%20Noni.mp3
-        //content://com.driot.bookplayer.debug.FileProvider/cache/fixtures/fixtures/single_files/AYAHUASCA [Progressive Psytrance Mix - 2016].mp3
-        //content://com.driot.bookplayer.debug.FileProvider/cache/fixtures/fixtures/single_files/AYAHUASCA%20%5BProgressive%20Psytrance%20Mix%20-%202016%5D.mp3
+        // problems with :
+        // content://media/external/audio/media/1000028186 (Samsung SM-F721B Android 15)
+        // content://com.android.fileexplorer.myprovider/external_files/Nyla/Brainwashed%20by%20Nyla%20K.mp3
+        // (Xiaomi 24117RN76E Android 15)
+        // content://com.android.providers.downloads.documents/document/4204
+        // content://com.android.providers.media.documents/document/audio%3A1000131747
+        // content://com.android.providers.downloads.documents/document/msf%3A1000016621
+        // content://com.android.externalstorage.documents/document/primary%3AAudiobooks%2FFrom%20Blood%20and%20Ash%20%231%20(2%20of%202)%20.mp3
+        // content://com.android.externalstorage.documents/document/primary%3AMusic%2FTelegram%2FPrison%20Healer%20(Tome%201)%20-%20Lynette%20Noni.mp3
+        // content://com.driot.bookplayer.debug.FileProvider/cache/fixtures/fixtures/single_files/AYAHUASCA
+        // [Progressive Psytrance Mix - 2016].mp3
+        // content://com.driot.bookplayer.debug.FileProvider/cache/fixtures/fixtures/single_files/AYAHUASCA%20%5BProgressive%20Psytrance%20Mix%20-%202016%5D.mp3
 
         if (uri == null) {
             myLogEE(null, "getDocumentFileFromAnyUri: null passed as uri argument");
@@ -54,7 +57,8 @@ public class UriHelper {
             // 1) file:// → simple
             if ("file".equalsIgnoreCase(scheme)) {
                 final String path = uri.getPath();
-                if (path != null) return DocumentFile.fromFile(new File(path));
+                if (path != null)
+                    return DocumentFile.fromFile(new File(path));
                 myLogEE(null, "getDocumentFileFromAnyUri: null path for file:// " + uri);
                 return null;
             }
@@ -62,8 +66,9 @@ public class UriHelper {
             // 2) Raw absolute path like "/sdcard/..." (rare)
             if (scheme == null) {
                 final String s = uri.toString();
-                if (!TextUtils.isEmpty(s) && s.startsWith("/")) return DocumentFile.fromFile(new File(s));
-                myLogEE(null,"getDocumentFileFromAnyUri: Raw absolute path " + Uri.decode(uri.toString()));
+                if (!TextUtils.isEmpty(s) && s.startsWith("/"))
+                    return DocumentFile.fromFile(new File(s));
+                myLogEE(null, "getDocumentFileFromAnyUri: Raw absolute path " + Uri.decode(uri.toString()));
                 return null;
             }
 
@@ -71,27 +76,46 @@ public class UriHelper {
             if ("content".equalsIgnoreCase(scheme)) {
                 // Prefer real SAF trees for directories
                 boolean isTree = false, isDoc = false;
-                try { isTree = DocumentsContract.isTreeUri(uri); } catch (Throwable ignore) {}
-                try { isDoc  = DocumentsContract.isDocumentUri(context, uri); } catch (Throwable ignore) {}
+                try {
+                    isTree = DocumentsContract.isTreeUri(uri);
+                } catch (Throwable ignore) {
+                }
+                try {
+                    isDoc = DocumentsContract.isDocumentUri(context, uri);
+                } catch (Throwable ignore) {
+                }
 
                 if (isTree) {
                     DocumentFile tree = DocumentFile.fromTreeUri(context, uri);
-                    if (tree != null && tree.exists()) return tree;
-                    myLogEE(null,"getDocumentFileFromAnyUri: fromTreeUri returned null or !exists for " + Uri.decode(uri.toString()));
+                    if (tree != null && tree.exists())
+                        return tree;
+                    myLogEE(null, "getDocumentFileFromAnyUri: fromTreeUri returned null or !exists for "
+                            + Uri.decode(uri.toString()));
                     return null;
                 }
 
                 if (isDoc || uri.toString().contains("/document/")) {
                     DocumentFile documentFile = DocumentFile.fromSingleUri(context, uri);
-                    if (documentFile != null && documentFile.exists()) return documentFile;
-                    myLogEE(null,"getDocumentFileFromAnyUri: fromSingleUri returned null or !exists for " + Uri.decode(uri.toString()));
+                    if (documentFile != null && documentFile.exists())
+                        return documentFile;
+                    myLogEE(null, "getDocumentFileFromAnyUri: fromSingleUri returned null or !exists for "
+                            + Uri.decode(uri.toString()));
                     return null;
                 }
+
+                // Generic content URI fallback (e.g. FileProvider, MediaStore)
+                DocumentFile generic = DocumentFile.fromSingleUri(context, uri);
+                if (generic != null && generic.exists()) {
+                    myLogW("new check");
+                    return generic;
+                }
+
 
                 // Not a DocumentsProvider → cannot create a DocumentFile
                 // (MediaStore: content://media/..., Xiaomi, gallery, cloud, etc.)
                 myLogD("--------");
-                myLog("getDocumentFileFromAnyUri: non-DocumentsProvider content URI → returning null: " + Uri.decode(uri.toString()));
+                myLog("getDocumentFileFromAnyUri: non-DocumentsProvider content URI → returning null: "
+                        + Uri.decode(uri.toString()));
                 myLog(".....only way would be to write (=cache) the uri to a temp file...");
                 myLogD("scheme/authority : " + uri.getScheme() + "/" + uri.getAuthority());
                 myLogD("--------");
@@ -107,14 +131,12 @@ public class UriHelper {
         }
     }
 
-
     /** Optional helpers if you want explicit branching later */
     private static boolean isMediaStoreUri(@Nullable Uri uri) {
         return uri != null
                 && "content".equalsIgnoreCase(uri.getScheme())
                 && "media".equalsIgnoreCase(uri.getAuthority());
     }
-
 
     public static boolean isFolder(Context context, Uri uri) {
         try {
@@ -180,14 +202,16 @@ public class UriHelper {
         }
         myLog("getFolderSize()" + (step > 0 ? " - step " + step : "") + " - " + uri);
 
-        if (uri == null) return 0;
+        if (uri == null)
+            return 0;
 
         final String scheme = uri.getScheme();
 
         // 1) Plain filesystem (file:// or raw path)
         if (scheme == null || "file".equalsIgnoreCase(scheme)) {
             String path = (scheme == null) ? uri.toString() : uri.getPath();
-            if (path == null) return 0;
+            if (path == null)
+                return 0;
             return getFolderSizeFs(new File(path), step);
         }
 
@@ -207,10 +231,12 @@ public class UriHelper {
 
     // --- Filesystem recursion for file:// ---
     private static long getFolderSizeFs(File dir, int step) {
-        if (dir == null || !dir.exists() || !dir.isDirectory()) return 0;
+        if (dir == null || !dir.exists() || !dir.isDirectory())
+            return 0;
         long total = 0;
         File[] kids = dir.listFiles();
-        if (kids == null) return 0;
+        if (kids == null)
+            return 0;
         for (File f : kids) {
             if (f.isDirectory()) {
                 total += getFolderSizeFs(f, step + 1);
@@ -223,7 +249,8 @@ public class UriHelper {
 
     // --- SAF recursion via DocumentFile (works for fromTreeUri AND fromFile) ---
     private static long getFolderSizeDoc(Context context, DocumentFile dir, int step) {
-        if (dir == null || !dir.exists() || !dir.isDirectory()) return 0;
+        if (dir == null || !dir.exists() || !dir.isDirectory())
+            return 0;
         long total = 0;
         for (DocumentFile child : dir.listFiles()) {
             if (child.isDirectory()) {
@@ -232,17 +259,19 @@ public class UriHelper {
                 // Prefer DocumentFile.length(); fallback to openFileDescriptor if needed
                 long len = child.length();
                 if (len <= 0) {
-                    try (ParcelFileDescriptor pfd =
-                                 context.getContentResolver().openFileDescriptor(child.getUri(), "r")) {
-                        if (pfd != null) len = pfd.getStatSize();
-                    } catch (Exception ignored) {}
+                    try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(child.getUri(),
+                            "r")) {
+                        if (pfd != null)
+                            len = pfd.getStatSize();
+                    } catch (Exception ignored) {
+                    }
                 }
-                if (len > 0) total += len;
+                if (len > 0)
+                    total += len;
             }
         }
         return total;
     }
-
 
     private static long getFileSize(Context context, Uri uri) {
         if (uri == null) {
@@ -269,7 +298,6 @@ public class UriHelper {
         return -1;
     }
 
-
     public static Uri buildFileUri(Context context, String folderPathOrUri, String fileName) {
         if (folderPathOrUri == null || fileName == null) {
             myLogEE(null, "buildFileUri - null args");
@@ -291,7 +319,7 @@ public class UriHelper {
                     Uri uriToPlay = Uri.parse(folderPathOrUri);
                     DocumentFile file = DocumentFile.fromSingleUri(context, Uri.parse(folderPathOrUri));
                     if (!file.exists() || !file.isFile()) {
-                        myLogEE(null,"Invalid or non-file SAF Uri in single file case : " + uriToPlay);
+                        myLogEE(null, "Invalid or non-file SAF Uri in single file case : " + uriToPlay);
                     }
                     return uriToPlay;
                 }
@@ -314,15 +342,14 @@ public class UriHelper {
         }
 
         // ❌ Neither SAF nor legacy path worked
-        myLogEE(null,"Unable to build URI for: " + folderPathOrUri + "/" + fileName);
+        myLogEE(null, "Unable to build URI for: " + folderPathOrUri + "/" + fileName);
         return null;
     }
 
-
-
     @Nullable
     public static String getPathFromUri(Context context, Uri uri) {
-        if (uri == null) return null;
+        if (uri == null)
+            return null;
         String scheme = uri.getScheme();
         try {
             if ("file".equalsIgnoreCase(scheme)) {
@@ -383,10 +410,10 @@ public class UriHelper {
         return null;
     }
 
-
     @Nullable
     public static File getFileFromUri(Context context, Uri uri) {
-        if (uri == null) return null;
+        if (uri == null)
+            return null;
 
         String scheme = uri.getScheme();
 
@@ -401,7 +428,8 @@ public class UriHelper {
                 String path = getPathFromUri(context, uri);
                 if (path != null) {
                     File file = new File(path);
-                    if (file.exists()) return file;
+                    if (file.exists())
+                        return file;
                 }
 
                 // Fallback: try copying to temp file
@@ -431,7 +459,8 @@ public class UriHelper {
                 String path = getPathFromUri(context, uri);
                 if (path != null) {
                     File file = new File(path);
-                    if (file.exists()) return file;
+                    if (file.exists())
+                        return file;
                 }
             }
         } catch (Exception e) {
@@ -442,7 +471,6 @@ public class UriHelper {
         return null;
     }
 
-
     // TODO, use openFileDescriptor & remove legacy from manifest
     @Nullable
     public static Uri resolvePlayableUri(Context context, @NonNull ZikFile zf) {
@@ -450,9 +478,11 @@ public class UriHelper {
             // Content (SAF)
             if (zf.getPath() != null && zf.getPath().startsWith("content://")) {
                 Uri u = UriHelper.buildFileUri(context, zf.getPath(), zf.getName());
-                if (u == null) return null;
+                if (u == null)
+                    return null;
                 DocumentFile f = DocumentFile.fromSingleUri(context, u);
-                if (f != null && f.exists() && f.isFile()) return u;
+                if (f != null && f.exists() && f.isFile())
+                    return u;
 
                 // fallback: try the raw content Uri
                 u = Uri.parse(zf.getPath());
@@ -464,9 +494,11 @@ public class UriHelper {
             if (zf.getPath() != null && zf.getPath().startsWith("file://")) {
                 Uri u = Uri.parse(zf.getPath());
                 String p = u.getPath();
-                if (p == null) return null;
+                if (p == null)
+                    return null;
                 File f = new File(p);
-                if (f.exists() && f.isFile()) return u;
+                if (f.exists() && f.isFile())
+                    return u;
 
                 // sometimes folder path + name
                 File maybe = new File(p, zf.getName());
@@ -475,8 +507,10 @@ public class UriHelper {
 
             // Plain filesystem path
             String base = zf.getPath();
-            if (base == null) return null;
-            if (fileExists(base)) return Uri.fromFile(new File(base));
+            if (base == null)
+                return null;
+            if (fileExists(base))
+                return Uri.fromFile(new File(base));
             String withName = base + "/" + zf.getName();
             return fileExists(withName) ? Uri.fromFile(new File(withName)) : null;
 
@@ -488,7 +522,8 @@ public class UriHelper {
 
     @Nullable
     public static Uri resolveUriFromPath(Context context, String path) {
-        if (path==null) return null;
+        if (path == null)
+            return null;
         try {
             // Content (SAF)
             if (path.startsWith("content://")) {
@@ -501,13 +536,16 @@ public class UriHelper {
             if (path.startsWith("file://")) {
                 Uri u = Uri.parse(path);
                 String p = u.getPath();
-                if (p == null) return null;
+                if (p == null)
+                    return null;
                 File f = new File(p);
-                if (f.exists() && f.isFile()) return u;
+                if (f.exists() && f.isFile())
+                    return u;
             }
 
             // Plain filesystem path
-            if (fileExists(path)) return Uri.fromFile(new File(path));
+            if (fileExists(path))
+                return Uri.fromFile(new File(path));
 
         } catch (Throwable t) {
             myLogEE(t, "resolvePlayableUri");
@@ -524,10 +562,10 @@ public class UriHelper {
             myLog("persisting permission for uri [" + src + "]");
             return true; // persistable → good
         } catch (SecurityException e) {
-            myLogEE(null,"could not persist permission for uri [" + src + "] - " + e.getMessage());
+            myLogEE(null, "could not persist permission for uri [" + src + "] - " + e.getMessage());
             return false;
         } catch (Exception e) {
-            myLogEE(null,"Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());
+            myLogEE(null, "Exception while checking persisted permission for uri [" + src + "] - " + e.getMessage());
             return false;
         }
 

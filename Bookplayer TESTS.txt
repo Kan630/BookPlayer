@@ -1,5 +1,18 @@
 
 
 
-cd C:\Users\adrio\StudioProjects\BookPlayer>
+cd C:\Users\adrio\StudioProjects\BookPlayer
+
+//Huawei 9
 run-import-test.bat LoadManyBookTest FPMPH18C17900002 keep
+
+//Samsung 16
+run-import-test.bat LoadManyBookTest RF8Y50GB1XP keep
+ 
+ 
+ 
+ //RESULTS
+ file:///C:/Users/adrio/StudioProjects/BookPlayer/app/build/reports/androidTests/connected/debug/com.driot.bookplayer.test.LoadManyBookTest.html
+ 
+ 
+ C:\Users\adrio\StudioProjects\BookPlayerapp\build\outputs\androidTest-results\connected\debug\SM-A165F - 16\logcat-com.driot.bookplayer.test.LoadManyBookTest-loadManyBooks.txt
