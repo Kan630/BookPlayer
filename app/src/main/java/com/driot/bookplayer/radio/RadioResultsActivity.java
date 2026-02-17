@@ -527,7 +527,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             if (s.name == null)
                                 continue;
 
-                            String trimmedName = s.name.trim().toLowerCase();
+                            String trimmedName = s.name.toLowerCase().replaceAll("[^a-z]", "");
 
                             boolean isCensored = false;
                             for (String censoredStation : Var.RADIO_STATION_CENSORED_LOWERCASE) {
