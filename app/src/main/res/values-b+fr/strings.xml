@@ -99,6 +99,7 @@
     <string name="Exit">Quitter</string>
     <string name="expand">développer</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">Exporter…</string>
+    <string name="Share_3pt">Partager…</string>
     <string name="favorite">favori</string>
     <string name="favorites">favoris</string>
     <string name="Favorites">Favoris</string>
@@ -134,6 +135,9 @@
     <string name="links">liens</string>
     <string name="listened">écouté</string>
     <string name="loading">chargement</string>
+    <string name="loading_step_1">Initialisation…</string>
+    <string name="loading_step_2">Analyse de la couverture, de la taille et du nombre de pistes…\nVous n’avez pas besoin d’attendre, vous pouvez appuyer sur le bouton confirmer.</string>
+    <string name="Location">Emplacement</string> //pour des valeurs telles que sdcard, cloud ou stockage interne
     <string name="Logging">Journalisation</string>
     <string name="manual">manuel</string>
     <string name="MB">Mo</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">Une erreur est survenue</string>
     <string name="no_internet_connection">Pas de connexion internet</string>
     <string name="no_metadata_available">Aucune métadonnée disponible</string>
+    <string name="please_type_a_search_string">Veuillez saisir un texte de recherche</string>
 
 
     <string name="Import_in_progress">Importation en cours</string>
@@ -607,6 +612,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="error_reading_track">ERREUR DE LECTURE DE LA PISTE !</string>
     <string name="current_position">Position actuelle</string>
     <string name="source_not_found">Le fichier source est introuvable ou illisible.</string>
+    <string name="error_mediaplayer_unsupported">Le lecteur Android n’a pas pu lire cette piste.</string>
     <string name="source_not_found_deleted">Le fichier source est introuvable. Il a peut-être été supprimé.</string>
     <string name="source_file_path">Chemin du fichier source</string>
     <string name="permission_not_set">La permission n\'est pas accordée.</string>
@@ -803,6 +809,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="download_resuming">Reprise du téléchargement</string>
     <string name="importing_book">Importation du livre</string>
     <string name="checking_size">vérification de la taille</string>
+    <string name="creating_folder">Création du dossier</string>
     <string name="rounded_corners">coins arrondis</string>
     <string name="cover_preview">aperçu de la couverture</string>
     <string name="return_max">retour max</string>
@@ -1084,6 +1091,42 @@ avec la langue [%2$s]</string>
     <string name="option_app_language_subtitle">Peut ne pas fonctionner sur certains appareils.</string>
 
 
+    <string name="option_screensaver_subtitle">S\'active pendant la lecture lorsque vous êtes sur l\'écran de lecture</string>
+    <string name="screensaver_force_orientation">Forcer l\'orientation</string>
+    <string name="portrait">Portrait</string>
+    <string name="landscape">Paysage</string>
+
+    <!-- Nearby Sharing -->
+    <string name="share_book">Partager le livre</string>
+    <string name="nearby_share_explain">
+Partagez rapidement un livre entre deux appareils proches avec BookPlayer installé. (aucune connexion internet requise)\n
+➜ Pour partager un livre, ouvrez-le, puis allez dans ses paramètres (icône en haut à droite) et appuyez sur [Partage rapide] en bas.\n
+➜ Pour recevoir un livre, appuyez sur le menu (trois points en haut à droite) de l\'écran principal et sélectionnez [Partage rapide].
+</string>
+    <string name="Quick_Share_3dots">Partage rapide…</string>
+    <string name="nearby_share_send_tab">Envoyer</string>
+    <string name="nearby_share_receive_tab">Recevoir</string>
+    <string name="nearby_share_receive_book">Partage rapide</string>
+    <string name="nearby_share_start_advertising">Démarrer l\'envoi</string>
+    <string name="nearby_share_stop_advertising">Arrêter l\'envoi</string>
+    <string name="nearby_share_start_discovering">Démarrer la réception</string>
+    <string name="nearby_share_stop_discovering">Arrêter la réception</string>
+    <string name="nearby_share_searching">Recherche d\'appareils proches…</string>
+    <string name="nearby_share_found_device">Appareil trouvé : %s</string>
+    <string name="nearby_share_connecting">Connexion…</string>
+    <string name="nearby_share_transferring">Transfert : %d%%</string>
+    <string name="nearby_share_receiving">Réception : %d%%</string>
+    <string name="nearby_share_complete">Transfert terminé !</string>
+    <string name="nearby_share_failed">Échec du transfert</string>
+    <string name="nearby_share_accept_transfer">Accepter le livre de %s ?</string>
+    <string name="nearby_share_auto_importing">Importation auto du livre…</string>
+    <string name="nearby_share_permissions_required">Les autorisations Bluetooth et de localisation sont requises pour le partage à proximité</string>
+    <string name="nearby_share_no_devices">Aucun appareil trouvé</string>
+    <string name="nearby_share_book_info">Livre : %1$s (%2$d pistes, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">Attente de réception d\'un livre depuis un appareil proche…</string>
+    <string name="nearby_share_ready">Prêt</string>
+
+
     <plurals name="audio_files_count">//ex : 15 audio files
         <item quantity="one">%d fichier audio</item>
         <item quantity="other">%d fichiers audio</item></plurals>
@@ -1096,8 +1139,8 @@ avec la langue [%2$s]</string>
     <plurals name="tracks_count">//ex : 1 track, 2 tracks
         <item quantity="one">%d piste</item>
         <item quantity="other">%d pistes</item></plurals>
-    <string name="option_screensaver_subtitle">S\'active pendant la lecture lorsque vous êtes sur l\'écran de lecture</string>
-    <string name="screensaver_force_orientation">Forcer l\'orientation</string>
-    <string name="portrait">Portrait</string>
-    <string name="landscape">Paysage</string>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d piste trouvée</item>
+        <item quantity="other">%d pistes trouvées</item>
+    </plurals>
 </resources>
