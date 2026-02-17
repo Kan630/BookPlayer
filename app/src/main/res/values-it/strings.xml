@@ -99,6 +99,7 @@
     <string name="Exit">Esci</string>
     <string name="expand">espandi</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Esporta…"</string>
+    <string name="Share_3pt">"Condividi…"</string>
     <string name="favorite">preferito</string>
     <string name="favorites">preferiti</string>
     <string name="Favorites">Preferiti</string>
@@ -134,6 +135,9 @@
     <string name="links">link</string>
     <string name="listened">"ascoltato"</string>
     <string name="loading">caricamento</string>
+    <string name="loading_step_1">Inizializzazione…</string>
+    <string name="loading_step_2">Scansione copertina, dimensioni e numero di tracce…\nNon è necessario attendere, puoi premere il pulsante conferma.</string>
+    <string name="Location">Posizione</string> //per valori come scheda sd, cloud o memoria interna
     <string name="Logging">Registrazione</string>
     <string name="manual">manuale</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">Si è verificato un errore</string>
     <string name="no_internet_connection">Nessuna connessione internet</string>
     <string name="no_metadata_available">Nessun metadato disponibile</string>
+    <string name="please_type_a_search_string">Inserisci una stringa di ricerca</string>
 
 
     <string name="Import_in_progress">Importazione in corso</string>
@@ -601,6 +606,7 @@
     <string name="error_reading_track">"ERRORE LETTURA TRACCIA!"</string>
     <string name="current_position">Posizione attuale</string>
     <string name="source_not_found">Il file sorgente non è stato trovato o letto.</string>
+    <string name="error_mediaplayer_unsupported">Il lettore multimediale Android non è riuscito a riprodurre questa traccia.</string>
     <string name="source_not_found_deleted">Il file sorgente non è stato trovato. Potrebbe essere stato eliminato.</string>
     <string name="source_file_path">Percorso file sorgente</string>
     <string name="permission_not_set">Il permesso non è impostato.</string>
@@ -809,6 +815,7 @@
     <string name="Error_Import_no_valid_media_found">Errore: nessun file multimediale valido trovato</string>
     <string name="Error_Import_extract_audio_data_failed">Errore: impossibile estrarre i dati audio</string>
     <string name="Error_Import_unsupported_file">Errore: file non supportato</string>
+    <string name="creating_folder">Creazione cartella</string>
     <string name="use_this_image_as_cover">usa questa immagine come copertina</string>
     <string name="search_title_hint">scrivi qui...</string>
     <string name="failed_to_change_image">Impossibile cambiare l\'immagine</string>
@@ -1074,6 +1081,36 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="option_mass_import_include_subfolders">Cerca anche nelle sottocartelle</string>
     <string name="option_app_language_subtitle">Potrebbe non funzionare su alcuni dispositivi.</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">Condividi libro</string>
+    <string name="nearby_share_explain">
+Condividi rapidamente un libro tra due dispositivi vicini con BookPlayer installato. (nessuna connessione internet richiesta)\n
+➜ Per condividere un libro, aprilo, vai nelle sue impostazioni (icona in alto a destra) e tocca [Condivisione rapida] in basso.\n
+➜ Per ricevere un libro, tocca il menu con i tre puntini (in alto a destra) nella schermata principale e seleziona [Condivisione rapida].
+</string>
+    <string name="Quick_Share_3dots">Condivisione rapida…</string>
+    <string name="nearby_share_send_tab">Invia</string>
+    <string name="nearby_share_receive_tab">Ricevi</string>
+    <string name="nearby_share_receive_book">Condivisione rapida</string>
+    <string name="nearby_share_start_advertising">Avvia visibilità</string>
+    <string name="nearby_share_stop_advertising">Interrompi visibilità</string>
+    <string name="nearby_share_start_discovering">Avvia ricerca</string>
+    <string name="nearby_share_stop_discovering">Interrompi ricerca</string>
+    <string name="nearby_share_searching">Ricerca dispositivi vicini…</string>
+    <string name="nearby_share_found_device">Dispositivo trovato: %s</string>
+    <string name="nearby_share_connecting">Connessione in corso…</string>
+    <string name="nearby_share_transferring">Trasferimento: %d%%</string>
+    <string name="nearby_share_receiving">Ricezione: %d%%</string>
+    <string name="nearby_share_complete">Trasferimento completato!</string>
+    <string name="nearby_share_failed">Trasferimento fallito</string>
+    <string name="nearby_share_accept_transfer">Accettare il libro da %s?</string>
+    <string name="nearby_share_auto_importing">Completamento automatico dell\'importazione del libro…</string>
+    <string name="nearby_share_permissions_required">I permessi Bluetooth e posizione sono necessari per la condivisione nelle vicinanze</string>
+    <string name="nearby_share_no_devices">Nessun dispositivo trovato</string>
+    <string name="nearby_share_book_info">Libro: %1$s (%2$d tracce, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">In attesa di ricevere un libro da un dispositivo vicino…</string>
+    <string name="nearby_share_ready">Pronto</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d file audio</item>
@@ -1090,6 +1127,10 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <plurals name="tracks_count">
         <item quantity="one">%d traccia</item>
         <item quantity="other">%d tracce</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d traccia trovata</item>
+        <item quantity="other">%d tracce trovate</item>
     </plurals>
     <string name="option_screensaver_subtitle">Si attiva durante la riproduzione quando sei sulla schermata di riproduzione</string>
     <string name="screensaver_force_orientation">Forza orientamento</string>

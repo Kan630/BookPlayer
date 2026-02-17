@@ -99,6 +99,7 @@
     <string name="Exit">Beenden</string>
     <string name="expand">aufklappen</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Exportieren…"</string>
+    <string name="Share_3pt">"Teilen…"</string>
     <string name="favorite">Favorit</string>
     <string name="favorites">Favoriten</string>
     <string name="Favorites">Favoriten</string>
@@ -134,6 +135,9 @@
     <string name="links">Links</string>
     <string name="listened">"gehört"</string>
     <string name="loading">laden</string>
+    <string name="loading_step_1">Initialisierung…</string>
+    <string name="loading_step_2">Cover, Größe und Anzahl der Titel werden gescannt…\nSie müssen nicht warten, Sie können die Bestätigungstaste drücken.</string>
+    <string name="Location">Speicherort</string> //für Werte wie SD-Karte, Cloud oder internen Speicher
     <string name="Logging">Protokollierung</string>
     <string name="manual">Handbuch</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">Es ist ein Fehler aufgetreten</string>
     <string name="no_internet_connection">Keine Internetverbindung</string>
     <string name="no_metadata_available">Keine Metadaten verfügbar</string>
+    <string name="please_type_a_search_string">Bitte geben Sie einen Suchbegriff ein</string>
 
 
     <string name="Import_in_progress">Import läuft</string>
@@ -601,6 +606,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="error_reading_track">"FEHLER BEIM LESEN DES TITELS !"</string>
     <string name="current_position">Aktuelle Position</string>
     <string name="source_not_found">Die Quelldatei konnte nicht gefunden oder gelesen werden.</string>
+    <string name="error_mediaplayer_unsupported">Der Android Media Player konnte diesen Titel nicht abspielen.</string>
     <string name="source_not_found_deleted">Die Quelldatei konnte nicht gefunden werden. Sie wurde möglicherweise gelöscht.</string>
     <string name="source_file_path">Pfad der Quelldatei</string>
     <string name="permission_not_set">Die Berechtigung ist nicht gesetzt.</string>
@@ -809,6 +815,7 @@ Dies ist eine relativ <font color="#FFCC80">neue Funktion</font> — bitte haben
     <string name="Error_Import_no_valid_media_found">Fehler: keine gültigen Medien gefunden</string>
     <string name="Error_Import_extract_audio_data_failed">Fehler: Audiodaten konnten nicht extrahiert werden</string>
     <string name="Error_Import_unsupported_file">Fehler: nicht unterstützte Datei</string>
+    <string name="creating_folder">Ordner wird erstellt</string>
     <string name="use_this_image_as_cover">Dieses Bild als Cover verwenden</string>
     <string name="search_title_hint">hier tippen...</string>
     <string name="failed_to_change_image">Bild konnte nicht geändert werden</string>
@@ -1074,6 +1081,36 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="option_mass_import_include_subfolders">Auch in Unterordnern suchen</string>
     <string name="option_app_language_subtitle">Funktioniert möglicherweise nicht auf einigen Geräten.</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">Buch teilen</string>
+    <string name="nearby_share_explain">
+Teilen Sie ein Buch schnell zwischen zwei Geräten in der Nähe, auf denen BookPlayer installiert ist. (kein Internet erforderlich)\n
+➜ Um ein Buch zu teilen, öffnen Sie es, gehen Sie in die Einstellungen (Symbol oben rechts) und tippen Sie unten auf [Schnell teilen].\n
+➜ Um ein Buch zu empfangen, tippen Sie auf das Drei-Punkte-Menü (oben rechts) im Hauptbildschirm und wählen Sie [Schnell teilen].
+</string>
+    <string name="Quick_Share_3dots">Schnell teilen…</string>
+    <string name="nearby_share_send_tab">Senden</string>
+    <string name="nearby_share_receive_tab">Empfangen</string>
+    <string name="nearby_share_receive_book">Schnell teilen</string>
+    <string name="nearby_share_start_advertising">Sichtbarkeit starten</string>
+    <string name="nearby_share_stop_advertising">Sichtbarkeit stoppen</string>
+    <string name="nearby_share_start_discovering">Suche starten</string>
+    <string name="nearby_share_stop_discovering">Suche stoppen</string>
+    <string name="nearby_share_searching">Suche nach Geräten in der Nähe…</string>
+    <string name="nearby_share_found_device">Gerät gefunden: %s</string>
+    <string name="nearby_share_connecting">Verbindung wird hergestellt…</string>
+    <string name="nearby_share_transferring">Übertragung: %d%%</string>
+    <string name="nearby_share_receiving">Empfang: %d%%</string>
+    <string name="nearby_share_complete">Übertragung abgeschlossen!</string>
+    <string name="nearby_share_failed">Übertragung fehlgeschlagen</string>
+    <string name="nearby_share_accept_transfer">Buch von %s akzeptieren?</string>
+    <string name="nearby_share_auto_importing">Buch wird automatisch importiert…</string>
+    <string name="nearby_share_permissions_required">Bluetooth- und Standortberechtigungen sind für das Teilen in der Nähe erforderlich</string>
+    <string name="nearby_share_no_devices">Keine Geräte gefunden</string>
+    <string name="nearby_share_book_info">Buch: %1$s (%2$d Titel, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">Warten auf den Empfang eines Buches von einem Gerät in der Nähe…</string>
+    <string name="nearby_share_ready">Bereit</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d Audiodatei</item>
@@ -1090,6 +1127,10 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <plurals name="tracks_count">
         <item quantity="one">%d Titel</item>
         <item quantity="other">%d Titel</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d Titel gefunden</item>
+        <item quantity="other">%d Titel gefunden</item>
     </plurals>
     <string name="option_screensaver_subtitle">Wird während der Wiedergabe aktiviert, wenn Sie sich auf dem Wiedergabe-Bildschirm befinden</string>
     <string name="screensaver_force_orientation">Ausrichtung erzwingen</string>

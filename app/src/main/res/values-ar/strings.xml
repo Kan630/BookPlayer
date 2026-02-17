@@ -99,7 +99,7 @@
     <string name="Exit">خروج</string>
     <string name="expand">توسيع</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"تصدير…"</string>
-    <string name="favorite">مفضل</string>
+    <string name="Share_3pt">"مشاركة…"</string>
     <string name="favorites">المفضلة</string>
     <string name="Favorites">المفضلة</string>
     <string name="File">ملف</string>
@@ -134,6 +134,9 @@
     <string name="links">روابط</string>
     <string name="listened">"تم الاستماع"</string>
     <string name="loading">جار التحميل</string>
+    <string name="loading_step_1">جارٍ التهيئة…</string>
+    <string name="loading_step_2">جارٍ فحص الغلاف والحجم وعدد المقاطع…\nلا يلزم الانتظار، يمكنك الضغط على زر التأكيد.</string>
+    <string name="Location">الموقع</string>
     <string name="Logging">تسجيل الأخطاء</string>
     <string name="manual">دليل</string>
     <string name="MB">ميغابايت</string> //short for MegaByte
@@ -235,6 +238,7 @@
     <string name="an_error_occurred">حدث خطأ</string>
     <string name="no_internet_connection">لا يوجد اتصال بالإنترنت</string>
     <string name="no_metadata_available">لا توجد بيانات وصفية متاحة</string>
+    <string name="please_type_a_search_string">يرجى كتابة نص للبحث</string>
 
 
     <string name="Import_in_progress">الاستيراد قيد التنفيذ</string>
@@ -600,6 +604,7 @@
     <string name="error_reading_track">"خطأ في قراءة المقطع!"</string>
     <string name="current_position">الموضع الحالي</string>
     <string name="source_not_found">تعذر العثور على الملف المصدر أو قراءته.</string>
+    <string name="error_mediaplayer_unsupported">تعذر على مشغل وسائط أندرويد تشغيل هذا المقطع.</string>
     <string name="source_not_found_deleted">تعذر العثور على الملف المصدر. قد يكون قد تم حذفه.</string>
     <string name="source_file_path">مسار الملف المصدر</string>
     <string name="permission_not_set">لم يتم تعيين الإذن.</string>
@@ -797,6 +802,7 @@
     <string name="checking_size">جارٍ التحقق من الحجم</string>
     <string name="rounded_corners">زوايا مستديرة</string>
     <string name="cover_preview">معاينة الغلاف</string>
+    <string name="creating_folder">إنشاء مجلد</string>
     <string name="return_max">الحد الأقصى للنتائج</string>
     <string name="maximum_number_of_results_for_">الحد الأقصى لعدد النتائج لـ </string>
     <string name="minimum_number_of_results_for_">الحد الأدنى لعدد النتائج لـ </string>
@@ -1073,6 +1079,36 @@
     <string name="option_mass_import_include_subfolders">البحث أيضًا في المجلدات الفرعية</string>
     <string name="option_app_language_subtitle">قد لا يعمل على بعض الأجهزة.</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">مشاركة الكتاب</string>
+    <string name="nearby_share_explain">
+شارك كتابك بسرعة بين جهازين قريبين مثبت عليهما BookPlayer (لا يتطلب إنترنت).\n
+➜ للمشاركة: افتح الكتاب، المجلد، اذهب إلى الخيارات (الأيقونة في الأعلى يميناً) واضغط على [مشاركة سريعة] في الأسفل.\n
+➜ للاستلام: اضغط على قائمة الثلاث نقاط (في الأعلى يميناً) في الشاشة الرئيسية واختبر [مشاركة سريعة].
+</string>
+    <string name="Quick_Share_3dots">مشاركة سريعة…</string>
+    <string name="nearby_share_send_tab">إرسال</string>
+    <string name="nearby_share_receive_tab">استلام</string>
+    <string name="nearby_share_receive_book">مشاركة سريعة</string>
+    <string name="nearby_share_start_advertising">تمكين الرؤية</string>
+    <string name="nearby_share_stop_advertising">تعطيل الرؤية</string>
+    <string name="nearby_share_start_discovering">بدء البحث</string>
+    <string name="nearby_share_stop_discovering">إيقاف البحث</string>
+    <string name="nearby_share_searching">البحث عن أجهزة قريبة…</string>
+    <string name="nearby_share_found_device">تم العثور على جهاز: %s</string>
+    <string name="nearby_share_connecting">جارٍ الاتصال…</string>
+    <string name="nearby_share_transferring">جارٍ النقل: %d%%</string>
+    <string name="nearby_share_receiving">جارٍ الاستلام: %d%%</string>
+    <string name="nearby_share_complete">اكتمل النقل!</string>
+    <string name="nearby_share_failed">فشل النقل</string>
+    <string name="nearby_share_accept_transfer">قبول الكتاب من %s؟</string>
+    <string name="nearby_share_auto_importing">جارٍ إنهاء استيراد الكتاب تلقائياً…</string>
+    <string name="nearby_share_permissions_required">تتطلب المشاركة السريعة أذونات البلوتوث والموقع</string>
+    <string name="nearby_share_no_devices">لم يتم العثور على أجهزة</string>
+    <string name="nearby_share_book_info">الكتاب: %1$s (%2$d مقطع، %3$s)</string>
+    <string name="nearby_share_receive_mode_info">في انتظار استلام كتاب من جهاز قريب…</string>
+    <string name="nearby_share_ready">جاهز</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d ملف صوتي</item>
@@ -1089,6 +1125,10 @@
     <plurals name="tracks_count">
         <item quantity="one">%d مقطع</item>
         <item quantity="other">%d مقاطع</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="one">تم العثور على مقطع واحد (%d)</item>
+        <item quantity="other">تم العثور على %d مقاطع</item>
     </plurals>
     <string name="option_screensaver_subtitle">يُفعّل أثناء التشغيل عندما تكون على شاشة التشغيل</string>
     <string name="screensaver_force_orientation">فرض الاتجاه</string>

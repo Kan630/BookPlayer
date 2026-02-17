@@ -99,7 +99,7 @@
     <string name="Exit">Выход</string>
     <string name="expand">развернуть</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Экспорт…"</string>
-    <string name="favorite">избранное</string>
+    <string name="Share_3pt">"Поделиться…"</string>
     <string name="favorites">избранное</string>
     <string name="Favorites">Избранное</string>
     <string name="File">файл</string>
@@ -134,6 +134,9 @@
     <string name="links">ссылки</string>
     <string name="listened">"прослушано"</string>
     <string name="loading">загрузка</string>
+    <string name="loading_step_1">Инициализация…</string>
+    <string name="loading_step_2">Сканирование обложки, размера и количества треков…\nОжидание не обязательно, вы можете нажать кнопку подтверждения.</string>
+    <string name="Location">Расположение</string> //для значений типа SD-карты, облака или внутренней памяти
     <string name="Logging">Логирование</string>
     <string name="manual">руководство</string>
     <string name="MB">МБ</string> //short for MegaByte
@@ -235,6 +238,7 @@
     <string name="an_error_occurred">Произошла ошибка</string>
     <string name="no_internet_connection">Нет подключения к интернету</string>
     <string name="no_metadata_available">Метаданные недоступны</string>
+    <string name="please_type_a_search_string">Пожалуйста, введите строку поиска</string>
 
 
     <string name="Import_in_progress">Идёт импорт</string>
@@ -600,6 +604,7 @@
     <string name="error_reading_track">"ОШИБКА ПРИ ЧТЕНИИ ДОРОЖКИ!"</string>
     <string name="current_position">Текущая позиция</string>
     <string name="source_not_found">Источник файла не найден или не может быть прочитан.</string>
+    <string name="error_mediaplayer_unsupported">Медиаплеер Android не смог воспроизвести этот трек.</string>
     <string name="source_not_found_deleted">Источник файла не найден. Возможно, он был удалён.</string>
     <string name="source_file_path">Путь к исходному файлу</string>
     <string name="permission_not_set">Разрешение не установлено.</string>
@@ -797,6 +802,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="checking_size">проверка размера</string>
     <string name="rounded_corners">скруглённые углы</string>
     <string name="cover_preview">предпросмотр обложки</string>
+    <string name="creating_folder">Создание папки</string>
     <string name="return_max">макс. возврат</string>
     <string name="maximum_number_of_results_for_">Максимальное количество результатов для </string>
     <string name="minimum_number_of_results_for_">Минимальное количество результатов для </string>
@@ -1073,6 +1079,36 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="option_mass_import_include_subfolders">Искать также в подпапках</string>
     <string name="option_app_language_subtitle">Может не работать на некоторых устройствах.</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">Поделиться книгой</string>
+    <string name="nearby_share_explain">
+Быстро делитесь книгой между двумя ближайшими устройствами с установленным BookPlayer (интернет не требуется).\n
+➜ Чтобы поделиться книгой: откройте её, перейдите в настройки (значок в правом верхнем углу) и нажмите [Быстрый обмен] внизу.\n
+➜ Чтобы получить книгу: нажмите меню с тремя точками (в правом верхнем углу) на главном экране и выберите [Быстрый обмен].
+</string>
+    <string name="Quick_Share_3dots">Быстрый обмен…</string>
+    <string name="nearby_share_send_tab">Отправить</string>
+    <string name="nearby_share_receive_tab">Получить</string>
+    <string name="nearby_share_receive_book">Быстрый обмен</string>
+    <string name="nearby_share_start_advertising">Включить видимость</string>
+    <string name="nearby_share_stop_advertising">Выключить видимость</string>
+    <string name="nearby_share_start_discovering">Начать поиск</string>
+    <string name="nearby_share_stop_discovering">Остановить поиск</string>
+    <string name="nearby_share_searching">Поиск ближайших устройств…</string>
+    <string name="nearby_share_found_device">Устройство найдено: %s</string>
+    <string name="nearby_share_connecting">Подключение…</string>
+    <string name="nearby_share_transferring">Передача: %d%%</string>
+    <string name="nearby_share_receiving">Получение: %d%%</string>
+    <string name="nearby_share_complete">Передача завершена!</string>
+    <string name="nearby_share_failed">Ошибка передачи</string>
+    <string name="nearby_share_accept_transfer">Принять книгу от %s?</string>
+    <string name="nearby_share_auto_importing">Автоматическое завершение импорта книги…</string>
+    <string name="nearby_share_permissions_required">Для работы быстрого обмена требуются разрешения для Bluetooth и местоположения</string>
+    <string name="nearby_share_no_devices">Устройства не найдены</string>
+    <string name="nearby_share_book_info">Книга: %1$s (%2$d треков, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">Ожидание получения книги от ближайшего устройства…</string>
+    <string name="nearby_share_ready">Готово</string>
+
 
     <plurals name="audio_files_count">
             <item quantity="one">%d аудиофайл</item>
@@ -1088,9 +1124,17 @@ BookPlayer будет использовать <font color="#81C784">встро�
         </plurals>
     <plurals name="tracks_count">
         <item quantity="one">%d трек</item>
+        <item quantity="few">%d трека</item>
+        <item quantity="many">%d треков</item>
         <item quantity="other">%d треков</item>
     </plurals>
-    <string name="option_screensaver_subtitle">Включается при воспроизведении, когда вы на экране воспроизведения</string>
+    <plurals name="tracks_found_count">
+        <item quantity="one">найден %d трек</item>
+        <item quantity="few">найдено %d трека</item>
+        <item quantity="many">найдено %d треков</item>
+        <item quantity="other">найдено %d треков</item>
+    </plurals>
+    <string name="option_screensaver_subtitle">Включается при воспроизведении, когда вы на экране плеера</string>
     <string name="screensaver_force_orientation">Принудительная ориентация</string>
     <string name="portrait">Книжная</string>
     <string name="landscape">Альбомная</string>

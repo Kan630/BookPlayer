@@ -99,6 +99,7 @@
     <string name="Exit">Sair</string>
     <string name="expand">expandir</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Exportar…"</string>
+    <string name="Share_3pt">"Compartilhar…"</string>
     <string name="favorite">favorito</string>
     <string name="favorites">favoritos</string>
     <string name="Favorites">Favoritos</string>
@@ -134,6 +135,9 @@
     <string name="links">links</string>
     <string name="listened">"ouvido"</string>
     <string name="loading">carregando</string>
+    <string name="loading_step_1">Inicializando…</string>
+    <string name="loading_step_2">Escaneando capa, tamanho e número de faixas…\nNão é necessário esperar, você pode tocar no botão confirmar.</string>
+    <string name="Location">Localização</string> //para valores como cartão sd, nuvem ou memória interna
     <string name="Logging">Registro</string>
     <string name="manual">manual</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">Ocorreu um erro</string>
     <string name="no_internet_connection">Sem conexão com a internet</string>
     <string name="no_metadata_available">Nenhum metadado disponível</string>
+    <string name="please_type_a_search_string">Por favor, digite uma string de busca</string>
 
 
     <string name="Import_in_progress">Importação em andamento</string>
@@ -809,6 +814,7 @@
     <string name="Error_Import_no_valid_media_found">Erro: nenhum meio válido encontrado</string>
     <string name="Error_Import_extract_audio_data_failed">Erro: falha ao extrair os dados de áudio</string>
     <string name="Error_Import_unsupported_file">Erro: arquivo não suportado</string>
+    <string name="creating_folder">Criando pasta</string>
     <string name="use_this_image_as_cover">usar esta imagem como capa</string>
     <string name="search_title_hint">digite aqui...</string>
     <string name="failed_to_change_image">Falha ao alterar a imagem</string>
@@ -1074,6 +1080,36 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="option_mass_import_include_subfolders">Pesquisar também em subpastas</string>
     <string name="option_app_language_subtitle">Pode não funcionar em alguns dispositivos.</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">Compartilhar livro</string>
+    <string name="nearby_share_explain">
+Compartilhe rapidamente um livro entre dois dispositivos próximos com o BookPlayer instalado (sem necessidade de internet).\n
+➜ Para compartilhar um livro: abra o livro, vá para as configurações (ícone no canto superior direito) e toque em [Compartilhamento rápido] na parte inferior.\n
+➜ Para receber um livro: toque no menu de três pontos (no canto superior direito) na tela inicial e selecione [Compartilhamento rápido].
+</string>
+    <string name="Quick_Share_3dots">Compartilhamento rápido…</string>
+    <string name="nearby_share_send_tab">Enviar</string>
+    <string name="nearby_share_receive_tab">Receber</string>
+    <string name="nearby_share_receive_book">Compartilhamento rápido</string>
+    <string name="nearby_share_start_advertising">Iniciar visibilidade</string>
+    <string name="nearby_share_stop_advertising">Parar visibilidade</string>
+    <string name="nearby_share_start_discovering">Iniciar busca</string>
+    <string name="nearby_share_stop_discovering">Parar busca</string>
+    <string name="nearby_share_searching">Buscando dispositivos próximos…</string>
+    <string name="nearby_share_found_device">Dispositivo encontrado: %s</string>
+    <string name="nearby_share_connecting">Conectando…</string>
+    <string name="nearby_share_transferring">Transferência: %d%%</string>
+    <string name="nearby_share_receiving">Recebimento: %d%%</string>
+    <string name="nearby_share_complete">Transferência concluída!</string>
+    <string name="nearby_share_failed">Falha na transferência</string>
+    <string name="nearby_share_accept_transfer">Aceitar livro de %s?</string>
+    <string name="nearby_share_auto_importing">Concluindo automaticamente a importação do livro…</string>
+    <string name="nearby_share_permissions_required">Permissões de Bluetooth e localização são necessárias para o compartilhamento próximo</string>
+    <string name="nearby_share_no_devices">Nenhum dispositivo encontrado</string>
+    <string name="nearby_share_book_info">Livro: %1$s (%2$d faixas, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">Aguardando para receber um livro de um dispositivo próximo…</string>
+    <string name="nearby_share_ready">Pronto</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d arquivo de áudio</item>
@@ -1090,6 +1126,10 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <plurals name="tracks_count">
         <item quantity="one">%d faixa</item>
         <item quantity="other">%d faixas</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d faixa encontrada</item>
+        <item quantity="other">%d faixas encontradas</item>
     </plurals>
     <string name="option_screensaver_subtitle">Ativa-se durante a reprodução quando está no ecrã de reprodução</string>
     <string name="screensaver_force_orientation">Forçar orientação</string>

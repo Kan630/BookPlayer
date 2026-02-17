@@ -99,6 +99,7 @@
     <string name="Exit">退出</string>
     <string name="expand">展开</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">导出…</string>
+    <string name="Share_3pt">分享…</string>
     <string name="favorite">收藏</string>
     <string name="favorites">收藏夹</string>
     <string name="Favorites">收藏</string>
@@ -134,6 +135,9 @@
     <string name="links">链接</string>
     <string name="listened">已播放</string>
     <string name="loading">加载中</string>
+    <string name="loading_step_1">正在初始化…</string>
+    <string name="loading_step_2">正在扫描封面、大小和轨道数量…\n无需等待，点击确认按钮即可。</string>
+    <string name="Location">位置</string>
     <string name="Logging">日志记录</string>
     <string name="manual">使用手册</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">发生错误</string>
     <string name="no_internet_connection">无网络连接</string>
     <string name="no_metadata_available">无可用元数据</string>
+    <string name="please_type_a_search_string">请输入搜索关键词</string>
 
 
     <string name="Import_in_progress">正在导入</string>
@@ -600,6 +605,7 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="error_reading_track">"读取音轨出错！"</string>
     <string name="current_position">当前位置</string>
     <string name="source_not_found">找不到源文件或无法读取。</string>
+    <string name="error_mediaplayer_unsupported">Android 媒体播放器无法播放此轨道。</string>
     <string name="source_not_found_deleted">找不到源文件。它可能已被删除。</string>
     <string name="source_file_path">源文件路径</string>
     <string name="permission_not_set">权限未设置。</string>
@@ -797,6 +803,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="checking_size">正在检查大小</string>
     <string name="rounded_corners">圆角</string>
     <string name="cover_preview">封面预览</string>
+    <string name="creating_folder">正在创建文件夹</string>
     <string name="return_max">最大返回</string>
     <string name="maximum_number_of_results_for_">最大结果数量： </string>
     <string name="minimum_number_of_results_for_">最小结果数量： </string>
@@ -1072,6 +1079,32 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="option_mass_import_include_subfolders">也在子文件夹中搜索</string>
     <string name="option_app_language_subtitle">可能在某些设备上无法使用。</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">分享书籍</string>
+    <string name="nearby_share_explain">在两台安装了 BookPlayer 的设备之间快速分享书籍（无需互联网）。\n\n➜ 分享：打开书籍，进入选项（右上角图标），点击底部的 [快速分享]。\n\n➜ 接收：点击主屏幕右上角的三个点菜单，选择 [快速分享]。</string>
+    <string name="Quick_Share_3dots">快速分享…</string>
+    <string name="nearby_share_send_tab">发送</string>
+    <string name="nearby_share_receive_tab">接收</string>
+    <string name="nearby_share_receive_book">快速分享</string>
+    <string name="nearby_share_start_advertising">开启可见性</string>
+    <string name="nearby_share_stop_advertising">关闭可见性</string>
+    <string name="nearby_share_start_discovering">开始搜索</string>
+    <string name="nearby_share_stop_discovering">停止搜索</string>
+    <string name="nearby_share_searching">正在搜索附近的设备…</string>
+    <string name="nearby_share_found_device">发现设备：%s</string>
+    <string name="nearby_share_connecting">正在连接…</string>
+    <string name="nearby_share_transferring">传输中：%d%%</string>
+    <string name="nearby_share_receiving">接收中：%d%%</string>
+    <string name="nearby_share_complete">传输完成！</string>
+    <string name="nearby_share_failed">传输失败</string>
+    <string name="nearby_share_accept_transfer">是否接收来自 %s 的书籍？</string>
+    <string name="nearby_share_auto_importing">正在自动完成书籍导入…</string>
+    <string name="nearby_share_permissions_required">快速分享需要蓝牙和位置权限</string>
+    <string name="nearby_share_no_devices">未发现设备</string>
+    <string name="nearby_share_book_info">书籍：%1$s (%2$d 轨道，%3$s)</string>
+    <string name="nearby_share_receive_mode_info">正在等待接收来自附近设备的书籍…</string>
+    <string name="nearby_share_ready">就绪</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d 个音频文件</item>
@@ -1088,6 +1121,9 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <plurals name="tracks_count">
         <item quantity="one">%d 首</item>
         <item quantity="other">%d 首</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="other">找到 %d 个轨道</item>
     </plurals>
     <string name="option_screensaver_subtitle">在播放界面播放时会激活</string>
     <string name="screensaver_force_orientation">强制方向</string>

@@ -99,6 +99,7 @@
     <string name="Exit">बाहर निकलें</string>
     <string name="expand">विस्तृत करें</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"निर्यात…"</string>
+    <string name="Share_3pt">"साझा करें…"</string>
     <string name="favorite">पसंदीदा</string>
     <string name="favorites">पसंदीदा</string>
     <string name="Favorites">पसंदीदा</string>
@@ -134,6 +135,9 @@
     <string name="links">लिंक</string>
     <string name="listened">"सुना गया"</string>
     <string name="loading">लोड हो रहा है</string>
+    <string name="loading_step_1">प्रारंभ किया जा रहा है…</string>
+    <string name="loading_step_2">कवर, आकार और ट्रैक की संख्या को स्कैन किया जा रहा है…\nप्रतीक्षा आवश्यक नहीं है, आप पुष्टि बटन दबा सकते हैं।</string>
+    <string name="Location">स्थान</string>
     <string name="Logging">लॉगिंग</string>
     <string name="manual">मैनुअल</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">एक त्रुटि हुई</string>
     <string name="no_internet_connection">इंटरनेट कनेक्शन नहीं</string>
     <string name="no_metadata_available">कोई मेटाडेटा उपलब्ध नहीं</string>
+    <string name="please_type_a_search_string">कृपया खोज स्ट्रिंग टाइप करें</string>
 
 
     <string name="Import_in_progress">आयात प्रगति पर है</string>
@@ -604,6 +609,7 @@
     <string name="error_reading_track">"ट्रैक पढ़ने में त्रुटि !"</string>
     <string name="current_position">वर्तमान स्थिति</string>
     <string name="source_not_found">स्रोत फ़ाइल नहीं मिली या पढ़ी नहीं जा सकी।</string>
+    <string name="error_mediaplayer_unsupported">Android मीडिया प्लेयर इस ट्रैक को चलाने में असमर्थ था।</string>
     <string name="source_not_found_deleted">स्रोत फ़ाइल नहीं मिली। संभव है कि इसे हटा दिया गया हो।</string>
     <string name="source_file_path">स्रोत फ़ाइल पथ</string>
     <string name="permission_not_set">अनुमति सेट नहीं है।</string>
@@ -801,6 +807,7 @@
     <string name="checking_size">आकार जाँच रहे हैं</string>
     <string name="rounded_corners">गोल कोने</string>
     <string name="cover_preview">कवर पूर्वावलोकन</string>
+    <string name="creating_folder">फ़ोल्डर बनाया जा रहा है</string>
     <string name="return_max">अधिकतम लौटाएँ</string>
     <string name="maximum_number_of_results_for_">के लिए परिणामों की अधिकतम संख्या </string>
     <string name="minimum_number_of_results_for_">के लिए परिणामों की न्यूनतम संख्या </string>
@@ -1077,6 +1084,32 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="option_mass_import_include_subfolders">उपफ़ोल्डर्स में भी खोजें</string>
     <string name="option_app_language_subtitle">कुछ उपकरणों पर काम नहीं कर सकता है।</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">किताब साझा करें</string>
+    <string name="nearby_share_explain">BookPlayer स्थापित दो पास के उपकरणों के बीच अपनी पुस्तक को जल्दी से साझा करें (इंटरनेट की आवश्यकता नहीं है)।\n\n➜ साझा करने के लिए: किताब खोलें, विकल्पों पर जाएं (ऊपर दाईं ओर आइकन) और नीचे [त्वरित साझाकरण] दबाएं।\n\n➜ प्राप्त करने के लिए: मुख्य स्क्रीन पर तीन बिंदुओं वाले मेनू (ऊपर दाईं ओर) को दबाएं और [त्वरित साझाकरण] चुनें।</string>
+    <string name="Quick_Share_3dots">त्वरित साझाकरण…</string>
+    <string name="nearby_share_send_tab">भेजें</string>
+    <string name="nearby_share_receive_tab">प्राप्त करें</string>
+    <string name="nearby_share_receive_book">त्वरित साझाकरण</string>
+    <string name="nearby_share_start_advertising">दृश्यता सक्षम करें</string>
+    <string name="nearby_share_stop_advertising">दृश्यता अक्षम करें</string>
+    <string name="nearby_share_start_discovering">खोज शुरू करें</string>
+    <string name="nearby_share_stop_discovering">खोज बंद करें</string>
+    <string name="nearby_share_searching">आस-पास के उपकरणों की खोज की जा रही है…</string>
+    <string name="nearby_share_found_device">उपकरण मिला: %s</string>
+    <string name="nearby_share_connecting">कनेक्ट किया जा रहा है…</string>
+    <string name="nearby_share_transferring">स्थानांतरण: %d%%</string>
+    <string name="nearby_share_receiving">प्राप्त हो रहा है: %d%%</string>
+    <string name="nearby_share_complete">स्थानांतरण पूर्ण!</string>
+    <string name="nearby_share_failed">स्थानांतरण विफल रहा</string>
+    <string name="nearby_share_accept_transfer">%s से किताब स्वीकार करें?</string>
+    <string name="nearby_share_auto_importing">स्वचालित रूप से किताब का आयात पूरा किया जा रहा है…</string>
+    <string name="nearby_share_permissions_required">त्वरित साझाकरण के लिए ब्लूटूथ और स्थान अनुमतियाँ आवश्यक हैं</string>
+    <string name="nearby_share_no_devices">कोई उपकरण नहीं मिला</string>
+    <string name="nearby_share_book_info">किताब: %1$s (%2$d ट्रैक, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">आस-पास के उपकरण से किताब प्राप्त होने की प्रतीक्षा की जा रही है…</string>
+    <string name="nearby_share_ready">तैयार</string>
+
 
     <plurals name="audio_files_count">
             <item quantity="one">%d ऑडियो फ़ाइल</item>
@@ -1093,6 +1126,10 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <plurals name="tracks_count">
         <item quantity="one">%d ट्रैक</item>
         <item quantity="other">%d ट्रैक</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d ट्रैक मिला</item>
+        <item quantity="other">%d ट्रैक मिले</item>
     </plurals>
     <string name="option_screensaver_subtitle">प्लेबैक के दौरान सक्रिय होता है जब आप प्ले स्क्रीन पर हों</string>
     <string name="screensaver_force_orientation">दिशा बल दें</string>

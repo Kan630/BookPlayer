@@ -99,6 +99,7 @@
     <string name="Exit">Salir</string>
     <string name="expand">expandir</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Exportar…"</string>
+    <string name="Share_3pt">"Compartir…"</string>
     <string name="favorite">favorito</string>
     <string name="favorites">favoritos</string>
     <string name="Favorites">Favoritos</string>
@@ -134,6 +135,9 @@
     <string name="links">enlaces</string>
     <string name="listened">"escuchado"</string>
     <string name="loading">cargando</string>
+    <string name="loading_step_1">Inicializando…</string>
+    <string name="loading_step_2">Escaneando portada, tamaño y número de pistas…\nNo hace falta esperar, puede pulsar el botón confirmar.</string>
+    <string name="Location">Ubicación</string> //para valores como tarjeta sd, nube o almacenamiento interno
     <string name="Logging">Registro</string>
     <string name="manual">manual</string>
     <string name="MB">MB</string> //short for MegaByte
@@ -235,6 +239,7 @@
     <string name="an_error_occurred">Ocurrió un error</string>
     <string name="no_internet_connection">Sin conexión a internet</string>
     <string name="no_metadata_available">No hay metadatos disponibles</string>
+    <string name="please_type_a_search_string">Por favor, escriba una cadena de búsqueda</string>
 
 
     <string name="Import_in_progress">Importación en curso</string>
@@ -598,6 +603,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="error_reading_track">"¡ERROR AL LEER LA PISTA!"</string>
     <string name="current_position">Posición actual</string>
     <string name="source_not_found">No se pudo encontrar o leer el archivo fuente.</string>
+    <string name="error_mediaplayer_unsupported">El reproductor de medios de Android no pudo reproducir esta pista.</string>
     <string name="source_not_found_deleted">No se pudo encontrar el archivo fuente. Puede haber sido eliminado.</string>
     <string name="source_file_path">Ruta del archivo fuente</string>
     <string name="permission_not_set">El permiso no está establecido.</string>
@@ -806,6 +812,7 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
     <string name="Error_Import_no_valid_media_found">Error: no se encontraron medios válidos</string>
     <string name="Error_Import_extract_audio_data_failed">Error: no se pudieron extraer los datos de audio</string>
     <string name="Error_Import_unsupported_file">Error: archivo no compatible</string>
+    <string name="creating_folder">Creando carpeta</string>
     <string name="use_this_image_as_cover">usar esta imagen como portada</string>
     <string name="search_title_hint">escribe aquí...</string>
     <string name="failed_to_change_image">Error al cambiar la imagen</string>
@@ -1071,6 +1078,36 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="option_mass_import_include_subfolders">Buscar también en subcarpetas</string>
     <string name="option_app_language_subtitle">Puede no funcionar en algunos dispositivos.</string>
 
+    <!-- Nearby Sharing -->
+    <string name="share_book">Compartir libro</string>
+    <string name="nearby_share_explain">
+Comparta rápidamente un libro entre dos dispositivos cercanos con BookPlayer instalado. (no se requiere internet)\n
+➜ Para compartir un libro, ábralo, vaya a sus ajustes (icono arriba a la derecha) y pulse [Compartir rápido] abajo.\n
+➜ Para recibir un libro, pulse el menú de tres puntos (arriba a la derecha) en la pantalla principal y seleccione [Compartir rápido].
+</string>
+    <string name="Quick_Share_3dots">Compartir rápido…</string>
+    <string name="nearby_share_send_tab">Enviar</string>
+    <string name="nearby_share_receive_tab">Recibir</string>
+    <string name="nearby_share_receive_book">Compartir rápido</string>
+    <string name="nearby_share_start_advertising">Iniciar visibilidad</string>
+    <string name="nearby_share_stop_advertising">Detener visibilidad</string>
+    <string name="nearby_share_start_discovering">Iniciar búsqueda</string>
+    <string name="nearby_share_stop_discovering">Detener búsqueda</string>
+    <string name="nearby_share_searching">Buscando dispositivos cercanos…</string>
+    <string name="nearby_share_found_device">Dispositivo encontrado: %s</string>
+    <string name="nearby_share_connecting">Conectando…</string>
+    <string name="nearby_share_transferring">Transferencia: %d%%</string>
+    <string name="nearby_share_receiving">Recepción: %d%%</string>
+    <string name="nearby_share_complete">¡Transferencia completada!</string>
+    <string name="nearby_share_failed">Transferencia fallida</string>
+    <string name="nearby_share_accept_transfer">¿Aceptar libro de %s?</string>
+    <string name="nearby_share_auto_importing">Autocompletando importación del libro…</string>
+    <string name="nearby_share_permissions_required">Se requieren permisos de Bluetooth y ubicación para el intercambio cercano</string>
+    <string name="nearby_share_no_devices">No se encontraron dispositivos</string>
+    <string name="nearby_share_book_info">Libro: %1$s (%2$d pistas, %3$s)</string>
+    <string name="nearby_share_receive_mode_info">Esperando para recibir un libro de un dispositivo cercano…</string>
+    <string name="nearby_share_ready">Listo</string>
+
 
     <plurals name="audio_files_count">
         <item quantity="one">%d archivo de audio</item>
@@ -1087,6 +1124,10 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <plurals name="tracks_count">
         <item quantity="one">%d pista</item>
         <item quantity="other">%d pistas</item>
+    </plurals>
+    <plurals name="tracks_found_count">
+        <item quantity="one">%d pista encontrada</item>
+        <item quantity="other">%d pistas encontradas</item>
     </plurals>
     <string name="option_screensaver_subtitle">Se activa durante la reproducción cuando estás en la pantalla de reproducción</string>
     <string name="screensaver_force_orientation">Forzar orientación</string>
