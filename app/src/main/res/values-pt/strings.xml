@@ -606,6 +606,7 @@
     <string name="error_reading_track">"ERRO AO LER A FAIXA!"</string>
     <string name="current_position">Posição atual</string>
     <string name="source_not_found">O arquivo de origem não pôde ser encontrado ou lido.</string>
+    <string name="error_mediaplayer_unsupported">O reprodutor de mídia do Android não conseguiu reproduzir esta faixa.</string>
     <string name="source_not_found_deleted">O arquivo de origem não foi encontrado. Ele pode ter sido excluído.</string>
     <string name="source_file_path">Caminho do arquivo de origem</string>
     <string name="permission_not_set">A permissão não está definida.</string>

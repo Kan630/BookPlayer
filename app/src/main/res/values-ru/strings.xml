@@ -100,6 +100,7 @@
     <string name="expand">развернуть</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Экспорт…"</string>
     <string name="Share_3pt">"Поделиться…"</string>
+    <string name="favorite">избранное</string>
     <string name="favorites">избранное</string>
     <string name="Favorites">Избранное</string>
     <string name="File">файл</string>

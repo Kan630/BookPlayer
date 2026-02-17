@@ -100,6 +100,7 @@
     <string name="expand">توسيع</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"تصدير…"</string>
     <string name="Share_3pt">"مشاركة…"</string>
+    <string name="favorite">مفضل</string>
     <string name="favorites">المفضلة</string>
     <string name="Favorites">المفضلة</string>
     <string name="File">ملف</string>
