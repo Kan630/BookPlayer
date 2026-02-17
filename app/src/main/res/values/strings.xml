@@ -135,8 +135,8 @@
     <string name="links">links</string>
     <string name="listened">"listened"</string>
     <string name="loading">loading</string>
-    <string name="loading_step_1">initializing...</string>
-    <string name="loading_step_2">Now scanning for cover picture, size and count of tracks...\nYou do not need to wait, you can hit confirm button.</string>
+    <string name="loading_step_1">Initializing...</string>
+    <string name="loading_step_2">Now scanning for cover picture, size and count of tracks…\nYou do not need to wait, you can tap the confirm button.</string>
     <string name="Location">Location</string> //for values such as sdcard, cloud or internal storage
     <string name="Logging">Logging</string>
     <string name="manual">manual</string>
@@ -809,7 +809,7 @@
     <string name="download_resuming">Download resuming</string>
     <string name="importing_book">Importing Book</string>
     <string name="checking_size">checking size</string>
-    <string name="creating_folder">creating folder</string>
+    <string name="creating_folder">Creating folder</string>
     <string name="rounded_corners">rounded corners</string>
     <string name="cover_preview">cover preview</string>
     <string name="return_max">return max</string>
@@ -1098,7 +1098,7 @@
     <!-- Nearby Sharing -->
     <string name="share_book">Share Book</string>
     <string name="nearby_share_explain">
-Quickly share a book between two nearby devices with BookPlayer installed. (no internet \n
+Quickly share a book between two nearby devices with BookPlayer installed. (no internet required)\n
 ➜ To share a book, open the book, then open its settings (top right icon) and tap [Quick Share] at the bottom.\n
 ➜ To receive a book, tap the three-dot menu (top right) on the main screen and select [Quick Share].
 </string>
