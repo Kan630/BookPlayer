@@ -23,9 +23,13 @@ public class Var {
     public static final int PERIODIC_DO_CLEAN_INITIAL_DELAY_IN_SECONDS = 30;
 
     public static final int RADIO_STATION_MAX_DUPLICATES = 3; // change value in strings...
+
     /** Station names to hide when "remove dubious" is enabled (e.g. added to every country/tag by mistake). */
-    public static final Set<String> RADIO_STATION_BLACKLIST = new HashSet<>(Arrays.asList(
-            "Abdulbasit Abdulsamad"
+    public static final Set<String> RADIO_STATION_BLACKLIST_LOWERCASE = new HashSet<>(Arrays.asList(
+            "abdulbasit abdulsamad"
+    ));
+    public static final Set<String> RADIO_STATION_CENSORED_LOWERCASE = new HashSet<>(Arrays.asList(
+            "al nour", "alnour"
     ));
 
     public static final String IMPORT_STATUS_IDLE      = "IDLE";

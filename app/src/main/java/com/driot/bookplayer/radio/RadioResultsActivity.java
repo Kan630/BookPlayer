@@ -46,9 +46,20 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
 
-    @Override protected int getNavId() { return R.id.nav_radio; }
-    @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_radio;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_radio_results;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     private boolean hasInternet = true;
 
@@ -60,29 +71,30 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         View networkRowView = findViewById(R.id.includeNetworkStatus);
         NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
         new NetworkStatusRowController(this, networkRowView, this, netVm);
-        netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet );
+        netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
         findViewById(R.id.groupFavoriteVsHistory).setVisibility(View.GONE);
 
         recyclerView = findViewById(R.id.recyclerView);
-        progressBar  = findViewById(R.id.progressBar);
+        progressBar = findViewById(R.id.progressBar);
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         // ---- grid span (header full width) ----
         int span = getResources().getInteger(R.integer.radio_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override public int getSpanSize(int position) {
+            @Override
+            public int getSpanSize(int position) {
                 return position == 0 ? span : 1;
             }
         });
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
-        );
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
-            @Override public void onPlay(Station s) {
+            @Override
+            public void onPlay(Station s) {
                 myLogI("-------- USER CLICK radio item -------- : " + s.name);
 
                 if (!hasInternet) {
@@ -95,13 +107,14 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                 // ---------------------------------------------------------------------
                 // FAST PATH:
-                //   - We already have url_resolved
-                //   - AND user did NOT ask "renew URL on click"
+                // - We already have url_resolved
+                // - AND user did NOT ask "renew URL on click"
                 //
                 // → Play immediately, then background-renew without blocking the user.
                 // ---------------------------------------------------------------------
                 if (hasCachedUrl && !renewOnClick) {
-                    myLogD("RadioResults: using cached url_resolved, scheduling background renew. url_resolved = [" + s.url_resolved + "]");
+                    myLogD("RadioResults: using cached url_resolved, scheduling background renew. url_resolved = ["
+                            + s.url_resolved + "]");
                     final long startTime = System.currentTimeMillis();
 
                     // 1) Immediate playback
@@ -109,8 +122,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             getApplicationContext(),
                             s,
                             s.url_resolved,
-                            "RadioResultsActivity - onPlay() - using cached url_resolved"
-                    );
+                            "RadioResultsActivity - onPlay() - using cached url_resolved");
 
                     // 2) Background renewal (no spinner / no toast)
                     repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
@@ -120,17 +132,21 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                                     rsp.body() == null ||
                                     rsp.body().url == null ||
                                     rsp.body().url.isEmpty()) {
-                                myLogW("RadioResults background resolveUrl: no usable url for [" + s.name + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
+                                myLogW("RadioResults background resolveUrl: no usable url for [" + s.name + "] in "
+                                        + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                                 return;
                             }
 
                             String newUrl = rsp.body().url;
                             if (newUrl.equals(s.url_resolved)) {
-                                myLogD("RadioResults background resolveUrl: url unchanged for [" + s.name + "] -> [" + newUrl + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
+                                myLogD("RadioResults background resolveUrl: url unchanged for [" + s.name + "] -> ["
+                                        + newUrl + "] in "
+                                        + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                                 return;
                             }
 
-                            myLogI("RadioResults background resolveUrl success for [" + s.name + "] -> [" + newUrl + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
+                            myLogI("RadioResults background resolveUrl success for [" + s.name + "] -> [" + newUrl
+                                    + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                             s.url_resolved = newUrl; // update in-memory
 
                             // Optional: persist in Room if you track stations there.
@@ -140,7 +156,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                         @Override
                         public void onFailure(Call<UrlResolve> call, Throwable t) {
-                            myLogW("RadioResults background resolveUrl failed for [" + s.name + "] : [" + t + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis()-startTime));
+                            myLogW("RadioResults background resolveUrl failed for [" + s.name + "] : [" + t + "] in "
+                                    + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                             // Silent failure, cached url still works.
                         }
                     });
@@ -150,8 +167,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                 // ---------------------------------------------------------------------
                 // STRICT PATH:
-                //   - No cached url_resolved (first click)
-                //   - OR "always renew URL" option enabled
+                // - No cached url_resolved (first click)
+                // - OR "always renew URL" option enabled
                 //
                 // → Show spinner, wait for resolveUrl, then play.
                 // ---------------------------------------------------------------------
@@ -194,8 +211,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                                     getApplicationContext(),
                                     s,
                                     stream,
-                                    "RadioResultsActivity - onPlay() - after url renewed"
-                            );
+                                    "RadioResultsActivity - onPlay() - after url renewed");
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
                         }
@@ -216,8 +232,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                                         getApplicationContext(),
                                         s,
                                         s.url_resolved,
-                                        "RadioResultsActivity - onPlay() - fallback url_resolved after failure"
-                                );
+                                        "RadioResultsActivity - onPlay() - fallback url_resolved after failure");
                             } else {
                                 myToastE(getString(R.string.an_error_occurred));
                             }
@@ -226,7 +241,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 });
             }
 
-            @Override public void onFavorite(Station s) {
+            @Override
+            public void onFavorite(Station s) {
                 myLogI("--- user set favorite radio item --- : " + s.name);
                 viewModel.toggleFavorite(RadioResultsActivity.this, s);
             }
@@ -258,9 +274,10 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             }
         });
         viewModel.getShouldFinish().observe(this, shouldFinish -> {
-            if (Boolean.TRUE.equals(shouldFinish)) finish();
+            if (Boolean.TRUE.equals(shouldFinish))
+                finish();
         });
-        
+
         // Add scroll listener for infinite scrolling
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -271,7 +288,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     int visibleItemCount = layoutManager.getChildCount();
                     int totalItemCount = layoutManager.getItemCount();
                     int firstVisibleItemPosition = layoutManager.findFirstVisibleItemPosition();
-                    
+
                     // Load more when user is near the bottom (within 5 items)
                     if (!viewModel.isLoading() && viewModel.hasMore() && hasInternet) {
                         if ((visibleItemCount + firstVisibleItemPosition) >= totalItemCount - 5) {
@@ -283,23 +300,28 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         });
 
         // ---- Read intent params ----
-        String q       = getIntent().getStringExtra("query");        // station name substring
-        String lang    = getIntent().getStringExtra("lang");         // e.g., "fr"
-        String country = getIntent().getStringExtra("country");      // e.g., "FR"
-        String tag     = getIntent().getStringExtra("tag");          // e.g., "jazz"
+        String q = getIntent().getStringExtra("query"); // station name substring
+        String lang = getIntent().getStringExtra("lang"); // e.g., "fr"
+        String country = getIntent().getStringExtra("country"); // e.g., "FR"
+        String tag = getIntent().getStringExtra("tag"); // e.g., "jazz"
 
-        if (q == null) q = "";
-        if (lang == null) lang = "";
-        if (country == null) country = "";
-        if (tag == null) tag = "";
+        if (q == null)
+            q = "";
+        if (lang == null)
+            lang = "";
+        if (country == null)
+            country = "";
+        if (tag == null)
+            tag = "";
 
         viewModel.setLastParams(q, lang, country, tag);
 
         // ---- Header text (optional, like Librivox) ----
         String headerSearch = getString(R.string.Search_2pt)
                 + (q.isEmpty() ? getString(R.string.search_nothing_specified) : q);
-        String headerLang   = getString(R.string.Language_2pt) + lang;
-        String headerCountryTag = (country.isEmpty() && tag.isEmpty()) ? "" : (country + (tag.isEmpty() ? "" : " • " + tag));
+        String headerLang = getString(R.string.Language_2pt) + lang;
+        String headerCountryTag = (country.isEmpty() && tag.isEmpty()) ? ""
+                : (country + (tag.isEmpty() ? "" : " • " + tag));
         adapter.setHeader(headerSearch, headerLang, headerCountryTag);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
@@ -307,12 +329,12 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         repo = new RadioBrowserRepository(
                 this,
                 /* discoverMirrors */ false, // keep async version for later
-                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
         // ---- Search ----
         String station_search_mode = getIntent().getStringExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE);
-        if (station_search_mode==null) station_search_mode = "NO_MODE";
+        if (station_search_mode == null)
+            station_search_mode = "NO_MODE";
         viewModel.setLastSearchMode(station_search_mode);
 
         // Check if we already have results (orientation change scenario)
@@ -329,7 +351,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         // No existing results, perform initial search
         progressBar.setVisibility(View.VISIBLE);
         viewModel.resetPagination();
-        myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country + " - tag=" + tag);
+        myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country
+                + " - tag=" + tag);
 
         switch (station_search_mode) {
 
@@ -393,22 +416,23 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 repo.byName(q, Option.getRadioApiNbResults(), resultsCb("byname"));
                 adapter.setHeader(getString(R.string.by_name) + " : " + q);
 
-                //TODO maybe later put spinner back... not very useful right now
-                //repo.search(q, nullIfBlank(tag), country, lang, Option.getRadioApiNbResults(), resultsCb("search"));
+                // TODO maybe later put spinner back... not very useful right now
+                // repo.search(q, nullIfBlank(tag), country, lang,
+                // Option.getRadioApiNbResults(), resultsCb("search"));
                 /*
-                // If you have a combined search, call that; otherwise choose a best-effort:
-                if (!q.isEmpty()) {
-                    repo.byName(q, Option.getRadioApiNbResults(), resultsCb("name"));
-                } else if (!tag.isEmpty()) {
-                    repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
-                } else if (!country.isEmpty()) {
-                    repo.byCountry(country, Option.getRadioApiNbResults(), resultsCb("country"));
-                } else if (!lang.isEmpty()) {
-                    repo.byLanguage(lang, Option.getRadioApiNbResults(), resultsCb("language"));
-                } else {
-                    // fallback to trending if truly nothing specified
-                    repo.topVoted(Option.getRadioApiNbResults(), resultsCb("trending"));
-                }
+                 * // If you have a combined search, call that; otherwise choose a best-effort:
+                 * if (!q.isEmpty()) {
+                 * repo.byName(q, Option.getRadioApiNbResults(), resultsCb("name"));
+                 * } else if (!tag.isEmpty()) {
+                 * repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
+                 * } else if (!country.isEmpty()) {
+                 * repo.byCountry(country, Option.getRadioApiNbResults(), resultsCb("country"));
+                 * } else if (!lang.isEmpty()) {
+                 * repo.byLanguage(lang, Option.getRadioApiNbResults(), resultsCb("language"));
+                 * } else {
+                 * // fallback to trending if truly nothing specified
+                 * repo.topVoted(Option.getRadioApiNbResults(), resultsCb("trending"));
+                 * }
                  */
 
                 break;
@@ -420,22 +444,22 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         if (viewModel.isLoading() || !viewModel.hasMore() || !hasInternet) {
             return;
         }
-        
+
         viewModel.setLoading(true);
         String searchMode = viewModel.getLastSearchMode();
         if (searchMode == null || searchMode.isEmpty()) {
             searchMode = "NO_MODE";
         }
-        
+
         String q = viewModel.getLastQuery();
         String lang = viewModel.getLastLang();
         String country = viewModel.getLastCountry();
         String tag = viewModel.getLastTag();
         int offset = viewModel.getCurrentOffset();
         int limit = Option.getRadioApiNbResults();
-        
+
         myLog("Loading next page - offset: " + offset + ", mode: " + searchMode);
-        
+
         switch (searchMode) {
             case "MODE_TOP_VOTE":
                 repo.topVoted(limit, offset, resultsCb("topVote", true));
@@ -479,7 +503,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
     private Callback<List<Station>> resultsCb(String source, boolean isPagination) {
         return new Callback<>() {
-            @Override public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
+            @Override
+            public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
                 }
@@ -499,11 +524,24 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         Iterator<Station> iterator = body.iterator();
                         while (iterator.hasNext()) {
                             Station s = iterator.next();
-                            if (s.name == null) continue;
+                            if (s.name == null)
+                                continue;
 
-                            String trimmedName = s.name.trim();
+                            String trimmedName = s.name.trim().toLowerCase();
 
-                            if (removeDubious && Var.RADIO_STATION_BLACKLIST.contains(trimmedName)) {
+                            boolean isCensored = false;
+                            for (String censoredStation : Var.RADIO_STATION_CENSORED_LOWERCASE) {
+                                if (trimmedName.contains(censoredStation)) {
+                                    isCensored = true;
+                                    break;
+                                }
+                            }
+                            if (isCensored) {
+                                iterator.remove();
+                                continue;
+                            }
+
+                            if (removeDubious && Var.RADIO_STATION_BLACKLIST_LOWERCASE.contains(trimmedName)) {
                                 iterator.remove();
                                 nbRemovedDubious++;
                                 removedNamesDubious.add(trimmedName);
@@ -525,12 +563,15 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         }
 
                         if (nbRemovedDuplicates > 0) {
-                            headerTxt = "    (" + nbRemovedDuplicates + " " + getString(R.string.spam_fake_stations_removed) + " : " + removedNamesDuplicates + ")";
+                            headerTxt = "    (" + nbRemovedDuplicates + " "
+                                    + getString(R.string.spam_fake_stations_removed) + " : " + removedNamesDuplicates
+                                    + ")";
                             myLog(nbRemovedDuplicates + " stations removed (duplicates)");
                             myLog("Removed duplicate names: " + removedNamesDuplicates);
                         }
                         if (nbRemovedDubious > 0) {
-                            headerTxt = headerTxt + "    (" + nbRemovedDubious + " " + getString(R.string.dubious_stations_removed) + " : " + removedNamesDubious + ")";
+                            headerTxt = headerTxt + "    (" + nbRemovedDubious + " "
+                                    + getString(R.string.dubious_stations_removed) + " : " + removedNamesDubious + ")";
                             myLog(nbRemovedDubious + " stations removed (dubious)");
                             myLog("Removed dubious names: " + removedNamesDubious);
                         }
@@ -547,9 +588,11 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         }
                         List<Station> allResults = viewModel.getResults().getValue();
                         if (allResults != null) {
-                            adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + allResults.size() + headerTxt);
+                            adapter.setHeaderCount(
+                                    getString(R.string.Results_2pt) + " " + allResults.size() + headerTxt);
                         }
-                        myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: " + (allResults != null ? allResults.size() : 0));
+                        myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: "
+                                + (allResults != null ? allResults.size() : 0));
                     } else {
                         viewModel.setResults(body);
                         adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
@@ -568,7 +611,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     }
                 }
             }
-            @Override public void onFailure(Call<List<Station>> call, Throwable t) {
+
+            @Override
+            public void onFailure(Call<List<Station>> call, Throwable t) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
                 }
