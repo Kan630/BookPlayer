@@ -26,17 +26,6 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="JustOpenAndWait">
-        <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-10-07T08:36:28.530632600Z">
-          <Target type="DEFAULT_BOOT">
-            <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=C:\Users\adrio\.android\avd\Medium_Tablet.avd" />
-            </handle>
-          </Target>
-        </DropdownSelection>
-        <DialogSelection />
-      </SelectionState>
       <SelectionState runConfigName="Tests in 'com.driot.bookplayer'">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>

@@ -409,7 +409,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             case "MODE_SEARCH":
             default:
                 if (q.isEmpty()) {
-                    myToastE(getString(R.string.error_generic));
+                    myToast(getString(R.string.please_type_a_search_string));
                     finish();
                     return;
                 }

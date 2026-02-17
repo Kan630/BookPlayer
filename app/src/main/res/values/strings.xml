@@ -239,6 +239,7 @@
     <string name="an_error_occurred">An error occurred</string>
     <string name="no_internet_connection">No internet connection</string>
     <string name="no_metadata_available">No metadata available</string>
+    <string name="please_type_a_search_string">Please type a search string</string>
 
 
     <string name="Import_in_progress">Import in progress</string>

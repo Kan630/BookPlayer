@@ -177,11 +177,11 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     private void doSearch() {
         query = Tonio.cleanSearchString(etRadio.getText());
-        /*
-         * lang = safeSpinnerStr(spinnerLang);
-         * country = safeSpinnerStr(spinnerCountry);
-         * tag = safeSpinnerStr(spinnerTag);
-         */
+        if (query.isEmpty()) {
+            myToast(getString(R.string.please_type_a_search_string));
+            return;
+        }
+
         lang = null;
         country = null;
         tag = null;
