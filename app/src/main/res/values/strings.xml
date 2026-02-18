@@ -1146,4 +1146,6 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
         <item quantity="other">%d tracks found</item>
     </plurals>
 
+    <string name="error_download_corrupted_try_again">Download corrupted. Please try downloading again.</string>
+
 </resources>

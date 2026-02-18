@@ -142,6 +142,13 @@ public class UncompressWorker extends ImportWorker {
                         + "\n\n" + context.getString(R.string.solution_free_space);
                 emitWarning(userMsg);
                 emitFailed(TASK_NAME, "No space left on device", context.getString(R.string.error_no_space_left));
+            } else if (msg.contains("invalid entry CRC")) {
+                myLogE("uncompresses - CRC error (corrupted download)");
+                if (zipFile.exists() && !zipFile.delete()) {
+                    myLogE("Could not delete corrupted zip file: " + zipFilePath);
+                }
+                emitFailed(TASK_NAME, "Download corrupted", context.getString(R.string.error_download_corrupted_try_again));
+
             } else {
                 emitFailed(TASK_NAME, e.getMessage(), null);
             }
