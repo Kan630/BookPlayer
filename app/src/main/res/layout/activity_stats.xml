@@ -91,7 +91,7 @@
             android:visibility="gone"
             />
 
-        <com.driot.bookplayerpure.widgets.StorageBarView
+        <com.driot.bookplayer.widgets.StorageBarView
             android:id="@+id/storageBarInternal"
             android:layout_width="match_parent"
             android:layout_height="24dp"
@@ -130,7 +130,7 @@
                 android:fontFamily="monospace"
                 />
 
-            <com.driot.bookplayerpure.widgets.StorageBarView
+            <com.driot.bookplayer.widgets.StorageBarView
                 android:id="@+id/storageBarSDCard"
                 android:layout_width="match_parent"
                 android:layout_height="24dp"
