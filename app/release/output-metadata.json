@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.driot.bookplayerfull",
+  "applicationId": "com.driot.bookplayer",
   "variantName": "release",
   "elements": [
     {

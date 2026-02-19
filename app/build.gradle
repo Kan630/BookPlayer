@@ -11,7 +11,7 @@ android {
     namespace = 'com.driot.bookplayer'
 
     defaultConfig {
-        applicationId = "com.driot.bookplayerfull"
+        applicationId = "com.driot.bookplayer"  //CHANGE HERE : ORIGINAL - FULL
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunnerArguments clearPackageData: "false"
 
