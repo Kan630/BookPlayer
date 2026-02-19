@@ -119,7 +119,6 @@
         <activity android:name=".radio.RadioResultsActivity" />
         <activity android:name=".radio.RadioFavoritesActivity" />
         <activity android:name=".radio.RadioStationActivity" />
-        <activity android:name=".activities.LibrivoxDetailActivity" />
         <activity android:name=".activities.PodcastSearchResultsActivity"/>
         <activity android:name=".activities.PodcastEpisodeActivity"
             android:launchMode="singleTop"

@@ -4,15 +4,15 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.driot.bookplayer",
+  "applicationId": "com.driot.bookplayerfull",
   "variantName": "release",
   "elements": [
     {
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 256,
-      "versionName": "256 - Eclipse Meerkat",
+      "versionCode": 259,
+      "versionName": "259 - Eclipse Meerkat",
       "outputFile": "app-release.apk"
     }
   ],
