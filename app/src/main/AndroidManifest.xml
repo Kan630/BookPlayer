@@ -15,20 +15,17 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" /> <!-- to monitor online status -->
     
     <!-- Nearby Connections permissions -->
-    <!-- Bluetooth permissions (legacy and modern) -->
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" /> <!-- check without -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" /> <!-- check without -->
-    <uses-permission android:name="android.permission.BLUETOOTH_ADVERTISE" android:minSdkVersion="31" />
-    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" android:minSdkVersion="31" />
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:minSdkVersion="31" />
-    <!-- Location permissions (required for Bluetooth scanning on all Android versions) -->
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <!-- WiFi permissions -->
-    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" /><!-- check without -->
-    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" /><!-- check without -->
-    <uses-permission android:name="android.permission.NEARBY_WIFI_DEVICES" android:minSdkVersion="33" /><!-- check without -->
-    
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" /> <!-- needed if sdk<=28, optional after (FINE introduced), but allow user to select coarse in permission dialog => nice -->
+    <uses-permission android:minSdkVersion="29" android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:maxSdkVersion="30" android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:maxSdkVersion="30" android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_ADVERTISE" />
+    <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:minSdkVersion="31" android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:minSdkVersion="32" android:name="android.permission.NEARBY_WIFI_DEVICES" android:usesPermissionFlags="neverForLocation" tools:ignore="UnusedAttribute" />
+
     <!-- <uses-permission android:name="android.permission.BIND_MEDIA_BROWSER_SERVICE"/>Car stuff -->
 
     <!-- <uses-permission android:name="android.permission.RUN_USER_INITIATED_JOBS" />  for books download -->
@@ -93,16 +90,11 @@
         <activity android:name=".activities.GetOtherActivity" />
         <activity android:name=".activities.GetDirectLinkActivity" />
         <activity android:name=".activities.GetLibrivoxActivity" />
-        <activity android:name=".activities.GetPodcastActivity" />
-        <activity android:name=".radio.GetRadioActivity"
-            android:launchMode="singleTop"
-            />
-        <activity android:name=".radio.GetRadioCardListActivity" />
-        <activity android:name=".imports.ImportBookSingleActivity" />
         <activity android:name=".activities.ModifyFolderActivity" />
         <activity android:name=".activities.CoverWebSearchActivity" android:exported="false" />
         <activity android:name=".activities.ModifyZikFileActivity" />
         <activity android:name=".activities.AddResourceActivity" />
+        <activity android:name=".imports.ImportBookSingleActivity" />
         <activity android:name=".imports.ImportBookMultipleActivity"
             android:label="@string/Mass_Import" />
         <activity android:name=".activities.HelpActivity" />
@@ -113,8 +105,17 @@
         <activity android:name=".activities.StatsActivity" />
         <activity android:name=".activities.CleanMemoryActivity" />
         <activity android:name=".activities.ExportActivity" />
-        <activity android:name=".activities.NearbyShareActivity" />
+        <activity android:name=".quickshare.NearbyShareActivity" />
         <activity android:name=".activities.LibrivoxResultsActivity" />
+        <activity android:name=".activities.LibrivoxDetailActivity" />
+        <activity android:name=".activities.SupportedExtensionsActivity"/>
+        <activity android:name=".activities.CoverGenerationActivity" />
+        <activity android:name=".activities.DebugDatabaseActivity"
+            android:exported="false"
+            android:enabled="true">
+        </activity>
+
+
         <activity android:name=".radio.RadioResultsActivity" />
         <activity android:name=".radio.RadioFavoritesActivity" />
         <activity android:name=".radio.RadioStationActivity" />
@@ -124,12 +125,13 @@
             android:launchMode="singleTop"
             />
         <activity android:name=".activities.PodcastFavoritesActivity"/>
-        <activity android:name=".activities.SupportedExtensionsActivity"/>
-        <activity android:name=".activities.CoverGenerationActivity" />
-        <activity android:name=".activities.DebugDatabaseActivity"
-            android:exported="false"
-            android:enabled="true">
-        </activity>
+        <activity android:name=".activities.GetPodcastActivity" />
+        <activity android:name=".radio.GetRadioActivity"
+            android:launchMode="singleTop"
+            />
+        <activity android:name=".radio.GetRadioCardListActivity" />
+        
+        
         <activity
             android:name=".activities.SettingsHostActivity"
             android:exported="false"

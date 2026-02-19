@@ -135,7 +135,7 @@
     <string name="links">links</string>
     <string name="listened">"listened"</string>
     <string name="loading">loading</string>
-    <string name="loading_step_1">Initializing...</string>
+    <string name="loading_step_1">Initializing…</string>
     <string name="loading_step_2">Now scanning for cover picture, size and count of tracks…\nYou do not need to wait, you can tap the confirm button.</string>
     <string name="Location">Location</string> //for values such as sdcard, cloud or internal storage
     <string name="Logging">Logging</string>
@@ -294,7 +294,7 @@
     <br>
     <b>Advantages:</b>
     <ul>
-    <li>No permissions needed</li>
+    <li>No permission needed</li>
     <li>Safe from accidental deletion</li>
     </ul>
     <br>
@@ -302,9 +302,7 @@
     <br>
     <b>Advantage:</b> Saves internal space.
     <br><br>
-    <b>Note:</b> ZIP and split M4B files are always copied.
-    <br><br>
-    Enable <font color="#F48FB1"><b>auto-delete</b></font> in the Settings menu to delete the source file after import.
+    <b>Note:</b><i> This is not possible for ZIP, split M4B files and Ebooks. Those are always copied.</i>
     ]]></string>
     <string name="help_librivox_title">LibriVox Import:</string>
     <string name="help_librivox_text"><![CDATA[
@@ -336,6 +334,22 @@
     Tap <font color="#FFCC80">Import</font> and BookPlayer will fetch and integrate the content.
     <br><br>
     Everything is handled automatically — unpacking, adding, and making it available for playback.
+    ]]></string>
+    <string name="help_quick_share_title">Quick Share:</string>
+    <string name="help_quick_share_text"><![CDATA[
+    <font color="#BA68C8"><b>Share Books Between Devices</b></font>
+    <br><br>
+    Quickly share a book between two nearby devices with BookPlayer installed (no internet required).
+    <br><br>
+    <b>To Send:</b>
+    <br>
+    Open a book, then open its <font color="#90D8E8">settings</font> (top right icon) and tap <font color="#FFCC80">Quick Share</font> at the bottom.
+    <br><br>
+    <b>To Receive:</b>
+    <br>
+    Tap the <font color="#64B5F6">three-dot menu</font> (top right) on the main screen and select <font color="#FFCC80">Quick Share</font>.
+    <br><br>
+    <b>Note:</b> Both devices must have Bluetooth and Location/Nearby permissions enabled.
     ]]></string>
     <string name="help_radio_title">Stream World Radios</string>
     <string name="help_radio_text"><![CDATA[
@@ -370,6 +384,7 @@
     <ul>
     <li><b>Read Audio</b> → access external storage</li>
     <li><b>Microphone</b> → enable the sound visualizer</li>
+    <li><b>Location/Bluetooth</b> → enable the quick share function</li>
     </ul>
     Denying permissions won’t break the app — BookPlayer adapts.
     ]]></string>
@@ -385,15 +400,18 @@
     <string name="help_forum_text"><![CDATA[
     <font color="#BA68C8"><b>Join the BookPlayer Community</b></font>
     <br><br>
-    A new <font color="#90D8E8">forum</font> has been launched as a small experiment (<i>June 2025</i>).
+    A <font color="#90D8E8">forum</font> has been set up for:
     <br><br>
-    It’s still quiet for now 😊, but you can register to:
     <ul>
     <li><font color="#FFCC80">Report bugs</font></li>
     <li><font color="#FFCC80">Suggest features</font></li>
     <li><font color="#FFCC80">Share tips and audiobooks</font></li>
     </ul>
-    All posts are publicly readable. Sign in to participate.
+    All posts are publicly readable.
+    <br><br>
+    It\'s still quiet for now, but don\'t hesitate to register to post something!
+    <br><br>
+    <a href="https://bookplayer.flarum.cloud/">https://bookplayer.flarum.cloud/</a>
     ]]></string>
 
 
@@ -719,7 +737,7 @@
     <string name="MB_taken_by_databases">" MB taken by database"</string>
     
     <!-- Stats Activity Table -->
-    <string name="stats_audio_time">Playback Time</string>
+    <string name="stats_audio_time">Total Playback Time</string>
     <string name="stats_book_time">* Audiobook</string>
     <string name="stats_tts_time">* Ebook</string>
     <string name="stats_radio_time">* Radio</string>
@@ -1097,19 +1115,24 @@
     
     <!-- Nearby Sharing -->
     <string name="share_book">Share Book</string>
-    <string name="nearby_share_explain">
+    <string name="nearby_share_title_send">Quick Share - Send</string>
+    <string name="nearby_share_title_receive">Quick Share - Receive</string>
+    <string name="deprecated_nearby_share_explain">
 Quickly share a book between two nearby devices with BookPlayer installed. (no internet required)\n
 ➜ To share a book, open the book, then open its settings (top right icon) and tap [Quick Share] at the bottom.\n
 ➜ To receive a book, tap the three-dot menu (top right) on the main screen and select [Quick Share].
 </string>
+    <string name="nearby_share_explain_intro">Quickly share a book between two nearby devices with BookPlayer installed. (no internet required)</string>
+    <string name="nearby_share_explain_send">➜ To receive that book, on the other device, tap the three-dot menu (top right) on the main screen, and tap [Quick Share].</string>
+    <string name="nearby_share_explain_receive">➜ To send a book, open a book on the other device, then open its settings (top right icon) and tap [Quick Share] at the bottom.</string>
     <string name="Quick_Share_3dots">Quick Share…</string>
     <string name="nearby_share_send_tab">Send</string>
     <string name="nearby_share_receive_tab">Receive</string>
     <string name="nearby_share_receive_book">Quick share</string>
-    <string name="nearby_share_start_advertising">Start Advertising</string>
-    <string name="nearby_share_stop_advertising">Stop Advertising</string>
-    <string name="nearby_share_start_discovering">Start Discovering</string>
-    <string name="nearby_share_stop_discovering">Stop Discovering</string>
+    <string name="nearby_share_start_advertising">Start Sending</string>
+    <string name="nearby_share_stop_advertising">Stop Sending</string>
+    <string name="nearby_share_start_discovering">Start Receiving</string>
+    <string name="nearby_share_stop_discovering">Stop Receiving</string>
     <string name="nearby_share_searching">Searching for nearby devices…</string>
     <string name="nearby_share_found_device">Found device: %s</string>
     <string name="nearby_share_connecting">Connecting…</string>
@@ -1119,11 +1142,13 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
     <string name="nearby_share_failed">Transfer failed</string>
     <string name="nearby_share_accept_transfer">Accept book from %s?</string>
     <string name="nearby_share_auto_importing">Auto-importing book…</string>
-    <string name="nearby_share_permissions_required">Bluetooth and location permissions are required for nearby sharing</string>
+    <string name="nearby_share_permissions_required">Permissions are required for nearby sharing</string>
     <string name="nearby_share_no_devices">No devices found</string>
-    <string name="nearby_share_book_info">Book: %1$s (%2$d tracks, %3$s)</string>
+    <string name="nearby_share_book_info">(%1$d tracks, %2$s)</string>
     <string name="nearby_share_receive_mode_info">Waiting to receive a book from nearby device…</string>
     <string name="nearby_share_ready">Ready</string>
+    <string name="nearby_share_transfer_progress">Also transfer book progress and settings</string>
+    <string name="nearby_share_waiting_for_book">Waiting for book…</string>
     
     <plurals name="audio_files_count"> //ex : 15 audio files
         <item quantity="one">%d audio file</item>
@@ -1147,5 +1172,45 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
     </plurals>
 
     <string name="error_download_corrupted_try_again">Download corrupted. Please try downloading again.</string>
+    <string name="Usage">Usage</string> //for stats (install date, listen time...)
+
+    <!-- Nearby Sharing Updates -->
+    <string name="nearby_share_error_no_folder">Error: No folder to share</string>
+    <string name="nearby_share_connected_to">Connected to: %s</string>
+    <string name="nearby_share_transfer_cancelled_other">Transfer cancelled by user on Other Device</string>
+    <string name="nearby_share_transfer_cancelled">Transfer cancelled</string>
+    <string name="nearby_share_preparing_data">Preparing data to send…</string>
+    <string name="nearby_share_advertising_started">Advertising started…</string>
+    <string name="nearby_share_connection_initiated">Connection initiated: %s</string>
+    <string name="nearby_share_connection_established">Connection established. Sending data…</string>
+    <string name="nearby_share_sending_file_progress">Sending file n°%1$d/%2$d - %3$d%%\n%4$s</string>
+    <string name="nearby_share_sending_progress">Sending %1$s… %2$d%%</string>
+    <string name="nearby_share_waiting_confirmation">Data sent, waiting for confirmation…</string>
+    <string name="nearby_share_discovery_started">Discovery started…</string>
+    <string name="nearby_share_connected_waiting">Connected. Waiting for data…</string>
+    <string name="nearby_share_error_location_hint">\n\nCheck if the device location toggle in the device settings is off</string>
+    <string name="nearby_share_metadata_received">Metadata received, starting transfer…</string>
+    <string name="nearby_share_error_other_device_prefix">Error on other device :\n%s</string>
+    <string name="nearby_share_files_written">%1$d/%2$d files written on disk</string>
+    <string name="nearby_share_now_writing">now writing - %1$d%% \n%2$s</string>
+    <string name="nearby_share_last_written">last written : \n%s</string>
+    <string name="nearby_share_transfer_complete_with_name">Transfer complete: %s</string>
+    <string name="nearby_share_stopped_with_error">Stopped: %s</string>
+    <string name="nearby_share_stopped">Stopped</string>
+    <string name="nearby_share_error_base_folder">Failed to create base folder: %s</string>
+    <string name="nearby_share_error_create_folder">Failed to create folder: %s</string>
+    <string name="nearby_share_error_creating_book_folder">Error creating book folder : %s</string>
+    <string name="nearby_share_error_book_exists_db">Book already exists in database: %s</string>
+    <string name="nearby_share_error_folder_exists_fs">Folder already exists on filesystem: %s</string>
+    <string name="nearby_share_error_import">Failed to import book: %s</string>
+    <string name="nearby_share_error_advertising_failed">Advertising failed: %s</string>
+    <string name="nearby_share_error_discovery_failed">Discovery failed: %s</string>
+    <string name="nearby_share_error_connection_request_failed">Connection request failed: %s</string>
+    <string name="nearby_share_error_data_preparation_failed">Data preparation failed</string>
+    <string name="nearby_share_error_send_data_failed">Failed to send book data: %s</string>
+    <string name="nearby_share_error_connection_failed_status">Connection failed with status: %s</string>
+    <string name="nearby_share_error_connection_lost">Connection lost</string>
+    <string name="nearby_share_error_payload_transfer_failed">Payload transfer failed: %s</string>
+    <string name="nearby_share_error_unknown">Unknown error</string>
 
 </resources>

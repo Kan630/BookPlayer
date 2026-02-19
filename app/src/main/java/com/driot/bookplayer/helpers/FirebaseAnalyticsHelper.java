@@ -121,6 +121,37 @@ public final class FirebaseAnalyticsHelper {
         return bundle;
     }
 
+    // QUICK SHARE
+
+    public static void tellQuickShareConnected(String endPoint) {
+        Bundle bundle = new Bundle();
+        bundle.putString("endPoint", trimFA(endPoint));
+        logBundleEvent( "quick_share_connected", bundle);
+    }
+    public static void tellQuickShareConnectionFailed(String errorText) {
+        Bundle bundle = new Bundle();
+        bundle.putString("errorText", trimFA(errorText));
+        logBundleEvent( "quick_share_connection_failed", bundle);
+    }
+    public static void tellQuickShareComplete(Boolean isSendMode, String folderName, String nbTracks, String size) {
+        Bundle bundle = new Bundle();
+        bundle.putString("mode", isSendMode == null ? "" : isSendMode ? "send" : "receive");
+        bundle.putString("folderName", trimFA(folderName));
+        bundle.putString("tracks", nbTracks);
+        bundle.putString("size", Tonio.getReadableSize(size));
+        logBundleEvent( "quick_share_complete", bundle);
+    }
+    public static void tellQuickShareCancel(String message) {
+        Bundle bundle = new Bundle();
+        bundle.putString("message", trimFA(message));
+        logBundleEvent( "quick_share_cancel", bundle);
+    }
+    public static void tellQuickShareError(String message) {
+        Bundle bundle = new Bundle();
+        bundle.putString("message", trimFA(message));
+        logBundleEvent( "quick_share_error", bundle);
+    }
+
     // PLAY PROBLEM
 
     public static void tellAnalyticsLoadFileKO(String filePath, String playMode) {

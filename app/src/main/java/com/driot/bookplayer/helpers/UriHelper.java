@@ -471,6 +471,37 @@ public class UriHelper {
         return null;
     }
 
+    /**
+     * Resolves a string path (file://, content://, or plain path) to a File object.
+     */
+    @Nullable
+    public static File getFileFromString(Context context, String path) {
+        if (path == null || path.isEmpty())
+            return null;
+        try {
+            Uri uri = resolveUriFromPath(context, path);
+            if (uri != null) {
+                return getFileFromUri(context, uri);
+            }
+            // Final fallback for simple filesystem path if resolveUriFromPath didn't return
+            // a Uri
+            File f = new File(path);
+            return f.exists() ? f : null;
+        } catch (Exception e) {
+            myLogEE(e, "getFileFromString failed for: " + path);
+            return null;
+        }
+    }
+
+    @Nullable
+    public static File getFileFromZikFile(Context context, ZikFile zikFile) {
+        Uri uri = resolvePlayableUri(context, zikFile);
+        if (uri != null) {
+            return getFileFromUri(context, uri);
+        }
+        return null;
+    }
+
     // TODO, use openFileDescriptor & remove legacy from manifest
     @Nullable
     public static Uri resolvePlayableUri(Context context, @NonNull ZikFile zf) {

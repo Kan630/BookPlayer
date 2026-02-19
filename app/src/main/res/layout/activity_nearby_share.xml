@@ -1,122 +1,157 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp">
-
-    <TextView
-        android:id="@+id/title"
-        style="@style/myStyleBigTitle"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/share_book"
-        android:background="@drawable/bg_chip"
-        />
-
-    <TextView style="@style/betatest"/>
-    <TextView
-        style="@style/OptionExplainText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/nearby_share_explain"
-        android:background="@drawable/bg_chip"
-        />
-
-    <TextView
-        android:id="@+id/tvBookInfo"
-        style="@style/myStyleInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:paddingHorizontal="10dp"
-        android:text="Loading book information..."
-        />
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:fillViewport="true">
 
     <LinearLayout
-        android:id="@+id/layoutBookPreview"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginBottom="20dp"
-        android:paddingHorizontal="10dp"
-        android:gravity="center_vertical"
-        >
+        android:orientation="vertical"
+        android:padding="20dp">
 
-        <ImageView
-            android:id="@+id/ivCoverPreview"
-            android:layout_width="60dp"
-            android:layout_height="80dp"
-            android:scaleType="centerCrop"
-            android:background="@android:color/darker_gray"
-            android:layout_marginEnd="16dp"
-            android:contentDescription="@null"
+        <LinearLayout style="@style/wideLinearLayout_Horizontal"
+            android:background="@drawable/bg_chip"
+            >
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginStart="5dp"
+                android:layout_marginEnd="10dp"
+                android:contentDescription="@string/icon"
+                android:src="@drawable/ic_connect_without_contact_24px"
+                app:tint="?attr/colorPrimary"
+                />
+            <TextView
+                android:id="@+id/title"
+                style="@style/myStyleBigTitle"
+                android:textSize="24sp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/share_book"
+                />
+        </LinearLayout>
+        <TextView style="@style/betatest"/>
+        <TextView
+            android:id="@+id/tv_quick_share_explain"
+            style="@style/OptionExplainText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/nearby_share_explain_intro"
+            android:background="@drawable/bg_chip"
             />
 
+        <LinearLayout
+            android:id="@+id/layoutBookPreview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="20dp"
+            android:paddingHorizontal="10dp"
+            android:gravity="center_vertical"
+            android:background="@drawable/bg_chip"
+            >
+
+            <ImageView
+                android:id="@+id/ivCoverPreview"
+                android:layout_width="60dp"
+                android:layout_height="80dp"
+                android:scaleType="centerCrop"
+                android:background="@android:color/darker_gray"
+                android:layout_marginEnd="16dp"
+                android:contentDescription="@null"
+                />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                >
+                <TextView
+                    android:id="@+id/tvBookTitlePreview"
+                    style="@style/myStyleInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Book Title"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    />
+
+                <TextView
+                    android:id="@+id/tvBookInfo"
+                    style="@style/myStyleInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingHorizontal="0dp"
+                    android:text="Loading book information..."
+                    />
+            </LinearLayout>
+        </LinearLayout>
+
         <TextView
-            android:id="@+id/tvBookTitlePreview"
+            android:id="@+id/tvConnectedEndpoint"
             style="@style/myStyleInfo"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Book Title"
-            android:textSize="18sp"
+            android:layout_marginBottom="20dp"
+            android:paddingHorizontal="10dp"
+            android:textAlignment="center"
             android:textStyle="bold"
+            android:textSize="16sp"
+            android:visibility="gone"
             />
+
+        <CheckBox
+            android:id="@+id/cbTransferProgress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="@string/nearby_share_transfer_progress"
+            android:textColor="?attr/colorOnSurface"
+            android:checked="false"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnStartSharing"
+            style="@style/GetResourceButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            android:text="@string/nearby_share_start_advertising"
+            android:backgroundTint="?attr/colorPrimary"
+            />
+
+        <ProgressBar
+            android:id="@+id/progressBarTotal"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginBottom="4dp"
+            android:visibility="gone"
+            android:max="100"
+            />
+
+        <ProgressBar
+            android:id="@+id/progressBarCurrent"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="6dp"
+            android:layout_marginBottom="20dp"
+            android:visibility="gone"
+            android:max="100"
+            />
+
+        <TextView
+            android:id="@+id/tvNearbyShareStatus"
+            style="@style/myStyleInfo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingHorizontal="10dp"
+            android:textAlignment="center"
+            />
+
     </LinearLayout>
-
-    <RadioGroup
-        android:id="@+id/rgMode"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:orientation="horizontal">
-
-        <RadioButton
-            android:id="@+id/rbSendMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Send (Advertise)"
-            android:checked="true"
-            />
-
-        <RadioButton
-            android:id="@+id/rbReceiveMode"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="Receive (Discover)"
-            />
-    </RadioGroup>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btnStartSharing"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:text="@string/nearby_share_start_advertising"
-        android:backgroundTint="?attr/colorPrimary"
-        />
-
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleHorizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="20dp"
-        android:visibility="gone"
-        android:max="100"
-        />
-
-    <TextView
-        android:id="@+id/tvStatus"
-        style="@style/myStyleInfo"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingHorizontal="10dp"
-        android:textAlignment="center"
-        />
-
-</LinearLayout>
+</ScrollView>

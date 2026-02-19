@@ -83,6 +83,7 @@ public class ImportJob {
         public String warningText;
         public String errorTextDev;
         public String errorTextUser;
+        public String metadataJson;
 
         public boolean isFinished() {
                 return Var.IMPORT_STATUS_SUCCEEDED.equals(status)

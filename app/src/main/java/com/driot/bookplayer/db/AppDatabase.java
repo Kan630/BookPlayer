@@ -23,28 +23,29 @@ import java.util.concurrent.Executors;
 @Database(entities = {
          Folder.class
         ,ZikFile.class
-        ,Podcast.class
         ,BookSource.class
-        ,Episode.class
         ,ImportJob.class
-        , PlayTick.class
+        ,PlayTick.class
+        ,PlaySession.class
+        ,Podcast.class
+        ,Episode.class
         ,RadioStation.class
-        , PlaySession.class
         }, version = APP_DATABASE_VERSION
         )
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APP_DATABASE_VERSION = 24;
+    public static final int APP_DATABASE_VERSION = 25;
 
     public abstract FolderDao folderDao();
     public abstract ZikFileDao zikFileDao();
-    public abstract PodcastDao podcastDao();
     public abstract BookSourceDao bookSourceDao();
-    public abstract EpisodeDao episodeDao();
     public abstract ImportJobDao importJobDao();
-    public abstract PlayTickDao playTickDao();
-    public abstract RadioStationDao radioStationDao();
     public abstract PlaySessionDao playSessionDao();
+    public abstract PlayTickDao playTickDao();
+
+    public abstract EpisodeDao episodeDao();
+    public abstract PodcastDao podcastDao();
+    public abstract RadioStationDao radioStationDao();
 
     private static final int NUMBER_OF_WRITE_THREADS = 4;
     private static final int NUMBER_OF_READ_THREADS = 4;

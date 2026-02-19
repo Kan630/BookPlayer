@@ -35,6 +35,7 @@ import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
+import com.driot.bookplayer.player.heatmaps.PlaySession;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -59,6 +60,7 @@ public class FinalParseFolderWorker extends ImportWorker {
     private int nbAudioScanned = 0;
 
     ImportJob importJob;
+    private org.json.JSONArray nearbyProgressArray;
 
     private final Context context;
 
@@ -77,6 +79,15 @@ public class FinalParseFolderWorker extends ImportWorker {
         try {
             DocumentFile df;
             importJob = jobOrFail();
+
+            if (importJob != null && importJob.metadataJson != null && !importJob.metadataJson.isEmpty()) {
+                try {
+                    org.json.JSONObject meta = new org.json.JSONObject(importJob.metadataJson);
+                    nearbyProgressArray = meta.optJSONArray("nearby_progress");
+                } catch (Exception e) {
+                    myLogE("Failed to parse nearby_progress from metadataJson: " + e.getMessage());
+                }
+            }
 
             // Optionally enter foreground:
             // setForegroundEarly(buildForegroundInfo());
@@ -108,6 +119,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                             context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
+                failsafeCheckTextOnly(df);
                 populateArrayListOfTracksFromFolder(df);
 
             } else {
@@ -168,6 +180,23 @@ public class FinalParseFolderWorker extends ImportWorker {
             addAudioFileUnique(dfPickedFile);
         }
         goFolder();
+    }
+
+    private void failsafeCheckTextOnly(DocumentFile df) {
+        if (importJob.playType != null && importJob.playType.equals(Var.PLAY_TYPE_TEXT)) {
+            return;
+        }
+        DocumentFile[] files = df.listFiles();
+        for (DocumentFile f : files) {
+            if (!f.isDirectory()) {
+                if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
+                    return;
+                }
+            }
+        }
+        myLogW("PLAY TYPE ERROR: Folder contains only text files but type was " + importJob.playType
+                + ". Forcing TEXT.");
+        importJob.playType = Var.PLAY_TYPE_TEXT;
     }
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
@@ -600,6 +629,33 @@ public class FinalParseFolderWorker extends ImportWorker {
         file.date_added = System.currentTimeMillis();
         file.metadataJson = MetaJson.toJson(info.getMeta());
 
+        // Check for transferred progress metadata
+        org.json.JSONObject progressData = null;
+        if (nearbyProgressArray != null) {
+            String fileName = getFileNameFromPath(info.getDisplayPath());
+            for (int i = 0; i < nearbyProgressArray.length(); i++) {
+                try {
+                    org.json.JSONObject fe = nearbyProgressArray.getJSONObject(i);
+                    if (fileName.equalsIgnoreCase(fe.getString("name"))) {
+                        progressData = fe.optJSONObject("progress");
+                        break;
+                    }
+                } catch (Exception e) {
+                }
+            }
+        }
+
+        if (progressData != null) {
+            myLog("adding/restoring PlayBack Progress and General info");
+            file.setZeorder(progressData.optDouble("zeorder", 0));
+            file.setPosition(progressData.optDouble("position", 0));
+            file.setPercentdone(progressData.optDouble("percentdone", 0));
+            file.setFinished(progressData.optBoolean("finished", false));
+            file.lFirstAccess = progressData.optLong("lFirstAccess");
+            file.lLastAccess = progressData.optLong("lLastAccess");
+            myLogD("Applying transferred progress to " + file.getName());
+        }
+
         if (file.getDuration() == 0) {
             myLogW("⏭️ Skipped: duration = 0 → " + info.getDisplayPath());
             return SaveResultEnum.SKIPPED;
@@ -614,12 +670,32 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
 
         if (id > 0) {
-            // myLog("✔️ ZikFile inserted: id = " + id);
+            // Restore PlaySessions if available
+            if (progressData != null && progressData.has("playSessions")) {
+                myLog("adding/restoring HeatMaps Progress");
+                try {
+                    org.json.JSONArray sessionsArray = progressData.getJSONArray("playSessions");
+                    java.util.List<PlaySession> playSessions = new java.util.ArrayList<>();
+                    for (int j = 0; j < sessionsArray.length(); j++) {
+                        org.json.JSONObject sObj = sessionsArray.getJSONObject(j);
+                        playSessions.add(new PlaySession(
+                                id,
+                                sObj.getLong("timestampStart"),
+                                sObj.getLong("timestampEnd"),
+                                sObj.getLong("positionStart"),
+                                sObj.getLong("positionEnd")));
+                    }
+                    AppDatabase.getDatabase(context).playSessionDao().insertAll(playSessions);
+                    myLogD("Restored " + playSessions.size() + " PlaySessions for " + file.getName());
+                } catch (Exception e) {
+                    myLogE("Error restoring PlaySessions for " + file.getName() + ": " + e.getMessage());
+                }
+            }
             return SaveResultEnum.SUCCESS;
         } else {
             myLogE("❌ DB insert failed for: " + info.getDisplayPath());
-            // TODO, maybe better just a warning... (anyway, should not happen)
             failNow(TASK_NAME, "Error_Import_CannotSaveInDB [" + info.getDisplayPath() + "]",
+
                     context.getString(R.string.Error_Import_CannotSaveInDB) + " [" + info.getDisplayPath() + "]");
             return SaveResultEnum.FAILED;
         }

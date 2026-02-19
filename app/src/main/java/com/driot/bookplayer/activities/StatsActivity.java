@@ -30,6 +30,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.GoogleServicesHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -138,10 +139,13 @@ public class StatsActivity extends BaseActivity {
                 + "\n" + "\n" + "Android version = " + Build.VERSION.RELEASE
                 + "\n" + "\n" + "Android version name = " + getVersionName(Build.VERSION.SDK_INT)
                 + "\n" + "\n" + "SQL lite version = " + getSqlLiteVersion()
+                + "\n" + "\n" + "Google play Service = " + GoogleServicesHelper.getPlayServicesStatus(this)
+                + "\n" + "\n" + "Play Service version = " + GoogleServicesHelper.getPlayServicesVersion(this)
                 + "\n" + "\n" + "---"
+                + "\n" + "\n" + "Bookplayer package = " + getPackageName()
                 + "\n" + "\n" + "Bookplayer version number = " + BuildConfig.VERSION_CODE
                 + "\n" + "\n" + "Bookplayer version label = " + BuildConfig.VERSION_NAME
-                + "\n" + "\n" + "Bookplayer db version = " + APP_DATABASE_VERSION;
+                + "\n" + "\n" + "Bookplayer DB version = " + APP_DATABASE_VERSION;
 
         TextView tv_head2 = findViewById(R.id.tv2_head);
         TextView tv_body2 = findViewById(R.id.tv2_body);
@@ -182,15 +186,15 @@ public class StatsActivity extends BaseActivity {
         String podcastTime = Tonio.formatTime(podcastMs);
 
         // Build text for main body (without Audio Time, it will be in table header)
-        String zeText4 = getString(R.string.stats_install_date_label) + installDateFormatted;
+        String zeText4 = getString(R.string.stats_install_date_label) + " " + installDateFormatted;
 
-        TextView tv_head4 = findViewById(R.id.tv4_head);
-        TextView tv_body4 = findViewById(R.id.tv4_body);
+        TextView tv_stats_head = findViewById(R.id.tv_stats_head);
+        TextView tv_stats_install_date = findViewById(R.id.tv_stats_install_date);
         TableLayout tableDurationDetails = findViewById(R.id.tableDurationDetails);
-        TextView tv_stats_note = findViewById(R.id.tv4_stats_note);
+        TextView tv_duration_stats_note = findViewById(R.id.tv_duration_stats_note);
 
-        tv_head4.setText(R.string.Stats);
-        tv_body4.setText(zeText4);
+        tv_stats_head.setText(R.string.Usage);
+        tv_stats_install_date.setText(zeText4);
 
         // Populate table with duration details (including Audio Time header and
         // percentage bars)
@@ -200,10 +204,10 @@ public class StatsActivity extends BaseActivity {
 
         // Show stats note if needed
         if (showStatsStartedNote) {
-            tv_stats_note.setText(R.string.stats_note);
-            tv_stats_note.setVisibility(View.VISIBLE);
+            tv_duration_stats_note.setText(R.string.stats_note);
+            tv_duration_stats_note.setVisibility(View.VISIBLE);
         } else {
-            tv_stats_note.setVisibility(View.GONE);
+            tv_duration_stats_note.setVisibility(View.GONE);
         }
 
         // ----------------------------------------
@@ -282,7 +286,7 @@ public class StatsActivity extends BaseActivity {
         myLogI("--- user clicks RESET APP ---");
         ImportHelper.cancelCurrentImport(this);
         ImportHelper.cancelAll_in_DB(this);
-        myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
+        myToast(getString(R.string.app_reset_done));
     }
 
     /**
@@ -474,6 +478,8 @@ public class StatsActivity extends BaseActivity {
      */
     private void addTableRowWithPercentage(TableLayout tableLayout, String label, String value, long totalMs,
             long valueMs) {
+        if (valueMs<=0) return;
+
         TableRow row = new TableRow(this);
 
         // Single cell: label + value, then a very fine underline (length = percentage

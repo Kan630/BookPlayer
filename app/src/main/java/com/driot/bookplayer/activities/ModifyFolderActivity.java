@@ -43,6 +43,7 @@ import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
@@ -352,7 +353,7 @@ public class ModifyFolderActivity extends BaseActivity {
     }
 
     private void bShareClick() {
-        myLogI("user clicks - share");
+        myLogI("user clicks - QUICK SHARE");
         Intent intent = new Intent(this, NearbyShareActivity.class);
         intent.putExtra(Intents.EXTRA_FOLDER, folder);
         this.startActivity(intent);
@@ -970,7 +971,7 @@ public class ModifyFolderActivity extends BaseActivity {
                 myToastEE(e, "could not open android folder explorer");
             }
         } else {
-            myToast(getString(com.driot.bookplayer.R.string.permission_read_storage_not_granted));
+            myToast(getString(R.string.permission_read_storage_not_granted));
             // askForPermission(); // check code in getOthers
         }
     }

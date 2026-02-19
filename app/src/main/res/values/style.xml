@@ -135,6 +135,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:orientation">vertical</item>
     </style>
+    <style name="wideLinearLayout_Horizontal">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:orientation">horizontal</item>
+    </style>
 
     <style name="LayoutWrapContentMargin20horizontal">
         <item name="android:layout_width">wrap_content</item>
@@ -282,7 +287,7 @@
     <style name="HelpTitle" parent="textColorFont">
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginStart">50dp</item>
+        <item name="android:layout_marginStart">30dp</item>
         <item name="android:layout_marginTop">20dp</item>
         <item name="android:textStyle">bold</item>
         <item name="android:textSize">20sp</item>

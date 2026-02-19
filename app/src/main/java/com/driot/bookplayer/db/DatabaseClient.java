@@ -30,7 +30,7 @@ public class DatabaseClient {
     private DatabaseClient(Context mCtx) {
         int currentVersion = 0;
 
-        //mCtx.deleteDatabase(DATABASE_NAME);
+        // mCtx.deleteDatabase(DATABASE_NAME);
 
         try {
             File dbPath = mCtx.getDatabasePath(DATABASE_NAME);
@@ -39,47 +39,35 @@ public class DatabaseClient {
                 myLogD("Current DB version : " + currentVersion);
                 if (currentVersion < APP_DATABASE_VERSION) {
                     myLogI("Code DB version : " + APP_DATABASE_VERSION);
-                    //backupDatabase(mCtx);
+                    // backupDatabase(mCtx);
                 }
             }
         } catch (Exception e) {
             myLogE("db version logging error");
         }
 
-        try {
-            appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class,DATABASE_NAME )
+        try {            appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, DATABASE_NAME)
 
-                    //-------------------------------------------------------
-                    //.fallbackToDestructiveMigration()  // <--- ATTENTION !!
-                    //                              change version BDD => truncate all tables !!
-                    //       => better, just uncomment the deleteDatabase at the top of this method
-                    //-------------------------------------------------------
+                    // -------------------------------------------------------
+                    // .fallbackToDestructiveMigration() // <--- ATTENTION !!
+                    // change version BDD => truncate all tables !!
+                    // => better, just uncomment the deleteDatabase at the top of this method
+                    // -------------------------------------------------------
 
                     .addMigrations(
-                              DatabaseMigrations.MIGRATION_1_2
-                            , DatabaseMigrations.MIGRATION_2_3
-                            , DatabaseMigrations.MIGRATION_3_4
-                            , DatabaseMigrations.MIGRATION_4_5
-                            , DatabaseMigrations.MIGRATION_5_6
-                            , DatabaseMigrations.MIGRATION_6_7
-                            , DatabaseMigrations.MIGRATION_7_8
-                            , DatabaseMigrations.MIGRATION_8_9
-                            , DatabaseMigrations.MIGRATION_9_10
-                            , DatabaseMigrations.MIGRATION_10_11
-                            , DatabaseMigrations.MIGRATION_11_12
-                            , DatabaseMigrations.MIGRATION_12_13
-                            , DatabaseMigrations.MIGRATION_13_14
-                            , DatabaseMigrations.MIGRATION_14_15
-                            , DatabaseMigrations.MIGRATION_15_16
-                            , DatabaseMigrations.MIGRATION_16_17
-                            , DatabaseMigrations.MIGRATION_17_18
-                            , DatabaseMigrations.MIGRATION_18_19
-                            , DatabaseMigrations.MIGRATION_19_20
-                            , DatabaseMigrations.MIGRATION_20_21
-                            , DatabaseMigrations.MIGRATION_21_22
-                            , DatabaseMigrations.MIGRATION_22_23
-                            , DatabaseMigrations.MIGRATION_23_24
-                    )
+                            DatabaseMigrations.MIGRATION_1_2, DatabaseMigrations.MIGRATION_2_3,
+                            DatabaseMigrations.MIGRATION_3_4, DatabaseMigrations.MIGRATION_4_5,
+                            DatabaseMigrations.MIGRATION_5_6, DatabaseMigrations.MIGRATION_6_7,
+                            DatabaseMigrations.MIGRATION_7_8, DatabaseMigrations.MIGRATION_8_9,
+                            DatabaseMigrations.MIGRATION_9_10, DatabaseMigrations.MIGRATION_10_11,
+                            DatabaseMigrations.MIGRATION_11_12, DatabaseMigrations.MIGRATION_12_13,
+                            DatabaseMigrations.MIGRATION_13_14, DatabaseMigrations.MIGRATION_14_15,
+                            DatabaseMigrations.MIGRATION_15_16, DatabaseMigrations.MIGRATION_16_17,
+                            DatabaseMigrations.MIGRATION_17_18, DatabaseMigrations.MIGRATION_18_19,
+                            DatabaseMigrations.MIGRATION_19_20, DatabaseMigrations.MIGRATION_20_21,
+                            DatabaseMigrations.MIGRATION_21_22, DatabaseMigrations.MIGRATION_22_23,
+                            DatabaseMigrations.MIGRATION_23_24, DatabaseMigrations.MIGRATION_24_25)
+
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
                         public void onOpen(@NonNull SupportSQLiteDatabase db) {
@@ -89,13 +77,14 @@ public class DatabaseClient {
                     })
                     .build();
 
-            // Force early access to trigger DB open and migrations (and also check SQL version)
+            // Force early access to trigger DB open and migrations (and also check SQL
+            // version)
             SupportSQLiteDatabase db = appDatabase.getOpenHelper().getWritableDatabase();
             myLog("SQL lite version = " + getSQLiteVersion(db));
 
-
         } catch (Exception e) {
-            myLogEE(e, "Database will CRASH !! - current version : " + currentVersion + " - code version : " + APP_DATABASE_VERSION);
+            myLogEE(e, "Database will CRASH !! - current version : " + currentVersion + " - code version : "
+                    + APP_DATABASE_VERSION);
         }
 
     }

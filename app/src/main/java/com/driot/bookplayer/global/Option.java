@@ -100,6 +100,7 @@ public class Option {
     private static final String DEFAULT_SCREENSAVER_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_WAVE;
     private static final boolean DEFAULT_SCREENSAVER_FORCE_ORIENTATION = true;
     private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
+    private static final boolean DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS = false;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -583,6 +584,14 @@ public class Option {
 
     public static boolean getCopyFile() {
         return prefs.getBoolean("COPY_FILES", DEFAULT_COPY_FILES);
+    }
+
+    public static void setQuickShareTransferProgress(boolean bool) {
+        prefs.edit().putBoolean("QUICK_SHARE_TRANSFER_PROGRESS", bool).apply();
+    }
+
+    public static boolean getQuickShareTransferProgress() {
+        return prefs.getBoolean("QUICK_SHARE_TRANSFER_PROGRESS", DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS);
     }
 
     /////////////////// LOG ///////////////////

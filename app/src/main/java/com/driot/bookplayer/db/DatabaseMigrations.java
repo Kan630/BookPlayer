@@ -430,5 +430,12 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_24_25 = new Migration(24, 25) { // 2026-02-18
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 24 => 25");
+            db.execSQL("ALTER TABLE ImportJob ADD COLUMN metadataJson TEXT");
+        }
+    };
 
 }

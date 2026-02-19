@@ -24,114 +24,215 @@
             android:layout_marginStart="20dp"
             android:text="@string/help_title"
             />
-        <TextView style="@style/HelpTitle"
-            android:text="@string/General"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/tvHelpText"
-            android:text="@string/help_text_general"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
 
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_title_manual_import"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_text_manual_import"
-            android:text="@string/help_text_manual_import"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_general"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/General"
+                android:drawableStart="@drawable/ic_books_movies_and_music_24px"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_general"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_librivox_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_librivox_text"
-            android:text="@string/help_librivox_text"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_manual_import"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_title_manual_import"
+                android:drawableStart="@drawable/ic_add_book_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_manual_import"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_podcast_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_podcast_text"
-            android:text="@string/help_podcast_text"
-            />
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_librivox"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_librivox_title"
+                android:drawableStart="@drawable/ic_librivox_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_librivox"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_url_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_url_text"
-            android:text="@string/help_url_text"
-            />
+        <LinearLayout android:id="@+id/ll_help_text_podcast"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_podcast_title"
+                android:drawableStart="@drawable/ic_podcast_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_podcast"
+                />
+        </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_url"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_url_title"
+                android:drawableStart="@drawable/ic_link_24px"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_url"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_radio_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_radio_text"
-            android:text="@string/help_radio_text"
-            />
+        <LinearLayout android:id="@+id/ll_help_text_quick_share"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_quick_share_title"
+                android:drawableStart="@drawable/ic_connect_without_contact_24px"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_quick_share"
+                />
+        </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_radio"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_radio_title"
+                android:drawableStart="@drawable/ic_radio_24px"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_radio"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_tts_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_tts_text"
-            android:text="@string/help_tts_text"
-            />
+        <LinearLayout android:id="@+id/ll_help_text_tts"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_tts_title"
+                android:drawableStart="@drawable/ic_tts_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_tts"
+                />
+        </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_memory_cleaning"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_memory_cleaning_title"
+                android:drawableStart="@drawable/ic_delete_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_memory_cleaning"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_memory_cleaning_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_memory_cleaning_text"
-            android:text="@string/help_memory_cleaning_text"
-            />
+        <LinearLayout android:id="@+id/ll_help_text_storage"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_storage_title"
+                android:drawableStart="@drawable/ic_memory_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_storage"
+                />
+        </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout android:id="@+id/ll_help_text_permission"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_permission_title"
+                android:drawableStart="@drawable/ic_info_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_permission"
+                />
+        </LinearLayout>
 
-        <TextView style="@style/HelpTitle"
-            android:text="@string/help_storage_title"
-            />
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_storage_text"
-            android:text="@string/help_storage_text"
-            />
+        <LinearLayout android:id="@+id/ll_help_text_tellme"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_tellme_title"
+                android:drawableStart="@drawable/ic_mail_24"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_tellme"
+                />
+        </LinearLayout>
 
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
-
-        <TextView android:text="@string/help_permission_title"
-            style="@style/HelpTitle"/>
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_permission_text"
-            android:text="@string/help_permission_text"/>
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
-
-        <TextView android:text="@string/help_tellme_title"
-            style="@style/HelpTitle"/>
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_tellme_text"
-            android:text="@string/help_tellme_text" />
-
-        <View style="@style/myStyleViewSimpleHorizontalBar"/>
-
-        <TextView android:text="@string/help_forum_title"
-            style="@style/HelpTitle"/>
-        <TextView style="@style/HelpText"
-            android:id="@+id/help_forum_text"
-            android:text="@string/help_forum_text"/>
+        <LinearLayout android:id="@+id/ll_help_text_forum"
+            android:visibility="gone"
+            style="@style/wideLinearLayout_Vertical"
+            >
+            <View style="@style/myStyleViewSimpleHorizontalBar"/>
+            <TextView style="@style/HelpTitle"
+                android:text="@string/help_forum_title"
+                android:drawableStart="@drawable/ic_menu_forum"
+                android:drawablePadding="10dp"
+                android:drawableTint="?colorPrimary"
+                />
+            <TextView style="@style/HelpText"
+                android:id="@+id/tv_help_text_forum"
+                />
+        </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar"
             android:layout_marginBottom="30dp"

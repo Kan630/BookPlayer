@@ -3,7 +3,7 @@
     <!-- NO TRANSLATION (translatable=false) -->
 
 
-    <string name="app_name" translatable="false">BookPlayer</string>
+    <string name="app_name" translatable="false">BookPlayerPure</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
     <string name="asset_statements" translatable="false">
@@ -298,7 +298,7 @@ BookPlayer admite casi todos los formatos de audio, reproduce bandas sonoras de 
 <br>
 <b>Ventaja:</b> Ahorra espacio interno.
 <br><br>
-<b>Nota:</b> Los archivos ZIP y M4B divididos siempre se copian.
+<b>Nota:</b><i> Esto no es posible para archivos ZIP, M4B divididos y Libros electrónicos. Estos siempre se copian.</i>
 <br><br>
 Activa la opción <font color="#F48FB1"><b>borrado automático</b></font> en el menú de Opciones para eliminar el archivo fuente después de la importación.
 ]]></string>
@@ -365,15 +365,17 @@ Por defecto, BookPlayer usa la <font color="#81C784">tarjeta SD</font> si está 
     ]]></string>
     <string name="help_permission_title">Permisos :</string>
     <string name="help_permission_text"><![CDATA[
-BookPlayer funciona <font color="#81C784">incluso sin permisos</font>.
-<br><br>
-Pero para funcionalidad completa:
-<ul>
-<li><b>Leer audio</b> → acceso a almacenamiento externo</li>
-<li><b>Micrófono</b> → habilita el visualizador de sonido</li>
-</ul>
-Denegar permisos no romperá la app — BookPlayer se adapta.
-]]></string>
+    BookPlayer funciona <font color="#81C784">incluso sin permisos</font>.
+    <br><br>
+    Pero para una funcionalidad completa:
+    <ul>
+    <li><b>Leer Audio</b> → acceso al almacenamiento externo</li>
+    <li><b>Micrófono</b> → habilitar el visualizador de sonido</li>
+    <li><b>Ubicación/Bluetooth</b> → habilitar la función de compartir rápido</li>
+    </ul>
+    Denegar los permisos no romperá la aplicación — BookPlayer se adapta.
+    ]]></string>
+
     <string name="help_tellme_title">Contactar al desarrollador :</string>
     <string name="help_tellme_text"><![CDATA[
 ¿Tienes problemas o encontraste un error?
@@ -384,18 +386,22 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
 ]]></string>
     <string name="help_forum_title">Foro :</string>
     <string name="help_forum_text"><![CDATA[
-<font color="#BA68C8"><b>Únete a la comunidad de BookPlayer</b></font>
-<br><br>
-Un nuevo <font color="#90D8E8">foro</font> ha sido lanzado como pequeño experimento (<i>junio de 2025</i>).
-<br><br>
-Por ahora está tranquilo 😊, pero puedes registrarte para:
-<ul>
-<li><font color="#FFCC80">Reportar errores</font></li>
-<li><font color="#FFCC80">Sugerir funciones</font></li>
-<li><font color="#FFCC80">Compartir consejos y audiolibros</font></li>
-</ul>
-Todas las publicaciones son públicamente visibles. Inicia sesión para participar.
-]]></string>
+    <font color="#BA68C8"><b>Únete a la comunidad de BookPlayer</b></font>
+    <br><br>
+    Se ha creado un <font color="#90D8E8">foro</font> para:
+    <br><br>
+    <ul>
+    <li><font color="#FFCC80">Reportar fallos</font></li>
+    <li><font color="#FFCC80">Sugerir funciones</font></li>
+    <li><font color="#FFCC80">Compartir consejos y audiolibros</font></li>
+    </ul>
+    Todas las publicaciones son de lectura pública.
+    <br><br>
+    ¡Aún está tranquilo por ahora, pero no dudes en registrarte para publicar algo!
+    <br><br>
+    <a href="https://bookplayer.flarum.cloud/">https://bookplayer.flarum.cloud/</a>
+    ]]></string>
+
 
 
     <string name="option_timeBeforeSleep">Pausa automática</string>
@@ -710,7 +716,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="MB_taken_by_databases">" MB ocupados por la base de datos"</string>
     
     <!-- Stats Activity Table -->
-    <string name="stats_audio_time">Tiempo de Reproducción</string>
+    <string name="stats_audio_time">Tiempo de reproducción total</string>
     <string name="stats_book_time">* Audiolibro</string>
     <string name="stats_tts_time">* Libro Electrónico</string>
     <string name="stats_radio_time">* Radio</string>
@@ -1080,34 +1086,33 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
 
     <!-- Nearby Sharing -->
     <string name="share_book">Compartir libro</string>
-    <string name="nearby_share_explain">
-Comparta rápidamente un libro entre dos dispositivos cercanos con BookPlayer instalado. (no se requiere internet)\n
-➜ Para compartir un libro, ábralo, vaya a sus ajustes (icono arriba a la derecha) y pulse [Compartir rápido] abajo.\n
-➜ Para recibir un libro, pulse el menú de tres puntos (arriba a la derecha) en la pantalla principal y seleccione [Compartir rápido].
+    <string name="deprecated_nearby_share_explain">
+Comparte rápidamente un libro entre dos dispositivos cercanos con BookPlayer instalado. (no se requiere internet)\n
+➜ Para compartir un libro, ábrelo, luego abre sus ajustes (icono superior derecho) y toca [Compartir rápido] en la parte inferior.\n
+➜ Para recibir un libro, toca el menú de tres puntos (superior derecho) en la pantalla principal y selecciona [Compartir rápido].
 </string>
     <string name="Quick_Share_3dots">Compartir rápido…</string>
     <string name="nearby_share_send_tab">Enviar</string>
     <string name="nearby_share_receive_tab">Recibir</string>
     <string name="nearby_share_receive_book">Compartir rápido</string>
-    <string name="nearby_share_start_advertising">Iniciar visibilidad</string>
-    <string name="nearby_share_stop_advertising">Detener visibilidad</string>
-    <string name="nearby_share_start_discovering">Iniciar búsqueda</string>
-    <string name="nearby_share_stop_discovering">Detener búsqueda</string>
+    <string name="nearby_share_start_advertising">Iniciar envío</string>
+    <string name="nearby_share_stop_advertising">Cesar envío</string>
+    <string name="nearby_share_start_discovering">Iniciar recepción</string>
+    <string name="nearby_share_stop_discovering">Cesar recepción</string>
     <string name="nearby_share_searching">Buscando dispositivos cercanos…</string>
     <string name="nearby_share_found_device">Dispositivo encontrado: %s</string>
     <string name="nearby_share_connecting">Conectando…</string>
-    <string name="nearby_share_transferring">Transferencia: %d%%</string>
-    <string name="nearby_share_receiving">Recepción: %d%%</string>
-    <string name="nearby_share_complete">¡Transferencia completada!</string>
+    <string name="nearby_share_transferring">Transfiriendo: %d%%</string>
+    <string name="nearby_share_receiving">Recibiendo: %d%%</string>
+    <string name="nearby_share_complete">¡Transferencia completa!</string>
     <string name="nearby_share_failed">Transferencia fallida</string>
     <string name="nearby_share_accept_transfer">¿Aceptar libro de %s?</string>
-    <string name="nearby_share_auto_importing">Autocompletando importación del libro…</string>
-    <string name="nearby_share_permissions_required">Se requieren permisos de Bluetooth y ubicación para el intercambio cercano</string>
+    <string name="nearby_share_auto_importing">Importando libro automáticamente…</string>
+    <string name="nearby_share_permissions_required">Se requieren permisos de Bluetooth y ubicación para compartir con dispositivos cercanos</string>
     <string name="nearby_share_no_devices">No se encontraron dispositivos</string>
-    <string name="nearby_share_book_info">Libro: %1$s (%2$d pistas, %3$s)</string>
-    <string name="nearby_share_receive_mode_info">Esperando para recibir un libro de un dispositivo cercano…</string>
+    <string name="nearby_share_book_info">(%1$d pistas, %2$s)</string>
+    <string name="nearby_share_receive_mode_info">Esperando recibir un libro de un dispositivo cercano…</string>
     <string name="nearby_share_ready">Listo</string>
-
 
     <plurals name="audio_files_count">
         <item quantity="one">%d archivo de audio</item>
@@ -1132,5 +1137,73 @@ Comparta rápidamente un libro entre dos dispositivos cercanos con BookPlayer in
     <string name="option_screensaver_subtitle">Se activa durante la reproducción cuando estás en la pantalla de reproducción</string>
     <string name="screensaver_force_orientation">Forzar orientación</string>
     <string name="portrait">Vertical</string>
-    <string name="landscape">Apaisado</string>
+    <string name="landscape">Horizontal</string>
+
+    <!-- Quick Share Help -->
+    <string name="help_quick_share_title">Compartir rápido:</string>
+    <string name="help_quick_share_text"><![CDATA[
+    <font color="#BA68C8"><b>Compartir libros entre dispositivos</b></font>
+    <br><br>
+    Comparte rápidamente un libro entre dos dispositivos cercanos con BookPlayer instalado (no se requiere internet).
+    <br><br>
+    <b>Para enviar:</b>
+    <br>
+    Abre un libro, luego abre sus <font color="#90D8E8">ajustes</font> (icono superior derecho) y toca <font color="#FFCC80">Compartir rápido</font> en la parte inferior.
+    <br><br>
+    <b>Para recibir:</b>
+    <br>
+    Toca el <font color="#64B5F6">menú de tres puntos</font> (superior derecho) en la pantalla principal y selecciona <font color="#FFCC80">Compartir rápido</font>.
+    <br><br>
+    <b>Nota:</b> Ambos dispositivos deben tener activados los permisos de Bluetooth y Ubicación/Dispositivos cercanos.
+    ]]></string>
+
+    <string name="nearby_share_title_send">Compartir rápido - Enviar</string>
+    <string name="nearby_share_title_receive">Compartir rápido - Recibir</string>
+    <string name="nearby_share_explain_intro">Comparte rápidamente un libro entre dos dispositivos cercanos con BookPlayer instalado. (no se requiere internet)</string>
+    <string name="nearby_share_explain_send">➜ Para recibir ese libro, en el otro dispositivo, toca el menú de tres puntos (superior derecho) en la pantalla principal y toca [Compartir rápido].</string>
+    <string name="nearby_share_explain_receive">➜ Para enviar un libro, abre un libro en el otro dispositivo, luego abre sus ajustes (icono superior derecho) y toca [Compartir rápido] en la parte inferior.</string>
+    <string name="nearby_share_transfer_progress">También transferir progreso y ajustes del libro</string>
+    <string name="nearby_share_waiting_for_book">Esperando el libro…</string>
+    <string name="error_download_corrupted_try_again">Descarga corrupta. Por favor, intenta descargar de nuevo.</string>
+
+    <!-- Nearby Sharing Updates -->
+    <string name="nearby_share_error_no_folder">Error: No hay carpeta para compartir</string>
+    <string name="nearby_share_connected_to">Conectado a: %s</string>
+    <string name="nearby_share_transfer_cancelled_other">Transferencia cancelada por el usuario en el otro dispositivo</string>
+    <string name="nearby_share_transfer_cancelled">Transferencia cancelada</string>
+    <string name="nearby_share_preparing_data">Preparando datos para enviar…</string>
+    <string name="nearby_share_advertising_started">Publicidad iniciada…</string>
+    <string name="nearby_share_connection_initiated">Conexión iniciada: %s</string>
+    <string name="nearby_share_connection_established">Conexión establecida. Enviando datos…</string>
+    <string name="nearby_share_sending_file_progress">Enviando archivo n°%1$d/%2$d - %3$d%%\n%4$s</string>
+    <string name="nearby_share_sending_progress">Enviando %1$s… %2$d%%</string>
+    <string name="nearby_share_waiting_confirmation">Datos enviados, esperando confirmación…</string>
+    <string name="nearby_share_discovery_started">Descubrimiento iniciado…</string>
+    <string name="nearby_share_connected_waiting">Conectado. Esperando datos…</string>
+    <string name="nearby_share_error_location_hint">\n\nComprueba si el interruptor de ubicación del dispositivo está desactivado en la configuración</string>
+    <string name="nearby_share_metadata_received">Metadatos recibidos, iniciando transferencia…</string>
+    <string name="nearby_share_error_other_device_prefix">Error en el otro dispositivo :\n%s</string>
+    <string name="nearby_share_files_written">%1$d/%2$d archivos escritos en el disco</string>
+    <string name="nearby_share_now_writing">escribiendo ahora - %1$d%% \n%2$s</string>
+    <string name="nearby_share_last_written">último escrito : \n%s</string>
+    <string name="nearby_share_transfer_complete_with_name">Transferencia completa: %s</string>
+    <string name="nearby_share_stopped_with_error">Detenido: %s</string>
+    <string name="nearby_share_stopped">Detenido</string>
+    <string name="nearby_share_error_base_folder">Error al crear la carpeta base: %s</string>
+    <string name="nearby_share_error_create_folder">Error al crear la carpeta: %s</string>
+    <string name="nearby_share_error_creating_book_folder">Error al crear la carpeta del libro : %s</string>
+    <string name="nearby_share_error_book_exists_db">El libro ya existe en la base de datos: %s</string>
+    <string name="nearby_share_error_folder_exists_fs">La carpeta ya existe en el sistema de archivos: %s</string>
+    <string name="nearby_share_error_import">Error al importar el libro: %s</string>
+    <string name="nearby_share_error_advertising_failed">Error en la publicidad: %s</string>
+    <string name="nearby_share_error_discovery_failed">Error en el descubrimiento: %s</string>
+    <string name="nearby_share_error_connection_request_failed">Error en la solicitud de conexión: %s</string>
+    <string name="nearby_share_error_data_preparation_failed">Error en la preparación de datos</string>
+    <string name="nearby_share_error_send_data_failed">Error al enviar los datos del libro: %s</string>
+    <string name="nearby_share_error_connection_failed_status">Conexión fallida con el estado: %s</string>
+    <string name="nearby_share_error_connection_lost">Conexión perdida</string>
+    <string name="nearby_share_error_payload_transfer_failed">Error en la transferencia de la carga útil: %s</string>
+    <string name="nearby_share_error_unknown">Error desconocido</string>
+
 </resources>
+

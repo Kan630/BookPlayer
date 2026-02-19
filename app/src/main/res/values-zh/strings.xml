@@ -3,7 +3,7 @@
     <!-- NO TRANSLATION (translatable=false) -->
 
 
-    <string name="app_name" translatable="false">BookPlayer</string>
+    <string name="app_name" translatable="false">BookPlayerPure</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
     <string name="asset_statements" translatable="false">
@@ -135,7 +135,6 @@
     <string name="links">链接</string>
     <string name="listened">已播放</string>
     <string name="loading">加载中</string>
-    <string name="loading_step_1">正在初始化…</string>
     <string name="loading_step_2">正在扫描封面、大小和轨道数量…\n无需等待，点击确认按钮即可。</string>
     <string name="Location">位置</string>
     <string name="Logging">日志记录</string>
@@ -365,15 +364,17 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 ]]></string>
     <string name="help_permission_title">权限：</string>
     <string name="help_permission_text"><![CDATA[
-BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行。
-<br><br>
-但若需完整功能：
-<ul>
-<li><b>读取音频</b> → 访问外部存储</li>
-<li><b>麦克风</b> → 启用音频可视化效果</li>
-</ul>
-拒绝权限不会使应用崩溃 —— BookPlayer 会自动适配。
-]]></string>
+    BookPlayer <font color="#81C784">无需权限即可运行</font>。
+    <br><br>
+    但为了获得完整功能：
+    <ul>
+    <li><b>读取音频</b> → 访问外部存储</li>
+    <li><b>麦克风</b> → 启用声音可视化器</li>
+    <li><b>位置/蓝牙</b> → 启用快速分享功能</li>
+    </ul>
+    拒绝权限不会导致应用崩溃 — BookPlayer 会自动适应。
+    ]]></string>
+
     <string name="help_tellme_title">联系开发者：</string>
     <string name="help_tellme_text"><![CDATA[
 遇到问题或发现错误？
@@ -384,18 +385,22 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
 ]]></string>
     <string name="help_forum_title">论坛：</string>
     <string name="help_forum_text"><![CDATA[
-<font color="#BA68C8"><b>加入 BookPlayer 社区</b></font>
-<br><br>
-一个新的<font color="#90D8E8">论坛</font>已于 <i>2025年6月</i>上线，作为一个小实验。
-<br><br>
-目前还比较安静 😊，但您可以注册账号以：
-<ul>
-<li><font color="#FFCC80">报告错误</font></li>
-<li><font color="#FFCC80">建议新功能</font></li>
-<li><font color="#FFCC80">分享技巧和有声书</font></li>
-</ul>
-所有帖子对公众可读。登录即可参与。
-]]></string>
+    <font color="#BA68C8"><b>加入 BookPlayer 社区</b></font>
+    <br><br>
+    我们建立了一个<font color="#90D8E8">论坛</font>，用于：
+    <br><br>
+    <ul>
+    <li><font color="#FFCC80">报告错误</font></li>
+    <li><font color="#FFCC80">建议新功能</font></li>
+    <li><font color="#FFCC80">分享技巧和有声书</font></li>
+    </ul>
+    所有帖子均为公开可见。
+    <br><br>
+    目前还比较冷清，但欢迎随时注册并发布内容！
+    <br><br>
+    <a href="https://bookplayer.flarum.cloud/">https://bookplayer.flarum.cloud/</a>
+    ]]></string>
+
 
 
     <string name="option_timeBeforeSleep">自动暂停</string>
@@ -712,7 +717,6 @@ BookPlayer 在<font color="#81C784">无需权限</font>的情况下也能运行�
     <string name="MB_taken_by_databases">" MB 被数据库占用"</string>
     
     <!-- Stats Activity Table -->
-    <string name="stats_audio_time">播放时间</string>
     <string name="stats_book_time">* 有声读物</string>
     <string name="stats_tts_time">* 电子书</string>
     <string name="stats_radio_time">* 广播</string>
@@ -1081,7 +1085,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 
     <!-- Nearby Sharing -->
     <string name="share_book">分享书籍</string>
-    <string name="nearby_share_explain">在两台安装了 BookPlayer 的设备之间快速分享书籍（无需互联网）。\n\n➜ 分享：打开书籍，进入选项（右上角图标），点击底部的 [快速分享]。\n\n➜ 接收：点击主屏幕右上角的三个点菜单，选择 [快速分享]。</string>
+    <string name="deprecated_nearby_share_explain">在两台安装了 BookPlayer 的设备之间快速分享书籍（无需互联网）。\n\n➜ 分享：打开书籍，进入选项（右上角图标），点击底部的 [快速分享]。\n\n➜ 接收：点击主屏幕右上角的三个点菜单，选择 [快速分享]。</string>
     <string name="Quick_Share_3dots">快速分享…</string>
     <string name="nearby_share_send_tab">发送</string>
     <string name="nearby_share_receive_tab">接收</string>
@@ -1101,7 +1105,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="nearby_share_auto_importing">正在自动完成书籍导入…</string>
     <string name="nearby_share_permissions_required">快速分享需要蓝牙和位置权限</string>
     <string name="nearby_share_no_devices">未发现设备</string>
-    <string name="nearby_share_book_info">书籍：%1$s (%2$d 轨道，%3$s)</string>
+    <string name="nearby_share_book_info">(%1$d 轨道，%2$s)</string>
     <string name="nearby_share_receive_mode_info">正在等待接收来自附近设备的书籍…</string>
     <string name="nearby_share_ready">就绪</string>
 
@@ -1129,4 +1133,71 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="screensaver_force_orientation">强制方向</string>
     <string name="portrait">竖屏</string>
     <string name="landscape">横屏</string>
+    <string name="loading_step_1">正在初始化…</string>
+
+    <string name="help_quick_share_title">快速分享 :</string>
+    <string name="help_quick_share_text"><![CDATA[
+    <font color="#BA68C8"><b>在设备间分享书籍</b></font>
+    <br><br>
+    在安装了 BookPlayer 的两台附近设备之间快速分享书籍（无需互联网）。
+    <br><br>
+    <b>发送：</b>
+    <br>
+    打开一本书，然后打开<font color="#90D8E8">设置</font>（右上角图标），点击底部的<font color="#FFCC80">快速分享</font>。
+    <br><br>
+    <b>接收：</b>
+    <br>
+    点击主屏幕上的<font color="#64B5F6">三点菜单</font>（右上角），选择<font color="#FFCC80">快速分享</font>。
+    <br><br>
+    <b>注意：</b> 两台设备都必须启用蓝牙和定位服务。
+    ]]></string>
+
+    <string name="nearby_share_title_send">快速分享 - 发送</string>
+    <string name="nearby_share_title_receive">快速分享 - 接收</string>
+    <string name="nearby_share_explain_intro">在附近设备间快速分享书籍（无需网络）。</string>
+    <string name="nearby_share_explain_send">➜ 接收：在另一台设备的主菜单中选择 [快速分享]。</string>
+    <string name="nearby_share_explain_receive">➜ 发送：在另一台设备的书籍设置中选择 [快速分享]。</string>
+    <string name="nearby_share_transfer_progress">同时传输进度和设置</string>
+    <string name="nearby_share_waiting_for_book">等待书籍…</string>
+    <string name="error_download_corrupted_try_again">下载损坏。请重试。</string>
+
+    <!-- Nearby Sharing Updates -->
+    <string name="nearby_share_error_no_folder">错误：没有可分享的文件夹</string>
+    <string name="nearby_share_connected_to">已连接到：%s</string>
+    <string name="nearby_share_transfer_cancelled_other">另一台设备上的用户已取消传输</string>
+    <string name="nearby_share_transfer_cancelled">传输已取消</string>
+    <string name="nearby_share_preparing_data">正在准备发送数据…</string>
+    <string name="nearby_share_advertising_started">广播已启动…</string>
+    <string name="nearby_share_connection_initiated">连接已启动：%s</string>
+    <string name="nearby_share_connection_established">连接已建立。正在发送数据…</string>
+    <string name="nearby_share_sending_file_progress">正在发送文件第 %1$d/%2$d 个 - %3$d%%\n%4$s</string>
+    <string name="nearby_share_sending_progress">正在发送 %1$s… %2$d%%</string>
+    <string name="nearby_share_waiting_confirmation">数据已发送，等待确认…</string>
+    <string name="nearby_share_discovery_started">发现已启动…</string>
+    <string name="nearby_share_connected_waiting">已连接。等待数据…</string>
+    <string name="nearby_share_error_location_hint">\n\n请检查设备设置中的位置开关是否已关闭</string>
+    <string name="nearby_share_metadata_received">元数据已接收，开始传输…</string>
+    <string name="nearby_share_error_other_device_prefix">其他设备错误：\n%s</string>
+    <string name="nearby_share_files_written">%1$d/%2$d 文件已写入磁盘</string>
+    <string name="nearby_share_now_writing">正在写入 - %1$d%% \n%2$s</string>
+    <string name="nearby_share_last_written">最后写入：\n%s</string>
+    <string name="nearby_share_transfer_complete_with_name">传输完成：%s</string>
+    <string name="nearby_share_stopped_with_error">已停止：%s</string>
+    <string name="nearby_share_stopped">已停止</string>
+    <string name="nearby_share_error_base_folder">创建根文件夹失败：%s</string>
+    <string name="nearby_share_error_create_folder">创建文件夹失败：%s</string>
+    <string name="nearby_share_error_creating_book_folder">创建书籍文件夹时出错：%s</string>
+    <string name="nearby_share_error_book_exists_db">数据库中已存在该书籍：%s</string>
+    <string name="nearby_share_error_folder_exists_fs">文件系统中已存在该文件夹：%s</string>
+    <string name="nearby_share_error_import">导入书籍失败：%s</string>
+    <string name="nearby_share_error_advertising_failed">广播失败：%s</string>
+    <string name="nearby_share_error_discovery_failed">发现失败：%s</string>
+    <string name="nearby_share_error_connection_request_failed">连接请求失败：%s</string>
+    <string name="nearby_share_error_data_preparation_failed">数据准备失败</string>
+    <string name="nearby_share_error_send_data_failed">发送书籍数据失败：%s</string>
+    <string name="nearby_share_error_connection_failed_status">连接失败，状态：%s</string>
+    <string name="nearby_share_error_connection_lost">连接已断开</string>
+    <string name="nearby_share_error_payload_transfer_failed">负载传输失败：%s</string>
+    <string name="nearby_share_error_unknown">未知错误</string>
+
 </resources>
