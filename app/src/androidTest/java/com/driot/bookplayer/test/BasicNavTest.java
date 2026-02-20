@@ -99,7 +99,7 @@ public abstract class BasicNavTest implements LogSupport {
         //menu_manual
 
         MenuHelpers.tapMenu(com.driot.bookplayer.R.string.manual);
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.tvHelpText)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.tv_help_text_general)).check(matches(isDisplayed()));
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());

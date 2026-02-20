@@ -202,4 +202,5 @@ dependencies {
     androidTestImplementation "com.google.truth:truth:1.4.5"
     androidTestImplementation "androidx.work:work-testing:2.11.1"
 
+    androidTestImplementation(project(path: ":app"))
 }
