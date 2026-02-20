@@ -2,8 +2,10 @@ package com.driot.bookplayer.test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
+import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.action.ViewActions.swipeUp;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.isEnabled;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
@@ -293,7 +295,10 @@ public class LoadManyBookTest implements LogSupport {
             while (System.currentTimeMillis() - startWait < TIMEOUT_SINGLE_IMPORT_READY) {
                 try {
                     // Check button
-                    onView(withId(R.id.btnConfirm)).check(matches(isEnabled()));
+                    onView(withId(R.id.btnConfirm))
+                            .perform(scrollTo())
+                            .check(matches(isDisplayed()))
+                            .check(matches(isEnabled()));
                     break;
                 } catch (AssertionError | Exception e) {
                     // Check error text

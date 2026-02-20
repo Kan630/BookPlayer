@@ -10,15 +10,23 @@ import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.*;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+
+import androidx.test.espresso.PerformException;
+import androidx.test.espresso.UiController;
+import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.contrib.RecyclerViewActions;
+
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.allOf;
 
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.view.View;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.espresso.util.HumanReadables;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -35,7 +43,9 @@ import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.MenuHelpers;
 import com.driot.bookplayer.testutil.TestNavUtils;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.views.SettingsSectionView;
 
+import org.hamcrest.Matcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -93,13 +103,13 @@ public abstract class BasicNavTest implements LogSupport {
         // TODO change your custom menu top stock menu, so you can use this handy method
         // TODO => openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());onView(withText(R.string.menu_open)).perform(click());
 // 1) Make sure toolbar is there
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.toolbar)).check(matches(isDisplayed()));
+        onView(ViewMatchers.withId(R.id.toolbar)).check(matches(isDisplayed()));
         myLogD("toolbar reachable");
 
         //menu_manual
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.manual);
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.tv_help_text_general)).check(matches(isDisplayed()));
+        MenuHelpers.tapMenu(R.string.manual);
+        onView(ViewMatchers.withId(R.id.tv_help_text_general)).check(matches(isDisplayed()));
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
@@ -107,35 +117,126 @@ public abstract class BasicNavTest implements LogSupport {
 
         //menu_settings
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.settings);
+        MenuHelpers.tapMenu(R.string.settings);
         TestNavUtils.logCurrentActivity();
-        onView(ViewMatchers.withId(R.id.section_play_behaviour)).perform(scrollTo(), click());
-        onView(ViewMatchers.withId(R.id.section_play_behaviour)).perform(scrollTo(), click());
-        onView(ViewMatchers.withId(R.id.section_design)).perform(scrollTo(), click());
-        onView(ViewMatchers.withId(R.id.section_design)).perform(scrollTo(), click());
+// Expand Play Behaviour
+// Expand Play Behaviour
+        onView(withId(R.id.section_play_behaviour))  // root of SettingsSectionView
+                .perform(scrollTo());  // ensure visible
 
-/*
-        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertPressBackTo(SettingsActivity.class);
-        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btn_show_advanced)).perform(click());
-        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(withId(com.driot.bookplayer.R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
+// Then click — but use a custom action to force performClick() on the header child
+        onView(withId(R.id.section_play_behaviour))
+                .perform(new ViewAction() {
+                    @Override
+                    public Matcher<View> getConstraints() {
+                        return isAssignableFrom(SettingsSectionView.class);
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Click the header view inside SettingsSectionView";
+                    }
+
+                    @Override
+                    public void perform(UiController uiController, View view) {
+                        SettingsSectionView section = (SettingsSectionView) view;
+                        View header = section.getHeaderView();  // ← this is exactly what you set the listener on!
+                        if (header != null) {
+                            header.performClick();  // directly calls performClick() → bypasses Espresso tap simulation
+                        } else {
+                            throw new PerformException.Builder()
+                                    .withActionDescription(getDescription())
+                                    .withViewDescription(HumanReadables.describe(view))
+                                    .withCause(new RuntimeException("Header view is null"))
+                                    .build();
+                        }
+                    }
+                });
+
+        TestNavUtils.sleep(500);
+
+        // Verify something inside the expanded fragment
+        onView(withId(R.id.etTimeBeforeSleep))
+                .perform(scrollTo())
+                .check(matches(isDisplayed()));
+
+        // Expand Design
+        onView(withId(R.id.section_design))
+                .perform(new ViewAction() {
+                    @Override
+                    public Matcher<View> getConstraints() {
+                        return isAssignableFrom(SettingsSectionView.class);
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Click the header view inside SettingsSectionView";
+                    }
+
+                    @Override
+                    public void perform(UiController uiController, View view) {
+                        SettingsSectionView section = (SettingsSectionView) view;
+                        View header = section.getHeaderView();  // ← this is exactly what you set the listener on!
+                        if (header != null) {
+                            header.performClick();  // directly calls performClick() → bypasses Espresso tap simulation
+                        } else {
+                            throw new PerformException.Builder()
+                                    .withActionDescription(getDescription())
+                                    .withViewDescription(HumanReadables.describe(view))
+                                    .withCause(new RuntimeException("Header view is null"))
+                                    .build();
+                        }
+                    }
+                });
+
+        TestNavUtils.sleep(500);
+
+        // TODO continue
+        /*
+
+        // Verify Design content
+        onView(withId(R.id.sp_font_family))  // example
+                .perform(scrollTo())
+                .check(matches(isDisplayed()));
+
+         */
+        /*
+        // Optional: collapse Design again
+        onView(withId(R.id.section_design))
+                .perform(click());
+
+        // Assert collapsed
+        onView(withId(R.id.sp_font_family))
+                .check(matches(not(isDisplayed())));
+
+         */
+
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        //menu_stats
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_stats);
+        //menu_stats
+        MenuHelpers.tapMenu(R.string.Stats);
         TestNavUtils.logCurrentActivity();
         TestNavUtils.sleep(2_000); //let time to populate
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);        
+        
+/*
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        TestNavUtils.logCurrentActivity();
+        TestNavUtils.assertPressBackTo(SettingsActivity.class);
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(ViewMatchers.withId(R.id.btn_show_advanced)).perform(click());
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
         TestNavUtils.assertPressBackTo(MainActivity.class);
+
+
 
         //menu_clean
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.menu_cacheFiles);
+        MenuHelpers.tapMenu(R.string.menu_cacheFiles);
         TestNavUtils.logCurrentActivity();
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
@@ -143,21 +244,21 @@ public abstract class BasicNavTest implements LogSupport {
 */
         //menu_open
 
-        MenuHelpers.tapMenu(com.driot.bookplayer.R.string.open);
+        MenuHelpers.tapMenu(R.string.open);
         TestNavUtils.logCurrentActivity();
         myLog("in GET");
 
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bOpenOther)).perform(click());   //perform(scrollTo());
+        onView(ViewMatchers.withId(R.id.bOpenOther)).perform(click());   //perform(scrollTo());
         TestNavUtils.logCurrentActivity();
         TestNavUtils.assertWaitForActivity(GetOtherActivity.class, 1_000, "not in get others");
         myLog("in GET OTHER");
 
         for (int i = 0; i < 3; i++) {
-            onView(ViewMatchers.withId(com.driot.bookplayer.R.id.viewSecretEntry)).perform(click());
+            onView(ViewMatchers.withId(R.id.viewSecretEntry)).perform(click());
         }
         myLog("in SECRET DEV");
 
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.bAutoTest_b1)).perform(click());
+        onView(ViewMatchers.withId(R.id.bAutoTest_b1)).perform(click());
         TestNavUtils.sleep(1_000);
         TestNavUtils.logCurrentActivity();
         TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000, "not in load book");
@@ -165,7 +266,7 @@ public abstract class BasicNavTest implements LogSupport {
 
         onView(withId(android.R.id.content)).perform(swipeUp());
         TestNavUtils.logCurrentActivity();
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.btnConfirm)).perform(click());
+        onView(ViewMatchers.withId(R.id.btnConfirm)).perform(click());
         TestNavUtils.logCurrentActivity();
         TestNavUtils.assertWaitForAnyActivity(2_000, AddResourceActivity.class, MainActivity.class);
         myLog("in ADD RESOURCE");
@@ -177,7 +278,7 @@ public abstract class BasicNavTest implements LogSupport {
         // play audio
 
         TestNavUtils.assertWaitForActivity(MainActivity.class, 1_000, "not in main");
-        onView(ViewMatchers.withId(com.driot.bookplayer.R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+        onView(ViewMatchers.withId(R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
         TestNavUtils.sleep(5_000);
         TestNavUtils.logCurrentActivity();
 
