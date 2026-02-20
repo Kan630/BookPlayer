@@ -148,7 +148,6 @@ public class UncompressWorker extends ImportWorker {
                     myLogE("Could not delete corrupted zip file: " + zipFilePath);
                 }
                 emitFailed(TASK_NAME, "Download corrupted", context.getString(R.string.error_download_corrupted_try_again));
-
             } else {
                 emitFailed(TASK_NAME, e.getMessage(), null);
             }

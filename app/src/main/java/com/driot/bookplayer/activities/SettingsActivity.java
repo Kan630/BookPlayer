@@ -10,6 +10,19 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.views.SettingsSectionView;
 
+import com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment;
+import com.driot.bookplayer.settings.ui.DesignSettingsFragment;
+import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
+import com.driot.bookplayer.settings.ui.LanguageSettingsFragment;
+import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
+import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
+import com.driot.bookplayer.settings.ui.NetworkSettingsFragment;
+import com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment;
+import com.driot.bookplayer.settings.ui.PodcastSettingsFragment;
+import com.driot.bookplayer.settings.ui.RadioSettingsFragment;
+import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
+import com.driot.bookplayer.settings.ui.UtilitiesSettingsFragment;
+
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -61,84 +74,84 @@ public class SettingsActivity extends BaseBottomNavActivity {
         registerSection(
                 sectionLanguage,
                 "expand_language",
-                () -> new com.driot.bookplayer.settings.ui.LanguageSettingsFragment(),
+                LanguageSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionPlay = findViewById(R.id.section_play_behaviour);
         registerSection(
                 sectionPlay,
                 "expand_play_behaviour",
-                () -> new com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment(),
+                PlayBehaviourSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionDesign = findViewById(R.id.section_design);
         registerSection(
                 sectionDesign,
                 "expand_design",
-                () -> new com.driot.bookplayer.settings.ui.DesignSettingsFragment(),
+                DesignSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionImport = findViewById(R.id.section_import);
         registerSection(
                 sectionImport,
                 "expand_import",
-                () -> new com.driot.bookplayer.settings.ui.ImportSettingsFragment(),
+                ImportSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionLibrivox = findViewById(R.id.section_librivox);
         registerSection(
                 sectionLibrivox,
                 "expand_librivox",
-                () -> new com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment(),
+                LibrivoxSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionRadio = findViewById(R.id.section_radio);
         registerSection(
                 sectionRadio,
                 "expand_radio",
-                () -> new com.driot.bookplayer.settings.ui.RadioSettingsFragment(),
+                RadioSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionPodcast = findViewById(R.id.section_podcast);
         registerSection(
                 sectionPodcast,
                 "expand_podcast",
-                () -> new com.driot.bookplayer.settings.ui.PodcastSettingsFragment(),
+                PodcastSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionTts = findViewById(R.id.section_tts);
         registerSection(
                 sectionTts,
                 "expand_tts",
-                () -> new com.driot.bookplayer.settings.ui.TtsSettingsFragment(),
+                TtsSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionAutomotive = findViewById(R.id.section_automotive);
         registerSection(
                 sectionAutomotive,
                 "expand_automotive",
-                () -> new com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment(),
+                AutomotiveSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionNetwork = findViewById(R.id.section_network);
         registerSection(
                 sectionNetwork,
                 "expand_network",
-                () -> new com.driot.bookplayer.settings.ui.NetworkSettingsFragment(),
+                NetworkSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionUtilities = findViewById(R.id.section_utilities);
         registerSection(
                 sectionUtilities,
                 "expand_utilities",
-                () -> new com.driot.bookplayer.settings.ui.UtilitiesSettingsFragment(),
+                UtilitiesSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionMassiveImport = findViewById(R.id.section_massive_import);
         registerSection(
                 sectionMassiveImport,
                 "expand_massive_import",
-                () -> new com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment(),
+                MassiveImportSettingsFragment::new,
                 savedInstanceState);
 
     }
@@ -217,7 +230,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
             // so we run last
             scrollView.post(() -> scrollView.post(() -> {
                 if (Math.abs(scrollView.getScrollY() - position) <= 4) {   // tolerance of ~4px
-                    myLogD("already ≈ at " + position + " — skip restore");
+                    myLogD("already around at " + position + " — skip restore");
                     return;
                 }
                 myLogD("scrolling to position : " + position);
@@ -234,12 +247,12 @@ public class SettingsActivity extends BaseBottomNavActivity {
     }
 
     private static final class SectionHost {
-        final com.driot.bookplayer.views.SettingsSectionView sectionView;
+        final SettingsSectionView sectionView;
         final String stateKey;
         final FragmentFactory factory;
         boolean expanded;
 
-        SectionHost(com.driot.bookplayer.views.SettingsSectionView sectionView,
+        SectionHost(SettingsSectionView sectionView,
                 String stateKey,
                 FragmentFactory factory) {
             this.sectionView = sectionView;
