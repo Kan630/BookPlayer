@@ -114,6 +114,11 @@ public class LoadManyBookTest implements LogSupport {
     int nbPlayed = 0;
     int nbImported = 0;
     String lastImport;
+    int nb_TESTS;
+    int current_TEST;
+    int nb_subTESTS;
+    int current_subTEST;
+
 
     @Rule
     public LoggingWatcher logs = new LoggingWatcher();
@@ -176,23 +181,28 @@ public class LoadManyBookTest implements LogSupport {
         myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
         myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
         myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
+        nb_TESTS = TESTS.size();
+        current_TEST = 0;
         for (TestCase tc : TESTS) {
             myLog(tc.uri_type + " - " + tc.assetFolderPath);
         }
 
         for (TestCase tc : TESTS) {
+            current_TEST += 1;
             List<String> assetFiles = listAssetFilesRecursively(testContext.getAssets(), tc.assetFolderPath); // <-- use
                                                                                                               // testContext
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
             myLogI("---------------------------------------- ooooooooooooooooooooooo ---------------------------------------------------------------------");
             myLogI("--------------------------------------------------------------------------------------------------------------------------------------");
-            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type,
-                    tc.assetFolderPath, assetFiles.size()));
+            myLogI("         Import => " + String.format("TestCase '%s'-'%s' -> %d files", tc.uri_type, tc.assetFolderPath, assetFiles.size()));
             myLogD("--------------------------------------------------");
             if ("Folder".equals(tc.uri_type)) {
                 List<String> subdirs = listAssetSubdirectories(testContext.getAssets(), tc.assetFolderPath);
-                myLog("Found " + subdirs.size() + " folders to import under " + tc.assetFolderPath);
+                nb_subTESTS = subdirs.size();
+                current_subTEST = 0;
+                myLog("Found " + nb_subTESTS + " folders to import under " + tc.assetFolderPath);
                 for (String assetDir : subdirs) {
+                    current_subTEST += 1;
                     Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
                     int idFolder = runImport(dirUri, tc.uri_type);
                     if (idFolder != -1) {
@@ -204,7 +214,10 @@ public class LoadManyBookTest implements LogSupport {
                         return;
                 }
             } else {
+                nb_subTESTS = assetFiles.size();
+                current_subTEST = 0;
                 for (String assetPath : assetFiles) {
+                    current_subTEST += 1;
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
                     int idFolder = runImport(contentUri, tc.uri_type);
                     if (idFolder != -1) {
@@ -373,7 +386,7 @@ public class LoadManyBookTest implements LogSupport {
 
             String logDuration = duration + "  " + targetName;
             myLogI("-----------------------------------------------------------------------------------------------------------------------------");
-            myLogI("Import n°" + nbImported + ": Duration: " + logDuration);
+            myLogI("Import n°" + nbImported + "[" + current_subTEST + "/" + nb_TESTS + "] [" + current_TEST + "/" + nb_TESTS  + "]: Duration: " + logDuration);
             String newLineMsg = "\n" + logDuration;
 
             // log warnings
@@ -587,7 +600,7 @@ public class LoadManyBookTest implements LogSupport {
         if (count <= 0)
             throw new AssertionError("Recycler has no items to click (id=" + recyclerId + ")");
         int index = (int) (Math.random() * count);
-        myLog("Clicking item index " + index + " / " + count);
+        myLog("Clicking item index " + index + 1 + " / " + count);
 
         myLog("Waiting DEBUG_VISUAL_CHECK before clicking track...");
         Thread.sleep(DEBUG_VISUAL_CHECK);
