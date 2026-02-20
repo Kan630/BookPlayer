@@ -20,11 +20,8 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
-import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
@@ -119,7 +116,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                             context.getString(R.string.Error_Import_CannotReadFolder));
                     return Result.failure();
                 }
-                failsafeCheckTextOnly(df);
+                failSafeCheckTextOnly(df);
                 populateArrayListOfTracksFromFolder(df);
 
             } else {
@@ -182,21 +179,107 @@ public class FinalParseFolderWorker extends ImportWorker {
         goFolder();
     }
 
-    private void failsafeCheckTextOnly(DocumentFile df) {
+    private void failSafeCheckTextOnly(DocumentFile df) {
         if (importJob.playType != null && importJob.playType.equals(Var.PLAY_TYPE_TEXT)) {
             return;
         }
+
+        // ── Pass 1: Check current directory ────────────────────────────────
+        int nbTextCurrent = 0;
+        boolean hasMediaCurrent = false;
+
         DocumentFile[] files = df.listFiles();
         for (DocumentFile f : files) {
-            if (!f.isDirectory()) {
-                if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
-                    return;
+            if (f.isDirectory()) {
+                continue;
+            }
+
+            if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
+                hasMediaCurrent = true;
+                break; // early exit — we already know it's not text-only
+            } else if (SupportedFilesHelper.isText(f)) {
+                long fileSize = f.length();
+                if (fileSize > 1000) {
+                    nbTextCurrent++;
+                } else {
+                    myLogD("text file too short [" + f.getName() + "] : " + fileSize);
                 }
             }
         }
-        myLogW("PLAY TYPE ERROR: Folder contains only text files but type was " + importJob.playType
-                + ". Forcing TEXT.");
-        importJob.playType = Var.PLAY_TYPE_TEXT;
+
+        if (hasMediaCurrent) {
+            return; // found media → no need to do anything
+        }
+
+        // ── Pass 2: No media in current folder → check direct subfolders (level 1) ──
+        int nbTextLevel1 = 0;
+        boolean hasMediaLevel1 = false;
+
+        for (DocumentFile sub : files) {
+            if (!sub.isDirectory()) continue;
+
+            DocumentFile[] subFiles = sub.listFiles();
+            for (DocumentFile f : subFiles) {
+                if (f.isDirectory()) continue;
+
+                if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
+                    hasMediaLevel1 = true;
+                    break;
+                } else if (SupportedFilesHelper.isText(f)) {
+                    long fileSize = f.length();
+                    if (fileSize > 1000) {
+                        nbTextLevel1++;
+                    }
+                }
+            }
+
+            if (hasMediaLevel1) break;
+        }
+
+        if (hasMediaLevel1) {
+            return; // found media in level 1 subfolders → keep original type
+        }
+
+        // ── Pass 3: Still nothing → check level 2 subfolders ───────────────────────
+        boolean hasMediaLevel2 = false;
+        int nbTextLevel2 = 0;
+
+        outer:
+        for (DocumentFile sub1 : files) {
+            if (!sub1.isDirectory()) continue;
+
+            DocumentFile[] sub1Files = sub1.listFiles();
+            for (DocumentFile sub2 : sub1Files) {
+                if (!sub2.isDirectory()) continue;
+
+                DocumentFile[] sub2Files = sub2.listFiles();
+                for (DocumentFile f : sub2Files) {
+                    if (f.isDirectory()) continue;
+
+                    if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
+                        hasMediaLevel2 = true;
+                        break outer;
+                    } else if (SupportedFilesHelper.isText(f)) {
+                        long fileSize = f.length();
+                        if (fileSize > 1000) {
+                            nbTextLevel2++;
+                        }
+                    }
+                }
+            }
+        }
+
+        // ── Decision logic ──────────────────────────────────────────────────────────
+        int totalUsefulText = nbTextCurrent + nbTextLevel1 + nbTextLevel2;
+
+        if (totalUsefulText >= 2 || (totalUsefulText >= 1 && nbTextCurrent >= 1)) {
+            myLogW("PLAY TYPE CORRECTION: No audio/video found in folder + subfolders (up to level 2). " +
+                    "Found " + totalUsefulText + " usable text files. Forcing TEXT mode.");
+            importJob.playType = Var.PLAY_TYPE_TEXT;
+        } else {
+            myLogD("No media and not enough meaningful text files found (total usable text = " +
+                    totalUsefulText + "). Keeping original playType: " + importJob.playType);
+        }
     }
 
     private void populateArrayListOfTracksFromFolder(DocumentFile dfPickedDir) {
