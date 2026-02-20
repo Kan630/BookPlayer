@@ -115,6 +115,29 @@ public abstract class BasicNavTest implements LogSupport {
         onView(withId(android.R.id.content)).perform(swipeDown());
         TestNavUtils.assertPressBackTo(MainActivity.class);
 
+        //menu_open
+        MenuHelpers.tapMenu(R.string.add_book);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+
+        //menu quick share
+        MenuHelpers.tapMenu(R.string.nearby_share_receive_book);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+
+        //menu_settings
+        MenuHelpers.tapMenu(R.string.settings);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+
+
+/*
         //menu_settings
 
         MenuHelpers.tapMenu(R.string.settings);
@@ -125,34 +148,7 @@ public abstract class BasicNavTest implements LogSupport {
                 .perform(scrollTo());  // ensure visible
 
 // Then click — but use a custom action to force performClick() on the header child
-        onView(withId(R.id.section_play_behaviour))
-                .perform(new ViewAction() {
-                    @Override
-                    public Matcher<View> getConstraints() {
-                        return isAssignableFrom(SettingsSectionView.class);
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "Click the header view inside SettingsSectionView";
-                    }
-
-                    @Override
-                    public void perform(UiController uiController, View view) {
-                        SettingsSectionView section = (SettingsSectionView) view;
-                        View header = section.getHeaderView();  // ← this is exactly what you set the listener on!
-                        if (header != null) {
-                            header.performClick();  // directly calls performClick() → bypasses Espresso tap simulation
-                        } else {
-                            throw new PerformException.Builder()
-                                    .withActionDescription(getDescription())
-                                    .withViewDescription(HumanReadables.describe(view))
-                                    .withCause(new RuntimeException("Header view is null"))
-                                    .build();
-                        }
-                    }
-                });
-
+        TestNavUtils.openSettingSection(R.id.section_play_behaviour);
         TestNavUtils.sleep(500);
 
         // Verify something inside the expanded fragment
@@ -160,38 +156,23 @@ public abstract class BasicNavTest implements LogSupport {
                 .perform(scrollTo())
                 .check(matches(isDisplayed()));
 
+        myLog("Settings - section play behaviour OK");
+
         // Expand Design
-        onView(withId(R.id.section_design))
-                .perform(new ViewAction() {
-                    @Override
-                    public Matcher<View> getConstraints() {
-                        return isAssignableFrom(SettingsSectionView.class);
-                    }
-
-                    @Override
-                    public String getDescription() {
-                        return "Click the header view inside SettingsSectionView";
-                    }
-
-                    @Override
-                    public void perform(UiController uiController, View view) {
-                        SettingsSectionView section = (SettingsSectionView) view;
-                        View header = section.getHeaderView();  // ← this is exactly what you set the listener on!
-                        if (header != null) {
-                            header.performClick();  // directly calls performClick() → bypasses Espresso tap simulation
-                        } else {
-                            throw new PerformException.Builder()
-                                    .withActionDescription(getDescription())
-                                    .withViewDescription(HumanReadables.describe(view))
-                                    .withCause(new RuntimeException("Header view is null"))
-                                    .build();
-                        }
-                    }
-                });
+        TestNavUtils.openSettingSection(R.id.section_design);
 
         TestNavUtils.sleep(500);
 
-        // TODO continue
+        myLog("Settings - section design OK");
+
+        myLog("Settings - closing section design");
+        TestNavUtils.openSettingSection(R.id.section_play_behaviour);
+
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+      myLog("back on Main");
+
+*/
+
         /*
 
         // Verify Design content
@@ -211,7 +192,6 @@ public abstract class BasicNavTest implements LogSupport {
 
          */
 
-        TestNavUtils.assertPressBackTo(MainActivity.class);
 
 
         //menu_stats
@@ -220,8 +200,18 @@ public abstract class BasicNavTest implements LogSupport {
         TestNavUtils.sleep(2_000); //let time to populate
         onView(withId(android.R.id.content)).perform(swipeUp());
         onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);        
-        
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+
+        //menu_clean
+        MenuHelpers.tapMenu(R.string.Cleaning);
+        TestNavUtils.logCurrentActivity();
+        onView(withId(android.R.id.content)).perform(swipeUp());
+        onView(withId(android.R.id.content)).perform(swipeDown());
+        TestNavUtils.assertPressBackTo(MainActivity.class);
+
+
+
+
 /*
         onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
         TestNavUtils.logCurrentActivity();
@@ -234,14 +224,10 @@ public abstract class BasicNavTest implements LogSupport {
 
 
 
-        //menu_clean
-
-        MenuHelpers.tapMenu(R.string.menu_cacheFiles);
-        TestNavUtils.logCurrentActivity();
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
 */
+
+
+        /*
         //menu_open
 
         MenuHelpers.tapMenu(R.string.open);
@@ -285,14 +271,7 @@ public abstract class BasicNavTest implements LogSupport {
         onView(ViewMatchers.withId(R.id.ibPlayPause)).perform(click());
         TestNavUtils.sleep(1_000);
 
-
-
-
-/*
-        onView(withId(R.id.bOpenFile)).perform(click());   //perform(scrollTo());
-        TestNavUtils.logCurrentActivity();
-
- */
+*/
 
 
         // Example: scroll to a view (useful inside ScrollView or RecyclerView)

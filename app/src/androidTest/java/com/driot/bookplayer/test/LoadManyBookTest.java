@@ -286,7 +286,7 @@ public class LoadManyBookTest implements LogSupport {
 
             onView(withId(android.R.id.content)).perform(swipeUp());
 
-            myLog("Waiting DEBUG_VISUAL_CHECK " + DEBUG_VISUAL_CHECK + "ms...");
+            myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " ms...");
             Thread.sleep(DEBUG_VISUAL_CHECK);
 
             myLog("Waiting for btnConfirm to be enabled or errorTextView to show error...");
@@ -391,7 +391,7 @@ public class LoadManyBookTest implements LogSupport {
 
             String logDuration = duration + "  " + targetName;
             myLogI("-----------------------------------------------------------------------------------------------------------------------------");
-            myLogI("Import n°" + nbImported + "[" + current_subTEST + "/" + nb_TESTS + "] [" + current_TEST + "/" + nb_TESTS  + "]: Duration: " + logDuration);
+            myLogI("Import n°" + nbImported + " [" + current_subTEST + "/" + nb_TESTS + "] [" + current_TEST + "/" + nb_TESTS  + "]: Duration: " + logDuration);
             String newLineMsg = "\n" + logDuration;
 
             // log warnings
@@ -547,7 +547,7 @@ public class LoadManyBookTest implements LogSupport {
         // 3) click the specific item in the main list
         waitForViewVisible(ID_MAIN_RECYCLER, 5_000, "MainActivity not visible");
 
-        myLog("Waiting DEBUG_VISUAL_CHECK before clicking folder...");
+        myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " before clicking folder...");
         Thread.sleep(DEBUG_VISUAL_CHECK);
 
         onView(withId(ID_MAIN_RECYCLER))
@@ -607,7 +607,7 @@ public class LoadManyBookTest implements LogSupport {
         int index = (int) (Math.random() * count);
         myLog("Clicking item index " + index + 1 + " / " + count);
 
-        myLog("Waiting DEBUG_VISUAL_CHECK before clicking track...");
+        myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " before clicking track...");
         Thread.sleep(DEBUG_VISUAL_CHECK);
 
         onView(withId(recyclerId))
@@ -621,7 +621,7 @@ public class LoadManyBookTest implements LogSupport {
         try {
             waitForViewVisible(ID_PLAY_BUTTON, 2_000, "Play button not visible by id");
 
-            myLog("Waiting DEBUG_VISUAL_CHECK before clicking Play...");
+            myLog("DEBUG_VISUAL_CHECK - Waiting " + DEBUG_VISUAL_CHECK + " before clicking Play...");
             Thread.sleep(DEBUG_VISUAL_CHECK);
 
             onView(withId(ID_PLAY_BUTTON)).perform(click());

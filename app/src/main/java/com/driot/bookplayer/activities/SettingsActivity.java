@@ -216,6 +216,10 @@ public class SettingsActivity extends BaseBottomNavActivity {
             // Apply after layout and after any scroll-to-top (e.g. initGoToTop); post twice
             // so we run last
             scrollView.post(() -> scrollView.post(() -> {
+                if (Math.abs(scrollView.getScrollY() - position) <= 4) {   // tolerance of ~4px
+                    myLogD("already ≈ at " + position + " — skip restore");
+                    return;
+                }
                 myLogD("scrolling to position : " + position);
                 scrollView.scrollTo(0, position);
             }));

@@ -49,12 +49,15 @@ import org.hamcrest.Matcher;
 ///     androidx.test.espresso.Espresso.pressBack(); // return to main screen before next item
 /// }
 
-
 public final class MenuHelpers {
 
-    private MenuHelpers() {}
+    private MenuHelpers() {
+    }
 
-    /** Clicks a menu item by id if shown on the toolbar; otherwise opens overflow and clicks by title. */
+    /**
+     * Clicks a menu item by id if shown on the toolbar; otherwise opens overflow
+     * and clicks by title.
+     */
     public static void tapMenu(@IdRes int menuItemId, @StringRes int menuTitleRes) {
         // 1) Try direct action button (if it’s in the toolbar “ifRoom”)
         try {
@@ -72,11 +75,10 @@ public final class MenuHelpers {
             myLog("Opened overflow via Espresso helper");
         } catch (Throwable ignored) {
             // Fallback: your custom 3-dots in the toolbar
-            Matcher threeDots = allOf(
+            Matcher<View> threeDots = allOf(
                     anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.three_dots)),
                     isDescendantOfA(withId(R.id.toolbar)),
-                    isDisplayed()
-            );
+                    isDisplayed());
             onView(threeDots).perform(click());
             myLog("Opened overflow via toolbar three-dots");
         }
@@ -100,8 +102,7 @@ public final class MenuHelpers {
             onView(allOf(
                     anyOf(withId(R.id.action_menu_three_dot), withContentDescription(R.string.three_dots)),
                     isDescendantOfA(withId(R.id.toolbar)),
-                    isDisplayed()
-            )).perform(click());
+                    isDisplayed())).perform(click());
             myLog("Opened overflow via toolbar three-dots");
         }
 
@@ -123,8 +124,7 @@ public final class MenuHelpers {
 
         Matcher<View> popupList = allOf(
                 isAssignableFrom(android.widget.AbsListView.class), // covers ListView/DropDownListView
-                isDisplayed()
-        );
+                isDisplayed());
 
         for (int i = 0; i < MAX_SWIPES; i++) {
             try {
@@ -159,7 +159,6 @@ public final class MenuHelpers {
             myLog("Tapped after final visibility check, overflow-only item: titleRes=" + resName(menuTitleRes));
         }
     }
-
 
     // --- tiny logging helpers (route to your logger if you want) ---
     private static void myLog(String msg) {

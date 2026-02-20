@@ -10,9 +10,11 @@ import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.test.espresso.Espresso;
 import androidx.test.espresso.NoMatchingViewException;
+import androidx.test.espresso.PerformException;
 import androidx.test.espresso.UiController;
 import androidx.test.espresso.ViewAction;
 import androidx.test.espresso.matcher.ViewMatchers;
+import androidx.test.espresso.util.HumanReadables;
 import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.test.runner.lifecycle.ActivityLifecycleMonitorRegistry;
 import androidx.test.runner.lifecycle.Stage;
@@ -21,13 +23,16 @@ import java.util.Collection;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
+import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.Var;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.views.SettingsSectionView;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -599,5 +604,37 @@ public class TestNavUtils {
         });
         return out[0];
     }
+
+    public static void openSettingSection(int id_section) {
+        onView(withId(id_section))
+                .perform(new ViewAction() {
+                    @Override
+                    public Matcher<View> getConstraints() {
+                        return isAssignableFrom(SettingsSectionView.class);
+                    }
+
+                    @Override
+                    public String getDescription() {
+                        return "Click the header view inside SettingsSectionView";
+                    }
+
+                    @Override
+                    public void perform(UiController uiController, View view) {
+                        SettingsSectionView section = (SettingsSectionView) view;
+                        View header = section.getHeaderView();  // ← this is exactly what you set the listener on!
+                        if (header != null) {
+                            header.performClick();  // directly calls performClick() → bypasses Espresso tap simulation
+                        } else {
+                            throw new PerformException.Builder()
+                                    .withActionDescription(getDescription())
+                                    .withViewDescription(HumanReadables.describe(view))
+                                    .withCause(new RuntimeException("Header view is null"))
+                                    .build();
+                        }
+                    }
+                });
+    }
+
+
 
 }

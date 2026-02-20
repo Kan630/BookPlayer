@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-02-16T14:39:30.483375Z">
+        <DropdownSelection timestamp="2026-02-20T11:14:10.970244400Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -75,9 +75,6 @@
         </DropdownSelection>
         <DialogSelection />
       </SelectionState>
-      <SelectionState runConfigName="PingTest">
-        <option name="selectionMode" value="DROPDOWN" />
-      </SelectionState>
       <SelectionState runConfigName="orderedTests">
         <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2025-10-17T11:53:43.067649800Z">
@@ -117,6 +114,9 @@
           </Target>
         </DropdownSelection>
         <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="BasicNavLandscapeTest">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>
