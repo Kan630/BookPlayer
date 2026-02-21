@@ -44,7 +44,6 @@ public class Pref {
     private static SharedPreferences book;
     private static SharedPreferences searchHistory;
     private static SharedPreferences charSize;
-    private static SharedPreferences scrollPos;
     private static SharedPreferences inAppMsgs;
     private static SharedPreferences radioFavorites;
     private static SharedPreferences migration;
@@ -62,7 +61,6 @@ public class Pref {
         book = appContext.getSharedPreferences(SHARED_PREFERENCE_BOOK, MODE_PRIVATE);
         searchHistory = appContext.getSharedPreferences(SHARED_PREFERENCE_SEARCH_HISTORY, MODE_PRIVATE);
         charSize = appContext.getSharedPreferences(SHARED_PREFERENCE_CHAR_SIZE, MODE_PRIVATE);
-        scrollPos = appContext.getSharedPreferences(SHARED_PREFERENCE_POS_SCROLLVIEW, MODE_PRIVATE);
         inAppMsgs = appContext.getSharedPreferences(SHARED_PREFERENCE_IN_APP_MSG, MODE_PRIVATE);
         radioFavorites = appContext.getSharedPreferences(SHARED_PREFERENCE_RADIO_FAVORITES, MODE_PRIVATE);
         migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
@@ -91,8 +89,6 @@ public class Pref {
             searchHistory.getAll();
         if (charSize != null)
             charSize.getAll();
-        if (scrollPos != null)
-            scrollPos.getAll();
         if (inAppMsgs != null)
             inAppMsgs.getAll();
         if (radioFavorites != null)
