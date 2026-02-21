@@ -117,74 +117,80 @@ public final class AppUpgrade {
         SharedPreferences speedPrefs = context.getSharedPreferences("SHARED_PREFERENCE_SPEED", MODE_PRIVATE);
         SharedPreferences bookPrefs = context.getSharedPreferences("book_prefs", MODE_PRIVATE);
 
-        AppDatabase db = AppDatabase.getInstance(context);
-        FolderDao folderDao = db.folderDao();
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            AppDatabase db = AppDatabase.getInstance(context);
+            FolderDao folderDao = db.folderDao();
 
-        java.util.List<Folder> folders = folderDao.getAll();
-        if (folders != null) {
-            for (Folder folder : folders) {
-                boolean changed = false;
-                long id = folder.getId();
+            java.util.List<Folder> folders = folderDao.getAll();
+            if (folders != null) {
+                for (Folder folder : folders) {
+                    boolean changed = false;
+                    long id = folder.getId();
 
-                // 1) introCut
-                if (introCutPrefs.contains(String.valueOf(id))) {
-                    folder.cutIntro = introCutPrefs.getInt(String.valueOf(id), 0);
-                    changed = true;
-                }
-
-                // 2) speed
-                if (speedPrefs.contains(String.valueOf(id))) {
-                    try {
-                        folder.speed = Double.parseDouble(speedPrefs.getString(String.valueOf(id), "1.0"));
+                    // 1) introCut
+                    if (introCutPrefs.contains(String.valueOf(id))) {
+                        folder.cutIntro = introCutPrefs.getInt(String.valueOf(id), 0);
                         changed = true;
-                    } catch (Exception e) {
-                        myLogE("Error parsing speed for folder " + id);
                     }
-                }
 
-                // 3) ttsVoice
-                String voiceKey = "BOOK_TTS_VOICE_" + id;
-                if (bookPrefs.contains(voiceKey)) {
-                    folder.ttsVoice = bookPrefs.getString(voiceKey, null);
-                    changed = true;
-                }
-
-                // 4) cover JSON
-                String initKey = "BOOK_COVER_INITIALS_" + id;
-                String colorKey = "BOOK_COVER_COLOR_" + id;
-                String roundedKey = "BOOK_COVER_ROUNDED_" + id;
-                String sizeKey = "BOOK_COVER_TEXT_SIZE_" + id;
-
-                if (bookPrefs.contains(initKey) || bookPrefs.contains(colorKey) || bookPrefs.contains(roundedKey)
-                        || bookPrefs.contains(sizeKey)) {
-                    try {
-                        org.json.JSONObject coverObj = new org.json.JSONObject();
-                        coverObj.put("initials", bookPrefs.getString(initKey, null));
-                        if (bookPrefs.contains(colorKey)) {
-                            coverObj.put("color", bookPrefs.getInt(colorKey, 0));
+                    // 2) speed
+                    if (speedPrefs.contains(String.valueOf(id))) {
+                        try {
+                            folder.speed = Double.parseDouble(speedPrefs.getString(String.valueOf(id), "1.0"));
+                            changed = true;
+                        } catch (Exception e) {
+                            myLogE("Error parsing speed for folder " + id);
                         }
-                        coverObj.put("rounded", bookPrefs.getBoolean(roundedKey, true));
-                        coverObj.put("textSize", bookPrefs.getInt(sizeKey, 16));
-
-                        org.json.JSONObject rootObj = new org.json.JSONObject();
-                        rootObj.put("cover", coverObj);
-
-                        folder.jsonData = rootObj.toString();
-                        changed = true;
-                    } catch (Exception e) {
-                        myLogEE(e, "Error creating JSON for folder " + id);
                     }
-                }
 
-                if (changed) {
-                    folderDao.update(folder);
+                    // 3) ttsVoice
+                    String voiceKey = "BOOK_TTS_VOICE_" + id;
+                    if (bookPrefs.contains(voiceKey)) {
+                        folder.ttsVoice = bookPrefs.getString(voiceKey, null);
+                        changed = true;
+                    }
+
+                    // 4) cover JSON
+                    String initKey = "BOOK_COVER_INITIALS_" + id;
+                    String colorKey = "BOOK_COVER_COLOR_" + id;
+                    String roundedKey = "BOOK_COVER_ROUNDED_" + id;
+                    String sizeKey = "BOOK_COVER_TEXT_SIZE_" + id;
+
+                    if (bookPrefs.contains(initKey) || bookPrefs.contains(colorKey) || bookPrefs.contains(roundedKey)
+                            || bookPrefs.contains(sizeKey)) {
+                        try {
+                            org.json.JSONObject coverObj = new org.json.JSONObject();
+                            coverObj.put("initials", bookPrefs.getString(initKey, null));
+                            if (bookPrefs.contains(colorKey)) {
+                                coverObj.put("color", bookPrefs.getInt(colorKey, 0));
+                            }
+                            coverObj.put("rounded", bookPrefs.getBoolean(roundedKey, true));
+                            coverObj.put("textSize", bookPrefs.getInt(sizeKey, 16));
+
+                            org.json.JSONObject rootObj = new org.json.JSONObject();
+                            rootObj.put("cover", coverObj);
+
+                            folder.jsonData = rootObj.toString();
+                            changed = true;
+                        } catch (Exception e) {
+                            myLogEE(e, "Error creating JSON for folder " + id);
+                        }
+                    }
+
+                    if (changed) {
+                        folderDao.update(folder);
+                    }
                 }
             }
-        }
 
-        introCutPrefs.edit().clear().apply();
-        speedPrefs.edit().clear().apply();
-        bookPrefs.edit().clear().apply();
+            introCutPrefs.edit().clear().apply();
+            speedPrefs.edit().clear().apply();
+            bookPrefs.edit().clear().apply();
+
+            SharedPreferences migPrefs = context.getSharedPreferences("MigrationSettings", MODE_PRIVATE);
+            migPrefs.edit().putBoolean("KEY_MIGRATED_BOOK_PREFS", true).apply();
+            myLogI("Migrated book preferences to database successfully.");
+        });
     }
 
     private static long getCurrentAppVersionCode(Context context) {
