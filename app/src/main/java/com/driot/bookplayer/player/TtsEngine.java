@@ -151,6 +151,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void pause() {
+        // Update estPositionMs before stopping to preserve it
+        estPositionMs = getCurrentPosition();
+
         // "Time-Based Latency Correction"
         // Since TTS callbacks (onRangeStart) fire when text is *buffered* (not spoken),
         // `lastCharSpoken` is always ahead of what the user actually heard (latency).
@@ -220,6 +223,17 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public long getCurrentPosition() {
+        if (playing && ttsAudioStarted && currentUtteranceStartTime > 0 && estDurationMs > 0) {
+            long elapsed = System.currentTimeMillis() - currentUtteranceStartTime;
+            // Reference speed: how many milliseconds of progress per wall-millisecond.
+            // We use 1:1 ratio scaled by speedRate to ensure smooth progress bar.
+            // However, we must start from the chunk's base position in ms.
+            long chunkStartMs = (long) ((currentUtteranceStartOffset / (double) text.length()) * estDurationMs);
+            long interpPos = chunkStartMs + (long) (elapsed * speechRate);
+
+            // Clamp: don't go beyond total duration
+            return Math.min(interpPos, estDurationMs);
+        }
         return estPositionMs;
     }
 
@@ -468,9 +482,11 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         }
 
         lastCharSpoken = Math.min(Math.max(0, end), text.length());
-        if (!text.isEmpty() && estDurationMs > 0) {
-            estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
-        }
+
+        // Do NOT update estPositionMs here.
+        // It causes the progress bar to jump ahead because onUtteranceRange callbacks
+        // often arrive in clumps before the audio is actually heard.
+        // Smooth interpolation is handled in getCurrentPosition().
 
         // TEMP LOG: Log the word being spoken from TTS callbacks
         String wordAtRange = "";

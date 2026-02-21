@@ -2048,8 +2048,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public String getLoadPhase() {
         if (engine == null)
             return Intents.PHASE_OFF;
-        ;
-        if (engine.isPlaying() || engine.isReady()) {
+
+        if (engine.isPlaying()) {
+            if ("tts".equals(getPlayMode())) {
+                return Intents.PHASE_SPEAKING;
+            }
+            return Intents.PHASE_READY;
+        }
+
+        if (engine.isReady()) {
             return Intents.PHASE_READY;
         } else {
             return Intents.PHASE_BUFFERING;
