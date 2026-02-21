@@ -534,22 +534,6 @@ public class Pref {
 
     /////////////////// TEXT OPTIONS ///////////////////
 
-    public static int getCharSize(int defaultValue) {
-        return charSize.getInt("charSize", defaultValue);
-    }
-
-    public static void setCharSize(int value) {
-        charSize.edit().putInt("charSize", value).apply();
-    }
-
-    public static void setTextScrollPos(String file, float pos) {
-        scrollPos.edit().putFloat(file, pos).apply();
-    }
-
-    public static float getTextScrollPos(String file) {
-        return scrollPos.getFloat(file, 0.0f);
-    }
-
     public static SharedPreferences getInAppMsgPrefs() {
         return inAppMsgs;
     }

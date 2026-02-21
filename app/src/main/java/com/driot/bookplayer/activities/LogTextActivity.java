@@ -16,7 +16,6 @@ import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import com.driot.bookplayer.objects.MyTextChunk;
 import com.driot.bookplayer.adapter.MyTextChunkRVAdapter;
-import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.utils.KanMail;
@@ -49,8 +48,6 @@ public class LogTextActivity extends BaseActivity {
 
     private String file;
     private String typeStorage;
-
-    private TextOptions textOptions;
 
     private boolean destroyedByFlip = false;
     private final ExecutorService logExecutor = Executors.newSingleThreadExecutor();
@@ -161,7 +158,6 @@ public class LogTextActivity extends BaseActivity {
         // Share button
         findViewById(R.id.btnShare).setOnClickListener(v -> shareLog());
 
-        textOptions = new TextOptions(this.getClass());
         loadRecyclerView();
 
         setupFilters();
@@ -185,7 +181,6 @@ public class LogTextActivity extends BaseActivity {
                     originalTextChunkArrayList = new ArrayList<>(myTextChunkArrayList);
                     adapter = new MyTextChunkRVAdapter(myTextChunkArrayList);
                     recyclerView.setAdapter(adapter);
-                    textOptions.setScrollPosition(this, file, recyclerView);
                     myLog("loadRecyclerView() - background load complete");
                     filterList();
                 });
@@ -335,12 +330,6 @@ public class LogTextActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        try {
-            textOptions.saveScrollPosition(this, file,
-                    ((LinearLayoutManager) layoutManager).findFirstCompletelyVisibleItemPosition());
-        } catch (Exception e) {
-            myLogEE(e, "onDestroy() -  saveScrollPosition");
-        }
         logExecutor.shutdown();
         super.onDestroy();
     }
