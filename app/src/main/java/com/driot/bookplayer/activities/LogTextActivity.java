@@ -161,7 +161,7 @@ public class LogTextActivity extends BaseActivity {
         // Share button
         findViewById(R.id.btnShare).setOnClickListener(v -> shareLog());
 
-        textOptions = new TextOptions(this);
+        textOptions = new TextOptions(this.getClass());
         loadRecyclerView();
 
         setupFilters();

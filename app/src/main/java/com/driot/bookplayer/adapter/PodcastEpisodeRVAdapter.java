@@ -26,8 +26,8 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.podcasts.DisplayableEpisode;
 import com.driot.bookplayer.podcasts.PodcastFeed;
 import com.driot.bookplayer.helpers.PodcastHelper;
-import com.driot.bookplayer.utils.TextOptions;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.TonioCommonStuff;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;
@@ -137,8 +137,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
         if (holder.tvEpisodeDesc != null) {
             if (showDescriptions && episode.description != null) {
-                // If your descriptions are HTML-ish, reuse your helper to strip/format if needed
-                holder.tvEpisodeDesc.setText(TextOptions.parseMaybeHtml(episode.description));
+                holder.tvEpisodeDesc.setText(TonioCommonStuff.parseMaybeHtml(episode.description));
                 holder.tvEpisodeDesc.setVisibility(View.VISIBLE);
             } else {
                 holder.tvEpisodeDesc.setVisibility(View.GONE);

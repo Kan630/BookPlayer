@@ -2,7 +2,9 @@ package com.driot.bookplayer.utils;
 
 import java.nio.charset.StandardCharsets;
 
-import static com.driot.bookplayer.utils.log.KanLogger.myLogE;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
+import android.text.Html;
 
 import com.driot.bookplayer.utils.log.KanLogger;
 
@@ -53,14 +55,11 @@ public class TonioCommonStuff {
         }
     }
 
-
-    // ----------------------- LOG -----------------------
-    private static final String TAG = "TonioCommonStuff";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
-    private static void myToastEE(Throwable t, String str) { KanLogger.myToastEE(t, TAG, str); }
+    public static CharSequence parseMaybeHtml(String text) {
+        if (text != null && (text.contains("<") && text.contains(">"))) {
+            return Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY);
+        } else {
+            return text;
+        }
+    }
 }

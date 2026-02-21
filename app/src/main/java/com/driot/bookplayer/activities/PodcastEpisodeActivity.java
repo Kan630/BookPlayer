@@ -1,7 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
-import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
+import static com.driot.bookplayer.utils.TonioCommonStuff.parseMaybeHtml;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;

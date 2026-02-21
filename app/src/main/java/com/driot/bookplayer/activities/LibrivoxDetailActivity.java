@@ -2,7 +2,7 @@ package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_LIBRIVOX;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
-import static com.driot.bookplayer.utils.TextOptions.parseMaybeHtml;
+import static com.driot.bookplayer.utils.TonioCommonStuff.parseMaybeHtml;
 import static com.driot.bookplayer.utils.Tonio.getReadableSize;
 
 import android.app.AlertDialog;
