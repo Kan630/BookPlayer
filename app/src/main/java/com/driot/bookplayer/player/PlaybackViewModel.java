@@ -115,7 +115,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     public void requestTtsTextOnce() {
         // Only one request per VM/session by default
         if (!ttsTextRequested.compareAndSet(false, true)) {
-            myLog("requestTtsTextOnce: already requested, ignoring");
+            myLogD("requestTtsTextOnce: already requested, ignoring");
             return;
         }
 

@@ -78,6 +78,18 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                 : name;
     }
 
+    /**
+     * Proactively initialize the TTS engine.
+     * Calling this ensures the singleton instance is created and onInit is
+     * triggered.
+     */
+    public void warmUp(@Nullable String voiceName) {
+        myLogI("AppTtsManager.warmUp() - voice=[" + voiceName + "]");
+        if (voiceName != null) {
+            setPreferredVoiceName(voiceName);
+        }
+    }
+
     // --- Listener registration ---
 
     public void addListener(@Nullable Listener l) {

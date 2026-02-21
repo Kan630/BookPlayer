@@ -355,17 +355,13 @@ public class TtsHelper {
 
         final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(
                 false);
-        final boolean[] suppressSelection = new boolean[] { true }; // suppress spurious onItemSelected
-                                                                    // during/just-after init
-
-        myLogD("recreating a final AppTts manager ????");
-        // 2) Listener to (re)populate once TTS is ready
+        final boolean[] suppressSelection = new boolean[] { true }; // suppress spurious onItemSelected during init
         final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
             @Override
             public void onTtsReady(TextToSpeech tts) {
                 // avoid double-populating if listener is invoked twice
                 if (!populatedOnce.compareAndSet(false, true)) {
-                    myLogW("setupTtsVoiceSpinner.onTtsReady => ignored (already populated)");
+                    myLog("setupTtsVoiceSpinner.onTtsReady => ignored (already populated)");
                     return;
                 }
                 main.post(() -> {
@@ -448,11 +444,6 @@ public class TtsHelper {
 
         // register
         mgr.addListener(mgrListener);
-
-        // 4) If already ready, populate immediately
-        if (mgr.isReady() && mgr.raw() != null) {
-            mgrListener.onTtsReady(mgr.raw());
-        }
 
         // 5) Return a release handle (does NOT shutdown the engine)
         return () -> {
