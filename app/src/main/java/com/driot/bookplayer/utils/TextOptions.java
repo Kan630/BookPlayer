@@ -148,14 +148,6 @@ public class TextOptions {
         scrollView.scrollTo(0, y);
     }
 
-    public void saveHighlightedText(Context c, String file, String highLightedWord) {
-        Pref.setTextHighlightedText(file, highLightedWord);
-    }
-
-    public String getHighlightedText(Context c, String file) {
-        return Pref.getTextHighlightedText(file);
-    }
-
     /**
      * RecyclerView
      */

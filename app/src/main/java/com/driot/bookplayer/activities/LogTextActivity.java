@@ -341,14 +341,6 @@ public class LogTextActivity extends BaseActivity {
         } catch (Exception e) {
             myLogEE(e, "onDestroy() -  saveScrollPosition");
         }
-        if (!destroyedByFlip) {
-            try {
-                textOptions.saveHighlightedText(this, file, ""); // supprime highLightedWord si on quitte et que c'est
-                                                                 // pas un flip
-            } catch (Exception e) {
-                myLogEE(e, "onDestroy() -  saveHighlightedText");
-            }
-        }
         logExecutor.shutdown();
         super.onDestroy();
     }

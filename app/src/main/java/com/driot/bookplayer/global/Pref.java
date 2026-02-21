@@ -17,19 +17,19 @@ public class Pref {
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
     private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
-    private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
     private static final String SHARED_PREFERENCE_TIMESTAMP = "SHARED_PREFERENCE_TIMESTAMP";
-    private static final String SHARED_PREFERENCE_SPEED = "SHARED_PREFERENCE_SPEED";
     private static final String SHARED_PREFERENCE_ADMIN = "SHARED_PREFERENCES_ADMIN";
-    private static final String SHARED_PREFERENCE_BOOK = "book_prefs";
     private static final String SHARED_PREFERENCE_SEARCH_HISTORY = "search_history_store";
     public static final String SHARED_PREFERENCE_CHAR_SIZE = "SHARED_PREFERENCE_CHAR_SIZE";
     public static final String SHARED_PREFERENCE_POS_SCROLLVIEW = "SHARED_PREFERENCE_POSITION_SCROLLVIEW";
-    public static final String SHARED_PREFERENCE_HIGHLIGHTED_TEXT = "SHARED_PREFERENCE_HIGHLIGHTED_TEXT";
     private static final String SHARED_PREFERENCE_IN_APP_MSG = "inapp_msgs";
     private static final String SHARED_PREFERENCE_RADIO_FAVORITES = "radio_favorites_store";
     private static final String SHARED_PREFERENCE_PLAYLIST = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
     public static final String SHARED_PREFERENCE_MIGRATION = "SHARED_PREFERENCE_MIGRATION";
+
+    private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
+    private static final String SHARED_PREFERENCE_SPEED = "SHARED_PREFERENCE_SPEED";
+    private static final String SHARED_PREFERENCE_BOOK = "book_prefs";
 
     private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
     private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
@@ -45,7 +45,6 @@ public class Pref {
     private static SharedPreferences searchHistory;
     private static SharedPreferences charSize;
     private static SharedPreferences scrollPos;
-    private static SharedPreferences highlightedText;
     private static SharedPreferences inAppMsgs;
     private static SharedPreferences radioFavorites;
     private static SharedPreferences migration;
@@ -64,7 +63,6 @@ public class Pref {
         searchHistory = appContext.getSharedPreferences(SHARED_PREFERENCE_SEARCH_HISTORY, MODE_PRIVATE);
         charSize = appContext.getSharedPreferences(SHARED_PREFERENCE_CHAR_SIZE, MODE_PRIVATE);
         scrollPos = appContext.getSharedPreferences(SHARED_PREFERENCE_POS_SCROLLVIEW, MODE_PRIVATE);
-        highlightedText = appContext.getSharedPreferences(SHARED_PREFERENCE_HIGHLIGHTED_TEXT, MODE_PRIVATE);
         inAppMsgs = appContext.getSharedPreferences(SHARED_PREFERENCE_IN_APP_MSG, MODE_PRIVATE);
         radioFavorites = appContext.getSharedPreferences(SHARED_PREFERENCE_RADIO_FAVORITES, MODE_PRIVATE);
         migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
@@ -95,8 +93,6 @@ public class Pref {
             charSize.getAll();
         if (scrollPos != null)
             scrollPos.getAll();
-        if (highlightedText != null)
-            highlightedText.getAll();
         if (inAppMsgs != null)
             inAppMsgs.getAll();
         if (radioFavorites != null)
@@ -127,10 +123,6 @@ public class Pref {
 
     public static void setLiveLogsSavedHeight(int value) {
         admin.edit().putInt("LIVE_LOG_HEIGHT", value).apply();
-    }
-
-    public static SharedPreferences getBookPrefs() {
-        return book;
     }
 
     public static long getLastDbClean() {
@@ -223,14 +215,6 @@ public class Pref {
 
     public static String get_Audio_Language_Ebook(Context c) {
         return prefs.getString("AUDIO_LANGUAGE_EBOOK", "en");
-    }
-
-    public static void set_Audio_Language_Radio(Context c, String audioLanguage) {
-        prefs.edit().putString("AUDIO_LANGUAGE_RADIO", audioLanguage).apply();
-    }
-
-    public static String get_Audio_Language_Radio(Context c) {
-        return prefs.getString("AUDIO_LANGUAGE_RADIO", "en");
     }
 
     public static void setBookTtsVoiceName(Context c, int folderId, String voiceName) {
@@ -564,14 +548,6 @@ public class Pref {
 
     public static float getTextScrollPos(String file) {
         return scrollPos.getFloat(file, 0.0f);
-    }
-
-    public static void setTextHighlightedText(String file, String word) {
-        highlightedText.edit().putString(file, word).apply();
-    }
-
-    public static String getTextHighlightedText(String file) {
-        return highlightedText.getString(file, "");
     }
 
     public static SharedPreferences getInAppMsgPrefs() {
