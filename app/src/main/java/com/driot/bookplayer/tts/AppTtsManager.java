@@ -251,45 +251,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         }
     }
 
-    // --- optional best-voice helper ---
-
-    @Nullable
-    public Voice pickBestVoice(Locale locale, @Nullable String preferredNamePart) {
-        try {
-            Set<Voice> voices = (tts != null) ? tts.getVoices() : null;
-            if (voices == null || voices.isEmpty()) return null;
-            String lang = locale.getLanguage();
-            List<Voice> candidates = new ArrayList<>();
-            for (Voice v : voices) {
-                Locale vl = v.getLocale();
-                if (vl == null) continue;
-                if (!lang.equals(vl.getLanguage())) continue;
-                candidates.add(v);
-            }
-            if (candidates.isEmpty()) return null;
-
-            candidates.sort((a, b) -> {
-                int sa = score(a, preferredNamePart);
-                int sb = score(b, preferredNamePart);
-                return Integer.compare(sb, sa);
-            });
-            return candidates.get(0);
-        } catch (Throwable ignored) { return null; }
-    }
-
-    private static int score(Voice v, @Nullable String pref) {
-        int s = 0;
-        Set<String> f = v.getFeatures();
-        boolean embedded = f != null && f.contains("embeddedTts");
-        boolean network  = (f != null && f.contains("networkTts")) || v.isNetworkConnectionRequired();
-        if (pref != null && v.getName().toLowerCase(Locale.US).contains(pref.toLowerCase(Locale.US))) s += 1000;
-        if (embedded) s += 200;
-        if (!network) s += 50;
-        s += 10 * v.getQuality();
-        s += 10 * (5 - Math.min(5, v.getLatency()));
-        return s;
-    }
-
     // --- public API ---
 
     public boolean isReady() { return ready && tts != null; }

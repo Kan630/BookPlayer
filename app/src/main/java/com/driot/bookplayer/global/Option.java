@@ -84,6 +84,7 @@ public class Option {
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
     private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES = false;
+    public static final boolean DEFAULT_TTS_SNAP_TO_SENTENCE = true;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_USE_HEATMAP_FOR_TRACKS_ACTIVITY = true;
     private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = false;
@@ -838,6 +839,14 @@ public class Option {
 
     public static boolean getEbookRemoveReferences() {
         return prefs.getBoolean("EBOOK_REMOVE_REFERENCES", DEFAULT_EBOOK_REMOVE_REFERENCES);
+    }
+
+    public static void setTtsSnapToSentence(boolean value) {
+        prefs.edit().putBoolean("TTS_SNAP_TO_SENTENCE", value).apply();
+    }
+
+    public static boolean getTtsSnapToSentence() {
+        return prefs.getBoolean("TTS_SNAP_TO_SENTENCE", DEFAULT_TTS_SNAP_TO_SENTENCE);
     }
 
     /////////////////// AUTOMOTIVE ///////////////////

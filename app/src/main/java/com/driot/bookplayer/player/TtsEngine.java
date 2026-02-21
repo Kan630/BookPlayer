@@ -395,13 +395,13 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         main.post(() -> {
             if (disposed || !playing)
                 return;
-            
+
             // Safety check: ensure we haven't reached the end
             if (text == null || text.isEmpty() || lastCharSpoken >= text.length()) {
                 myLogD("onDone: reached end of text, not continuing");
                 return;
             }
-            
+
             resumeOffsetChars = lastCharSpoken;
             speakFromOffset(resumeOffsetChars);
         });
@@ -413,7 +413,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         myLogE("onError " + utteranceId + ", code = " + errorCode + " -> " + desc);
         if (disposed)
             return;
-        
+
         // Stop TTS immediately to prevent infinite error loops
         playing = false;
         if (tts != null) {
@@ -423,7 +423,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 myLogEE(e, "Error stopping TTS in onError");
             }
         }
-        
+
         // Also stop at the manager level to ensure complete stop
         try {
             if (mgr != null) {
@@ -432,7 +432,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         } catch (Exception e) {
             myLogEE(e, "Error stopping TTS manager in onError");
         }
-        
+
         // Prevent further synthesis attempts
         if (listener != null) {
             // msg starts with "TTS" so MediaService knows it's a TTS error
@@ -470,7 +470,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 wordAtRange = words[0];
             }
         }
-        //myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
+        // myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange
+        // + "] lastCharSpoken=" + lastCharSpoken);
 
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
 
@@ -533,21 +534,23 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private void speakFromOffset(int offsetChars) {
         if (disposed || tts == null)
             return;
-        
+
         // Safety check: ensure text is not empty
         if (text == null || text.isEmpty() || text.trim().isEmpty()) {
             myLogW("speakFromOffset: text is empty, stopping");
             playing = false;
             return;
         }
-        
+
         tts.setSpeechRate(speechRate);
         final int off = Math.max(0, Math.min(offsetChars, text.length()));
+        int actualStart = tts.speakFromOffset(text, off, volume); // all chunking lives in TtsHelper
+        if (actualStart < 0)
+            return; // nothing queued (empty text etc.)
         LocalBroadcastManager.getInstance(app).sendBroadcast(
                 new Intent(Intents.NOTIFICATION_TTS_RANGE)
-                        .putExtra(Intents.EXTRA_TTS_START, off)
-                        .putExtra(Intents.EXTRA_TTS_END, off));
-        tts.speakFromOffset(text, off, volume); // all chunking lives in TtsHelper
+                        .putExtra(Intents.EXTRA_TTS_START, actualStart)
+                        .putExtra(Intents.EXTRA_TTS_END, actualStart));
     }
 
     private int logicalTextEndIndex() {

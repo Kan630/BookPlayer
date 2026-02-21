@@ -186,6 +186,24 @@
             android:text="@string/option_ebook_remove_references_explain"
             />
 
+        <!-- Snap to sentence start on resume -->
+        <LinearLayout
+            android:id="@+id/ll_tts_snap_to_sentence"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="0dp">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_tts_snap_to_sentence"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_tts_snap_to_sentence" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_tts_snap_to_sentence_explain"
+            />
+
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
     </LinearLayout>

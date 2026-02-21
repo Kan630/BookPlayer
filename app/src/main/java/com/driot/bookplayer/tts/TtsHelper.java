@@ -31,8 +31,6 @@ public class TtsHelper {
 
     public static final int READY = 0, SET_VOICE_FAILED = 1, MISSING_DATA = 2, SYNTH_FAIL = 3, ERROR = 4, TIMEOUT = 5;
 
-    private static final int MIN_FIRST_UTT_CHARS = 25;
-
     // optional raw access
     public TextToSpeech raw() {
         return tts;
@@ -47,107 +45,71 @@ public class TtsHelper {
     }
 
     // ======== SPEAK API ========
-    public void speakFromOffset(String text, int startOffset, float volume) {
-        if (tts == null || text == null || text.isEmpty()) {
-            myLogD("speakFromOffset : empty");
-            return;
-        }
-        if (!isReady()) {
-            myLogD("speakFromOffset : not ready");
-            return;
-        }
-        
-        // Safety check: ensure text is not just whitespace
-        String trimmed = text.trim();
-        if (trimmed.isEmpty()) {
-            myLogW("speakFromOffset : text is only whitespace, skipping");
-            return;
+    // Returns the actual char offset where speech starts (may differ from
+    // startOffset
+    // when snap-to-sentence is on). Returns -1 if nothing was queued.
+    public int speakFromOffset(String text, int startOffset, float volume) {
+        if (tts == null || text == null || text.trim().isEmpty()) {
+            myLogD("speakFromOffset : empty or not ready");
+            return -1;
         }
 
         final int maxLen = Option.getTtsChunkSize();
-        int txtHash = text.hashCode();
-        myLog("speakFromOffset : speed=" + currentSpeechRate + " text len=" + text.length() + " hash="
-                + Integer.toHexString(txtHash) +
-                " start=" + startOffset + " chunkBuf=" + maxLen);
+        myLog("speakFromOffset : speed=" + currentSpeechRate + " textLen=" + text.length()
+                + " start=" + startOffset + " chunkBuf=" + maxLen);
 
-        // Clamp and short-circuit if at end
         final int N = text.length();
         final int safeOffset = Math.max(0, Math.min(startOffset, N));
         if (safeOffset >= N) {
             myLogD("speakFromOffset : at end, nothing to speak");
-            return;
+            return -1;
         }
 
-        // Build sentence-based chunks (<= maxLen each)
         final List<Chunk> chunks = buildChunks(text, maxLen);
-        if (chunks.isEmpty()) {
-            myLogD("speakFromOffset : no chunks built");
-            return;
-        }
-        myLogD("speakFromOffset : built " + chunks.size() + " chunks");
+        if (chunks.isEmpty())
+            return -1;
 
-        // Find first chunk to use (never returns a microscopic tail)
         int idx = findChunkIndexForOffset(chunks, safeOffset);
-        if (idx >= chunks.size()) {
-            myLogD("speakFromOffset : offset beyond last chunk");
-            return;
-        }
+        if (idx >= chunks.size())
+            return -1;
 
-        // Params
         final Bundle p = new Bundle();
         p.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, Math.max(0f, Math.min(1f, volume)));
 
-        // Hard flush once to clear any stale queue
         try {
             tts.stop();
         } catch (Throwable ignore) {
         }
 
-        // 1) First utterance: find a safe sentence start if possible
+        // 1) First chunk — optionally snap back to the sentence boundary
         final Chunk first = chunks.get(idx);
-        int clampedStart = Math.max(safeOffset, first.start);
+        int firstStart = Math.max(safeOffset, first.start);
 
-        // Snap to preceding sentence start to avoid partial words/sentences
-        int snapStart = clampedStart;
-        if (clampedStart > first.start) {
-            // Find start of sentence containing clampedStart within the chunk text
-            int relStart = clampedStart - first.start;
-            // Use simple heuristic: back up to punctuation or start
+        if (Option.getTtsSnapToSentence() && firstStart > first.start) {
             BreakIterator bi = BreakIterator.getSentenceInstance();
             bi.setText(first.text);
-            if (bi.isBoundary(relStart)) {
-                // already on boundary
-            } else {
-                int preceding = bi.preceding(relStart);
+            int rel = firstStart - first.start;
+            if (!bi.isBoundary(rel)) {
+                int preceding = bi.preceding(rel);
                 if (preceding != BreakIterator.DONE) {
-                    snapStart = first.start + preceding;
-                    myLog("speakFromOffset : snapped start from " + clampedStart + " to " + snapStart + " (rel "
-                            + preceding + ")");
+                    firstStart = first.start + preceding;
+                    myLog("speakFromOffset : snapped " + safeOffset + " \u2192 " + firstStart);
                 }
             }
         }
 
-        int firstStart = Math.max(snapStart, first.start);
+        TtsErrorUtils.logOperationResult("TTS", "speak(first)",
+                tts.speak(first.text.substring(firstStart - first.start, first.end - first.start),
+                        TextToSpeech.QUEUE_ADD, p, TtsIds.utt(firstStart, first.end)));
 
-        if (first.end - firstStart < MIN_FIRST_UTT_CHARS && idx + 1 < chunks.size()) {
-            // Too small → skip to next full chunk instead
-            idx++;
-        } else {
-            // Speak [firstStart, first.end)
-            String id = com.driot.bookplayer.tts.TtsIds.utt(firstStart, first.end);
-            int r = tts.speak(first.text.substring(firstStart - first.start, first.end - first.start),
-                    TextToSpeech.QUEUE_ADD, p, id);
-            TtsErrorUtils.logOperationResult("TTS", "speak(first)", r);
-            idx++; // next chunks follow
-        }
-
-        // 2) Remaining chunks: enqueue as-is
-        for (int i = idx; i < chunks.size(); i++) {
+        // 2) Remaining chunks
+        for (int i = idx + 1; i < chunks.size(); i++) {
             Chunk c = chunks.get(i);
-            String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end);
-            int r = tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
-            TtsErrorUtils.logOperationResult("TTS", "speak(chunk)", r);
+            TtsErrorUtils.logOperationResult("TTS", "speak(chunk)",
+                    tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, TtsIds.utt(c.start, c.end)));
         }
+
+        return firstStart;
     }
 
     public void setSpeechRate(float rate) {

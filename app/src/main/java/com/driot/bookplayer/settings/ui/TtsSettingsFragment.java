@@ -31,6 +31,7 @@ public class TtsSettingsFragment extends LoggingFragment {
     private EditText etTtsHighlightDelay, etTtsChunkSize;
     private Spinner spinnerEpubSplitMode;
     private MaterialCheckBox chkEbookRemoveReferences;
+    private MaterialCheckBox chkTtsSnapToSentence;
     private LinearLayout llEbookRemoveReferences;
     private boolean hasBeenInitialized = false;
 
@@ -102,8 +103,15 @@ public class TtsSettingsFragment extends LoggingFragment {
         llEbookRemoveReferences = root.findViewById(R.id.ll_ebook_remove_references);
         chkEbookRemoveReferences.setChecked(Option.getEbookRemoveReferences());
         llEbookRemoveReferences.setOnClickListener(v -> chkEbookRemoveReferences.toggle());
-        chkEbookRemoveReferences.setOnCheckedChangeListener((buttonView, isChecked) ->
-                Option.setEbookRemoveReferences(isChecked));
+        chkEbookRemoveReferences
+                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setEbookRemoveReferences(isChecked));
+
+        chkTtsSnapToSentence = root.findViewById(R.id.chk_tts_snap_to_sentence);
+        LinearLayout llTtsSnapToSentence = root.findViewById(R.id.ll_tts_snap_to_sentence);
+        chkTtsSnapToSentence.setChecked(Option.getTtsSnapToSentence());
+        llTtsSnapToSentence.setOnClickListener(v -> chkTtsSnapToSentence.toggle());
+        chkTtsSnapToSentence
+                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTtsSnapToSentence(isChecked));
 
         return root;
     }
