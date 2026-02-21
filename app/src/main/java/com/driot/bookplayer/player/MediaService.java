@@ -2611,6 +2611,18 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogEE(e, "updateZikFileStateInDB - pos/dur");
                 return;
             }
+
+            // Cut End (book option): skip to next track a few seconds before the end
+            if (!bFinished && dur > 0 && pl.getFolder() != null) {
+                int cutEnd = pl.getFolder().cutEnd * 1000;
+                if (cutEnd > 0 && pos >= (dur - cutEnd)) {
+                    myLogI("=> End Cut: pos=" + pos + " dur=" + dur + " cutEnd=" + cutEnd
+                            + " => triggering completion");
+                    onEngineCompletion();
+                    return;
+                }
+            }
+
             try {
                 progress.update(zf, bFinished, pos, dur, getPlayMode(), timestamp);
             } catch (Exception e) {

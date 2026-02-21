@@ -600,10 +600,12 @@
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="AskRename_Track">Rename this track to</string>
     <string name="IntroCut">"Cut Intro"</string>
+    <string name="EndCut">"Cut End"</string>
     <string name="Rename_book">"Rename book"</string>
     <string name="AskRename_Book">"Do you really want to rename the book as"</string>
     <string name="AskRename_popupTitle">Confirm Rename</string>
     <string name="IntroCutText"><i>"Trims the first seconds of each chapter while playing."</i></string>
+    <string name="EndCutText"><i>"Stops playback a few seconds before each chapter ends."</i></string>
     <string name="Export_share_title">"Share ZIP file"</string>
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>

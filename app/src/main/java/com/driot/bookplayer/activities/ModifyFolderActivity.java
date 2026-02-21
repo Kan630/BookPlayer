@@ -66,6 +66,7 @@ public class ModifyFolderActivity extends BaseActivity {
     private LinearLayout ll_zikfile_resolve_error;
 
     EditText etIntroCut;
+    EditText etEndCut;
     EditText etRename;
 
     private ImageView ivCoverPreview;
@@ -167,6 +168,9 @@ public class ModifyFolderActivity extends BaseActivity {
 
         etIntroCut = findViewById(R.id.etIntroCut);
         etIntroCut.setText(String.valueOf(folder.cutIntro));
+
+        etEndCut = findViewById(R.id.etEndCut);
+        etEndCut.setText(String.valueOf(folder.cutEnd));
 
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
         ivCoverPreview.setImageResource(R.drawable.no_image_icon);
@@ -473,17 +477,29 @@ public class ModifyFolderActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        int introCut = 0;
+        boolean folderChanged = false;
         try {
-            introCut = Integer.parseInt(etIntroCut.getText().toString());
+            int introCut = Integer.parseInt(etIntroCut.getText().toString());
             if (folder.cutIntro != introCut) {
                 folder.cutIntro = introCut;
-                AppDatabase.databaseWriteExecutor.execute(() -> {
-                    AppDatabase.getInstance(ModifyFolderActivity.this).folderDao().update(folder);
-                });
+                folderChanged = true;
             }
         } catch (Exception e) {
             myLogE("Bad introCut value");
+        }
+        try {
+            int endCut = Integer.parseInt(etEndCut.getText().toString());
+            if (folder.cutEnd != endCut) {
+                folder.cutEnd = endCut;
+                folderChanged = true;
+            }
+        } catch (Exception e) {
+            myLogE("Bad endCut value");
+        }
+        if (folderChanged) {
+            AppDatabase.databaseWriteExecutor.execute(() -> {
+                AppDatabase.getInstance(ModifyFolderActivity.this).folderDao().update(folder);
+            });
         }
         super.onDestroy();
     }

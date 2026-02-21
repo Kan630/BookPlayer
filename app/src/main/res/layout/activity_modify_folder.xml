@@ -251,6 +251,54 @@
                 android:text="@string/IntroCutText"
                 android:textSize="12sp" />
 
+            <TextView
+                android:id="@+id/EndCutText"
+                style="@style/OptionTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:layout_marginBottom="10dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/EndCut"
+                android:textSize="20sp"
+                android:textStyle="normal" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:orientation="horizontal"
+                android:gravity="center">
+
+                <EditText
+                    android:id="@+id/etEndCut"
+                    style="@style/EditText"
+                    android:layout_width="50dp"
+                    android:layout_height="wrap_content"
+                    android:padding="5dp"
+                    android:inputType="number"
+                    android:textSize="20sp" />
+
+                <TextView
+                    style="@style/OptionSubTitle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:text="sec."
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+            <TextView
+                style="@style/OptionSubTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="20dp"
+                android:paddingHorizontal="20dp"
+                android:text="@string/EndCutText"
+                android:textSize="12sp" />
+
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
