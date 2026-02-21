@@ -388,23 +388,19 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             completionTriggered = true;
             playing = false;
             listener.onCompletion(gen);
-            return;
+        } else {
+            // Queue the next single chunk. Do NOT pre-queue all remaining chunks:
+            // the network TTS engine synthesizes queued chunks ahead of playback,
+            // which makes onRangeStart callbacks fire faster than audio plays.
+            main.post(() -> {
+                if (disposed || !playing)
+                    return;
+                if (text == null || text.isEmpty() || lastCharSpoken >= text.length())
+                    return;
+                resumeOffsetChars = lastCharSpoken;
+                speakFromOffset(resumeOffsetChars);
+            });
         }
-
-        // Continue speaking from where we stopped
-        main.post(() -> {
-            if (disposed || !playing)
-                return;
-
-            // Safety check: ensure we haven't reached the end
-            if (text == null || text.isEmpty() || lastCharSpoken >= text.length()) {
-                myLogD("onDone: reached end of text, not continuing");
-                return;
-            }
-
-            resumeOffsetChars = lastCharSpoken;
-            speakFromOffset(resumeOffsetChars);
-        });
     }
 
     @Override

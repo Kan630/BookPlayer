@@ -102,12 +102,9 @@ public class TtsHelper {
                 tts.speak(first.text.substring(firstStart - first.start, first.end - first.start),
                         TextToSpeech.QUEUE_ADD, p, TtsIds.utt(firstStart, first.end)));
 
-        // 2) Remaining chunks
-        for (int i = idx + 1; i < chunks.size(); i++) {
-            Chunk c = chunks.get(i);
-            TtsErrorUtils.logOperationResult("TTS", "speak(chunk)",
-                    tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, TtsIds.utt(c.start, c.end)));
-        }
+        // Only one chunk at a time: onDone progression queues the next one.
+        // Pre-queuing all remaining chunks causes network TTS to synthesize them
+        // ahead of audio playback, making onRangeStart callbacks fire at 2x speed.
 
         return firstStart;
     }
