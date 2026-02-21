@@ -151,42 +151,6 @@ public class Pref {
         return prefs.getLong("PAUSE_TIME", 0);
     }
 
-    /////////////////// PER BOOK ID ///////////////////
-
-    public static void saveIntroCutToPref(Context c, int idFolder, int introCutValue) {
-        try {
-            introCut.edit().putInt(Integer.toString(idFolder), introCutValue).apply();
-        } catch (Exception e) {
-            myLogEE(e, "error saving introCut in prefs");
-        }
-    }
-
-    public static int getIntroCutFromPref(Context c, int idFolder) {
-        try {
-            return introCut.getInt(String.valueOf(idFolder), 0);
-        } catch (Exception e) {
-            myLogEE(e, "error getting introCut from prefs");
-            return 0;
-        }
-    }
-
-    public static void saveSpeedToPref(int idFolder, double speedValue) {
-        try {
-            speed.edit().putString(String.valueOf(idFolder), Double.toString(speedValue)).apply();
-        } catch (Exception e) {
-            myLogEE(e, "error saving speed in prefs");
-        }
-    }
-
-    public static double getSpeedFromPref(int idFolder) {
-        try {
-            return Double.parseDouble(speed.getString(String.valueOf(idFolder), "1.0"));
-        } catch (Exception e) {
-            myLogEE(e, "error getting speed from prefs");
-            return 1.0;
-        }
-    }
-
     /////////////////// LANGUAGE SPINNER ///////////////////
     ///
     public static void set_Audio_Language_Librivox(Context c, String audioLanguage) {
@@ -211,14 +175,6 @@ public class Pref {
 
     public static String get_Audio_Language_Ebook(Context c) {
         return prefs.getString("AUDIO_LANGUAGE_EBOOK", "en");
-    }
-
-    public static void setBookTtsVoiceName(Context c, int folderId, String voiceName) {
-        book.edit().putString("BOOK_TTS_VOICE_" + folderId, voiceName).apply();
-    }
-
-    public static String getBookTtsVoiceName(Context c, int folderId) {
-        return book.getString("BOOK_TTS_VOICE_" + folderId, null);
     }
 
     /////////////////// STATS ///////////////////
@@ -299,67 +255,6 @@ public class Pref {
             // min.)");
             return false;
         }
-    }
-
-    /////////////////// BOOK COVER CREATION ///////////////////
-
-    // Keys
-    private static String kCoverInitials(long folderId) {
-        return "BOOK_COVER_INITIALS_" + folderId;
-    }
-
-    private static String kCoverColor(long folderId) {
-        return "BOOK_COVER_COLOR_" + folderId;
-    }
-
-    private static String kCoverRounded(long folderId) {
-        return "BOOK_COVER_ROUNDED_" + folderId;
-    }
-
-    // Setters
-    public static void setBookCoverInitials(Context c, long folderId, String initials) {
-        book.edit().putString(kCoverInitials(folderId), initials).apply();
-    }
-
-    public static void setBookCoverColor(Context c, long folderId, int color) {
-        book.edit().putInt(kCoverColor(folderId), color).apply();
-    }
-
-    public static void setBookCoverRounded(Context c, long folderId, boolean rounded) {
-        book.edit().putBoolean(kCoverRounded(folderId), rounded).apply();
-    }
-
-    // Getters
-    @Nullable
-    public static String getBookCoverInitials(Context c, long folderId) {
-        return book.getString(kCoverInitials(folderId), null);
-    }
-
-    public static Integer getBookCoverColorOrNull(Context c, long folderId) {
-        String key = kCoverColor(folderId);
-        if (!book.contains(key))
-            return null;
-        return book.getInt(key, 0);
-    }
-
-    public static Boolean getBookCoverRoundedOrNull(Context c, long folderId) {
-        String key = kCoverRounded(folderId);
-        if (!book.contains(key))
-            return null;
-        return book.getBoolean(key, true);
-    }
-
-    // New Params
-    private static String kCoverTextSize(long folderId) {
-        return "BOOK_COVER_TEXT_SIZE_" + folderId;
-    }
-
-    public static void setBookCoverTextSize(Context c, long folderId, int size) {
-        book.edit().putInt(kCoverTextSize(folderId), size).apply();
-    }
-
-    public static int getBookCoverTextSize(Context c, long folderId) {
-        return book.getInt(kCoverTextSize(folderId), 16); // Default 16 (mid of 12-20)
     }
 
     /////////////////// STORAGE INFO CACHE ///////////////////

@@ -1,7 +1,6 @@
 package com.driot.bookplayer.db;
 // created by Antoine Driot -- antoine.driot.com -- on 28/10/2020  -
 
-
 import static com.driot.bookplayer.db.AppDatabase.APP_DATABASE_VERSION;
 
 import android.content.Context;
@@ -20,31 +19,31 @@ import com.driot.bookplayer.radio.RadioStationDao;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
 @Database(entities = {
-         Folder.class
-        ,ZikFile.class
-        ,BookSource.class
-        ,ImportJob.class
-        ,PlayTick.class
-        ,PlaySession.class
-        ,Podcast.class
-        ,Episode.class
-        ,RadioStation.class
-        }, version = APP_DATABASE_VERSION
-        )
+        Folder.class, ZikFile.class, BookSource.class, ImportJob.class, PlayTick.class, PlaySession.class,
+        Podcast.class, Episode.class, RadioStation.class
+}, version = APP_DATABASE_VERSION)
 
 public abstract class AppDatabase extends RoomDatabase {
-    public static final int APP_DATABASE_VERSION = 25;
+    public static final int APP_DATABASE_VERSION = 26;
 
     public abstract FolderDao folderDao();
+
     public abstract ZikFileDao zikFileDao();
+
     public abstract BookSourceDao bookSourceDao();
+
     public abstract ImportJobDao importJobDao();
+
     public abstract PlaySessionDao playSessionDao();
+
     public abstract PlayTickDao playTickDao();
 
     public abstract EpisodeDao episodeDao();
+
     public abstract PodcastDao podcastDao();
+
     public abstract RadioStationDao radioStationDao();
 
     private static final int NUMBER_OF_WRITE_THREADS = 4;
@@ -55,10 +54,9 @@ public abstract class AppDatabase extends RoomDatabase {
     public static AppDatabase getDatabase(final Context context) {
         return DatabaseClient.getInstance(context).getAppDatabase();
     }
+
     public static AppDatabase getInstance(final Context context) {
         return DatabaseClient.getInstance(context).getAppDatabase();
     }
 
-
 }
-

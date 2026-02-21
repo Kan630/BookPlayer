@@ -68,6 +68,21 @@ public class Folder implements Parcelable {
     @ColumnInfo
     private long listeningPlayCount;
 
+    @ColumnInfo(name = "cutIntro")
+    public int cutIntro = 0;
+
+    @ColumnInfo(name = "cutEnd")
+    public int cutEnd = 0;
+
+    @ColumnInfo(name = "speed")
+    public double speed = 1.0;
+
+    @ColumnInfo(name = "ttsVoice")
+    public String ttsVoice;
+
+    @ColumnInfo(name = "jsonData")
+    public String jsonData;
+
     public long nbZikFile;
 
     public long date_added;
@@ -82,15 +97,13 @@ public class Folder implements Parcelable {
 
     public String playType;
 
-
     /*
      * Getters and Setters
-     * */
+     */
 
     public Folder() {
         // Default constructor required by Room
     }
-
 
     @Ignore
     protected Folder(Parcel in) {
@@ -110,6 +123,11 @@ public class Folder implements Parcelable {
         sourceLocation = in.readString();
         listeningDuration = in.readLong();
         listeningPlayCount = in.readLong();
+        cutIntro = in.readInt();
+        cutEnd = in.readInt();
+        speed = in.readDouble();
+        ttsVoice = in.readString();
+        jsonData = in.readString();
         nbZikFile = in.readLong();
         date_added = in.readLong();
         date_last_zikfile_added = in.readLong();
@@ -142,6 +160,11 @@ public class Folder implements Parcelable {
         dest.writeString(sourceLocation);
         dest.writeLong(listeningDuration);
         dest.writeLong(listeningPlayCount);
+        dest.writeInt(cutIntro);
+        dest.writeInt(cutEnd);
+        dest.writeDouble(speed);
+        dest.writeString(ttsVoice);
+        dest.writeString(jsonData);
         dest.writeLong(nbZikFile);
         dest.writeLong(date_added);
         dest.writeLong(date_last_zikfile_added);
@@ -230,7 +253,7 @@ public class Folder implements Parcelable {
     }
 
     public Double getPercentdone() {
-        if (percentdone==null) {
+        if (percentdone == null) {
             return 0.0;
         } else {
             return percentdone;
@@ -256,7 +279,6 @@ public class Folder implements Parcelable {
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
-
 
     public int getMemoryLocationIcon(Context context) {
         StorageHelper.MemoryLocationType type = StorageHelper.getMemoryLocationType(context, path);
@@ -306,7 +328,6 @@ public class Folder implements Parcelable {
         return sourceLocation;
     }
 
-
     public void setOriginalType(String originalType) {
         this.originalType = originalType;
     }
@@ -322,6 +343,7 @@ public class Folder implements Parcelable {
     public void setSourceLocation(String sourceLocation) {
         this.sourceLocation = sourceLocation;
     }
+
     public long getListeningDuration() {
         return listeningDuration;
     }
@@ -329,6 +351,7 @@ public class Folder implements Parcelable {
     public long getListeningPlayCount() {
         return listeningPlayCount;
     }
+
     public void setListeningDuration(long listeningDuration) {
         this.listeningDuration = listeningDuration;
     }
@@ -337,9 +360,6 @@ public class Folder implements Parcelable {
         this.listeningPlayCount = listeningPlayCount;
     }
 
-
-
-
     @Deprecated
     public Long firstaccess;
     @Deprecated
@@ -347,14 +367,40 @@ public class Folder implements Parcelable {
     @Deprecated
     public Long lastaccessTime;
 
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
+    // --- LOG --------------------------
+    private void myLog(String str) {
+        KanLogger.myLog(this.getClass().getName(), str);
+    }
+
+    private void myLogInFile(String str) {
+        KanLogger.myLogInFile(this.getClass().getName(), str);
+    }
+
+    private void myLogD(String str) {
+        KanLogger.myLogD(this.getClass().getName(), str);
+    }
+
+    private void myLogI(String str) {
+        KanLogger.myLogI(this.getClass().getName(), str);
+    }
+
+    private void myLogW(String str) {
+        KanLogger.myLogW(this.getClass().getName(), str);
+    }
+
+    private void myLogE(String str) {
+        KanLogger.myLogE(this.getClass().getName(), str);
+    }
+
+    private void myLogEE(Throwable t, String str) {
+        KanLogger.myLogEE(t, this.getClass().getName(), str);
+    }
+
+    private void myToast(String str) {
+        KanLogger.myToast(this.getClass().getName(), str);
+    }
+
+    private void myToastE(String str) {
+        KanLogger.myToastE(this.getClass().getName(), str);
+    }
 }

@@ -8,9 +8,8 @@ import static com.driot.bookplayer.utils.log.KanLogger.myLogI;
 
 public class DatabaseMigrations {
 
-    //EXPECTED = Class Object   ;    MIGRATION = FOUND (2nd part in log message) = state of DB ?
-
-
+    // EXPECTED = Class Object ; MIGRATION = FOUND (2nd part in log message) = state
+    // of DB ?
 
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
@@ -59,8 +58,7 @@ public class DatabaseMigrations {
                     "idFolder INTEGER, " +
                     "date_added INTEGER NOT NULL, " +
 
-                    "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)"
-            );
+                    "FOREIGN KEY(idFolder) REFERENCES Folder(id) ON DELETE SET NULL)");
 
             // Add index on foreign key
             database.execSQL("CREATE UNIQUE INDEX index_Podcast_feedId ON Podcast(feedId)");
@@ -101,7 +99,8 @@ public class DatabaseMigrations {
 
             db.execSQL("UPDATE Folder SET lFirstAccess = firstaccess WHERE firstaccess IS NOT NULL");
             db.execSQL("UPDATE Folder SET lLastAccess = lastaccess WHERE lastaccess IS NOT NULL");
-            db.execSQL("UPDATE Folder SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
+            db.execSQL(
+                    "UPDATE Folder SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
         }
     };
 
@@ -110,20 +109,22 @@ public class DatabaseMigrations {
         public void migrate(SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 7 => 8");
 
-            //db.execSQL("ALTER TABLE Folder DROP COLUMN firstaccess");    // looks like SQLlite does not support DROP COLUMN !!
-            //db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccess");
-            //db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccessTime");
+            // db.execSQL("ALTER TABLE Folder DROP COLUMN firstaccess"); // looks like
+            // SQLlite does not support DROP COLUMN !!
+            // db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccess");
+            // db.execSQL("ALTER TABLE Folder DROP COLUMN lastaccessTime");
 
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN lFirstAccess INTEGER");
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN lLastAccess INTEGER");
 
             db.execSQL("UPDATE ZikFile SET lFirstAccess = firstaccess WHERE firstaccess IS NOT NULL");
             db.execSQL("UPDATE ZikFile SET lLastAccess = lastaccess WHERE lastaccess IS NOT NULL");
-            db.execSQL("UPDATE ZikFile SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
+            db.execSQL(
+                    "UPDATE ZikFile SET lLastAccess = lastaccessTime WHERE lastaccess IS NULL AND lastaccessTime IS NOT NULL");
 
-            //db.execSQL("ALTER TABLE ZikFile DROP COLUMN firstaccess");
-            //db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccess");
-            //db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccessTime");
+            // db.execSQL("ALTER TABLE ZikFile DROP COLUMN firstaccess");
+            // db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccess");
+            // db.execSQL("ALTER TABLE ZikFile DROP COLUMN lastaccessTime");
         }
     };
 
@@ -142,8 +143,7 @@ public class DatabaseMigrations {
                             "lastAccess INTEGER, " +
                             "FOREIGN KEY(idPodcast) REFERENCES Podcast(id) ON DELETE CASCADE, " +
                             "FOREIGN KEY(idZikFile) REFERENCES ZikFile(id) ON DELETE SET NULL" +
-                            ")"
-            );
+                            ")");
             db.execSQL("ALTER TABLE Podcast ADD COLUMN autoDelete INTEGER NOT NULL DEFAULT 0");
         }
     };
@@ -151,7 +151,7 @@ public class DatabaseMigrations {
     static final Migration MIGRATION_9_10 = new Migration(9, 10) {
         @Override
         public void migrate(SupportSQLiteDatabase db) {
-            myLogI("Migration -> executing step 9 => 10"); //2025-08-05
+            myLogI("Migration -> executing step 9 => 10"); // 2025-08-05
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idZikFile ON Episode(idZikFile)");
         }
@@ -173,7 +173,8 @@ public class DatabaseMigrations {
             db.execSQL("ALTER TABLE Episode ADD COLUMN enclosureUrl TEXT");
             db.execSQL("ALTER TABLE Episode ADD COLUMN datePublished TEXT");
 
-            db.execSQL("UPDATE Episode SET idEpisode = rowid WHERE idEpisode = 0"); //shitty thing so I can update on my personal phone
+            db.execSQL("UPDATE Episode SET idEpisode = rowid WHERE idEpisode = 0"); // shitty thing so I can update on
+                                                                                    // my personal phone
 
             db.execSQL("DROP INDEX IF EXISTS index_Episode_idZikFile");
             db.execSQL("CREATE INDEX IF NOT EXISTS index_Episode_idPodcast ON Episode(idPodcast)");
@@ -211,7 +212,8 @@ public class DatabaseMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 14 => 15"); // 2025-10-05
 
-            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS index_BookSource_repoType_repoName_repoId ON BookSource(repoType, repoName, repoId)");
+            db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS index_BookSource_repoType_repoName_repoId ON BookSource(repoType, repoName, repoId)");
 
             db.execSQL("ALTER TABLE BookSource ADD COLUMN book_title TEXT NOT NULL DEFAULT ''");
             db.execSQL("ALTER TABLE BookSource ADD COLUMN source_url TEXT NOT NULL DEFAULT ''");
@@ -227,7 +229,8 @@ public class DatabaseMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 15 => 16"); // 2025-10-11/14
 
-            // Create ImportJob table (booleans -> INTEGER 0/1; primitives NOT NULL with defaults)
+            // Create ImportJob table (booleans -> INTEGER 0/1; primitives NOT NULL with
+            // defaults)
             db.execSQL(
                     "CREATE TABLE IF NOT EXISTS `ImportJob` (" +
                             " `importId` TEXT NOT NULL," +
@@ -289,11 +292,11 @@ public class DatabaseMigrations {
                             " `showToUser` INTEGER NOT NULL DEFAULT 0," +
 
                             " PRIMARY KEY(`importId`)" +
-                            ")"
-            );
+                            ")");
 
             // Indices declared in @Entity(indices=...)
-            db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_ImportJob_futureFolderPath` ON `ImportJob`(`futureFolderPath`)");
+            db.execSQL(
+                    "CREATE UNIQUE INDEX IF NOT EXISTS `index_ImportJob_futureFolderPath` ON `ImportJob`(`futureFolderPath`)");
             db.execSQL("CREATE INDEX IF NOT EXISTS `index_ImportJob_status` ON `ImportJob`(`status`)");
 
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN metadataJson TEXT NOT NULL DEFAULT '{}'");
@@ -320,8 +323,7 @@ public class DatabaseMigrations {
                             " `zikFileId` INTEGER NOT NULL," +
                             " `position` INTEGER NOT NULL DEFAULT 0," +
                             " FOREIGN KEY(zikFileId) REFERENCES ZikFile(id) ON DELETE CASCADE" +
-                            ")"
-            );
+                            ")");
         };
     };
 
@@ -351,8 +353,7 @@ public class DatabaseMigrations {
                             " `date_last_played` INTEGER," +
                             " `date_added` INTEGER NOT NULL DEFAULT 0," +
                             " `date_maj` INTEGER NOT NULL DEFAULT 0" +
-                            ")"
-            );
+                            ")");
         }
     };
 
@@ -367,14 +368,15 @@ public class DatabaseMigrations {
         }
     };
 
-    static final Migration MIGRATION_20_21 = new Migration(20, 21) { //2025-12-21
+    static final Migration MIGRATION_20_21 = new Migration(20, 21) { // 2025-12-21
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 20 => 21 (PlayTick sessions)");
 
             // 1) Add missing indices to existing PlayTick table
             db.execSQL("CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId ON PlayTick(zikFileId)");
-            db.execSQL("CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId_timestamp ON PlayTick(zikFileId, timestamp)");
+            db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId_timestamp ON PlayTick(zikFileId, timestamp)");
             db.execSQL("CREATE INDEX IF NOT EXISTS index_PlayTick_zikFileId_position ON PlayTick(zikFileId, position)");
 
             db.execSQL(
@@ -386,22 +388,22 @@ public class DatabaseMigrations {
                             "positionStart INTEGER NOT NULL, " +
                             "positionEnd INTEGER NOT NULL, " +
                             "FOREIGN KEY(zikFileId) REFERENCES ZikFile(id) ON DELETE CASCADE" +
-                            ")"
-            );
+                            ")");
 
             // 3) Indices (important for heatmaps)
             db.execSQL("CREATE INDEX index_PlaySession_zikFileId ON PlaySession(zikFileId)");
-            db.execSQL("CREATE INDEX index_PlaySession_zikFileId_positionStart ON PlaySession(zikFileId, positionStart)");
+            db.execSQL(
+                    "CREATE INDEX index_PlaySession_zikFileId_positionStart ON PlaySession(zikFileId, positionStart)");
 
             // 4) Handle legacy data: For ZikFiles with position > 0 but no PlayTick data,
-            //    create a session from 0 to current position (assumes they listened from start)
+            // create a session from 0 to current position (assumes they listened from
+            // start)
             db.execSQL(
                     "INSERT INTO PlaySession (zikFileId, timestampStart, timestampEnd, positionStart, positionEnd) " +
                             "SELECT z.id, 0, z.position, 0, z.position " +
                             "FROM ZikFile z " +
                             "WHERE z.position > 0 " +
-                            "AND NOT EXISTS (SELECT 1 FROM PlayTick pt WHERE pt.zikFileId = z.id)"
-            );
+                            "AND NOT EXISTS (SELECT 1 FROM PlayTick pt WHERE pt.zikFileId = z.id)");
         }
     };
 
@@ -425,8 +427,8 @@ public class DatabaseMigrations {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Dummy Migration -> executing step 23 => 24"); // 2026-02-03
-            //db.execSQL("ALTER TABLE ImportJob DROP COLUMN imageRemote");
-            //db.execSQL("ALTER TABLE ImportJob DROP COLUMN sourceSize");
+            // db.execSQL("ALTER TABLE ImportJob DROP COLUMN imageRemote");
+            // db.execSQL("ALTER TABLE ImportJob DROP COLUMN sourceSize");
         }
     };
 
@@ -435,6 +437,18 @@ public class DatabaseMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 24 => 25");
             db.execSQL("ALTER TABLE ImportJob ADD COLUMN metadataJson TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_25_26 = new Migration(25, 26) { // 2026-02-21
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 25 => 26");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN cutIntro INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN cutEnd INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN speed REAL NOT NULL DEFAULT 1.0");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN ttsVoice TEXT");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN jsonData TEXT");
         }
     };
 

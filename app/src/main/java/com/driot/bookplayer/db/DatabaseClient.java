@@ -46,7 +46,8 @@ public class DatabaseClient {
             myLogE("db version logging error");
         }
 
-        try {            appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, DATABASE_NAME)
+        try {
+            appDatabase = Room.databaseBuilder(mCtx, AppDatabase.class, DATABASE_NAME)
 
                     // -------------------------------------------------------
                     // .fallbackToDestructiveMigration() // <--- ATTENTION !!
@@ -66,7 +67,8 @@ public class DatabaseClient {
                             DatabaseMigrations.MIGRATION_17_18, DatabaseMigrations.MIGRATION_18_19,
                             DatabaseMigrations.MIGRATION_19_20, DatabaseMigrations.MIGRATION_20_21,
                             DatabaseMigrations.MIGRATION_21_22, DatabaseMigrations.MIGRATION_22_23,
-                            DatabaseMigrations.MIGRATION_23_24, DatabaseMigrations.MIGRATION_24_25)
+                            DatabaseMigrations.MIGRATION_23_24, DatabaseMigrations.MIGRATION_24_25,
+                            DatabaseMigrations.MIGRATION_25_26)
 
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
@@ -103,14 +105,30 @@ public class DatabaseClient {
         return appDatabase;
     }
 
-
-
     // ----------------------- LOG -----------------------
     private static final String TAG = "DatabaseClient";
-    private static void myLog(String str) { KanLogger.myLog(TAG, str); }
-    private static void myLogD(String str) { KanLogger.myLogD(TAG, str); }
-    private static void myLogI(String str) { KanLogger.myLogI(TAG, str); }
-    private static void myLogW(String str) { KanLogger.myLogW(TAG, str); }
-    private static void myLogE(String str) { KanLogger.myLogE(TAG, str); }
-    private static void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, TAG, str); }
+
+    private static void myLog(String str) {
+        KanLogger.myLog(TAG, str);
+    }
+
+    private static void myLogD(String str) {
+        KanLogger.myLogD(TAG, str);
+    }
+
+    private static void myLogI(String str) {
+        KanLogger.myLogI(TAG, str);
+    }
+
+    private static void myLogW(String str) {
+        KanLogger.myLogW(TAG, str);
+    }
+
+    private static void myLogE(String str) {
+        KanLogger.myLogE(TAG, str);
+    }
+
+    private static void myLogEE(Throwable t, String str) {
+        KanLogger.myLogEE(t, TAG, str);
+    }
 }

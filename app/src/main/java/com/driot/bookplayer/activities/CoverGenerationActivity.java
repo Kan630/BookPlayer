@@ -34,11 +34,13 @@ public class CoverGenerationActivity extends BaseActivity {
     public static final String EXTRA_DEFAULT_COLOR = "default_color"; // int
     public static final String EXTRA_SIZE_PX = "size_px";
     public static final String EXTRA_ROUNDED = "rounded";
+    public static final String EXTRA_TEXT_SIZE = "text_size";
 
     public static final String RESULT_SAVED_PATH = "result_saved_path";
     public static final String RESULT_INITIALS = "result_initials";
     public static final String RESULT_COLOR = "result_color";
     public static final String RESULT_ROUNDED = "result_rounded";
+    public static final String RESULT_TEXT_SIZE = "result_text_size";
 
     private ImageView imgPreview;
     private EditText edtInitials, edtR, edtG, edtB;
@@ -87,7 +89,7 @@ public class CoverGenerationActivity extends BaseActivity {
         String passedInitials = getIntent().getStringExtra(EXTRA_INITIALS);
 
         // Load saved prefs for sliders
-        textSizeVal = Pref.getBookCoverTextSize(this, folderId);
+        textSizeVal = getIntent().getIntExtra(EXTRA_TEXT_SIZE, 16);
 
         // TextSize slider: min 8 max 30. SeekBar max="22" (0..22) => +8 => 8..30
         seekTextSize.setMax(22);
@@ -154,12 +156,6 @@ public class CoverGenerationActivity extends BaseActivity {
         btnCancel.setOnClickListener(v -> finish());
 
         btnSave.setOnClickListener(v -> {
-            // Persist user prefs immediately
-            Pref.setBookCoverInitials(this, folderId, getInitials());
-            Pref.setBookCoverColor(this, folderId, getRgb());
-            Pref.setBookCoverColor(this, folderId, getRgb());
-            Pref.setBookCoverRounded(this, folderId, rounded);
-            Pref.setBookCoverTextSize(this, folderId, textSizeVal);
 
             // Do the heavy work off the main thread
             AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -191,7 +187,8 @@ public class CoverGenerationActivity extends BaseActivity {
                         .putExtra(RESULT_SAVED_PATH, savedPath)
                         .putExtra(RESULT_INITIALS, getInitials())
                         .putExtra(RESULT_COLOR, getRgb())
-                        .putExtra(RESULT_ROUNDED, rounded);
+                        .putExtra(RESULT_ROUNDED, rounded)
+                        .putExtra(RESULT_TEXT_SIZE, textSizeVal);
 
                 runOnUiThread(() -> {
                     setResult(RESULT_OK, out);

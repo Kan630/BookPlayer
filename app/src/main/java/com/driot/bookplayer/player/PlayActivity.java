@@ -178,7 +178,7 @@ public class PlayActivity extends BaseActivity {
 
         // TTS voices (early)
         if (folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
-            initTtsVoiceSpinner(folder.getId());
+            initTtsVoiceSpinner(folder);
         }
         touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
 
@@ -892,8 +892,8 @@ public class PlayActivity extends BaseActivity {
         });
     }
 
-    private void initTtsVoiceSpinner(int folderId) {
-        String saved = Pref.getBookTtsVoiceName(this, folderId);
+    private void initTtsVoiceSpinner(Folder folder) {
+        String saved = folder.ttsVoice;
         if (saved == null) {
             saved = Option.getTtsVoice();
             myLog("initTtsVoiceSpinner - general option voice = [" + saved + "]");
@@ -952,7 +952,10 @@ public class PlayActivity extends BaseActivity {
                         return;
                     }
 
-                    Pref.setBookTtsVoiceName(this, folderId, picked);
+                    folder.ttsVoice = picked;
+                    AppDatabase.databaseWriteExecutor.execute(() -> {
+                        AppDatabase.getInstance(PlayActivity.this).folderDao().update(folder);
+                    });
                     spinnerTtsVoice.setEnabled(false); // Disable immediately (guard against rapid taps)
                     myLogD("spinnerTtsVoice disabled");
 
@@ -980,7 +983,10 @@ public class PlayActivity extends BaseActivity {
                                 } else {
                                     myLogD("...rollback");
                                     // Roll back visually + persistently
-                                    Pref.setBookTtsVoiceName(this, folderId, prevGood);
+                                    folder.ttsVoice = prevGood;
+                                    AppDatabase.databaseWriteExecutor.execute(() -> {
+                                        AppDatabase.getInstance(PlayActivity.this).folderDao().update(folder);
+                                    });
                                     selectVoiceByNameWithoutCallback(spinnerTtsVoice, prevGood, suppressSelect);
                                     myToast(getString(mapWarmupReasonToMsg(reason)));
                                 }

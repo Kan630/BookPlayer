@@ -1558,7 +1558,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 String pickedSource = "system";
 
                 // 1) Per-book voice (never override this later)
-                String perBook = Pref.getBookTtsVoiceName(this, zf.getIdFolder());
+                String perBook = null;
+                PlayList pl = PlayList.getInstance();
+                if (pl != null && pl.getFolder() != null) {
+                    perBook = pl.getFolder().ttsVoice;
+                }
                 if (perBook != null && !perBook.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(perBook)) {
                     picked = perBook;
                     pickedSource = "book";
@@ -1759,8 +1763,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         PlayList pl = PlayList.getInstance();
         if (pl != null && pl.isZikFile()) {
             ZikFile zf = pl.getZikFile();
-            if (zf != null)
-                Pref.saveSpeedToPref(zf.getIdFolder(), speed);
+            if (zf != null) {
+                Folder f = pl.getFolder();
+                if (f != null) {
+                    f.speed = speed;
+                    AppDatabase.databaseWriteExecutor.execute(() -> {
+                        AppDatabase.getInstance(this).folderDao().update(f);
+                    });
+                }
+            }
         }
     }
 
@@ -1768,9 +1779,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (isZikFile()) {
             PlayList pl = PlayList.getInstance();
             if (pl != null) {
-                ZikFile zf = pl.getZikFile();
-                if (zf != null) {
-                    speed = Pref.getSpeedFromPref(zf.getIdFolder());
+                Folder f = pl.getFolder();
+                if (f != null) {
+                    speed = f.speed;
                 }
             }
         }
@@ -2158,7 +2169,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
 
             // Cut Intro (book option)
-            int introCut = Pref.getIntroCutFromPref(this, zikFile.getIdFolder()) * 1000;
+            int introCut = 0;
+            if (pl != null && pl.getFolder() != null) {
+                introCut = pl.getFolder().cutIntro * 1000;
+            }
             if (introCut > 0) {
                 long position = getPosition();
                 myLog("position : [" + position + "]  introCut : [" + introCut + "]");

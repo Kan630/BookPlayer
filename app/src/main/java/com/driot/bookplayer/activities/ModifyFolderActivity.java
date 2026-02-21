@@ -166,7 +166,7 @@ public class ModifyFolderActivity extends BaseActivity {
         bShare.setOnClickListener(view -> bShareClick());
 
         etIntroCut = findViewById(R.id.etIntroCut);
-        etIntroCut.setText(String.valueOf(Pref.getIntroCutFromPref(this, folder.getId())));
+        etIntroCut.setText(String.valueOf(folder.cutIntro));
 
         ivCoverPreview = findViewById(R.id.ivCoverPreview);
         ivCoverPreview.setImageResource(R.drawable.no_image_icon);
@@ -476,7 +476,12 @@ public class ModifyFolderActivity extends BaseActivity {
         int introCut = 0;
         try {
             introCut = Integer.parseInt(etIntroCut.getText().toString());
-            Pref.saveIntroCutToPref(this, folder.getId(), introCut);
+            if (folder.cutIntro != introCut) {
+                folder.cutIntro = introCut;
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    AppDatabase.getInstance(ModifyFolderActivity.this).folderDao().update(folder);
+                });
+            }
         } catch (Exception e) {
             myLogE("Bad introCut value");
         }
@@ -581,10 +586,36 @@ public class ModifyFolderActivity extends BaseActivity {
                 if (savedPath == null || savedPath.isEmpty())
                     return;
 
+                // get extra data
+                String initials = result.getData().getStringExtra(CoverGenerationActivity.RESULT_INITIALS);
+                int color = result.getData().getIntExtra(CoverGenerationActivity.RESULT_COLOR, 0);
+                boolean rounded = result.getData().getBooleanExtra(CoverGenerationActivity.RESULT_ROUNDED, true);
+                int textSize = result.getData().getIntExtra(CoverGenerationActivity.RESULT_TEXT_SIZE, 16);
+
                 new Thread(() -> {
                     try {
+                        // UPDATE JSON DATA
+                        org.json.JSONObject coverObj = new org.json.JSONObject();
+                        if (initials != null)
+                            coverObj.put("initials", initials);
+                        coverObj.put("color", color);
+                        coverObj.put("rounded", rounded);
+                        coverObj.put("textSize", textSize);
+
+                        org.json.JSONObject rootObj = new org.json.JSONObject();
+                        if (folder.jsonData != null && !folder.jsonData.isEmpty()) {
+                            try {
+                                rootObj = new org.json.JSONObject(folder.jsonData);
+                            } catch (Exception ignored) {
+                            }
+                        }
+                        rootObj.put("cover", coverObj);
+                        folder.jsonData = rootObj.toString();
+
                         AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), savedPath);
                         folder.image = savedPath;
+                        AppDatabase.getDatabase(this).folderDao().update(folder); // to save JSON data
+
                         runOnUiThread(() -> {
                             myLog("reset ivCoverPreview after activity result coverGenLauncher : " + savedPath);
                             ivCoverPreview.setImageURI(Uri.parse(savedPath));
@@ -603,9 +634,26 @@ public class ModifyFolderActivity extends BaseActivity {
         final int sizePx = Var.FALL_BACK_COVER_IMAGE_SIZE_IN_PIXELS;
 
         // Load saved prefs (if any), else fall back to defaults
-        String savedInitials = Pref.getBookCoverInitials(this, fId);
-        Integer savedColor = Pref.getBookCoverColorOrNull(this, fId);
-        Boolean savedRounded = Pref.getBookCoverRoundedOrNull(this, fId);
+        String savedInitials = null;
+        Integer savedColor = null;
+        Boolean savedRounded = null;
+
+        if (folder.jsonData != null) {
+            try {
+                org.json.JSONObject root = new org.json.JSONObject(folder.jsonData);
+                if (root.has("cover")) {
+                    org.json.JSONObject cover = root.getJSONObject("cover");
+                    if (cover.has("initials") && !cover.isNull("initials"))
+                        savedInitials = cover.getString("initials");
+                    if (cover.has("color"))
+                        savedColor = cover.getInt("color");
+                    if (cover.has("rounded"))
+                        savedRounded = cover.getBoolean("rounded");
+                }
+            } catch (Exception e) {
+                myLogEE(e, "Error parsing jsonData for cover info");
+            }
+        }
 
         final boolean rounded = (savedRounded != null) ? savedRounded : true;
         final int defaultColor = (savedColor != null) ? savedColor : ImageHelper.getColorFromTitle(title);
