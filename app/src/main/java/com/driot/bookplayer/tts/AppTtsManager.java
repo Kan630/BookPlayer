@@ -166,6 +166,9 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     myLogD("----------------------------------------------------------------------------------------");
                     myLog("setOnUtteranceProgressListener.onDone - utteranceId=" + utteranceId);
                     myLogD("----------------------------------------------------------------------------------------");
+                    if (utteranceId != null && utteranceId.equals(currentUtteranceId)) {
+                        currentUtteranceId = null;
+                    }
                     forEachListener(l -> l.onDone(utteranceId));
                 }
 
@@ -198,6 +201,9 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                         myLogEE(e, "Error stopping TTS in onError callback");
                     }
 
+                    if (utteranceId != null && utteranceId.equals(currentUtteranceId)) {
+                        currentUtteranceId = null;
+                    }
                     forEachListener(l -> l.onError(utteranceId, errorCode));
                 }
 
@@ -279,6 +285,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     }
 
     public void stop() {
+        currentUtteranceId = null;
         TextToSpeech t = tts;
         if (t != null) {
             try {

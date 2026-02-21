@@ -60,8 +60,6 @@ public class TtsHighlighter {
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
 
-    private static final String TAG = "TtsHighlighter";
-
     public TtsHighlighter(BaseActivity activity, TextView tvTtsText) {
         this.activityRef = new WeakReference<>(activity);
         this.tvTtsText = tvTtsText;
@@ -167,7 +165,7 @@ public class TtsHighlighter {
         if (lastTtsPositionMs >= 0) {
             long diff = Math.abs(pos - lastTtsPositionMs);
             if (diff > SEEK_DETECTION_THRESHOLD_MS) {
-                android.util.Log.i(TAG, "TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + pos);
+                myLogI("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + pos);
                 resetHighlightTracking(false);
             }
         }
@@ -208,17 +206,17 @@ public class TtsHighlighter {
                 String txt = seq.toString().replace("\n", "\\n");
                 // Only log periodically or if it looks weird?
                 // For now, log everything as user requested more logging.
-                android.util.Log.v(TAG, "TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
+                myLog("TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
             } catch (Exception ignored) {
             }
         } else {
-            android.util.Log.w(TAG, "TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
+            myLogW("TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
                     + (spannableText == null ? "null" : spannableText.length()) + ")");
         }
 
         // Ignore callbacks during seek cooldown period to prevent racing ahead
         if (lastSeekTime > 0 && (now - lastSeekTime) < SEEK_COOLDOWN_MS) {
-            android.util.Log.d(TAG, "TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
+            myLogD("TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
             return;
         }
         // Clear cooldown once it expires
@@ -230,7 +228,7 @@ public class TtsHighlighter {
         if (!ttsActuallyStarted) {
             ttsActuallyStarted = true;
             stopLoadingTimer(); // <--- Hide overlay immediately
-            android.util.Log.i(TAG, "TTS HIGHLIGHT: first callback received, marking TTS as started");
+            myLogI("TTS HIGHLIGHT: first callback received, marking TTS as started");
             // Reset tracking when TTS actually starts to avoid stale highlights
             // But don't reset the started flag (pass false) since we just set it to true
             resetHighlightTracking(false);

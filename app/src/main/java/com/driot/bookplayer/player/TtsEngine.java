@@ -59,6 +59,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private long estDurationMs = 0;
     private long estPositionMs = 0;
     private float speechRate = 1.0f;
+    private volatile boolean ttsAudioStarted = false;
 
     private float volume = 1f;
 
@@ -350,10 +351,15 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed)
             return;
 
+        ttsAudioStarted = true;
         currentUtteranceStartTime = System.currentTimeMillis();
         int[] range = com.driot.bookplayer.tts.TtsIds.parseUtt(utteranceId);
         if (range != null) {
             currentUtteranceStartOffset = range[0];
+            // Broadcast initial "ping" to move cursor to the start of the chunk at the
+            // exact
+            // moment audio starts
+            listener.onTtsRange(gen, range[0], range[0]);
         } else {
             // Reset if unknown ID format to prevent bad math
             currentUtteranceStartOffset = -1;
@@ -365,6 +371,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         myLogD("onDone " + utteranceId);
         if (disposed)
             return;
+
+        ttsAudioStarted = false;
 
         // Check if this utterance reached the end by examining both lastCharSpoken and
         // utterance ID
@@ -417,8 +425,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed)
             return;
 
-        // Stop TTS immediately to prevent infinite error loops
+        // Stop TTS immediately to prevent further error loops
         playing = false;
+        ttsAudioStarted = false;
         if (tts != null) {
             try {
                 tts.stop();
@@ -451,10 +460,10 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed)
             return;
 
-        // Ignore callbacks when not playing - prevents highlighting from racing ahead
-        // after pause/resume
-        if (!playing) {
-            myLogD("TTS RANGE....: pos= ignoring callback (not playing) [" + start + "-" + end + "]");
+        // Ignore callbacks when not playing OR audio hasn't started yet
+        // prevents highlighting from racing ahead (synthesis speed vs playback speed)
+        if (!playing || !ttsAudioStarted) {
+            myLogD("TTS RANGE....: pos= ignoring callback (not playing or not started) [" + start + "-" + end + "]");
             return;
         }
 
@@ -547,13 +556,10 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
         tts.setSpeechRate(speechRate);
         final int off = Math.max(0, Math.min(offsetChars, text.length()));
-        int actualStart = tts.speakFromOffset(text, off, volume); // all chunking lives in TtsHelper
-        if (actualStart < 0)
-            return; // nothing queued (empty text etc.)
-        LocalBroadcastManager.getInstance(app).sendBroadcast(
-                new Intent(Intents.NOTIFICATION_TTS_RANGE)
-                        .putExtra(Intents.EXTRA_TTS_START, actualStart)
-                        .putExtra(Intents.EXTRA_TTS_END, actualStart));
+        tts.speakFromOffset(text, off, volume); // all chunking lives in TtsHelper
+        // Removed manual NOTIFICATION_TTS_RANGE broadcast from here.
+        // Highlights now start ONLY when onStart is received, to avoid "early jump"
+        // especially on network TTS.
     }
 
     private int logicalTextEndIndex() {
