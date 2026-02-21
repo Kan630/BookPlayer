@@ -244,13 +244,12 @@ public class TtsHelper {
     public static void setupTtsVoiceSpinnerForSettings(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
+            @NonNull AppTtsManager mgr,
             @Nullable String savedCode, // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback) {
         myLog("setupTtsVoiceSpinnerForSettings - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode
                 + "]");
-        final Context app = ui_context.getApplicationContext();
-
-        final AppTtsManager mgr = AppTtsManager.get(app);
+        // mgr pass as param
         TextToSpeech tts = mgr.raw();
         if (tts == null) {
             myLogE("setupTtsVoiceSpinnerForSettings: TTS not ready (raw() == null)");
@@ -334,6 +333,7 @@ public class TtsHelper {
     public static @NonNull AutoCloseable setupTtsVoiceSpinner(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
+            @NonNull AppTtsManager mgr,
             @Nullable String savedCode, // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback) {
         myLog("setupTtsVoiceSpinner - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode + "]");
@@ -350,8 +350,7 @@ public class TtsHelper {
         spinner.setAdapter(loadingAdapter);
         spinner.setEnabled(false);
 
-        myLogD("setting a prefered voice name in AppTtsManager");
-        final AppTtsManager mgr = AppTtsManager.get(app);
+        // mgr pass as param
         mgr.setPreferredVoiceName(savedCode);
 
         final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(

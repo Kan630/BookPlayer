@@ -22,6 +22,7 @@ import android.widget.ImageView;
 import com.driot.bookplayer.activities.TtsReaderActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.PodcastDao;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.VoiceItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
@@ -67,7 +68,13 @@ import java.util.List;
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class PlayActivity extends BaseActivity {
+
+    @javax.inject.Inject
+    protected com.driot.bookplayer.tts.AppTtsManager ttsManager;
 
     private PlaybackViewModel vm;
 
@@ -178,7 +185,7 @@ public class PlayActivity extends BaseActivity {
 
         // TTS voices (early)
         if (folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
-            initTtsVoiceSpinner(folder);
+            initTtsVoiceSpinner(folder, ttsManager);
         }
         touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
 
@@ -892,7 +899,7 @@ public class PlayActivity extends BaseActivity {
         });
     }
 
-    private void initTtsVoiceSpinner(Folder folder) {
+    private void initTtsVoiceSpinner(Folder folder, AppTtsManager mgr) {
         String saved = folder.ttsVoice;
         if (saved == null) {
             saved = Option.getTtsVoice();

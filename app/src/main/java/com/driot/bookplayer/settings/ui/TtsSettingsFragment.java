@@ -21,11 +21,19 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+import dagger.hilt.android.AndroidEntryPoint;
+
+@AndroidEntryPoint
 public class TtsSettingsFragment extends LoggingFragment {
+
+    @Inject
+    protected AppTtsManager ttsManager;
 
     private String lastSavedTtsVoice;
     private EditText etTtsHighlightDelay, etTtsChunkSize;
@@ -61,6 +69,7 @@ public class TtsSettingsFragment extends LoggingFragment {
         TtsHelper.setupTtsVoiceSpinnerForSettings(
                 /* if it needs Activity: */ requireActivity(),
                 /* otherwise use requireContext() */ ttsVoiceSpinner,
+                ttsManager,
                 lastSavedTtsVoice,
                 voiceItem -> {
                     myLogD("TtsHelper.setupTtsVoiceSpinner callback with voiceItem = "

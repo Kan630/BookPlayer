@@ -57,7 +57,7 @@ public class MyApp extends Application {
         KanLogger.init(getApplicationContext());
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
-            //StrictModeHelper.enableStrictModeForDebugBuild();
+            // StrictModeHelper.enableStrictModeForDebugBuild();
         }
 
         // Centralized Prefs warm-up in background
@@ -119,7 +119,7 @@ public class MyApp extends Application {
             }
         });
 
-        AppTtsManager.init(getApplicationContext());
+        // AppTtsManager is now handled by Hilt
 
         // Initialize storage info cache calculation (runs in background)
         Executors.newSingleThreadExecutor().execute(() -> {

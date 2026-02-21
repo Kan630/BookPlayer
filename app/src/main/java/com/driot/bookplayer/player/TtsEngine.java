@@ -51,6 +51,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private volatile boolean prepared = false;
     private volatile boolean playing = false;
     private volatile boolean completionTriggered = false; // Prevent double-triggering of completion
+    private volatile boolean prepareActuallyRequested = false;
 
     private String text = "";
     private int lastCharSpoken = 0;
@@ -108,6 +109,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void prepareAsync() {
+        prepareActuallyRequested = true;
         if (disposed || preparing || prepared)
             return;
         preparing = true;
@@ -198,6 +200,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         stop();
         prepared = false;
         preparing = false;
+        prepareActuallyRequested = false;
         resumeOffsetChars = 0;
         estPositionMs = 0;
         completionTriggered = false;
@@ -331,7 +334,11 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed || prepared || preparing)
             return;
         this.tts = new TtsHelper(app, engine);
-        prepareAsync();
+        if (prepareActuallyRequested) {
+            prepareAsync();
+        } else {
+            myLogD("onTtsReady - session not yet requested by MediaService, waiting.");
+        }
     }
 
     private long currentUtteranceStartTime = 0;

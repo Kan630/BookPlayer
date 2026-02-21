@@ -14,15 +14,19 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+@Singleton
 public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     public interface Listener {
@@ -45,27 +49,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         }
     }
 
-    private static volatile AppTtsManager sInstance;
-
-    public static void init(Context context) {
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            if (AppDatabase.getDatabase(context).folderDao().hasSomeTtsBook()) {
-                get(context);
-            }
-        });
-    }
-
-    public static AppTtsManager get(Context ctx) {
-        if (sInstance == null) {
-            synchronized (AppTtsManager.class) {
-                if (sInstance == null) {
-                    sInstance = new AppTtsManager(ctx.getApplicationContext());
-                }
-            }
-        }
-        return sInstance;
-    }
-
     private final Handler main = new Handler(Looper.getMainLooper());
     private volatile boolean ready = false;
     private TextToSpeech tts;
@@ -79,7 +62,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     @Nullable
     private volatile String preferredVoiceName = null;
 
-    private AppTtsManager(Context app) {
+    @Inject
+    public AppTtsManager(@ApplicationContext Context app) {
         myLogD("AppTtsManager: constructor - new TextToSpeech");
         main.post(() -> {
             tts = new TextToSpeech(app, this);
