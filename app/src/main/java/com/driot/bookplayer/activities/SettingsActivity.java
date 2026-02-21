@@ -230,7 +230,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
             // so we run last
             scrollView.post(() -> scrollView.post(() -> {
                 if (Math.abs(scrollView.getScrollY() - position) <= 4) {   // tolerance of ~4px
-                    myLogD("already around at " + position + " — skip restore");
+                    myLogD("scroll already around position " + position + " - skip restore");
                     return;
                 }
                 myLogD("scrolling to position : " + position);

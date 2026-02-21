@@ -13,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -34,16 +36,18 @@ import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
-import com.driot.bookplayer.player.NavHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
+import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.utils.KanMail;
+
+import com.driot.bookplayer.player.NavHelper;
+
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -157,16 +161,29 @@ public class MainActivity extends BaseBottomNavActivity {
         mainVm.getFolders().observe(this, folders -> {
             if (folders == null)
                 return;
-            boolean isEmpty = folders.isEmpty();
-
-            // WELCOME MESSAGE or Folders
             View emptyView = findViewById(R.id.emptyView);
+            boolean isEmpty = folders.isEmpty();
+            if (isEmpty) {
+                recyclerView.setVisibility(View.VISIBLE);
+                Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
+                btnWelcomeAddBook.setOnClickListener(v -> {
+                    startActivity(new Intent(getApplicationContext(), GetActivity.class));
+                });
+                //emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
+                boolean isPure = getPackageName().contains("com.driot.bookplayerpure");
+                myLog("isPure = " + isPure);
+                LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);
+                if (isPure) {
+                    ll_welcome_item_podcasts_radio.setVisibility(View.GONE);
+                } else {
+                    ll_welcome_item_podcasts_radio.setVisibility(View.VISIBLE);
+                }
+            } else {
+                recyclerView.setVisibility(View.GONE);
+            }
+
             recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
             emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-            Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
-            btnWelcomeAddBook.setOnClickListener(v -> {
-                startActivity(new Intent(getApplicationContext(), GetActivity.class));
-            });
 
             adapter.submitList(folders);
         });
@@ -298,7 +315,7 @@ public class MainActivity extends BaseBottomNavActivity {
         } else if (itemId == R.id.menu_receive_book) {
             myLogI("--- USER clicks MENU : RECEIVE BOOK ---");
             Intent intent = new Intent(this, NearbyShareActivity.class);
-            intent.putExtra("RECEIVE_MODE", true); // Flag to start in receive mode
+            intent.putExtra("RECEIVE_MODE", true);
             startActivity(intent);
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");

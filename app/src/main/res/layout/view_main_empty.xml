@@ -106,10 +106,12 @@
 
             <!-- Row 3: Podcasts & radio -->
             <LinearLayout
+                android:id="@+id/ll_welcome_item_podcasts_radio"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:gravity="center_vertical">
+                android:gravity="center_vertical"
+                android:layout_marginBottom="12dp">
 
                 <ImageView
                     android:src="@drawable/ic_radio_24px"
@@ -119,6 +121,28 @@
 
                 <TextView
                     android:text="@string/welcome_item_podcasts_radio"
+                    style="@style/simpleText"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:textSize="15sp" />
+            </LinearLayout>
+
+            <!-- Row 4: TTS -->
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical">
+
+                <ImageView
+                    android:src="@drawable/ic_tts_24"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginEnd="12dp" />
+
+                <TextView
+                    android:text="@string/welcome_item_tts_ebooks"
                     style="@style/simpleText"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"

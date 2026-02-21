@@ -956,6 +956,7 @@
     <string name="welcome_item_add_book">Add an existing audiobook from your device, SD card, drive.</string>
     <string name="welcome_item_librivox">Browse and get free public-domain audiobooks.</string>
     <string name="welcome_item_podcasts_radio">Discover web radios and podcasts.</string>
+    <string name="welcome_item_tts_ebooks">Listen to ebooks with synthetic voices.</string>
     <string name="welcome_button_add">Add your first book</string>
     <string name="welcome_hint">Tip: you can customize colors and options in Settings.</string>
     <string name="btn_get_local_book_title">It’s on my device (or SD card, or Drive).</string>

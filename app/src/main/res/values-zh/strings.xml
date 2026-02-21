@@ -1,40 +1,4 @@
 <resources>
-    <!-- ********************************** -->
-    <!-- NO TRANSLATION (translatable=false) -->
-
-
-    <string name="app_name" translatable="false">BookPlayerPure</string>
-    <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
-    <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
-    <string name="asset_statements" translatable="false">
-    [{
-      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
-    }]
-    </string>
-    <string name="AutoTest_b1_text" translatable="false">zip (700KB)</string>
-    <string name="AutoTest_b2_text" translatable="false">multi lang zip (7MB)</string>
-    <string name="AutoTest_b3_text" translatable="false">m4b (9MB)</string>
-    <string name="Librivox" translatable="false">LibriVox</string>
-
-    <string name="three_dots" translatable="false">…</string>
-
-
-    <string name="play" translatable="false"><![CDATA[>]]></string>
-    <string name="rewind" translatable="false"><![CDATA[<<]]></string>
-    <string name="forward" translatable="false"><![CDATA[>>]]></string>
-    <string name="pause" translatable="false">||</string>
-    <string name="btnSleepSet" translatable="false">Sleep</string>
-    <string name="menu_seeLog" translatable="false">See Logs</string>
-
-    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_scanner" translatable="false">Scanner</string>
-    <string name="permissions_ok_button" translatable="false">OK</string>
-    <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
-    <string name="emoji_paste" translatable="false">📋</string>
-    <string name="emoji_clear" translatable="false">🗑️</string>
-    <string name="librivox" translatable="false">LibriVox</string>
-    <string name="Internet_Archive" translatable="false">Internet Archive</string>
 
     <!-- ********************************** -->
     <!-- SINGLE WORDS -->
@@ -935,6 +899,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="welcome_item_add_book">从设备、SD 卡或云盘添加有声书。</string>
     <string name="welcome_item_librivox">浏览并获取免费公有领域有声书。</string>
     <string name="welcome_item_podcasts_radio">发现网络电台与播客。</string>
+    <string name="welcome_item_tts_ebooks">使用合成语音聆听电子书。</string>
     <string name="welcome_button_add">添加你的第一本书</string>
     <string name="welcome_hint">提示：可在设置中自定义颜色和选项。</string>
     <string name="btn_get_local_book_title">它在我的设备上（或 SD 卡、云盘）。</string>
