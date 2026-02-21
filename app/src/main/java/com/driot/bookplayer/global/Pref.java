@@ -202,44 +202,35 @@ public class Pref {
     /////////////////// LANGUAGE SPINNER ///////////////////
     ///
     public static void set_Audio_Language_Librivox(Context c, String audioLanguage) {
-        c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit()
-                .putString("AUDIO_LANGUAGE_LIBRIVOX", audioLanguage).apply();
+        prefs.edit().putString("AUDIO_LANGUAGE_LIBRIVOX", audioLanguage).apply();
     }
 
     public static String get_Audio_Language_Librivox(Context c) {
-        return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE_LIBRIVOX",
-                "eng");
+        return prefs.getString("AUDIO_LANGUAGE_LIBRIVOX", "eng");
     }
 
     public static void set_Audio_Language_Podcast(Context c, String audioLanguage) {
-        c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit()
-                .putString("AUDIO_LANGUAGE_PODCAST", audioLanguage).apply();
+        prefs.edit().putString("AUDIO_LANGUAGE_PODCAST", audioLanguage).apply();
     }
 
     public static String get_Audio_Language_Podcast(Context c) {
-        return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE_PODCAST",
-                "en");
+        return prefs.getString("AUDIO_LANGUAGE_PODCAST", "en");
     }
 
     public static void set_Audio_Language_Ebook(Context c, String audioLanguage) {
-        c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).edit()
-                .putString("AUDIO_LANGUAGE_EBOOK", audioLanguage).apply();
+        prefs.edit().putString("AUDIO_LANGUAGE_EBOOK", audioLanguage).apply();
     }
 
     public static String get_Audio_Language_Ebook(Context c) {
-        return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE).getString("AUDIO_LANGUAGE_EBOOK", "en");
+        return prefs.getString("AUDIO_LANGUAGE_EBOOK", "en");
     }
 
     public static void set_Audio_Language_Radio(Context c, String audioLanguage) {
-        c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE)
-                .edit()
-                .putString("AUDIO_LANGUAGE_RADIO", audioLanguage)
-                .apply();
+        prefs.edit().putString("AUDIO_LANGUAGE_RADIO", audioLanguage).apply();
     }
 
     public static String get_Audio_Language_Radio(Context c) {
-        return c.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE)
-                .getString("AUDIO_LANGUAGE_RADIO", "en");
+        return prefs.getString("AUDIO_LANGUAGE_RADIO", "en");
     }
 
     public static void setBookTtsVoiceName(Context c, int folderId, String voiceName) {
