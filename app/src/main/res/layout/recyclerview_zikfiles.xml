@@ -109,13 +109,14 @@
                     android:layout_width="50dp"
                     android:layout_height="20dp"
                     android:layout_marginTop="@dimen/recyclerview_elements_bottom"
-                    android:gravity="center"
-                    android:textColor="?attr/colorOnSurface"
-                    app:layout_constraintTop_toBottomOf="@id/tvBookName"
-                    app:layout_constraintRight_toRightOf="@id/guideline"
                     android:layout_marginStart="0dp"
                     android:layout_marginEnd="20dp"
-                    android:text="...xx%..." />
+                    android:gravity="center"
+                    android:textColor="?attr/colorOnSurface"
+                    android:text="...xx%..."
+                    app:layout_constraintTop_toBottomOf="@id/tvBookName"
+                    app:layout_constraintRight_toRightOf="@id/guideline"
+                     />
 
                 <TextView
                     android:id="@+id/textViewDuration"
