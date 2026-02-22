@@ -719,10 +719,10 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
     @Override
     public void onLoadingStatusChanged(boolean show) {
         if (progressOverlay == null) {
-            myLogE("onLoadingStatusChanged: progressOverlay is null!");
+            myLogE("TTS Phase change: onLoadingStatusChanged: progressOverlay is null!");
             return;
         }
-        myLogD("onLoadingStatusChanged - show progressOverlay : " + show);
+        myLogD("TTS Phase change: onLoadingStatusChanged - show progressOverlay : " + show);
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
@@ -734,10 +734,6 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
         } else {
             progressOverlay.setVisibility(View.GONE);
         }
-    }
-
-    public void showTtsLoading(boolean show) {
-        onLoadingStatusChanged(show);
     }
 
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {

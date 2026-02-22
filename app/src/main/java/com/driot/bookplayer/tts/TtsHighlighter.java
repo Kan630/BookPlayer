@@ -75,8 +75,10 @@ public class TtsHighlighter {
         this.tvTtsText = tvTtsText;
         this.listener = listener;
         this.loadingRunnable = () -> {
-            if (listener != null)
+            if (listener != null) {
                 listener.onLoadingStatusChanged(true);
+                myLogI("TTS Phase change: tell listener to show overlay progress");
+            }
         };
     }
 
