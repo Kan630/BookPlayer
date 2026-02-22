@@ -28,8 +28,13 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  * Extracted from PlayActivity to clean up code.
  */
 public class TtsHighlighter {
+    public interface HighlightListener {
+        void onLoadingStatusChanged(boolean loading);
 
-    private final WeakReference<BaseActivity> activityRef;
+        void onScrollToPosition(TextView tv, int charOffset);
+    }
+
+    private final HighlightListener listener;
     private final TextView tvTtsText;
     private final Handler uiH = new Handler(Looper.getMainLooper());
 
@@ -63,26 +68,13 @@ public class TtsHighlighter {
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
 
-    public TtsHighlighter(BaseActivity activity, TextView tvTtsText) {
-        this.activityRef = new WeakReference<>(activity);
+    public TtsHighlighter(TextView tvTtsText, HighlightListener listener) {
         this.tvTtsText = tvTtsText;
+        this.listener = listener;
         this.loadingRunnable = () -> {
-            BaseActivity act = activityRef.get();
-            if (act instanceof PlayActivity) {
-                ((PlayActivity) act).showTtsLoading(true);
-            }
+            if (listener != null)
+                listener.onLoadingStatusChanged(true);
         };
-    }
-
-    public void setAutoScroll(boolean enabled) {
-        // This class doesn't manage auto-scroll flag directly,
-        // but if we needed to trigger scroll here we could.
-        // For now, let's leave auto-scroll flag management in PlayActivity
-        // or pass a callback if needed.
-        // Actually, PlayActivity accesses 'suppressAutoScroll' directly.
-        // We will notify PlayActivity when to scroll?
-        // For strict refactoring, we'll expose a callback or let PlayActivity handle
-        // the scroll call.
     }
 
     // ---- Main Entry Points ----
@@ -103,33 +95,31 @@ public class TtsHighlighter {
         }
     }
 
-    public void onPlaybackStateChanged(@Nullable PlaybackUiState s, PlaybackViewModel vm) {
+    public void onPlaybackStateChanged(@Nullable PlaybackUiState s) {
         if (s == null)
             return;
 
         boolean isTts = "tts".equals(s.playMode);
 
-        // Detect seeks
+        // Detect seeks via position jump
         if (isTts && lastTtsPositionMs >= 0 && s.positionMs > 0) {
             long positionDelta = Math.abs(s.positionMs - lastTtsPositionMs);
             if (positionDelta > SEEK_DETECTION_THRESHOLD_MS && s.playing) {
                 myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
                 lastSeekTime = System.currentTimeMillis();
-                // Reset tracking but keep ttsActuallyStarted=true since we're already playing
                 resetHighlightTracking(false);
             }
         }
         if (isTts)
             lastTtsPositionMs = s.positionMs;
+
         // Overlay Logic
         if (s.loadPhase.equals(Intents.PHASE_SPEAKING) || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
                 || s.loadPhase.equals(Intents.PHASE_WARMING_UP)) {
-            // Start loading timer if we are in a "working" phase but audio hasn't started
             if (!ttsActuallyStarted) {
                 startLoadingTimer();
             }
         } else {
-            // Not speaking/loading (Paused, Stopped, etc) -> hide overlay
             stopLoadingTimer();
         }
 
@@ -137,42 +127,16 @@ public class TtsHighlighter {
         if (s.trackId != lastTtsTrackId) {
             lastTtsTrackId = s.trackId;
             resetHighlightTracking(true);
-
-            // Text fetching logic
-            if (isTts) {
-                vm.resetTtsTextRequestFlag();
-                vm.requestTtsTextOnce();
-            }
-        } else {
-            // If track didn't change but we became ready/speaking and haven't requested
-            // text?
-            // Usually handled by PlayActivity logic but we moved it here.
-            // If we don't have text, request it.
-            if (isTts && (spannableText == null || spannableText.length() == 0)) {
-                vm.requestTtsTextOnce();
-            }
         }
 
-        // Detect Play/Pause state change to reset tracking if needed
+        // Detect Play/Pause state change
         boolean isSpeak = Intents.PHASE_SPEAKING.equals(s.loadPhase);
-
         if (isSpeak != lastTtsPlaying) {
             lastTtsPlaying = isSpeak;
             if (!isSpeak) {
                 resetHighlightTracking(false);
             }
         }
-
-        // Detect large jumps
-        long pos = s.positionMs;
-        if (lastTtsPositionMs >= 0) {
-            long diff = Math.abs(pos - lastTtsPositionMs);
-            if (diff > SEEK_DETECTION_THRESHOLD_MS) {
-                myLogI("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + pos);
-                resetHighlightTracking(false);
-            }
-        }
-        lastTtsPositionMs = pos;
 
         lastTtsPhase = s.loadPhase;
     }
@@ -192,10 +156,8 @@ public class TtsHighlighter {
     private void stopLoadingTimer() {
         uiH.removeCallbacks(loadingRunnable);
         myLogD("stopLoadingTimer: canceled");
-        BaseActivity act = activityRef.get();
-        if (act instanceof PlayActivity) {
-            ((PlayActivity) act).showTtsLoading(false);
-        }
+        if (listener != null)
+            listener.onLoadingStatusChanged(false);
     }
 
     public void scheduleHighlight(int s, int e) {
@@ -311,16 +273,8 @@ public class TtsHighlighter {
     }
 
     private void triggerAutoScroll(int startPos) {
-        // We need to call back to activity or handle scroll layout here.
-        // Since we have the TextView, we can try to scroll it if suppress flag isn't
-        // set.
-        // But the suppress flag is in PlayActivity.
-        // For now, let's assume PlayActivity handles the scroll via a callback or we
-        // execute a Runnable passed in?
-        // Or simpler: We define an interface or a public method in PlayActivity.
-        BaseActivity a = activityRef.get();
-        if (a instanceof PlayActivity) {
-            ((PlayActivity) a).onTtsHighlightApplied(tvTtsText, startPos);
+        if (listener != null) {
+            listener.onScrollToPosition(tvTtsText, startPos);
         }
     }
 

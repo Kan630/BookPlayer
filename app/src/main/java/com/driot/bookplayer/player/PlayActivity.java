@@ -57,6 +57,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -71,7 +72,7 @@ import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissi
 import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
-public class PlayActivity extends BaseActivity {
+public class PlayActivity extends BaseActivity implements TtsHighlighter.HighlightListener {
 
     @javax.inject.Inject
     protected com.driot.bookplayer.tts.AppTtsManager ttsManager;
@@ -239,7 +240,7 @@ public class PlayActivity extends BaseActivity {
 
         ttsContainer = findViewById(R.id.ttsContainer);
         tvTtsText = findViewById(R.id.tvTtsText);
-        ttsHighlighter = new TtsHighlighter(this, tvTtsText);
+        ttsHighlighter = new TtsHighlighter(tvTtsText, this);
 
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
@@ -377,16 +378,23 @@ public class PlayActivity extends BaseActivity {
             boolean isTts = "tts".equals(s.playMode);
             boolean isStarting = Intents.PHASE_STARTING.equals(s.loadPhase);
             boolean trackChanged = isTts && (s.trackId != ttsHighlighter.getLastTtsTrackId());
-            boolean becameReady = isTts
+            if (isTts
                     && !Intents.PHASE_READY.equals(ttsHighlighter.getLastTtsPhase())
-                    && Intents.PHASE_READY.equals(s.loadPhase);
-
-            if (isTts && (trackChanged || becameReady)) {
+                    && Intents.PHASE_READY.equals(s.loadPhase)) {
                 suppressAutoScroll = false;
+                // Request text when we become ready
+                vm.resetTtsTextRequestFlag();
+                vm.requestTtsTextOnce();
+            }
+
+            if (isTts && trackChanged) {
+                suppressAutoScroll = false;
+                vm.resetTtsTextRequestFlag();
+                vm.requestTtsTextOnce();
             }
 
             // Delegate logic to highlighter
-            ttsHighlighter.onPlaybackStateChanged(s, vm);
+            ttsHighlighter.onPlaybackStateChanged(s);
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -757,21 +765,26 @@ public class PlayActivity extends BaseActivity {
         podcastLastClickTime = now;
     }
 
-    public void showTtsLoading(boolean show) {
+    @Override
+    public void onLoadingStatusChanged(boolean show) {
         if (progressOverlay == null) {
-            myLogE("showTtsLoading: progressOverlay is null!");
+            myLogE("onLoadingStatusChanged: progressOverlay is null!");
             return;
         }
-        myLogD("showTtsLoading: " + show);
+        myLogD("onLoadingStatusChanged: " + show);
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
                 tv.setText(R.string.loading_voice_3pt);
             progressOverlay.setVisibility(View.VISIBLE);
-            progressOverlay.bringToFront(); // Ensure it's on top
+            progressOverlay.bringToFront();
         } else {
             progressOverlay.setVisibility(View.GONE);
         }
+    }
+
+    public void showTtsLoading(boolean show) {
+        onLoadingStatusChanged(show);
     }
 
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
@@ -881,8 +894,8 @@ public class PlayActivity extends BaseActivity {
     // --- Refactored TTS Highlighter ---
     private TtsHighlighter ttsHighlighter;
 
-    // Callbacks from TtsHighlighter
-    public void onTtsHighlightApplied(TextView tv, int startPos) {
+    @Override
+    public void onScrollToPosition(TextView tv, int startPos) {
         if (suppressAutoScroll)
             return;
         tvTtsText.post(() -> {
@@ -897,6 +910,11 @@ public class PlayActivity extends BaseActivity {
             } catch (Throwable ignored) {
             }
         });
+    }
+
+    // Callbacks from TtsHighlighter
+    public void onTtsHighlightApplied(TextView tv, int startPos) {
+        onScrollToPosition(tv, startPos);
     }
 
     private void initTtsVoiceSpinner(Folder folder, AppTtsManager mgr) {

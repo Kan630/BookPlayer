@@ -153,6 +153,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Inject
     protected AppTtsManager ttsManager;
 
+    @Inject
+    protected com.driot.bookplayer.tts.TtsController ttsController;
+
     private long engineGen = 0L;
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final EngineListener engineCb = new EngineListener() {
@@ -1499,6 +1502,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // Swap current engine with a new one, releasing TTS if needed, keeping flags
     // intact.
+    private void onTtsSetVoice(String name) {
+        myLog("onTtsSetVoice - name=[" + name + "]");
+        if (ttsController != null) {
+            ttsController.applyVoiceByName(name);
+            ttsController.saveVoiceForCurrentFolder(this, name);
+        }
+        broadcastUiState("onTtsSetVoice");
+    }
+
     private void setEngine(@NonNull PlayerEngine newEngine) {
         try {
             if (engine != null) {
@@ -1527,7 +1539,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Swap engine
         PlayerEngine fresh = Var.PLAY_MODE_TTS.equals(playMode)
-                ? new TtsEngine(getApplicationContext(), ttsManager, engineCb, gen)
+                ? new TtsEngine(getApplicationContext(), ttsManager, ttsController, engineCb, gen)
                 : new MediaPlayerEngine(engineCb, gen);
         setEngine(fresh);
 
@@ -1562,34 +1574,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             engine.setDataSource(this, src, zf.getDisplayName());
 
             if (engine instanceof TtsEngine) {
-                String picked = null;
-                String pickedSource = "system";
-
-                // 1) Per-book voice (never override this later)
-                String perBook = null;
-                PlayList pl = PlayList.getInstance();
-                if (pl != null && pl.getFolder() != null) {
-                    perBook = pl.getFolder().ttsVoice;
-                }
-                if (perBook != null && !perBook.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(perBook)) {
-                    picked = perBook;
-                    pickedSource = "book";
-                } else {
-                    // 2) App-wide fallback (only if no per-book)
-                    String appWide = Option.getTtsVoice();
-                    if (appWide != null && !appWide.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(appWide)) {
-                        picked = appWide;
-                        pickedSource = "global";
-                    }
-                }
+                String picked = ttsController.resolveVoiceName();
                 if (picked != null) {
-                    try {
-                        boolean ok = ((TtsEngine) engine).setVoiceByName(picked);
-                        myLog("Applied initial TTS voice = " + picked + " (source=" + pickedSource + ", ok=" + ok
-                                + ")");
-                    } catch (Throwable ignored) {
-                        myLogE("Failed to apply initial TTS voice = " + picked + " (source=" + pickedSource + ")");
-                    }
+                    boolean ok = ((TtsEngine) engine).setVoiceByName(picked);
+                    myLog("Applied initial TTS voice = " + picked + " (ok=" + ok + ")");
                 } else {
                     myLog("Initial TTS voice = system (no explicit voice)");
                 }

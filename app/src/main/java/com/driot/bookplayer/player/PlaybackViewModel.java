@@ -23,6 +23,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -223,11 +224,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             Context ctx,
             Spinner spinner,
             String initial,
-            TtsHelper.OnVoiceSelected onSelected) {
+            TtsUiHelper.OnVoiceSelected onSelected) {
         myLog("setupTtsVoiceSpinner - initial = " + initial);
         final java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
 
-        TtsHelper.setupTtsVoiceSpinner(ctx, spinner, ttsManager, initial, voiceItem -> {
+        TtsUiHelper.setupTtsVoiceSpinner(ctx, spinner, ttsManager, initial, voiceItem -> {
             if (onSelected != null)
                 onSelected.onSelected(voiceItem);
             if (first.getAndSet(false))

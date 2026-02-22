@@ -40,6 +40,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     @Nullable
     private TtsHelper tts;
 
+    private final TtsController ttsController;
+
     // State
     private volatile boolean disposed = false;
     private volatile boolean preparing = false;
@@ -62,11 +64,13 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     public TtsEngine(@NonNull Context appContext,
             @NonNull AppTtsManager appTtsManager,
+            @NonNull TtsController ttsController,
             @NonNull EngineListener listener,
             long generationToken) {
         super(TtsEngine.class);
         this.app = appContext.getApplicationContext();
         this.mgr = appTtsManager;
+        this.ttsController = ttsController;
         this.listener = listener;
         this.gen = generationToken;
 
@@ -90,16 +94,10 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         lastCharSpoken = 0;
         resumeOffsetChars = 0;
         estPositionMs = 0;
-        completionTriggered = false; // Reset completion flag for new track
+        completionTriggered = false;
 
         String raw = TextExtractor.getPlainText(ctx, uri, displayName);
-        // Normalize newlines
-        raw = raw.replace("\r\n", "\n").replace('\r', '\n');
-        // Heuristic paragraphize if almost no newlines
-        if (TtsHelper.countNewlines(raw) < 2)
-            raw = TtsHelper.smartParagraphize(raw);
-
-        this.text = raw;
+        this.text = ttsController.preprocessText(raw);
         this.estDurationMs = estimateDurationMs(text, speechRate);
     }
 
@@ -620,65 +618,18 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     }
 
     public String getVoiceName() {
-        TextToSpeech raw = mgr.raw();
-        if (raw == null)
-            return null;
-        Voice v = raw.getVoice();
-        return (v != null) ? v.getName() : null;
+        return ttsController.getCurrentVoiceName();
     }
 
     public boolean setVoiceByName(@Nullable String voiceName) {
         if (disposed)
             return false;
 
-        // "system" or empty -> revert to engine default (language-based)
-        if (voiceName == null || voiceName.isEmpty() || Option.DEFAULT_VOICE.equalsIgnoreCase(voiceName)) {
-            try {
-                TextToSpeech raw = mgr.raw();
-                if (raw == null)
-                    return false;
-                // Reset to device default locale
-                Locale locale = Locale.getDefault();
-                int langSetResult = raw.setLanguage(locale);
-                TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
-                boolean ok = (langSetResult != TextToSpeech.LANG_MISSING_DATA
-                        && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
-                if (ok)
-                    restartIfPlaying();
-                return ok;
-            } catch (Throwable ignored) {
-                return false;
-            }
-        }
-
-        try {
-            Set<Voice> voices = mgr.getVoices();
-            if (voices == null || voices.isEmpty())
-                return false;
-
-            Voice target = null;
-            for (Voice v : voices) {
-                if (voiceName.equals(v.getName())) {
-                    target = v;
-                    break;
-                }
-            }
-            if (target == null)
-                return false;
-
-            int r = mgr.setVoice(target);
-            if (r != TextToSpeech.SUCCESS) {
-                myLogE("error setting TTS engine Voice");
-                return false;
-            } else {
-                myLog("TTS engine Voice set : " + target.getName());
-            }
-
+        boolean ok = ttsController.applyVoiceByName(voiceName);
+        if (ok) {
             restartIfPlaying();
-            return true;
-        } catch (Throwable ignored) {
-            return false;
         }
+        return ok;
     }
 
     private void restartIfPlaying() {

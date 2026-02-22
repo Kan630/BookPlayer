@@ -20,7 +20,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
@@ -66,13 +66,13 @@ public class TtsSettingsFragment extends LoggingFragment {
         lastSavedTtsVoice = Option.getTtsVoice();
         myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
 
-        TtsHelper.setupTtsVoiceSpinnerForSettings(
+        TtsUiHelper.setupTtsVoiceSpinnerForSettings(
                 /* if it needs Activity: */ requireActivity(),
                 /* otherwise use requireContext() */ ttsVoiceSpinner,
                 ttsManager,
                 lastSavedTtsVoice,
                 voiceItem -> {
-                    myLogD("TtsHelper.setupTtsVoiceSpinner callback with voiceItem = "
+                    myLogD("TtsUiHelper.setupTtsVoiceSpinner callback with voiceItem = "
                             + (voiceItem == null ? "null" : voiceItem.name));
                     if (hasBeenInitialized) {
                         String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
