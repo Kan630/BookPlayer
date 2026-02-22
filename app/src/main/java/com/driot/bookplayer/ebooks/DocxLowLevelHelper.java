@@ -63,7 +63,7 @@ public final class DocxLowLevelHelper {
 
     // ---------------- Public API ----------------
 
-    public static ExtractResult extractAll(Context ctx, Uri docxUri) throws Exception {
+    public static ExtractResult extractAll(Context ctx, Uri docxUri, boolean splitIntoChapters) throws Exception {
         myLog("=== DOCX extractAll: begin ===");
 
         // 1) Read whole DOCX into memory
@@ -107,7 +107,7 @@ public final class DocxLowLevelHelper {
         }
 
         // 4) Parse HTML and split into chapters
-        List<Chapter> chapters = parseChapters(html);
+        List<Chapter> chapters = parseChapters(html, splitIntoChapters);
         myLog("Chapters parsed: " + chapters.size());
 
         // 5) Title heuristic: first heading text, else "untitled"
@@ -169,10 +169,18 @@ public final class DocxLowLevelHelper {
 
     // ---------------- HTML Parsing ----------------
 
-    private static List<Chapter> parseChapters(String html) {
+    private static List<Chapter> parseChapters(String html, boolean splitIntoChapters) {
         List<Chapter> chapters = new ArrayList<>();
         Document doc = Jsoup.parse(html);
         Element body = doc.body();
+
+        if (!splitIntoChapters) {
+            Chapter fullDoc = new Chapter();
+            fullDoc.title = "Full Document";
+            fullDoc.buf.append(clean(doc.text()));
+            chapters.add(fullDoc);
+            return chapters;
+        }
 
         Chapter current = new Chapter();
         // Seed with a default title if needed, will be overwritten by first heading
@@ -181,17 +189,30 @@ public final class DocxLowLevelHelper {
         Elements elements = body.children();
         for (Element el : elements) {
             String tag = el.tagName().toLowerCase();
-            if (tag.equals("h1") || tag.equals("h2") || tag.equals("h3")) {
+            String text = el.text().trim();
+
+            boolean isHeading = tag.equals("h1") || tag.equals("h2") || tag.equals("h3");
+            boolean isTocPattern = false;
+
+            // Detect TOC pattern: "I - Title", "II - Title", "1 - Title", "Chapter 1 - ..."
+            if (!text.isEmpty()) {
+                // regex for roman numerals or digits at start followed by - or .
+                // examples: "I - Title", "II. Title", "1 - Title", "Chapter 1 - Title"
+                if (text.matches("^(?i)(Chapter\\s+)?([IVXLCDM]+|[0-9]+)(\\s*[-.]\\s*|\\s+).*")) {
+                    isTocPattern = true;
+                }
+            }
+
+            if (isHeading || isTocPattern) {
                 // New chapter
                 if (current.buf.length() > 0 || !current.title.isEmpty()) {
                     chapters.add(current);
                 }
                 current = new Chapter();
-                current.title = el.text();
+                current.title = text;
             } else {
-                String text = el.text();
                 if (!text.isEmpty()) {
-                    current.buf.append(text).append("\n\n");
+                    current.buf.append(el.text()).append("\n\n");
                 }
             }
         }

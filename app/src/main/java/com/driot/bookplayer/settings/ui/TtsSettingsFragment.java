@@ -39,8 +39,10 @@ public class TtsSettingsFragment extends LoggingFragment {
     private EditText etTtsHighlightDelay, etTtsChunkSize;
     private Spinner spinnerEpubSplitMode;
     private MaterialCheckBox chkEbookRemoveReferences;
+    private MaterialCheckBox chkDocxSplitIntoChapters;
     private MaterialCheckBox chkTtsSnapToSentence;
     private LinearLayout llEbookRemoveReferences;
+    private LinearLayout llDocxSplitIntoChapters;
     private boolean hasBeenInitialized = false;
 
     @Nullable
@@ -114,6 +116,16 @@ public class TtsSettingsFragment extends LoggingFragment {
         llEbookRemoveReferences.setOnClickListener(v -> chkEbookRemoveReferences.toggle());
         chkEbookRemoveReferences
                 .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setEbookRemoveReferences(isChecked));
+
+        // Docx split into chapters
+        chkDocxSplitIntoChapters = root.findViewById(R.id.chk_docx_split_into_chapters);
+        llDocxSplitIntoChapters = root.findViewById(R.id.ll_docx_split_into_chapters);
+        if (chkDocxSplitIntoChapters != null && llDocxSplitIntoChapters != null) {
+            chkDocxSplitIntoChapters.setChecked(Option.getDocxSplitIntoChapters());
+            llDocxSplitIntoChapters.setOnClickListener(v -> chkDocxSplitIntoChapters.toggle());
+            chkDocxSplitIntoChapters
+                    .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setDocxSplitIntoChapters(isChecked));
+        }
 
         chkTtsSnapToSentence = root.findViewById(R.id.chk_tts_snap_to_sentence);
         LinearLayout llTtsSnapToSentence = root.findViewById(R.id.ll_tts_snap_to_sentence);

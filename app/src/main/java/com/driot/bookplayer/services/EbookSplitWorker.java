@@ -143,7 +143,8 @@ public class EbookSplitWorker extends ImportWorker {
                 chapters = result.chapterFiles;
             } else if ("docx".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing DOCX…");
-                DocxLowLevelHelper.ExtractResult result = DocxLowLevelHelper.extractAll(ctx, uri);
+                DocxLowLevelHelper.ExtractResult result = DocxLowLevelHelper.extractAll(ctx, uri,
+                        Option.getDocxSplitIntoChapters());
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {

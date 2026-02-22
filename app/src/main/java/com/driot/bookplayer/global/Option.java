@@ -83,6 +83,7 @@ public class Option {
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
+    public static final boolean DEFAULT_DOCX_SPLIT_INTO_CHAPTERS = true;
     private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES = false;
     public static final boolean DEFAULT_TTS_SNAP_TO_SENTENCE = true;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
@@ -798,6 +799,14 @@ public class Option {
 
     public static String getAppLanguage(Context context) {
         return getSharedPrefs(context).getString("APP_LANGUAGE", DEFAULT_LANGUAGE);
+    }
+
+    public static boolean getDocxSplitIntoChapters() {
+        return prefs.getBoolean("DOCX_SPLIT_INTO_CHAPTERS", DEFAULT_DOCX_SPLIT_INTO_CHAPTERS);
+    }
+
+    public static void setDocxSplitIntoChapters(boolean bool) {
+        prefs.edit().putBoolean("DOCX_SPLIT_INTO_CHAPTERS", bool).apply();
     }
 
     /////////////////// TTS ///////////////////
