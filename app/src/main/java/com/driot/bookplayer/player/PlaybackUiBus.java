@@ -41,7 +41,7 @@ public final class PlaybackUiBus {
 
     public void emit(PlaybackUiState next) {
         PlaybackUiState prev = _state.getValue();
-        if (prev != null && next != null && prev.trackId != next.trackId) {
+        if (prev != null && next != null && (prev.trackId != next.trackId || prev.folderId != next.folderId)) {
             // Track changed -> reset TTS text request state
             ttsTextRequested.set(false);
             if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
@@ -61,6 +61,7 @@ public final class PlaybackUiBus {
                 Intents.PHASE_OFF, null, false, false, null,
                 0, 0, 0, "", "", "",
                 0, 0, 0, null,
+                false,
                 "PlaybackUiBus.clear()", 0, null));
     }
 
@@ -77,6 +78,7 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                cur.ttsAudioStarted,
                 cur.calledFrom, cur.callCounter + 1, cur.extras));
     }
 
@@ -91,6 +93,22 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                cur.ttsAudioStarted,
+                cur.calledFrom, cur.callCounter + 1, cur.extras));
+    }
+
+    public void setTtsAudioStarted(boolean started) {
+        PlaybackUiState cur = _state.getValue();
+        if (cur == null)
+            return;
+        emit(new PlaybackUiState(
+                cur.loadPhase,
+                cur.loadMessage,
+                cur.playing, cur.ready, cur.playMode,
+                cur.positionMs, cur.durationMs, cur.sleepLeftMS,
+                cur.title, cur.subTitle, cur.cover,
+                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                started,
                 cur.calledFrom, cur.callCounter + 1, cur.extras));
     }
 

@@ -243,6 +243,24 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
         tvTtsText = findViewById(R.id.tvTtsText);
         ttsHighlighter = new TtsHighlighter(tvTtsText, this);
 
+        vm.getLoading().observe(this, show -> {
+            if (progressOverlay == null)
+                return;
+            myLogD("Loading Overlay: loading overlay status changed: " + show);
+            if (show) {
+                TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
+                if (tv != null) {
+                    PlaybackUiState s = vm.getState().getValue();
+                    String msg = (s != null) ? s.loadMessage : null;
+                    tv.setText(msg != null && !msg.isEmpty() ? msg : getString(R.string.loading_voice_3pt));
+                }
+                progressOverlay.setVisibility(View.VISIBLE);
+                progressOverlay.bringToFront();
+            } else {
+                progressOverlay.setVisibility(View.GONE);
+            }
+        });
+
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
         progressTitle.setText(getString(R.string.Text_To_Speech));
@@ -714,26 +732,6 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
             myLogW("user clicks podcast - bypassing" + now + "-" + podcastLastClickTime);
         }
         podcastLastClickTime = now;
-    }
-
-    @Override
-    public void onLoadingStatusChanged(boolean show) {
-        if (progressOverlay == null) {
-            myLogE("TTS Phase change: onLoadingStatusChanged: progressOverlay is null!");
-            return;
-        }
-        myLogD("TTS Phase change: onLoadingStatusChanged - show progressOverlay : " + show);
-        if (show) {
-            TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
-            if (tv != null)
-                tv.setText(lastLoadMessage != null && !lastLoadMessage.isEmpty()
-                        ? lastLoadMessage
-                        : getString(R.string.loading_voice_3pt));
-            progressOverlay.setVisibility(View.VISIBLE);
-            progressOverlay.bringToFront();
-        } else {
-            progressOverlay.setVisibility(View.GONE);
-        }
     }
 
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {

@@ -174,12 +174,6 @@ public class TtsReaderActivity extends BaseBottomNavActivity implements TtsHighl
     }
 
     @Override
-    public void onLoadingStatusChanged(boolean loading) {
-        // ReaderActivity doesn't have the progress overlay currently,
-        // but it could show/hide something if needed.
-    }
-
-    @Override
     public void onScrollToPosition(TextView tv, int charOffset) {
         if (suppressAutoScroll)
             return;

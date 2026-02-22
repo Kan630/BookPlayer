@@ -12,6 +12,8 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import android.os.Handler;
+import android.os.Looper;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -46,6 +48,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     private final MutableLiveData<Long> _seekPreviewMs = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> _loading = new MutableLiveData<>(false);
+    private final Handler loadingH = new Handler(Looper.getMainLooper());
+    private final Runnable loadingRunnable = () -> _loading.setValue(true);
+    private static final long LOADING_DELAY_MS = 300;
+
     private volatile boolean _stateSourcesAdded = false;
 
     private final MediatorLiveData<PlaybackUiState> _state = new MediatorLiveData<>();
@@ -53,10 +60,49 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     public LiveData<PlaybackUiState> getState() {
         if (!_stateSourcesAdded) {
             _stateSourcesAdded = true;
-            _state.addSource(PlaybackUiBus.get().state(), s -> emitStateWithSeekPreview());
+            _state.addSource(PlaybackUiBus.get().state(), s -> {
+                updateLoadingState(s);
+                emitStateWithSeekPreview();
+            });
             _state.addSource(_seekPreviewMs, v -> emitStateWithSeekPreview());
         }
         return _state;
+    }
+
+    public LiveData<Boolean> getLoading() {
+        return _loading;
+    }
+
+    private void updateLoadingState(@Nullable PlaybackUiState s) {
+        if (s == null) {
+            stopLoadingTimer();
+            return;
+        }
+
+        boolean busyPhase = Intents.PHASE_WARMING_UP.equals(s.loadPhase)
+                || Intents.PHASE_STARTING.equals(s.loadPhase)
+                || Intents.PHASE_LOADING_TEXT.equals(s.loadPhase)
+                || Intents.PHASE_SPEAKING.equals(s.loadPhase);
+
+        if (busyPhase && !s.ttsAudioStarted) {
+            startLoadingTimer();
+        } else {
+            stopLoadingTimer();
+        }
+    }
+
+    private void startLoadingTimer() {
+        if (_loading.getValue() != null && _loading.getValue())
+            return; // Already showing
+        loadingH.removeCallbacks(loadingRunnable);
+        loadingH.postDelayed(loadingRunnable, LOADING_DELAY_MS);
+    }
+
+    private void stopLoadingTimer() {
+        loadingH.removeCallbacks(loadingRunnable);
+        if (_loading.getValue() != null && _loading.getValue()) {
+            _loading.setValue(false);
+        }
     }
 
     private void emitStateWithSeekPreview() {
@@ -75,6 +121,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                         preview, s.durationMs, s.sleepLeftMS,
                         s.title, s.subTitle, s.cover,
                         s.trackId, s.folderId, s.podcastFeedId, s.radioStationUuid,
+                        s.ttsAudioStarted,
                         s.calledFrom, s.callCounter, s.extras);
             }
         }
@@ -278,6 +325,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                cur.ttsAudioStarted,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1, cur.extras);
         PlaybackUiBus.get().emit(next);
     }

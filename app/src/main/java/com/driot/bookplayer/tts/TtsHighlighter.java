@@ -29,13 +29,10 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class TtsHighlighter {
     public interface HighlightListener {
-        void onLoadingStatusChanged(boolean loading);
-
         void onScrollToPosition(TextView tv, int charOffset);
     }
 
     private final boolean DEBUG_DRIFT = false;
-    private final int DEBOUNCING_DELAY_FOR_PROGRESS_OVERLAY_SHOW = 100;
 
     private final HighlightListener listener;
     private final TextView tvTtsText;
@@ -74,12 +71,6 @@ public class TtsHighlighter {
     public TtsHighlighter(TextView tvTtsText, HighlightListener listener) {
         this.tvTtsText = tvTtsText;
         this.listener = listener;
-        this.loadingRunnable = () -> {
-            if (listener != null) {
-                listener.onLoadingStatusChanged(true);
-                myLogI("TTS Phase change: tell listener to show overlay progress");
-            }
-        };
     }
 
     // ---- Main Entry Points ----
@@ -112,23 +103,20 @@ public class TtsHighlighter {
             if (positionDelta > SEEK_DETECTION_THRESHOLD_MS && s.playing) {
                 myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
                 lastSeekTime = System.currentTimeMillis();
-                resetHighlightTracking(false);
+                resetHighlightTracking(true); // Reset started flag to allow overlay during seek loading
             }
         }
         if (isTts)
             lastTtsPositionMs = s.positionMs;
 
-        // Overlay Logic
-        if (isTts) {
-            boolean isBusyPhase = s.loadPhase.equals(Intents.PHASE_SPEAKING)
-                    || s.loadPhase.equals(Intents.PHASE_STARTING)
+        // Detect phase changes for internal state resets
+        if (isTts && s.loadPhase != null && !s.loadPhase.equals(lastTtsPhase)) {
+            boolean isPreparationPhase = s.loadPhase.equals(Intents.PHASE_STARTING)
                     || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
                     || s.loadPhase.equals(Intents.PHASE_WARMING_UP);
-
-            if (isBusyPhase && !ttsActuallyStarted) {
-                startLoadingTimer();
-            } else {
-                stopLoadingTimer();
+            if (isPreparationPhase) {
+                myLogD("Loading Overlay : TTS Phase change: entering " + s.loadPhase + ", resetting ttsActuallyStarted");
+                ttsActuallyStarted = false;
             }
         }
 
@@ -150,24 +138,7 @@ public class TtsHighlighter {
         lastTtsPhase = s.loadPhase;
     }
 
-    // ---- Loading Overlay Helpers ----
-
-    private final Runnable loadingRunnable;
-
-    private void startLoadingTimer() {
-        // Only schedule if not already scheduled (or reset)
-        // Check if overlay is already visible? No, just rely on timer.
-        uiH.removeCallbacks(loadingRunnable);
-        uiH.postDelayed(loadingRunnable, DEBOUNCING_DELAY_FOR_PROGRESS_OVERLAY_SHOW);
-        myLogD("TTS Phase change - startLoadingTimer: scheduled in 300ms");
-    }
-
-    private void stopLoadingTimer() {
-        uiH.removeCallbacks(loadingRunnable);
-        myLogD("TTS Phase change - stopLoadingTimer: canceled");
-        if (listener != null)
-            listener.onLoadingStatusChanged(false);
-    }
+    // ---- Highlights ----
 
     public void scheduleHighlight(int s, int e) {
         long now = System.currentTimeMillis();
@@ -202,7 +173,6 @@ public class TtsHighlighter {
         // Mark that TTS has actually started when we receive the first callback
         if (!ttsActuallyStarted) {
             ttsActuallyStarted = true;
-            stopLoadingTimer(); // <--- Hide overlay immediately
             myLogI("TTS HIGHLIGHT: first callback received, marking TTS as started");
             // Reset tracking when TTS actually starts to avoid stale highlights
             // But don't reset the started flag (pass false) since we just set it to true

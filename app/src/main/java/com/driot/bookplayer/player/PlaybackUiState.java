@@ -30,6 +30,8 @@ public class PlaybackUiState extends LoggerHelper {
     public final String calledFrom;
     public final long callCounter;
 
+    public final boolean ttsAudioStarted;
+
     @Nullable
     public final Bundle extras;
 
@@ -37,6 +39,7 @@ public class PlaybackUiState extends LoggerHelper {
             long pos, long dur, long sleepLeftMS,
             String title, String subTitle, String cover,
             int trackId, int folderId, long podcastId, String radioStationUuid,
+            boolean ttsAudioStarted,
             String calledFrom, long callCounter,
             @Nullable Bundle extras) {
 
@@ -61,6 +64,8 @@ public class PlaybackUiState extends LoggerHelper {
         this.podcastFeedId = podcastId;
         this.radioStationUuid = radioStationUuid;
 
+        this.ttsAudioStarted = ttsAudioStarted;
+
         this.calledFrom = calledFrom;
         this.callCounter = callCounter;
 
@@ -79,6 +84,7 @@ public class PlaybackUiState extends LoggerHelper {
                 ", callCounter=" + callCounter +
                 ", playing=" + playing +
                 ", ready=" + ready +
+                ", ttsAudioStarted=" + ttsAudioStarted +
                 ", positionMs=" + positionMs +
                 ", durationMs=" + durationMs +
                 ", sleepLeftMS=" + sleepLeftMS +

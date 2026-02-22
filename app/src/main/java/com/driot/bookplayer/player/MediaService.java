@@ -64,6 +64,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MediaService extends LoggingMediaBrowserServiceCompat {
 
+    private boolean ttsAudioStarted = false;
+
     // ---- Load phase tracking ----
     private @NonNull String currentUiPhase = Intents.PHASE_OFF;
     private @Nullable String currentUiPhaseMsg = null;
@@ -192,6 +194,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen)
                 return;
+
+            if (!ttsAudioStarted) {
+                ttsAudioStarted = true;
+                PlaybackUiBus.get().setTtsAudioStarted(true);
+            }
+
             // main.post(() -> { //surtout pas, source du décallage entre le highlight et
             // l'audio
             Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
@@ -243,6 +251,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
                     radioStationUuid,
+                    ttsAudioStarted,
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, null);
         } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
             String title = (streamTitle != null) ? streamTitle : getString(R.string.live_podcast);
@@ -259,6 +268,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     /* folderId */ 0,
                     podcastFeedId,
                     null,
+                    ttsAudioStarted,
                     "MediaService.broadcastUiState() - podcast " + fromWhere, -10, extras);
         } else {
 
@@ -283,7 +293,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             s = new PlaybackUiState(loadPhase, getLoadPhaseMsg(), playing, ready, playMode, pos, dur, getSleepLeftMs(),
                     title, subTitle,
                     cover,
-                    trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
+                    trackId, folderId, 0, null,
+                    ttsAudioStarted,
+                    "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
     }
@@ -2169,6 +2181,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLog("TTS Phase change: " + phase + " (msg: " + msg + ")");
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
+
+        // Reset audio started flag if we are no longer in a speaking/ready phase
+        // or if we are just starting a new load.
+        if (Intents.PHASE_STARTING.equals(phase) || Intents.PHASE_LOADING_TEXT.equals(phase)
+                || Intents.PHASE_OFF.equals(phase)) {
+            ttsAudioStarted = false;
+        }
+
         String resolvedMsg = (msg != null) ? msg : PlaybackPhaseMapper.getPhaseMessage(this, phase);
         PlaybackUiBus.get().setLoadPhase(phase, resolvedMsg);
     }
