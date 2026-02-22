@@ -150,6 +150,7 @@ public final class DocxLowLevelHelper {
 
         // Fallback: if no chapters were written (e.g. all empty), but we have text
         if (outFiles.isEmpty()) {
+            myLog("fallback (no chapter written/found");
             Document doc = Jsoup.parse(html);
             String fullText = EbookTextCleaner.removeReferencesIfEnabled(clean(doc.text()));
             if (!fullText.isEmpty()) {
@@ -188,6 +189,7 @@ public final class DocxLowLevelHelper {
         int h1Count = body.select("h1").size();
         int h2Count = body.select("h2").size();
         int h3Count = body.select("h3").size();
+        int h4Count = body.select("h4").size();
 
         String bestTag = "h1";
         if (h1Count > 1) {
@@ -196,11 +198,14 @@ public final class DocxLowLevelHelper {
             bestTag = "h2";
         } else if (h3Count > 1) {
             bestTag = "h3";
+        } else if (h4Count > 1) {
+            bestTag = "h4";
         } else if (h1Count == 1) {
             bestTag = "h1";
         }
 
-        myLogD("DOCX Heuristic: h1=" + h1Count + ", h2=" + h2Count + ", h3=" + h3Count + " => bestTag=" + bestTag);
+        myLogD("DOCX Heuristic: h1=" + h1Count + ", h2=" + h2Count + ", h3=" + h3Count + ", h4=" + h4Count
+                + " => bestTag=" + bestTag);
 
         Chapter current = new Chapter();
         current.title = "";
@@ -211,7 +216,7 @@ public final class DocxLowLevelHelper {
             if (text.isEmpty())
                 continue;
 
-            boolean isAnyHeading = tag.equals("h1") || tag.equals("h2") || tag.equals("h3");
+            boolean isAnyHeading = tag.equals("h1") || tag.equals("h2") || tag.equals("h3") || tag.equals("h4");
             boolean isPrimaryHeading = tag.equals(bestTag);
 
             // Special keywords regardless of tag

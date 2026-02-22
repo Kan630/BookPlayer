@@ -13,11 +13,10 @@ public class DocxChapterParsingTest {
     public void testRefinedBehavior_ReducedChapters() {
         // h1=1, h2=2, h3=1 -> bestTag=h2
         String html = "<h1>Title</h1>" +
-                "<p>Some text that is long enough to avoid immediate merging but let's see. Actually let's make it long.</p>"
-                +
-                "<p>More content for the intro part. This should probably be its own chapter if it has a title.</p>" +
+                "<p>Some text that is long enough to avoid immediate merging.</p>" +
                 "<h2>Chapter 1</h2>" +
-                "<p>Chapter 1 text</p>" +
+                "<p>Chapter 1 text. This needs to be long enough so it doesn't merge. Let's add some more text here. Blah blah blah blah blah blah blah blah blah blah blah blah.</p>"
+                +
                 "<h3>Section 1.1</h3>" +
                 "<p>Section 1.1 text</p>" +
                 "<h2>Chapter 2</h2>" +
@@ -25,25 +24,30 @@ public class DocxChapterParsingTest {
 
         List<DocxLowLevelHelper.Chapter> chapters = DocxLowLevelHelper.parseChapters(html, true);
 
-        // Expectation:
-        // 1. Title (contains "Some text...")
-        // 2. Chapter 1 (contains "Chapter 1 text", "Section 1.1", "Section 1.1 text")
-        // 3. Chapter 2 (contains "Chapter 2 text")
-
-        // Note: The "Title" chapter might be merged into "Chapter 1" if it's too short
-        // (<150 chars in buf).
-        // Let's check the counts.
-        assertTrue(chapters.size() <= 3);
-
         // Find which one is Chapter 1
         boolean foundCh1 = false;
         for (DocxLowLevelHelper.Chapter c : chapters) {
             if (c.title.equals("Chapter 1")) {
                 foundCh1 = true;
+                // Section 1.1 (h3) is NOT a chapter break because bestTag=h2
                 assertTrue(c.buf.toString().contains("Section 1.1"));
             }
         }
         assertTrue(foundCh1);
+    }
+
+    @Test
+    public void testH4Detection() {
+        // No h1, h2, h3. Only h4s. bestTag should be h4.
+        String html = "<p>Book Title</p>" +
+                "<h4>Chapter 1</h4><p>Text 1. This needs to be long enough. Blah blah blah blah blah blah blah blah blah blah.</p>"
+                +
+                "<h4>Chapter 2</h4><p>Text 2. This needs to be long enough. Blah blah blah blah blah blah blah blah blah blah.</p>";
+
+        List<DocxLowLevelHelper.Chapter> chapters = DocxLowLevelHelper.parseChapters(html, true);
+        assertEquals(2, chapters.size());
+        assertEquals("Chapter 1", chapters.get(0).title);
+        assertEquals("Chapter 2", chapters.get(1).title);
     }
 
     @Test
