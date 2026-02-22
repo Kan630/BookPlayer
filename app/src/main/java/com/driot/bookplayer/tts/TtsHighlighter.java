@@ -33,6 +33,7 @@ public class TtsHighlighter {
 
         void onScrollToPosition(TextView tv, int charOffset);
     }
+    private final boolean DEBUG_DRIFT = false;
 
     private final HighlightListener listener;
     private final TextView tvTtsText;
@@ -163,20 +164,21 @@ public class TtsHighlighter {
     public void scheduleHighlight(int s, int e) {
         long now = System.currentTimeMillis();
 
-        // Paranoid logging for diagnosing sync drift
-        if (spannableText != null && s < spannableText.length() && e <= spannableText.length()) {
-            // Limit log length if range is huge (shouldn't be for words)
-            try {
-                CharSequence seq = spannableText.subSequence(s, e);
-                String txt = seq.toString().replace("\n", "\\n");
-                // Only log periodically or if it looks weird?
-                // For now, log everything as user requested more logging.
-                myLog("TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
-            } catch (Exception ignored) {
+        if (DEBUG_DRIFT) {
+            // Paranoid logging for diagnosing sync drift
+            if (spannableText != null && s < spannableText.length() && e <= spannableText.length()) {
+                // Limit log length if range is huge (shouldn't be for words)
+                try {
+                    CharSequence seq = spannableText.subSequence(s, e);
+                    String txt = seq.toString().replace("\n", "\\n");
+                    myLog("TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
+                } catch (Exception exception) {
+                    myLogE("exception while logging " + exception.getMessage());
+                }
+            } else {
+                myLogW("TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
+                        + (spannableText == null ? "null" : spannableText.length()) + ")");
             }
-        } else {
-            myLogW("TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
-                    + (spannableText == null ? "null" : spannableText.length()) + ")");
         }
 
         // Ignore callbacks during seek cooldown period to prevent racing ahead
