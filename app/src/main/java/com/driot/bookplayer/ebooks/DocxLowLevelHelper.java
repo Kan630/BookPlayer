@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.helpers.FileHelper;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -125,7 +126,7 @@ public final class DocxLowLevelHelper {
         }
 
         // 6) Write out chapters
-        File outDir = new File(ctx.getExternalFilesDir(null), "docx_" + safe(bookTitle));
+        File outDir = new File(ctx.getExternalFilesDir(null), "docx_" + FileHelper.sanitizeFilename(bookTitle));
         if (!outDir.exists() && !outDir.mkdirs())
             throw new IllegalStateException("Cannot create " + outDir);
 
@@ -139,7 +140,7 @@ public final class DocxLowLevelHelper {
             String title = (ch.title != null && !ch.title.trim().isEmpty())
                     ? ch.title.trim()
                     : deriveTitleFromText(text);
-            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, safeSlug(title));
+            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeSlug(title));
             File f = new File(outDir, fname);
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(text.getBytes(StandardCharsets.UTF_8));
@@ -334,22 +335,5 @@ public final class DocxLowLevelHelper {
                 .replaceAll("[\\t ]{2,}", " ")
                 .replaceAll("\\n{3,}", "\n\n")
                 .trim();
-    }
-
-    static String safe(String s) {
-        String out = s.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
-        if (out.isEmpty())
-            out = "untitled";
-        return out.length() > 60 ? out.substring(0, 60) : out;
-    }
-
-    static String safeSlug(String s) {
-        String out = s.replaceAll("[\\\\/:*?\"<>|]", "-")
-                .replaceAll("\\s+", "-")
-                .replaceAll("-+", "-")
-                .replaceAll("^-+|-+$", "");
-        if (out.isEmpty())
-            out = "chapter";
-        return out.length() > 60 ? out.substring(0, 60) : out;
     }
 }

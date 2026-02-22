@@ -7,6 +7,7 @@ import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.helpers.FileHelper;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserFactory;
 
@@ -112,7 +113,8 @@ public final class OdtLowLevelHelper {
                         : chapters.get(0).title.trim();
 
         // 5) Write out chapters (ALWAYS write; even if text is empty)
-        java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null), "odt_" + safe(bookTitle));
+        java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null),
+                "odt_" + FileHelper.sanitizeFilename(bookTitle));
         if (!outDir.exists() && !outDir.mkdirs())
             throw new IllegalStateException("Cannot create " + outDir);
 
@@ -125,7 +127,7 @@ public final class OdtLowLevelHelper {
             String title = (ch.title != null && !ch.title.trim().isEmpty())
                     ? ch.title.trim()
                     : deriveTitleFromText(text);
-            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, safeSlug(title));
+            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeSlug(title));
             java.io.File f = new java.io.File(outDir, fname);
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(text.getBytes(StandardCharsets.UTF_8));
@@ -371,22 +373,6 @@ public final class OdtLowLevelHelper {
                 .replaceAll("[\\t ]{2,}", " ")
                 .replaceAll("\\n{3,}", "\n\n")
                 .trim();
-    }
-
-    private static String safe(String s) {
-        String out = s.replaceAll("[^A-Za-z0-9._ -]", "_").trim();
-        if (out.isEmpty())
-            out = "untitled";
-        return out.length() > 60 ? out.substring(0, 60) : out;
-    }
-
-    private static String safeSlug(String s) {
-        String out = s.toLowerCase(Locale.US)
-                .replaceAll("[^a-z0-9]+", "-")
-                .replaceAll("^-+|-+$", "");
-        if (out.isEmpty())
-            out = "chapter";
-        return out.length() > 40 ? out.substring(0, 40) : out;
     }
 
     private static int parseIntSafely(String s, int def) {

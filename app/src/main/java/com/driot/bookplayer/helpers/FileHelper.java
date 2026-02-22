@@ -264,7 +264,22 @@ public class FileHelper {
     public static String sanitizeFilename(String input) {
         if (input == null)
             return null;
-        return input.replaceAll("[\\\\/:*?\"<>|]", "_");
+        String out = input.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
+        if (out.isEmpty())
+            out = "untitled";
+        return out.length() > 60 ? out.substring(0, 60) : out;
+    }
+
+    public static String sanitizeSlug(String input) {
+        if (input == null)
+            return "chapter";
+        String out = input.toLowerCase(Locale.US)
+                .replaceAll("[\\\\/:*?\"<>|' ]", "-")
+                .replaceAll("-+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (out.isEmpty())
+            out = "chapter";
+        return out.length() > 60 ? out.substring(0, 60) : out;
     }
 
     public static boolean deleteFolderRecursive(String strPath) {
