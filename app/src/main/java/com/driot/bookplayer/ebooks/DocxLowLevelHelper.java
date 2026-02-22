@@ -336,19 +336,20 @@ public final class DocxLowLevelHelper {
                 .trim();
     }
 
-    private static String safe(String s) {
-        String out = s.replaceAll("[^A-Za-z0-9._ -]", "_").trim();
+    static String safe(String s) {
+        String out = s.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
         if (out.isEmpty())
             out = "untitled";
         return out.length() > 60 ? out.substring(0, 60) : out;
     }
 
-    private static String safeSlug(String s) {
-        String out = s.toLowerCase(Locale.US)
-                .replaceAll("[^a-z0-9]+", "-")
+    static String safeSlug(String s) {
+        String out = s.replaceAll("[\\\\/:*?\"<>|]", "-")
+                .replaceAll("\\s+", "-")
+                .replaceAll("-+", "-")
                 .replaceAll("^-+|-+$", "");
         if (out.isEmpty())
             out = "chapter";
-        return out.length() > 40 ? out.substring(0, 40) : out;
+        return out.length() > 60 ? out.substring(0, 60) : out;
     }
 }

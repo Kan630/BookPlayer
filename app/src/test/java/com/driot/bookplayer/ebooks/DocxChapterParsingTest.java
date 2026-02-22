@@ -98,4 +98,18 @@ public class DocxChapterParsingTest {
         assertEquals(1, chapters.size());
         assertEquals("Full Document", chapters.get(0).title);
     }
+
+    @Test
+    public void testSafeSanitization() {
+        assertEquals("L'été à Paris", DocxLowLevelHelper.safe("L'été à Paris"));
+        assertEquals("Title_Subtitle", DocxLowLevelHelper.safe("Title: Subtitle"));
+        assertEquals("Mémoire_de_fin_d'études", DocxLowLevelHelper.safe("Mémoire/de fin d'études"));
+    }
+
+    @Test
+    public void testSafeSlugSanitization() {
+        assertEquals("l'été-à-paris", DocxLowLevelHelper.safeSlug("L'été à Paris"));
+        assertEquals("chapitre-1-introduction", DocxLowLevelHelper.safeSlug("Chapitre 1: Introduction"));
+        assertEquals("mémoire-de-recherche", DocxLowLevelHelper.safeSlug("Mémoire de recherche"));
+    }
 }
