@@ -137,6 +137,7 @@ public final class PlaybackCommands {
             ContextCompat.startForegroundService(ctx,
                     new Intent(ctx, MediaService.class)
                             .setAction("CMD_STOP")
+                            .putExtra(Intents.EXTRA_FOREGROUND, true)
                             .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.stop"));
         } catch (IllegalStateException ignored) {
             ctx.stopService(new Intent(ctx, MediaService.class));

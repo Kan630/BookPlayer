@@ -392,35 +392,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 }
                 case Intents.CMD_TTS_SET_VOICE: {
                     String voice = extras != null ? extras.getString(Intents.EXTRA_TTS_VOICE_NAME) : null;
-                    ContextCompat.startForegroundService(
-                            MediaService.this,
-                            new Intent(MediaService.this, MediaService.class)
-                                    .setAction(Intents.CMD_TTS_SET_VOICE)
-                                    .putExtra(Intents.EXTRA_TTS_VOICE_NAME, voice)
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
+                    handleTtsVoiceChange(voice);
                     break;
                 }
                 case Intents.CMD_TTS_SET_START: {
                     int start = extras != null ? extras.getInt(Intents.EXTRA_TTS_START_OFFSET, 0) : 0;
-                    ContextCompat.startForegroundService(
-                            MediaService.this,
-                            new Intent(MediaService.this, MediaService.class)
-                                    .setAction(Intents.CMD_TTS_SET_START)
-                                    .putExtra(Intents.EXTRA_TTS_START_OFFSET, start)
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
+                    handleTtsSeekChars(start);
                     break;
                 }
                 case Intents.CMD_UPDATE_SLEEP: {
                     int minutes = extras != null ? extras.getInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, 0) : 0;
-                    ContextCompat.startForegroundService(
-                            MediaService.this,
-                            new Intent(MediaService.this, MediaService.class)
-                                    .setAction(Intents.CMD_UPDATE_SLEEP)
-                                    .putExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, minutes)
-                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
-                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
+                    handleUpdateSleep(minutes);
                     break;
                 }
                 case "CMD_RESET_LAST_USER_ACTION": {
@@ -961,6 +943,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand()", strCallLog);
             if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
                 myLogI("FOREGROUND MediaService start\n" + strCallLog);
+                goForegroundPreparing(null, null); // [FIX] fulfill the 5s requirement immediately
             } else {
                 myLog("MediaService start\n" + strCallLog);
             }
@@ -1134,25 +1117,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intents.CMD_TTS_SET_VOICE: {
                 final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
-                if (voiceName == null) {
-                    myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
-                    return START_STICKY;
-                }
-                if (engine instanceof TtsEngine) {
-                    try {
-                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP); // ,
-                                                                                    // getString(R.string.tts_phase_warming_up)
-                        boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
-                        myLog("Voice change success = " + ok);
-                        if (ok) {
-                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_READY);
-                        } else {
-                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR); // getString(R.string.tts_phase_error)
-                        }
-
-                    } catch (Throwable ignored) {
-                    }
-                }
+                handleTtsVoiceChange(voiceName);
                 return START_STICKY;
             }
 
@@ -1165,8 +1130,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intents.CMD_UPDATE_SLEEP: {
                 int newSleepValueInMin = intent.getIntExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, -1);
-                if (newSleepValueInMin > 0)
-                    playTimer.reload(newSleepValueInMin);
+                handleUpdateSleep(newSleepValueInMin);
                 return START_STICKY;
             }
 
@@ -2352,6 +2316,34 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     // TODO replace all this shot by MediaSession controller
     private void emitUiTick(String calledFrom) {
         broadcastUiState(calledFrom);
+    }
+
+    private void handleTtsVoiceChange(String voiceName) {
+        if (voiceName == null) {
+            myLogEE(null, "handleTtsVoiceChange => voiceName is null");
+            return;
+        }
+        if (engine instanceof TtsEngine) {
+            try {
+                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
+                boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
+                myLog("Voice change success = " + ok);
+                if (ok) {
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_READY);
+                } else {
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+                }
+            } catch (Throwable ignored) {
+            }
+        }
+    }
+
+    private void handleUpdateSleep(int minutes) {
+        if (minutes > 0) {
+            if (playTimer != null) {
+                playTimer.reload(minutes);
+            }
+        }
     }
 
     private void handleTtsSeekChars(int chars) {
