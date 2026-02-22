@@ -95,15 +95,9 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         return ttsRange;
     }
 
-    // --- TTS on-demand text fetch via custom action ---
-    private final androidx.lifecycle.MutableLiveData<String> _ttsText = new androidx.lifecycle.MutableLiveData<>("");
-
-    public androidx.lifecycle.LiveData<String> getTtsText() {
-        return _ttsText;
+    public LiveData<String> getTtsText() {
+        return PlaybackUiBus.get().ttsText();
     }
-
-    private final java.util.concurrent.atomic.AtomicBoolean ttsTextRequested = new java.util.concurrent.atomic.AtomicBoolean(
-            false);
 
     private int sleepCustomMinutes = -1;
 
@@ -115,8 +109,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     public void requestTtsTextOnce() {
         // Only one request per VM/session by default
-        if (!ttsTextRequested.compareAndSet(false, true)) {
-            myLogD("requestTtsTextOnce: already requested, ignoring");
+        if (!PlaybackUiBus.get().ttsTextRequested().compareAndSet(false, true)) {
+            myLogD("requestTtsTextOnce: already requested (shared), ignoring");
             return;
         }
 
@@ -125,7 +119,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             @Override
             protected void onReceiveResult(int resultCode, android.os.Bundle resultData) {
                 String txt = resultData != null ? resultData.getString(Intents.EXTRA_TTS_TEXT, "") : "";
-                _ttsText.setValue(txt);
+                // Update the shared bus text
+                ((MutableLiveData<String>) PlaybackUiBus.get().ttsText()).setValue(txt);
             }
         };
         PlaybackCommands.requestTtsText(getApplication(), rr);
@@ -136,7 +131,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
      * track changes).
      */
     public void resetTtsTextRequestFlag() {
-        ttsTextRequested.set(false);
+        PlaybackUiBus.get().ttsTextRequested().set(false);
     }
 
     @Inject
