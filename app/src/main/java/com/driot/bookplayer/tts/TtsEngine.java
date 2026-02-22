@@ -11,6 +11,7 @@ import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
 import com.driot.bookplayer.player.EngineListener;
@@ -62,6 +63,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     private boolean registeredWithMgr = false;
 
+    private Uri sourceUri;
+    private String sourceDisplayName;
+
     public TtsEngine(@NonNull Context appContext,
             @NonNull AppTtsManager appTtsManager,
             @NonNull TtsController ttsController,
@@ -95,10 +99,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         resumeOffsetChars = 0;
         estPositionMs = 0;
         completionTriggered = false;
-
-        String raw = TextExtractor.getPlainText(ctx, uri, displayName);
-        this.text = ttsController.preprocessText(raw);
-        this.estDurationMs = estimateDurationMs(text, speechRate);
+        this.sourceUri = uri;
+        this.sourceDisplayName = displayName;
+        this.text = "";
     }
 
     @Override
@@ -108,15 +111,49 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             return;
         preparing = true;
 
+        // Offload text extraction and preprocessing to background thread
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            if (disposed)
+                return;
+            try {
+                String raw = TextExtractor.getPlainText(app, sourceUri, sourceDisplayName);
+                String processed = ttsController.preprocessText(raw);
+
+                // Update text and notify on main thread
+                main.post(() -> {
+                    if (disposed)
+                        return;
+                    this.text = processed;
+                    this.estDurationMs = estimateDurationMs(text, speechRate);
+
+                    finishPrepare();
+                });
+            } catch (Throwable t) {
+                myLogEE(t, "prepareAsync failed during text extraction");
+                main.post(() -> {
+                    if (disposed)
+                        return;
+                    preparing = false;
+                    listener.onError(gen, "Failed to extract text", 0, 0);
+                });
+            }
+        });
+    }
+
+    private void finishPrepare() {
+        if (disposed || !preparing)
+            return;
+
         if (tts == null && mgr.isReady() && mgr.raw() != null) {
             tts = new TtsHelper(app, mgr.raw());
         }
 
         if (tts == null || !mgr.isReady() || mgr.raw() == null) {
-            // wait for onTtsReady -> prepareAsync() again
-            preparing = false; // avoid a stuck "preparing" flag
+            // Wait for onTtsReady
+            preparing = false; // Stay in preparing state but wait
             return;
         }
+
         prepared = true;
         preparing = false;
         logCurrentVoice();
