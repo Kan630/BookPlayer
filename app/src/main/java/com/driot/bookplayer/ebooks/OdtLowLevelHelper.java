@@ -25,14 +25,15 @@ import java.util.zip.ZipInputStream;
 
 /**
  * ODT low-level extractor:
- *  - One chapter per <text:h> (heading).
- *  - Fallback: single "Full Document" chapter if no headings.
- *  - Cover: largest image found in /Pictures.
+ * - One chapter per <text:h> (heading).
+ * - Fallback: single "Full Document" chapter if no headings.
+ * - Cover: largest image found in /Pictures.
  *
  * Heuristic-based, not a full ODF parser.
  */
 public final class OdtLowLevelHelper {
-    private OdtLowLevelHelper() {}
+    private OdtLowLevelHelper() {
+    }
 
     private static final String TEXT_NS = "urn:oasis:names:tc:opendocument:xmlns:text:1.0";
 
@@ -43,8 +44,12 @@ public final class OdtLowLevelHelper {
         public final java.io.File outDir;
         public final List<java.io.File> chapterFiles;
         public final Bitmap coverBitmap;
+
         ExtractResult(String t, java.io.File d, List<java.io.File> f, Bitmap c) {
-            bookTitle = t; outDir = d; chapterFiles = f; coverBitmap = c;
+            bookTitle = t;
+            outDir = d;
+            chapterFiles = f;
+            coverBitmap = c;
         }
     }
 
@@ -69,7 +74,10 @@ public final class OdtLowLevelHelper {
         ZipInputStream zis = new ZipInputStream(new ByteArrayInputStream(odtBytes));
         ZipEntry e;
         while ((e = zis.getNextEntry()) != null) {
-            if (e.isDirectory()) { zis.closeEntry(); continue; }
+            if (e.isDirectory()) {
+                zis.closeEntry();
+                continue;
+            }
             String name = e.getName();
 
             if ("content.xml".equals(name)) {
@@ -90,26 +98,30 @@ public final class OdtLowLevelHelper {
         }
         zis.close();
 
-        if (contentXml == null) throw new IllegalStateException("No content.xml in ODT");
+        if (contentXml == null)
+            throw new IllegalStateException("No content.xml in ODT");
 
         // 3) Parse chapters (namespace-aware; proper \n handling)
         List<Chapter> chapters = parseChapters(contentXml);
         myLog("Chapters parsed: " + chapters.size());
 
         // 4) Title heuristic: first heading text, else "untitled"
-        String bookTitle = (chapters.isEmpty() || chapters.get(0).title == null || chapters.get(0).title.trim().isEmpty())
-                ? "untitled"
-                : chapters.get(0).title.trim();
+        String bookTitle = (chapters.isEmpty() || chapters.get(0).title == null
+                || chapters.get(0).title.trim().isEmpty())
+                        ? "untitled"
+                        : chapters.get(0).title.trim();
 
         // 5) Write out chapters (ALWAYS write; even if text is empty)
         java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null), "odt_" + safe(bookTitle));
-        if (!outDir.exists() && !outDir.mkdirs()) throw new IllegalStateException("Cannot create " + outDir);
+        if (!outDir.exists() && !outDir.mkdirs())
+            throw new IllegalStateException("Cannot create " + outDir);
 
         List<java.io.File> outFiles = new ArrayList<>();
         int idx = 0;
         for (Chapter ch : chapters) {
-            if (ch == null) continue;
-            String text = (ch.text == null) ? "" : clean(ch.text);
+            if (ch == null)
+                continue;
+            String text = (ch.text == null) ? "" : EbookTextCleaner.removeReferencesIfEnabled(clean(ch.text));
             String title = (ch.title != null && !ch.title.trim().isEmpty())
                     ? ch.title.trim()
                     : deriveTitleFromText(text);
@@ -137,9 +149,9 @@ public final class OdtLowLevelHelper {
         x.setInput(new StringReader(xml));
 
         Chapter current = null;
-        StringBuilder buf = null;        // accumulates body text for current chapter
+        StringBuilder buf = null; // accumulates body text for current chapter
         boolean inHeading = false;
-        StringBuilder titleBuf = null;   // accumulates full heading text with inline spans
+        StringBuilder titleBuf = null; // accumulates full heading text with inline spans
 
         int t;
         while ((t = x.next()) != XmlPullParser.END_DOCUMENT) {
@@ -159,22 +171,27 @@ public final class OdtLowLevelHelper {
                     titleBuf = new StringBuilder(256);
 
                 } else if (TEXT_NS.equals(ns) && "p".equals(name)) {
-                    if (buf == null) buf = new StringBuilder(8192);
+                    if (buf == null)
+                        buf = new StringBuilder(8192);
                     ensureBlankLine(buf);
 
                 } else if (TEXT_NS.equals(ns) && "line-break".equals(name)) {
-                    if (buf == null) buf = new StringBuilder(8192);
+                    if (buf == null)
+                        buf = new StringBuilder(8192);
                     buf.append('\n');
 
                 } else if (TEXT_NS.equals(ns) && "s".equals(name)) {
                     // <text:s text:c="N"/> => N spaces (default 1)
                     String c = x.getAttributeValue(TEXT_NS, "c");
                     int n = parseIntSafely(c, 1);
-                    if (buf == null) buf = new StringBuilder(8192);
-                    for (int i = 0; i < Math.max(1, n); i++) buf.append(' ');
+                    if (buf == null)
+                        buf = new StringBuilder(8192);
+                    for (int i = 0; i < Math.max(1, n); i++)
+                        buf.append(' ');
 
                 } else if (TEXT_NS.equals(ns) && "tab".equals(name)) {
-                    if (buf == null) buf = new StringBuilder(8192);
+                    if (buf == null)
+                        buf = new StringBuilder(8192);
                     buf.append('\t');
                 }
 
@@ -184,7 +201,8 @@ public final class OdtLowLevelHelper {
                     if (inHeading && titleBuf != null) {
                         titleBuf.append(s);
                     } else {
-                        if (buf == null) buf = new StringBuilder(8192);
+                        if (buf == null)
+                            buf = new StringBuilder(8192);
                         buf.append(s);
                     }
                 }
@@ -196,8 +214,9 @@ public final class OdtLowLevelHelper {
                 if (TEXT_NS.equals(ns) && "h".equals(name)) {
                     inHeading = false;
                     if (current != null) {
-                        String ttxt = (titleBuf == null) ? null : titleBuf.toString().replaceAll("\\s+"," ").trim();
-                        if (ttxt != null && !ttxt.isEmpty()) current.title = ttxt;
+                        String ttxt = (titleBuf == null) ? null : titleBuf.toString().replaceAll("\\s+", " ").trim();
+                        if (ttxt != null && !ttxt.isEmpty())
+                            current.title = ttxt;
                     }
                     titleBuf = null;
 
@@ -205,7 +224,8 @@ public final class OdtLowLevelHelper {
                     ensureBlankLine(buf);
 
                 } else if (TEXT_NS.equals(ns) && "line-break".equals(name)) {
-                    if (buf == null) buf = new StringBuilder(8192);
+                    if (buf == null)
+                        buf = new StringBuilder(8192);
                     buf.append('\n');
                 }
             }
@@ -227,7 +247,7 @@ public final class OdtLowLevelHelper {
             }
             Chapter c = new Chapter();
             c.title = "Full Document";
-            c.text  = (fullText == null) ? "" : fullText;
+            c.text = (fullText == null) ? "" : EbookTextCleaner.removeReferencesIfEnabled(fullText);
             out.add(c);
             myLogW("No headings found: fallback to single full document chapter (len=" +
                     (c.text == null ? 0 : c.text.length()) + ")");
@@ -236,7 +256,10 @@ public final class OdtLowLevelHelper {
         return out;
     }
 
-    /** Collects all text from <text:p> (plus inline breaks/spaces) into one big string (fallback). */
+    /**
+     * Collects all text from <text:p> (plus inline breaks/spaces) into one big
+     * string (fallback).
+     */
     private static String collectAllText(String xml) throws Exception {
         XmlPullParserFactory f = XmlPullParserFactory.newInstance();
         f.setNamespaceAware(true);
@@ -258,7 +281,8 @@ public final class OdtLowLevelHelper {
                 } else if (TEXT_NS.equals(ns) && "s".equals(name)) {
                     String c = x.getAttributeValue(TEXT_NS, "c");
                     int n = parseIntSafely(c, 1);
-                    for (int i = 0; i < Math.max(1, n); i++) buf.append(' ');
+                    for (int i = 0; i < Math.max(1, n); i++)
+                        buf.append(' ');
                 } else if (TEXT_NS.equals(ns) && "tab".equals(name)) {
                     buf.append('\t');
                 }
@@ -287,11 +311,12 @@ public final class OdtLowLevelHelper {
 
     private static byte[] readAllBytes(Context ctx, Uri uri) throws Exception {
         try (InputStream in0 = ctx.getContentResolver().openInputStream(uri);
-             BufferedInputStream in = new BufferedInputStream(in0)) {
+                BufferedInputStream in = new BufferedInputStream(in0)) {
             ByteArrayOutputStream bos = new ByteArrayOutputStream(256 * 1024);
             byte[] buf = new byte[8192];
             int n;
-            while ((n = in.read(buf)) != -1) bos.write(buf, 0, n);
+            while ((n = in.read(buf)) != -1)
+                bos.write(buf, 0, n);
             return bos.toByteArray();
         }
     }
@@ -300,7 +325,8 @@ public final class OdtLowLevelHelper {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(64 * 1024);
         byte[] buf = new byte[8192];
         int n;
-        while ((n = zis.read(buf)) != -1) bos.write(buf, 0, n);
+        while ((n = zis.read(buf)) != -1)
+            bos.write(buf, 0, n);
         return bos.toString(StandardCharsets.UTF_8.name());
     }
 
@@ -308,7 +334,8 @@ public final class OdtLowLevelHelper {
         ByteArrayOutputStream bos = new ByteArrayOutputStream(32 * 1024);
         byte[] buf = new byte[8192];
         int n;
-        while ((n = zis.read(buf)) != -1) bos.write(buf, 0, n);
+        while ((n = zis.read(buf)) != -1)
+            bos.write(buf, 0, n);
         return bos.toByteArray();
     }
 
@@ -316,14 +343,17 @@ public final class OdtLowLevelHelper {
 
     private static void ensureBlankLine(StringBuilder b) {
         int len = b.length();
-        if (len == 0) return;
-        if (b.charAt(len - 1) != '\n') b.append('\n');
+        if (len == 0)
+            return;
+        if (b.charAt(len - 1) != '\n')
+            b.append('\n');
         b.append('\n');
     }
 
     private static String deriveTitleFromText(String text) {
-        if (text == null) return "chapter";
-        String[] lines = text.replace("\r","").split("\n");
+        if (text == null)
+            return "chapter";
+        String[] lines = text.replace("\r", "").split("\n");
         for (String line : lines) {
             String t = line.trim();
             if (!t.isEmpty()) {
@@ -334,9 +364,10 @@ public final class OdtLowLevelHelper {
     }
 
     private static String clean(String s) {
-        if (s == null) return "";
-        return s.replace('\u00A0',' ')
-                .replace("\r\n","\n").replace("\r","\n")
+        if (s == null)
+            return "";
+        return s.replace('\u00A0', ' ')
+                .replace("\r\n", "\n").replace("\r", "\n")
                 .replaceAll("[\\t ]{2,}", " ")
                 .replaceAll("\\n{3,}", "\n\n")
                 .trim();
@@ -344,21 +375,26 @@ public final class OdtLowLevelHelper {
 
     private static String safe(String s) {
         String out = s.replaceAll("[^A-Za-z0-9._ -]", "_").trim();
-        if (out.isEmpty()) out = "untitled";
-        return out.length() > 60 ? out.substring(0,60) : out;
+        if (out.isEmpty())
+            out = "untitled";
+        return out.length() > 60 ? out.substring(0, 60) : out;
     }
 
     private static String safeSlug(String s) {
         String out = s.toLowerCase(Locale.US)
-                .replaceAll("[^a-z0-9]+","-")
-                .replaceAll("^-+|-+$","");
-        if (out.isEmpty()) out = "chapter";
-        return out.length()>40 ? out.substring(0,40) : out;
+                .replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+        if (out.isEmpty())
+            out = "chapter";
+        return out.length() > 40 ? out.substring(0, 40) : out;
     }
 
     private static int parseIntSafely(String s, int def) {
-        try { return (s == null) ? def : Integer.parseInt(s); }
-        catch (Throwable ignore) { return def; }
+        try {
+            return (s == null) ? def : Integer.parseInt(s);
+        } catch (Throwable ignore) {
+            return def;
+        }
     }
 
 }

@@ -132,7 +132,7 @@ public final class DocxLowLevelHelper {
         List<File> outFiles = new ArrayList<>();
         int idx = 0;
         for (Chapter ch : chapters) {
-            String text = clean(ch.buf.toString());
+            String text = EbookTextCleaner.removeReferencesIfEnabled(clean(ch.buf.toString()));
             if (text.isEmpty())
                 continue;
 
@@ -151,7 +151,7 @@ public final class DocxLowLevelHelper {
         // Fallback: if no chapters were written (e.g. all empty), but we have text
         if (outFiles.isEmpty()) {
             Document doc = Jsoup.parse(html);
-            String fullText = clean(doc.text());
+            String fullText = EbookTextCleaner.removeReferencesIfEnabled(clean(doc.text()));
             if (!fullText.isEmpty()) {
                 String fname = "001_document.txt";
                 File f = new File(outDir, fname);
