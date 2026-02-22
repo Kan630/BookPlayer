@@ -341,8 +341,8 @@ public class CopyFileWorker extends ImportWorker {
                 size_check_inflate_coefficient = Var.M4B_SIZE_MAX_COEF;
             }
             myLogD("size_check_inflate_coefficient = [" + size_check_inflate_coefficient + "]");
-            myLogD("totalSize : [" + totalSize + "] => [" + totalSize * size_check_inflate_coefficient
-                    + "] - availableMemory : [" + availableMemory + "]");
+            myLogD("totalSize : [" + Tonio.getReadableSize(totalSize) + "] => [" + Tonio.getReadableSize(totalSize * size_check_inflate_coefficient)
+                    + "] - availableMemory : [" + Tonio.getReadableSize(availableMemory) + "]");
             if (totalSize > 0 && totalSize * size_check_inflate_coefficient > availableMemory) {
                 return false;
             }
