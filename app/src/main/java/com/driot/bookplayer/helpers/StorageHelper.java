@@ -78,9 +78,15 @@ public class StorageHelper {
     }
 
     public static boolean isInInternalMemory(String path) {
+        if (path == null)
+            return false;
         String pathLower = path.toLowerCase();
-        return pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_PROD)
-                || pathLower.contains(Var.PATH_CHECK_AUDIO_FILE_INTERNAL_DEBUG);
+        for (String s : Var.PATH_CHECK_AUDIO_FILE_INTERNAL) {
+            if (pathLower.contains(s.toLowerCase())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // TODO should also check if the path/uri whatever, is reachable and if not,
