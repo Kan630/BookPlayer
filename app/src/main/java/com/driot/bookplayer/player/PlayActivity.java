@@ -113,6 +113,7 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
 
     private ImageView ivCover;
     private String lastCoverUri = null;
+    private String lastLoadMessage = "";
 
     private FrequencyVisualizerView frequencyVisualizerView;
 
@@ -432,58 +433,7 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
             checkAndLaunchScreensaver(s);
 
             String p = s.loadPhase;
-            if (p == null)
-                return;
-            // myLog("Phase observer : " + p);
-
-            // Pull the latest playback state to know if we’re in TTS or audio mode
-            final boolean tts = ("tts".equals(s.playMode));
-
-            // Default: hide overlays for pure audio mode unless we’re in an error phase
-            if (!tts) {
-                // Show only ERROR message if present
-                boolean showError = Intents.PHASE_ERROR.equals(p);
-                progressOverlay.setVisibility(View.GONE);
-                if (showError) {
-                    progressTitle.setText("");
-                    // progressMessage.setText(p.message != null ? p.message :
-                    // getString(R.string.error_generic));
-                    messageOverlay.setVisibility(View.VISIBLE);
-                } else {
-                    messageOverlay.setVisibility(View.GONE);
-                }
-                return;
-            }
-
-            // TTS mode: show spinner during busy phases, otherwise hide overlays
-            // final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
-            // || Intents.PHASE_STARTING.equals(p.phase);
-            // progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
-
-            String label;
-            switch (p) {
-                case Intents.PHASE_LOADING_TEXT:
-                    label = getString(R.string.tts_phase_loading_text);
-                    break;
-                case Intents.PHASE_STARTING:
-                    label = getString(R.string.tts_phase_starting);
-                    break;
-                case Intents.PHASE_READY:
-                    label = getString(R.string.Ready);
-                    break;
-                case Intents.PHASE_SPEAKING:
-                    label = getString(R.string.Speaking);
-                    break;
-                case Intents.PHASE_ERROR:
-                    label = getString(R.string.tts_phase_error);
-                    break;
-                default:
-                    label = "";
-                    break;
-            }
-            // Prefer explicit message from service if present
-            // if (p.message != null && !p.message.isEmpty()) label = p.message;
-            // progressMessage.setText(label);
+            lastLoadMessage = s.loadMessage;
 
             // Error message overlay (non-blocking)
             if (Intents.PHASE_ERROR.equals(p)) {
@@ -776,7 +726,9 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
-                tv.setText(R.string.loading_voice_3pt);
+                tv.setText(lastLoadMessage != null && !lastLoadMessage.isEmpty()
+                        ? lastLoadMessage
+                        : getString(R.string.loading_voice_3pt));
             progressOverlay.setVisibility(View.VISIBLE);
             progressOverlay.bringToFront();
         } else {

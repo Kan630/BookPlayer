@@ -236,7 +236,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String cover = (streamImageUrl != null) ? streamImageUrl : "";
 
             s = new PlaybackUiState(
-                    loadPhase, playing, ready, playMode,
+                    loadPhase, getLoadPhaseMsg(), playing, ready, playMode,
                     0, 0, getSleepLeftMs(),
                     title, text, cover,
                     /* trackId */ 0,
@@ -252,7 +252,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             long dur = (engine != null) ? engine.getDuration() : 0;
 
             s = new PlaybackUiState(
-                    loadPhase, playing, ready, playMode,
+                    loadPhase, getLoadPhaseMsg(), playing, ready, playMode,
                     pos, dur, getSleepLeftMs(),
                     title, text, cover,
                     /* trackId */ 0,
@@ -280,7 +280,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             extras.putString(Intents.EXTRA_TTS_VOICE_NAME, getCurrentTtsVoiceName());
             // extras.putInt(Intents.EXTRA_TTS_START_OFFSET, currentStartChars);
 
-            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, getSleepLeftMs(), title, subTitle,
+            s = new PlaybackUiState(loadPhase, getLoadPhaseMsg(), playing, ready, playMode, pos, dur, getSleepLeftMs(),
+                    title, subTitle,
                     cover,
                     trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
@@ -2018,6 +2019,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
+    public String getLoadPhaseMsg() {
+        if (currentUiPhaseMsg != null && !currentUiPhaseMsg.isEmpty())
+            return currentUiPhaseMsg;
+
+        return PlaybackPhaseMapper.getPhaseMessage(this, getLoadPhase());
+    }
+
     public String getCurrentTtsVoiceName() {
         if ("tts".equals(getPlayMode())) {
             return ((TtsEngine) engine).getVoiceName();
@@ -2161,7 +2169,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
-        PlaybackUiBus.get().setLoadPhase(phase);
+        String resolvedMsg = (msg != null) ? msg : PlaybackPhaseMapper.getPhaseMessage(this, phase);
+        PlaybackUiBus.get().setLoadPhase(phase, resolvedMsg);
     }
 
     // Full file/audiobook actions (current behavior)
@@ -2325,13 +2334,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
         if (engine instanceof TtsEngine) {
             try {
-                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
+                setUiPhase(Intents.PHASE_WARMING_UP, null);
                 boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
                 myLog("Voice change success = " + ok);
                 if (ok) {
-                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_READY);
+                    setUiPhase(Intents.PHASE_READY, null);
                 } else {
-                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+                    setUiPhase(Intents.PHASE_ERROR, null);
                 }
             } catch (Throwable ignored) {
             }

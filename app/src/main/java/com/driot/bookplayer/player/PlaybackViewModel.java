@@ -71,7 +71,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 _seekPreviewMs.setValue(null);
             } else {
                 s = new PlaybackUiState(
-                        s.loadPhase, s.playing, s.ready, s.playMode,
+                        s.loadPhase, s.loadMessage, s.playing, s.ready, s.playMode,
                         preview, s.durationMs, s.sleepLeftMS,
                         s.title, s.subTitle, s.cover,
                         s.trackId, s.folderId, s.podcastFeedId, s.radioStationUuid,
@@ -268,8 +268,13 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             return;
         }
 
+        String finalMessage = message;
+        if (finalMessage == null || finalMessage.isEmpty()) {
+            finalMessage = PlaybackPhaseMapper.getPhaseMessage(getApplication(), phaseId);
+        }
+
         PlaybackUiState next = new PlaybackUiState(
-                phaseId, cur.playing, cur.ready, cur.playMode,
+                phaseId, finalMessage, cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,

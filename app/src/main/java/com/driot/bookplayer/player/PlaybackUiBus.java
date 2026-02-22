@@ -58,7 +58,7 @@ public final class PlaybackUiBus {
 
     public void clear() {
         emit(new PlaybackUiState(
-                Intents.PHASE_OFF, false, false, null,
+                Intents.PHASE_OFF, null, false, false, null,
                 0, 0, 0, "", "", "",
                 0, 0, 0, null,
                 "PlaybackUiBus.clear()", 0, null));
@@ -66,12 +66,13 @@ public final class PlaybackUiBus {
 
     // --- Convenience updaters (rebuild immutable state) ----------------------
 
-    public void setLoadPhase(String newPhase) {
+    public void setLoadPhase(String newPhase, @Nullable String message) {
         PlaybackUiState cur = _state.getValue();
         if (cur == null)
             return;
         emit(new PlaybackUiState(
                 newPhase,
+                message != null ? message : cur.loadMessage,
                 cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
@@ -85,6 +86,7 @@ public final class PlaybackUiBus {
             return;
         emit(new PlaybackUiState(
                 cur.loadPhase,
+                cur.loadMessage,
                 playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
