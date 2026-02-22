@@ -143,7 +143,7 @@ public class CopyFileWorker extends ImportWorker {
                         context.getString(R.string.Copy) + " " + context.getString(R.string.done_));
                 return Result.success();
             } else {
-                emitFailed(TASK_NAME, "no files to copy", "no files to copy");
+                emitFailed(TASK_NAME, "no files to copy", "no audio nor text files found");
                 return Result.failure();
             }
         } catch (Exception e) {
