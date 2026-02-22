@@ -477,37 +477,6 @@
     </ScrollView>
 
     <!-- Blocking overlay ON TOP (last child) -->
-    <FrameLayout
-        android:id="@+id/blockingOverlay"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="#80000000"
-        android:clickable="true"
-        android:focusable="true"
-        android:visibility="gone">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="40dp"
-            android:orientation="vertical"
-            android:padding="24dp"
-            android:layout_gravity="center"
-            android:background="@drawable/bg_overlay_card">
-
-            <ProgressBar
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:indeterminate="true" />
-
-            <TextView
-                android:id="@+id/tvBlockingText"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:text="@string/Deleting"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
-        </LinearLayout>
-    </FrameLayout>
+    <include layout="@layout/include_progress_overlay" />
 
 </FrameLayout>

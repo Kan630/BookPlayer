@@ -245,6 +245,7 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
         progressTitle.setText(getString(R.string.Text_To_Speech));
+        progressTitle.setVisibility(View.VISIBLE);
 
         String nbSec = String.valueOf(Option.get_ForwardSeconds());
         bRewind.setText("-" + nbSec + " " + getString(R.string.sec));
