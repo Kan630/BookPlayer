@@ -33,7 +33,9 @@ public class TtsHighlighter {
 
         void onScrollToPosition(TextView tv, int charOffset);
     }
+
     private final boolean DEBUG_DRIFT = false;
+    private final int DEBOUNCING_DELAY_FOR_PROGRESS_OVERLAY_SHOW = 100;
 
     private final HighlightListener listener;
     private final TextView tvTtsText;
@@ -115,13 +117,17 @@ public class TtsHighlighter {
             lastTtsPositionMs = s.positionMs;
 
         // Overlay Logic
-        if (s.loadPhase.equals(Intents.PHASE_SPEAKING) || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
-                || s.loadPhase.equals(Intents.PHASE_WARMING_UP)) {
-            if (!ttsActuallyStarted) {
+        if (isTts) {
+            boolean isBusyPhase = s.loadPhase.equals(Intents.PHASE_SPEAKING)
+                    || s.loadPhase.equals(Intents.PHASE_STARTING)
+                    || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
+                    || s.loadPhase.equals(Intents.PHASE_WARMING_UP);
+
+            if (isBusyPhase && !ttsActuallyStarted) {
                 startLoadingTimer();
+            } else {
+                stopLoadingTimer();
             }
-        } else {
-            stopLoadingTimer();
         }
 
         // Detect track change
@@ -150,13 +156,13 @@ public class TtsHighlighter {
         // Only schedule if not already scheduled (or reset)
         // Check if overlay is already visible? No, just rely on timer.
         uiH.removeCallbacks(loadingRunnable);
-        uiH.postDelayed(loadingRunnable, 300);
-        myLogD("startLoadingTimer: scheduled in 300ms");
+        uiH.postDelayed(loadingRunnable, DEBOUNCING_DELAY_FOR_PROGRESS_OVERLAY_SHOW);
+        myLogD("TTS Phase change - startLoadingTimer: scheduled in 300ms");
     }
 
     private void stopLoadingTimer() {
         uiH.removeCallbacks(loadingRunnable);
-        myLogD("stopLoadingTimer: canceled");
+        myLogD("TTS Phase change - stopLoadingTimer: canceled");
         if (listener != null)
             listener.onLoadingStatusChanged(false);
     }

@@ -251,7 +251,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private volatile boolean inError = false;
 
     private void setLoadPhase(@NonNull String phaseId, @Nullable String message) {
-        myLog("setLoadPhase " + phaseId + " - " + message);
+        myLog("TTS Phase change: " + phaseId + " (msg: " + message + ")");
         // If you want to ignore warmup/starting while in error, keep this guard:
         if (inError && (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_STARTING.equals(phaseId))) {
             myLogE("setLoadPhase - inError");

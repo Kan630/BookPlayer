@@ -2166,7 +2166,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // Convenience for setting phase + optional message
     private void setUiPhase(@NonNull String phase, @Nullable String msg) {
-        myLog("setUiPhase : " + phase + " - msg : " + msg);
+        myLog("TTS Phase change: " + phase + " (msg: " + msg + ")");
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
         String resolvedMsg = (msg != null) ? msg : PlaybackPhaseMapper.getPhaseMessage(this, phase);
