@@ -178,8 +178,9 @@ public class Var {
                                         "aac", // Raw AAC (less common than .m4a)
                                         "mp4", // WORKS // MP4 container (may contain AAC/ALAC)
                                         "m4b", // Audiobook variant of .m4a
-                                        // "wav", // Uncompressed PCM/WAVE // TODO currently import fails "no usable
-                                        // item found"
+                                               // "wav", // Uncompressed PCM/WAVE // TODO currently import fails "no
+                                               // usable
+                                               // item found"
                                         "ogg", // WORKS // Ogg Vorbis (open alternative to MP3)
                                         "oga", // Ogg Audio (legacy, rarely used)
                                         "flac", // WORKS // Free Lossless Audio Codec (Android 3.1+)
@@ -237,7 +238,8 @@ public class Var {
                         Arrays.asList(
                                         "epub", // Kobo kepub is still .epub
                                         "fb2", // FictionBook 2
-                                        "odt" // OpenDocument Text – must be split to .txt before TTS
+                                        "odt", // OpenDocument Text – must be split to .txt before TTS
+                                        "docx" // Word document
                         ));
         public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>();
         static {
@@ -280,6 +282,7 @@ public class Var {
                                         "application/epub+zip",
                                         "application/x-fictionbook+xml",
                                         "application/vnd.oasis.opendocument.text",
+                                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // docx
                                         "text/html", // some epub internals
                                         "application/xhtml+xml" // some epub internals
                         ));

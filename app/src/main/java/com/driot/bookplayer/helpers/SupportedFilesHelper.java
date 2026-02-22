@@ -30,6 +30,7 @@ public class SupportedFilesHelper {
     public static final String SPECIAL_TYPE_EPUB = "EPUB";
     public static final String SPECIAL_TYPE_FB2 = "FB2";
     public static final String SPECIAL_TYPE_ODT = "ODT";
+    public static final String SPECIAL_TYPE_DOCX = "DOCX";
     public static final String SPECIAL_TYPE_M4B = "M4B";
     public static final String SPECIAL_TYPE_ZIP = "ZIP";
     public static final String SPECIAL_TYPE_7Z = "7Z";
@@ -378,6 +379,8 @@ public class SupportedFilesHelper {
                 return SPECIAL_TYPE_M4B;
             case "odt":
                 return SPECIAL_TYPE_ODT;
+            case "docx":
+                return SPECIAL_TYPE_DOCX;
             case "fb2":
                 return SPECIAL_TYPE_FB2;
             case "epub":
@@ -413,6 +416,8 @@ public class SupportedFilesHelper {
                 return SPECIAL_TYPE_M4B;
             case "odt":
                 return SPECIAL_TYPE_ODT;
+            case "docx":
+                return SPECIAL_TYPE_DOCX;
             case "fb2":
                 return SPECIAL_TYPE_FB2;
             case "epub":
@@ -444,6 +449,8 @@ public class SupportedFilesHelper {
                 return SPECIAL_TYPE_M4B;
             case "odt":
                 return SPECIAL_TYPE_ODT;
+            case "docx":
+                return SPECIAL_TYPE_DOCX;
             case "fb2":
                 return SPECIAL_TYPE_FB2;
             case "epub":
@@ -666,11 +673,11 @@ public class SupportedFilesHelper {
                 || SPECIAL_TYPE_TAR.equals(specialType);
     }
 
-    /** All ebook-like formats (plain text + structured ebooks). */
     public static boolean isEbookSpecial(String specialType) {
         return SPECIAL_TYPE_EPUB.equals(specialType)
                 || SPECIAL_TYPE_FB2.equals(specialType)
                 || SPECIAL_TYPE_ODT.equals(specialType)
+                || SPECIAL_TYPE_DOCX.equals(specialType)
                 || SPECIAL_TYPE_TXT.equals(specialType);
     }
 
@@ -678,7 +685,8 @@ public class SupportedFilesHelper {
     public static boolean isSplittableEbookSpecial(String specialType) {
         return SPECIAL_TYPE_EPUB.equals(specialType)
                 || SPECIAL_TYPE_FB2.equals(specialType)
-                || SPECIAL_TYPE_ODT.equals(specialType);
+                || SPECIAL_TYPE_ODT.equals(specialType)
+                || SPECIAL_TYPE_DOCX.equals(specialType);
     }
 
     public static boolean isM4bSpecial(String specialType) {

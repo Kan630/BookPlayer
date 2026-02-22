@@ -1142,6 +1142,11 @@ public class BookCandidate implements Parcelable {
                 } catch (Exception e) {
                     myLogEE(e, "FB2 cover detection error");
                 }
+            } else if (fileName.endsWith(".docx")) {
+                try {
+                    return detectCoverForArchive(context, file);
+                } catch (Exception ignored) {
+                }
             }
         }
 

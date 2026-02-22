@@ -13,6 +13,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.ebooks.EpubCommonHelper;
 import com.driot.bookplayer.ebooks.EpubGutenbergHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+import com.driot.bookplayer.ebooks.DocxLowLevelHelper;
 import com.driot.bookplayer.ebooks.OdtLowLevelHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
@@ -109,11 +110,11 @@ public class EbookSplitWorker extends ImportWorker {
                 chapters = result.chapterFiles;
             } else if ("epub".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
-                
+
                 // Determine which helper to use based on setting
                 String splitMode = Option.getEpubSplitMode();
                 boolean useTocBased = false;
-                
+
                 if ("toc".equals(splitMode)) {
                     useTocBased = true;
                     myLogD("EPUB split mode: TOC-based (forced)");
@@ -125,7 +126,7 @@ public class EbookSplitWorker extends ImportWorker {
                     useTocBased = shouldUseTocBasedSplitting(ctx, uri);
                     myLogD("EPUB split mode: Auto -> " + (useTocBased ? "TOC-based" : "Spine-based"));
                 }
-                
+
                 if (useTocBased) {
                     EpubGutenbergHelper.ExtractResult result = EpubGutenbergHelper.extractAll(ctx, uri);
                     cover = result.coverBitmap;
@@ -138,6 +139,11 @@ public class EbookSplitWorker extends ImportWorker {
             } else if ("odt".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing ODT…");
                 OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);
+                cover = result.coverBitmap;
+                chapters = result.chapterFiles;
+            } else if ("docx".equals(ebookType)) {
+                emitStepProgress(TASK_NAME, 1, "Parsing DOCX…");
+                DocxLowLevelHelper.ExtractResult result = DocxLowLevelHelper.extractAll(ctx, uri);
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
             } else {
@@ -278,7 +284,7 @@ public class EbookSplitWorker extends ImportWorker {
             int tocCount = countTocEntries(navHtml);
 
             KanLogger.myLogD("Auto mode: Found " + tocCount + " TOC entries");
-            
+
             // Use TOC if it has a reasonable number of entries (10-1000)
             // Too few (<10) might indicate a broken/malformed TOC
             // Too many (>1000) might indicate overly granular splitting
@@ -286,7 +292,8 @@ public class EbookSplitWorker extends ImportWorker {
                 KanLogger.myLogD("Auto mode: TOC looks good, using TOC-based splitting");
                 return true;
             } else {
-                KanLogger.myLogD("Auto mode: TOC entry count (" + tocCount + ") outside reasonable range, using spine-based");
+                KanLogger.myLogD(
+                        "Auto mode: TOC entry count (" + tocCount + ") outside reasonable range, using spine-based");
                 return false;
             }
         } catch (Exception e) {
@@ -341,7 +348,8 @@ public class EbookSplitWorker extends ImportWorker {
     private static int countTocEntries(String navHtml) {
         try {
             org.jsoup.nodes.Document doc = org.jsoup.Jsoup.parse(navHtml);
-            org.jsoup.nodes.Element nav = doc.selectFirst("nav[epub|type=toc], nav[epub\\:type=toc], nav[role=doc-toc]");
+            org.jsoup.nodes.Element nav = doc
+                    .selectFirst("nav[epub|type=toc], nav[epub\\:type=toc], nav[role=doc-toc]");
             if (nav == null) {
                 return 0;
             }
@@ -383,7 +391,6 @@ public class EbookSplitWorker extends ImportWorker {
         }
     }
 
-
     private static String guessTypeFromPath(String path) {
         String name = new File(path).getName().toLowerCase(Locale.ROOT);
         int dot = name.lastIndexOf('.');
@@ -395,6 +402,8 @@ public class EbookSplitWorker extends ImportWorker {
                 return "fb2";
             case "odt":
                 return "odt";
+            case "docx":
+                return "docx";
             // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add
             // unzip
             default:
