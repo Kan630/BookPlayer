@@ -771,7 +771,7 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
             myLogE("onLoadingStatusChanged: progressOverlay is null!");
             return;
         }
-        myLogD("onLoadingStatusChanged: " + show);
+        myLogD("onLoadingStatusChanged - show progressOverlay : " + show);
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
