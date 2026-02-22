@@ -1,4 +1,4 @@
-package com.driot.bookplayer.player;
+package com.driot.bookplayer.tts;
 
 import android.graphics.Color;
 import android.os.Handler;
@@ -14,6 +14,9 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.player.PlayActivity;
+import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.lang.ref.WeakReference;

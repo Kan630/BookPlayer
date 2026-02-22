@@ -1,7 +1,6 @@
-package com.driot.bookplayer.player;
+package com.driot.bookplayer.tts;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -11,15 +10,11 @@ import android.speech.tts.Voice;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
-import com.driot.bookplayer.tts.TtsErrorUtils;
-import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.tts.VoiceItem;
-import com.driot.bookplayer.tts.AppTtsManager;
+import com.driot.bookplayer.player.EngineListener;
+import com.driot.bookplayer.player.PlayerEngine;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.Locale;
@@ -223,7 +218,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public long getCurrentPosition() {
-        if (playing && ttsAudioStarted && currentUtteranceStartTime > 0 && estDurationMs > 0) {
+        if (playing && ttsAudioStarted && currentUtteranceStartTime > 0 && estDurationMs > 0 && !text.isEmpty()) {
             long elapsed = System.currentTimeMillis() - currentUtteranceStartTime;
             // Reference speed: how many milliseconds of progress per wall-millisecond.
             // We use 1:1 ratio scaled by speedRate to ensure smooth progress bar.
@@ -304,6 +299,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
         if (playing) {
             if (tts != null) {
+                ttsAudioStarted = false; // Reset to stop interpolation during seek transition
                 tts.stop();
                 speakFromOffset(resumeOffsetChars);
             }
@@ -329,6 +325,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             // Resume from last audible boundary we tracked
             int start = Math.max(0, Math.min(lastCharSpoken, text.length()));
             resumeOffsetChars = start;
+            ttsAudioStarted = false;
             tts.stop();
             // Restart without immediate broadcast - let TTS callbacks drive highlighting
             // naturally
@@ -537,6 +534,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         }
 
         if (playing && prepared && tts != null) {
+            ttsAudioStarted = false;
             tts.stop();
             speakFromOffset(resumeOffsetChars);
         }
@@ -694,6 +692,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             int start = Math.max(0, Math.min(lastCharSpoken, text != null ? text.length() : 0));
             // ensure internal offset reflects where we’re resuming
             resumeOffsetChars = start;
+            ttsAudioStarted = false;
             tts.stop();
             speakFromOffset(start);
         }
