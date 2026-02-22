@@ -1,5 +1,6 @@
 package com.driot.bookplayer.activities;
 
+import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Layout;
@@ -59,6 +60,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity implements TtsHighl
     private int touchSlop;
 
     @Override
+    @SuppressLint("ClickableViewAccessibility")
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);

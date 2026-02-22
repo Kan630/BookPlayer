@@ -42,6 +42,7 @@ import com.driot.bookplayer.tts.TtsEngine;
 import com.driot.bookplayer.tts.TtsErrorUtils;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.db.ZikFile;
@@ -380,7 +381,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         @Override
         public void onCustomAction(@NonNull String action, Bundle extras) {
-            myLog("MediaSessionCompat.Callback - onCustomAction : " + action);
+            myLog("MediaSessionCompat.Callback - onCustomAction : " + action
+                    + (extras != null ? ", extras=" + KanLogger.getBundleString(extras) : ""));
             switch (action) {
                 case Intents.CMD_SET_SPEED: {
                     double s = extras != null ? extras.getDouble(Intents.EXTRA_SPEED, 1.0) : 1.0;
@@ -426,7 +428,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     break;
                 }
                 case Intents.CMD_TTS_GET_TEXT: {
-                    myLog("MediaSessionCompat.Callback - onCustomAction : CMD_TTS_GET_TEXT");
+                    // Log already covered by the global one above
 
                     android.os.ResultReceiver rr = (extras != null)
                             ? extras.getParcelable(Intents.EXTRA_RESULT_RECEIVER)
