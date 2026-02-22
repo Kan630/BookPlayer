@@ -56,7 +56,7 @@ public final class DocxLowLevelHelper {
         }
     }
 
-    private static final class Chapter {
+    static final class Chapter {
         String title;
         StringBuilder buf = new StringBuilder();
     }
@@ -169,7 +169,7 @@ public final class DocxLowLevelHelper {
 
     // ---------------- HTML Parsing ----------------
 
-    private static List<Chapter> parseChapters(String html, boolean splitIntoChapters) {
+    static List<Chapter> parseChapters(String html, boolean splitIntoChapters) {
         List<Chapter> chapters = new ArrayList<>();
         Document doc = Jsoup.parse(html);
         Element body = doc.body();
@@ -182,44 +182,102 @@ public final class DocxLowLevelHelper {
             return chapters;
         }
 
+        Elements elements = body.children();
+
+        // Pass 1: Heuristic to find the "best" heading level
+        int h1Count = body.select("h1").size();
+        int h2Count = body.select("h2").size();
+        int h3Count = body.select("h3").size();
+
+        String bestTag = "h1";
+        if (h1Count > 1) {
+            bestTag = "h1";
+        } else if (h2Count > 1) {
+            bestTag = "h2";
+        } else if (h3Count > 1) {
+            bestTag = "h3";
+        } else if (h1Count == 1) {
+            bestTag = "h1";
+        }
+
+        myLogD("DOCX Heuristic: h1=" + h1Count + ", h2=" + h2Count + ", h3=" + h3Count + " => bestTag=" + bestTag);
+
         Chapter current = new Chapter();
-        // Seed with a default title if needed, will be overwritten by first heading
         current.title = "";
 
-        Elements elements = body.children();
         for (Element el : elements) {
             String tag = el.tagName().toLowerCase();
             String text = el.text().trim();
+            if (text.isEmpty())
+                continue;
 
-            boolean isHeading = tag.equals("h1") || tag.equals("h2") || tag.equals("h3");
+            boolean isAnyHeading = tag.equals("h1") || tag.equals("h2") || tag.equals("h3");
+            boolean isPrimaryHeading = tag.equals(bestTag);
+
+            // Special keywords regardless of tag
+            boolean isSpecialKeyword = false;
+            String lowerText = text.toLowerCase(Locale.US);
+            if (lowerText.equals("introduction") || lowerText.equals("intro") ||
+                    lowerText.equals("conclusion") || lowerText.equals("end") ||
+                    lowerText.equals("preface") || lowerText.equals("epilogue") ||
+                    lowerText.equals("prologue") || lowerText.startsWith("appendix")) {
+                isSpecialKeyword = true;
+            }
+
             boolean isTocPattern = false;
-
-            // Detect TOC pattern: "I - Title", "II - Title", "1 - Title", "Chapter 1 - ..."
-            if (!text.isEmpty()) {
+            if (isAnyHeading) {
                 // regex for roman numerals or digits at start followed by - or .
-                // examples: "I - Title", "II. Title", "1 - Title", "Chapter 1 - Title"
                 if (text.matches("^(?i)(Chapter\\s+)?([IVXLCDM]+|[0-9]+)(\\s*[-.]\\s*|\\s+).*")) {
                     isTocPattern = true;
                 }
             }
 
-            if (isHeading || isTocPattern) {
-                // New chapter
+            // Split logic:
+            // 1. It's the primary heading level
+            // 2. It's a special keyword (often intro/outro)
+            // 3. It's an h1 (always split on h1 unless it's only a title, but h1Count > 1
+            // handles that)
+            // 4. It's a TOC pattern AND it's a heading of some sort
+            boolean shouldSplit = isPrimaryHeading || isSpecialKeyword || (tag.equals("h1") && h1Count > 1)
+                    || (isTocPattern && isAnyHeading);
+
+            if (shouldSplit) {
                 if (current.buf.length() > 0 || !current.title.isEmpty()) {
                     chapters.add(current);
                 }
                 current = new Chapter();
                 current.title = text;
             } else {
-                if (!text.isEmpty()) {
+                if (current.title.isEmpty() && isAnyHeading) {
+                    current.title = text;
+                } else {
                     current.buf.append(el.text()).append("\n\n");
                 }
             }
         }
 
-        // Add final chapter
         if (current.buf.length() > 0 || !current.title.isEmpty()) {
             chapters.add(current);
+        }
+
+        // Pass 3: Post-process to merge very short chapters (e.g. < 150 chars of
+        // content)
+        if (chapters.size() > 1) {
+            List<Chapter> merged = new ArrayList<>();
+            for (int i = 0; i < chapters.size(); i++) {
+                Chapter c = chapters.get(i);
+                if (c.buf.length() < 150 && i < chapters.size() - 1) {
+                    Chapter next = chapters.get(i + 1);
+                    StringBuilder newBuf = new StringBuilder();
+                    if (!c.title.isEmpty())
+                        newBuf.append(c.title).append("\n\n");
+                    newBuf.append(c.buf).append("\n\n").append(next.buf);
+                    next.buf = newBuf;
+                } else {
+                    merged.add(c);
+                }
+            }
+            return merged;
         }
 
         return chapters;
