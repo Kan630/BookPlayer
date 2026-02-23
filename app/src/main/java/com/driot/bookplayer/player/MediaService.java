@@ -222,7 +222,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void broadcastUiState(String fromWhere, String playMode) {
-        //final String loadPhase = getLoadPhase();
         final boolean ready = isReadyToPlay();
         final boolean playing = isPlaying();
 
@@ -2055,17 +2054,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return null;
     }
 
-    public String getLoadPhase() {
-        if (engine == null)
-            return Intents.PHASE_OFF;
-        ;
-        if (engine.isPlaying() || engine.isReady()) {
-            return Intents.PHASE_READY;
-        } else {
-            return Intents.PHASE_BUFFERING;
-        }
-    }
-
     public String getCurrentTtsVoiceName() {
         if ("tts".equals(getPlayMode())) {
             return ((TtsEngine) engine).getVoiceName();
@@ -2411,9 +2399,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Throwable ignored) {
         }
 
-        // 4) If we were speaking, resume from the new cursor; otherwise stay READY
+        // 4) If we were speaking, resume from the new cursor;
         if (wasPlaying) {
-            //setUiPhase(Intents.PHASE_STARTING, null); // brief spinner if you like
             try {
                 tts.start(); // continue speaking from new cursor
             } catch (Throwable t) {
@@ -2421,8 +2408,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 setUiPhase(Intents.PHASE_ERROR, "TTS restart failed");
                 return;
             }
-//        } else {
-//            setUiPhase(Intents.PHASE_READY, null);
         }
 
         // 5) Reflect new position in MediaSession/notification & UI snapshot

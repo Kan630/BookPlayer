@@ -378,7 +378,6 @@ public class PlayActivity extends BaseActivity {
 
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
-                //ttsOverlayManager.reset();
             }
 
             // Delegate logic to highlighter and overlay manager
@@ -443,54 +442,11 @@ public class PlayActivity extends BaseActivity {
                 return;
             }
 
-            // TTS mode: show spinner during busy phases, otherwise hide overlays
-            // final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
-            // || Intents.PHASE_STARTING.equals(p.phase);
-            // progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
-
-            String label;
-            switch (p) {
-                case Intents.PHASE_LOADING_TEXT:
-                    label = getString(R.string.tts_phase_loading_text);
-                    break;
-                case Intents.PHASE_ENGINE_STARTING:
-                    label = getString(R.string.tts_phase_starting);
-                    break;
-                case Intents.PHASE_READY:
-                    label = getString(R.string.Ready);
-                    break;
-                case Intents.PHASE_SPEAKING:
-                    label = getString(R.string.Speaking);
-                    break;
-                case Intents.PHASE_ERROR:
-                    label = getString(R.string.tts_phase_error);
-                    break;
-                default:
-                    label = "";
-                    break;
-            }
-            // Prefer explicit message from service if present
-            // if (p.message != null && !p.message.isEmpty()) label = p.message;
-            // progressMessage.setText(label);
-
             // Error message overlay (non-blocking)
             if (Intents.PHASE_ERROR.equals(p)) {
-                // progressMessage.setText(p.message != null ? p.message :
-                // getString(R.string.tts_phase_error));
-                // messageOverlay.setVisibility(View.VISIBLE);
                 myLogW("TTS is in PHASE_ERROR – keeping spinner and controls usable");
                 myToast(getString(R.string.tts_phase_error));
-            } else {
-                // messageOverlay.setVisibility(View.GONE);
             }
-
-            // Optionally soften main controls during busy phases
-            /*
-             * boolean controlsEnabled = !busy;
-             * bRewind.setEnabled(controlsEnabled);
-             * bForward.setEnabled(controlsEnabled);
-             * seekbar.setEnabled(controlsEnabled);
-             */
 
         });
 
@@ -926,14 +882,6 @@ public class PlayActivity extends BaseActivity {
         });
 
         spinnerTtsVoice.setEnabled(true);
-        // Re-enable spinner when phase is not busy
-        /*
-         * vm.getPhase().observe(this, p -> {
-         * if (p == null) return;
-         * boolean busy = p.isBusyPhase(); // you already have this helper
-         * 
-         * });
-         */
 
         vm.setupTtsVoiceSpinner(
                 this,
