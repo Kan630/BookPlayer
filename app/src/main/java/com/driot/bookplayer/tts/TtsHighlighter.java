@@ -113,7 +113,7 @@ public class TtsHighlighter {
                 vm.requestTtsTextOnce();
             }
         } else {
-            if (isTts && (spannableText == null || spannableText.isEmpty())) {
+            if (isTts && (spannableText == null || spannableText.length() == 0)) {
                 vm.requestTtsTextOnce();
             }
         }
