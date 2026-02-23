@@ -75,8 +75,10 @@ public final class PlaybackUiBus {
         if (cur == null)
             return;
         myLog("PlaybackUiBus: setLoadPhase [" + (cur.loadPhase) + "] → [" + newPhase + "] (" + message + ")");
-        // Reset ttsAudioStarted when entering any preparation phase so the loading
-        // overlay condition (busyPhase && !ttsAudioStarted) can trigger.
+        // Reset ttsAudioStarted when entering a preparation or idle phase.
+        // SPEAKING is set by MediaService only when onTtsRange fires (audio truly
+        // started),
+        // so we clear the flag here to keep state consistent.
         boolean resetAudio = Intents.PHASE_WARMING_UP.equals(newPhase)
                 || Intents.PHASE_STARTING.equals(newPhase)
                 || Intents.PHASE_LOADING_TEXT.equals(newPhase)
@@ -111,10 +113,10 @@ public final class PlaybackUiBus {
         PlaybackUiState cur = _state.getValue();
         if (cur == null)
             return;
-        // During preparation phases (voice change, loading, etc.), ignore stale
-        // "started=true"
-        // callbacks from the previous utterance. They arrive asynchronously and would
-        // prematurely cancel the loading overlay's 300ms countdown.
+        // During preparation phases, ignore stale "started=true" callbacks from
+        // a previous utterance. MediaService now emits PHASE_SPEAKING itself when
+        // onTtsRange first fires, so setTtsAudioStarted(true) from an old utterance
+        // during WARMING_UP or STARTING would be a stale duplicate.
         if (started) {
             boolean preparationPhase = Intents.PHASE_WARMING_UP.equals(cur.loadPhase)
                     || Intents.PHASE_STARTING.equals(cur.loadPhase)

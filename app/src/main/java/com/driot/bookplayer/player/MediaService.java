@@ -197,6 +197,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             if (!ttsAudioStarted) {
                 ttsAudioStarted = true;
+                // Move to SPEAKING phase now that audio has actually started
+                setUiPhase(Intents.PHASE_SPEAKING, null);
                 PlaybackUiBus.get().setTtsAudioStarted(true);
             }
 
@@ -806,7 +808,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         logPauseTime();
 
         if (engine instanceof TtsEngine)
-            setUiPhase(Intents.PHASE_SPEAKING, null);
+            setUiPhase(Intents.PHASE_STARTING, null); // audio synthesis begins; SPEAKING set when onTtsRange fires
 
         engine.start();
         Pref.setPauseTime(0);
