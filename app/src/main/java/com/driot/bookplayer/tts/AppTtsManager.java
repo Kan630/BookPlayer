@@ -84,15 +84,8 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     private int consecutiveErrorCount = 0;
     private static final int MAX_CONSECUTIVE_ERRORS = 5; // Emergency shutdown after 5 consecutive errors
 
-    // Weak listener list (no owner concept anymore)
     private final List<WeakReference<Listener>> listeners = new CopyOnWriteArrayList<>();
 
-    /**
-     * Publishes the sorted voice list once TTS is ready.
-     * Spinners observe this instead of registering a WeakReference listener,
-     * guaranteeing the list is delivered even on slow devices where TTS init
-     * takes longer than a GC cycle.
-     */
     private final MutableLiveData<List<VoiceItem>> voicesLiveData = new MutableLiveData<>();
 
     public LiveData<List<VoiceItem>> getVoicesLiveData() {
@@ -158,8 +151,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
             }
         }
     }
-
-    // --- TextToSpeech.OnInitListener ---
 
     @Override
     public void onInit(int status) {
@@ -247,6 +238,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     } else {
                         // Fallback: pass relative range
                         forEachListener(l -> l.onWordRange(start, end));
+                        myLogE("fallback");
                     }
                 }
             });
@@ -300,8 +292,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
         if (ready) {
             forEachListener(l -> l.onTtsReady(tts));
-            // Publish voices to LiveData so spinners using observeForever/observe
-            // always get the list, even if their WeakRef was GC'd on slow devices.
             final TextToSpeech ttsSnap = tts;
             main.post(() -> {
                 List<VoiceItem> list = new ArrayList<>();

@@ -176,21 +176,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return;
             main.post(() -> onEngineFatal(msg, what, extra));
         }
-/*
-        @Override
-        public void onTtsStarted(long gen) {
-            if (gen != engineGen)
-                return;
-            // This fires from AppTtsManager.onStart — audio is actually playing now.
-            // Set SPEAKING phase and mark ttsAudioStarted on the main thread.
-            main.post(() -> {
-                myLogD("onTtsStarted → emitting PHASE_SPEAKING");
-                setUiPhase(Intents.PHASE_SPEAKING, null);
-                PlaybackUiBus.get().setTtsAudioStarted(true);
-            });
-        }
-
- */
 
         @Override
         public void onTtsRange(long gen, int s, int e) {

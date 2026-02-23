@@ -167,8 +167,6 @@ public class TtsHelper {
         if (tts != null)
             tts.playSilentUtterance(250, TextToSpeech.QUEUE_ADD, "pause");
     }
-    // public void shutdown() { if (tts != null) { tts.stop(); tts.shutdown(); tts =
-    // null; } }
 
     // ======== CHUNKING / UTILS ========
 
@@ -282,90 +280,6 @@ public class TtsHelper {
 
     public interface OnVoiceSelected {
         void onSelected(@Nullable VoiceItem voice);
-    }
-
-    public static void setupTtsVoiceSpinnerForSettings(
-            @NonNull Context ui_context,
-            @NonNull Spinner spinner,
-            @Nullable String savedCode, // "system" or exact engine voice name
-            @NonNull OnVoiceSelected callback) {
-        myLog("setupTtsVoiceSpinnerForSettings - called from " + CallerHelper.getCaller() + " - savedCode=[" + savedCode
-                + "]");
-        final Context app = ui_context.getApplicationContext();
-
-        final AppTtsManager mgr = AppTtsManager.get(app);
-        TextToSpeech tts = mgr.raw();
-        if (tts == null) {
-            myLogE("setupTtsVoiceSpinnerForSettings: TTS not ready (raw() == null)");
-            ArrayAdapter<String> empty = new ArrayAdapter<>(
-                    ui_context, android.R.layout.simple_spinner_item,
-                    java.util.Collections.singletonList("No voices"));
-            empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(empty);
-            spinner.setEnabled(false);
-            callback.onSelected(null);
-            return;
-        }
-
-        final List<VoiceItem> voices = buildVoiceItems(tts);
-        if (voices == null || voices.isEmpty()) {
-            myLogE("setupTtsVoiceSpinnerForSettings - no voices");
-            ArrayAdapter<String> empty = new ArrayAdapter<>(
-                    ui_context, android.R.layout.simple_spinner_item,
-                    java.util.Collections.singletonList("No voices"));
-            empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-            spinner.setAdapter(empty);
-            spinner.setEnabled(false);
-            callback.onSelected(null);
-            return;
-        }
-        myLog(voices.size() + " voices");
-
-        // Prepend "system default" option (null voice)
-        final ArrayList<VoiceItem> all = new ArrayList<>();
-        VoiceItem system = VoiceItem.makeSystemDefault(tts);
-        if (system != null) {
-            // myLog("setupTtsVoiceSpinnerForSettings => system default = " + system);
-            all.add(system);
-        } else {
-            myLogE("setupTtsVoiceSpinnerForSettings => no system default");
-        }
-        all.addAll(voices);
-
-        int currentSelected = -1;
-        int i = 0;
-        for (VoiceItem voiceItem : all) {
-            if (voiceItem.name.equals(savedCode)) {
-                currentSelected = i;
-                break;
-            }
-            i = i + 1;
-        }
-
-        final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui_context, all);
-        spinner.setAdapter(adapter);
-        if (currentSelected >= 0) {
-            spinner.setSelection(currentSelected);
-            adapter.setSelectedPosition(currentSelected);
-        }
-        spinner.setEnabled(true);
-
-        spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                myLog("spinner : on item selected " + position + " - " + id);
-                adapter.setSelectedPosition(position);
-                VoiceItem selected = (VoiceItem) parent.getItemAtPosition(position);
-                myLog("callback : " + selected.name);
-                callback.onSelected(selected);
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-                myLog("spinner : on nothing selected");
-            }
-        });
-
     }
 
     /**
@@ -499,27 +413,6 @@ public class TtsHelper {
     }
 
     // ---- INTERNALS ----
-
-    /** Build & sort list of VoiceItem, with flags and nice labels. */
-    private static List<VoiceItem> buildVoiceItems(TextToSpeech tts) {
-        List<VoiceItem> out = new ArrayList<>();
-        try {
-            for (Voice v : tts.getVoices()) {
-                out.add(new VoiceItem(v));
-            }
-        } catch (Throwable ignored) {
-        }
-
-        // Sort: language → embedded first → quality desc → latency asc → name
-        out.sort(Comparator
-                .comparing((VoiceItem i) -> i.twoLetterCodeLanguage, String::compareToIgnoreCase)
-                .thenComparing((VoiceItem i) -> !i.embedded)
-                .thenComparing((VoiceItem i) -> -i.quality)
-                .thenComparingInt(i -> i.latency)
-                .thenComparing(i -> i.name, String.CASE_INSENSITIVE_ORDER));
-
-        return out;
-    }
 
     public static int countNewlines(String s) {
         int n = 0;

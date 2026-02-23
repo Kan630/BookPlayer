@@ -239,6 +239,7 @@ public class TtsHighlighter {
     }
 
     public void resetHighlightTracking() {
+        myLog("resetHighlightTracking");
         lastAppliedHighlightEnd = -1;
         lastHighlightTime = 0;
         if (highlightScheduled && pendingHighlightRunnable != null) {
