@@ -93,7 +93,7 @@ public class TtsHighlighter {
         if (isTts && lastTtsPositionMs >= 0 && s.positionMs > 0) {
             long positionDelta = Math.abs(s.positionMs - lastTtsPositionMs);
             if (positionDelta > SEEK_DETECTION_THRESHOLD_MS && s.playing) {
-                myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
+                myLog("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
                 lastSeekTime = System.currentTimeMillis();
                 // Reset tracking but keep ttsActuallyStarted=true since we're already playing
                 resetHighlightTracking();
@@ -158,7 +158,6 @@ public class TtsHighlighter {
         // Reset tracking when TTS actually starts to avoid stale highlights
         if (lastAppliedHighlightEnd < 0) {
             resetHighlightTracking();
-            myLogI("resetHighlightTracking");
         }
 
         // Large jump detection (backup for missing UI updates)
@@ -199,7 +198,7 @@ public class TtsHighlighter {
 
         try {
             // Debug logging for highlighted word
-            if (spannableText != null && s < len && e <= len && s < e) {
+            if (spannableText != null && e <= len && s < e) {
                 String highlightedWord = spannableText.subSequence(s, e).toString();
                 String[] words = highlightedWord.trim().split("\\s+");
                 if (words.length > 0)
@@ -268,7 +267,8 @@ public class TtsHighlighter {
             spannableText.removeSpan(ttsFgSpan);
             spannableText.setSpan(ttsBgSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             spannableText.setSpan(ttsFgSpan, start, end, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } catch (Throwable ignored) {
+        } catch (Throwable t) {
+            myLogEE(t, "updateHighlightForManualSeek");
         }
     }
 
