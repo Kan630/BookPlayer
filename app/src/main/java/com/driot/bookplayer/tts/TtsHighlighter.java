@@ -113,7 +113,7 @@ public class TtsHighlighter {
                 vm.requestTtsTextOnce();
             }
         } else {
-            if (isTts && (spannableText == null || spannableText.length() == 0)) {
+            if (isTts && (spannableText == null || spannableText.isEmpty())) {
                 vm.requestTtsTextOnce();
             }
         }
@@ -213,10 +213,12 @@ public class TtsHighlighter {
                 myLog("TTS HIGHLIGHT: pos=[" + s + "-" + e + "] word=[" + highlightedWord + "]");
             }
 
-            spannableText.removeSpan(ttsBgSpan);
-            spannableText.removeSpan(ttsFgSpan);
-            spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if (spannableText != null) {
+                spannableText.removeSpan(ttsBgSpan);
+                spannableText.removeSpan(ttsFgSpan);
+                spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
 
             lastAppliedHighlightEnd = e;
             lastHighlightTime = System.currentTimeMillis();

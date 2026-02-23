@@ -69,25 +69,21 @@ public class TtsSettingsFragment extends LoggingFragment {
         myLogD("setUp Voice Spinner, saved voice = " + lastSavedTtsVoice);
 
         TtsUiHelper.setupTtsVoiceSpinnerForSettings(
-                /* if it needs Activity: */ requireActivity(),
-                /* otherwise use requireContext() */ ttsVoiceSpinner,
+                getViewLifecycleOwner(),
+                requireActivity(),
+                ttsVoiceSpinner,
                 ttsManager,
                 lastSavedTtsVoice,
                 voiceItem -> {
                     myLogD("TtsUiHelper.setupTtsVoiceSpinner callback with voiceItem = "
                             + (voiceItem == null ? "null" : voiceItem.name));
-                    if (hasBeenInitialized) {
-                        String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                                ? Option.DEFAULT_VOICE
-                                : voiceItem.name;
-                        if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
-                            Option.setTtsVoice(sel);
-                            lastSavedTtsVoice = sel;
-                            myLogI("TTS default base voice set to: " + sel);
-                        }
-                    } else {
-                        hasBeenInitialized = true;
-                        myLogD("ignoring callback on init");
+                    String sel = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
+                            ? Option.DEFAULT_VOICE
+                            : voiceItem.name;
+                    if (!sel.equalsIgnoreCase(lastSavedTtsVoice)) {
+                        Option.setTtsVoice(sel);
+                        lastSavedTtsVoice = sel;
+                        myLogI("TTS default base voice set to: " + sel);
                     }
                 });
 
@@ -107,6 +103,7 @@ public class TtsSettingsFragment extends LoggingFragment {
 
         // EPUB Split Mode spinner
         spinnerEpubSplitMode = root.findViewById(R.id.spinner_epub_split_mode);
+
         setupEpubSplitModeSpinner();
 
         // Remove reference markers (footnotes) in ebooks
@@ -120,7 +117,9 @@ public class TtsSettingsFragment extends LoggingFragment {
         // Docx split into chapters
         chkDocxSplitIntoChapters = root.findViewById(R.id.chk_docx_split_into_chapters);
         llDocxSplitIntoChapters = root.findViewById(R.id.ll_docx_split_into_chapters);
-        if (chkDocxSplitIntoChapters != null && llDocxSplitIntoChapters != null) {
+        if (chkDocxSplitIntoChapters != null && llDocxSplitIntoChapters != null)
+
+        {
             chkDocxSplitIntoChapters.setChecked(Option.getDocxSplitIntoChapters());
             llDocxSplitIntoChapters.setOnClickListener(v -> chkDocxSplitIntoChapters.toggle());
             chkDocxSplitIntoChapters
@@ -128,7 +127,8 @@ public class TtsSettingsFragment extends LoggingFragment {
         }
 
         chkTtsSnapToSentence = root.findViewById(R.id.chk_tts_snap_to_sentence);
-        LinearLayout llTtsSnapToSentence = root.findViewById(R.id.ll_tts_snap_to_sentence);
+        LinearLayout llTtsSnapToSentence = root.findViewById(
+                R.id.ll_tts_snap_to_sentence);
         chkTtsSnapToSentence.setChecked(Option.getTtsSnapToSentence());
         llTtsSnapToSentence.setOnClickListener(v -> chkTtsSnapToSentence.toggle());
         chkTtsSnapToSentence

@@ -9,6 +9,8 @@ import android.speech.tts.UtteranceProgressListener;
 import android.speech.tts.Voice;
 
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Intents;
@@ -18,6 +20,7 @@ import com.driot.bookplayer.player.PlaybackUiBus;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -83,6 +86,18 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     // Weak listener list (no owner concept anymore)
     private final List<WeakReference<Listener>> listeners = new CopyOnWriteArrayList<>();
+
+    /**
+     * Publishes the sorted voice list once TTS is ready.
+     * Spinners observe this instead of registering a WeakReference listener,
+     * guaranteeing the list is delivered even on slow devices where TTS init
+     * takes longer than a GC cycle.
+     */
+    private final MutableLiveData<List<VoiceItem>> voicesLiveData = new MutableLiveData<>();
+
+    public LiveData<List<VoiceItem>> getVoicesLiveData() {
+        return voicesLiveData;
+    }
 
     @Nullable
     private volatile String preferredVoiceName = null;
@@ -285,6 +300,26 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
         if (ready) {
             forEachListener(l -> l.onTtsReady(tts));
+            // Publish voices to LiveData so spinners using observeForever/observe
+            // always get the list, even if their WeakRef was GC'd on slow devices.
+            final TextToSpeech ttsSnap = tts;
+            main.post(() -> {
+                List<VoiceItem> list = new ArrayList<>();
+                try {
+                    for (Voice v : ttsSnap.getVoices()) {
+                        list.add(new VoiceItem(v));
+                    }
+                    list.sort(Comparator
+                            .comparing((VoiceItem i) -> i.twoLetterCodeLanguage, String::compareToIgnoreCase)
+                            .thenComparing((VoiceItem i) -> !i.embedded)
+                            .thenComparing((VoiceItem i) -> -i.quality)
+                            .thenComparingInt(i -> i.latency)
+                            .thenComparing(i -> i.name, String.CASE_INSENSITIVE_ORDER));
+                } catch (Throwable t) {
+                    myLogEE(t, "onInit - building VoiceItem list for LiveData");
+                }
+                voicesLiveData.setValue(list);
+            });
         }
     }
 

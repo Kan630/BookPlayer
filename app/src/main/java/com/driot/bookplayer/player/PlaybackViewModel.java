@@ -203,6 +203,13 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     @Override
     protected void onCleared() {
+        if (voiceSpinnerHandle != null) {
+            try {
+                voiceSpinnerHandle.close();
+            } catch (Exception ignored) {
+            }
+            voiceSpinnerHandle = null;
+        }
         LocalBroadcastManager.getInstance(getApplication()).unregisterReceiver(ttsRangeRx);
     }
 
@@ -216,34 +223,19 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             String initial,
             TtsHelper.OnVoiceSelected onSelected) {
         myLog("setupTtsVoiceSpinner - initial = " + initial);
-        final java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
-
-        TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, voiceItem -> {
-            if (onSelected != null)
-                onSelected.onSelected(voiceItem);
-            if (first.getAndSet(false))
-                return; // skip programmatic preselect
-
-            final String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                    ? Option.DEFAULT_VOICE
-                    : voiceItem.name;
-
-            // If you expose currentVoice in PlaybackUiState.extras, you can compare here:
-            String currentVoice = null;
-            PlaybackUiState s = PlaybackUiBus.get().state().getValue();
-            if (s != null && s.extras != null) {
-                currentVoice = s.extras.getString(Intents.EXTRA_TTS_VOICE_NAME, null);
+        // Close previous handle if any (e.g. spinner recreated)
+        if (voiceSpinnerHandle != null) {
+            try {
+                voiceSpinnerHandle.close();
+            } catch (Exception ignored) {
             }
-            if (currentVoice != null && currentVoice.equalsIgnoreCase(picked)) {
-                myLog("setupTtsVoiceSpinner: same voice → no warmup");
-                return;
-            }
-
-            warmUpTtsVoice(picked, /* cb */ null);
-        });
+            voiceSpinnerHandle = null;
+        }
+        voiceSpinnerHandle = TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, onSelected);
     }
 
     private volatile boolean inError = false;
+    private AutoCloseable voiceSpinnerHandle;
 
     private void setLoadPhase(@NonNull String phaseId, @Nullable String message) {
         myLog("setLoadPhase " + phaseId + " - " + message);

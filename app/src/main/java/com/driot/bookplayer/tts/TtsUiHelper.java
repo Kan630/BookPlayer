@@ -1,10 +1,5 @@
 package com.driot.bookplayer.tts;
 
-import android.content.Context;
-import android.os.Handler;
-import android.os.Looper;
-import android.speech.tts.TextToSpeech;
-import android.speech.tts.Voice;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -12,20 +7,19 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.LifecycleOwner;
 
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.helpers.CallerHelper;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.List;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 /**
- * UI-related helpers for TTS, extracted from TtsHelper.
+ * UI-related helpers for TTS voice spinners.
  */
 public final class TtsUiHelper {
 
@@ -33,34 +27,79 @@ public final class TtsUiHelper {
         void onSelected(@Nullable VoiceItem voice);
     }
 
+    /**
+     * Sets up the TTS voice spinner for the Settings screen (SharedPref path).
+     *
+     * Uses {@link AppTtsManager#getVoicesLiveData()} with a LifecycleOwner so
+     * the observer is automatically removed when the Fragment view is destroyed,
+     * and it populates immediately if TTS is already initialised.
+     *
+     * @param owner      Fragment's {@code getViewLifecycleOwner()} — scopes the
+     *                   observer.
+     * @param ui_context Themed context (e.g. {@code requireActivity()}).
+     * @param spinner    The spinner widget to populate.
+     * @param mgr        Injected {@link AppTtsManager} singleton.
+     * @param savedCode  Currently saved voice name (or
+     *                   {@link Option#DEFAULT_VOICE}).
+     * @param callback   Invoked once on pre-selection, then on every user pick.
+     */
     public static void setupTtsVoiceSpinnerForSettings(
-            @NonNull Context ui_context,
+            @NonNull LifecycleOwner owner,
+            @NonNull android.content.Context ui_context,
             @NonNull Spinner spinner,
             @NonNull AppTtsManager mgr,
             @Nullable String savedCode,
             @NonNull OnVoiceSelected callback) {
-        myLog("setupTtsVoiceSpinnerForSettings - savedCode=[" + savedCode + "]");
-        TextToSpeech tts = mgr.raw();
-        if (tts == null) {
-            myLogE("setupTtsVoiceSpinnerForSettings: TTS not ready");
-            setEmptySpinner(ui_context, spinner, callback);
-            return;
-        }
 
-        final List<VoiceItem> voices = buildVoiceItems(tts);
-        if (voices.isEmpty()) {
-            myLogE("setupTtsVoiceSpinnerForSettings - no voices");
-            setEmptySpinner(ui_context, spinner, callback);
-            return;
-        }
+        myLog("setupTtsVoiceSpinnerForSettings - savedCode=[" + savedCode + "]");
+
+        // Show "Loading voices…" while we wait for LiveData to fire
+        ArrayAdapter<String> loadingAdapter = new ArrayAdapter<>(
+                ui_context, android.R.layout.simple_spinner_item,
+                Collections.singletonList("Loading voices…"));
+        loadingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(loadingAdapter);
+        spinner.setEnabled(false);
+
+        // Observe LiveData — fires immediately if already populated, cleans up
+        // automatically with the lifecycle.
+        mgr.getVoicesLiveData().observe(owner, voices -> {
+            if (voices == null || voices.isEmpty()) {
+                myLogE("setupTtsVoiceSpinnerForSettings: empty voice list from LiveData");
+                ArrayAdapter<String> empty = new ArrayAdapter<>(
+                        ui_context, android.R.layout.simple_spinner_item,
+                        Collections.singletonList("No voices"));
+                empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setAdapter(empty);
+                spinner.setEnabled(false);
+                callback.onSelected(null);
+                return;
+            }
+            myLog("setupTtsVoiceSpinnerForSettings: " + voices.size() + " voices");
+            populateSpinnerFromVoices(ui_context, spinner, mgr, voices, savedCode, callback);
+        });
+    }
+
+    // ---- private helpers ----
+
+    private static void populateSpinnerFromVoices(
+            @NonNull android.content.Context ui,
+            @NonNull Spinner spinner,
+            @NonNull AppTtsManager mgr,
+            @NonNull List<VoiceItem> voices,
+            @Nullable String savedCode,
+            @NonNull OnVoiceSelected callback) {
+
+        final boolean[] hasBeenInitialized = { false };
 
         final ArrayList<VoiceItem> all = new ArrayList<>();
-        VoiceItem system = VoiceItem.makeSystemDefault(tts);
+        android.speech.tts.TextToSpeech ttsRaw = mgr.raw();
+        VoiceItem system = ttsRaw != null ? VoiceItem.makeSystemDefault(ttsRaw) : null;
         if (system != null)
             all.add(system);
         all.addAll(voices);
 
-        int currentSelected = -1;
+        int currentSelected = 0;
         for (int i = 0; i < all.size(); i++) {
             if (all.get(i).name.equals(savedCode)) {
                 currentSelected = i;
@@ -68,7 +107,7 @@ public final class TtsUiHelper {
             }
         }
 
-        final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui_context, all);
+        final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
         spinner.setAdapter(adapter);
         if (currentSelected >= 0) {
             spinner.setSelection(currentSelected);
@@ -76,10 +115,16 @@ public final class TtsUiHelper {
         }
         spinner.setEnabled(true);
 
+        final int preSelected = currentSelected;
         spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 adapter.setSelectedPosition(position);
+                if (!hasBeenInitialized[0]) {
+                    hasBeenInitialized[0] = true;
+                    myLogD("setupTtsVoiceSpinnerForSettings: ignoring init callback");
+                    return;
+                }
                 callback.onSelected((VoiceItem) parent.getItemAtPosition(position));
             }
 
@@ -87,122 +132,5 @@ public final class TtsUiHelper {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-    }
-
-    public static @NonNull AutoCloseable setupTtsVoiceSpinner(
-            @NonNull Context ui_context,
-            @NonNull Spinner spinner,
-            @NonNull AppTtsManager mgr,
-            @Nullable String savedCode,
-            @NonNull OnVoiceSelected callback) {
-        myLog("setupTtsVoiceSpinner - savedCode=[" + savedCode + "]");
-        final Handler main = new Handler(Looper.getMainLooper());
-
-        final ArrayAdapter<String> loadingAdapter = new ArrayAdapter<>(
-                ui_context, android.R.layout.simple_spinner_item,
-                Collections.singletonList("Loading voices…"));
-        loadingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(loadingAdapter);
-        spinner.setEnabled(false);
-
-        mgr.setPreferredVoiceName(savedCode);
-
-        final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(
-                false);
-        final boolean[] suppressSelection = new boolean[] { true };
-
-        final AppTtsManager.Listener mgrListener = new AppTtsManager.Listener() {
-            @Override
-            public void onTtsReady(TextToSpeech tts) {
-                if (!populatedOnce.compareAndSet(false, true))
-                    return;
-                main.post(() -> {
-                    final List<VoiceItem> voices = buildVoiceItems(tts);
-                    if (voices.isEmpty()) {
-                        setEmptySpinner(ui_context, spinner, callback);
-                        return;
-                    }
-
-                    final ArrayList<VoiceItem> all = new ArrayList<>();
-                    VoiceItem system = VoiceItem.makeSystemDefault(tts);
-                    if (system != null)
-                        all.add(system);
-                    all.addAll(voices);
-
-                    final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui_context, all);
-                    spinner.setAdapter(adapter);
-                    spinner.setEnabled(true);
-
-                    int pre = 0;
-                    if (savedCode != null && !Option.DEFAULT_VOICE.equalsIgnoreCase(savedCode)) {
-                        for (int i = 1; i < all.size(); i++) {
-                            if (savedCode.equals(all.get(i).name)) {
-                                pre = i;
-                                break;
-                            }
-                        }
-                    }
-
-                    spinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                            adapter.setSelectedPosition(pos);
-                            if (!suppressSelection[0]) {
-                                callback.onSelected(all.get(pos));
-                            }
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {
-                        }
-                    });
-
-                    spinner.setSelection(pre, false);
-                    adapter.setSelectedPosition(pre);
-                    callback.onSelected(all.get(pre));
-                    spinner.post(() -> suppressSelection[0] = false);
-                });
-            }
-        };
-
-        mgr.addListener(mgrListener);
-        return () -> {
-            main.post(() -> {
-                try {
-                    spinner.setOnItemSelectedListener(null);
-                } catch (Throwable ignored) {
-                }
-            });
-            mgr.removeListener(mgrListener);
-        };
-    }
-
-    private static void setEmptySpinner(Context ctx, Spinner spinner, OnVoiceSelected callback) {
-        ArrayAdapter<String> empty = new ArrayAdapter<>(
-                ctx, android.R.layout.simple_spinner_item,
-                Collections.singletonList("No voices"));
-        empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(empty);
-        spinner.setEnabled(false);
-        callback.onSelected(null);
-    }
-
-    public static List<VoiceItem> buildVoiceItems(TextToSpeech tts) {
-        List<VoiceItem> out = new ArrayList<>();
-        try {
-            for (Voice v : tts.getVoices()) {
-                out.add(new VoiceItem(v));
-            }
-        } catch (Throwable ignored) {
-        }
-
-        out.sort(Comparator
-                .comparing((VoiceItem i) -> i.twoLetterCodeLanguage, String::compareToIgnoreCase)
-                .thenComparing((VoiceItem i) -> !i.embedded)
-                .thenComparing((VoiceItem i) -> -i.quality)
-                .thenComparingInt(i -> i.latency)
-                .thenComparing(i -> i.name, String.CASE_INSENSITIVE_ORDER));
-
-        return out;
     }
 }
