@@ -139,7 +139,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     @Inject
-    public PlaybackViewModel(@NonNull Application app) {
+    public PlaybackViewModel(@NonNull Application app, AppTtsManager ttsManager) {
         super(app);
         this.ttsManager = ttsManager;
         LocalBroadcastManager.getInstance(app).registerReceiver(ttsRangeRx,
@@ -240,7 +240,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             }
             voiceSpinnerHandle = null;
         }
-        voiceSpinnerHandle = TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, onSelected);
+        voiceSpinnerHandle = TtsHelper.setupTtsVoiceSpinner(ctx, spinner, ttsManager, initial, onSelected);
     }
 
     private volatile boolean inError = false;

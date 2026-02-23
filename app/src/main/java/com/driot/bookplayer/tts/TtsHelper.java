@@ -295,6 +295,7 @@ public class TtsHelper {
     public static @NonNull AutoCloseable setupTtsVoiceSpinner(
             @NonNull Context ui_context,
             @NonNull Spinner spinner,
+            @NonNull AppTtsManager mgr,
             @Nullable String savedCode, // "system" or exact engine voice name
             @NonNull OnVoiceSelected callback) {
         myLog("setupTtsVoiceSpinner - savedCode=[" + savedCode + "]");
@@ -310,7 +311,6 @@ public class TtsHelper {
         spinner.setAdapter(loadingAdapter);
         spinner.setEnabled(false);
 
-        final AppTtsManager mgr = AppTtsManager.get(app);
         mgr.setPreferredVoiceName(savedCode);
 
         final java.util.concurrent.atomic.AtomicBoolean populatedOnce = new java.util.concurrent.atomic.AtomicBoolean(
@@ -360,6 +360,7 @@ public class TtsHelper {
     private static void populateSpinnerFromVoices(
             @NonNull Context ui,
             @NonNull Spinner spinner,
+            @NonNull AppTtsManager mgr,
             @NonNull List<VoiceItem> voices,
             @Nullable String savedCode,
             @NonNull OnVoiceSelected callback) {
@@ -367,7 +368,6 @@ public class TtsHelper {
         final boolean[] suppressSelection = { true };
 
         final ArrayList<VoiceItem> all = new ArrayList<>();
-        final AppTtsManager mgr = AppTtsManager.get(ui.getApplicationContext());
         final android.speech.tts.TextToSpeech ttsRaw = mgr.raw();
         VoiceItem system = ttsRaw != null ? VoiceItem.makeSystemDefault(ttsRaw) : null;
         if (system != null)
