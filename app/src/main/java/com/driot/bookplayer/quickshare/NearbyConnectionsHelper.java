@@ -405,9 +405,11 @@ public class NearbyConnectionsHelper {
                 totalFilesToSend = data.filePayloads.size();
 
                 // Send metadata
-                JSONObject metadata = createBookMetadata(folder, new java.util.ArrayList<>(data.names.values()),
-                        new java.util.ArrayList<>(data.sizes.values()), data.payloadIds, data.audioFiles,
-                        transferProgress);
+                // IMPORTANT: pass the maps (not .values()) so createBookMetadata can iterate
+                // in payloadIds order — HashMap.values() order is non-deterministic and causes
+                // mismatched payloadId→filename mappings on the receiver side.
+                JSONObject metadata = createBookMetadata(folder, data.names, data.sizes,
+                        data.payloadIds, data.audioFiles, transferProgress);
                 Payload metadataPayload = Payload.fromBytes(metadata.toString().getBytes());
                 payloadNames.put(metadataPayload.getId(), "Metadata");
                 payloadSizes.put(metadataPayload.getId(), (long) metadataPayload.asBytes().length);
@@ -440,12 +442,12 @@ public class NearbyConnectionsHelper {
      * Includes book info, file list (names and sizes), and optionally reading
      * progress.
      */
-    private JSONObject createBookMetadata(Folder folder, java.util.List<String> names,
-            java.util.List<Long> sizes, java.util.List<Long> payloadIds, List<ZikFile> audioFiles,
+    private JSONObject createBookMetadata(Folder folder, Map<Long, String> namesMap,
+            Map<Long, Long> sizesMap, java.util.List<Long> payloadIds, List<ZikFile> audioFiles,
             boolean transferProgress) throws JSONException {
         JSONObject metadata = new JSONObject();
         metadata.put("bookName", folder.getName());
-        metadata.put("fileCount", names.size());
+        metadata.put("fileCount", payloadIds.size());
         metadata.put("trackCount", audioFiles.size());
         metadata.put("transferProgress", transferProgress);
 
@@ -453,10 +455,13 @@ public class NearbyConnectionsHelper {
         JSONArray fileList = new JSONArray();
 
         int audioFileIndex = 0;
-        for (int i = 0; i < names.size(); i++) {
-            String name = names.get(i);
-            long size = sizes.get(i);
+        for (int i = 0; i < payloadIds.size(); i++) {
             long payloadId = payloadIds.get(i);
+            // Look up name and size by payloadId to guarantee correct pairing
+            String name = namesMap.get(payloadId);
+            Long sizeObj = sizesMap.get(payloadId);
+            long size = sizeObj != null ? sizeObj : 0;
+
             JSONObject fileInfo = new JSONObject();
             fileInfo.put("name", name);
             fileInfo.put("size", size);
@@ -464,7 +469,7 @@ public class NearbyConnectionsHelper {
             totalSize += size;
 
             // Check if this is an audio file (not the cover)
-            if (!name.equalsIgnoreCase("cover.jpg") && audioFileIndex < audioFiles.size()) {
+            if (name != null && !name.equalsIgnoreCase("cover.jpg") && audioFileIndex < audioFiles.size()) {
                 ZikFile zikFile = audioFiles.get(audioFileIndex++);
 
                 if (transferProgress) {
@@ -477,7 +482,8 @@ public class NearbyConnectionsHelper {
 
                     // Add PlaySessions if available
                     try {
-                        List<PlaySession> sessions = AppDatabase.getDatabase(context).playSessionDao().getAllForFile(zikFile.getId());
+                        List<PlaySession> sessions = AppDatabase.getDatabase(context).playSessionDao()
+                                .getAllForFile(zikFile.getId());
 
                         if (sessions != null && !sessions.isEmpty()) {
                             JSONArray sessionArray = new JSONArray();
