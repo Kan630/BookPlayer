@@ -767,7 +767,7 @@ public class PlayActivity extends BaseActivity {
             ivCover.setVisibility(View.GONE);
 
             if (ttsHighlighter.getLastTtsTextString() == null || ttsHighlighter.getLastTtsTextString().isEmpty()) {
-                vm.requestTtsTextOnce();
+                // vm.requestTtsTextOnce(); // handled by VM auto-fetch
             }
 
             // Tap-to-seek within text

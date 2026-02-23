@@ -78,6 +78,14 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             }
         }
         _state.setValue(s);
+
+        // Auto-fetch TTS text if missing
+        if (Var.PLAY_MODE_TTS.equals(s.playMode) && s.trackId > 0) {
+            String txt = PlaybackUiBus.get().ttsText().getValue();
+            if (txt == null || txt.isEmpty()) {
+                requestTtsTextOnce();
+            }
+        }
     }
 
     /**
