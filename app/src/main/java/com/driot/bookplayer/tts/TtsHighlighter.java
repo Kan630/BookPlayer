@@ -76,19 +76,6 @@ public class TtsHighlighter {
         };
     }
 
-    public void setAutoScroll(boolean enabled) {
-        // This class doesn't manage auto-scroll flag directly,
-        // but if we needed to trigger scroll here we could.
-        // For now, let's leave auto-scroll flag management in PlayActivity
-        // or pass a callback if needed.
-        // Actually, PlayActivity accesses 'suppressAutoScroll' directly.
-        // We will notify PlayActivity when to scroll?
-        // For strict refactoring, we'll expose a callback or let PlayActivity handle
-        // the scroll call.
-    }
-
-    // ---- Main Entry Points ----
-
     public void onTextReady(@Nullable String text) {
         if (text == null)
             text = "";
@@ -131,7 +118,6 @@ public class TtsHighlighter {
                 startLoadingTimer();
             }
         } else {
-            // Not speaking/loading (Paused, Stopped, etc) -> hide overlay
             stopLoadingTimer();
         }
 
@@ -146,10 +132,6 @@ public class TtsHighlighter {
                 vm.requestTtsTextOnce();
             }
         } else {
-            // If track didn't change but we became ready/speaking and haven't requested
-            // text?
-            // Usually handled by PlayActivity logic but we moved it here.
-            // If we don't have text, request it.
             if (isTts && (spannableText == null || spannableText.length() == 0)) {
                 vm.requestTtsTextOnce();
             }
@@ -245,12 +227,6 @@ public class TtsHighlighter {
                     + "), resetting tracking");
             resetHighlightTracking(false);
             lastSeekTime = now;
-        }
-
-        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: ignoring backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
-                    + ")");
-            return;
         }
 
         if (highlightScheduled && (now - lastHighlightTime) < MIN_HIGHLIGHT_INTERVAL_MS) {

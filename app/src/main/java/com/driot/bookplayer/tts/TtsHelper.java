@@ -109,20 +109,22 @@ public class TtsHelper {
 
         // Snap to preceding sentence start to avoid partial words/sentences
         int snapStart = clampedStart;
-        if (clampedStart > first.start) {
-            // Find start of sentence containing clampedStart within the chunk text
-            int relStart = clampedStart - first.start;
-            // Use simple heuristic: back up to punctuation or start
-            BreakIterator bi = BreakIterator.getSentenceInstance();
-            bi.setText(first.text);
-            if (bi.isBoundary(relStart)) {
-                // already on boundary
-            } else {
-                int preceding = bi.preceding(relStart);
-                if (preceding != BreakIterator.DONE) {
-                    snapStart = first.start + preceding;
-                    myLog("speakFromOffset : snapped start from " + clampedStart + " to " + snapStart + " (rel "
-                            + preceding + ")");
+        if (Option.getTtsSnapToSentence()) {
+            if (clampedStart > first.start) {
+                // Find start of sentence containing clampedStart within the chunk text
+                int relStart = clampedStart - first.start;
+                // Use simple heuristic: back up to punctuation or start
+                BreakIterator bi = BreakIterator.getSentenceInstance();
+                bi.setText(first.text);
+                if (bi.isBoundary(relStart)) {
+                    // already on boundary
+                } else {
+                    int preceding = bi.preceding(relStart);
+                    if (preceding != BreakIterator.DONE) {
+                        snapStart = first.start + preceding;
+                        myLog("speakFromOffset : snapped start from " + clampedStart + " to " + snapStart + " (rel "
+                                + preceding + ")");
+                    }
                 }
             }
         }
