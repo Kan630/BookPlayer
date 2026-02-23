@@ -222,11 +222,16 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void broadcastUiState(String fromWhere, String playMode) {
-        final String loadPhase = getLoadPhase();
+        //final String loadPhase = getLoadPhase();
         final boolean ready = isReadyToPlay();
         final boolean playing = isPlaying();
 
         PlaybackUiState s;
+
+        String loadPhase = Intents.PHASE_OFF;
+        if (PlaybackUiBus.get().state().getValue() != null) {
+            loadPhase = PlaybackUiBus.get().state().getValue().loadPhase;
+        }
 
         Bundle extras = new Bundle();
         extras.putInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, lastCustomSleepMinutes);
@@ -2416,8 +2421,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 setUiPhase(Intents.PHASE_ERROR, "TTS restart failed");
                 return;
             }
-        } else {
-            setUiPhase(Intents.PHASE_READY, null);
+//        } else {
+//            setUiPhase(Intents.PHASE_READY, null);
         }
 
         // 5) Reflect new position in MediaSession/notification & UI snapshot

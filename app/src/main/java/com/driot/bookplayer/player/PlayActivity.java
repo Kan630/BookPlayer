@@ -56,6 +56,7 @@ import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.tts.TtsHighlighter;
+import com.driot.bookplayer.tts.TtsOverlayManager;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -233,6 +234,7 @@ public class PlayActivity extends BaseActivity {
         ttsContainer = findViewById(R.id.ttsContainer);
         tvTtsText = findViewById(R.id.tvTtsText);
         ttsHighlighter = new TtsHighlighter(this, tvTtsText);
+        ttsOverlayManager = new TtsOverlayManager(this);
 
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
@@ -376,10 +378,12 @@ public class PlayActivity extends BaseActivity {
 
             if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
+                //ttsOverlayManager.reset();
             }
 
-            // Delegate logic to highlighter
+            // Delegate logic to highlighter and overlay manager
             ttsHighlighter.onPlaybackStateChanged(s, vm);
+            ttsOverlayManager.onPlaybackStateChanged(s);
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -492,8 +496,10 @@ public class PlayActivity extends BaseActivity {
 
         vm.getTtsRange().observe(this, p -> {
             // myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
-            if (p != null)
+            if (p != null) {
                 ttsHighlighter.scheduleHighlight(p.first, p.second);
+                ttsOverlayManager.onHighlightReceived();
+            }
         });
 
         vm.getTtsText().observe(this, txt -> {
@@ -539,6 +545,8 @@ public class PlayActivity extends BaseActivity {
         }
         if (ttsHighlighter != null)
             ttsHighlighter.onDestroy();
+        if (ttsOverlayManager != null)
+            ttsOverlayManager.onDestroy();
         super.onDestroy();
     }
 
@@ -755,7 +763,7 @@ public class PlayActivity extends BaseActivity {
             myLogE("showTtsLoading: progressOverlay is null!");
             return;
         }
-        myLogD("showTtsLoading: " + show);
+        myLogI("showTtsLoading: " + show);
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
             if (tv != null)
@@ -873,6 +881,7 @@ public class PlayActivity extends BaseActivity {
 
     // --- Refactored TTS Highlighter ---
     private TtsHighlighter ttsHighlighter;
+    private TtsOverlayManager ttsOverlayManager;
 
     // Callbacks from TtsHighlighter
     public void onTtsHighlightApplied(TextView tv, int startPos) {

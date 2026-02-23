@@ -29,6 +29,7 @@ public final class PlaybackUiBus extends LoggerHelper {
     }
 
     public void clear() {
+        myLogE("clear PlaybackUiState");
         emit(new PlaybackUiState(
                 Intents.PHASE_OFF, false, false, null,
                 0, 0, 0, "", "", "",

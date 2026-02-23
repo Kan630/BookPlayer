@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
@@ -55,7 +54,6 @@ public class TtsHighlighter {
     private long lastHighlightTime = 0;
 
     // Seek / Sync logic
-    private boolean ttsActuallyStarted = false;
     private long lastSeekTime = 0;
 
     // Constants
@@ -67,12 +65,6 @@ public class TtsHighlighter {
     public TtsHighlighter(BaseActivity activity, TextView tvTtsText) {
         this.activityRef = new WeakReference<>(activity);
         this.tvTtsText = tvTtsText;
-        this.loadingRunnable = () -> {
-            BaseActivity act = activityRef.get();
-            if (act instanceof PlayActivity) {
-                ((PlayActivity) act).showTtsLoading(true);
-            }
-        };
     }
 
     public void onTextReady(@Nullable String text) {
@@ -87,7 +79,7 @@ public class TtsHighlighter {
             tvTtsText.setVerticalScrollBarEnabled(true);
 
             // Reset highlight tracking when text changes (new track)
-            resetHighlightTracking(true);
+            resetHighlightTracking();
         }
     }
 
@@ -104,26 +96,16 @@ public class TtsHighlighter {
                 myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
                 lastSeekTime = System.currentTimeMillis();
                 // Reset tracking but keep ttsActuallyStarted=true since we're already playing
-                resetHighlightTracking(false);
+                resetHighlightTracking();
             }
         }
         if (isTts)
             lastTtsPositionMs = s.positionMs;
-        // Overlay Logic
-        if (s.loadPhase.equals(Intents.PHASE_SPEAKING) || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
-                || s.loadPhase.equals(Intents.PHASE_WARMING_UP)) {
-            // Start loading timer if we are in a "working" phase but audio hasn't started
-            if (!ttsActuallyStarted) {
-                startLoadingTimer();
-            }
-        } else {
-            stopLoadingTimer();
-        }
 
         // Detect track change
         if (s.trackId != lastTtsTrackId) {
             lastTtsTrackId = s.trackId;
-            resetHighlightTracking(true);
+            resetHighlightTracking();
 
             // Text fetching logic
             if (isTts) {
@@ -142,7 +124,7 @@ public class TtsHighlighter {
         if (isSpeak != lastTtsPlaying) {
             lastTtsPlaying = isSpeak;
             if (!isSpeak) {
-                resetHighlightTracking(false);
+                resetHighlightTracking();
             }
         }
 
@@ -152,33 +134,12 @@ public class TtsHighlighter {
             long diff = Math.abs(pos - lastTtsPositionMs);
             if (diff > SEEK_DETECTION_THRESHOLD_MS) {
                 myLogI("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + pos);
-                resetHighlightTracking(false);
+                resetHighlightTracking();
             }
         }
         lastTtsPositionMs = pos;
 
         lastTtsPhase = s.loadPhase;
-    }
-
-    // ---- Loading Overlay Helpers ----
-
-    private final Runnable loadingRunnable;
-
-    private void startLoadingTimer() {
-        // Only schedule if not already scheduled (or reset)
-        // Check if overlay is already visible? No, just rely on timer.
-        uiH.removeCallbacks(loadingRunnable);
-        uiH.postDelayed(loadingRunnable, Var.PROGRESS_OVERLAY_START_DELAY);
-        myLogD("startLoadingTimer: scheduled in " + Var.PROGRESS_OVERLAY_START_DELAY + "ms");
-    }
-
-    private void stopLoadingTimer() {
-        uiH.removeCallbacks(loadingRunnable);
-        myLogD("stopLoadingTimer: canceled");
-        BaseActivity act = activityRef.get();
-        if (act instanceof PlayActivity) {
-            ((PlayActivity) act).showTtsLoading(false);
-        }
     }
 
     public void scheduleHighlight(int s, int e) {
@@ -211,20 +172,17 @@ public class TtsHighlighter {
         }
 
         // Mark that TTS has actually started when we receive the first callback
-        if (!ttsActuallyStarted) {
-            ttsActuallyStarted = true;
-            stopLoadingTimer(); // <--- Hide overlay immediately
-            myLogI("TTS HIGHLIGHT: first callback received, marking TTS as started");
-            // Reset tracking when TTS actually starts to avoid stale highlights
-            // But don't reset the started flag (pass false) since we just set it to true
-            resetHighlightTracking(false);
+        myLogI("TTS HIGHLIGHT: first callback received");
+        // Reset tracking when TTS actually starts to avoid stale highlights
+        if (lastAppliedHighlightEnd < 0) {
+            resetHighlightTracking();
         }
 
         // Large jump detection (backup for missing UI updates)
         if (lastAppliedHighlightEnd >= 0 && s > lastAppliedHighlightEnd + 1000) {
             myLogD("TTS HIGHLIGHT: large jump detected [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
                     + "), resetting tracking");
-            resetHighlightTracking(false);
+            resetHighlightTracking();
             lastSeekTime = now;
         }
 
@@ -302,15 +260,8 @@ public class TtsHighlighter {
     }
 
     public void resetHighlightTracking() {
-        resetHighlightTracking(true);
-    }
-
-    public void resetHighlightTracking(boolean resetStartedFlag) {
         lastAppliedHighlightEnd = -1;
         lastHighlightTime = 0;
-        if (resetStartedFlag) {
-            ttsActuallyStarted = false;
-        }
         if (highlightScheduled && pendingHighlightRunnable != null) {
             uiH.removeCallbacks(pendingHighlightRunnable);
             highlightScheduled = false;
