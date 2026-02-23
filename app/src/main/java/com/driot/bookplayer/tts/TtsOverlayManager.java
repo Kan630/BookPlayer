@@ -23,17 +23,36 @@ public class TtsOverlayManager {
     private final WeakReference<BaseActivity> activityRef;
     private final Handler uiH = new Handler(Looper.getMainLooper());
     private final Runnable loadingRunnable;
+    /**
+     * Safety timeout: force-hide the overlay after this many ms if TTS never
+     * starts.
+     */
+    private static final long OVERLAY_SAFETY_TIMEOUT_MS = 10_000;
+    private final Runnable safetyTimeoutRunnable;
 
     private boolean ttsActuallyStarted;
     private boolean loadingProgressOverlayTimerStarted;
 
     public TtsOverlayManager(BaseActivity activity) {
         this.activityRef = new WeakReference<>(activity);
+        // Initialize safetyTimeoutRunnable FIRST so loadingRunnable can reference it
+        // safely
+        this.safetyTimeoutRunnable = () -> {
+            myLogW("TTS OVERLAY: safety timeout reached (" + OVERLAY_SAFETY_TIMEOUT_MS + "ms) – force-hiding overlay");
+            loadingProgressOverlayTimerStarted = false;
+            BaseActivity act = activityRef.get();
+            if (act instanceof PlayActivity) {
+                ((PlayActivity) act).showTtsLoading(false);
+            }
+        };
         this.loadingRunnable = () -> {
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
                 ((PlayActivity) act).showTtsLoading(true);
             }
+            // Arm the safety timeout the moment the overlay becomes visible
+            uiH.removeCallbacks(safetyTimeoutRunnable);
+            uiH.postDelayed(safetyTimeoutRunnable, OVERLAY_SAFETY_TIMEOUT_MS);
         };
     }
 
@@ -83,6 +102,7 @@ public class TtsOverlayManager {
         if (loadingProgressOverlayTimerStarted) {
             loadingProgressOverlayTimerStarted = false;
             uiH.removeCallbacks(loadingRunnable);
+            uiH.removeCallbacks(safetyTimeoutRunnable);
             myLogE("stopLoadingProgressOverlayTimer");
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
