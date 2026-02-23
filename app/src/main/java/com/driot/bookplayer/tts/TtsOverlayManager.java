@@ -43,6 +43,7 @@ public class TtsOverlayManager {
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
                 ((PlayActivity) act).showTtsLoading(false);
+                myToastEE(null, "TTS error");
             }
         };
         this.loadingRunnable = () -> {
