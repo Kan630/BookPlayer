@@ -50,15 +50,6 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Long> _seekPreviewMs = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _loading = new MutableLiveData<>(false);
     private final Handler loadingH = new Handler(Looper.getMainLooper());
-    // Timer used only for initial load (LOADING_TEXT/STARTING phases) to absorb
-    // fast loads without a flash. Voice-warmup shows immediately (no timer).
-    private boolean _timerPending = false;
-    private final Runnable loadingRunnable = () -> {
-        _timerPending = false;
-        myLogD("Loading Overlay: timer fired → showing overlay");
-        _loading.setValue(true);
-    };
-    private static final long LOADING_DELAY_MS = 300;
 
     // Callback waiting for MediaService to confirm PHASE_READY after a voice change
     @Nullable
@@ -105,54 +96,28 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             } else {
                 myLogD("Loading Overlay: voice warmup in progress (phase=" + phase + "), overlay stays up");
             }
-            return; // don't touch timer-based logic while warmup is active
+            return; // overlay already managed by warmUpTtsVoice/showOverlay; do not override
         }
 
         // --- Normal load path ---
-        // STARTING = engine.start() called, synthesis underway → show overlay with
-        // a short delay to avoid a flash on fast loads.
-        // LOADING_TEXT = text pipeline busy → same short delay.
-        // SPEAKING = first word actually spoken → hide overlay.
-        // Anything else (READY, OFF, ERROR, …) → hide overlay.
-        if (Intents.PHASE_STARTING.equals(phase) || Intents.PHASE_LOADING_TEXT.equals(phase)) {
-            myLogD("Loading Overlay: phase=[" + phase + "] → startLoadingTimer");
-            startLoadingTimer();
+        // Show overlay immediately when audio isn't playing yet.
+        // A timer-based delay was tried but network voices can start in < 300ms,
+        // causing the timer to be cancelled before it fired.
+        // SPEAKING = first onTtsRange fired, audio truly started → hide.
+        // Anything else (READY, OFF, ERROR …) → hide.
+        if (Intents.PHASE_LOADING_TEXT.equals(phase)
+                || Intents.PHASE_WARMING_UP.equals(phase)
+                || Intents.PHASE_STARTING.equals(phase)) {
+            myLogD("Loading Overlay: phase=[" + phase + "] → showOverlay(true)");
+            showOverlay(true);
         } else {
-            myLogD("Loading Overlay: phase=[" + phase + "] → stopLoadingTimer");
-            stopLoadingTimer();
+            myLogD("Loading Overlay: phase=[" + phase + "] → showOverlay(false)");
+            showOverlay(false);
         }
     }
 
-    private void startLoadingTimer() {
-        if (Boolean.TRUE.equals(_loading.getValue())) {
-            myLogD("Loading Overlay: startLoadingTimer — already showing, skip");
-            return;
-        }
-        if (_timerPending) {
-            myLogD("Loading Overlay: startLoadingTimer — timer already pending, skip");
-            return;
-        }
-        myLogD("Loading Overlay: startLoadingTimer — scheduling in " + LOADING_DELAY_MS + "ms");
-        _timerPending = true;
-        loadingH.postDelayed(loadingRunnable, LOADING_DELAY_MS);
-    }
-
-    private void stopLoadingTimer() {
-        boolean wasPending = _timerPending;
-        loadingH.removeCallbacks(loadingRunnable);
-        _timerPending = false;
-        if (Boolean.TRUE.equals(_loading.getValue())) {
-            myLogD("Loading Overlay: stopLoadingTimer — hiding overlay");
-            _loading.setValue(false);
-        } else if (wasPending) {
-            myLogD("Loading Overlay: stopLoadingTimer — cancelled pending timer");
-        }
-    }
-
-    /** Directly show or hide the overlay (bypasses the timer). */
+    /** Show or hide the loading overlay. */
     private void showOverlay(boolean show) {
-        loadingH.removeCallbacks(loadingRunnable);
-        _timerPending = false;
         myLogD("Loading Overlay: showOverlay(" + show + ")");
         _loading.setValue(show);
     }

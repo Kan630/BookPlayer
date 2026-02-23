@@ -402,13 +402,17 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         int[] range = com.driot.bookplayer.tts.TtsIds.parseUtt(utteranceId);
         if (range != null) {
             currentUtteranceStartOffset = range[0];
-            // Broadcast initial "ping" to move cursor to the start of the chunk at the
-            // exact
-            // moment audio starts
-            listener.onTtsRange(gen, range[0], range[0]);
         } else {
-            // Reset if unknown ID format to prevent bad math
             currentUtteranceStartOffset = -1;
+        }
+
+        // Notify MediaService that audio has truly started playing.
+        // This is the authoritative moment for PHASE_SPEAKING.
+        listener.onTtsStarted(gen);
+
+        // Separate "ping" to move the highlight cursor to the chunk start.
+        if (range != null) {
+            listener.onTtsRange(gen, range[0], range[0]);
         }
     }
 

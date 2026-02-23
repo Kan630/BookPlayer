@@ -191,24 +191,31 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
 
         @Override
+        public void onTtsStarted(long gen) {
+            if (gen != engineGen)
+                return;
+            // This fires from AppTtsManager.onStart — audio is actually playing now.
+            // Set SPEAKING phase and mark ttsAudioStarted on the main thread.
+            main.post(() -> {
+                if (!ttsAudioStarted) {
+                    ttsAudioStarted = true;
+                    myLogD("onTtsStarted → emitting PHASE_SPEAKING");
+                    setUiPhase(Intents.PHASE_SPEAKING, null);
+                    PlaybackUiBus.get().setTtsAudioStarted(true);
+                }
+            });
+        }
+
+        @Override
         public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen)
                 return;
-
-            if (!ttsAudioStarted) {
-                ttsAudioStarted = true;
-                // Move to SPEAKING phase now that audio has actually started
-                setUiPhase(Intents.PHASE_SPEAKING, null);
-                PlaybackUiBus.get().setTtsAudioStarted(true);
-            }
-
-            // main.post(() -> { //surtout pas, source du décallage entre le highlight et
-            // l'audio
+            // Just broadcast the range for highlight/progress tracking.
+            // PHASE_SPEAKING is handled by onTtsStarted above.
             Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
                     .putExtra(Intents.EXTRA_TTS_START, s)
                     .putExtra(Intents.EXTRA_TTS_END, e);
             LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
-            // });
         }
     };
 
