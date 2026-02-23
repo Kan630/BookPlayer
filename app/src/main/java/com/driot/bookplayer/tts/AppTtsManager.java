@@ -11,7 +11,9 @@ import android.speech.tts.Voice;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.player.PlaybackUiBus;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -168,6 +170,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     myLogD("----------------------------------------------------------------------------------------");
                     myLog("setOnUtteranceProgressListener.onStart - utteranceId=" + utteranceId);
                     myLogD("----------------------------------------------------------------------------------------");
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_SPEAKING);
                     // Reset error count on successful start
                     consecutiveErrorCount = 0;
                     int[] se = TtsIds.parseUtt(utteranceId);

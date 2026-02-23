@@ -50,7 +50,6 @@ import com.driot.bookplayer.player.heatmaps.PlayTickBucketMerger;
 import com.driot.bookplayer.player.heatmaps.PlayTickDao;
 import com.driot.bookplayer.player.heatmaps.PlayTickHeatMapHelper;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -369,7 +368,7 @@ public class PlayActivity extends BaseActivity {
             }
 
             boolean isTts = "tts".equals(s.playMode);
-            boolean isStarting = Intents.PHASE_STARTING.equals(s.loadPhase);
+            boolean isStarting = Intents.PHASE_ENGINE_STARTING.equals(s.loadPhase);
             boolean trackChanged = isTts && (s.trackId != ttsHighlighter.getLastTtsTrackId());
             boolean becameReady = isTts
                     && !Intents.PHASE_READY.equals(ttsHighlighter.getLastTtsPhase())
@@ -450,7 +449,7 @@ public class PlayActivity extends BaseActivity {
                 case Intents.PHASE_LOADING_TEXT:
                     label = getString(R.string.tts_phase_loading_text);
                     break;
-                case Intents.PHASE_STARTING:
+                case Intents.PHASE_ENGINE_STARTING:
                     label = getString(R.string.tts_phase_starting);
                     break;
                 case Intents.PHASE_READY:

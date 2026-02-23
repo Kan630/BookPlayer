@@ -6,7 +6,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Intents;
 
 import static com.driot.bookplayer.global.Intents.*;
 
@@ -22,7 +21,7 @@ public class PlaybackPhaseMapper {
                 return context.getString(R.string.tts_phase_loading_text);
             case PHASE_WARMING_UP:
                 return context.getString(R.string.tts_phase_warming_up);
-            case PHASE_STARTING:
+            case PHASE_ENGINE_STARTING:
                 return context.getString(R.string.tts_phase_starting);
             case PHASE_READY:
                 return context.getString(R.string.Ready);

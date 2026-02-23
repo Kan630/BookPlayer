@@ -6,9 +6,15 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
-public final class PlaybackUiBus {
-    private static final PlaybackUiBus INSTANCE = new PlaybackUiBus();
+public final class PlaybackUiBus extends LoggerHelper {
+    private static final PlaybackUiBus INSTANCE = new PlaybackUiBus(PlaybackUiBus.class);
+
+    public PlaybackUiBus(Class<?> clazz) {
+        super(clazz);
+    }
+
     public static PlaybackUiBus get() { return INSTANCE; }
 
     private final MutableLiveData<PlaybackUiState> _state = new MutableLiveData<>();
@@ -34,6 +40,7 @@ public final class PlaybackUiBus {
     // --- Convenience updaters (rebuild immutable state) ----------------------
 
     public void setLoadPhase(String newPhase) {
+        myLogI("setUiPhase : " + newPhase);
         PlaybackUiState cur = _state.getValue();
         if (cur == null) return;
         emit(new PlaybackUiState(

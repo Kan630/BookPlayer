@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
@@ -169,8 +170,8 @@ public class TtsHighlighter {
         // Only schedule if not already scheduled (or reset)
         // Check if overlay is already visible? No, just rely on timer.
         uiH.removeCallbacks(loadingRunnable);
-        uiH.postDelayed(loadingRunnable, 300);
-        myLogD("startLoadingTimer: scheduled in 300ms");
+        uiH.postDelayed(loadingRunnable, Var.PROGRESS_OVERLAY_START_DELAY);
+        myLogD("startLoadingTimer: scheduled in " + Var.PROGRESS_OVERLAY_START_DELAY + "ms");
     }
 
     private void stopLoadingTimer() {

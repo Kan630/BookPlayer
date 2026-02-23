@@ -192,6 +192,9 @@ public class StartPlayHelper {
             final boolean isTTS;
             Folder folder = AppDatabase.getDatabase(context).folderDao().getById(clickedZikFile.getIdFolder());
             isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
+            if (isTTS) {
+                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TTS_TRACK_CLICK);
+            }
 
             // was something playing ?
             PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();

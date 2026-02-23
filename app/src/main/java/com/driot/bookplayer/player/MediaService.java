@@ -813,8 +813,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         myLogD("about to call engine.start()");
         logPauseTime();
 
-        if (engine instanceof TtsEngine)
-            setUiPhase(Intents.PHASE_SPEAKING, null);
+        setUiPhase(Intents.PHASE_ENGINE_STARTING, null);
 
         engine.start();
         Pref.setPauseTime(0);
@@ -1141,20 +1140,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
                     return START_STICKY;
                 }
-                if (engine instanceof TtsEngine) {
-                    try {
-                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP); // ,
-                                                                                    // getString(R.string.tts_phase_warming_up)
-                        boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
-                        myLog("Voice change success = " + ok);
-                        if (ok) {
-                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_READY);
-                        } else {
-                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR); // getString(R.string.tts_phase_error)
-                        }
-
-                    } catch (Throwable ignored) {
+                try {
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
+                    boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
+                    myLog("Voice change success = " + ok);
+                    if (ok) {
+                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_VOICE_OK);
+                    } else {
+                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR); // getString(R.string.tts_phase_error)
                     }
+
+                } catch (Throwable ignored) {
                 }
                 return START_STICKY;
             }
@@ -1866,7 +1862,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void onEnginePrepared() {
         myLogD("onEnginePrepared()");
 
-        setUiPhase(Intents.PHASE_READY, null);
+        setUiPhase(Intents.PHASE_ENGINE_PREPARED, null);
 
         if (!isStream()) {
             setPositionPlayStart();
@@ -2205,7 +2201,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // Convenience for setting phase + optional message
     private void setUiPhase(@NonNull String phase, @Nullable String msg) {
-        myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
         PlaybackUiBus.get().setLoadPhase(phase);
@@ -2413,7 +2408,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // 4) If we were speaking, resume from the new cursor; otherwise stay READY
         if (wasPlaying) {
-            setUiPhase(Intents.PHASE_STARTING, null); // brief spinner if you like
+            //setUiPhase(Intents.PHASE_STARTING, null); // brief spinner if you like
             try {
                 tts.start(); // continue speaking from new cursor
             } catch (Throwable t) {
