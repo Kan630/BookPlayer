@@ -1,4 +1,4 @@
-package com.driot.bookplayer.player;
+package com.driot.bookplayer.tts;
 
 import android.content.Context;
 import android.content.Intent;
@@ -16,6 +16,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
+import com.driot.bookplayer.player.EngineListener;
+import com.driot.bookplayer.player.PlayerEngine;
 import com.driot.bookplayer.tts.TtsErrorUtils;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.tts.VoiceItem;
