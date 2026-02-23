@@ -67,7 +67,7 @@ public class TtsOverlayManager {
                 stopLoadingProgressOverlayTimer();
                 myLogI("TTS OVERLAY: Phase changed to SPEAKING");
             }
-        } else {
+        } else if (!Intents.PHASE_OFF.equals(s.loadPhase)) {
             ttsActuallyStarted = false;
             startLoadingProgressOverlayTimer();
             myLogD("TTS OVERLAY: NOT SPEAKING, phase is : " + s.loadPhase);
@@ -94,7 +94,7 @@ public class TtsOverlayManager {
             loadingProgressOverlayTimerStarted = true;
             uiH.removeCallbacks(loadingRunnable);
             uiH.postDelayed(loadingRunnable, Var.PROGRESS_OVERLAY_START_DELAY);
-            myLogE("startLoadingProgressOverlayTimer: scheduled in " + Var.PROGRESS_OVERLAY_START_DELAY + "ms");
+            myLogI("startLoadingProgressOverlayTimer: scheduled in " + Var.PROGRESS_OVERLAY_START_DELAY + "ms");
         }
     }
 
@@ -103,7 +103,7 @@ public class TtsOverlayManager {
             loadingProgressOverlayTimerStarted = false;
             uiH.removeCallbacks(loadingRunnable);
             uiH.removeCallbacks(safetyTimeoutRunnable);
-            myLogE("stopLoadingProgressOverlayTimer");
+            myLogI("stopLoadingProgressOverlayTimer");
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
                 ((PlayActivity) act).showTtsLoading(false);

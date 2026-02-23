@@ -473,7 +473,7 @@ public class PlayActivity extends BaseActivity {
                     vm.stop();
                 } else {
                     if (!s.playing) {
-                        myLog("!s.playing");
+                        myLogD("back press and not playing => stop vm");
                         vm.stop();
                     }
                 }
