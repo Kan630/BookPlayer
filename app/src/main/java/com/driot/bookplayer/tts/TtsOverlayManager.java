@@ -46,12 +46,12 @@ public class TtsOverlayManager {
             if (!ttsActuallyStarted) {
                 ttsActuallyStarted = true;
                 stopLoadingProgressOverlayTimer();
-                myLogI("TTS OVERLAY: Phase changed to SPEAKING, marking TTS as started");
+                myLogI("TTS OVERLAY: Phase changed to SPEAKING");
             }
         } else {
             ttsActuallyStarted = false;
             startLoadingProgressOverlayTimer();
-            myLogI("TTS OVERLAY: NOT SPEAKING, phase is : " + s.loadPhase);
+            myLogD("TTS OVERLAY: NOT SPEAKING, phase is : " + s.loadPhase);
         }
     }
 
@@ -60,7 +60,7 @@ public class TtsOverlayManager {
         if (!ttsActuallyStarted) {
             ttsActuallyStarted = true;
             stopLoadingProgressOverlayTimer(); // <--- Hide overlay immediately
-            myLogI("TTS OVERLAY: first highlight callback received, marking TTS as started");
+            myLogI("TTS OVERLAY: first highlight callback received");
         }
     }
 

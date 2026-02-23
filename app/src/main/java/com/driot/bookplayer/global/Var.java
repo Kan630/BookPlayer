@@ -51,7 +51,7 @@ public class Var {
         public static final String WORKER_TASK_LABEL_SCAN = "Scan";
         public static final String WORKER_MASS_IMPORT = "MassImport";
 
-        public static final int PROGRESS_OVERLAY_START_DELAY = 100;
+        public static final int PROGRESS_OVERLAY_START_DELAY = 250;
         public static final double PLAY_SPEED_MIN = 0.5;
         public static final double PLAY_SPEED_MAX = 3.0;
         public static final double PLAY_SPEED_STEP = 0.05;

@@ -145,22 +145,6 @@ public class TtsHighlighter {
     public void scheduleHighlight(int s, int e) {
         long now = System.currentTimeMillis();
 
-        // Paranoid logging for diagnosing sync drift
-        if (spannableText != null && s < spannableText.length() && e <= spannableText.length()) {
-            // Limit log length if range is huge (shouldn't be for words)
-            try {
-                CharSequence seq = spannableText.subSequence(s, e);
-                String txt = seq.toString().replace("\n", "\\n");
-                // Only log periodically or if it looks weird?
-                // For now, log everything as user requested more logging.
-                myLog("TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
-            } catch (Exception ignored) {
-            }
-        } else {
-            myLogW("TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
-                    + (spannableText == null ? "null" : spannableText.length()) + ")");
-        }
-
         // Ignore callbacks during seek cooldown period to prevent racing ahead
         if (lastSeekTime > 0 && (now - lastSeekTime) < SEEK_COOLDOWN_MS) {
             myLogD("TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
@@ -171,11 +155,10 @@ public class TtsHighlighter {
             lastSeekTime = 0;
         }
 
-        // Mark that TTS has actually started when we receive the first callback
-        myLogI("TTS HIGHLIGHT: first callback received");
         // Reset tracking when TTS actually starts to avoid stale highlights
         if (lastAppliedHighlightEnd < 0) {
             resetHighlightTracking();
+            myLogI("resetHighlightTracking");
         }
 
         // Large jump detection (backup for missing UI updates)
@@ -227,7 +210,7 @@ public class TtsHighlighter {
                 String[] words = highlightedWord.trim().split("\\s+");
                 if (words.length > 0)
                     highlightedWord = words[0];
-                myLogI("TTS HIGHLIGHT: pos=[" + s + "-" + e + "] word=[" + highlightedWord + "]");
+                myLog("TTS HIGHLIGHT: pos=[" + s + "-" + e + "] word=[" + highlightedWord + "]");
             }
 
             spannableText.removeSpan(ttsBgSpan);

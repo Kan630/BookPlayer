@@ -41,7 +41,7 @@ public final class PlaybackUiBus extends LoggerHelper {
     // --- Convenience updaters (rebuild immutable state) ----------------------
 
     public void setLoadPhase(String newPhase) {
-        myLogI("setUiPhase : " + newPhase);
+        myLogD("setUiPhase : " + newPhase);
         PlaybackUiState cur = _state.getValue();
         if (cur == null) return;
         emit(new PlaybackUiState(
