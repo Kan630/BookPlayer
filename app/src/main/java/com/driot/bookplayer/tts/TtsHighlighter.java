@@ -197,12 +197,6 @@ public class TtsHighlighter {
         int s = Math.max(0, Math.min(pendingStart, len));
         int e = Math.max(s + 1, Math.min(pendingEnd, len));
 
-        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: skipping backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
-                    + ")");
-            return;
-        }
-
         try {
             // Debug logging for highlighted word
             if (spannableText != null && s < len && e <= len && s < e) {
