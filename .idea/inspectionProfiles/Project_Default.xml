@@ -5,7 +5,6 @@
       <option name="ignoredTypes">
         <set>
           <option value="android.text.Spannable" />
-          <option value="java.lang.StringBuilder" />
         </set>
       </option>
     </inspection_tool>

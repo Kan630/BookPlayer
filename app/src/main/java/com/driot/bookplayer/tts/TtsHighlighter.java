@@ -106,16 +106,6 @@ public class TtsHighlighter {
         if (s.trackId != lastTtsTrackId) {
             lastTtsTrackId = s.trackId;
             resetHighlightTracking();
-
-            // Text fetching logic
-            if (isTts) {
-                vm.resetTtsTextRequestFlag();
-                vm.requestTtsTextOnce();
-            }
-        } else {
-            if (isTts && (spannableText == null || spannableText.length() == 0)) {
-                vm.requestTtsTextOnce();
-            }
         }
 
         // Detect Play/Pause state change to reset tracking if needed
