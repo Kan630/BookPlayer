@@ -26,15 +26,13 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
-
 import javax.inject.Inject;
 import javax.inject.Singleton;
-
 import dagger.hilt.android.qualifiers.ApplicationContext;
 
-@Singleton
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+@Singleton
 public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
     public interface Listener {
@@ -57,32 +55,12 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         }
     }
 
-    private static volatile AppTtsManager sInstance;
-
-    public static void init(Context context) {
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            if (AppDatabase.getDatabase(context).folderDao().hasSomeTtsBook()) {
-                get(context);
-            }
-        });
-    }
-
-    public static AppTtsManager get(Context ctx) {
-        if (sInstance == null) {
-            synchronized (AppTtsManager.class) {
-                if (sInstance == null) {
-                    sInstance = new AppTtsManager(ctx.getApplicationContext());
-                }
-            }
-        }
-        return sInstance;
-    }
-
     private final Handler main = new Handler(Looper.getMainLooper());
     private volatile boolean ready = false;
     private TextToSpeech tts;
     private int consecutiveErrorCount = 0;
-    private static final int MAX_CONSECUTIVE_ERRORS = 5; // Emergency shutdown after 5 consecutive errors
+    private static final int MAX_CONSECUTIVE_ERRORS = 5;
+    private volatile String currentUtteranceId = null; // tracks the utterance whose audio is currently playing
 
     private final List<WeakReference<Listener>> listeners = new CopyOnWriteArrayList<>();
 
@@ -98,7 +76,6 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     @Inject
     public AppTtsManager(@ApplicationContext Context app) {
         myLogD("AppTtsManager: constructor - new TextToSpeech");
-        sInstance = this;
         main.post(() -> {
             tts = new TextToSpeech(app, this);
             describeTts(tts);
@@ -179,12 +156,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
                     PlaybackUiBus.get().setLoadPhase(Intents.PHASE_SPEAKING);
                     // Reset error count on successful start
                     consecutiveErrorCount = 0;
-                    int[] se = TtsIds.parseUtt(utteranceId);
-                    if (se != null) {
-                        final int s = se[0];
-                        // notify a zero-length range at start (start,start)
-                        forEachListener(l -> l.onUtteranceRange(s, s));
-                    }
+                    currentUtteranceId = utteranceId; // mark as actively playing
                     forEachListener(l -> l.onStart(utteranceId));
                 }
 
@@ -230,6 +202,12 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
 
                 @Override
                 public void onRangeStart(String uttId, int start, int end, int frame) {
+                    // Only dispatch for the utterance whose audio is currently playing.
+                    // Pre-queued chunks get synthesized ahead of playback; without this guard
+                    // their onRangeStart callbacks fire while a prior chunk still plays,
+                    // making the highlight race far ahead of the spoken word.
+                    if (!uttId.equals(currentUtteranceId))
+                        return;
                     int[] se = TtsIds.parseUtt(uttId);
                     if (se != null) {
                         int absStart = se[0] + Math.max(0, start);

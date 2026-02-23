@@ -20,7 +20,6 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StrictModeHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.radio.RadioBrowserServiceFactory;
-import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 
@@ -118,8 +117,6 @@ public class MyApp extends Application {
                 myLogD("bookplayer website not reachable");
             }
         });
-
-        // AppTtsManager is now handled by Hilt
 
         // Initialize storage info cache calculation (runs in background)
         Executors.newSingleThreadExecutor().execute(() -> {

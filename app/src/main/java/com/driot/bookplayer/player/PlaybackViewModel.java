@@ -21,9 +21,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
+
+import javax.inject.Inject;
+import dagger.hilt.android.lifecycle.HiltViewModel;
 
 /**
  * Mini player's single source of truth:
@@ -31,7 +35,10 @@ import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
  * - Snapshots are used ONLY when bound, for progress smoothing.
  * - We never overwrite with an "empty" state just because we're unbound.
  */
+@HiltViewModel
 public class PlaybackViewModel extends LoggingAndroidViewModel {
+
+    private final AppTtsManager ttsManager;
 
     public interface WarmupUiCallback {
         void onResult(boolean ready, int reason);
@@ -131,8 +138,10 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         ttsTextRequested.set(false);
     }
 
+    @Inject
     public PlaybackViewModel(@NonNull Application app) {
         super(app);
+        this.ttsManager = ttsManager;
         LocalBroadcastManager.getInstance(app).registerReceiver(ttsRangeRx,
                 new IntentFilter(Intents.NOTIFICATION_TTS_RANGE));
     }

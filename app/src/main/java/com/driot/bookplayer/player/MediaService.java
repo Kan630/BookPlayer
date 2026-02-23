@@ -53,10 +53,14 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
+import javax.inject.Inject;
+import dagger.hilt.android.AndroidEntryPoint;
+
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
 
+@AndroidEntryPoint
 public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // ---- Load phase tracking ----
@@ -145,6 +149,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private com.driot.bookplayer.player.PlayTimer playTimer;
     private com.driot.bookplayer.player.PauseTrimWatcher pauseWatcher;
     private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
+
+    @Inject
+    protected AppTtsManager ttsManager;
 
     private long engineGen = 0L;
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -1375,7 +1382,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Also stop TTS engine to prevent infinite loops
         try {
-            com.driot.bookplayer.tts.AppTtsManager ttsMgr = com.driot.bookplayer.tts.AppTtsManager.get(this);
+            AppTtsManager ttsMgr = ttsManager;
             if (ttsMgr != null) {
                 ttsMgr.stop();
             }
@@ -1520,7 +1527,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Swap engine
         PlayerEngine fresh = Var.PLAY_MODE_TTS.equals(playMode)
-                ? new TtsEngine(getApplicationContext(), AppTtsManager.get(getApplicationContext()), engineCb, gen)
+                ? new TtsEngine(getApplicationContext(), ttsManager, engineCb, gen)
                 : new MediaPlayerEngine(engineCb, gen);
         setEngine(fresh);
 
