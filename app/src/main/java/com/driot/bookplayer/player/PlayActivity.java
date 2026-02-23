@@ -30,6 +30,7 @@ import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.annotation.NonNull;
+import dagger.hilt.android.AndroidEntryPoint;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
@@ -68,6 +69,7 @@ import java.util.List;
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
+@AndroidEntryPoint
 public class PlayActivity extends BaseActivity {
 
     private PlaybackViewModel vm;
