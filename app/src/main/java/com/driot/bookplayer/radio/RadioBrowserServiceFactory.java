@@ -37,22 +37,30 @@ public class RadioBrowserServiceFactory {
     };
 
     public static void init(Context context) {
-        myLogD("radio init, discover best mirror");
         if (Option.getRadioUseCloudflare()) {
             myLogD("radio use cloudflare => no radio init");
             return;
         }
-        if (NetworkHelper.hasInternet(context)) {
-            Executors.newSingleThreadExecutor().execute(() -> {
-                RadioBrowserServiceFactory.createRetrofit(
-         context,
-                        /* tryDiscoverMirrors = */ true,
-                        Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-                );
-            });
-        } else {
-            myLogD("no internet => no radio init");
+        if (BuildConfig.DEBUG) {
+            myLogD("DEBUG Build, bypassing radio init");
+            return;
         }
+        myLogD("radio init, discover best mirror");
+       try {
+           if (NetworkHelper.hasInternet(context)) {
+               Executors.newSingleThreadExecutor().execute(() -> {
+                   RadioBrowserServiceFactory.createRetrofit(
+                           context,
+                           /* tryDiscoverMirrors = */ true,
+                           Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
+                   );
+               });
+           } else {
+               myLogD("no internet => no radio init");
+           }
+       } catch (Exception e) {
+           myLogEE(e, "radio init error");
+       }
     }
 
     public static Retrofit createRetrofit(Context ctx, boolean tryDiscoverMirrors, HttpLoggingInterceptor.Level logLevel) {
