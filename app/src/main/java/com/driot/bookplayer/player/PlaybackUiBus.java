@@ -9,6 +9,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.driot.bookplayer.global.Intents;
 
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 public final class PlaybackUiBus {
     private static final PlaybackUiBus INSTANCE = new PlaybackUiBus();
 
@@ -57,6 +59,7 @@ public final class PlaybackUiBus {
     }
 
     public void clear() {
+        myLog("PlaybackUiBus: clear() → PHASE_OFF");
         emit(new PlaybackUiState(
                 Intents.PHASE_OFF, null, false, false, null,
                 0, 0, 0, "", "", "",
@@ -71,6 +74,13 @@ public final class PlaybackUiBus {
         PlaybackUiState cur = _state.getValue();
         if (cur == null)
             return;
+        myLog("PlaybackUiBus: setLoadPhase [" + (cur.loadPhase) + "] → [" + newPhase + "] (" + message + ")");
+        // Reset ttsAudioStarted when entering any preparation phase so the loading
+        // overlay condition (busyPhase && !ttsAudioStarted) can trigger.
+        boolean resetAudio = Intents.PHASE_WARMING_UP.equals(newPhase)
+                || Intents.PHASE_STARTING.equals(newPhase)
+                || Intents.PHASE_LOADING_TEXT.equals(newPhase)
+                || Intents.PHASE_OFF.equals(newPhase);
         emit(new PlaybackUiState(
                 newPhase,
                 message != null ? message : cur.loadMessage,
@@ -78,7 +88,7 @@ public final class PlaybackUiBus {
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
-                cur.ttsAudioStarted,
+                resetAudio ? false : cur.ttsAudioStarted,
                 cur.calledFrom, cur.callCounter + 1, cur.extras));
     }
 
@@ -101,6 +111,21 @@ public final class PlaybackUiBus {
         PlaybackUiState cur = _state.getValue();
         if (cur == null)
             return;
+        // During preparation phases (voice change, loading, etc.), ignore stale
+        // "started=true"
+        // callbacks from the previous utterance. They arrive asynchronously and would
+        // prematurely cancel the loading overlay's 300ms countdown.
+        if (started) {
+            boolean preparationPhase = Intents.PHASE_WARMING_UP.equals(cur.loadPhase)
+                    || Intents.PHASE_STARTING.equals(cur.loadPhase)
+                    || Intents.PHASE_LOADING_TEXT.equals(cur.loadPhase);
+            if (preparationPhase) {
+                myLogD("PlaybackUiBus: setTtsAudioStarted(true) ignored — phase=[" + cur.loadPhase
+                        + "] (stale old-utterance callback)");
+                return;
+            }
+        }
+        myLogD("PlaybackUiBus: setTtsAudioStarted(" + started + ") phase=[" + cur.loadPhase + "]");
         emit(new PlaybackUiState(
                 cur.loadPhase,
                 cur.loadMessage,

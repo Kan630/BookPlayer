@@ -50,8 +50,17 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Long> _seekPreviewMs = new MutableLiveData<>();
     private final MutableLiveData<Boolean> _loading = new MutableLiveData<>(false);
     private final Handler loadingH = new Handler(Looper.getMainLooper());
-    private final Runnable loadingRunnable = () -> _loading.setValue(true);
+    private boolean _timerPending = false; // guard: only one pending postDelayed at a time
+    private final Runnable loadingRunnable = () -> {
+        _timerPending = false;
+        myLogD("Loading Overlay: timer fired → showing overlay");
+        _loading.setValue(true);
+    };
     private static final long LOADING_DELAY_MS = 300;
+
+    // Callback waiting for MediaService to confirm PHASE_READY after a voice change
+    @Nullable
+    private volatile WarmupUiCallback pendingWarmupCallback = null;
 
     private volatile boolean _stateSourcesAdded = false;
 
@@ -85,23 +94,53 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 || Intents.PHASE_SPEAKING.equals(s.loadPhase);
 
         if (busyPhase && !s.ttsAudioStarted) {
+            myLogD("Loading Overlay: busyPhase=[" + s.loadPhase + "] ttsAudioStarted=false → startLoadingTimer");
             startLoadingTimer();
         } else {
+            if (busyPhase) {
+                myLogD("Loading Overlay: busyPhase=[" + s.loadPhase + "] ttsAudioStarted=true → stopLoadingTimer");
+            }
             stopLoadingTimer();
+        }
+
+        // When MediaService confirms READY after a voice change, fire the pending
+        // callback.
+        // Only PHASE_READY (not SPEAKING) should trigger this — SPEAKING means audio
+        // started
+        // but the warmup handshake should only complete on the explicit READY
+        // confirmation.
+        if (Intents.PHASE_READY.equals(s.loadPhase)) {
+            WarmupUiCallback cb = pendingWarmupCallback;
+            if (cb != null) {
+                pendingWarmupCallback = null;
+                cb.onResult(true, TtsHelper.READY);
+            }
         }
     }
 
     private void startLoadingTimer() {
-        if (_loading.getValue() != null && _loading.getValue())
+        if (_loading.getValue() != null && _loading.getValue()) {
+            myLogD("Loading Overlay: startLoadingTimer — already showing, skip");
             return; // Already showing
-        loadingH.removeCallbacks(loadingRunnable);
+        }
+        if (_timerPending) {
+            myLogD("Loading Overlay: startLoadingTimer — timer already pending, skip");
+            return; // Timer already scheduled — don't reset the countdown on every state tick
+        }
+        myLogD("Loading Overlay: startLoadingTimer — scheduling in " + LOADING_DELAY_MS + "ms");
+        _timerPending = true;
         loadingH.postDelayed(loadingRunnable, LOADING_DELAY_MS);
     }
 
     private void stopLoadingTimer() {
+        boolean wasPending = _timerPending;
         loadingH.removeCallbacks(loadingRunnable);
+        _timerPending = false;
         if (_loading.getValue() != null && _loading.getValue()) {
+            myLogD("Loading Overlay: stopLoadingTimer — hiding overlay");
             _loading.setValue(false);
+        } else if (wasPending) {
+            myLogD("Loading Overlay: stopLoadingTimer — cancelled pending timer");
         }
     }
 
@@ -268,30 +307,14 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             String initial,
             TtsUiHelper.OnVoiceSelected onSelected) {
         myLog("setupTtsVoiceSpinner - initial = " + initial);
-        final java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
-
+        // Delegate entirely to the Activity's onSelected callback (which calls
+        // warmUpTtsVoice).
+        // Do NOT call warmUpTtsVoice here — it would send a second CMD_TTS_SET_VOICE
+        // and
+        // overwrite pendingWarmupCallback, breaking the READY handshake.
         TtsUiHelper.setupTtsVoiceSpinner(ctx, spinner, ttsManager, initial, voiceItem -> {
             if (onSelected != null)
                 onSelected.onSelected(voiceItem);
-            if (first.getAndSet(false))
-                return; // skip programmatic preselect
-
-            final String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
-                    ? Option.DEFAULT_VOICE
-                    : voiceItem.name;
-
-            // If you expose currentVoice in PlaybackUiState.extras, you can compare here:
-            String currentVoice = null;
-            PlaybackUiState s = PlaybackUiBus.get().state().getValue();
-            if (s != null && s.extras != null) {
-                currentVoice = s.extras.getString(Intents.EXTRA_TTS_VOICE_NAME, null);
-            }
-            if (currentVoice != null && currentVoice.equalsIgnoreCase(picked)) {
-                myLog("setupTtsVoiceSpinner: same voice → no warmup");
-                return;
-            }
-
-            warmUpTtsVoice(picked, /* cb */ null);
         });
     }
 
@@ -320,32 +343,53 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             finalMessage = PlaybackPhaseMapper.getPhaseMessage(getApplication(), phaseId);
         }
 
+        // When entering a preparation phase, reset ttsAudioStarted so the loading
+        // overlay condition (busyPhase && !ttsAudioStarted) can trigger correctly.
+        boolean resetAudioStarted = Intents.PHASE_WARMING_UP.equals(phaseId)
+                || Intents.PHASE_STARTING.equals(phaseId)
+                || Intents.PHASE_LOADING_TEXT.equals(phaseId);
+
         PlaybackUiState next = new PlaybackUiState(
                 phaseId, finalMessage, cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
-                cur.ttsAudioStarted,
+                resetAudioStarted ? false : cur.ttsAudioStarted,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1, cur.extras);
         PlaybackUiBus.get().emit(next);
     }
 
     public void warmUpTtsVoice(String voiceName, @Nullable WarmupUiCallback cb) {
-        // Show spinner in the Activity while we switch
+        // Show loading overlay while we switch voice.
+        // DO NOT set READY here — let MediaService confirm it via the broadcast.
+        // The real READY arrives ~500ms later; pendingWarmupCallback fires then.
+        pendingWarmupCallback = cb; // store before sending command
         setLoadPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
 
         try {
             MediaControllerCompat mc = PlaybackCommands.mcOrNull(getApplication());
+            if (mc == null) {
+                throw new IllegalStateException("MediaController not available");
+            }
             Bundle b = new Bundle();
             b.putString(Intents.EXTRA_TTS_VOICE_NAME, voiceName);
             mc.getTransportControls().sendCustomAction(Intents.CMD_TTS_SET_VOICE, b);
+            // READY phase + cb.onResult() will be called by updateLoadingState()
+            // when MediaService broadcasts PHASE_READY.
 
-            // Consider it ready (we switched instantly). If you later add true warm-up,
-            // you can move this to the success callback.
-            setLoadPhase(Intents.PHASE_READY, null);
-            if (cb != null)
-                cb.onResult(true, TtsHelper.READY);
+            // Safety timeout: if MediaService never confirms READY (e.g. crash / edge
+            // case),
+            // fire the callback after 3s to avoid leaving the spinner locked forever.
+            loadingH.postDelayed(() -> {
+                WarmupUiCallback pending = pendingWarmupCallback;
+                if (pending != null) {
+                    myLogW("warmUpTtsVoice: timeout - MediaService never confirmed READY, forcing cb");
+                    pendingWarmupCallback = null;
+                    pending.onResult(true, TtsHelper.READY);
+                }
+            }, 3000);
         } catch (Throwable t) {
+            pendingWarmupCallback = null;
             setLoadPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
             if (cb != null)
                 cb.onResult(false, TtsHelper.ERROR);

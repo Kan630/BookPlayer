@@ -115,7 +115,8 @@ public class TtsHighlighter {
                     || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
                     || s.loadPhase.equals(Intents.PHASE_WARMING_UP);
             if (isPreparationPhase) {
-                myLogD("Loading Overlay : TTS Phase change: entering " + s.loadPhase + ", resetting ttsActuallyStarted");
+                myLogD("Loading Overlay : TTS Phase change: entering " + s.loadPhase
+                        + ", resetting ttsActuallyStarted");
                 ttsActuallyStarted = false;
             }
         }
@@ -187,10 +188,13 @@ public class TtsHighlighter {
             lastSeekTime = now;
         }
 
+        // When the highlight goes backward, the engine snapped to a sentence boundary
+        // (e.g. after a resume following a pause). Reset tracking so all replayed words
+        // light up as they are spoken, rather than being silently ignored.
         if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: ignoring backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
-                    + ")");
-            return;
+            myLogD("TTS HIGHLIGHT: backward jump detected [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
+                    + "), resetting tracking");
+            resetHighlightTracking(false);
         }
 
         if (highlightScheduled && (now - lastHighlightTime) < MIN_HIGHLIGHT_INTERVAL_MS) {
@@ -221,11 +225,8 @@ public class TtsHighlighter {
         int s = Math.max(0, Math.min(pendingStart, len));
         int e = Math.max(s + 1, Math.min(pendingEnd, len));
 
-        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: skipping backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
-                    + ")");
-            return;
-        }
+        // (Backward guard removed — we always apply; tracking was reset upstream if
+        // needed)
 
         try {
             // Debug logging for highlighted word

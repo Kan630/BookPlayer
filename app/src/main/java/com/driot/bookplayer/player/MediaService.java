@@ -2182,11 +2182,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
 
-        // Reset audio started flag if we are no longer in a speaking/ready phase
-        // or if we are just starting a new load.
-        if (Intents.PHASE_STARTING.equals(phase) || Intents.PHASE_LOADING_TEXT.equals(phase)
+        // Reset audio started flag when entering any preparation phase or stopping.
+        // WARMING_UP is included so the loading overlay appears during voice changes.
+        if (Intents.PHASE_WARMING_UP.equals(phase) || Intents.PHASE_STARTING.equals(phase)
+                || Intents.PHASE_LOADING_TEXT.equals(phase)
                 || Intents.PHASE_OFF.equals(phase)) {
             ttsAudioStarted = false;
+            PlaybackUiBus.get().setTtsAudioStarted(false);
         }
 
         String resolvedMsg = (msg != null) ? msg : PlaybackPhaseMapper.getPhaseMessage(this, phase);
