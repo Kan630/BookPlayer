@@ -17,12 +17,10 @@ import androidx.media.MediaBrowserServiceCompat;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
-import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.di.TtsEntryPoint;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -33,9 +31,6 @@ import com.driot.bookplayer.radio.RadioFavoriteItem;
 import com.driot.bookplayer.radio.RadioStation;
 import com.driot.bookplayer.radio.RadioStationDao;
 import com.driot.bookplayer.radio.Station;
-import com.driot.bookplayer.tts.AppTtsManager;
-
-import dagger.hilt.android.EntryPointAccessors;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -111,10 +106,6 @@ public class StartPlayHelper {
     }
 
     public static void onFolderClick(Context context, Folder clickedFolder, String caller) {
-        if (clickedFolder != null && Objects.equals(clickedFolder.playType, Var.PLAY_TYPE_TEXT)) {
-            tryWarmUpTts(context, clickedFolder.ttsVoice);
-        }
-
         // DB work off main; UI nav back on main
         AppDatabase.databaseReadExecutor.execute(() ->
 
@@ -156,8 +147,9 @@ public class StartPlayHelper {
                         PlayList pl = PlayList.getInstance();
                         boolean sameTrack = (pl != null && pl.getFolder() != null
                                 && pl.getFolder().getId() == clickedFolder.getId()); // keep getId() => needed !
-                        boolean isTTS = (clickedFolder != null
-                                && Objects.equals(clickedFolder.playType, Var.PLAY_TYPE_TEXT));
+                        boolean isTTS = (pl != null && pl.getFolder() != null
+                                && Objects.equals(pl.getFolder().playType, Var.PLAY_TYPE_TEXT)); // keep getId() =>
+                                                                                                 // needed !
                         myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = "
                                 + lastUiState);
 
@@ -211,10 +203,6 @@ public class StartPlayHelper {
 
             myLogI("USER CLICKS ZIKFILE : [" + clickedZikFile.getName() + "] - sameTrack=" + sameTrack + " - TTS="
                     + isTTS + " - lastUiState = " + lastUiState);
-
-            if (isTTS) {
-                tryWarmUpTts(context, folder.ttsVoice);
-            }
 
             new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                 PlaybackCommands.resetLastUserAction(context);
@@ -271,17 +259,6 @@ public class StartPlayHelper {
 
     private static void startActivityBecauseSameTrack(Context context) {
         context.startActivity(new Intent(context, PlayActivity.class).addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT));
-    }
-
-    private static void tryWarmUpTts(Context context, String voiceName) {
-        try {
-            TtsEntryPoint entryPoint = EntryPointAccessors.fromApplication(context.getApplicationContext(),
-                    TtsEntryPoint.class);
-            AppTtsManager mgr = entryPoint.getAppTtsManager();
-            mgr.warmUp(voiceName);
-        } catch (Throwable t) {
-            myLogEE(t, "tryWarmUpTts failed");
-        }
     }
 
     public static void carOnPlay(Context context) {

@@ -1,6 +1,7 @@
-package com.driot.bookplayer.tts;
+package com.driot.bookplayer.player;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,12 +11,15 @@ import android.speech.tts.Voice;
 import androidx.annotation.IntRange;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
-import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.TextExtractor;
-import com.driot.bookplayer.player.EngineListener;
-import com.driot.bookplayer.player.PlayerEngine;
+import com.driot.bookplayer.tts.TtsErrorUtils;
+import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.tts.VoiceItem;
+import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.Locale;
@@ -41,15 +45,12 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     @Nullable
     private TtsHelper tts;
 
-    private final TtsController ttsController;
-
     // State
     private volatile boolean disposed = false;
     private volatile boolean preparing = false;
     private volatile boolean prepared = false;
     private volatile boolean playing = false;
     private volatile boolean completionTriggered = false; // Prevent double-triggering of completion
-    private volatile boolean prepareActuallyRequested = false;
 
     private String text = "";
     private int lastCharSpoken = 0;
@@ -57,24 +58,18 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private long estDurationMs = 0;
     private long estPositionMs = 0;
     private float speechRate = 1.0f;
-    private volatile boolean ttsAudioStarted = false;
 
     private float volume = 1f;
 
     private boolean registeredWithMgr = false;
 
-    private Uri sourceUri;
-    private String sourceDisplayName;
-
     public TtsEngine(@NonNull Context appContext,
-            @NonNull AppTtsManager appTtsManager,
-            @NonNull TtsController ttsController,
-            @NonNull EngineListener listener,
-            long generationToken) {
+                     @NonNull AppTtsManager appTtsManager,
+                     @NonNull EngineListener listener,
+                     long generationToken) {
         super(TtsEngine.class);
         this.app = appContext.getApplicationContext();
         this.mgr = appTtsManager;
-        this.ttsController = ttsController;
         this.listener = listener;
         this.gen = generationToken;
 
@@ -98,62 +93,34 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         lastCharSpoken = 0;
         resumeOffsetChars = 0;
         estPositionMs = 0;
-        completionTriggered = false;
-        this.sourceUri = uri;
-        this.sourceDisplayName = displayName;
-        this.text = "";
+        completionTriggered = false; // Reset completion flag for new track
+
+        String raw = TextExtractor.getPlainText(ctx, uri, displayName);
+        // Normalize newlines
+        raw = raw.replace("\r\n", "\n").replace('\r', '\n');
+        // Heuristic paragraphize if almost no newlines
+        if (TtsHelper.countNewlines(raw) < 2)
+            raw = TtsHelper.smartParagraphize(raw);
+
+        this.text = raw;
+        this.estDurationMs = estimateDurationMs(text, speechRate);
     }
 
     @Override
     public void prepareAsync() {
-        prepareActuallyRequested = true;
         if (disposed || preparing || prepared)
             return;
         preparing = true;
-
-        // Offload text extraction and preprocessing to background thread
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            if (disposed)
-                return;
-            try {
-                String raw = TextExtractor.getPlainText(app, sourceUri, sourceDisplayName);
-                String processed = ttsController.preprocessText(raw);
-
-                // Update text and notify on main thread
-                main.post(() -> {
-                    if (disposed)
-                        return;
-                    this.text = processed;
-                    this.estDurationMs = estimateDurationMs(text, speechRate);
-
-                    finishPrepare();
-                });
-            } catch (Throwable t) {
-                myLogEE(t, "prepareAsync failed during text extraction");
-                main.post(() -> {
-                    if (disposed)
-                        return;
-                    preparing = false;
-                    listener.onError(gen, "Failed to extract text", 0, 0);
-                });
-            }
-        });
-    }
-
-    private void finishPrepare() {
-        if (disposed || !preparing)
-            return;
 
         if (tts == null && mgr.isReady() && mgr.raw() != null) {
             tts = new TtsHelper(app, mgr.raw());
         }
 
         if (tts == null || !mgr.isReady() || mgr.raw() == null) {
-            // Wait for onTtsReady
-            preparing = false; // Stay in preparing state but wait
+            // wait for onTtsReady -> prepareAsync() again
+            preparing = false; // avoid a stuck "preparing" flag
             return;
         }
-
         prepared = true;
         preparing = false;
         logCurrentVoice();
@@ -181,9 +148,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void pause() {
-        // Update estPositionMs before stopping to preserve it
-        estPositionMs = getCurrentPosition();
-
         // "Time-Based Latency Correction"
         // Since TTS callbacks (onRangeStart) fire when text is *buffered* (not spoken),
         // `lastCharSpoken` is always ahead of what the user actually heard (latency).
@@ -234,7 +198,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         stop();
         prepared = false;
         preparing = false;
-        prepareActuallyRequested = false;
         resumeOffsetChars = 0;
         estPositionMs = 0;
         completionTriggered = false;
@@ -253,17 +216,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public long getCurrentPosition() {
-        if (playing && ttsAudioStarted && currentUtteranceStartTime > 0 && estDurationMs > 0 && !text.isEmpty()) {
-            long elapsed = System.currentTimeMillis() - currentUtteranceStartTime;
-            // Reference speed: how many milliseconds of progress per wall-millisecond.
-            // We use 1:1 ratio scaled by speedRate to ensure smooth progress bar.
-            // However, we must start from the chunk's base position in ms.
-            long chunkStartMs = (long) ((currentUtteranceStartOffset / (double) text.length()) * estDurationMs);
-            long interpPos = chunkStartMs + (long) (elapsed * speechRate);
-
-            // Clamp: don't go beyond total duration
-            return Math.min(interpPos, estDurationMs);
-        }
         return estPositionMs;
     }
 
@@ -334,7 +286,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
         if (playing) {
             if (tts != null) {
-                ttsAudioStarted = false; // Reset to stop interpolation during seek transition
                 tts.stop();
                 speakFromOffset(resumeOffsetChars);
             }
@@ -360,7 +311,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             // Resume from last audible boundary we tracked
             int start = Math.max(0, Math.min(lastCharSpoken, text.length()));
             resumeOffsetChars = start;
-            ttsAudioStarted = false;
             tts.stop();
             // Restart without immediate broadcast - let TTS callbacks drive highlighting
             // naturally
@@ -381,11 +331,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed || prepared || preparing)
             return;
         this.tts = new TtsHelper(app, engine);
-        if (prepareActuallyRequested) {
-            prepareAsync();
-        } else {
-            myLogD("onTtsReady - session not yet requested by MediaService, waiting.");
-        }
+        prepareAsync();
     }
 
     private long currentUtteranceStartTime = 0;
@@ -397,22 +343,13 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed)
             return;
 
-        ttsAudioStarted = true;
         currentUtteranceStartTime = System.currentTimeMillis();
         int[] range = com.driot.bookplayer.tts.TtsIds.parseUtt(utteranceId);
         if (range != null) {
             currentUtteranceStartOffset = range[0];
         } else {
+            // Reset if unknown ID format to prevent bad math
             currentUtteranceStartOffset = -1;
-        }
-
-        // Notify MediaService that audio has truly started playing.
-        // This is the authoritative moment for PHASE_SPEAKING.
-        listener.onTtsStarted(gen);
-
-        // Separate "ping" to move the highlight cursor to the chunk start.
-        if (range != null) {
-            listener.onTtsRange(gen, range[0], range[0]);
         }
     }
 
@@ -421,8 +358,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         myLogD("onDone " + utteranceId);
         if (disposed)
             return;
-
-        ttsAudioStarted = false;
 
         // Check if this utterance reached the end by examining both lastCharSpoken and
         // utterance ID
@@ -453,19 +388,23 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             completionTriggered = true;
             playing = false;
             listener.onCompletion(gen);
-        } else {
-            // Queue the next single chunk. Do NOT pre-queue all remaining chunks:
-            // the network TTS engine synthesizes queued chunks ahead of playback,
-            // which makes onRangeStart callbacks fire faster than audio plays.
-            main.post(() -> {
-                if (disposed || !playing)
-                    return;
-                if (text == null || text.isEmpty() || lastCharSpoken >= text.length())
-                    return;
-                resumeOffsetChars = lastCharSpoken;
-                speakFromOffset(resumeOffsetChars);
-            });
+            return;
         }
+
+        // Continue speaking from where we stopped
+        main.post(() -> {
+            if (disposed || !playing)
+                return;
+
+            // Safety check: ensure we haven't reached the end
+            if (text == null || text.isEmpty() || lastCharSpoken >= text.length()) {
+                myLogD("onDone: reached end of text, not continuing");
+                return;
+            }
+
+            resumeOffsetChars = lastCharSpoken;
+            speakFromOffset(resumeOffsetChars);
+        });
     }
 
     @Override
@@ -475,9 +414,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed)
             return;
 
-        // Stop TTS immediately to prevent further error loops
+        // Stop TTS immediately to prevent infinite error loops
         playing = false;
-        ttsAudioStarted = false;
         if (tts != null) {
             try {
                 tts.stop();
@@ -510,19 +448,17 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         if (disposed)
             return;
 
-        // Ignore callbacks when not playing OR audio hasn't started yet
-        // prevents highlighting from racing ahead (synthesis speed vs playback speed)
-        if (!playing || !ttsAudioStarted) {
-            myLogD("TTS RANGE....: pos= ignoring callback (not playing or not started) [" + start + "-" + end + "]");
+        // Ignore callbacks when not playing - prevents highlighting from racing ahead
+        // after pause/resume
+        if (!playing) {
+            myLogD("TTS RANGE....: pos= ignoring callback (not playing) [" + start + "-" + end + "]");
             return;
         }
 
         lastCharSpoken = Math.min(Math.max(0, end), text.length());
-
-        // Do NOT update estPositionMs here.
-        // It causes the progress bar to jump ahead because onUtteranceRange callbacks
-        // often arrive in clumps before the audio is actually heard.
-        // Smooth interpolation is handled in getCurrentPosition().
+        if (!text.isEmpty() && estDurationMs > 0) {
+            estPositionMs = (int) ((lastCharSpoken / (double) text.length()) * estDurationMs);
+        }
 
         // TEMP LOG: Log the word being spoken from TTS callbacks
         String wordAtRange = "";
@@ -534,8 +470,7 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 wordAtRange = words[0];
             }
         }
-        // myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange
-        // + "] lastCharSpoken=" + lastCharSpoken);
+        //myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
 
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
 
@@ -573,7 +508,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
         }
 
         if (playing && prepared && tts != null) {
-            ttsAudioStarted = false;
             tts.stop();
             speakFromOffset(resumeOffsetChars);
         }
@@ -609,10 +543,11 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
         tts.setSpeechRate(speechRate);
         final int off = Math.max(0, Math.min(offsetChars, text.length()));
+        LocalBroadcastManager.getInstance(app).sendBroadcast(
+                new Intent(Intents.NOTIFICATION_TTS_RANGE)
+                        .putExtra(Intents.EXTRA_TTS_START, off)
+                        .putExtra(Intents.EXTRA_TTS_END, off));
         tts.speakFromOffset(text, off, volume); // all chunking lives in TtsHelper
-        // Removed manual NOTIFICATION_TTS_RANGE broadcast from here.
-        // Highlights now start ONLY when onStart is received, to avoid "early jump"
-        // especially on network TTS.
     }
 
     private int logicalTextEndIndex() {
@@ -659,18 +594,65 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     }
 
     public String getVoiceName() {
-        return ttsController.getCurrentVoiceName();
+        TextToSpeech raw = mgr.raw();
+        if (raw == null)
+            return null;
+        Voice v = raw.getVoice();
+        return (v != null) ? v.getName() : null;
     }
 
     public boolean setVoiceByName(@Nullable String voiceName) {
         if (disposed)
             return false;
 
-        boolean ok = ttsController.applyVoiceByName(voiceName);
-        if (ok) {
-            restartIfPlaying();
+        // "system" or empty -> revert to engine default (language-based)
+        if (voiceName == null || voiceName.isEmpty() || Option.DEFAULT_VOICE.equalsIgnoreCase(voiceName)) {
+            try {
+                TextToSpeech raw = mgr.raw();
+                if (raw == null)
+                    return false;
+                // Reset to device default locale
+                Locale locale = Locale.getDefault();
+                int langSetResult = raw.setLanguage(locale);
+                TtsErrorUtils.logSetLanguageResult("TTS", langSetResult, locale);
+                boolean ok = (langSetResult != TextToSpeech.LANG_MISSING_DATA
+                        && langSetResult != TextToSpeech.LANG_NOT_SUPPORTED);
+                if (ok)
+                    restartIfPlaying();
+                return ok;
+            } catch (Throwable ignored) {
+                return false;
+            }
         }
-        return ok;
+
+        try {
+            Set<Voice> voices = mgr.getVoices();
+            if (voices == null || voices.isEmpty())
+                return false;
+
+            Voice target = null;
+            for (Voice v : voices) {
+                if (voiceName.equals(v.getName())) {
+                    target = v;
+                    break;
+                }
+            }
+            if (target == null)
+                return false;
+
+            int r = mgr.setVoice(target);
+            if (r != TextToSpeech.SUCCESS) {
+                myLogE("error setting TTS engine Voice");
+                return false;
+            } else {
+                myLog("TTS engine Voice set : " + target.getName());
+            }
+
+            restartIfPlaying();
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
     }
 
     private void restartIfPlaying() {
@@ -684,7 +666,6 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             int start = Math.max(0, Math.min(lastCharSpoken, text != null ? text.length() : 0));
             // ensure internal offset reflects where we’re resuming
             resumeOffsetChars = start;
-            ttsAudioStarted = false;
             tts.stop();
             speakFromOffset(start);
         }

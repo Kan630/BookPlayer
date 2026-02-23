@@ -28,13 +28,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  * Extracted from PlayActivity to clean up code.
  */
 public class TtsHighlighter {
-    public interface HighlightListener {
-        void onScrollToPosition(TextView tv, int charOffset);
-    }
 
-    private final boolean DEBUG_DRIFT = false;
-
-    private final HighlightListener listener;
+    private final WeakReference<BaseActivity> activityRef;
     private final TextView tvTtsText;
     private final Handler uiH = new Handler(Looper.getMainLooper());
 
@@ -68,9 +63,28 @@ public class TtsHighlighter {
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
 
-    public TtsHighlighter(TextView tvTtsText, HighlightListener listener) {
+    private static final String TAG = "TtsHighlighter";
+
+    public TtsHighlighter(BaseActivity activity, TextView tvTtsText) {
+        this.activityRef = new WeakReference<>(activity);
         this.tvTtsText = tvTtsText;
-        this.listener = listener;
+        this.loadingRunnable = () -> {
+            BaseActivity act = activityRef.get();
+            if (act instanceof PlayActivity) {
+                ((PlayActivity) act).showTtsLoading(true);
+            }
+        };
+    }
+
+    public void setAutoScroll(boolean enabled) {
+        // This class doesn't manage auto-scroll flag directly,
+        // but if we needed to trigger scroll here we could.
+        // For now, let's leave auto-scroll flag management in PlayActivity
+        // or pass a callback if needed.
+        // Actually, PlayActivity accesses 'suppressAutoScroll' directly.
+        // We will notify PlayActivity when to scroll?
+        // For strict refactoring, we'll expose a callback or let PlayActivity handle
+        // the scroll call.
     }
 
     // ---- Main Entry Points ----
@@ -91,44 +105,59 @@ public class TtsHighlighter {
         }
     }
 
-    public void onPlaybackStateChanged(@Nullable PlaybackUiState s) {
+    public void onPlaybackStateChanged(@Nullable PlaybackUiState s, PlaybackViewModel vm) {
         if (s == null)
             return;
 
         boolean isTts = "tts".equals(s.playMode);
 
-        // Detect seeks via position jump
+        // Detect seeks
         if (isTts && lastTtsPositionMs >= 0 && s.positionMs > 0) {
             long positionDelta = Math.abs(s.positionMs - lastTtsPositionMs);
             if (positionDelta > SEEK_DETECTION_THRESHOLD_MS && s.playing) {
                 myLogD("TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + s.positionMs);
                 lastSeekTime = System.currentTimeMillis();
-                resetHighlightTracking(true); // Reset started flag to allow overlay during seek loading
+                // Reset tracking but keep ttsActuallyStarted=true since we're already playing
+                resetHighlightTracking(false);
             }
         }
         if (isTts)
             lastTtsPositionMs = s.positionMs;
-
-        // Detect phase changes for internal state resets
-        if (isTts && s.loadPhase != null && !s.loadPhase.equals(lastTtsPhase)) {
-            boolean isPreparationPhase = s.loadPhase.equals(Intents.PHASE_STARTING)
-                    || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
-                    || s.loadPhase.equals(Intents.PHASE_WARMING_UP);
-            if (isPreparationPhase) {
-                myLogD("Loading Overlay : TTS Phase change: entering " + s.loadPhase
-                        + ", resetting ttsActuallyStarted");
-                ttsActuallyStarted = false;
+        // Overlay Logic
+        if (s.loadPhase.equals(Intents.PHASE_SPEAKING) || s.loadPhase.equals(Intents.PHASE_LOADING_TEXT)
+                || s.loadPhase.equals(Intents.PHASE_WARMING_UP)) {
+            // Start loading timer if we are in a "working" phase but audio hasn't started
+            if (!ttsActuallyStarted) {
+                startLoadingTimer();
             }
+        } else {
+            // Not speaking/loading (Paused, Stopped, etc) -> hide overlay
+            stopLoadingTimer();
         }
 
         // Detect track change
         if (s.trackId != lastTtsTrackId) {
             lastTtsTrackId = s.trackId;
             resetHighlightTracking(true);
+
+            // Text fetching logic
+            if (isTts) {
+                vm.resetTtsTextRequestFlag();
+                vm.requestTtsTextOnce();
+            }
+        } else {
+            // If track didn't change but we became ready/speaking and haven't requested
+            // text?
+            // Usually handled by PlayActivity logic but we moved it here.
+            // If we don't have text, request it.
+            if (isTts && (spannableText == null || spannableText.length() == 0)) {
+                vm.requestTtsTextOnce();
+            }
         }
 
-        // Detect Play/Pause state change
+        // Detect Play/Pause state change to reset tracking if needed
         boolean isSpeak = Intents.PHASE_SPEAKING.equals(s.loadPhase);
+
         if (isSpeak != lastTtsPlaying) {
             lastTtsPlaying = isSpeak;
             if (!isSpeak) {
@@ -136,34 +165,63 @@ public class TtsHighlighter {
             }
         }
 
+        // Detect large jumps
+        long pos = s.positionMs;
+        if (lastTtsPositionMs >= 0) {
+            long diff = Math.abs(pos - lastTtsPositionMs);
+            if (diff > SEEK_DETECTION_THRESHOLD_MS) {
+                android.util.Log.i(TAG, "TTS seek detected: position jumped from " + lastTtsPositionMs + " to " + pos);
+                resetHighlightTracking(false);
+            }
+        }
+        lastTtsPositionMs = pos;
+
         lastTtsPhase = s.loadPhase;
     }
 
-    // ---- Highlights ----
+    // ---- Loading Overlay Helpers ----
+
+    private final Runnable loadingRunnable;
+
+    private void startLoadingTimer() {
+        // Only schedule if not already scheduled (or reset)
+        // Check if overlay is already visible? No, just rely on timer.
+        uiH.removeCallbacks(loadingRunnable);
+        uiH.postDelayed(loadingRunnable, 300);
+        myLogD("startLoadingTimer: scheduled in 300ms");
+    }
+
+    private void stopLoadingTimer() {
+        uiH.removeCallbacks(loadingRunnable);
+        myLogD("stopLoadingTimer: canceled");
+        BaseActivity act = activityRef.get();
+        if (act instanceof PlayActivity) {
+            ((PlayActivity) act).showTtsLoading(false);
+        }
+    }
 
     public void scheduleHighlight(int s, int e) {
         long now = System.currentTimeMillis();
 
-        if (DEBUG_DRIFT) {
-            // Paranoid logging for diagnosing sync drift
-            if (spannableText != null && s < spannableText.length() && e <= spannableText.length()) {
-                // Limit log length if range is huge (shouldn't be for words)
-                try {
-                    CharSequence seq = spannableText.subSequence(s, e);
-                    String txt = seq.toString().replace("\n", "\\n");
-                    myLog("TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
-                } catch (Exception exception) {
-                    myLogE("exception while logging " + exception.getMessage());
-                }
-            } else {
-                myLogW("TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
-                        + (spannableText == null ? "null" : spannableText.length()) + ")");
+        // Paranoid logging for diagnosing sync drift
+        if (spannableText != null && s < spannableText.length() && e <= spannableText.length()) {
+            // Limit log length if range is huge (shouldn't be for words)
+            try {
+                CharSequence seq = spannableText.subSequence(s, e);
+                String txt = seq.toString().replace("\n", "\\n");
+                // Only log periodically or if it looks weird?
+                // For now, log everything as user requested more logging.
+                android.util.Log.v(TAG, "TTS Rx Range: [" + s + "-" + e + "] '" + txt + "'");
+            } catch (Exception ignored) {
             }
+        } else {
+            android.util.Log.w(TAG, "TTS Rx Range: [" + s + "-" + e + "] OUT OF BOUNDS (len="
+                    + (spannableText == null ? "null" : spannableText.length()) + ")");
         }
 
         // Ignore callbacks during seek cooldown period to prevent racing ahead
         if (lastSeekTime > 0 && (now - lastSeekTime) < SEEK_COOLDOWN_MS) {
-            myLogD("TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
+            android.util.Log.d(TAG, "TTS HIGHLIGHT: ignoring callback during seek cooldown [" + s + "-" + e + "]");
             return;
         }
         // Clear cooldown once it expires
@@ -174,7 +232,8 @@ public class TtsHighlighter {
         // Mark that TTS has actually started when we receive the first callback
         if (!ttsActuallyStarted) {
             ttsActuallyStarted = true;
-            myLogI("TTS HIGHLIGHT: first callback received, marking TTS as started");
+            stopLoadingTimer(); // <--- Hide overlay immediately
+            android.util.Log.i(TAG, "TTS HIGHLIGHT: first callback received, marking TTS as started");
             // Reset tracking when TTS actually starts to avoid stale highlights
             // But don't reset the started flag (pass false) since we just set it to true
             resetHighlightTracking(false);
@@ -188,13 +247,10 @@ public class TtsHighlighter {
             lastSeekTime = now;
         }
 
-        // When the highlight goes backward, the engine snapped to a sentence boundary
-        // (e.g. after a resume following a pause). Reset tracking so all replayed words
-        // light up as they are spoken, rather than being silently ignored.
         if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
-            myLogD("TTS HIGHLIGHT: backward jump detected [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
-                    + "), resetting tracking");
-            resetHighlightTracking(false);
+            myLogD("TTS HIGHLIGHT: ignoring backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
+                    + ")");
+            return;
         }
 
         if (highlightScheduled && (now - lastHighlightTime) < MIN_HIGHLIGHT_INTERVAL_MS) {
@@ -225,8 +281,11 @@ public class TtsHighlighter {
         int s = Math.max(0, Math.min(pendingStart, len));
         int e = Math.max(s + 1, Math.min(pendingEnd, len));
 
-        // (Backward guard removed — we always apply; tracking was reset upstream if
-        // needed)
+        if (lastAppliedHighlightEnd >= 0 && e < lastAppliedHighlightEnd) {
+            myLogD("TTS HIGHLIGHT: skipping backward highlight [" + s + "-" + e + "] (last=" + lastAppliedHighlightEnd
+                    + ")");
+            return;
+        }
 
         try {
             // Debug logging for highlighted word
@@ -254,8 +313,16 @@ public class TtsHighlighter {
     }
 
     private void triggerAutoScroll(int startPos) {
-        if (listener != null) {
-            listener.onScrollToPosition(tvTtsText, startPos);
+        // We need to call back to activity or handle scroll layout here.
+        // Since we have the TextView, we can try to scroll it if suppress flag isn't
+        // set.
+        // But the suppress flag is in PlayActivity.
+        // For now, let's assume PlayActivity handles the scroll via a callback or we
+        // execute a Runnable passed in?
+        // Or simpler: We define an interface or a public method in PlayActivity.
+        BaseActivity a = activityRef.get();
+        if (a instanceof PlayActivity) {
+            ((PlayActivity) a).onTtsHighlightApplied(tvTtsText, startPos);
         }
     }
 

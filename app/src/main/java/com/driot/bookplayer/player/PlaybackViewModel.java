@@ -12,8 +12,6 @@ import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import android.os.Handler;
-import android.os.Looper;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -23,14 +21,9 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
-
-import javax.inject.Inject;
-import dagger.hilt.android.lifecycle.HiltViewModel;
 
 /**
  * Mini player's single source of truth:
@@ -38,23 +31,13 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
  * - Snapshots are used ONLY when bound, for progress smoothing.
  * - We never overwrite with an "empty" state just because we're unbound.
  */
-@HiltViewModel
 public class PlaybackViewModel extends LoggingAndroidViewModel {
-
-    private final AppTtsManager ttsManager;
 
     public interface WarmupUiCallback {
         void onResult(boolean ready, int reason);
     }
 
     private final MutableLiveData<Long> _seekPreviewMs = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> _loading = new MutableLiveData<>(false);
-    private final Handler loadingH = new Handler(Looper.getMainLooper());
-
-    // Callback waiting for MediaService to confirm PHASE_READY after a voice change
-    @Nullable
-    private WarmupUiCallback pendingWarmupCallback = null;
-
     private volatile boolean _stateSourcesAdded = false;
 
     private final MediatorLiveData<PlaybackUiState> _state = new MediatorLiveData<>();
@@ -62,64 +45,10 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     public LiveData<PlaybackUiState> getState() {
         if (!_stateSourcesAdded) {
             _stateSourcesAdded = true;
-            _state.addSource(PlaybackUiBus.get().state(), s -> {
-                updateLoadingState(s);
-                emitStateWithSeekPreview();
-            });
+            _state.addSource(PlaybackUiBus.get().state(), s -> emitStateWithSeekPreview());
             _state.addSource(_seekPreviewMs, v -> emitStateWithSeekPreview());
         }
         return _state;
-    }
-
-    public LiveData<Boolean> getLoading() {
-        return _loading;
-    }
-
-    private void updateLoadingState(@Nullable PlaybackUiState s) {
-        if (s == null) {
-            showOverlay(false);
-            return;
-        }
-
-        String phase = s.loadPhase;
-
-        // --- Voice warmup path ---
-        // warmUpTtsVoice() already set _loading=true immediately.
-        // Keep overlay up until READY confirms the new voice is active.
-        if (pendingWarmupCallback != null) {
-            if (Intents.PHASE_READY.equals(phase)) {
-                myLogD("Loading Overlay: voice warmup → READY received, hiding overlay and firing callback");
-                WarmupUiCallback cb = pendingWarmupCallback;
-                pendingWarmupCallback = null;
-                showOverlay(false);
-                cb.onResult(true, TtsHelper.READY);
-            } else {
-                myLogD("Loading Overlay: voice warmup in progress (phase=" + phase + "), overlay stays up");
-            }
-            return; // overlay already managed by warmUpTtsVoice/showOverlay; do not override
-        }
-
-        // --- Normal load path ---
-        // Show overlay immediately when audio isn't playing yet.
-        // A timer-based delay was tried but network voices can start in < 300ms,
-        // causing the timer to be cancelled before it fired.
-        // SPEAKING = first onTtsRange fired, audio truly started → hide.
-        // Anything else (READY, OFF, ERROR …) → hide.
-        if (Intents.PHASE_LOADING_TEXT.equals(phase)
-                || Intents.PHASE_WARMING_UP.equals(phase)
-                || Intents.PHASE_STARTING.equals(phase)) {
-            myLogD("Loading Overlay: phase=[" + phase + "] → showOverlay(true)");
-            showOverlay(true);
-        } else {
-            myLogD("Loading Overlay: phase=[" + phase + "] → showOverlay(false)");
-            showOverlay(false);
-        }
-    }
-
-    /** Show or hide the loading overlay. */
-    private void showOverlay(boolean show) {
-        myLogD("Loading Overlay: showOverlay(" + show + ")");
-        _loading.setValue(show);
     }
 
     private void emitStateWithSeekPreview() {
@@ -134,11 +63,10 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 _seekPreviewMs.setValue(null);
             } else {
                 s = new PlaybackUiState(
-                        s.loadPhase, s.loadMessage, s.playing, s.ready, s.playMode,
+                        s.loadPhase, s.playing, s.ready, s.playMode,
                         preview, s.durationMs, s.sleepLeftMS,
                         s.title, s.subTitle, s.cover,
                         s.trackId, s.folderId, s.podcastFeedId, s.radioStationUuid,
-                        s.ttsAudioStarted,
                         s.calledFrom, s.callCounter, s.extras);
             }
         }
@@ -159,9 +87,15 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         return ttsRange;
     }
 
-    public LiveData<String> getTtsText() {
-        return PlaybackUiBus.get().ttsText();
+    // --- TTS on-demand text fetch via custom action ---
+    private final androidx.lifecycle.MutableLiveData<String> _ttsText = new androidx.lifecycle.MutableLiveData<>("");
+
+    public androidx.lifecycle.LiveData<String> getTtsText() {
+        return _ttsText;
     }
+
+    private final java.util.concurrent.atomic.AtomicBoolean ttsTextRequested = new java.util.concurrent.atomic.AtomicBoolean(
+            false);
 
     private int sleepCustomMinutes = -1;
 
@@ -173,8 +107,8 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
 
     public void requestTtsTextOnce() {
         // Only one request per VM/session by default
-        if (!PlaybackUiBus.get().ttsTextRequested().compareAndSet(false, true)) {
-            myLogD("requestTtsTextOnce: already requested (shared), ignoring");
+        if (!ttsTextRequested.compareAndSet(false, true)) {
+            myLog("requestTtsTextOnce: already requested, ignoring");
             return;
         }
 
@@ -183,8 +117,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             @Override
             protected void onReceiveResult(int resultCode, android.os.Bundle resultData) {
                 String txt = resultData != null ? resultData.getString(Intents.EXTRA_TTS_TEXT, "") : "";
-                // Update the shared bus text
-                ((MutableLiveData<String>) PlaybackUiBus.get().ttsText()).setValue(txt);
+                _ttsText.setValue(txt);
             }
         };
         PlaybackCommands.requestTtsText(getApplication(), rr);
@@ -195,13 +128,11 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
      * track changes).
      */
     public void resetTtsTextRequestFlag() {
-        PlaybackUiBus.get().ttsTextRequested().set(false);
+        ttsTextRequested.set(false);
     }
 
-    @Inject
-    public PlaybackViewModel(@NonNull Application app, AppTtsManager ttsManager) {
+    public PlaybackViewModel(@NonNull Application app) {
         super(app);
-        this.ttsManager = ttsManager;
         LocalBroadcastManager.getInstance(app).registerReceiver(ttsRangeRx,
                 new IntentFilter(Intents.NOTIFICATION_TTS_RANGE));
     }
@@ -283,23 +214,39 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             Context ctx,
             Spinner spinner,
             String initial,
-            TtsUiHelper.OnVoiceSelected onSelected) {
+            TtsHelper.OnVoiceSelected onSelected) {
         myLog("setupTtsVoiceSpinner - initial = " + initial);
-        // Delegate entirely to the Activity's onSelected callback (which calls
-        // warmUpTtsVoice).
-        // Do NOT call warmUpTtsVoice here — it would send a second CMD_TTS_SET_VOICE
-        // and
-        // overwrite pendingWarmupCallback, breaking the READY handshake.
-        TtsUiHelper.setupTtsVoiceSpinner(ctx, spinner, ttsManager, initial, voiceItem -> {
+        final java.util.concurrent.atomic.AtomicBoolean first = new java.util.concurrent.atomic.AtomicBoolean(true);
+
+        TtsHelper.setupTtsVoiceSpinner(ctx, spinner, initial, voiceItem -> {
             if (onSelected != null)
                 onSelected.onSelected(voiceItem);
+            if (first.getAndSet(false))
+                return; // skip programmatic preselect
+
+            final String picked = (voiceItem == null || voiceItem.name == null || voiceItem.name.isEmpty())
+                    ? Option.DEFAULT_VOICE
+                    : voiceItem.name;
+
+            // If you expose currentVoice in PlaybackUiState.extras, you can compare here:
+            String currentVoice = null;
+            PlaybackUiState s = PlaybackUiBus.get().state().getValue();
+            if (s != null && s.extras != null) {
+                currentVoice = s.extras.getString(Intents.EXTRA_TTS_VOICE_NAME, null);
+            }
+            if (currentVoice != null && currentVoice.equalsIgnoreCase(picked)) {
+                myLog("setupTtsVoiceSpinner: same voice → no warmup");
+                return;
+            }
+
+            warmUpTtsVoice(picked, /* cb */ null);
         });
     }
 
     private volatile boolean inError = false;
 
     private void setLoadPhase(@NonNull String phaseId, @Nullable String message) {
-        myLog("TTS Phase change: " + phaseId + " (msg: " + message + ")");
+        myLog("setLoadPhase " + phaseId + " - " + message);
         // If you want to ignore warmup/starting while in error, keep this guard:
         if (inError && (Intents.PHASE_WARMING_UP.equals(phaseId) || Intents.PHASE_STARTING.equals(phaseId))) {
             myLogE("setLoadPhase - inError");
@@ -316,58 +263,31 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
             return;
         }
 
-        String finalMessage = message;
-        if (finalMessage == null || finalMessage.isEmpty()) {
-            finalMessage = PlaybackPhaseMapper.getPhaseMessage(getApplication(), phaseId);
-        }
-
-        // When entering a preparation phase, reset ttsAudioStarted so the loading
-        // overlay condition (busyPhase && !ttsAudioStarted) can trigger correctly.
-        boolean resetAudioStarted = Intents.PHASE_WARMING_UP.equals(phaseId)
-                || Intents.PHASE_STARTING.equals(phaseId)
-                || Intents.PHASE_LOADING_TEXT.equals(phaseId);
-
         PlaybackUiState next = new PlaybackUiState(
-                phaseId, finalMessage, cur.playing, cur.ready, cur.playMode,
+                phaseId, cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
                 cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
-                resetAudioStarted ? false : cur.ttsAudioStarted,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1, cur.extras);
         PlaybackUiBus.get().emit(next);
     }
 
     public void warmUpTtsVoice(String voiceName, @Nullable WarmupUiCallback cb) {
-        // Store callback FIRST, then show overlay immediately (no timer — avoids
-        // the race where READY arrives before the 300ms Handler fires).
-        pendingWarmupCallback = cb;
-        showOverlay(true);
+        // Show spinner in the Activity while we switch
         setLoadPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
 
         try {
             MediaControllerCompat mc = PlaybackCommands.mcOrNull(getApplication());
-            if (mc == null) {
-                throw new IllegalStateException("MediaController not available");
-            }
             Bundle b = new Bundle();
             b.putString(Intents.EXTRA_TTS_VOICE_NAME, voiceName);
             mc.getTransportControls().sendCustomAction(Intents.CMD_TTS_SET_VOICE, b);
-            // Overlay stays up; updateLoadingState() will call showOverlay(false)
-            // when MediaService broadcasts PHASE_READY.
 
-            // Safety timeout: hide overlay and fire callback if READY never arrives.
-            loadingH.postDelayed(() -> {
-                WarmupUiCallback pending = pendingWarmupCallback;
-                if (pending != null) {
-                    myLogW("warmUpTtsVoice: timeout - MediaService never confirmed READY, forcing cb");
-                    pendingWarmupCallback = null;
-                    showOverlay(false);
-                    pending.onResult(true, TtsHelper.READY);
-                }
-            }, 3000);
+            // Consider it ready (we switched instantly). If you later add true warm-up,
+            // you can move this to the success callback.
+            setLoadPhase(Intents.PHASE_READY, null);
+            if (cb != null)
+                cb.onResult(true, TtsHelper.READY);
         } catch (Throwable t) {
-            pendingWarmupCallback = null;
-            showOverlay(false);
             setLoadPhase(Intents.PHASE_ERROR, getApplication().getString(R.string.tts_phase_error));
             if (cb != null)
                 cb.onResult(false, TtsHelper.ERROR);

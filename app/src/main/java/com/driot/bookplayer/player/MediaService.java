@@ -38,11 +38,9 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.radio.RadioStation;
 import com.driot.bookplayer.tts.AppTtsManager;
-import com.driot.bookplayer.tts.TtsEngine;
 import com.driot.bookplayer.tts.TtsErrorUtils;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingMediaBrowserServiceCompat;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.db.ZikFile;
@@ -54,17 +52,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
 
-import javax.inject.Inject;
-import dagger.hilt.android.AndroidEntryPoint;
-
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 01/11/20
  */
 
-@AndroidEntryPoint
 public class MediaService extends LoggingMediaBrowserServiceCompat {
-
-    private boolean ttsAudioStarted = false;
 
     // ---- Load phase tracking ----
     private @NonNull String currentUiPhase = Intents.PHASE_OFF;
@@ -153,12 +145,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private com.driot.bookplayer.player.PauseTrimWatcher pauseWatcher;
     private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
 
-    @Inject
-    protected AppTtsManager ttsManager;
-
-    @Inject
-    protected com.driot.bookplayer.tts.TtsController ttsController;
-
     private long engineGen = 0L;
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final EngineListener engineCb = new EngineListener() {
@@ -189,7 +175,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return;
             main.post(() -> onEngineFatal(msg, what, extra));
         }
-
+/*
         @Override
         public void onTtsStarted(long gen) {
             if (gen != engineGen)
@@ -197,25 +183,25 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // This fires from AppTtsManager.onStart — audio is actually playing now.
             // Set SPEAKING phase and mark ttsAudioStarted on the main thread.
             main.post(() -> {
-                if (!ttsAudioStarted) {
-                    ttsAudioStarted = true;
-                    myLogD("onTtsStarted → emitting PHASE_SPEAKING");
-                    setUiPhase(Intents.PHASE_SPEAKING, null);
-                    PlaybackUiBus.get().setTtsAudioStarted(true);
-                }
+                myLogD("onTtsStarted → emitting PHASE_SPEAKING");
+                setUiPhase(Intents.PHASE_SPEAKING, null);
+                PlaybackUiBus.get().setTtsAudioStarted(true);
             });
         }
+
+ */
 
         @Override
         public void onTtsRange(long gen, int s, int e) {
             if (gen != engineGen)
                 return;
-            // Just broadcast the range for highlight/progress tracking.
-            // PHASE_SPEAKING is handled by onTtsStarted above.
+            // main.post(() -> { //surtout pas, source du décallage entre le highlight et
+            // l'audio
             Intent i = new Intent(Intents.NOTIFICATION_TTS_RANGE)
                     .putExtra(Intents.EXTRA_TTS_START, s)
                     .putExtra(Intents.EXTRA_TTS_END, e);
             LocalBroadcastManager.getInstance(MediaService.this).sendBroadcast(i);
+            // });
         }
     };
 
@@ -253,14 +239,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String cover = (streamImageUrl != null) ? streamImageUrl : "";
 
             s = new PlaybackUiState(
-                    loadPhase, getLoadPhaseMsg(), playing, ready, playMode,
+                    loadPhase, playing, ready, playMode,
                     0, 0, getSleepLeftMs(),
                     title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     /* podcastFeedId */ 0,
                     radioStationUuid,
-                    ttsAudioStarted,
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, null);
         } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
             String title = (streamTitle != null) ? streamTitle : getString(R.string.live_podcast);
@@ -270,14 +255,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             long dur = (engine != null) ? engine.getDuration() : 0;
 
             s = new PlaybackUiState(
-                    loadPhase, getLoadPhaseMsg(), playing, ready, playMode,
+                    loadPhase, playing, ready, playMode,
                     pos, dur, getSleepLeftMs(),
                     title, text, cover,
                     /* trackId */ 0,
                     /* folderId */ 0,
                     podcastFeedId,
                     null,
-                    ttsAudioStarted,
                     "MediaService.broadcastUiState() - podcast " + fromWhere, -10, extras);
         } else {
 
@@ -299,12 +283,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             extras.putString(Intents.EXTRA_TTS_VOICE_NAME, getCurrentTtsVoiceName());
             // extras.putInt(Intents.EXTRA_TTS_START_OFFSET, currentStartChars);
 
-            s = new PlaybackUiState(loadPhase, getLoadPhaseMsg(), playing, ready, playMode, pos, dur, getSleepLeftMs(),
-                    title, subTitle,
+            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, getSleepLeftMs(), title, subTitle,
                     cover,
-                    trackId, folderId, 0, null,
-                    ttsAudioStarted,
-                    "MediaService.broadcastUiState() " + fromWhere, -10, extras);
+                    trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
     }
@@ -403,8 +384,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         @Override
         public void onCustomAction(@NonNull String action, Bundle extras) {
-            myLog("MediaSessionCompat.Callback - onCustomAction : " + action
-                    + (extras != null ? ", extras=" + KanLogger.getBundleString(extras) : ""));
+            myLog("MediaSessionCompat.Callback - onCustomAction : " + action);
             switch (action) {
                 case Intents.CMD_SET_SPEED: {
                     double s = extras != null ? extras.getDouble(Intents.EXTRA_SPEED, 1.0) : 1.0;
@@ -414,17 +394,35 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 }
                 case Intents.CMD_TTS_SET_VOICE: {
                     String voice = extras != null ? extras.getString(Intents.EXTRA_TTS_VOICE_NAME) : null;
-                    handleTtsVoiceChange(voice);
+                    ContextCompat.startForegroundService(
+                            MediaService.this,
+                            new Intent(MediaService.this, MediaService.class)
+                                    .setAction(Intents.CMD_TTS_SET_VOICE)
+                                    .putExtra(Intents.EXTRA_TTS_VOICE_NAME, voice)
+                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
                     break;
                 }
                 case Intents.CMD_TTS_SET_START: {
                     int start = extras != null ? extras.getInt(Intents.EXTRA_TTS_START_OFFSET, 0) : 0;
-                    handleTtsSeekChars(start);
+                    ContextCompat.startForegroundService(
+                            MediaService.this,
+                            new Intent(MediaService.this, MediaService.class)
+                                    .setAction(Intents.CMD_TTS_SET_START)
+                                    .putExtra(Intents.EXTRA_TTS_START_OFFSET, start)
+                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
                     break;
                 }
                 case Intents.CMD_UPDATE_SLEEP: {
                     int minutes = extras != null ? extras.getInt(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, 0) : 0;
-                    handleUpdateSleep(minutes);
+                    ContextCompat.startForegroundService(
+                            MediaService.this,
+                            new Intent(MediaService.this, MediaService.class)
+                                    .setAction(Intents.CMD_UPDATE_SLEEP)
+                                    .putExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, minutes)
+                                    .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                    .putExtra(Intents.EXTRA_CALLER, "MediaService.onCustomAction"));
                     break;
                 }
                 case "CMD_RESET_LAST_USER_ACTION": {
@@ -432,7 +430,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     break;
                 }
                 case Intents.CMD_TTS_GET_TEXT: {
-                    // Log already covered by the global one above
+                    myLog("MediaSessionCompat.Callback - onCustomAction : CMD_TTS_GET_TEXT");
 
                     android.os.ResultReceiver rr = (extras != null)
                             ? extras.getParcelable(Intents.EXTRA_RESULT_RECEIVER)
@@ -815,7 +813,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         logPauseTime();
 
         if (engine instanceof TtsEngine)
-            setUiPhase(Intents.PHASE_STARTING, null); // audio synthesis begins; SPEAKING set when onTtsRange fires
+            setUiPhase(Intents.PHASE_SPEAKING, null);
 
         engine.start();
         Pref.setPauseTime(0);
@@ -965,7 +963,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             FirebaseAnalyticsHelper.setCustomKeyCrashlytics("MediaService.onStartCommand()", strCallLog);
             if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
                 myLogI("FOREGROUND MediaService start\n" + strCallLog);
-                goForegroundPreparing(null, null); // [FIX] fulfill the 5s requirement immediately
             } else {
                 myLog("MediaService start\n" + strCallLog);
             }
@@ -1139,7 +1136,25 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intents.CMD_TTS_SET_VOICE: {
                 final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
-                handleTtsVoiceChange(voiceName);
+                if (voiceName == null) {
+                    myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
+                    return START_STICKY;
+                }
+                if (engine instanceof TtsEngine) {
+                    try {
+                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP); // ,
+                                                                                    // getString(R.string.tts_phase_warming_up)
+                        boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
+                        myLog("Voice change success = " + ok);
+                        if (ok) {
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_READY);
+                        } else {
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR); // getString(R.string.tts_phase_error)
+                        }
+
+                    } catch (Throwable ignored) {
+                    }
+                }
                 return START_STICKY;
             }
 
@@ -1152,7 +1167,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             case Intents.CMD_UPDATE_SLEEP: {
                 int newSleepValueInMin = intent.getIntExtra(Intents.EXTRA_CUSTOM_SLEEP_MINUTES, -1);
-                handleUpdateSleep(newSleepValueInMin);
+                if (newSleepValueInMin > 0)
+                    playTimer.reload(newSleepValueInMin);
                 return START_STICKY;
             }
 
@@ -1373,7 +1389,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Also stop TTS engine to prevent infinite loops
         try {
-            AppTtsManager ttsMgr = ttsManager;
+            com.driot.bookplayer.tts.AppTtsManager ttsMgr = com.driot.bookplayer.tts.AppTtsManager.get(this);
             if (ttsMgr != null) {
                 ttsMgr.stop();
             }
@@ -1490,15 +1506,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // Swap current engine with a new one, releasing TTS if needed, keeping flags
     // intact.
-    private void onTtsSetVoice(String name) {
-        myLog("onTtsSetVoice - name=[" + name + "]");
-        if (ttsController != null) {
-            ttsController.applyVoiceByName(name);
-            ttsController.saveVoiceForCurrentFolder(this, name);
-        }
-        broadcastUiState("onTtsSetVoice");
-    }
-
     private void setEngine(@NonNull PlayerEngine newEngine) {
         try {
             if (engine != null) {
@@ -1527,7 +1534,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         // Swap engine
         PlayerEngine fresh = Var.PLAY_MODE_TTS.equals(playMode)
-                ? new TtsEngine(getApplicationContext(), ttsManager, ttsController, engineCb, gen)
+                ? new TtsEngine(getApplicationContext(), AppTtsManager.get(getApplicationContext()), engineCb, gen)
                 : new MediaPlayerEngine(engineCb, gen);
         setEngine(fresh);
 
@@ -1562,10 +1569,34 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             engine.setDataSource(this, src, zf.getDisplayName());
 
             if (engine instanceof TtsEngine) {
-                String picked = ttsController.resolveVoiceName();
+                String picked = null;
+                String pickedSource = "system";
+
+                // 1) Per-book voice (never override this later)
+                String perBook = null;
+                PlayList pl = PlayList.getInstance();
+                if (pl != null && pl.getFolder() != null) {
+                    perBook = pl.getFolder().ttsVoice;
+                }
+                if (perBook != null && !perBook.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(perBook)) {
+                    picked = perBook;
+                    pickedSource = "book";
+                } else {
+                    // 2) App-wide fallback (only if no per-book)
+                    String appWide = Option.getTtsVoice();
+                    if (appWide != null && !appWide.isEmpty() && !Option.DEFAULT_VOICE.equalsIgnoreCase(appWide)) {
+                        picked = appWide;
+                        pickedSource = "global";
+                    }
+                }
                 if (picked != null) {
-                    boolean ok = ((TtsEngine) engine).setVoiceByName(picked);
-                    myLog("Applied initial TTS voice = " + picked + " (ok=" + ok + ")");
+                    try {
+                        boolean ok = ((TtsEngine) engine).setVoiceByName(picked);
+                        myLog("Applied initial TTS voice = " + picked + " (source=" + pickedSource + ", ok=" + ok
+                                + ")");
+                    } catch (Throwable ignored) {
+                        myLogE("Failed to apply initial TTS voice = " + picked + " (source=" + pickedSource + ")");
+                    }
                 } else {
                     myLog("Initial TTS voice = system (no explicit voice)");
                 }
@@ -2025,26 +2056,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public String getLoadPhase() {
         if (engine == null)
             return Intents.PHASE_OFF;
-
-        if (engine.isPlaying()) {
-            if ("tts".equals(getPlayMode())) {
-                return Intents.PHASE_SPEAKING;
-            }
-            return Intents.PHASE_READY;
-        }
-
-        if (engine.isReady()) {
+        ;
+        if (engine.isPlaying() || engine.isReady()) {
             return Intents.PHASE_READY;
         } else {
             return Intents.PHASE_BUFFERING;
         }
-    }
-
-    public String getLoadPhaseMsg() {
-        if (currentUiPhaseMsg != null && !currentUiPhaseMsg.isEmpty())
-            return currentUiPhaseMsg;
-
-        return PlaybackPhaseMapper.getPhaseMessage(this, getLoadPhase());
     }
 
     public String getCurrentTtsVoiceName() {
@@ -2187,21 +2204,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // Convenience for setting phase + optional message
     private void setUiPhase(@NonNull String phase, @Nullable String msg) {
-        myLog("TTS Phase change: " + phase + " (msg: " + msg + ")");
+        myLog("setUiPhase : " + phase + " - msg : " + msg);
         currentUiPhase = phase;
         currentUiPhaseMsg = msg;
-
-        // Reset audio started flag when entering any preparation phase or stopping.
-        // WARMING_UP is included so the loading overlay appears during voice changes.
-        if (Intents.PHASE_WARMING_UP.equals(phase) || Intents.PHASE_STARTING.equals(phase)
-                || Intents.PHASE_LOADING_TEXT.equals(phase)
-                || Intents.PHASE_OFF.equals(phase)) {
-            ttsAudioStarted = false;
-            PlaybackUiBus.get().setTtsAudioStarted(false);
-        }
-
-        String resolvedMsg = (msg != null) ? msg : PlaybackPhaseMapper.getPhaseMessage(this, phase);
-        PlaybackUiBus.get().setLoadPhase(phase, resolvedMsg);
+        PlaybackUiBus.get().setLoadPhase(phase);
     }
 
     // Full file/audiobook actions (current behavior)
@@ -2356,34 +2362,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     // TODO replace all this shot by MediaSession controller
     private void emitUiTick(String calledFrom) {
         broadcastUiState(calledFrom);
-    }
-
-    private void handleTtsVoiceChange(String voiceName) {
-        if (voiceName == null) {
-            myLogEE(null, "handleTtsVoiceChange => voiceName is null");
-            return;
-        }
-        if (engine instanceof TtsEngine) {
-            try {
-                setUiPhase(Intents.PHASE_WARMING_UP, null);
-                boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
-                myLog("Voice change success = " + ok);
-                if (ok) {
-                    setUiPhase(Intents.PHASE_READY, null);
-                } else {
-                    setUiPhase(Intents.PHASE_ERROR, null);
-                }
-            } catch (Throwable ignored) {
-            }
-        }
-    }
-
-    private void handleUpdateSleep(int minutes) {
-        if (minutes > 0) {
-            if (playTimer != null) {
-                playTimer.reload(minutes);
-            }
-        }
     }
 
     private void handleTtsSeekChars(int chars) {

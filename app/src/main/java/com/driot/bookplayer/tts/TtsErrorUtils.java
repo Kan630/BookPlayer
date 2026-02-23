@@ -3,6 +3,7 @@ package com.driot.bookplayer.tts;
 import android.content.Context;
 import android.content.Intent;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 
 import java.util.Locale;
 
@@ -130,7 +131,7 @@ public final class TtsErrorUtils {
         try {
             ctx.startActivity(intent);
         } catch (Exception e) {
-            myLogW("No activity can handle ACTION_INSTALL_TTS_DATA");
+            Log.w(TAG, "No activity can handle ACTION_INSTALL_TTS_DATA", e);
         }
     }
 

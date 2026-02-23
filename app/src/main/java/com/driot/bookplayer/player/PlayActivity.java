@@ -22,8 +22,6 @@ import android.widget.ImageView;
 import com.driot.bookplayer.activities.TtsReaderActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.PodcastDao;
-import com.driot.bookplayer.tts.AppTtsManager;
-import com.driot.bookplayer.tts.TtsHighlighter;
 import com.driot.bookplayer.tts.VoiceItem;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
@@ -52,12 +50,13 @@ import com.driot.bookplayer.player.heatmaps.PlayTickBucketMerger;
 import com.driot.bookplayer.player.heatmaps.PlayTickDao;
 import com.driot.bookplayer.player.heatmaps.PlayTickHeatMapHelper;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.tts.TtsUiHelper;
+import com.driot.bookplayer.tts.TtsHighlighter;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -69,13 +68,7 @@ import java.util.List;
 import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
-import dagger.hilt.android.AndroidEntryPoint;
-
-@AndroidEntryPoint
-public class PlayActivity extends BaseActivity implements TtsHighlighter.HighlightListener {
-
-    @javax.inject.Inject
-    protected com.driot.bookplayer.tts.AppTtsManager ttsManager;
+public class PlayActivity extends BaseActivity {
 
     private PlaybackViewModel vm;
 
@@ -113,7 +106,6 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
 
     private ImageView ivCover;
     private String lastCoverUri = null;
-    private String lastLoadMessage = "";
 
     private FrequencyVisualizerView frequencyVisualizerView;
 
@@ -187,7 +179,7 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
 
         // TTS voices (early)
         if (folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
-            initTtsVoiceSpinner(folder, ttsManager);
+            initTtsVoiceSpinner(folder);
         }
         touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
 
@@ -241,30 +233,11 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
 
         ttsContainer = findViewById(R.id.ttsContainer);
         tvTtsText = findViewById(R.id.tvTtsText);
-        ttsHighlighter = new TtsHighlighter(tvTtsText, this);
-
-        vm.getLoading().observe(this, show -> {
-            if (progressOverlay == null)
-                return;
-            myLogD("Loading Overlay: loading overlay status changed: " + show);
-            if (show) {
-                TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
-                if (tv != null) {
-                    PlaybackUiState s = vm.getState().getValue();
-                    String msg = (s != null) ? s.loadMessage : null;
-                    tv.setText(msg != null && !msg.isEmpty() ? msg : getString(R.string.loading_voice_3pt));
-                }
-                progressOverlay.setVisibility(View.VISIBLE);
-                progressOverlay.bringToFront();
-            } else {
-                progressOverlay.setVisibility(View.GONE);
-            }
-        });
+        ttsHighlighter = new TtsHighlighter(this, tvTtsText);
 
         final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
         final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
         progressTitle.setText(getString(R.string.Text_To_Speech));
-        progressTitle.setVisibility(View.VISIBLE);
 
         String nbSec = String.valueOf(Option.get_ForwardSeconds());
         bRewind.setText("-" + nbSec + " " + getString(R.string.sec));
@@ -398,23 +371,16 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
             boolean isTts = "tts".equals(s.playMode);
             boolean isStarting = Intents.PHASE_STARTING.equals(s.loadPhase);
             boolean trackChanged = isTts && (s.trackId != ttsHighlighter.getLastTtsTrackId());
-            if (isTts
+            boolean becameReady = isTts
                     && !Intents.PHASE_READY.equals(ttsHighlighter.getLastTtsPhase())
-                    && Intents.PHASE_READY.equals(s.loadPhase)) {
-                suppressAutoScroll = false;
-                // Request text when we become ready
-                vm.resetTtsTextRequestFlag();
-                vm.requestTtsTextOnce();
-            }
+                    && Intents.PHASE_READY.equals(s.loadPhase);
 
-            if (isTts && trackChanged) {
+            if (isTts && (trackChanged || becameReady)) {
                 suppressAutoScroll = false;
-                vm.resetTtsTextRequestFlag();
-                vm.requestTtsTextOnce();
             }
 
             // Delegate logic to highlighter
-            ttsHighlighter.onPlaybackStateChanged(s);
+            ttsHighlighter.onPlaybackStateChanged(s, vm);
 
             if (s.ready && !isStarting) {
                 bPlayPause.setEnabled(true);
@@ -451,7 +417,58 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
             checkAndLaunchScreensaver(s);
 
             String p = s.loadPhase;
-            lastLoadMessage = s.loadMessage;
+            if (p == null)
+                return;
+            // myLog("Phase observer : " + p);
+
+            // Pull the latest playback state to know if we’re in TTS or audio mode
+            final boolean tts = ("tts".equals(s.playMode));
+
+            // Default: hide overlays for pure audio mode unless we’re in an error phase
+            if (!tts) {
+                // Show only ERROR message if present
+                boolean showError = Intents.PHASE_ERROR.equals(p);
+                progressOverlay.setVisibility(View.GONE);
+                if (showError) {
+                    progressTitle.setText("");
+                    // progressMessage.setText(p.message != null ? p.message :
+                    // getString(R.string.error_generic));
+                    messageOverlay.setVisibility(View.VISIBLE);
+                } else {
+                    messageOverlay.setVisibility(View.GONE);
+                }
+                return;
+            }
+
+            // TTS mode: show spinner during busy phases, otherwise hide overlays
+            // final boolean busy = Intents.PHASE_LOADING_TEXT.equals(p.phase)
+            // || Intents.PHASE_STARTING.equals(p.phase);
+            // progressOverlay.setVisibility(busy ? View.VISIBLE : View.GONE);
+
+            String label;
+            switch (p) {
+                case Intents.PHASE_LOADING_TEXT:
+                    label = getString(R.string.tts_phase_loading_text);
+                    break;
+                case Intents.PHASE_STARTING:
+                    label = getString(R.string.tts_phase_starting);
+                    break;
+                case Intents.PHASE_READY:
+                    label = getString(R.string.Ready);
+                    break;
+                case Intents.PHASE_SPEAKING:
+                    label = getString(R.string.Speaking);
+                    break;
+                case Intents.PHASE_ERROR:
+                    label = getString(R.string.tts_phase_error);
+                    break;
+                default:
+                    label = "";
+                    break;
+            }
+            // Prefer explicit message from service if present
+            // if (p.message != null && !p.message.isEmpty()) label = p.message;
+            // progressMessage.setText(label);
 
             // Error message overlay (non-blocking)
             if (Intents.PHASE_ERROR.equals(p)) {
@@ -734,6 +751,23 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
         podcastLastClickTime = now;
     }
 
+    public void showTtsLoading(boolean show) {
+        if (progressOverlay == null) {
+            myLogE("showTtsLoading: progressOverlay is null!");
+            return;
+        }
+        myLogD("showTtsLoading: " + show);
+        if (show) {
+            TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
+            if (tv != null)
+                tv.setText(R.string.loading_voice_3pt);
+            progressOverlay.setVisibility(View.VISIBLE);
+            progressOverlay.bringToFront(); // Ensure it's on top
+        } else {
+            progressOverlay.setVisibility(View.GONE);
+        }
+    }
+
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
         if (s == null)
             return;
@@ -841,8 +875,8 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
     // --- Refactored TTS Highlighter ---
     private TtsHighlighter ttsHighlighter;
 
-    @Override
-    public void onScrollToPosition(TextView tv, int startPos) {
+    // Callbacks from TtsHighlighter
+    public void onTtsHighlightApplied(TextView tv, int startPos) {
         if (suppressAutoScroll)
             return;
         tvTtsText.post(() -> {
@@ -859,12 +893,7 @@ public class PlayActivity extends BaseActivity implements TtsHighlighter.Highlig
         });
     }
 
-    // Callbacks from TtsHighlighter
-    public void onTtsHighlightApplied(TextView tv, int startPos) {
-        onScrollToPosition(tv, startPos);
-    }
-
-    private void initTtsVoiceSpinner(Folder folder, AppTtsManager mgr) {
+    private void initTtsVoiceSpinner(Folder folder) {
         String saved = folder.ttsVoice;
         if (saved == null) {
             saved = Option.getTtsVoice();

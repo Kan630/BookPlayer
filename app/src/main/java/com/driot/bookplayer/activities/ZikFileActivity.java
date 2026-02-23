@@ -57,24 +57,13 @@ public class ZikFileActivity extends BaseBottomNavActivity {
         super.onResume();
         sendBroadcast(new Intent(Intents.ACTION_PING_UI));
         if (adapter != null) {
-            adapter.refreshDisplayHeatMaps(); // useful if user change option in settings
+            adapter.refreshDisplayHeatMaps(); //useful if user change option in settings
         }
     }
 
-    @Override
-    protected int getNavId() {
-        return R.id.nav_library;
-    }
-
-    @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_zikfile;
-    }
-
-    @Override
-    protected boolean enableOngoingTaskOverlay() {
-        return true;
-    }
+    @Override protected int getNavId() { return R.id.nav_library; }
+    @Override protected int getLayoutResId() { return R.layout.activity_zikfile; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -103,25 +92,23 @@ public class ZikFileActivity extends BaseBottomNavActivity {
         ItemTouchHelper.SimpleCallback callback = new ItemTouchHelper.SimpleCallback(
                 ItemTouchHelper.UP | ItemTouchHelper.DOWN, 0 /* no swipe */) {
 
+
             @Override
-            public boolean isLongPressDragEnabled() {
-                return false;
-            } // use the button only
+            public boolean isLongPressDragEnabled() { return false; } // use the button only
 
             @Override
             public boolean onMove(@NonNull RecyclerView rv,
-                    @NonNull RecyclerView.ViewHolder from,
-                    @NonNull RecyclerView.ViewHolder to) {
+                                  @NonNull RecyclerView.ViewHolder from,
+                                  @NonNull RecyclerView.ViewHolder to) {
                 int fromPos = from.getBindingAdapterPosition();
-                int toPos = to.getBindingAdapterPosition();
+                int toPos   = to.getBindingAdapterPosition();
                 adapter.moveItem(fromPos, toPos);
                 adapter.notifyRowNumbersChanged(fromPos, toPos);
                 return true;
             }
 
             @Override
-            public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int dir) {
-            }
+            public void onSwiped(@NonNull RecyclerView.ViewHolder vh, int dir) {}
 
             @Override
             public void clearView(@NonNull RecyclerView rv, @NonNull RecyclerView.ViewHolder vh) {
@@ -138,8 +125,10 @@ public class ZikFileActivity extends BaseBottomNavActivity {
         };
 
         ItemTouchHelper touchHelper = new ItemTouchHelper(callback);
-        adapter = new ZikFilesRVAdapter(this, playbackVm.getState(), viewHolder -> touchHelper.startDrag(viewHolder),
-                activateChangeTrackOrder);
+        adapter = new ZikFilesRVAdapter(this
+                , playbackVm.getState()
+                ,viewHolder -> touchHelper.startDrag(viewHolder)
+                , activateChangeTrackOrder);
 
         recyclerView.setAdapter(adapter);
         touchHelper.attachToRecyclerView(recyclerView);
@@ -159,17 +148,17 @@ public class ZikFileActivity extends BaseBottomNavActivity {
                 finish();
             } else {
                 folder = f;
-                if (lastFolder == null || f.getId() != lastFolder.getId()) {
+                if (lastFolder==null || f.getId() != lastFolder.getId()) {
                     fillHeader(); // uses the latest folder
                     lastFolder = f;
                 }
             }
         });
 
+
         // ViewModel + LiveData observation
         listVm.getZikFilesLive(folderId).observe(this, list -> {
-            if (list == null)
-                return;
+            if (list == null) return;
             adapter.submitList(list);
 
             // Auto-scroll only on first load
@@ -193,12 +182,9 @@ public class ZikFileActivity extends BaseBottomNavActivity {
         });
 
         playbackVm.getState().observe(this, s -> {
-            if (s == null)
-                return;
-            if (s.folderId != folderId)
-                return; // only care if user is viewing the same folder
-            if (s.trackId <= 0)
-                return;
+            if (s == null) return;
+            if (s.folderId != folderId) return;         // only care if user is viewing the same folder
+            if (s.trackId <= 0) return;
 
             // Only scroll when the track actually changes
             if (s.trackId != lastObservedTrackId) {
@@ -213,6 +199,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
             }
         });
     }
+
 
     private void scrollToLastPlayed(List<ZikFile> list) {
         long maxTs = 0;
@@ -245,8 +232,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
 
             ivCover.setImageDrawable(null); // force refresh
             Context gildeContext = ivCover.getContext();
-            // Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext,
-            // folder.image)).into(ivCover);
+            //Glide.with(gildeContext).load(StorageHelper.checkAndCleanImagePath(gildeContext, folder.image)).into(ivCover);
             Glide.with(gildeContext).load(folder.image).into(ivCover);
             ivCover.invalidate();
         } else {
@@ -279,15 +265,14 @@ public class ZikFileActivity extends BaseBottomNavActivity {
         }
     }
 
-    private final ActivityResultLauncher<Intent> modifyLauncher = registerForActivityResult(
-            new ActivityResultContracts.StartActivityForResult(), result -> {
+    private final ActivityResultLauncher<Intent> modifyLauncher =
+            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
                 myLogD("coming back from ModifyFolderActivity");
             });
 
     private boolean isVisible(int position) {
         RecyclerView.LayoutManager lm = recyclerView.getLayoutManager();
-        if (!(lm instanceof LinearLayoutManager))
-            return false;
+        if (!(lm instanceof LinearLayoutManager)) return false;
         LinearLayoutManager llm = (LinearLayoutManager) lm;
         int first = llm.findFirstVisibleItemPosition();
         int last = llm.findLastVisibleItemPosition();
@@ -305,8 +290,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
 
     private void smoothScrollRowNearTop(int position) {
         // For smooth behavior, we can first ask RecyclerView to smooth scroll;
-        // most managers do not support offset in smooth mode, but this feels fine in
-        // practice.
+        // most managers do not support offset in smooth mode, but this feels fine in practice.
         recyclerView.smoothScrollToPosition(position);
     }
 

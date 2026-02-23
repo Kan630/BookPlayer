@@ -59,8 +59,8 @@ import java.util.List;
 public class ModifyFolderActivity extends BaseActivity {
 
     private Folder folder;
-    private View progressOverlay;
-    private TextView tvProgressMessage;
+    private View blockingOverlay;
+    private TextView tvBlockingText;
     private Button bDelete, bReset, bExport, bShare;
     private Button bChangeCover, bDeleteCover, bGenerateCover, bWebSearch, bResetToOriginal;
     private LinearLayout ll_zikfile_resolve_error;
@@ -83,8 +83,8 @@ public class ModifyFolderActivity extends BaseActivity {
         bReset = findViewById(R.id.bReset);
         bExport = findViewById(R.id.bExport);
         bShare = findViewById(R.id.bShare);
-        progressOverlay = findViewById(R.id.progress_overlay);
-        tvProgressMessage = findViewById(R.id.tv_progress_overlay_message);
+        blockingOverlay = findViewById(R.id.blockingOverlay);
+        tvBlockingText = findViewById(R.id.tvBlockingText);
         bDeleteCover = findViewById(R.id.bDeleteCover);
         bGenerateCover = findViewById(R.id.bGenerateCover);
         bChangeCover = findViewById(R.id.bChangeCover);
@@ -178,7 +178,7 @@ public class ModifyFolderActivity extends BaseActivity {
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
-                if (isDeleting || (progressOverlay != null && progressOverlay.getVisibility() == View.VISIBLE)) {
+                if (isDeleting || (blockingOverlay != null && blockingOverlay.getVisibility() == View.VISIBLE)) {
                     // Don’t cancel the Work; just finish this Activity
                     setResult(RESULT_OK, new Intent().putExtra("deleteInProgressFolderId", folder.getId()));
                     finish();
@@ -239,7 +239,7 @@ public class ModifyFolderActivity extends BaseActivity {
         // simpler: use getWorkInfosByTag (blocking) from a background thread, or just
         // rely on UI lock:
         // If overlay is visible, do nothing:
-        if (progressOverlay.getVisibility() == View.VISIBLE) {
+        if (blockingOverlay.getVisibility() == View.VISIBLE) {
             // already deleting → ignore tap
             return;
         }
@@ -291,11 +291,11 @@ public class ModifyFolderActivity extends BaseActivity {
     private void setUiDeleting(boolean deleting) {
         if (deleting) {
             // block taps visually
-            if (progressOverlay != null)
-                progressOverlay.setVisibility(View.VISIBLE);
+            if (blockingOverlay != null)
+                blockingOverlay.setVisibility(View.VISIBLE);
         } else {
-            if (progressOverlay != null)
-                progressOverlay.setVisibility(View.GONE);
+            if (blockingOverlay != null)
+                blockingOverlay.setVisibility(View.GONE);
         }
 
         // Disable all action buttons to prevent multiple clicks
@@ -830,9 +830,9 @@ public class ModifyFolderActivity extends BaseActivity {
                     String name = progress.getString("p_name");
                     if (count > 0 && name != null) {
                         String txt = getString(R.string.Deleting) + " item N°" + count + " : " + name + "....";
-                        tvProgressMessage.setText(txt);
+                        tvBlockingText.setText(txt);
                     } else {
-                        tvProgressMessage.setText(R.string.Deleting);
+                        tvBlockingText.setText(R.string.Deleting);
                     }
                     break;
 

@@ -9,9 +9,8 @@ import com.driot.bookplayer.utils.log.LoggerHelper;
 public class PlaybackUiState extends LoggerHelper {
 
     public final String loadPhase;
-    public final String loadMessage;
     public final boolean playing;
-    public final boolean ready; // engine.isReady()
+    public final boolean ready;  // engine.isReady()
     public final String playMode;// = "book", "tts", "radio", "podcast", "book"
 
     public final long positionMs;
@@ -22,31 +21,27 @@ public class PlaybackUiState extends LoggerHelper {
     public final String subTitle;
     public final String cover;
 
-    public final int trackId; // current ZikFile id (or 0 if unknown)
-    public final int folderId; // current Folder id (or 0 if unknown)
+    public final int trackId;    // current ZikFile id (or 0 if unknown)
+    public final int folderId;   // current Folder id (or 0 if unknown)
     public final long podcastFeedId;
     public final String radioStationUuid;
 
     public final String calledFrom;
     public final long callCounter;
 
-    public final boolean ttsAudioStarted;
-
     @Nullable
     public final Bundle extras;
 
-    public PlaybackUiState(String loadPhase, String loadMessage, boolean playing, boolean ready, String playMode,
-            long pos, long dur, long sleepLeftMS,
-            String title, String subTitle, String cover,
-            int trackId, int folderId, long podcastId, String radioStationUuid,
-            boolean ttsAudioStarted,
-            String calledFrom, long callCounter,
-            @Nullable Bundle extras) {
+    public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
+                           long pos, long dur, long sleepLeftMS,
+                           String title, String subTitle, String cover,
+                           int trackId, int folderId, long podcastId, String radioStationUuid,
+                           String calledFrom, long callCounter,
+                           @Nullable Bundle extras) {
 
         super(PlaybackUiState.class);
 
         this.loadPhase = loadPhase;
-        this.loadMessage = loadMessage;
         this.playing = playing;
         this.ready = ready;
         this.playMode = playMode;
@@ -64,27 +59,22 @@ public class PlaybackUiState extends LoggerHelper {
         this.podcastFeedId = podcastId;
         this.radioStationUuid = radioStationUuid;
 
-        this.ttsAudioStarted = ttsAudioStarted;
-
         this.calledFrom = calledFrom;
         this.callCounter = callCounter;
 
         this.extras = extras;
 
-        // myLog(toString());
+        //myLog(toString());
     }
 
-    @Override
-    public String toString() {
+    @Override public String toString() {
         return "PlaybackUiState{" +
                 "  loadPhase=" + loadPhase +
-                ", loadMessage='" + loadMessage + '\'' +
                 ", playMode=" + playMode +
                 ", calledFrom='" + calledFrom + '\'' +
                 ", callCounter=" + callCounter +
                 ", playing=" + playing +
                 ", ready=" + ready +
-                ", ttsAudioStarted=" + ttsAudioStarted +
                 ", positionMs=" + positionMs +
                 ", durationMs=" + durationMs +
                 ", sleepLeftMS=" + sleepLeftMS +

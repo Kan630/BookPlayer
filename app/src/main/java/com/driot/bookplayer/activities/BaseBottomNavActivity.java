@@ -13,13 +13,8 @@ import androidx.annotation.LayoutRes;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.player.NavHelper;
-import com.driot.bookplayer.player.PlaybackUiState;
-import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.navigation.NavigationBarView;
-import androidx.lifecycle.ViewModelProvider;
-import android.widget.TextView;
 
 public abstract class BaseBottomNavActivity extends BaseActivity {
 
@@ -39,7 +34,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     }
 
     private NavigationBarView bottomNav;
-    private PlaybackViewModel basePlaybackVm;
 
     private boolean navSelectionFromCode = false;
 
@@ -55,27 +49,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         // 2) Inflate the child layout into the container
         ViewGroup container = findViewById(R.id.base_content);
         getLayoutInflater().inflate(getLayoutResId(), container, true);
-
-        // 2b) Setup centralized playback loading overlay
-        basePlaybackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
-        View progressOverlay = findViewById(R.id.progress_overlay);
-        if (progressOverlay != null) {
-            basePlaybackVm.getLoading().observe(this, show -> {
-                myLogD("Loading Overlay: loading overlay status changed: " + show);
-                if (show) {
-                    TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
-                    if (tv != null) {
-                        PlaybackUiState s = basePlaybackVm.getState().getValue();
-                        String msg = (s != null) ? s.loadMessage : null;
-                        tv.setText(msg != null && !msg.isEmpty() ? msg : getString(R.string.loading_voice_3pt));
-                    }
-                    progressOverlay.setVisibility(View.VISIBLE);
-                    progressOverlay.bringToFront();
-                } else {
-                    progressOverlay.setVisibility(View.GONE);
-                }
-            });
-        }
 
         // 3) Attach ongoing task overlay if requested
         if (enableOngoingTaskOverlay()) {
@@ -176,9 +149,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         ctx.startActivity(intent);
     }
 
-    private void myLogDD(String txt) {
-        if (VERBOSE_DEBUG)
-            myLogD(txt);
-    }
+    private void myLogDD(String txt) {if (VERBOSE_DEBUG) myLogD(txt);}
 
 }
