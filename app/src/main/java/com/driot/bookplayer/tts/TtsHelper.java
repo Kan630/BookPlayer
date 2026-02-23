@@ -327,9 +327,9 @@ public class TtsHelper {
             }
             // LiveData may deliver on any thread; ensure main thread
             if (Looper.myLooper() == Looper.getMainLooper()) {
-                populateSpinnerFromVoices(ui, spinner, voices, savedCode, callback);
+                populateSpinnerFromVoices(ui, spinner, mgr, voices, savedCode, callback);
             } else {
-                main.post(() -> populateSpinnerFromVoices(ui, spinner, voices, savedCode, callback));
+                main.post(() -> populateSpinnerFromVoices(ui, spinner, mgr, voices, savedCode, callback));
             }
         };
 
