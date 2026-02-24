@@ -22,6 +22,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.views.TtsTextView;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -49,7 +50,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     }
 
     private PlaybackViewModel vm;
-    private TextView tvTtsFull;
+    private TtsTextView tvTtsFull;
     private Spannable spannableText;
 
     private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
@@ -184,8 +185,8 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
                     v.getParent().requestDisallowInterceptTouchEvent(false);
                     if (tapped) {
                         suppressAutoScroll = false;
-                        v.performClick();
                     }
+                    v.performClick();
                     return tapped;
                 }
                 case MotionEvent.ACTION_CANCEL:

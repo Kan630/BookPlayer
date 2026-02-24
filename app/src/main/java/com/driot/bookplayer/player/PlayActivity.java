@@ -18,30 +18,17 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-
-import com.driot.bookplayer.activities.TtsReaderActivity;
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.PodcastDao;
-import com.driot.bookplayer.tts.VoiceItem;
-import com.google.android.material.button.MaterialButton;
-import com.google.android.material.slider.Slider;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-import androidx.activity.OnBackPressedCallback;
-import androidx.annotation.NonNull;
-import dagger.hilt.android.AndroidEntryPoint;
-import androidx.annotation.Nullable;
-import androidx.lifecycle.ViewModelProvider;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
-
-import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.player.heatmaps.PlayHeatMapView;
 import com.driot.bookplayer.player.heatmaps.PlaySession;
@@ -58,16 +45,30 @@ import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.tts.TtsHighlighter;
 import com.driot.bookplayer.tts.TtsOverlayManager;
+import com.driot.bookplayer.tts.VoiceItem;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
+import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
+import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
+import com.driot.bookplayer.views.TtsTextView;
+
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.slider.Slider;
+
+import androidx.activity.OnBackPressedCallback;
+import androidx.annotation.NonNull;
+import dagger.hilt.android.AndroidEntryPoint;
+import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+
+import com.bumptech.glide.Glide;
 
 import java.util.List;
-
-import static com.driot.bookplayer.global.Var.SLEEP_PRESET_VALUES;
-import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
 
 @AndroidEntryPoint
 public class PlayActivity extends BaseActivity {
@@ -112,7 +113,7 @@ public class PlayActivity extends BaseActivity {
     private FrequencyVisualizerView frequencyVisualizerView;
 
     private View ttsContainer;
-    private TextView tvTtsText;
+    private TtsTextView tvTtsText;
     // State moved to TtsHighlighter
 
     private long podcastLastClickTime = 0;
@@ -245,8 +246,10 @@ public class PlayActivity extends BaseActivity {
         progressTitle.setText(getString(R.string.Text_To_Speech));
 
         String nbSec = String.valueOf(Option.get_ForwardSeconds());
-        bRewind.setText("-" + nbSec + " " + getString(R.string.sec));
-        bForward.setText("+" + nbSec + " " + getString(R.string.sec));
+        String bRewindText = "-" + nbSec + " " + getString(R.string.sec);
+        bRewind.setText(bRewindText);
+        String bForwardText = "-" + nbSec + " " + getString(R.string.sec);
+        bForward.setText(bForwardText);
 
         // Clicks
         bPlayPause.setOnClickListener(v -> {
@@ -388,13 +391,7 @@ public class PlayActivity extends BaseActivity {
             ttsHighlighter.onPlaybackStateChanged(s, vm);
             ttsOverlayManager.onPlaybackStateChanged(s);
 
-            if (s.ready && !isStarting) {
-                bPlayPause.setEnabled(true);
-                bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
-            } else {
-                bPlayPause.setEnabled(false);
-                bPlayPause.setIconResource(R.drawable.ic_hourglass_24);
-            }
+            bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
             // cover
             if (s.cover != null && !s.cover.isEmpty()) {
@@ -542,6 +539,7 @@ public class PlayActivity extends BaseActivity {
             float x = event.getX();
             float ratio = Math.max(0f, Math.min(1f, x / w));
             long seekMs = (long) (ratio * s.durationMs);
+            String curTimeTxt="...";
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN: {
                     float cursorX = (s.positionMs / (float) s.durationMs) * w;
@@ -553,18 +551,21 @@ public class PlayActivity extends BaseActivity {
                     heatMapSeekStartPositionMs = s.positionMs;
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
-                    tvCurTime.setText(
-                            Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
+                    curTimeTxt = Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs);
+                    tvCurTime.setText(curTimeTxt);
                     return true;
                 }
                 case MotionEvent.ACTION_MOVE:
                     heatMapSeek.setPlayingCursorDragging(true);
                     vm.setSeekPreview(seekMs);
-                    tvCurTime.setText(
-                            Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs));
+                    curTimeTxt = Tonio.formatHhMmSs(heatMapSeekStartPositionMs) + " → " + Tonio.formatHhMmSs(seekMs);
+                    tvCurTime.setText(curTimeTxt);
                     return true;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
+                    if (event.getActionMasked() == MotionEvent.ACTION_UP) {
+                        v.performClick();
+                    }
                     stopDragResetTimer();
                     heatMapSeek.setPlayingCursorDragging(false);
                     vm.setSeekPreview(null);
@@ -586,7 +587,7 @@ public class PlayActivity extends BaseActivity {
         Context appCtx = getApplicationContext();
         AppDatabase.databaseReadExecutor.execute(() -> {
             PlayTickDao tickDao = AppDatabase.getInstance(appCtx).playTickDao();
-            com.driot.bookplayer.player.heatmaps.PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx)
+            PlaySessionDao sessionDao = AppDatabase.getInstance(appCtx)
                     .playSessionDao();
             List<PlayTickBucket> tickBuckets = tickDao.getBucketCounts(zikFileId, bucketSizeMs);
             List<PlaySession> sessions = sessionDao.getAllForFile(zikFileId);
@@ -660,8 +661,8 @@ public class PlayActivity extends BaseActivity {
         dialog.setOnDismissListener(d -> stopDragResetTimer());
         dialog.show();
 
-        for (int i = 0; i < SLEEP_PRESET_VALUES.length; i++) {
-            final int m = SLEEP_PRESET_VALUES[i];
+        for (int i = 0; i < Var.SLEEP_PRESET_VALUES.length; i++) {
+            final int m = Var.SLEEP_PRESET_VALUES[i];
             String presetButtonText = m + " " + getString(R.string.min_);
             presets[i].setText(presetButtonText);
             presets[i].setOnClickListener(v -> {
@@ -764,7 +765,7 @@ public class PlayActivity extends BaseActivity {
             if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
                 sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
             }
-            if (Option.getVisualizerOn() && isRecordAudioPermissionGranted(this) && sessionId != null) {
+            if (Option.getVisualizerOn() && PermissionRequest.isRecordAudioPermissionGranted(this) && sessionId != null) {
                 try {
                     // myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
                     frequencyVisualizerView.setMode(Option.getVisualizerType());
@@ -782,10 +783,6 @@ public class PlayActivity extends BaseActivity {
             frequencyVisualizerView.setVisibility(View.GONE);
             ttsContainer.setVisibility(View.VISIBLE);
             ivCover.setVisibility(View.GONE);
-
-            if (ttsHighlighter.getLastTtsTextString() == null || ttsHighlighter.getLastTtsTextString().isEmpty()) {
-                // vm.requestTtsTextOnce(); // handled by VM auto-fetch
-            }
 
             // Tap-to-seek within text
             final android.view.GestureDetector tapDetector = new android.view.GestureDetector(tvTtsText.getContext(),
@@ -839,9 +836,9 @@ public class PlayActivity extends BaseActivity {
                         if (tapped) {
                             // Re-enable auto-scroll only when the user *taps* a word
                             suppressAutoScroll = false;
-                            // Satisfy accessibility/lint:
-                            v.performClick();
                         }
+                        // Satisfy accessibility/lint:
+                        v.performClick();
                         return tapped; // consume only real taps
                     }
                     case MotionEvent.ACTION_CANCEL:
@@ -985,9 +982,8 @@ public class PlayActivity extends BaseActivity {
         myLog("selectVoiceByNameWithoutCallback");
         try {
             android.widget.SpinnerAdapter a = spinner.getAdapter();
-            if (!(a instanceof com.driot.bookplayer.adapter.VoiceSpinnerAdapter))
+            if (!(a instanceof VoiceSpinnerAdapter va))
                 return;
-            com.driot.bookplayer.adapter.VoiceSpinnerAdapter va = (com.driot.bookplayer.adapter.VoiceSpinnerAdapter) a;
 
             int target = 0; // 0 = "system"
             for (int i = 0; i < va.getCount(); i++) {
@@ -1014,16 +1010,12 @@ public class PlayActivity extends BaseActivity {
 
     /** Map TTS warm-up reason -> user-friendly message id. */
     private int mapWarmupReasonToMsg(int reason) {
-        switch (reason) {
-            case TtsHelper.TIMEOUT:
-                return R.string.tts_error_warmup_timeout;
-            case TtsHelper.SET_VOICE_FAILED:
-                return R.string.tts_error_voice_set_failed;
-            case TtsHelper.SYNTH_FAIL:
-                return R.string.tts_error_synth_failed;
-            default:
-                return R.string.tts_phase_error; // generic fallback
-        }
+        return switch (reason) {
+            case TtsHelper.TIMEOUT -> R.string.tts_error_warmup_timeout;
+            case TtsHelper.SET_VOICE_FAILED -> R.string.tts_error_voice_set_failed;
+            case TtsHelper.SYNTH_FAIL -> R.string.tts_error_synth_failed;
+            default -> R.string.tts_phase_error; // generic fallback
+        };
     }
 
     @Override

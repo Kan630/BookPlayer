@@ -44,7 +44,7 @@
              />
     </LinearLayout>
 
-    <TextView
+    <com.driot.bookplayer.views.TtsTextView
         android:id="@+id/tvTtsText"
         style="@style/textColor"
         android:layout_width="match_parent"

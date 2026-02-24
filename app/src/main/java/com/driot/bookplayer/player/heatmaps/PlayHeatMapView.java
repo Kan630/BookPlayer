@@ -21,14 +21,14 @@ public class PlayHeatMapView extends View {
     private float[] intensities = new float[0]; // 0..1
     private final Paint progressPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private float[] cursors = new float[0]; // positions 0..1 relative to duration (saved position = vertical line)
-    private float playingCursor = -1f;      // 0..1 = current play position (triangle, left edge at position); <0 = none
+    private float playingCursor = -1f; // 0..1 = current play position (triangle, left edge at position); <0 = none
     private boolean playingCursorDragging = false; // true while user is dragging (triangle drawn red)
     private final Paint cursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint playingCursorPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    private static final int PLAYING_CURSOR_COLOR = 0xFFFF5722;   // orange when idle
+    private static final int PLAYING_CURSOR_COLOR = 0xFFFF5722; // orange when idle
     private static final int PLAYING_CURSOR_DRAG_COLOR = 0xFFE53935; // red when dragging
     private static final int PLAYING_CURSOR_HALO_CENTER = 0x50E53935; // red halo center (31% alpha)
-    private static final int PLAYING_CURSOR_HALO_EDGE = 0x00E53935;  // transparent edge
+    private static final int PLAYING_CURSOR_HALO_EDGE = 0x00E53935; // transparent edge
     private final Paint haloPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final Paint borderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     private int baseColor;
@@ -63,8 +63,8 @@ public class PlayHeatMapView extends View {
         progressPaint.setStyle(Paint.Style.FILL);
 
         borderPaint.setStyle(Paint.Style.STROKE);
-        borderPaint.setStrokeWidth(ViewHelper.dp(context,1)); // 1dp de bordure
-        borderPaint.setColor(Color.DKGRAY);     // couleur de la bordure
+        borderPaint.setStrokeWidth(ViewHelper.dp(context, 1)); // 1dp de bordure
+        borderPaint.setColor(Color.DKGRAY); // couleur de la bordure
 
         int cursorSizeDp = context.getResources().getInteger(R.integer.heatmaps_cursor_size_dp);
         float cursorWidthPx = ViewHelper.dp(context, cursorSizeDp);
@@ -86,7 +86,6 @@ public class PlayHeatMapView extends View {
         int height = getHeight();
         float cornerRadius = ViewHelper.dp(getContext(), 4);
 
-
         // create rounded rectangle path
         Path clipPath = new Path();
         clipPath.addRoundRect(0, 0, width, height, cornerRadius, cornerRadius, Path.Direction.CW);
@@ -95,7 +94,8 @@ public class PlayHeatMapView extends View {
         canvas.save();
         canvas.clipPath(clipPath);
 
-        //canvas.drawRoundRect(0, 0, width, height, cornerRadius, cornerRadius, borderPaint);
+        // canvas.drawRoundRect(0, 0, width, height, cornerRadius, cornerRadius,
+        // borderPaint);
 
         if (width <= 0 || height <= 0 || intensities.length == 0) {
             return;
@@ -121,7 +121,8 @@ public class PlayHeatMapView extends View {
 
             int alpha = (int) (aBase * Math.max(0f, Math.min(intensity, 1f)));
 
-            int color = (alpha << 24) | (rBase << 16) | (gBase << 8) | bBase; //ex : 0xFF6496C8.  pour alpha=255, r=100, g=150, b=200
+            int color = (alpha << 24) | (rBase << 16) | (gBase << 8) | bBase; // ex : 0xFF6496C8. pour alpha=255, r=100,
+                                                                              // g=150, b=200
             progressPaint.setColor(color);
             progressPaint.setAntiAlias(false);
 
@@ -131,12 +132,14 @@ public class PlayHeatMapView extends View {
 
         // Draw saved-position cursors (vertical lines)
         for (float c : cursors) {
-            if (c < 0f || c >= 1f) continue; // skip 100%
+            if (c < 0f || c >= 1f)
+                continue; // skip 100%
             float x = c * width;
             canvas.drawLine(x, 0, x, height, cursorPaint);
         }
 
-        // Draw playing cursor: triangle with tip pointing right (play shape), base at position
+        // Draw playing cursor: triangle with tip pointing right (play shape), base at
+        // position
         if (playingCursor >= 0f && playingCursor < 1f && height > 0) {
             float xLeft = playingCursor * width;
             float xRight = Math.min(xLeft + triangleWidthPx, width);
@@ -158,9 +161,9 @@ public class PlayHeatMapView extends View {
 
             playingCursorPaint.setColor(playingCursorDragging ? PLAYING_CURSOR_DRAG_COLOR : PLAYING_CURSOR_COLOR);
             Path tri = new Path();
-            tri.moveTo(xLeft, 0);       // base left = position
+            tri.moveTo(xLeft, 0); // base left = position
             tri.lineTo(xLeft, height);
-            tri.lineTo(xRight, halfH);  // tip on the right
+            tri.lineTo(xRight, halfH); // tip on the right
             tri.close();
             canvas.drawPath(tri, playingCursorPaint);
         }
@@ -172,7 +175,7 @@ public class PlayHeatMapView extends View {
         canvas.drawRoundRect(0, 0, width, height, cornerRadius, cornerRadius, borderPaint);
     }
 
-    //-----------------
+    // -----------------
 
     public void setIntensities(float[] intensities) {
         if (intensities == null) {
@@ -192,7 +195,10 @@ public class PlayHeatMapView extends View {
         invalidate();
     }
 
-    /** Position 0..1 for the currently playing track (triangle marker). Left edge of triangle = position. Use < 0 to hide. */
+    /**
+     * Position 0..1 for the currently playing track (triangle marker). Left edge of
+     * triangle = position. Use < 0 to hide.
+     */
     public void setPlayingCursor(float position0to1) {
         if (position0to1 != playingCursor) {
             playingCursor = position0to1;
@@ -200,7 +206,10 @@ public class PlayHeatMapView extends View {
         }
     }
 
-    /** When true, triangle is drawn red (seeking); when false, orange. Call on drag start/end for feedback. */
+    /**
+     * When true, triangle is drawn red (seeking); when false, orange. Call on drag
+     * start/end for feedback.
+     */
     public void setPlayingCursorDragging(boolean dragging) {
         if (dragging != playingCursorDragging) {
             playingCursorDragging = dragging;
@@ -208,4 +217,8 @@ public class PlayHeatMapView extends View {
         }
     }
 
+    @Override
+    public boolean performClick() {
+        return super.performClick();
+    }
 }

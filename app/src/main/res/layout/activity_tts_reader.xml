@@ -6,7 +6,7 @@
     style="@style/MainContainer"
     tools:context=".activities.TtsReaderActivity">
 
-    <TextView
+    <com.driot.bookplayer.views.TtsTextView
         android:id="@+id/tvTtsFullText"
         style="@style/textColor"
         android:layout_width="match_parent"
