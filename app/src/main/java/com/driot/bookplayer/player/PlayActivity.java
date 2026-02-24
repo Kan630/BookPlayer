@@ -128,6 +128,7 @@ public class PlayActivity extends BaseActivity {
      * user just opened PlayActivity).
      */
     private long resumeScreensaverGraceUntilRealtime = 0L;
+    private boolean isTextBook = false;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -180,7 +181,8 @@ public class PlayActivity extends BaseActivity {
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
         // TTS voices (early)
-        if (folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT)) {
+        isTextBook = folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT);
+        if (isTextBook) {
             initTtsVoiceSpinner(folder);
         }
         touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
@@ -744,7 +746,14 @@ public class PlayActivity extends BaseActivity {
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
         if (s == null)
             return;
-        final boolean tts = "tts".equals(s.playMode);
+
+        // If s.playMode is null (e.g. after service stop) we FALLBACK to isTextBook
+        String mode = s.playMode;
+        if ((mode == null || mode.isEmpty()) && isTextBook) {
+            mode = "tts";
+        }
+
+        final boolean tts = "tts".equals(mode);
 
         if (!tts) {
             // AUDIO MODE

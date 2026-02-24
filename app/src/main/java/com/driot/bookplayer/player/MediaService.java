@@ -209,7 +209,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void broadcastUiState(String fromWhere) {
-        final String playMode = (engine != null) ? getPlayMode() : null;
+        String playMode = (engine != null) ? getPlayMode() : null;
+        //TODO check if that "get playMode from Playlist" is really usefull/wanetd
+        if (playMode == null) {
+            PlayList pl = PlayList.getInstance();
+            if (pl != null)
+                playMode = pl.getPlayMode();
+        }
         broadcastUiState(fromWhere, playMode);
     }
 
@@ -1131,22 +1137,47 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
 
             case Intents.CMD_TTS_SET_VOICE: {
+                if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
+                    goForegroundPreparing("Changing voice...", null);
+                }
                 final String voiceName = intent.getStringExtra(Intents.EXTRA_TTS_VOICE_NAME);
                 if (voiceName == null) {
                     myLogEE(null, "CMD_TTS_SET_VOICE => EXTRA_TTS_VOICE_NAME is null");
                     return START_STICKY;
                 }
                 try {
-                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
-                    boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
-                    myLog("Voice change success = " + ok);
-                    if (ok) {
-                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_VOICE_OK);
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_VOICE);
+                    if (engine instanceof TtsEngine) {
+                        boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
+                        myLog("Voice change to " + voiceName + ", success = " + ok);
+                        if (ok) {
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_VOICE_LOADED);
+                            myLog("CMD_TTS_SET_VOICE: voice changed successfully, forcing engine start for recovery");
+                            engine.start();
+                        } else {
+                            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+                        }
                     } else {
-                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR); // getString(R.string.tts_phase_error)
+                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_WARMING_UP);
+                        myLogW("CMD_TTS_SET_VOICE: engine is null or not TTS, attempting to re-init");
+                        PlayList pl = PlayList.getInstance();
+                        if (pl != null && pl.isZikFile()) {
+                            loadAndPlayTrack(pl.getZikFile(), false, false);
+                        } else {
+                            myLogW("CMD_TTS_SET_VOICE: playlist null, attempting restore from storage");
+                            PlayList.createFromStorage(this, true, restoredPl -> {
+                                if (restoredPl != null && restoredPl.isZikFile()) {
+                                    main.post(() -> loadAndPlayTrack(restoredPl.getZikFile(), false, false));
+                                } else {
+                                    myLogE("CMD_TTS_SET_VOICE: cannot re-init, playlist restore failed");
+                                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
+                                }
+                            });
+                        }
                     }
-
-                } catch (Throwable ignored) {
+                } catch (Throwable t) {
+                    myLogEE(t, "CMD_TTS_SET_VOICE failed");
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
                 }
                 return START_STICKY;
             }

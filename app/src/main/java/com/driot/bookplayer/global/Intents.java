@@ -41,7 +41,8 @@ public class Intents {
     public static final String PHASE_ENGINE_PREPARED = "ENGINE_PREPARED";
     public static final String PHASE_LOADING_TEXT = "LOADING_TEXT"; // text extraction / normalization
     public static final String PHASE_WARMING_UP = "WARMING_UP"; // voice change in progress (CMD_TTS_SET_VOICE)
-    public static final String PHASE_VOICE_OK = "VOICE_OK";
+    public static final String PHASE_LOADING_VOICE = "LOADING_VOICE";
+    public static final String PHASE_VOICE_LOADED = "VOICE_LOADED";
     public static final String PHASE_ENGINE_STARTING = "STARTING"; // engine.start() called; TTS synthesizing audio
     public static final String PHASE_SPEAKING = "SPEAKING"; // first onTtsRange fired — audio is actually playing
 

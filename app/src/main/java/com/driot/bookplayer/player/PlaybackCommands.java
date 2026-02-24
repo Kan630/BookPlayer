@@ -143,6 +143,17 @@ public final class PlaybackCommands {
         }
     }
 
+    public static void pause(Context ctx) {
+        try {
+            ContextCompat.startForegroundService(ctx,
+                    new Intent(ctx, MediaService.class)
+                            .setAction("CMD_PAUSE")
+                            .putExtra(Intents.EXTRA_FOREGROUND, true)
+                            .putExtra(Intents.EXTRA_CALLER, "PlaybackCommands.pause"));
+        } catch (Throwable ignored) {
+        }
+    }
+
     /** Example custom actions via MediaSession for speed/sleep timer. */
     public static void setSpeed(Context ctx, double speed) {
         MediaControllerCompat mc = mcOrNull(ctx);

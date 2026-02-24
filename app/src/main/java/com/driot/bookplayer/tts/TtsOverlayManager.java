@@ -48,11 +48,11 @@ public class TtsOverlayManager {
                 PlayActivity playAct = (PlayActivity) act;
 
                 if (countdownSeconds <= 0) {
-                    myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & killing engine");
+                    myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & pausing playback");
                     loadingProgressOverlayTimerStarted = false;
                     overlayVisible = false;
                     playAct.showTtsLoading(false);
-                    PlaybackCommands.stop(playAct.getApplicationContext());
+                    PlaybackCommands.pause(playAct);
                     myToastEE(null, "TTS error: timeout");
                 } else {
                     overlayVisible = true;
