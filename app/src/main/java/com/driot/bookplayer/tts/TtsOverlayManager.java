@@ -21,6 +21,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class TtsOverlayManager {
 
+    private static final int OVERLAY_TIMEOUT_SEC = 5;
+
     private final WeakReference<BaseActivity> activityRef;
     private final Handler uiH = new Handler(Looper.getMainLooper());
     private final Runnable loadingRunnable;
@@ -28,13 +30,12 @@ public class TtsOverlayManager {
      * Safety timeout: force-hide the overlay after this many ms if TTS never
      * starts.
      */
-    private static final long OVERLAY_SAFETY_TIMEOUT_MS = 10_000;
     private final Runnable safetyTimeoutRunnable;
 
     private boolean ttsActuallyStarted;
     private boolean loadingProgressOverlayTimerStarted;
     private boolean overlayVisible;
-    private int countdownSeconds = 10;
+    private int auto_hide_countdown_seconds = OVERLAY_TIMEOUT_SEC;
     private String currentPhase = "";
 
     public TtsOverlayManager(BaseActivity activity) {
@@ -47,7 +48,7 @@ public class TtsOverlayManager {
                     return;
                 PlayActivity playAct = (PlayActivity) act;
 
-                if (countdownSeconds <= 0) {
+                if (auto_hide_countdown_seconds <= 0) {
                     myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & pausing playback");
                     loadingProgressOverlayTimerStarted = false;
                     overlayVisible = false;
@@ -56,8 +57,8 @@ public class TtsOverlayManager {
                     myToastEE(null, "TTS error: timeout");
                 } else {
                     overlayVisible = true;
-                    playAct.showTtsLoading(true, currentPhase + " (" + countdownSeconds + "s)");
-                    countdownSeconds--;
+                    playAct.showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");
+                    auto_hide_countdown_seconds--;
                     uiH.postDelayed(this, 1000);
                 }
             }
@@ -65,7 +66,7 @@ public class TtsOverlayManager {
         this.loadingRunnable = () -> {
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
-                countdownSeconds = 10;
+                auto_hide_countdown_seconds = OVERLAY_TIMEOUT_SEC;
                 uiH.removeCallbacks(safetyTimeoutRunnable);
                 uiH.post(safetyTimeoutRunnable);
             }
@@ -98,7 +99,7 @@ public class TtsOverlayManager {
             if (overlayVisible) {
                 BaseActivity act = activityRef.get();
                 if (act instanceof PlayActivity) {
-                    ((PlayActivity) act).showTtsLoading(true, currentPhase + " (" + countdownSeconds + "s)");
+                    ((PlayActivity) act).showTtsLoading(true, currentPhase + " (" + auto_hide_countdown_seconds + "s)");
                 }
             }
             myLogD("TTS OVERLAY: NOT SPEAKING, phase is : " + s.loadPhase);
