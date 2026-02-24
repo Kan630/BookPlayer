@@ -92,6 +92,8 @@
                 android:text="@string/sec"
                 />
         </LinearLayout>
+        <TextView android:text="Min = 5" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
+        <TextView android:id="@+id/tv_tts_chunk_size_max" android:text="Max = 20" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
 
 
         <!-- IMPORT -->
