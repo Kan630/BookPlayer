@@ -877,6 +877,17 @@
     <string name="import_settings">إعدادات الاستيراد</string>
     <string name="option_split_m4b_subtitle">إذا لم يتم التحديد، سيتم استيراد ملفات M4B كمسارات مفردة.</string>
     <string name="option_split_m4b_subtitle_note">ملاحظة: ميزة تقسيم الفصول تدعم حالياً فقط ملفات M4B القياسية جداً.</string>
+    <string name="Playback">تشغيل</string>
+    <string name="option_docx_split_into_chapters">تقسيم DOCX إلى فصول</string>
+    <string name="option_docx_split_into_chapters_explain">يحاول تقسيم ملفات .docx إلى فصول بناءً على العناوين وأنماط جدول المحتويات (مثل "I - العنوان").</string>
+    <string name="option_tts_snap_to_sentence">إعادة البدء من بداية الجملة</string>
+    <string name="option_tts_snap_to_sentence_explain">عند الاستئناف بعد توقف، يعود إلى بداية الجملة الحالية.</string>
+    <string name="option_tts_show_loading_overlay">إظهار واجهة التحميل</string>
+    <string name="option_tts_overlay_timeout_title">مهلة الواجهة</string>
+    <string name="option_tts_overlay_timeout_text">أقصى وقت للتحميل :</string>
+    <string name="EndCut">قص النهاية</string>
+    <string name="EndCutText"><i>"يوقف التشغيل قبل بضع ثوانٍ من نهاية كل فصل."</i></string>
+
     <string name="Import_Progress_chapter_title">"عنوان المقطع"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"يجب ان يحتوي اسم الملف المصدّر على 3 احرف على الاقل"</string>
     <string name="option_radio_renew_url">التحقق من افضل خادم قبل التشغيل</string>

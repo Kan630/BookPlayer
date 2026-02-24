@@ -881,6 +881,17 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="import_settings">导入设置</string>
     <string name="option_split_m4b_subtitle">如果未选中，M4B 文件将作为单个音轨导入。</string>
     <string name="option_split_m4b_subtitle_note">注意：章节拆分功能目前仅支持非常标准的 M4B 文件。</string>
+    <string name="Playback">播放</string>
+    <string name="option_docx_split_into_chapters">将 DOCX 拆分为章节</string>
+    <string name="option_docx_split_into_chapters_explain">尝试根据标题和目录模式（例如“I - 标题”）将 .docx 文件拆分为章节。</string>
+    <string name="option_tts_snap_to_sentence">吸附至句子开头</string>
+    <string name="option_tts_snap_to_sentence_explain">暂停后恢复时，返回当前句子的开头。</string>
+    <string name="option_tts_show_loading_overlay">显示加载遮罩</string>
+    <string name="option_tts_overlay_timeout_title">遮罩超时</string>
+    <string name="option_tts_overlay_timeout_text">最大加载时间：</string>
+    <string name="EndCut">剪辑结尾</string>
+    <string name="EndCutText"><i>"在每章结束前几秒停止播放。"</i></string>
+
     <string name="Import_Progress_chapter_title">"曲目标题"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"导出的文件名至少需要 3 个字符"</string>
     <string name="option_radio_renew_url">播放前检查最佳镜像</string>

@@ -879,6 +879,17 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="import_settings">आयात सेटिंग्स</string>
     <string name="option_split_m4b_subtitle">यदि अनचेक किया गया, तो M4B फ़ाइलें एकल ट्रैक के रूप में आयात की जाएंगी।</string>
     <string name="option_split_m4b_subtitle_note">नोट: अध्याय विभाजन सुविधा वर्तमान में केवल बहुत मानक M4B फ़ाइलों का समर्थन करती है।</string>
+    <string name="Playback">प्लेबैक</string>
+    <string name="option_docx_split_into_chapters">DOCX को अध्यायों में बाँटें</string>
+    <string name="option_docx_split_into_chapters_explain">शीर्षकों और TOC पैटर्न (जैसे "I - शीर्षक") के आधार पर .docx फ़ाइलों को अध्यायों में विभाजित करने का प्रयास करता है।</string>
+    <string name="option_tts_snap_to_sentence">वाक्य की शुरुआत पर री-स्टार्ट</string>
+    <string name="option_tts_snap_to_sentence_explain">रुकने के बाद फिर से शुरू करने पर, वर्तमान वाक्य की शुरुआत पर वापस चला जाता है।</string>
+    <string name="option_tts_show_loading_overlay">लोडिंग ओवरले दिखाएं</string>
+    <string name="option_tts_overlay_timeout_title">ओवरले टाइमआउट</string>
+    <string name="option_tts_overlay_timeout_text">अधिकतम लोडिंग समय :</string>
+    <string name="EndCut">अंत कट</string>
+    <string name="EndCutText"><i>"प्रत्येक अध्याय के अंत से कुछ सेकंड पहले प्लेबैक रोक देता है।"</i></string>
+
     <string name="Import_Progress_chapter_title">"ट्रैक शीर्षक"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"निर्यात की गई फ़ाइल का नाम कम से कम 3 अक्षरों का होना चाहिए"</string>
     <string name="option_radio_renew_url">चलाने से पहले सर्वोत्तम मिरर की जाँच करें</string>

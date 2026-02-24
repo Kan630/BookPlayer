@@ -882,6 +882,17 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="import_settings">Configurações de importação</string>
     <string name="option_split_m4b_subtitle">Se desmarcado, os arquivos M4B serão importados como faixas únicas.</string>
     <string name="option_split_m4b_subtitle_note">Observação: o recurso de divisão por capítulos atualmente suporta apenas arquivos M4B muito padrão.</string>
+    <string name="Playback">Reprodução</string>
+    <string name="option_docx_split_into_chapters">Dividir DOCX em capítulos</string>
+    <string name="option_docx_split_into_chapters_explain">Tenta dividir arquivos .docx em capítulos com base em cabeçalhos e padrões de Índice (ex: "I - Título").</string>
+    <string name="option_tts_snap_to_sentence">Reiniciar no início da frase</string>
+    <string name="option_tts_snap_to_sentence_explain">Ao retomar após uma pausa, volta ao início da frase atual.</string>
+    <string name="option_tts_show_loading_overlay">Mostrar janela de carregamento</string>
+    <string name="option_tts_overlay_timeout_title">Tempo limite do aviso</string>
+    <string name="option_tts_overlay_timeout_text">Tempo máx de carga :</string>
+    <string name="EndCut">Cortar final</string>
+    <string name="EndCutText"><i>"Interrompe a reprodução alguns segundos antes do fim de cada capítulo."</i></string>
+
     <string name="Import_Progress_chapter_title">"Titulo da faixa"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"o nome do arquivo exportado deve ter pelo menos 3 caracteres"</string>
     <string name="option_radio_renew_url">verificar o melhor espelho antes de reproduzir</string>

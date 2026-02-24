@@ -119,6 +119,7 @@
     <string name="paste">coller</string>
     <string name="Pause">Pause</string> //means pause audio playback
     <string name="Permission">Autorisation</string>
+    <string name="Playback">Lecture</string>
     <string name="Podcasts">Podcasts</string>
     <string name="podcasts">podcasts</string>
     <string name="proceed">continuer</string>
@@ -467,8 +468,14 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
     <string name="option_epub_split_mode_spine">Séquence (un chapitre par entrée)</string>
     <string name="option_epub_split_mode_explain_text">Basé sur la TOC (table des matières) : Crée plus de chapitres mais préserve la structure. Basé sur la séquence : Plus simple et crée moins de chapitres.</string>
-    <string name="option_ebook_remove_references">Supprimer les références (notes de bas de page)</string>
     <string name="option_ebook_remove_references_explain">Supprime les références dans le texte comme [1] et les blocs de notes de bas de page en fin de pages afin que la synthèse vocale ne lise que le texte principal.</string>
+    <string name="option_docx_split_into_chapters">Découper le DOCX en chapitres</string>
+    <string name="option_docx_split_into_chapters_explain">Tente de découper les fichiers .docx en chapitres en se basant sur les titres et une éventuelle table des matières (ex: \"I - Titre\").</string>
+    <string name="option_tts_snap_to_sentence">Reprise au début de la phrase</string>
+    <string name="option_tts_snap_to_sentence_explain">Lors d\'une reprise après une pause, revient au début de la phrase en cours.</string>
+    <string name="option_tts_show_loading_overlay">Afficher la fenêtre de chargement</string>
+    <string name="option_tts_overlay_timeout_title">Délai d\'affichage</string>
+    <string name="option_tts_overlay_timeout_text">Temps maximum :</string>
     <string name="option_automotive_on">Se connecter à Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Reprendre automatiquement la lecture lors de la connexion à la voiture.</string>
 
@@ -551,10 +558,12 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="Change_cover_image">Changer l\'image de couverture</string>
     <string name="AskRename_Track">Renommer cette piste en</string>
     <string name="IntroCut">Couper l\'intro</string>
+    <string name="EndCut">Couper la fin</string>
     <string name="Rename_book">Renommer le livre</string>
     <string name="AskRename_Book">Voulez-vous vraiment renommer le livre en</string>
     <string name="AskRename_popupTitle">Confirmer le renommage</string>
     <string name="IntroCutText"><i>Coupe les premières secondes de chaque chapitre pendant la lecture.</i></string>
+    <string name="EndCutText"><i>Arrête la lecture quelques secondes avant la fin de chaque chapitre.</i></string>
     <string name="Export_share_title">Partager le fichier ZIP</string>
     <string name="Export_display_text_preparing_export">Préparation de l\'export…</string>
     <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des fichiers audio.</string>
@@ -889,6 +898,18 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="import_settings">Paramètres d\'importation</string>
     <string name="option_split_m4b_subtitle">Si décoché, les fichiers M4B seront importés comme des pistes uniques.</string>
     <string name="option_split_m4b_subtitle_note">Remarque : la fonction de découpage par chapitres ne prend actuellement en charge que les fichiers M4B très standards.</string>
+    <string name="welcome_title">Bienvenue sur BookPlayer</string>
+    <string name="welcome_subtitle">Votre lecteur audio polyvalent et hors ligne.</string>
+    <string name="welcome_item_add_book">Ajoutez un livre audio existant depuis votre appareil, carte SD ou drive.</string>
+    <string name="welcome_item_librivox">Parcourez et téléchargez des livres audio gratuits du domaine public.</string>
+    <string name="welcome_item_podcasts_radio">Découvrez des radios web et des podcasts.</string>
+    <string name="welcome_item_tts_ebooks">Écoutez des ebooks avec des voix synthétiques.</string>
+    <string name="welcome_button_add">Ajoutez votre premier livre</string>
+    <string name="welcome_hint">Astuce : vous pouvez personnaliser les couleurs et les options dans les Paramètres.</string>
+    <string name="btn_get_local_book_title">C’est sur mon appareil (ou carte SD, ou Drive).</string>
+    <string name="btn_direct_link_title">J’ai un lien de téléchargement direct.</string>
+    <string name="btn_browse_audiobooks_title">Je veux parcourir un registre public gratuit.</string>
+
     <string name="Import_Progress_chapter_title">"Titre de piste"</string>
     <string name="Export_Progress_file_name_should_have_at_east_3_chars">"le nom du fichier exporté doit contenir au moins 3 caractères"</string>
     <string name="option_radio_renew_url">vérifier le meilleur serveur avant lecture</string>
