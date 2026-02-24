@@ -62,13 +62,14 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
     private float speechRate = 1.0f;
 
     private float volume = 1f;
+    private int restartCount = 0;
 
     private boolean registeredWithMgr = false;
 
     public TtsEngine(@NonNull Context appContext,
-                     @NonNull AppTtsManager appTtsManager,
-                     @NonNull EngineListener listener,
-                     long generationToken) {
+            @NonNull AppTtsManager appTtsManager,
+            @NonNull EngineListener listener,
+            long generationToken) {
         super(TtsEngine.class);
         this.app = appContext.getApplicationContext();
         this.mgr = appTtsManager;
@@ -341,9 +342,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void onStart(String utteranceId) {
-        myLogD("onStart " + utteranceId);
-        if (disposed)
+        if (disposed || isStale(utteranceId))
             return;
+        myLogD("onStart " + utteranceId);
 
         currentUtteranceStartTime = System.currentTimeMillis();
         int[] range = com.driot.bookplayer.tts.TtsIds.parseUtt(utteranceId);
@@ -357,9 +358,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void onDone(String utteranceId) {
-        myLogD("onDone " + utteranceId);
-        if (disposed)
+        if (disposed || isStale(utteranceId))
             return;
+        myLogD("onDone " + utteranceId);
 
         // Check if this utterance reached the end by examining both lastCharSpoken and
         // utterance ID
@@ -447,6 +448,10 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     @Override
     public void onUtteranceRange(int start, int end) {
+        // Unfortunately, onUtteranceRange/onWordRange don't pass the utteranceId.
+        // We rely on 'playing' and the fact that AppTtsManager only dispatches
+        // range callbacks for the *current* utterance ID it tracked in onStart.
+        // Since we gated onStart with isStale(utteranceId), we are relatively safe.
         if (disposed)
             return;
 
@@ -472,7 +477,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 wordAtRange = words[0];
             }
         }
-        //myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange + "] lastCharSpoken=" + lastCharSpoken);
+        // myLogD("TTS RANGE....: pos=[" + start + "-" + end + "] word=[" + wordAtRange
+        // + "] lastCharSpoken=" + lastCharSpoken);
 
         listener.onTtsRange(gen, start, Math.min(end, Math.max(0, text.length())));
 
@@ -532,6 +538,13 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
 
     // --------------------- Internals ---------------------
 
+    private boolean isStale(String utteranceId) {
+        if (utteranceId == null || TtsIds.isWarmup(utteranceId))
+            return false;
+        String tag = String.valueOf(restartCount);
+        return !utteranceId.endsWith("_" + tag);
+    }
+
     private void speakFromOffset(int offsetChars) {
         if (disposed || tts == null)
             return;
@@ -549,7 +562,9 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
                 new Intent(Intents.NOTIFICATION_TTS_RANGE)
                         .putExtra(Intents.EXTRA_TTS_START, off)
                         .putExtra(Intents.EXTRA_TTS_END, off));
-        tts.speakFromOffset(text, off, volume); // all chunking lives in TtsHelper
+
+        String tag = String.valueOf(restartCount);
+        tts.speakFromOffset(text, off, volume, tag); // all chunking lives in TtsHelper
     }
 
     private int logicalTextEndIndex() {
@@ -668,6 +683,8 @@ public final class TtsEngine extends LoggerHelper implements PlayerEngine, AppTt
             int start = Math.max(0, Math.min(lastCharSpoken, text != null ? text.length() : 0));
             // ensure internal offset reflects where we’re resuming
             resumeOffsetChars = start;
+            restartCount++;
+            myLog("restartIfPlaying: incrementing restartCount to " + restartCount);
             tts.stop();
             speakFromOffset(start);
         }

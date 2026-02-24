@@ -48,6 +48,10 @@ public class TtsHelper {
 
     // ======== SPEAK API ========
     public void speakFromOffset(String text, int startOffset, float volume) {
+        speakFromOffset(text, startOffset, volume, null);
+    }
+
+    public void speakFromOffset(String text, int startOffset, float volume, @Nullable String tag) {
         if (tts == null || text == null || text.isEmpty()) {
             myLogD("speakFromOffset : empty");
             return;
@@ -136,7 +140,7 @@ public class TtsHelper {
             idx++;
         } else {
             // Speak [firstStart, first.end)
-            String id = com.driot.bookplayer.tts.TtsIds.utt(firstStart, first.end);
+            String id = com.driot.bookplayer.tts.TtsIds.utt(firstStart, first.end, tag);
             int r = tts.speak(first.text.substring(firstStart - first.start, first.end - first.start),
                     TextToSpeech.QUEUE_ADD, p, id);
             TtsErrorUtils.logOperationResult("TTS", "speak(first)", r);
@@ -146,7 +150,7 @@ public class TtsHelper {
         // 2) Remaining chunks: enqueue as-is
         for (int i = idx; i < chunks.size(); i++) {
             Chunk c = chunks.get(i);
-            String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end);
+            String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end, tag);
             int r = tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
             TtsErrorUtils.logOperationResult("TTS", "speak(chunk)", r);
         }

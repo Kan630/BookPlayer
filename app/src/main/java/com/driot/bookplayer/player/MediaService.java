@@ -210,7 +210,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void broadcastUiState(String fromWhere) {
         String playMode = (engine != null) ? getPlayMode() : null;
-        //TODO check if that "get playMode from Playlist" is really usefull/wanetd
+        // TODO check if that "get playMode from Playlist" is really usefull/wanetd
         if (playMode == null) {
             PlayList pl = PlayList.getInstance();
             if (pl != null)
@@ -1153,7 +1153,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         if (ok) {
                             PlaybackUiBus.get().setLoadPhase(Intents.PHASE_VOICE_LOADED);
                             myLog("CMD_TTS_SET_VOICE: voice changed successfully, forcing engine start for recovery");
-                            engine.start();
+                            startPlayWithEngine();
                         } else {
                             PlaybackUiBus.get().setLoadPhase(Intents.PHASE_ERROR);
                         }
