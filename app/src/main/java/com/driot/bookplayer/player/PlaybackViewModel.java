@@ -276,18 +276,12 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     }
 
     public void warmUpTtsVoice(String voiceName, @Nullable WarmupUiCallback cb) {
-        // Show spinner in the Activity while we switch
-        setLoadPhase(Intents.PHASE_WARMING_UP, getApplication().getString(R.string.tts_phase_warming_up));
-
         try {
             MediaControllerCompat mc = PlaybackCommands.mcOrNull(getApplication());
             Bundle b = new Bundle();
             b.putString(Intents.EXTRA_TTS_VOICE_NAME, voiceName);
             mc.getTransportControls().sendCustomAction(Intents.CMD_TTS_SET_VOICE, b);
 
-            // Consider it ready (we switched instantly). If you later add true warm-up,
-            // you can move this to the success callback.
-            setLoadPhase(Intents.PHASE_READY, null);
             if (cb != null)
                 cb.onResult(true, TtsHelper.READY);
         } catch (Throwable t) {

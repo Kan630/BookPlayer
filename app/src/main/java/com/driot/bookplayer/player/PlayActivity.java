@@ -942,11 +942,8 @@ public class PlayActivity extends BaseActivity {
 
                                 if (ready) {
                                     currentVoiceName[0] = picked; // commit
-                                    if (wasPlayingFinal) {
-                                        myLogD("...play");
-                                        vm.playPause(); // pause
-                                        vm.playPause(); // play
-                                    }
+                                    // No need to manually play/pause; TtsEngine.setVoiceByName handles restart if
+                                    // needed
                                 } else {
                                     myLogD("...rollback");
                                     // Roll back visually + persistently

@@ -33,6 +33,7 @@ public class TtsOverlayManager {
 
     private boolean ttsActuallyStarted;
     private boolean loadingProgressOverlayTimerStarted;
+    private boolean overlayVisible;
     private int countdownSeconds = 10;
     private String currentPhase = "";
 
@@ -49,10 +50,12 @@ public class TtsOverlayManager {
                 if (countdownSeconds <= 0) {
                     myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & killing engine");
                     loadingProgressOverlayTimerStarted = false;
+                    overlayVisible = false;
                     playAct.showTtsLoading(false);
                     PlaybackCommands.stop(playAct.getApplicationContext());
                     myToastEE(null, "TTS error: timeout");
                 } else {
+                    overlayVisible = true;
                     playAct.showTtsLoading(true, currentPhase + " (" + countdownSeconds + "s)");
                     countdownSeconds--;
                     uiH.postDelayed(this, 1000);
@@ -92,7 +95,7 @@ public class TtsOverlayManager {
             ttsActuallyStarted = false;
             startLoadingProgressOverlayTimer();
             // If already visible, update message immediately for responsiveness
-            if (loadingProgressOverlayTimerStarted) {
+            if (overlayVisible) {
                 BaseActivity act = activityRef.get();
                 if (act instanceof PlayActivity) {
                     ((PlayActivity) act).showTtsLoading(true, currentPhase + " (" + countdownSeconds + "s)");
@@ -103,11 +106,10 @@ public class TtsOverlayManager {
     }
 
     public void onHighlightReceived() {
-        // Mark that TTS has actually started when we receive the first callback
-        if (!ttsActuallyStarted) {
+        if (!ttsActuallyStarted && Intents.PHASE_SPEAKING.equals(currentPhase)) {
             ttsActuallyStarted = true;
             stopLoadingProgressOverlayTimer(); // <--- Hide overlay immediately
-            myLogI("TTS OVERLAY: first highlight callback received");
+            myLogI("TTS OVERLAY: first highlight callback received (phase=" + currentPhase + ")");
         }
     }
 
@@ -129,6 +131,7 @@ public class TtsOverlayManager {
     private void stopLoadingProgressOverlayTimer() {
         if (loadingProgressOverlayTimerStarted) {
             loadingProgressOverlayTimerStarted = false;
+            overlayVisible = false;
             uiH.removeCallbacks(loadingRunnable);
             uiH.removeCallbacks(safetyTimeoutRunnable);
             myLogI("stopLoadingProgressOverlayTimer");
