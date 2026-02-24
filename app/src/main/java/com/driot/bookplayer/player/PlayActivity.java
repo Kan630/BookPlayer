@@ -377,7 +377,6 @@ public class PlayActivity extends BaseActivity {
             }
 
             boolean isTts = "tts".equals(s.playMode);
-            boolean isStarting = Intents.PHASE_ENGINE_STARTING.equals(s.loadPhase);
             boolean trackChanged = isTts && (s.trackId != ttsHighlighter.getLastTtsTrackId());
             boolean becameReady = isTts
                     && !Intents.PHASE_READY.equals(ttsHighlighter.getLastTtsPhase())
