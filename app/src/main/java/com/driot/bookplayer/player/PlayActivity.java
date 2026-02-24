@@ -716,21 +716,29 @@ public class PlayActivity extends BaseActivity {
         podcastLastClickTime = now;
     }
 
-    public void showTtsLoading(boolean show) {
+    public void showTtsLoading(boolean show, @Nullable String msg) {
         if (progressOverlay == null) {
             myLogE("showTtsLoading: progressOverlay is null!");
             return;
         }
-        myLogI("showTtsLoading: " + show);
+        myLogD("showTtsLoading: " + show + " msg=" + msg);
         if (show) {
             TextView tv = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
-            if (tv != null)
-                tv.setText(R.string.loading_voice_3pt);
+            if (tv != null) {
+                if (msg != null)
+                    tv.setText(msg);
+                else
+                    tv.setText(R.string.loading_voice_3pt);
+            }
             progressOverlay.setVisibility(View.VISIBLE);
-            progressOverlay.bringToFront(); // Ensure it's on top
+            progressOverlay.bringToFront();
         } else {
             progressOverlay.setVisibility(View.GONE);
         }
+    }
+
+    public void showTtsLoading(boolean show) {
+        showTtsLoading(show, null);
     }
 
     private void applyTtsToggleUi(@Nullable PlaybackUiState s) {

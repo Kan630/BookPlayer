@@ -6,6 +6,7 @@ import android.os.Looper;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlayActivity;
+import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
@@ -32,28 +33,39 @@ public class TtsOverlayManager {
 
     private boolean ttsActuallyStarted;
     private boolean loadingProgressOverlayTimerStarted;
+    private int countdownSeconds = 10;
+    private String currentPhase = "";
 
     public TtsOverlayManager(BaseActivity activity) {
         this.activityRef = new WeakReference<>(activity);
-        // Initialize safetyTimeoutRunnable FIRST so loadingRunnable can reference it
-        // safely
-        this.safetyTimeoutRunnable = () -> {
-            myLogW("TTS OVERLAY: safety timeout reached (" + OVERLAY_SAFETY_TIMEOUT_MS + "ms) – force-hiding overlay");
-            loadingProgressOverlayTimerStarted = false;
-            BaseActivity act = activityRef.get();
-            if (act instanceof PlayActivity) {
-                ((PlayActivity) act).showTtsLoading(false);
-                myToastEE(null, "TTS error");
+        this.safetyTimeoutRunnable = new Runnable() {
+            @Override
+            public void run() {
+                BaseActivity act = activityRef.get();
+                if (!(act instanceof PlayActivity))
+                    return;
+                PlayActivity playAct = (PlayActivity) act;
+
+                if (countdownSeconds <= 0) {
+                    myLogW("TTS OVERLAY: safety timeout reached - force-hiding overlay & killing engine");
+                    loadingProgressOverlayTimerStarted = false;
+                    playAct.showTtsLoading(false);
+                    PlaybackCommands.stop(playAct.getApplicationContext());
+                    myToastEE(null, "TTS error: timeout");
+                } else {
+                    playAct.showTtsLoading(true, currentPhase + " (" + countdownSeconds + "s)");
+                    countdownSeconds--;
+                    uiH.postDelayed(this, 1000);
+                }
             }
         };
         this.loadingRunnable = () -> {
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
-                ((PlayActivity) act).showTtsLoading(true);
+                countdownSeconds = 10;
+                uiH.removeCallbacks(safetyTimeoutRunnable);
+                uiH.post(safetyTimeoutRunnable);
             }
-            // Arm the safety timeout the moment the overlay becomes visible
-            uiH.removeCallbacks(safetyTimeoutRunnable);
-            uiH.postDelayed(safetyTimeoutRunnable, OVERLAY_SAFETY_TIMEOUT_MS);
         };
     }
 
@@ -69,6 +81,7 @@ public class TtsOverlayManager {
         }
 
         // Overlay Logic
+        this.currentPhase = s.loadPhase != null ? s.loadPhase : "";
         if (Intents.PHASE_SPEAKING.equals(s.loadPhase)) {
             if (!ttsActuallyStarted) {
                 ttsActuallyStarted = true;
@@ -78,6 +91,13 @@ public class TtsOverlayManager {
         } else if (!Intents.PHASE_OFF.equals(s.loadPhase)) {
             ttsActuallyStarted = false;
             startLoadingProgressOverlayTimer();
+            // If already visible, update message immediately for responsiveness
+            if (loadingProgressOverlayTimerStarted) {
+                BaseActivity act = activityRef.get();
+                if (act instanceof PlayActivity) {
+                    ((PlayActivity) act).showTtsLoading(true, currentPhase + " (" + countdownSeconds + "s)");
+                }
+            }
             myLogD("TTS OVERLAY: NOT SPEAKING, phase is : " + s.loadPhase);
         }
     }
