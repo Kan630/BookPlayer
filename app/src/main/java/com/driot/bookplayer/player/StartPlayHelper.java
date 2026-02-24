@@ -194,6 +194,8 @@ public class StartPlayHelper {
             isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
             if (isTTS) {
                 PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TTS_TRACK_CLICK);
+            } else {
+                stopTtsIfPlaying(context);
             }
 
             // was something playing ?
@@ -599,6 +601,7 @@ public class StartPlayHelper {
 
     private static void playStream(Context context, String playMode, String streamUrl, long id, String uuid,
             String title, String cover, String caller) {
+        stopTtsIfPlaying(context);
         PlayList.createFromStream(context, playMode, streamUrl);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
         androidx.core.content.ContextCompat.startForegroundService(
@@ -622,6 +625,14 @@ public class StartPlayHelper {
                 .setTitle(title)
                 .build();
         return new MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
+    }
+
+    private static void stopTtsIfPlaying(Context context) {
+        PlaybackUiState state = PlaybackUiBus.get().state().getValue();
+        if (state != null && Var.PLAY_MODE_TTS.equals(state.playMode) && state.playing) {
+            myLogI("stopTtsIfPlaying: switching to non-TTS mode, killing TTS engine.");
+            PlaybackCommands.stop(context.getApplicationContext());
+        }
     }
 
     private static int safeParseInt(String s, int def) {
