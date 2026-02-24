@@ -86,6 +86,8 @@ public class Option {
     public static final boolean DEFAULT_DOCX_SPLIT_INTO_CHAPTERS = true;
     private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES = false;
     public static final boolean DEFAULT_TTS_SNAP_TO_SENTENCE = true;
+    public static final boolean DEFAULT_TTS_SHOW_LOADING_OVERLAY = true;
+    public static final int DEFAULT_TTS_OVERLAY_TIMEOUT_SEC = 8;
     public static final boolean DEFAULT_RADIO_RENEW_URL = false;
     public static final boolean DEFAULT_USE_HEATMAP_FOR_TRACKS_ACTIVITY = true;
     private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = false;
@@ -1000,6 +1002,22 @@ public class Option {
         }
 
         return val;
+    }
+
+    public static boolean getTtsShowLoadingOverlay() {
+        return prefs.getBoolean("TTS_SHOW_LOADING_OVERLAY", DEFAULT_TTS_SHOW_LOADING_OVERLAY);
+    }
+
+    public static void setTtsShowLoadingOverlay(boolean show) {
+        prefs.edit().putBoolean("TTS_SHOW_LOADING_OVERLAY", show).apply();
+    }
+
+    public static int getTtsOverlayTimeoutSec() {
+        return prefs.getInt("TTS_OVERLAY_TIMEOUT_SEC", DEFAULT_TTS_OVERLAY_TIMEOUT_SEC);
+    }
+
+    public static void setTtsOverlayTimeoutSec(int seconds) {
+        prefs.edit().putInt("TTS_OVERLAY_TIMEOUT_SEC", seconds).apply();
     }
 
 }

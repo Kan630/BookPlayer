@@ -36,11 +36,11 @@ public class TtsSettingsFragment extends LoggingFragment {
     protected AppTtsManager ttsManager;
 
     private String lastSavedTtsVoice;
-    private EditText etTtsHighlightDelay, etTtsChunkSize;
+    private MaterialCheckBox chkTtsSnapToSentence, chkTtsShowLoadingOverlay;
+    private EditText etTtsHighlightDelay, etTtsChunkSize, etTtsOverlayTimeout;
     private Spinner spinnerEpubSplitMode;
     private MaterialCheckBox chkEbookRemoveReferences;
     private MaterialCheckBox chkDocxSplitIntoChapters;
-    private MaterialCheckBox chkTtsSnapToSentence;
     private LinearLayout llEbookRemoveReferences;
     private LinearLayout llDocxSplitIntoChapters;
     private boolean hasBeenInitialized = false;
@@ -127,12 +127,21 @@ public class TtsSettingsFragment extends LoggingFragment {
         }
 
         chkTtsSnapToSentence = root.findViewById(R.id.chk_tts_snap_to_sentence);
-        LinearLayout llTtsSnapToSentence = root.findViewById(
-                R.id.ll_tts_snap_to_sentence);
+        LinearLayout llTtsSnapToSentence = root.findViewById(R.id.ll_tts_snap_to_sentence);
         chkTtsSnapToSentence.setChecked(Option.getTtsSnapToSentence());
         llTtsSnapToSentence.setOnClickListener(v -> chkTtsSnapToSentence.toggle());
         chkTtsSnapToSentence
                 .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTtsSnapToSentence(isChecked));
+
+        chkTtsShowLoadingOverlay = root.findViewById(R.id.chk_tts_show_loading_overlay);
+        LinearLayout llTtsShowLoadingOverlay = root.findViewById(R.id.ll_tts_show_loading_overlay);
+        chkTtsShowLoadingOverlay.setChecked(Option.getTtsShowLoadingOverlay());
+        llTtsShowLoadingOverlay.setOnClickListener(v -> chkTtsShowLoadingOverlay.toggle());
+        chkTtsShowLoadingOverlay
+                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTtsShowLoadingOverlay(isChecked));
+
+        etTtsOverlayTimeout = root.findViewById(R.id.et_tts_overlay_timeout);
+        etTtsOverlayTimeout.setText(String.valueOf(Option.getTtsOverlayTimeoutSec()));
 
         return root;
     }
@@ -224,6 +233,18 @@ public class TtsSettingsFragment extends LoggingFragment {
             chunkSize = null;
         }
 
+        final Integer overlayTimeout;
+        if (etTtsOverlayTimeout != null) {
+            overlayTimeout = Option.clampInt(
+                    ctx,
+                    etTtsOverlayTimeout,
+                    2, 30,
+                    Option.DEFAULT_TTS_OVERLAY_TIMEOUT_SEC,
+                    ctx.getString(R.string.option_tts_overlay_timeout_title));
+        } else {
+            overlayTimeout = null;
+        }
+
         // --- Persist off the main thread ---
         Executors.newSingleThreadExecutor().execute(() -> {
             if (highlightDelay != null) {
@@ -231,6 +252,9 @@ public class TtsSettingsFragment extends LoggingFragment {
             }
             if (chunkSize != null) {
                 Option.setTtsChunkSize(chunkSize);
+            }
+            if (overlayTimeout != null) {
+                Option.setTtsOverlayTimeoutSec(overlayTimeout);
             }
         });
     }

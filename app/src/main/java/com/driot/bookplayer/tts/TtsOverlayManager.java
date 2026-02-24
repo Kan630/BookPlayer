@@ -4,6 +4,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlaybackCommands;
@@ -21,8 +22,6 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class TtsOverlayManager {
 
-    private static final int OVERLAY_TIMEOUT_SEC = 5;
-
     private final WeakReference<BaseActivity> activityRef;
     private final Handler uiH = new Handler(Looper.getMainLooper());
     private final Runnable loadingRunnable;
@@ -35,7 +34,7 @@ public class TtsOverlayManager {
     private boolean ttsActuallyStarted;
     private boolean loadingProgressOverlayTimerStarted;
     private boolean overlayVisible;
-    private int auto_hide_countdown_seconds = OVERLAY_TIMEOUT_SEC;
+    private int auto_hide_countdown_seconds = Option.DEFAULT_TTS_OVERLAY_TIMEOUT_SEC;
     private String currentPhase = "";
 
     public TtsOverlayManager(BaseActivity activity) {
@@ -64,9 +63,13 @@ public class TtsOverlayManager {
             }
         };
         this.loadingRunnable = () -> {
+            if (!Option.getTtsShowLoadingOverlay()) {
+                myLogD("TTS OVERLAY: disabled by user option");
+                return;
+            }
             BaseActivity act = activityRef.get();
             if (act instanceof PlayActivity) {
-                auto_hide_countdown_seconds = OVERLAY_TIMEOUT_SEC;
+                auto_hide_countdown_seconds = Option.getTtsOverlayTimeoutSec();
                 uiH.removeCallbacks(safetyTimeoutRunnable);
                 uiH.post(safetyTimeoutRunnable);
             }
