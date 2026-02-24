@@ -16,7 +16,6 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -63,11 +62,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     private boolean highlightScheduled = false;
     private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
 
-    private int lastTtsTrackId = -1;
-    @Nullable
-    private String lastPlayMode = null;
-    @Nullable
-    private String lastPhase = null;
+    private int lastTrackId = -1;
     private boolean lastPlaying = false;
 
     @Override
@@ -102,34 +97,13 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
             if (s == null)
                 return;
 
-            boolean isTts = Var.PLAY_MODE_TTS.equals(s.playMode);
-            int trackId = s.trackId;
-            String phase = s.loadPhase; // field of PlaybackUiState
-
-            boolean trackChanged = isTts && (trackId != lastTtsTrackId);
-            boolean becameReady = isTts
-                    && !Intents.PHASE_READY.equals(lastPhase)
-                    && Intents.PHASE_READY.equals(phase);
-
-            // 🔹 Detect play/pause toggle (used instead of PlayActivity's click listener)
-            boolean playPauseToggled = isTts && (s.playing != lastPlaying);
-
-            // 1) When user presses play/pause in the fragment (state toggles) → restore
-            // auto-follow
-            if (playPauseToggled) {
+            // set back auto-follow highlighted text
+            if (Var.PLAY_MODE_TTS.equalsIgnoreCase(s.playMode) &&
+                    ((s.playing != lastPlaying) || (s.trackId != lastTrackId))) {
                 suppressAutoScroll = false;
             }
 
-            // 2) When chapter changes OR TTS becomes READY for a new chapter → refresh text
-            // + auto-follow
-            if (isTts && (trackChanged || becameReady)) {
-                suppressAutoScroll = false;
-                // vm auto-fetches now
-            }
-
-            lastTtsTrackId = trackId;
-            lastPlayMode = s.playMode;
-            lastPhase = phase;
+            lastTrackId = s.trackId;
             lastPlaying = s.playing;
         });
 

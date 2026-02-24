@@ -84,6 +84,9 @@ public class PlayActivity extends BaseActivity {
     private int lastHeatMapTrackId = -1;
     private long lastHeatMapDurationMs = 0;
     private long lastHeatMapLoadTime = 0;
+
+    private int lastTrackId = -1;
+    private boolean lastPlaying = false;
     /**
      * Match MediaService.DELAY_CHECK_TIMER_SLEEP (1s) so colored bar updates with
      * new PlayTicks.
@@ -376,13 +379,10 @@ public class PlayActivity extends BaseActivity {
                 }
             }
 
-            boolean isTts = "tts".equals(s.playMode);
-            boolean trackChanged = isTts && (s.trackId != ttsHighlighter.getLastTtsTrackId());
-            boolean becameReady = isTts
-                    && !Intents.PHASE_READY.equals(ttsHighlighter.getLastTtsPhase())
-                    && Intents.PHASE_READY.equals(s.loadPhase);
+            boolean isTts = Var.PLAY_MODE_TTS.equalsIgnoreCase(s.playMode);
 
-            if (isTts && (trackChanged || becameReady)) {
+            // set back auto-follow highlighted text
+            if (isTts && ((s.playing != lastPlaying) || (s.trackId != lastTrackId))) {
                 suppressAutoScroll = false;
             }
 
@@ -423,11 +423,8 @@ public class PlayActivity extends BaseActivity {
                 return;
             // myLog("Phase observer : " + p);
 
-            // Pull the latest playback state to know if we’re in TTS or audio mode
-            final boolean tts = ("tts".equals(s.playMode));
-
             // Default: hide overlays for pure audio mode unless we’re in an error phase
-            if (!tts) {
+            if (!isTts) {
                 // Show only ERROR message if present
                 boolean showError = Intents.PHASE_ERROR.equals(p);
                 progressOverlay.setVisibility(View.GONE);
@@ -447,6 +444,9 @@ public class PlayActivity extends BaseActivity {
                 myLogW("TTS is in PHASE_ERROR – keeping spinner and controls usable");
                 myToast(getString(R.string.tts_phase_error));
             }
+
+            lastTrackId = s.trackId;
+            lastPlaying = s.playing;
 
         });
 

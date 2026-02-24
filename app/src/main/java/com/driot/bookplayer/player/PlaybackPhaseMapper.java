@@ -23,14 +23,10 @@ public class PlaybackPhaseMapper {
                 return context.getString(R.string.tts_phase_warming_up);
             case PHASE_ENGINE_STARTING:
                 return context.getString(R.string.tts_phase_starting);
-            case PHASE_READY:
-                return context.getString(R.string.Ready);
             case PHASE_SPEAKING:
                 return context.getString(R.string.Speaking);
             case PHASE_ERROR:
                 return context.getString(R.string.tts_phase_error);
-            case PHASE_BUFFERING:
-                return context.getString(R.string.Scanning_3dots); // Or something else for podcasts?
             default:
                 return null;
         }

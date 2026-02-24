@@ -821,6 +821,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         Pref.setPauseTime(0);
 
         updateSessionState(true);
+        if (!(engine instanceof TtsEngine)) setUiPhase(Intents.PHASE_SPEAKING, null);
+
         engine.setSpeed((float) getSpeed());
         if (!media.session().isActive())
             media.setActive(true);

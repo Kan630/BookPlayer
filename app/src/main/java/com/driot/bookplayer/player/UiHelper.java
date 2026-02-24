@@ -12,6 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.slider.Slider;
 
@@ -126,7 +127,8 @@ public class UiHelper {
             setTitleAndSubtitle(tvTitle, tvSubTitle, s.title, s.subTitle);
         }
 
-        boolean buffering = !"READY".equalsIgnoreCase(s.loadPhase);
+        boolean buffering = !Intents.PHASE_SPEAKING.equalsIgnoreCase(s.loadPhase);
+        //myLog("buffering=" + buffering + ", hasInternet=" + hasInternet + ", loadPhase=" + s.loadPhase);
         if (ivNoInternet != null && hasInternet!=null) {
             if (hasInternet) {
                 if (progressBar != null) progressBar.setVisibility(buffering ? View.VISIBLE : View.GONE);
