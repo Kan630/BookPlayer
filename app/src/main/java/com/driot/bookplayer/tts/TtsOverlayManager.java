@@ -61,6 +61,13 @@ public class TtsOverlayManager {
         if (s == null)
             return;
 
+        // Harden: if we are not in TTS mode, kill everything immediately
+        if (!Var.PLAY_MODE_TTS.equals(s.playMode)) {
+            reset();
+            myLog("playMode not TTS => killing");
+            return;
+        }
+
         // Overlay Logic
         if (Intents.PHASE_SPEAKING.equals(s.loadPhase)) {
             if (!ttsActuallyStarted) {

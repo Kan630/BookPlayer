@@ -153,6 +153,11 @@ public class StartPlayHelper {
                         myLogI("Book with only 1 track...     - sameTrack=" + sameTrack + " - lastUiState = "
                                 + lastUiState);
 
+                        if (!isTTS) {
+                            stopTtsIfPlaying(context, lastUiState);
+                        }
+                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TRACK_CLICK);
+
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             // open play screen ?
                             if (Option.getOpenPlayActivity()
@@ -192,14 +197,13 @@ public class StartPlayHelper {
             final boolean isTTS;
             Folder folder = AppDatabase.getDatabase(context).folderDao().getById(clickedZikFile.getIdFolder());
             isTTS = Objects.equals(folder.playType, Var.PLAY_TYPE_TEXT);
-            if (isTTS) {
-                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TTS_TRACK_CLICK);
-            } else {
-                stopTtsIfPlaying(context);
-            }
 
             // was something playing ?
             PlaybackUiState lastUiState = PlaybackUiBus.get().state().getValue();
+            if (!isTTS) {
+                stopTtsIfPlaying(context, lastUiState);
+            }
+            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TRACK_CLICK);
 
             // is same track clicked ?
             PlayList pl = PlayList.getInstance();
@@ -601,7 +605,7 @@ public class StartPlayHelper {
 
     private static void playStream(Context context, String playMode, String streamUrl, long id, String uuid,
             String title, String cover, String caller) {
-        stopTtsIfPlaying(context);
+        stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
         PlayList.createFromStream(context, playMode, streamUrl);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
         androidx.core.content.ContextCompat.startForegroundService(
@@ -627,8 +631,7 @@ public class StartPlayHelper {
         return new MediaBrowserCompat.MediaItem(desc, MediaBrowserCompat.MediaItem.FLAG_BROWSABLE);
     }
 
-    private static void stopTtsIfPlaying(Context context) {
-        PlaybackUiState state = PlaybackUiBus.get().state().getValue();
+    private static void stopTtsIfPlaying(Context context, PlaybackUiState state) {
         if (state != null && Var.PLAY_MODE_TTS.equals(state.playMode) && state.playing) {
             myLogI("stopTtsIfPlaying: switching to non-TTS mode, killing TTS engine.");
             PlaybackCommands.stop(context.getApplicationContext());

@@ -37,7 +37,7 @@ public class Intents {
     public static final String PHASE_OFF = "OFF";
     public static final String PHASE_ERROR = "ERROR"; // optional, on early failure
     public static final String PHASE_BUFFERING = "BUFFERING"; // podcast / streams
-    public static final String PHASE_TTS_TRACK_CLICK = "TTS_TRACK_CLICK";
+    public static final String PHASE_TRACK_CLICK = "TRACK_CLICK";
     public static final String PHASE_ENGINE_PREPARED = "ENGINE_PREPARED";
     public static final String PHASE_LOADING_TEXT = "LOADING_TEXT"; // text extraction / normalization
     public static final String PHASE_WARMING_UP = "WARMING_UP"; // voice change in progress (CMD_TTS_SET_VOICE)

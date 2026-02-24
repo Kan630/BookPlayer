@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 public final class PlaybackUiBus extends LoggerHelper {
@@ -54,6 +55,26 @@ public final class PlaybackUiBus extends LoggerHelper {
                 _ttsText.setValue("");
             else
                 _ttsText.postValue("");
+        }
+
+        // Harden: if we just left TTS mode, ensure phase is OFF (unless next
+        // specifically sets it)
+        if (prev != null && next != null
+                && Var.PLAY_MODE_TTS.equals(prev.playMode)
+                && !Var.PLAY_MODE_TTS.equals(next.playMode)) {
+            if (Intents.PHASE_OFF.equals(next.loadPhase) || next.loadPhase == null || next.loadPhase.isEmpty()) {
+                // already off or empty, fine
+            } else {
+                // Force OFF to prevent residual "Loading" text in non-TTS modes
+                next = new PlaybackUiState(
+                        Intents.PHASE_OFF,
+                        next.playing, next.ready, next.playMode,
+                        next.positionMs, next.durationMs, next.sleepLeftMS,
+                        next.title, next.subTitle, next.cover,
+                        next.trackId, next.folderId, next.podcastFeedId, next.radioStationUuid,
+                        next.calledFrom + " (clean-up)", next.callCounter + 1, next.extras);
+                myLog("playMode not TTS => forcing phase OFF");
+            }
         }
 
         if (android.os.Looper.myLooper() == android.os.Looper.getMainLooper())
