@@ -518,7 +518,7 @@
     <string name="option_epub_split_mode_spine">Spine-based (one chapter per book entry)</string>
     <string name="option_epub_split_mode_explain_text">TOC-based splitting creates more chapters but preserves the book\'s structure. Spine-based is simpler and creates fewer chapters.</string>
     <string name="option_docx_split_into_chapters">Split DOCX into chapters</string>
-    <string name="option_docx_split_into_chapters_explain">Tries to split DOCX files into chapters based on headings and Table of Contents patterns (e.g., "I - Title").</string>
+    <string name="option_docx_split_into_chapters_explain">Tries to split .docx files into chapters based on headings and Table of Contents patterns (e.g., "I - Title").</string>
     <string name="option_ebook_remove_references">Remove reference markers (footnotes)</string>
     <string name="option_ebook_remove_references_explain">Strips in-text references like [1] and footnote blocks at the end of pages so TTS reads the main text only.</string>
     <string name="option_tts_snap_to_sentence">Restart from sentence start</string>

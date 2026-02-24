@@ -84,7 +84,7 @@ public class Option {
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
     public static final boolean DEFAULT_DOCX_SPLIT_INTO_CHAPTERS = true;
-    private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES = false;
+    private static final boolean DEFAULT_EBOOK_REMOVE_REFERENCES_FOOTNOTES = true;
     public static final boolean DEFAULT_TTS_SNAP_TO_SENTENCE = true;
     public static final boolean DEFAULT_TTS_SHOW_LOADING_OVERLAY = true;
     public static final int DEFAULT_TTS_OVERLAY_TIMEOUT_SEC = 8;
@@ -844,12 +844,12 @@ public class Option {
         return prefs.getString("EPUB_SPLIT_MODE", DEFAULT_EPUB_SPLIT_MODE);
     }
 
-    public static void setEbookRemoveReferences(boolean value) {
-        prefs.edit().putBoolean("EBOOK_REMOVE_REFERENCES", value).apply();
+    public static void setEbookRemoveReferencesFootnotes(boolean value) {
+        prefs.edit().putBoolean("EBOOK_REMOVE_REFERENCES_FOOTNOTES", value).apply();
     }
 
-    public static boolean getEbookRemoveReferences() {
-        return prefs.getBoolean("EBOOK_REMOVE_REFERENCES", DEFAULT_EBOOK_REMOVE_REFERENCES);
+    public static boolean getEbookRemoveReferencesFootnotes() {
+        return prefs.getBoolean("EBOOK_REMOVE_REFERENCES_FOOTNOTES", DEFAULT_EBOOK_REMOVE_REFERENCES_FOOTNOTES);
     }
 
     public static void setTtsSnapToSentence(boolean value) {

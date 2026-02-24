@@ -109,10 +109,10 @@ public class TtsSettingsFragment extends LoggingFragment {
         // Remove reference markers (footnotes) in ebooks
         chkEbookRemoveReferences = root.findViewById(R.id.chk_ebook_remove_references);
         llEbookRemoveReferences = root.findViewById(R.id.ll_ebook_remove_references);
-        chkEbookRemoveReferences.setChecked(Option.getEbookRemoveReferences());
+        chkEbookRemoveReferences.setChecked(Option.getEbookRemoveReferencesFootnotes());
         llEbookRemoveReferences.setOnClickListener(v -> chkEbookRemoveReferences.toggle());
         chkEbookRemoveReferences
-                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setEbookRemoveReferences(isChecked));
+                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setEbookRemoveReferencesFootnotes(isChecked));
 
         // Docx split into chapters
         chkDocxSplitIntoChapters = root.findViewById(R.id.chk_docx_split_into_chapters);
@@ -238,7 +238,7 @@ public class TtsSettingsFragment extends LoggingFragment {
             overlayTimeout = Option.clampInt(
                     ctx,
                     etTtsOverlayTimeout,
-                    2, 30,
+                    5, 20,
                     Option.DEFAULT_TTS_OVERLAY_TIMEOUT_SEC,
                     ctx.getString(R.string.option_tts_overlay_timeout_title));
         } else {

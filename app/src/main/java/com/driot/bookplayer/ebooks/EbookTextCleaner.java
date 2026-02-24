@@ -23,7 +23,7 @@ public final class EbookTextCleaner {
     public static String removeReferencesIfEnabled(String text) {
         if (text == null || text.isEmpty())
             return text;
-        if (!Option.getEbookRemoveReferences())
+        if (!Option.getEbookRemoveReferencesFootnotes())
             return text;
         return removeReferences(text);
     }
