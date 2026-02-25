@@ -40,9 +40,20 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private Runnable dotAnimationRunnable;
     private int dotCount = 0;
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_librivox_results; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_librivox_results;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,8 +74,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
-        );
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         // Setup adapter
         adapter = new LibrivoxResultRVAdapter(new LibrivoxResultRVAdapter.OnItemClickListener() {
@@ -99,12 +109,14 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         String query = intent.getStringExtra("query");
         String genre = intent.getStringExtra("genre");
         String author = intent.getStringExtra("author");
-        LibrivoxLanguageItem selectedLanguageItem =
-                (LibrivoxLanguageItem) intent.getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
+        LibrivoxLanguageItem selectedLanguageItem = (LibrivoxLanguageItem) intent
+                .getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
 
         // Validate parameters
-        if (mode == null) mode = "MODE_SEARCH";
-        if (query == null) query = "";
+        if (mode == null)
+            mode = "MODE_SEARCH";
+        if (query == null)
+            query = "";
 
         if (selectedLanguageItem == null || selectedLanguageItem.name == null || selectedLanguageItem.name.isEmpty()) {
             myLogEE(null, "Bad arguments: lang is null/empty");
@@ -143,7 +155,8 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         // Observe results (replace on first load, append on pagination)
         viewModel.getResults().observe(this, items -> {
-            if (items == null) return;
+            if (items == null)
+                return;
             int currentAdapterSize = adapter.getItemCount() - 1; // -1 for header
             if (currentAdapterSize == 0 || items.size() <= currentAdapterSize) {
                 adapter.setItems(items);
@@ -155,7 +168,8 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         // Observe header status (handles both simple and paged results)
         viewModel.getHeaderStatus().observe(this, statusData -> {
-            if (statusData == null) return;
+            if (statusData == null)
+                return;
 
             String status;
             if (statusData.isLoading) {
@@ -168,12 +182,13 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 } else {
                     // Subsequent pages
                     if (statusData.totalCount >= 0) {
-                        status = getString(R.string.librivox_books_loaded_of,
+                        status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
                                 formatCount(statusData.count), formatCount(statusData.totalCount))
                                 + " (" + getString(R.string.getting_more_from) + " "
                                 + statusData.apiSource + getAnimatedDots() + ")";
                     } else {
-                        status = getString(R.string.librivox_books_loaded, formatCount(statusData.count))
+                        status = getString(R.string.Results_2pt)
+                                + getString(R.string.librivox_books_loaded, formatCount(statusData.count))
                                 + " (" + getString(R.string.getting_more_from) + " "
                                 + statusData.apiSource + getAnimatedDots() + ")";
                     }
@@ -182,12 +197,13 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 // Done loading - stop animation
                 stopDotAnimation();
                 if (statusData.totalCount >= 0) {
-                    // Show "XX / YY books" when total is known (locale-formatted)
-                    status = getString(R.string.librivox_books_loaded_of,
+                    // Show "Results: XX / YY books" when total is known (locale-formatted)
+                    status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
                             formatCount(statusData.count), formatCount(statusData.totalCount));
                 } else {
-                    // Fallback: "XX books loaded"
-                    status = getString(R.string.librivox_books_loaded, formatCount(statusData.count));
+                    // Fallback: "Results: XX books loaded"
+                    status = getString(R.string.Results_2pt)
+                            + getString(R.string.librivox_books_loaded, formatCount(statusData.count));
                 }
             }
 
@@ -196,7 +212,8 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         // Observe errors
         viewModel.getErrorMessage().observe(this, errorMsg -> {
-            if (errorMsg == null || errorMsg.isEmpty()) return;
+            if (errorMsg == null || errorMsg.isEmpty())
+                return;
 
             if (errorMsg.startsWith("no_results_")) {
                 String[] parts = errorMsg.split(":", 2);
@@ -240,16 +257,21 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         });
     }
 
-    /** Load next page when user scrolls near bottom (MODE_TRENDING / MODE_LAST_ADDED only). */
+    /**
+     * Load next page when user scrolls near bottom (MODE_TRENDING / MODE_LAST_ADDED
+     * only).
+     */
     private void setupScrollToLoadMore() {
         GridLayoutManager layoutManager = (GridLayoutManager) recyclerView.getLayoutManager();
-        if (layoutManager == null) return;
+        if (layoutManager == null)
+            return;
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
                 super.onScrolled(recyclerView, dx, dy);
                 GridLayoutManager lm = (GridLayoutManager) recyclerView.getLayoutManager();
-                if (lm == null) return;
+                if (lm == null)
+                    return;
                 int visibleItemCount = lm.getChildCount();
                 int totalItemCount = lm.getItemCount();
                 int firstVisibleItemPosition = lm.findFirstVisibleItemPosition();
@@ -264,14 +286,14 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     }
 
     private void setupHeader(String mode, String query, String genre, String author,
-                             LibrivoxLanguageItem langItem) {
+            LibrivoxLanguageItem langItem) {
         myLog(langItem.toString());
 
-        CharSequence langLine = getString(R.string.Language_2pt) + langItem.nativeName
+        String langLine = getString(R.string.Language_2pt) + langItem.nativeName
                 + (langItem.nativeName.equals(langItem.name)
-                ? ""
-                : " (" + langItem.name + ")");
-        CharSequence searchLine;
+                        ? ""
+                        : " (" + langItem.name + ")");
+        String searchLine;
 
         switch (mode) {
             case "MODE_TRENDING":
@@ -307,7 +329,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     }
 
     private void triggerSearch(String mode, String query, String genre, String author,
-                               LibrivoxLanguageItem langItem) {
+            LibrivoxLanguageItem langItem) {
         switch (mode) {
             case "MODE_TRENDING":
                 myLogD("TRENDING mode → mostDownloadedByLang()");
@@ -360,8 +382,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 dotCount = (dotCount + 1) % 4; // Cycle through 0, 1, 2, 3
 
                 // Update the header directly instead of re-triggering observer
-                LibrivoxResultsViewModel.HeaderStatusData currentStatus =
-                        viewModel.getHeaderStatus().getValue();
+                LibrivoxResultsViewModel.HeaderStatusData currentStatus = viewModel.getHeaderStatus().getValue();
                 if (currentStatus != null && currentStatus.isLoading) {
                     updateHeaderWithDots(currentStatus);
                     dotAnimationHandler.postDelayed(this, 500); // Update every 500ms
@@ -379,12 +400,13 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         } else {
             // Subsequent pages (loading more)
             if (statusData.totalCount >= 0) {
-                status = getString(R.string.librivox_books_loaded_of,
+                status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
                         formatCount(statusData.count), formatCount(statusData.totalCount))
                         + " (" + getString(R.string.getting_more_from) + " "
                         + statusData.apiSource + getAnimatedDots() + ")";
             } else {
-                status = getString(R.string.librivox_books_loaded, formatCount(statusData.count))
+                status = getString(R.string.Results_2pt)
+                        + getString(R.string.librivox_books_loaded, formatCount(statusData.count))
                         + " (" + getString(R.string.getting_more_from) + " "
                         + statusData.apiSource + getAnimatedDots() + ")";
             }
@@ -410,11 +432,16 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
     private String getAnimatedDots() {
         switch (dotCount) {
-            case 0: return "";
-            case 1: return ".";
-            case 2: return "..";
-            case 3: return "...";
-            default: return "";
+            case 0:
+                return "";
+            case 1:
+                return ".";
+            case 2:
+                return "..";
+            case 3:
+                return "...";
+            default:
+                return "";
         }
     }
 

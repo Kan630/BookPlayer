@@ -31,6 +31,7 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
 
     public interface OnItemClickListener {
         void onItemClick(ArchiveItem item);
+
         void onFavoriteClick(ArchiveItem item);
     }
 
@@ -55,7 +56,7 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == VT_HEADER) {
-            View v = inf.inflate(R.layout.recyclerview_librivox_header, parent, false);
+            View v = inf.inflate(R.layout.recyclerview_search_header, parent, false);
             return new HeaderVH(v);
         } else {
             View v = inf.inflate(R.layout.recyclerview_librivox_result, parent, false);
@@ -68,9 +69,16 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
             h.tvSearch.setText(h.itemView.getContext().getString(R.string.Favorites));
+            h.tvSearch.setVisibility(View.VISIBLE);
+
             h.tvLang.setText(h.itemView.getContext().getString(R.string.Librivox));
+            h.tvLang.setVisibility(View.VISIBLE);
+
             String tvCountStr = h.itemView.getContext().getString(R.string.nb_of_audios_found) + " : " + items.size();
             h.tvCount.setText(tvCountStr);
+            h.tvCount.setVisibility(View.VISIBLE);
+
+            h.tvCountryTag.setVisibility(View.GONE);
             return;
         }
 
@@ -97,11 +105,10 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
                 String imageUrl = "https://archive.org/services/img/" + item.identifier;
                 String localPath = ImageHelper.getOrDownloadLibrivoxImage(context, item.identifier, imageUrl, false);
                 if (localPath != null) {
-                    ((android.app.Activity) context).runOnUiThread(() ->
-                            Glide.with(holder.image)
-                                    .load(new File(localPath))
-                                    .placeholder(R.drawable.placeholder_cover)
-                                    .into(holder.image));
+                    ((android.app.Activity) context).runOnUiThread(() -> Glide.with(holder.image)
+                            .load(new File(localPath))
+                            .placeholder(R.drawable.placeholder_cover)
+                            .into(holder.image));
                 }
             }).start();
         }
@@ -129,12 +136,14 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
     // --- ViewHolders ---
 
     static class HeaderVH extends RecyclerView.ViewHolder {
-        TextView tvSearch, tvLang, tvCount;
+        final TextView tvSearch, tvLang, tvCount, tvCountryTag;
+
         HeaderVH(View v) {
             super(v);
             tvSearch = v.findViewById(R.id.tvSearchTerms);
             tvLang = v.findViewById(R.id.tvLanguage);
             tvCount = v.findViewById(R.id.tvResultsCount);
+            tvCountryTag = v.findViewById(R.id.tvCountryTag);
         }
     }
 
@@ -143,6 +152,7 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
         RatingBar ratingBar;
         ImageView image;
         ImageButton ibFavorite;
+
         ItemVH(View v) {
             super(v);
             title = v.findViewById(R.id.librivox_title);

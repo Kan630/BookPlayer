@@ -61,13 +61,10 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     // --- Header API ---
     /** e.g. search="Jazz", lang="fr", countryTag="FR • chillout" */
     public void setHeader(String search, String lang, String countryTag) {
-        if (search != null)
-            this.headerSearch = search;
-        if (lang != null)
-            this.headerLang = lang;
-        if (countryTag != null)
-            this.headerCountryTag = countryTag;
-        notifyItemChanged(0); // header
+        this.headerSearch = search != null ? search : "";
+        this.headerLang = lang != null ? lang : "";
+        this.headerCountryTag = countryTag != null ? countryTag : "";
+        notifyItemChanged(0);
     }
 
     public void setHeaderSearch(String search) {
@@ -159,7 +156,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == VT_HEADER) {
-            return new HeaderVH(inf.inflate(R.layout.recyclerview_radio_header, parent, false));
+            return new HeaderVH(inf.inflate(R.layout.recyclerview_search_header, parent, false));
         } else {
             return new ItemVH(inf.inflate(R.layout.recyclerview_radio_result, parent, false));
         }
@@ -169,32 +166,17 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder vh, int position) {
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
-            if (headerSearch == null || headerSearch.isEmpty()) {
-                h.tvSearch.setVisibility(View.GONE);
-            } else {
-                h.tvSearch.setVisibility(View.VISIBLE);
-                h.tvSearch.setText(headerSearch);
-            }
-            if (headerLang == null || headerLang.isEmpty()) {
-                h.tvLang.setVisibility(View.GONE);
-            } else {
-                h.tvLang.setVisibility(View.VISIBLE);
-                h.tvLang.setText(headerLang);
-            }
-            if (headerCountryTag == null || headerCountryTag.isEmpty()) {
-                h.tvCountryTag.setVisibility(View.GONE);
-            } else {
-                h.tvCountryTag.setVisibility(View.VISIBLE);
-                h.tvCountryTag.setText(headerCountryTag);
-            }
-            if (headerCount == null || headerCount.isEmpty()) {
-                h.tvCount.setVisibility(View.GONE);
-            } else {
-                h.tvCount.setVisibility(View.VISIBLE);
-                h.tvCount.setText(headerCount);
-            }
-            // As in your Librivox header, you can attach overlays to h.topOverlayContainer
-            // from the Activity
+            h.tvSearch.setText(headerSearch);
+            h.tvSearch.setVisibility(headerSearch.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvLang.setText(headerLang);
+            h.tvLang.setVisibility(headerLang.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvCountryTag.setText(headerCountryTag);
+            h.tvCountryTag.setVisibility(headerCountryTag.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvCount.setText(headerCount);
+            h.tvCount.setVisibility(headerCount.isEmpty() ? View.GONE : View.VISIBLE);
         } else {
             int idx = position - 1;
             if (idx < 0 || idx >= items.size())
@@ -211,26 +193,16 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             // Title
             holder.title.setText(nonNull(s.name));
 
-            // Sub-info: country • language • tags (single line, ellipsized)
-            /*
-             * String country = emptyIfNull(s.country);
-             * String language = emptyIfNull(s.language);
-             * String tags = normalizeTags(s.tags);
-             * String info = joinNonEmpty(" • ", country, language, tags);
-             * holder.info.setText(info);
-             */
-
+            // Sub-info: country • language • tags
             holder.info.setText((s.country != null ? s.country
                     : (s.language != null ? s.language : (s.tags != null ? normalizeTags(s.tags) : ""))));
 
             // Codec / bitrate
-            // holder.codec.setText(nonNull(s.codec));
-            // holder.bitrate.setText(s.bitrate > 0 ? s.bitrate + " kbps" : "");
             holder.codec.setVisibility(View.GONE);
             holder.bitrate.setVisibility(View.GONE);
 
-            // Favicon (may be empty)
-            holder.favicon.setTag(s.stationuuid); // prevent race
+            // Favicon
+            holder.favicon.setTag(s.stationuuid);
             Glide.with(holder.favicon).load(s.favicon)
                     .placeholder(R.drawable.ic_radio_24px_deportee)
                     .error(R.drawable.ic_radio_24px_deportee)
@@ -248,8 +220,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
                 listener.onFavorite(s);
             });
 
-            // Row click = play (optional: keep it explicit on the play button if you
-            // prefer)
             holder.itemView.setOnClickListener(v -> listener.onPlay(s));
         }
     }

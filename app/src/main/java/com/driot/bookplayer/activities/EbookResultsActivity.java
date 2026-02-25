@@ -167,11 +167,11 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             topic = "";
 
         // Header text, reuse your strings
-        CharSequence searchLine = getString(R.string.Search_2pt)
-                + (query.isEmpty() ? (topic.isEmpty() ? getString(R.string.search_nothing_specified) : topic) : query);
-        
+        String searchLine = getString(R.string.Search_2pt)
+                + (query.isEmpty() ? (topic.isEmpty() ? getString(R.string.most_downloaded) : topic) : query);
+
         // Get language name from Gutenberg languages (like LibriVox does)
-        CharSequence langLine = getLanguageDisplayName(lang);
+        String langLine = getLanguageDisplayName(lang);
         adapter.setHeader(searchLine, langLine);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
@@ -248,7 +248,8 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         progressMessageRunnable = new Runnable() {
             @Override
             public void run() {
-                if (tvProgressMessage == null || tvProgressMessage.getVisibility() != View.VISIBLE) return;
+                if (tvProgressMessage == null || tvProgressMessage.getVisibility() != View.VISIBLE)
+                    return;
                 long elapsedSec = (System.currentTimeMillis() - searchStartTime) / 1000;
                 String tryLabel = currentTryNumber == 1
                         ? getString(R.string.gutenberg_try_1st)
@@ -265,10 +266,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     private void stopProgressMessageAndHide() {
         progressMessageHandler.removeCallbacks(progressMessageRunnable);
         progressMessageRunnable = null;
-        if (tvProgressMessage != null) tvProgressMessage.setVisibility(View.GONE);
+        if (tvProgressMessage != null)
+            tvProgressMessage.setVisibility(View.GONE);
     }
 
-    /** Gutendex can be slow (e.g. "most downloaded"); use longer timeouts and one retry on failure. */
+    /**
+     * Gutendex can be slow (e.g. "most downloaded"); use longer timeouts and one
+     * retry on failure.
+     */
     private static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 30;
     private static final int GUTENDEX_READ_TIMEOUT_SEC = 60;
 
@@ -300,8 +305,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 lang,
                 topicParam,
                 "application/epub+zip",
-                null
-        );
+                null);
 
         call.enqueue(new Callback<GutendexResponse>() {
             @Override
@@ -340,7 +344,8 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
                     String epubUrl = GutendexMapper.findBestEpubUrl(b);
-                    if (epubUrl == null || epubUrl.isEmpty()) continue;
+                    if (epubUrl == null || epubUrl.isEmpty())
+                        continue;
                     String coverUrl = GutendexMapper.findCoverUrl(b);
                     EbookItem item = new EbookItem();
                     item.gutendexId = b.id;
@@ -357,8 +362,10 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 if (mapped.isEmpty()) {
                     myLogW("Gutendex: all results filtered out (no EPUB).");
                     String errMsg = !topic.isEmpty() && query.isEmpty()
-                            ? getString(R.string.no_ebooks_found_bookshelf, topic, LanguageMapper.getNameFromTwoLetters(lang))
-                            : getString(R.string.no_ebooks_found_search, query, LanguageMapper.getNameFromTwoLetters(lang));
+                            ? getString(R.string.no_ebooks_found_bookshelf, topic,
+                                    LanguageMapper.getNameFromTwoLetters(lang))
+                            : getString(R.string.no_ebooks_found_search, query,
+                                    LanguageMapper.getNameFromTwoLetters(lang));
                     tvEmptyMessage.setText(errMsg);
                     tvEmptyMessage.setVisibility(View.VISIBLE);
                     recyclerView.setVisibility(View.GONE);
@@ -490,10 +497,10 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     private void updateCountDisplay(int loadedCount) {
         String countText;
         if (totalCount > 0 && loadedCount < totalCount) {
-            countText = getString(R.string.Results_2pt) + " "
+            countText = getString(R.string.Results_2pt)
                     + formatCount(loadedCount) + " / " + formatCount(totalCount);
         } else {
-            countText = getString(R.string.Results_2pt) + " " + formatCount(loadedCount);
+            countText = getString(R.string.Results_2pt) + formatCount(loadedCount);
         }
         adapter.setHeaderCount(countText);
     }
@@ -507,36 +514,36 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
      * Get the display name for a language code, formatted like LibriVox:
      * nativeName (name) if they differ, or just nativeName if they're the same.
      */
-    private CharSequence getLanguageDisplayName(String langCode) {
+    private String getLanguageDisplayName(String langCode) {
         if (langCode == null || langCode.isEmpty()) {
-            return getString(R.string.Language_2pt) + langCode;
+            return getString(R.string.Language_2pt) + " " + langCode;
         }
-        
+
         // Load Gutenberg languages and find matching one
         GutenbergLanguageStore store = new GutenbergLanguageStore(this);
         List<GutenbergLanguageItem> languages = store.loadLanguages(R.raw.gutenberg_languages);
-        
+
         for (GutenbergLanguageItem langItem : languages) {
             if (langCode.equalsIgnoreCase(langItem.code2)) {
                 // Format like LibriVox: nativeName (name) if different, or just nativeName
-                String nativeName = langItem.nativeName != null && !langItem.nativeName.isEmpty() 
-                        ? langItem.nativeName 
+                String nativeName = langItem.nativeName != null && !langItem.nativeName.isEmpty()
+                        ? langItem.nativeName
                         : langItem.name;
                 String displayName = nativeName;
                 if (!nativeName.equals(langItem.name)) {
                     displayName = nativeName + " (" + langItem.name + ")";
                 }
-                return getString(R.string.Language_2pt) + displayName;
+                return getString(R.string.Language_2pt) + " " + displayName;
             }
         }
-        
+
         // Fallback: use LanguageMapper to get name from code
         String langName = LanguageMapper.getNameFromTwoLetters(langCode);
         if (langName != null && !langName.equals(langCode)) {
-            return getString(R.string.Language_2pt) + langName;
+            return getString(R.string.Language_2pt) + " " + langName;
         }
-        
+
         // Last resort: just show the code
-        return getString(R.string.Language_2pt) + langCode;
+        return getString(R.string.Language_2pt) + " " + langCode;
     }
 }

@@ -29,29 +29,39 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     private final OnItemClickListener listener;
 
     private static final int VT_HEADER = 0;
-    private static final int VT_ITEM   = 1;
+    private static final int VT_ITEM = 1;
     private static final int VT_LOADING = 2;
 
     private List<EbookItem> items = new ArrayList<>();
     private boolean isLoading = false;
 
     // Header data
-    private CharSequence headerSearch = "";
-    private CharSequence headerLang   = "";
-    private CharSequence headerCount  = "";
+    private String headerSearch = "";
+    private String headerLang = "";
+    private String headerCount = "";
 
     public EbookResultRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 
     // --- Header API ---
-    public void setHeader(CharSequence search, CharSequence lang) {
+    public void setHeader(String search, String lang) {
         this.headerSearch = search != null ? search : "";
-        this.headerLang   = lang != null ? lang : "";
-        notifyItemChanged(0); // header
+        this.headerLang = lang != null ? lang : "";
+        notifyItemChanged(0);
     }
 
-    public void setHeaderCount(CharSequence count) {
+    public void setHeaderSearch(String search) {
+        this.headerSearch = search != null ? search : "";
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderLang(String lang) {
+        this.headerLang = lang != null ? lang : "";
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderCount(String count) {
         this.headerCount = count != null ? count : "";
         notifyItemChanged(0);
     }
@@ -68,22 +78,23 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             setLoading(false);
             return;
         }
-        
+
         boolean hadLoadingFooter = isLoading;
         int startPosition = items.size() + 1; // +1 for header
-        
+
         if (hadLoadingFooter) {
             isLoading = false;
             notifyItemRemoved(getItemCount() - 1); // Remove loading footer
         }
-        
+
         items.addAll(newItems);
         notifyItemRangeInserted(startPosition, newItems.size());
     }
 
     public void setLoading(boolean loading) {
-        if (isLoading == loading) return;
-        
+        if (isLoading == loading)
+            return;
+
         if (loading) {
             // Adding loading footer
             isLoading = true;
@@ -111,12 +122,14 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     // --- ViewHolders ---
     public static class HeaderVH extends RecyclerView.ViewHolder {
-        final TextView tvSearch, tvLang, tvCount;
+        final TextView tvSearch, tvLang, tvCount, tvCountryTag;
+
         HeaderVH(@NonNull View v) {
             super(v);
             tvSearch = v.findViewById(R.id.tvSearchTerms);
-            tvLang   = v.findViewById(R.id.tvLanguage);
-            tvCount  = v.findViewById(R.id.tvResultsCount);
+            tvLang = v.findViewById(R.id.tvLanguage);
+            tvCount = v.findViewById(R.id.tvResultsCount);
+            tvCountryTag = v.findViewById(R.id.tvCountryTag);
         }
     }
 
@@ -127,16 +140,17 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
         ItemVH(@NonNull View itemView) {
             super(itemView);
-            title      = itemView.findViewById(R.id.ebook_title);
-            authors    = itemView.findViewById(R.id.ebook_authors);
-            info       = itemView.findViewById(R.id.ebook_info);
-            image      = itemView.findViewById(R.id.ebook_image);
+            title = itemView.findViewById(R.id.ebook_title);
+            authors = itemView.findViewById(R.id.ebook_authors);
+            info = itemView.findViewById(R.id.ebook_info);
+            image = itemView.findViewById(R.id.ebook_image);
             ivImported = itemView.findViewById(R.id.ivImported);
         }
     }
 
     static class LoadingVH extends RecyclerView.ViewHolder {
         ProgressBar progressBar;
+
         LoadingVH(@NonNull View v) {
             super(v);
             progressBar = v.findViewById(R.id.progressBar);
@@ -145,16 +159,19 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     @Override
     public int getItemViewType(int position) {
-        if (position == 0) return VT_HEADER;
-        if (position == getItemCount() - 1 && isLoading) return VT_LOADING;
+        if (position == 0)
+            return VT_HEADER;
+        if (position == getItemCount() - 1 && isLoading)
+            return VT_LOADING;
         return VT_ITEM;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == VT_HEADER) {
-            return new HeaderVH(inf.inflate(R.layout.recyclerview_ebook_header, parent, false));
+            return new HeaderVH(inf.inflate(R.layout.recyclerview_search_header, parent, false));
         } else if (viewType == VT_LOADING) {
             return new LoadingVH(inf.inflate(R.layout.recyclerview_loading_footer, parent, false));
         } else {
@@ -167,8 +184,14 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
             h.tvSearch.setText(headerSearch);
+
             h.tvLang.setText(headerLang);
+            h.tvLang.setVisibility(headerLang.isEmpty() ? View.GONE : View.VISIBLE);
+
             h.tvCount.setText(headerCount);
+            h.tvCount.setVisibility(headerCount.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvCountryTag.setVisibility(View.GONE);
         } else if (getItemViewType(position) == VT_LOADING) {
             // Loading footer - nothing to bind
         } else {
@@ -186,7 +209,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
                 infoText = item.language;
             }
             if (item.downloadCount > 0) {
-                if (!infoText.isEmpty()) infoText += " · ";
+                if (!infoText.isEmpty())
+                    infoText += " · ";
                 infoText += Tonio.addThousandSeparator(item.downloadCount) + " " +
                         viewContext.getString(R.string.downloads); // you may need this string
             }
@@ -194,7 +218,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             holder.itemView.setOnClickListener(v -> {
                 int p = holder.getBindingAdapterPosition();
-                if (p == RecyclerView.NO_POSITION) return;
+                if (p == RecyclerView.NO_POSITION)
+                    return;
                 listener.onItemClick(item);
             });
 
@@ -202,7 +227,8 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             holder.image.setTag(item.gutendexId);
 
             if (item.coverUrl != null && !item.coverUrl.isEmpty()) {
-                // Use viewContext directly (not getApplicationContext()) for proper Glide lifecycle in RecyclerView
+                // Use viewContext directly (not getApplicationContext()) for proper Glide
+                // lifecycle in RecyclerView
                 Glide.with(viewContext)
                         .load(item.coverUrl)
                         .placeholder(R.drawable.placeholder_cover)

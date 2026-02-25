@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/search_header_root"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp"
+    android:paddingTop="12dp"
+    android:paddingBottom="8dp">
+
+    <TextView
+        android:id="@+id/tvSearchTerms"
+        style="@style/OptionMiniText"
+        android:textStyle="bold"
+        android:textSize="16sp"
+        android:layout_marginTop="4dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAlignment="viewStart"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="12sp"
+        app:autoSizeMaxTextSize="16sp"
+        app:autoSizeStepGranularity="1sp" />
+
+    <TextView
+        android:id="@+id/tvLanguage"
+        style="@style/OptionMiniText"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAlignment="viewStart"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="10sp"
+        app:autoSizeMaxTextSize="12sp"
+        app:autoSizeStepGranularity="1sp" />
+
+    <TextView
+        android:id="@+id/tvCountryTag"
+        style="@style/OptionMiniText"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAlignment="viewStart"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="10sp"
+        app:autoSizeMaxTextSize="12sp"
+        app:autoSizeStepGranularity="1sp" />
+
+    <TextView
+        android:id="@+id/tvResultsCount"
+        style="@style/OptionMiniText"
+        android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="2dp"
+        android:maxLines="1"
+        android:ellipsize="end"
+        android:textAlignment="viewStart"
+        app:autoSizeTextType="uniform"
+        app:autoSizeMinTextSize="10sp"
+        app:autoSizeMaxTextSize="12sp"
+        app:autoSizeStepGranularity="1sp" />
+
+</LinearLayout>

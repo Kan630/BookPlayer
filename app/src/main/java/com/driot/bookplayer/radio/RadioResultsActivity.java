@@ -372,22 +372,22 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
             case "MODE_TOP_VOTE":
                 repo.topVoted(Option.getRadioApiNbResults(), resultsCb("topVote"));
-                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.top_vote));
+                adapter.setHeaderSearch(getString(R.string.Search_2pt) + getString(R.string.top_vote));
                 break;
 
             case "MODE_TOP_CLICK":
                 repo.topClicked(Option.getRadioApiNbResults(), resultsCb("topClick"));
-                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.top_click));
+                adapter.setHeaderSearch(getString(R.string.Search_2pt) + getString(R.string.top_click));
                 break;
 
             case "MODE_LAST_CLICK":
                 repo.lastClicked(Option.getRadioApiNbResults(), resultsCb("lastClick"));
-                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.last_click));
+                adapter.setHeaderSearch(getString(R.string.Search_2pt) + getString(R.string.last_click));
                 break;
 
             case "MODE_LAST_CHANGE":
                 repo.lastChanged(Option.getRadioApiNbResults(), resultsCb("lastChange"));
-                adapter.setHeader(getString(R.string.Search_2pt) + " " + getString(R.string.last_change));
+                adapter.setHeaderSearch(getString(R.string.Search_2pt) + getString(R.string.last_change));
                 break;
 
             case "MODE_TAG":
@@ -397,7 +397,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
                 repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
-                adapter.setHeader(getString(R.string.by_tag) + " : " + tag);
+                adapter.setHeaderSearch(getString(R.string.by_tag) + " : " + tag);
                 break;
 
             case "MODE_COUNTRY":
@@ -407,7 +407,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
                 repo.byCountry(country, Option.getRadioApiNbResults(), resultsCb("country"));
-                adapter.setHeader(getString(R.string.by_country) + " : " + country);
+                adapter.setHeaderSearch(getString(R.string.by_country) + " : " + country);
                 break;
 
             case "MODE_LANGUAGE":
@@ -417,7 +417,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
                 repo.byLanguage(lang, Option.getRadioApiNbResults(), resultsCb("language"));
-                adapter.setHeader(getString(R.string.by_language) + " : " + lang);
+                adapter.setHeaderSearch(getString(R.string.by_language) + " : " + lang);
                 break;
 
             case "MODE_SEARCH":
@@ -428,7 +428,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
                 repo.byName(q, Option.getRadioApiNbResults(), resultsCb("byname"));
-                adapter.setHeader(getString(R.string.by_name) + " : " + q);
+                adapter.setHeaderSearch(getString(R.string.by_name) + " : " + q);
 
                 // TODO maybe later put spinner back... not very useful right now
                 // repo.search(q, nullIfBlank(tag), country, lang,
@@ -603,13 +603,13 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         List<Station> allResults = viewModel.getResults().getValue();
                         if (allResults != null) {
                             viewModel.setHeaderCount(
-                                    getString(R.string.Results_2pt) + " " + allResults.size() + headerTxt);
+                                    getString(R.string.Results_2pt) + allResults.size() + headerTxt);
                         }
                         myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: "
                                 + (allResults != null ? allResults.size() : 0));
                     } else {
                         viewModel.setResults(body);
-                        viewModel.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
+                        viewModel.setHeaderCount(getString(R.string.Results_2pt) + body.size() + headerTxt);
                         myLog("radio results (" + source + ") = " + body.size());
                     }
                 } else {

@@ -27,32 +27,44 @@ import java.util.List;
 public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
     public interface OnItemClickListener {
         void onItemClick(ArchiveItem item);
+
         void onFavoriteClick(ArchiveItem item);
     }
+
     private final OnItemClickListener listener;
 
     private static final int VT_HEADER = 0;
-    private static final int VT_ITEM   = 1;
+    private static final int VT_ITEM = 1;
 
     private List<ArchiveItem> items = new ArrayList<>();
 
     // Header data
-    private CharSequence headerSearch = "";
-    private CharSequence headerLang = "";
-    private CharSequence headerCount = "";
-
+    private String headerSearch = "";
+    private String headerLang = "";
+    private String headerCount = "";
 
     public LibrivoxResultRVAdapter(OnItemClickListener listener) {
         this.listener = listener;
     }
 
     // --- Header API ---
-    public void setHeader(CharSequence search, CharSequence lang) {
+    public void setHeader(String search, String lang) {
         this.headerSearch = search != null ? search : "";
         this.headerLang = lang != null ? lang : "";
-        notifyItemChanged(0); // header
+        notifyItemChanged(0);
     }
-    public void setHeaderCount(CharSequence count) {
+
+    public void setHeaderSearch(String search) {
+        this.headerSearch = search != null ? search : "";
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderLang(String lang) {
+        this.headerLang = lang != null ? lang : "";
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderCount(String count) {
         this.headerCount = count != null ? count : "";
         notifyItemChanged(0);
     }
@@ -74,21 +86,25 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     // --- ViewHolders ---
     public static class HeaderVH extends RecyclerView.ViewHolder {
-        final TextView tvSearch, tvLang, tvCount;
+        final TextView tvSearch, tvLang, tvCount, tvCountryTag;
         final View topOverlayContainer;
+
         HeaderVH(@NonNull View v) {
             super(v);
             tvSearch = v.findViewById(R.id.tvSearchTerms);
-            tvLang   = v.findViewById(R.id.tvLanguage);
-            tvCount  = v.findViewById(R.id.tvResultsCount);
+            tvLang = v.findViewById(R.id.tvLanguage);
+            tvCount = v.findViewById(R.id.tvResultsCount);
+            tvCountryTag = v.findViewById(R.id.tvCountryTag);
             topOverlayContainer = v.findViewById(R.id.topOverlayContainer);
         }
     }
+
     static class ItemVH extends RecyclerView.ViewHolder {
         TextView title, info, rating;
         RatingBar ratingBar;
         ImageView image;
         ImageButton ibFavorite;
+
         ItemVH(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.librivox_title);
@@ -100,15 +116,17 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         }
     }
 
-    @Override public int getItemViewType(int position) {
+    @Override
+    public int getItemViewType(int position) {
         return position == 0 ? VT_HEADER : VT_ITEM;
     }
 
-    @NonNull @Override
+    @NonNull
+    @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == VT_HEADER) {
-            return new HeaderVH(inf.inflate(R.layout.recyclerview_librivox_header, parent, false));
+            return new HeaderVH(inf.inflate(R.layout.recyclerview_search_header, parent, false));
         } else {
             return new ItemVH(inf.inflate(R.layout.recyclerview_librivox_result, parent, false));
         }
@@ -119,8 +137,14 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
             h.tvSearch.setText(headerSearch);
+
             h.tvLang.setText(headerLang);
+            h.tvLang.setVisibility(headerLang.isEmpty() ? View.GONE : View.VISIBLE);
+
             h.tvCount.setText(headerCount);
+            h.tvCount.setVisibility(headerCount.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvCountryTag.setVisibility(View.GONE);
         } else {
 
             int idx = position - 1;
@@ -129,12 +153,13 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             // View context (for resources, colors, etc.)
             Context viewContext = holder.image.getContext();
-            // Application context (for Glide / background work, not tied to Activity lifecycle)
+            // Application context (for Glide / background work, not tied to Activity
+            // lifecycle)
             Context appContext = viewContext.getApplicationContext();
 
             holder.title.setText(item.title);
 
-            if (item.date!=null && item.date.contains("copyright")) { //Hack for pure Librivox Result
+            if (item.date != null && item.date.contains("copyright")) { // Hack for pure Librivox Result
                 holder.info.setText(item.date);
             } else {
                 holder.info.setText(extractYear(item.date));
@@ -150,7 +175,8 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 holder.ratingBar.setRating(item.avg_rating);
                 holder.rating.setVisibility(View.VISIBLE);
                 holder.ratingBar.setVisibility(View.VISIBLE);
-            } else if (item.author != null && !item.author.isEmpty()) { // Hack for pure Librivox Result (no rating like in Archive results, but author present...)
+            } else if (item.author != null && !item.author.isEmpty()) { // Hack for pure Librivox Result (no rating like
+                                                                        // in Archive results, but author present...)
                 holder.rating.setText(item.author);
                 holder.rating.setTypeface(null, Typeface.BOLD);
                 holder.rating.setVisibility(View.VISIBLE);
@@ -185,8 +211,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                             appContext,
                             item.identifier,
                             imageUrl,
-                            false
-                    );
+                            false);
 
                     if (localPath != null) {
                         // Use the View to go back to the UI thread, not Activity.runOnUiThread
@@ -210,12 +235,12 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             int tint = ContextCompat.getColor(
                     viewContext,
-                    item.is_favorite ? R.color.red : android.R.color.white
-            );
+                    item.is_favorite ? R.color.red : android.R.color.white);
             holder.ibFavorite.setColorFilter(tint);
             holder.ibFavorite.setOnClickListener(v -> {
                 int p = holder.getBindingAdapterPosition();
-                if (p == RecyclerView.NO_POSITION) return;
+                if (p == RecyclerView.NO_POSITION)
+                    return;
                 listener.onFavoriteClick(item);
             });
 
@@ -224,14 +249,14 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         }
     }
 
-
     @Override
     public int getItemCount() {
         return items.size() + 1;
     }
 
     private String extractYear(String fullDate) {
-        if (fullDate == null || fullDate.length() < 4) return "";
+        if (fullDate == null || fullDate.length() < 4)
+            return "";
         return fullDate.substring(0, 4);
     }
 
