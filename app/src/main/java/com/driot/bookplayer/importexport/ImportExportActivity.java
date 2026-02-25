@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.graphics.Typeface;
 import androidx.core.content.FileProvider;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -111,8 +112,9 @@ public class ImportExportActivity extends BaseActivity {
 
         if (mode == MODE_BACKUP) {
             tvTitle.setText("Backup");
-            tvDesc.setText("For now, regular books shall be saved one by one with the quick share or export option from the modify book page.");
-            tvDesc.setItalics
+            tvDesc.setText(
+                    "Note: This backup excludes local audiobooks. To save them, use the share or export option on individual book info pages.");
+            tvDesc.setTypeface(null, Typeface.ITALIC);
             btnPick.setVisibility(View.GONE);
             optionsContainer.setVisibility(View.VISIBLE);
             btnAction.setText("Save to Backup File");
