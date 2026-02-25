@@ -144,7 +144,7 @@
     <string name="Spam">Spam</string>
     <string name="Speaking">Parla</string>
     <string name="Speed">Velocità</string>
-    <string name="import_task_start">avvio...</string>
+    <string name="import_task_start">avvio…</string>
     <string name="Stats">Statistiche</string>
     <string name="stop">stop</string>
     <string name="Storage">Archiviazione</string>
@@ -786,7 +786,7 @@
     <string name="Error_Import_unsupported_file">Errore: file non supportato</string>
     <string name="creating_folder">Creazione cartella</string>
     <string name="use_this_image_as_cover">usa questa immagine come copertina</string>
-    <string name="search_title_hint">scrivi qui...</string>
+    <string name="search_title_hint">scrivi qui…</string>
     <string name="failed_to_change_image">Impossibile cambiare l\'immagine</string>
     <string name="no_image_found">Nessuna immagine trovata</string>
     <string name="parsing_metadata">Analisi dei metadati</string>
@@ -878,16 +878,16 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="please_wait_another_book">Attendi — un altro libro è ancora in fase di download o caricamento.\nSe non è così, usa il pulsante Ripristina app in [Impostazioni &gt; Utilità &gt; Annulla operazione in corso].</string>
     <string name="Podcast_source_error">Errore sorgente podcast</string>
     <string name="Streaming_Podcast">Podcast in streaming</string>
-    <string name="librivox_search_edittext_title">Cerca per autore o titolo...\nSuggerimento: una sola parola spesso dà risultati migliori</string>
-    <string name="podcast_search_edittext_title">Cerca... (tutte le lingue)\nSuggerimento: una sola parola spesso dà risultati migliori</string>
+    <string name="librivox_search_edittext_title">Cerca per autore o titolo…\nSuggerimento: una sola parola spesso dà risultati migliori</string>
+    <string name="podcast_search_edittext_title">Cerca… (tutte le lingue)\nSuggerimento: una sola parola spesso dà risultati migliori</string>
     <string name="import_settings">Impostazioni di importazione</string>
     <string name="option_split_m4b_subtitle">Se non selezionato, i file M4B verranno importati come tracce singole.</string>
     <string name="option_split_m4b_subtitle_note">Nota: la funzione di divisione in capitoli supporta attualmente solo file M4B molto standard.</string>
     <string name="Playback">Riproduzione</string>
     <string name="option_docx_split_into_chapters">Dividi DOCX in capitoli</string>
     <string name="option_docx_split_into_chapters_explain">Tenta di dividere i file .docx in capitoli in base alle intestazioni e ai modelli di indice (es. "I - Titolo").</string>
-    <string name="option_tts_snap_to_sentence">Riavvia dall'inizio della frase</string>
-    <string name="option_tts_snap_to_sentence_explain">Quando si riprende dopo una pausa, torna all'inizio della frase corrente.</string>
+    <string name="option_tts_snap_to_sentence">Riavvia dall\'inizio della frase</string>
+    <string name="option_tts_snap_to_sentence_explain">Quando si riprende dopo una pausa, torna all\'inizio della frase corrente.</string>
     <string name="option_tts_show_loading_overlay">Mostra overlay di caricamento</string>
     <string name="option_tts_overlay_timeout_title">Timeout overlay</string>
     <string name="option_tts_overlay_timeout_text">Tempo di caricamento massimo :</string>
@@ -937,7 +937,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
                         BookPlayer supporta attualmente solo file M4B standard.
 
                         Suggerimenti:
-                        - Prova a convertire l\'M4B con uno strumento esterno (ffmpeg, mp4box...),
+                        - Prova a convertire l\'M4B con uno strumento esterno (ffmpeg, mp4box…),
                         - Oppure dividilo al computer e importa i capitoli separatamente.
 
                         Per ora, BookPlayer importerà l\'M4B originale come unico file audio."""</string>
