@@ -47,6 +47,18 @@ public class ImportExportActivity extends BaseActivity {
                 }
             });
 
+    private final ActivityResultLauncher<Intent> liveShareLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    String json = result.getData().getStringExtra(BackupShareActivity.RESULT_JSON);
+                    if (json != null) {
+                        myLog("Received backup JSON via Live Share, inspecting...");
+                        inspectBackupJson(json);
+                    }
+                }
+            });
+
     private final ActivityResultLauncher<Intent> pickFileLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -98,6 +110,7 @@ public class ImportExportActivity extends BaseActivity {
             optionsContainer.setVisibility(View.VISIBLE);
             btnAction.setText("Create Backup File");
             btnAction.setOnClickListener(v -> startExportFlow());
+            findViewById(R.id.btn_share_live).setVisibility(View.VISIBLE);
             tvFooter.setVisibility(View.GONE);
         } else {
             tvTitle.setText("Restore Library");
@@ -106,11 +119,44 @@ public class ImportExportActivity extends BaseActivity {
             btnPick.setOnClickListener(v -> launchFilePicker());
             optionsContainer.setVisibility(View.GONE); // Hidden until file is picked
             btnAction.setVisibility(View.GONE); // Hidden until file is picked
-            btnAction.setText("Perform Restoration");
             btnAction.setOnClickListener(v -> startRestoreFlow());
             tvFooter.setVisibility(View.VISIBLE);
             tvFooter.setText("Note: Restoration will overwrite your current library.");
+
+            findViewById(R.id.ll_restore_step1).setVisibility(View.VISIBLE);
+            findViewById(R.id.btn_receive_live).setOnClickListener(v -> startLiveReceive());
         }
+
+        findViewById(R.id.btn_share_live).setOnClickListener(v -> startLiveShare());
+    }
+
+    private void startLiveShare() {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
+                boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
+                boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
+                boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+
+                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(this, BackupShareActivity.class);
+                    intent.putExtra(BackupShareActivity.EXTRA_MODE, BackupShareActivity.MODE_SEND);
+                    intent.putExtra(BackupShareActivity.EXTRA_BACKUP_JSON, json);
+                    liveShareLauncher.launch(intent);
+                });
+            } catch (Exception e) {
+                e.printStackTrace();
+                runOnUiThread(() -> Toast
+                        .makeText(this, "Failed to prepare backup: " + e.getMessage(), Toast.LENGTH_LONG).show());
+            }
+        });
+    }
+
+    private void startLiveReceive() {
+        Intent intent = new Intent(this, BackupShareActivity.class);
+        intent.putExtra(BackupShareActivity.EXTRA_MODE, BackupShareActivity.MODE_RECEIVE);
+        liveShareLauncher.launch(intent);
     }
 
     private void launchFilePicker() {
@@ -129,19 +175,34 @@ public class ImportExportActivity extends BaseActivity {
                 byte[] bytes = new byte[inputStream.available()];
                 inputStream.read(bytes);
                 String json = new String(bytes, StandardCharsets.UTF_8);
-                BackupManager.BackupData data = backupManager.inspectJson(json);
-
-                if (data != null) {
-                    updateRestoreOptions(data);
-                } else {
-                    Toast.makeText(this, "Invalid backup file", Toast.LENGTH_SHORT).show();
-                }
+                inspectBackupJson(json);
             }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Error reading file: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
+
+    private void inspectBackupJson(String json) {
+        try {
+            BackupManager.BackupData data = backupManager.inspectJson(json);
+            if (data != null) {
+                // In live mode, we don't have a URI to write back to,
+                // but we might need the JSON string for the final executeRestore.
+                // However, the current executeRestore reads from pickedRestoreUri.
+                // Let's store the JSON string if we're in "Live" mode.
+                this.liveBackupJson = json;
+                updateRestoreOptions(data);
+            } else {
+                Toast.makeText(this, "Invalid backup data", Toast.LENGTH_SHORT).show();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error parsing backup: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private String liveBackupJson;
 
     private void updateRestoreOptions(BackupManager.BackupData data) {
         findViewById(R.id.ll_options_container).setVisibility(View.VISIBLE);
@@ -218,20 +279,35 @@ public class ImportExportActivity extends BaseActivity {
         boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
+        if (liveBackupJson != null) {
+            executeRestoreFromJson(liveBackupJson, prefs, radios, podcasts, librivox);
+            return;
+        }
+
         try (InputStream inputStream = getContentResolver().openInputStream(pickedRestoreUri)) {
             if (inputStream != null) {
                 byte[] bytes = new byte[inputStream.available()];
                 inputStream.read(bytes);
                 String json = new String(bytes, StandardCharsets.UTF_8);
-                backupManager.importFromJson(json, prefs, radios, podcasts, librivox);
-                Toast.makeText(this,
-                        "Restoration complete. Please restart the app if settings don't apply immediately.",
-                        Toast.LENGTH_LONG).show();
-                finish();
+                executeRestoreFromJson(json, prefs, radios, podcasts, librivox);
             }
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(this, "Failed to restore backup: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void executeRestoreFromJson(String json, boolean prefs, boolean radios, boolean podcasts,
+            boolean librivox) {
+        try {
+            backupManager.importFromJson(json, prefs, radios, podcasts, librivox);
+            Toast.makeText(this,
+                    "Restoration complete. Please restart the app if settings don't apply immediately.",
+                    Toast.LENGTH_LONG).show();
+            finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Failed during import: " + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
 

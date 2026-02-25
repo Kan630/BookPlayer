@@ -23,16 +23,33 @@
         android:text="Manage your library data." />
 
     <!-- Restore Step 1 -->
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_pick_file"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+    <LinearLayout
+        android:id="@+id/ll_restore_step1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:padding="12dp"
-        android:text="1. Pick Backup File"
-        android:visibility="gone"
-        app:icon="@android:drawable/ic_menu_search" />
+        android:orientation="vertical"
+        android:visibility="gone">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_pick_file"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:padding="12dp"
+            android:text="1a. Pick Backup File"
+            app:icon="@android:drawable/ic_menu_search" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_receive_live"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:text="1b. Receive from Device (Live)"
+            app:icon="@android:drawable/ic_menu_share" />
+    </LinearLayout>
 
     <LinearLayout
         android:id="@+id/ll_options_container"
@@ -84,9 +101,19 @@
         style="@style/Widget.MaterialComponents.Button"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
+        android:layout_marginBottom="8dp"
         android:padding="12dp"
         android:text="Execute" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_share_live"
+        style="@style/Widget.MaterialComponents.Button.TextButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="Share Backup Live"
+        android:visibility="gone"
+        app:icon="@android:drawable/ic_menu_share" />
 
     <View
         android:layout_width="match_parent"

@@ -119,6 +119,10 @@
             android:label="Import / Export"
             android:exported="false" />
 
+        <activity android:name=".importexport.BackupShareActivity"
+            android:label="Live Share"
+            android:exported="false" />
+
 
         <activity android:name=".radio.RadioResultsActivity" />
         <activity android:name=".radio.RadioFavoritesActivity" />
