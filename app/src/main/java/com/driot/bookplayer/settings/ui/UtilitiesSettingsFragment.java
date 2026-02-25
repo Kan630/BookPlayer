@@ -15,6 +15,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.player.PlaybackCommands;
+import com.driot.bookplayer.importexport.ImportExportActivity;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -113,10 +114,17 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
         });
 
-        root.findViewById(R.id.btn_import_export).setOnClickListener(v -> {
-            startActivity(new Intent(requireContext(), ImportExportActivity.class));
+        root.findViewById(R.id.btn_backup_library).setOnClickListener(v -> {
+            Intent it = new Intent(getActivity(), ImportExportActivity.class);
+            it.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_BACKUP);
+            startActivity(it);
         });
 
+        root.findViewById(R.id.btn_restore_library).setOnClickListener(v -> {
+            Intent it = new Intent(getActivity(), ImportExportActivity.class);
+            it.putExtra(ImportExportActivity.EXTRA_MODE, ImportExportActivity.MODE_RESTORE);
+            startActivity(it);
+        });
         return root;
     }
 

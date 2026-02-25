@@ -73,59 +73,57 @@ public class BackupManager {
         return gson.toJson(data);
     }
 
-    public void importFromJson(String json) {
+    public BackupData inspectJson(String json) {
+        return gson.fromJson(json, BackupData.class);
+    }
+
+    public void importFromJson(String json, boolean includePreferences, boolean includeRadios, boolean includePodcasts,
+            boolean includeLibrivox) {
         BackupData data = gson.fromJson(json, BackupData.class);
         if (data == null)
             return;
 
         // Restore Preferences
-        for (Map.Entry<String, Map<String, ?>> entry : data.preferences.entrySet()) {
-            String prefName = entry.getKey();
-            SharedPreferences sp = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sp.edit();
-            editor.clear();
-            for (Map.Entry<String, ?> prefEntry : entry.getValue().entrySet()) {
-                Object value = prefEntry.getValue();
-                if (value instanceof Boolean)
-                    editor.putBoolean(prefEntry.getKey(), (Boolean) value);
-                else if (value instanceof Float)
-                    editor.putFloat(prefEntry.getKey(), (Float) value);
-                else if (value instanceof Integer)
-                    editor.putInt(prefEntry.getKey(), (Integer) value);
-                else if (value instanceof Long)
-                    editor.putLong(prefEntry.getKey(), (Long) value);
-                else if (value instanceof String)
-                    editor.putString(prefEntry.getKey(), (String) value);
+        if (includePreferences && data.preferences != null) {
+            for (Map.Entry<String, Map<String, ?>> entry : data.preferences.entrySet()) {
+                String prefName = entry.getKey();
+                SharedPreferences sp = context.getSharedPreferences(prefName, Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sp.edit();
+                editor.clear();
+                for (Map.Entry<String, ?> prefEntry : entry.getValue().entrySet()) {
+                    Object value = prefEntry.getValue();
+                    if (value instanceof Boolean)
+                        editor.putBoolean(prefEntry.getKey(), (Boolean) value);
+                    else if (value instanceof Float)
+                        editor.putFloat(prefEntry.getKey(), (Float) value);
+                    else if (value instanceof Integer)
+                        editor.putInt(prefEntry.getKey(), (Integer) value);
+                    else if (value instanceof Long)
+                        editor.putLong(prefEntry.getKey(), (Long) value);
+                    else if (value instanceof String)
+                        editor.putString(prefEntry.getKey(), (String) value);
+                }
+                editor.apply();
             }
-            editor.apply();
         }
 
         // Restore Database
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
             db.runInTransaction(() -> {
-                if (data.radioStations != null) {
+                if (includeRadios && data.radioStations != null) {
                     db.radioStationDao().deleteAll();
                     db.radioStationDao().insertAll(data.radioStations);
                 }
-                if (data.podcasts != null) {
-                    // Note: This is simplified. Proper restoration might need to handle folder IDs
-                    // etc.
-                    // But usually, the feedId is the stable identifier.
-                    // We don't have a PodcastDao.deleteAll() yet, let's assume we want to merge or
-                    // replace.
-                    // For now, let's just insertAll (which uses REPLACE strategy if we added it,
-                    // or we should add a delete query).
-                    // PodcastDao doesn't have a deleteAll, let's just merge for now or I should add
-                    // it.
-                    db.podcastDao().insertAll(data.podcasts);
+                if (includePodcasts) {
+                    if (data.podcasts != null) {
+                        db.podcastDao().insertAll(data.podcasts);
+                    }
+                    if (data.episodes != null) {
+                        db.episodeDao().insertAll(data.episodes);
+                    }
                 }
-                if (data.episodes != null) {
-                    // Episodes also use REPLACE strategy in insertAll (IGNORE actually, so we
-                    // should be careful)
-                    db.episodeDao().insertAll(data.episodes);
-                }
-                if (data.bookSources != null) {
+                if (includeLibrivox && data.bookSources != null) {
                     // Important: clear local folder references if folders are not backed up
                     for (BookSource bs : data.bookSources) {
                         bs.idFolder = null;
@@ -136,8 +134,10 @@ public class BackupManager {
             });
         });
 
-        // Re-initialize Prefs and Options caches
-        Pref.init(context);
-        Option.init(context);
+        // Re-initialize Prefs and Options caches if anything was changed
+        if (includePreferences) {
+            Pref.init(context);
+            Option.init(context);
+        }
     }
 }

@@ -103,8 +103,13 @@
 
             <Button
                 style="@style/GetResourceButton"
-                android:id="@+id/btn_import_export"
-                android:text="Export &amp; Restore Library" />
+                android:id="@+id/btn_backup_library"
+                android:text="Backup Library" />
+
+            <Button
+                style="@style/GetResourceButton"
+                android:id="@+id/btn_restore_library"
+                android:text="Restore Library" />
                 
             <TextView
                 style="@style/OptionSubTitle"
