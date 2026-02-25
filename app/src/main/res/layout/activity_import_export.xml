@@ -19,7 +19,36 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
-        android:text="Save your preferences, radio stations, and podcasts to a file, or restore them from a previous backup." />
+        android:text="Save your library and preferences to a file, or restore them from a previous backup." />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Select data to export:"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+        android:layout_marginBottom="8dp" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cb_include_preferences"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="App Preferences"
+        android:checked="true" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cb_include_radios"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Radio Stations"
+        android:checked="true" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cb_include_podcasts"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Podcasts"
+        android:checked="true"
+        android:layout_marginBottom="16dp" />
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_export"

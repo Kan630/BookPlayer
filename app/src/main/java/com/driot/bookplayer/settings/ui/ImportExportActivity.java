@@ -11,6 +11,8 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.google.android.material.checkbox.MaterialCheckBox;
+
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.InsetHelper;
@@ -30,7 +32,10 @@ public class ImportExportActivity extends BaseActivity {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    saveBackupToFile(result.getData().getData());
+                    boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
+                    boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
+                    boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
+                    saveBackupToFile(result.getData().getData(), prefs, radios, podcasts);
                 }
             });
 
@@ -51,7 +56,18 @@ public class ImportExportActivity extends BaseActivity {
         backupManager = new BackupManager(this);
 
         findViewById(R.id.btn_export).setOnClickListener(v -> {
-            myLogI("--- user clicks EXPORT library ---");
+            boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
+            boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
+            boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
+
+            if (!prefs && !radios && !podcasts) {
+                Toast.makeText(this, "Please select at least one item to export", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            myLogI("--- user clicks EXPORT library --- (prefs=" + prefs + ", radios=" + radios + ", podcasts="
+                    + podcasts
+                    + ")");
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/json");
@@ -69,10 +85,10 @@ public class ImportExportActivity extends BaseActivity {
         });
     }
 
-    private void saveBackupToFile(Uri uri) {
+    private void saveBackupToFile(Uri uri, boolean prefs, boolean radios, boolean podcasts) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                String json = backupManager.exportToJson();
+                String json = backupManager.exportToJson(prefs, radios, podcasts);
                 try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
                     if (outputStream != null) {
                         myLog("Backup saved to " + uri.toString());

@@ -34,29 +34,35 @@ public class BackupManager {
         public List<Episode> episodes = new ArrayList<>();
     }
 
-    public String exportToJson() {
+    public String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts) {
         BackupData data = new BackupData();
 
         // Preferences
-        data.preferences.put("SHARED_PREFERENCES_OPTIONS", Option.getSharedPrefs(context).getAll());
-        data.preferences.put("SHARED_PREFERENCES_DIVERSE",
-                context.getSharedPreferences("SHARED_PREFERENCES_DIVERSE", Context.MODE_PRIVATE).getAll());
-        data.preferences.put("SHARED_PREFERENCES_STATS",
-                context.getSharedPreferences("SHARED_PREFERENCES_STATS", Context.MODE_PRIVATE).getAll());
-        data.preferences.put("SHARED_PREFERENCE_TIMESTAMP",
-                context.getSharedPreferences("SHARED_PREFERENCE_TIMESTAMP", Context.MODE_PRIVATE).getAll());
-        data.preferences.put("SHARED_PREFERENCE_ADMIN",
-                context.getSharedPreferences("SHARED_PREFERENCES_ADMIN", Context.MODE_PRIVATE).getAll());
-        data.preferences.put("SHARED_PREFERENCE_BOOK",
-                context.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getAll());
-        data.preferences.put("SHARED_PREFERENCE_RADIO_FAVORITES",
-                context.getSharedPreferences("radio_favorites_store", Context.MODE_PRIVATE).getAll());
+        if (includePreferences) {
+            data.preferences.put("SHARED_PREFERENCES_OPTIONS", Option.getSharedPrefs(context).getAll());
+            data.preferences.put("SHARED_PREFERENCES_DIVERSE",
+                    context.getSharedPreferences("SHARED_PREFERENCES_DIVERSE", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCES_STATS",
+                    context.getSharedPreferences("SHARED_PREFERENCES_STATS", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCE_TIMESTAMP",
+                    context.getSharedPreferences("SHARED_PREFERENCE_TIMESTAMP", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCE_ADMIN",
+                    context.getSharedPreferences("SHARED_PREFERENCES_ADMIN", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCE_BOOK",
+                    context.getSharedPreferences("book_prefs", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCE_RADIO_FAVORITES",
+                    context.getSharedPreferences("radio_favorites_store", Context.MODE_PRIVATE).getAll());
+        }
 
         // Database
         AppDatabase db = AppDatabase.getDatabase(context);
-        data.radioStations = db.radioStationDao().getAll();
-        data.podcasts = db.podcastDao().getAll();
-        data.episodes = db.episodeDao().getAll();
+        if (includeRadios) {
+            data.radioStations = db.radioStationDao().getAll();
+        }
+        if (includePodcasts) {
+            data.podcasts = db.podcastDao().getAll();
+            data.episodes = db.episodeDao().getAll();
+        }
 
         return gson.toJson(data);
     }
