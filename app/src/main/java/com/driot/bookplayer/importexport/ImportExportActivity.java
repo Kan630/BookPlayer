@@ -167,7 +167,8 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, "Please select at least one item to share", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.import_export_select_at_least_one_to_export), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -405,7 +406,8 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, "Please select at least one item to share", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.import_export_select_at_least_one_to_export), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 

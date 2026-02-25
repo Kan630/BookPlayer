@@ -2,9 +2,13 @@ we will do that :
 ----------------------------------------------
 STRINGS PROCESS
 ----------------------------------------------
+general order : 
+* don't forget to escape ' with \'
+* use … instead of ...
+
 STEP 0 - (identify modifications + additions - deletions)
 check git since commit XXXXXXXXXXXX for any change in the base english strings.xml AND the french (in res/values-b+fr/strings.xml).
-for each change detected, add the keys in a file called MODIFIED_KEYS_IN_BASE_STRINGS_XML that you put at the project root.
+for each change detected, add the keys in a file called MODIFIED_KEYS_IN_BASE_STRINGS_XML that you put at the project root. (clear the file before if its not empty)
 
 STEP 1 - english correctness
 for each key in MODIFIED_KEYS_IN_BASE_STRINGS_XML, check the wording in english is correct, you could use the code context. 
@@ -15,15 +19,16 @@ for each key in MODIFIED_KEYS_IN_BASE_STRINGS_XML, propose a french translation 
 I want also to review, one by one, any change you will do here.
 
 STEP 3 - (fr+eng ok => others)
-Once I have have reviewed french and english translations, and there are good.
-Then, use MODIFIED_KEYS_IN_BASE_STRINGS_XML to propagate changes in the other translation files. 
+Parse the strings keys in MODIFIED_KEYS_IN_BASE_STRINGS_XML file at the project root, and update translations in all translation files but base english and french  (in res/values-b+fr/strings.xml). 
 Make sure to use french AND english together as a source to produce the best translations.
+I do not need to review as I dont understand those other languages, just update the files.
 
 let's start with step 0
 
 
 
 dc112f77ea2844fa9f46f48d65d61587adce23b8
+6f5bf818c20e01449503e5d7c363ccc80d221e85
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

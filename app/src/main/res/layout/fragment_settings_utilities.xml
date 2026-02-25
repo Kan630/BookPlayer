@@ -98,7 +98,7 @@
 
             <TextView
                 style="@style/OptionTitle"
-                android:text="Backup / Restore"
+                android:text="@string/utilities_backup_restore_title"
                 android:layout_marginBottom="15dp" />
             <TextView
                 style="@style/betatest"/>
@@ -106,16 +106,16 @@
             <Button
                 style="@style/GetResourceButton"
                 android:id="@+id/btn_backup_library"
-                android:text="Backup Library" />
+                android:text="@string/utilities_backup_library" />
 
             <Button
                 style="@style/GetResourceButton"
                 android:id="@+id/btn_restore_library"
-                android:text="Restore Library" />
+                android:text="@string/utilities_restore_library" />
                 
             <TextView
                 style="@style/OptionSubTitle"
-                android:text="Save and restore your library and preferences to/from a file."
+                android:text="@string/utilities_backup_restore_desc"
                 android:textStyle="italic" />
         </LinearLayout>
 

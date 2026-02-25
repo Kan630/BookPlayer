@@ -28,11 +28,6 @@
                 android:visibility="gone"
                 />
 
-            <TextView
-                style="@style/GetResourceTextTopOfButton"
-                android:textColor="@color/orange_700"
-                android:text="@string/beta_test" />
-
             <!-- Manual download policy -->
             <LinearLayout
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">

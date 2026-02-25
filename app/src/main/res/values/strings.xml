@@ -796,7 +796,7 @@
     <string name="import_export_include_podcasts">Podcasts</string>
     <string name="import_export_include_librivox">Librivox Favorites</string>
     <string name="import_export_backup_content_from">Backup Content from: %s</string>
-    <string name="import_export_select_at_least_one">Please select at least one item to %s</string>
+    <string name="import_export_select_at_least_one_to_export">Please select at least one item to backup</string>
     <string name="import_export_backup_saved">Backup saved successfully</string>
     <string name="import_export_failed_prepare">Failed to prepare backup: %s</string>
     <string name="import_export_failed_share">Failed to prepare share: %s</string>
@@ -808,12 +808,17 @@
     <string name="import_export_caution_footer">Proceed with caution!</string>
     <string name="import_export_caution_positive">RESTORE NOW</string>
     <string name="import_export_caution_negative">CANCEL</string>
-    <string name="import_export_restore_complete">Restoration complete. Please restart the app if settings don't apply immediately.</string>
+    <string name="import_export_restore_complete">Restoration complete. Please restart the app if settings don\'t apply immediately.</string>
     <string name="import_export_failed_restore">Failed to restore backup: %s</string>
     <string name="import_export_failed_import">Failed during import: %s</string>
 
+    <string name="utilities_backup_restore_title">Backup / Restore</string>
+    <string name="utilities_backup_library">Backup</string>
+    <string name="utilities_restore_library">Restore</string>
+    <string name="utilities_backup_restore_desc">Save and restore some items and preferences to/from a file or via quick share.</string>
+
     <string name="backup_share_live_title">Live Share</string>
-    <string name="backup_share_connecting">Connecting to nearby devices...</string>
+    <string name="backup_share_connecting">Connecting to nearby devices…</string>
     <string name="backup_share_send_title">Send to Nearby Device</string>
     <string name="backup_share_send_explain">Tap the button to make this device visible and send your backup data.\n\nOn the other device, go to Settings > Utilities > Restore and click \'Receive from Nearby Device (Live)\'.</string>
     <string name="backup_share_send_btn">Start Sending</string>
