@@ -110,8 +110,9 @@ public class ImportExportActivity extends BaseActivity {
         TextView tvFooter = findViewById(R.id.tv_footer_note);
 
         if (mode == MODE_BACKUP) {
-            tvTitle.setText("Backup Library");
-            tvDesc.setText("Save your library and preferences to a backup file.");
+            tvTitle.setText("Backup");
+            tvDesc.setText("For now, regular books shall be saved one by one with the quick share or export option from the modify book page.");
+            tvDesc.setItalics
             btnPick.setVisibility(View.GONE);
             optionsContainer.setVisibility(View.VISIBLE);
             btnAction.setText("Save to Backup File");
@@ -129,8 +130,8 @@ public class ImportExportActivity extends BaseActivity {
             });
             tvFooter.setVisibility(View.GONE);
         } else {
-            tvTitle.setText("Restore Library");
-            tvDesc.setText("Restore your library from a previously saved backup file.");
+            tvTitle.setText("Restore");
+            tvDesc.setVisibility(View.GONE);
             btnPick.setVisibility(View.VISIBLE);
             btnPick.setOnClickListener(v -> {
                 myLogI("--- user clicks PICK BACKUP FILE ---");
@@ -143,7 +144,7 @@ public class ImportExportActivity extends BaseActivity {
                 startRestoreFlow();
             });
             tvFooter.setVisibility(View.VISIBLE);
-            tvFooter.setText("Note: Restoration will overwrite your current library.");
+            tvFooter.setText("Note: Restoration will overwrite existing.");
 
             findViewById(R.id.ll_restore_step1).setVisibility(View.VISIBLE);
             findViewById(R.id.btn_receive_live).setOnClickListener(v -> {
@@ -320,7 +321,7 @@ public class ImportExportActivity extends BaseActivity {
         myLogI("--- user clicks RESTORE library (waiting for confirmation) ---");
         Intent intent = MsgBoxActivity.buildQuestion(this,
                 "Caution: Overwrite Library?",
-                "This action will replace your current library and settings with the selected data from the backup file. All current data for selected items will be PERMANENTLY DELETED.",
+                "This action will replace items and settings with the selected data from the backup file. All current data for selected items will be PERMANENTLY DELETED.",
                 "Proceed with caution!",
                 "RESTORE NOW", "CANCEL");
         confirmationLauncher.launch(intent);
