@@ -411,7 +411,9 @@ public class PodcastHelper {
             podcast.feedId = podcastFeed.id;
             podcast.title = podcastFeed.title;
             podcast.image = podcastFeed.image;
-            podcast.imageOriginalUrl = podcastFeed.image;
+            if (podcastFeed.image != null && podcastFeed.image.startsWith("http")) {
+                podcast.imageOriginalUrl = podcastFeed.image;
+            }
             podcast.description = podcastFeed.description;
             podcast.isFavorite = false;
             podcast.autoDownload = false;
@@ -425,7 +427,9 @@ public class PodcastHelper {
         p.feedId = feed.id;
         p.title = feed.title;
         p.image = feed.image;
-        p.imageOriginalUrl = feed.image;
+        if (feed.image != null && feed.image.startsWith("http")) {
+            p.imageOriginalUrl = feed.image;
+        }
         p.description = feed.description;
         p.language = feed.language;
         p.source = Var.PODCAST_SOURCE;
@@ -445,7 +449,9 @@ public class PodcastHelper {
             ep.description = pe.description;
             ep.title = pe.title;
             ep.image = pe.image;
-            ep.imageOriginalUrl = pe.image;
+            if (pe.image != null && pe.image.startsWith("http")) {
+                ep.imageOriginalUrl = pe.image;
+            }
             ep.guid = pe.guid;
             ep.enclosureUrl = pe.enclosureUrl;
             ep.datePublished = pe.datePublished;

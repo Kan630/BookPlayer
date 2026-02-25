@@ -112,6 +112,11 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
                                 // Not local, standard update
                                 dbStation.favicon = apiStation.favicon;
                             }
+
+                            if (apiStation.favicon != null && apiStation.favicon.startsWith("http")) {
+                                dbStation.imageOriginalUrl = apiStation.favicon;
+                            }
+
                             dbStation.country = apiStation.country;
                             dbStation.countrycode = apiStation.countrycode;
                             dbStation.language = apiStation.language;

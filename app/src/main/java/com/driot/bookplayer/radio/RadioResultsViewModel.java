@@ -194,6 +194,10 @@ public class RadioResultsViewModel extends LoggingViewModel {
         r.tags = s.tags;
         r.clickcount = s.clickcount;
         r.lastcheckok = s.lastcheckok;
+
+        if (s.favicon != null && s.favicon.startsWith("http")) {
+            r.imageOriginalUrl = s.favicon;
+        }
         // do not touch date_added / date_last_played / display_order here
     }
 
