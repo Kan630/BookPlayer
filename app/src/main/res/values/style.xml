@@ -228,7 +228,7 @@
     <style name="OptionMiniText" parent="textColorFont">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:textAlignment">textEnd</item>
+        <item name="android:textAlignment">viewStart</item>
         <item name="android:layout_marginStart">0sp</item>
         <item name="android:textSize">12sp</item>
     </style>

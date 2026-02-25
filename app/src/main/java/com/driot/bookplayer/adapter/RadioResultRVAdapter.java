@@ -61,17 +61,32 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     // --- Header API ---
     /** e.g. search="Jazz", lang="fr", countryTag="FR • chillout" */
     public void setHeader(String search, String lang, String countryTag) {
-        this.headerSearch = search != null ? search : "";
-        this.headerLang = lang != null ? lang : "";
-        this.headerCountryTag = countryTag != null ? countryTag : "";
+        if (search != null)
+            this.headerSearch = search;
+        if (lang != null)
+            this.headerLang = lang;
+        if (countryTag != null)
+            this.headerCountryTag = countryTag;
         notifyItemChanged(0); // header
     }
 
-    public void setHeader(String search) {
+    public void setHeaderSearch(String search) {
         this.headerSearch = search != null ? search : "";
-        this.headerLang = null;
-        this.headerCountryTag = null;
-        notifyItemChanged(0); // header
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderLang(String lang) {
+        this.headerLang = lang != null ? lang : "";
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderCountryTag(String countryTag) {
+        this.headerCountryTag = countryTag != null ? countryTag : "";
+        notifyItemChanged(0);
+    }
+
+    public void setHeader(String search) {
+        setHeaderSearch(search);
     }
 
     public void setHeaderCount(String count) {

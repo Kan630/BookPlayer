@@ -20,6 +20,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
     private final MutableLiveData<List<Station>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isLoadingMore = new MutableLiveData<>(false);
+    private final MutableLiveData<String> headerCount = new MutableLiveData<>("");
 
     private final MutableLiveData<Boolean> showingHistory = new MutableLiveData<>(false);
     private boolean historyMode = false;
@@ -58,6 +59,14 @@ public class RadioResultsViewModel extends LoggingViewModel {
         hasMore = stations != null && stations.size() > 0;
         isLoading = false;
         isLoadingMore.postValue(false);
+    }
+
+    public void setHeaderCount(String text) {
+        headerCount.postValue(text);
+    }
+
+    public LiveData<String> getHeaderCount() {
+        return headerCount;
     }
 
     public void appendResults(List<Station> stations) {

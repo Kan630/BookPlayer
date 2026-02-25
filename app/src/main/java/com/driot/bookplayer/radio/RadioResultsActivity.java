@@ -261,6 +261,11 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         // ---- VM + favorites ----
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
+        viewModel.getHeaderCount().observe(this, count -> {
+            if (count != null && !count.isEmpty()) {
+                adapter.setHeaderCount(count);
+            }
+        });
         viewModel.loadFavorites(this);
         viewModel.getFavoriteUuids().observe(this, uuids -> adapter.setFavorites(uuids));
         viewModel.getResults().observe(this, stations -> {
@@ -597,14 +602,14 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         }
                         List<Station> allResults = viewModel.getResults().getValue();
                         if (allResults != null) {
-                            adapter.setHeaderCount(
+                            viewModel.setHeaderCount(
                                     getString(R.string.Results_2pt) + " " + allResults.size() + headerTxt);
                         }
                         myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: "
                                 + (allResults != null ? allResults.size() : 0));
                     } else {
                         viewModel.setResults(body);
-                        adapter.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
+                        viewModel.setHeaderCount(getString(R.string.Results_2pt) + " " + body.size() + headerTxt);
                         myLog("radio results (" + source + ") = " + body.size());
                     }
                 } else {
