@@ -110,10 +110,15 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             holder.ibFavorite.setVisibility(View.GONE);
 
             holder.favicon.setTag(f.stationuuid);
-            Glide.with(holder.favicon).load(f.favicon)
-                    .placeholder(R.drawable.ic_radio_24px_deportee)
-                    .error(R.drawable.ic_radio_24px_deportee)
-                    .into(holder.favicon);
+            if (f.favicon == null || f.favicon.isEmpty()) {
+                holder.ivDefaultIcon.setVisibility(View.VISIBLE);
+                Glide.with(holder.favicon).clear(holder.favicon);
+                holder.favicon.setImageDrawable(null);
+            } else {
+                holder.ivDefaultIcon.setVisibility(View.GONE);
+                Glide.with(holder.favicon).load(f.favicon)
+                        .into(holder.favicon);
+            }
 
             holder.itemView.setOnClickListener(v -> {
                 listener.onPlay(f);
@@ -252,13 +257,14 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     static class ItemVH extends RecyclerView.ViewHolder {
-        ImageView favicon;
+        ImageView favicon, ivDefaultIcon;
         TextView title, info, codec, bitrate;
         ImageButton ibFavorite;
 
         ItemVH(@NonNull View v) {
             super(v);
             favicon = v.findViewById(R.id.radio_favicon);
+            ivDefaultIcon = v.findViewById(R.id.ivDefaultIcon);
             title = v.findViewById(R.id.radio_title);
             info = v.findViewById(R.id.radio_info);
             codec = v.findViewById(R.id.radio_codec);

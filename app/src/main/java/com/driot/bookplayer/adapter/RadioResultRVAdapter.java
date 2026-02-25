@@ -131,13 +131,14 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     }
 
     static class ItemVH extends RecyclerView.ViewHolder {
-        ImageView favicon;
+        ImageView favicon, ivDefaultIcon;
         TextView title, info, codec, bitrate;
         ImageButton ibFavorite;
 
         ItemVH(@NonNull View itemView) {
             super(itemView);
             favicon = itemView.findViewById(R.id.radio_favicon);
+            ivDefaultIcon = itemView.findViewById(R.id.ivDefaultIcon);
             title = itemView.findViewById(R.id.radio_title);
             info = itemView.findViewById(R.id.radio_info); // country • language • tags
             codec = itemView.findViewById(R.id.radio_codec);
@@ -203,10 +204,15 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             // Favicon
             holder.favicon.setTag(s.stationuuid);
-            Glide.with(holder.favicon).load(s.favicon)
-                    .placeholder(R.drawable.ic_radio_24px_deportee)
-                    .error(R.drawable.ic_radio_24px_deportee)
-                    .into(holder.favicon);
+            if (TextUtils.isEmpty(s.favicon)) {
+                holder.ivDefaultIcon.setVisibility(View.VISIBLE);
+                Glide.with(holder.favicon).clear(holder.favicon);
+                holder.favicon.setImageDrawable(null);
+            } else {
+                holder.ivDefaultIcon.setVisibility(View.GONE);
+                Glide.with(holder.favicon).load(s.favicon)
+                        .into(holder.favicon);
+            }
 
             // Favorite tint
             boolean isFav = favoriteUuids.contains(s.stationuuid);
