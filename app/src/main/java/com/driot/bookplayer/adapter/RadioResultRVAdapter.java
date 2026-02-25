@@ -14,7 +14,10 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.bitmap.CenterCrop;
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.radio.Station;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -141,8 +144,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             ivDefaultIcon = itemView.findViewById(R.id.ivDefaultIcon);
             title = itemView.findViewById(R.id.radio_title);
             info = itemView.findViewById(R.id.radio_info); // country • language • tags
-            codec = itemView.findViewById(R.id.radio_codec);
-            bitrate = itemView.findViewById(R.id.radio_bitrate);
             ibFavorite = itemView.findViewById(R.id.ibFavorite);
         }
     }

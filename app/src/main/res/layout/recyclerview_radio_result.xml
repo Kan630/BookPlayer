@@ -16,17 +16,16 @@
         android:layout_height="wrap_content"
         >
 
-        <com.google.android.material.imageview.ShapeableImageView
+        <ImageView
             android:id="@+id/radio_favicon"
             android:layout_width="0dp"
             android:layout_height="0dp"
-            android:scaleType="fitCenter"
+            android:scaleType="centerCrop"
             android:contentDescription="@string/radio_cover_desc"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="1:1"
-            app:shapeAppearanceOverlay="@style/RoundedCorners12"
             />
 
         <!-- Default Radio icon (shown only when no favicon is available) -->
@@ -35,8 +34,8 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:layout_margin="8dp"
+            android:contentDescription="@string/icon"
             android:src="@drawable/ic_radio_24px"
-            android:visibility="gone"
             app:tint="@android:color/white"
             app:layout_constraintTop_toTopOf="@id/radio_favicon"
             app:layout_constraintStart_toStartOf="@id/radio_favicon" />
@@ -87,42 +86,9 @@
                 android:alpha="0.85"
                 android:maxLines="1"
                 android:ellipsize="end"
-                android:text="FR • fr • jazz" />
+                android:text="country" />
         </LinearLayout>
 
-        <!-- Badges pinned inside the image bounds (bottom-left) -->
-        <LinearLayout
-            android:id="@+id/badges"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="6dp"
-            app:layout_constraintStart_toStartOf="@id/radio_favicon"
-            app:layout_constraintBottom_toBottomOf="@id/radio_favicon">
-
-            <TextView
-                android:id="@+id/radio_codec"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:textSize="11sp"
-                android:textColor="@android:color/white"
-                android:background="@drawable/bg_badge_translucent"
-                android:maxLines="1" />
-
-            <TextView
-                android:id="@+id/radio_bitrate"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="6dp"
-                android:paddingHorizontal="6dp"
-                android:paddingVertical="2dp"
-                android:textSize="11sp"
-                android:textColor="@android:color/white"
-                android:background="@drawable/bg_badge_translucent"
-                android:maxLines="1" />
-        </LinearLayout>
 
         <!-- Border overlay (on top of EVERYTHING including scrim and badges) -->
         <View

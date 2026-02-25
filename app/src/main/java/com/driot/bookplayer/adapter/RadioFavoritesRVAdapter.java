@@ -100,12 +100,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.info.setText((f.country != null ? f.country
                     : (f.language != null ? f.language : (f.tags != null ? normalizeTags(f.tags) : ""))));
-            // holder.info.setText(joinInfo(nonNull(f.country), nonNull(f.language),
-            // normalizeTags(f.tags)));
-            // holder.codec.setText(nonNull(f.codec));
-            // holder.bitrate.setText(f.bitrate > 0 ? (f.bitrate + " kbps") : "");
-            holder.codec.setVisibility(View.GONE);
-            holder.bitrate.setVisibility(View.GONE);
 
             holder.ibFavorite.setVisibility(View.GONE);
 
@@ -165,18 +159,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             added++;
             if (added >= 3)
                 break;
-        }
-        return sb.toString();
-    }
-
-    private static String joinInfo(String... xs) {
-        StringBuilder sb = new StringBuilder();
-        for (String x : xs) {
-            if (x == null || x.isEmpty())
-                continue;
-            if (sb.length() > 0)
-                sb.append(" • ");
-            sb.append(x);
         }
         return sb.toString();
     }
@@ -258,7 +240,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     static class ItemVH extends RecyclerView.ViewHolder {
         ImageView favicon, ivDefaultIcon;
-        TextView title, info, codec, bitrate;
+        TextView title, info;
         ImageButton ibFavorite;
 
         ItemVH(@NonNull View v) {
@@ -267,8 +249,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             ivDefaultIcon = v.findViewById(R.id.ivDefaultIcon);
             title = v.findViewById(R.id.radio_title);
             info = v.findViewById(R.id.radio_info);
-            codec = v.findViewById(R.id.radio_codec);
-            bitrate = v.findViewById(R.id.radio_bitrate);
             ibFavorite = v.findViewById(R.id.ibFavorite);
         }
     }
