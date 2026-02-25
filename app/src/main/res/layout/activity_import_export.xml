@@ -1,154 +1,159 @@
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp">
+    android:fillViewport="true">
 
-    <TextView
-        android:id="@+id/tv_title"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="32dp"
-        android:text="Backup / Restore"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
-        android:textStyle="bold" />
-
-    <TextView
-        android:id="@+id/tv_description"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:text="Manage your library data." />
-
-    <!-- Restore Step 1 -->
     <LinearLayout
-        android:id="@+id/ll_restore_step1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:visibility="gone">
+        android:padding="24dp">
+
+        <TextView
+            android:id="@+id/tv_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            android:text="Backup / Restore"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="Manage your library data." />
+
+        <!-- Restore Step 1 -->
+        <LinearLayout
+            android:id="@+id/ll_restore_step1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_receive_live"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:padding="12dp"
+                android:text="1a. Receive from Nearby Device (Live)"
+                app:icon="@drawable/ic_connect_without_contact_24px" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_pick_file"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:padding="12dp"
+                android:text="1b. Pick Backup File"
+                app:icon="@android:drawable/ic_menu_search" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_backup_info"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:padding="12dp"
+            android:textAlignment="center"
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
+            android:visibility="gone" />
+
+        <LinearLayout
+            android:id="@+id/ll_options_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_options_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select data to include:"
+                android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
+                android:layout_marginBottom="8dp" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_include_preferences"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="App Preferences"
+                android:checked="true" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_include_radios"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Radio Stations"
+                android:checked="true" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_include_podcasts"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Podcasts"
+                android:checked="true" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/cb_include_librivox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Librivox Favorites"
+                android:checked="true"
+                android:layout_marginBottom="16dp" />
+
+        </LinearLayout>
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_receive_live"
+            android:id="@+id/btn_share_live"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:padding="12dp"
-            android:text="1a. Receive from Nearby Device (Live)"
+            android:text="Send to Nearby Device (Live)"
+            android:visibility="gone"
             app:icon="@drawable/ic_connect_without_contact_24px" />
 
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btn_pick_file"
+            android:id="@+id/btn_share_file"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:padding="12dp"
+            android:text="Share Backup File"
+            android:visibility="gone"
+            app:icon="@drawable/ic_share_24px" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_action"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             android:padding="12dp"
-            android:text="1b. Pick Backup File"
-            app:icon="@android:drawable/ic_menu_search" />
-    </LinearLayout>
+            android:text="Execute" />
 
-    <TextView
-        android:id="@+id/tv_backup_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:padding="12dp"
-        android:textAlignment="center"
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Body2"
-        android:visibility="gone" />
-
-    <LinearLayout
-        android:id="@+id/ll_options_container"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1" />
 
         <TextView
-            android:id="@+id/tv_options_prompt"
+            android:id="@+id/tv_footer_note"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select data to include:"
-            android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
-            android:layout_marginBottom="8dp" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/cb_include_preferences"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="App Preferences"
-            android:checked="true" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/cb_include_radios"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Radio Stations"
-            android:checked="true" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/cb_include_podcasts"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Podcasts"
-            android:checked="true" />
-
-        <com.google.android.material.checkbox.MaterialCheckBox
-            android:id="@+id/cb_include_librivox"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Librivox Favorites"
-            android:checked="true"
-            android:layout_marginBottom="16dp" />
+            android:gravity="center"
+            android:text="Note: Proceed with caution."
+            android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
+            android:visibility="gone" />
 
     </LinearLayout>
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_share_live"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:padding="12dp"
-        android:text="Send to Nearby Device (Live)"
-        android:visibility="gone"
-        app:icon="@drawable/ic_connect_without_contact_24px" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_share_file"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp"
-        android:padding="12dp"
-        android:text="Share Backup File"
-        android:visibility="gone"
-        app:icon="@drawable/ic_share_24px" />
-
-    <com.google.android.material.button.MaterialButton
-        android:id="@+id/btn_action"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="16dp"
-        android:padding="12dp"
-        android:text="Execute" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
-
-    <TextView
-        android:id="@+id/tv_footer_note"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Note: Proceed with caution."
-        android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
-        android:visibility="gone" />
-
-</LinearLayout>
+</ScrollView>
