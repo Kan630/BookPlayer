@@ -24,6 +24,9 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 public class ImportExportActivity extends BaseActivity {
 
@@ -116,37 +119,58 @@ public class ImportExportActivity extends BaseActivity {
             tvTitle.setText("Restore Library");
             tvDesc.setText("Restore your library from a previously saved backup file.");
             btnPick.setVisibility(View.VISIBLE);
-            btnPick.setOnClickListener(v -> launchFilePicker());
+            btnPick.setOnClickListener(v -> {
+                myLogI("--- user clicks PICK BACKUP FILE ---");
+                launchFilePicker();
+            });
             optionsContainer.setVisibility(View.GONE); // Hidden until file is picked
             btnAction.setVisibility(View.GONE); // Hidden until file is picked
-            btnAction.setOnClickListener(v -> startRestoreFlow());
+            btnAction.setOnClickListener(v -> {
+                myLogI("--- user clicks PROCEED WITH RESTORATION ---");
+                startRestoreFlow();
+            });
             tvFooter.setVisibility(View.VISIBLE);
             tvFooter.setText("Note: Restoration will overwrite your current library.");
 
             findViewById(R.id.ll_restore_step1).setVisibility(View.VISIBLE);
-            findViewById(R.id.btn_receive_live).setOnClickListener(v -> startLiveReceive());
+            findViewById(R.id.btn_receive_live).setOnClickListener(v -> {
+                myLogI("--- user clicks RECEIVE LIVE ---");
+                startLiveReceive();
+            });
         }
 
-        findViewById(R.id.btn_share_live).setOnClickListener(v -> startLiveShare());
+        findViewById(R.id.btn_share_live).setOnClickListener(v -> {
+            myLogI("--- user clicks SHARE LIVE ---");
+            startLiveShare();
+        });
     }
 
     private void startLiveShare() {
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
+        boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
+        boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
+        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+
+        if (!prefs && !radios && !podcasts && !librivox) {
+            Toast.makeText(this, "Please select at least one item to share", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        myLogI("Preparing live share (prefs=" + prefs + ", radios=" + radios + ", podcasts=" + podcasts
+                + ", librivox=" + librivox + ")");
+
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
-                boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
-                boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-                boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
-
                 String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
                 runOnUiThread(() -> {
+                    myLog("Launching BackupShareActivity (SEND mode)");
                     Intent intent = new Intent(this, BackupShareActivity.class);
                     intent.putExtra(BackupShareActivity.EXTRA_MODE, BackupShareActivity.MODE_SEND);
                     intent.putExtra(BackupShareActivity.EXTRA_BACKUP_JSON, json);
                     liveShareLauncher.launch(intent);
                 });
             } catch (Exception e) {
-                e.printStackTrace();
+                myLogEE(e, "Failed to prepare live backup");
                 runOnUiThread(() -> Toast
                         .makeText(this, "Failed to prepare backup: " + e.getMessage(), Toast.LENGTH_LONG).show());
             }
@@ -205,9 +229,23 @@ public class ImportExportActivity extends BaseActivity {
     private String liveBackupJson;
 
     private void updateRestoreOptions(BackupManager.BackupData data) {
+        findViewById(R.id.ll_restore_step1).setVisibility(View.GONE);
+
+        TextView tvInfo = findViewById(R.id.tv_backup_info);
+        tvInfo.setVisibility(View.VISIBLE);
+
+        String dateStr = "Unknown date";
+        if (data.timestamp > 0) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
+            dateStr = sdf.format(new Date(data.timestamp));
+        }
+        tvInfo.setText("Backup Content from: " + dateStr);
+
         findViewById(R.id.ll_options_container).setVisibility(View.VISIBLE);
-        findViewById(R.id.btn_action).setVisibility(View.VISIBLE);
-        ((TextView) findViewById(R.id.tv_options_prompt)).setText("Select data to restore from file:");
+        MaterialButton btnAction = findViewById(R.id.btn_action);
+        btnAction.setVisibility(View.VISIBLE);
+        btnAction.setText("Proceed with Restoration");
+        ((TextView) findViewById(R.id.tv_options_prompt)).setText("Select data to restore:");
 
         MaterialCheckBox cbPrefs = findViewById(R.id.cb_include_preferences);
         MaterialCheckBox cbRadios = findViewById(R.id.cb_include_radios);
@@ -231,8 +269,6 @@ public class ImportExportActivity extends BaseActivity {
 
         cbLibrivox.setEnabled(hasLibrivox);
         cbLibrivox.setChecked(hasLibrivox);
-
-        ((MaterialButton) findViewById(R.id.btn_pick_file)).setText("Change Backup File");
     }
 
     private void startExportFlow() {

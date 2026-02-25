@@ -29,6 +29,7 @@ public class BackupManager {
     }
 
     public static class BackupData {
+        public long timestamp;
         public Map<String, Map<String, ?>> preferences = new HashMap<>();
         public List<RadioStation> radioStations = new ArrayList<>();
         public List<Podcast> podcasts = new ArrayList<>();
@@ -39,6 +40,7 @@ public class BackupManager {
     public String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts,
             boolean includeLibrivox) {
         BackupData data = new BackupData();
+        data.timestamp = System.currentTimeMillis();
 
         // Preferences
         if (includePreferences) {
