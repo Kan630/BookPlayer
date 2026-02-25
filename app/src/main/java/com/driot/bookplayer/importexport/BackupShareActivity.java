@@ -89,12 +89,14 @@ public class BackupShareActivity extends BaseActivity {
 
     private void setupUI() {
         if (mode == MODE_SEND) {
-            tvTitle.setText("Share Backup Live");
-            tvExplain.setText("Make this device visible to send your backup data.");
+            tvTitle.setText("Send to Nearby Device");
+            tvExplain.setText(
+                    "Tap the button to make this device visible and send your backup data.\n\nOn the other device, go to Settings > Utilities > Restore and click 'Receive from Nearby Device (Live)'.");
             btnAction.setText("Start Sending");
         } else {
-            tvTitle.setText("Receive Backup Live");
-            tvExplain.setText("Look for nearby devices to receive backup data.");
+            tvTitle.setText("Receive from Nearby Device");
+            tvExplain.setText(
+                    "Tap the button to look for nearby devices and restore your backup.\n\nOn the other device, go to Settings > Utilities > Backup and click 'Send to Nearby Device (Live)'.");
             btnAction.setText("Start Receiving");
         }
     }
@@ -161,7 +163,7 @@ public class BackupShareActivity extends BaseActivity {
             nearbyHelper.startAdvertising(deviceName, new NearbyConnectionsHelper.AdvertisingCallback() {
                 @Override
                 public void onAdvertisingStarted() {
-                    runOnUiThread(() -> tvStatus.setText("Visible as: " + deviceName));
+                    runOnUiThread(() -> tvStatus.setText("Device is ready as: " + deviceName));
                 }
 
                 @Override
@@ -189,7 +191,7 @@ public class BackupShareActivity extends BaseActivity {
             nearbyHelper.startDiscovery(new NearbyConnectionsHelper.DiscoveryCallback() {
                 @Override
                 public void onDiscoveryStarted() {
-                    runOnUiThread(() -> tvStatus.setText("Searching for devices..."));
+                    runOnUiThread(() -> tvStatus.setText("Looking for nearby devices..."));
                 }
 
                 @Override
