@@ -33,7 +33,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
 
     private String headerQuery = "";
     private String headerLang = "";
-    private int headerCount = 0;
+    private String headerCount = "";
 
     public interface OnItemClickListener {
         void onItemClick(PodcastFeed item);
@@ -43,7 +43,22 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
         this.listener = listener;
     }
 
-    public void setHeaderInfo(String query, String lang, int count) {
+    public void setHeaderSearch(String query) {
+        this.headerQuery = query;
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderLang(String lang) {
+        this.headerLang = lang;
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderCount(String count) {
+        this.headerCount = count;
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderInfo(String query, String lang, String count) {
         this.headerQuery = query;
         this.headerLang = lang;
         this.headerCount = count;
@@ -60,7 +75,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recyclerview_podcast_header, parent, false);
+                    .inflate(R.layout.recyclerview_search_header, parent, false);
             return new HeaderViewHolder(view);
         } else {
             View view = LayoutInflater.from(parent.getContext())
@@ -72,7 +87,17 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
-            ((HeaderViewHolder) holder).bind(headerQuery, headerLang, headerCount);
+            HeaderViewHolder h = (HeaderViewHolder) holder;
+            h.tvSearchTerms.setText(headerQuery);
+            h.tvSearchTerms.setVisibility(headerQuery.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvLanguage.setText(headerLang);
+            h.tvLanguage.setVisibility(headerLang.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvResultsCount.setText(headerCount);
+            h.tvResultsCount.setVisibility(headerCount.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvCountryTag.setVisibility(View.GONE);
         } else {
             PodcastFeed item = items.get(position - 1); // subtract 1 because of header
             ((PodcastViewHolder) holder).bind(item, listener);
@@ -90,29 +115,14 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView tvSearchTerms;
-        private final TextView tvLanguage;
-        private final TextView tvResultsCount;
+        final TextView tvSearchTerms, tvLanguage, tvResultsCount, tvCountryTag;
 
         HeaderViewHolder(View v) {
             super(v);
-            tvSearchTerms = v.findViewById(R.id.tvSearchTermsPodcast);
-            tvLanguage = v.findViewById(R.id.tvLanguagePodcast);
-            tvResultsCount = v.findViewById(R.id.tvResultsCountPodcast);
-        }
-
-        void bind(String query, String lang, int count) {
-            Context context = itemView.getContext();
-            String searchTerms = "Search: " + (query.isEmpty() ? context.getString(R.string.Trending) : query);
-            tvSearchTerms.setText(searchTerms);
-            LanguageItem langItem = LanguageHelper.getLanguageForPodcastsByCode(lang);
-            String language = "Language: " + (langItem != null ? langItem.displayName : "");
-            tvLanguage.setText(language);
-            String resultsCount = "Results: " + count
-                    + (count == Option.getPodcastIndexOrgApiNbResults()
-                            ? " (" + context.getString(R.string.max_number_of_results_reached) + ")"
-                            : "");
-            tvResultsCount.setText(resultsCount);
+            tvSearchTerms = v.findViewById(R.id.tvSearchTerms);
+            tvLanguage = v.findViewById(R.id.tvLanguage);
+            tvResultsCount = v.findViewById(R.id.tvResultsCount);
+            tvCountryTag = v.findViewById(R.id.tvCountryTag);
         }
     }
 

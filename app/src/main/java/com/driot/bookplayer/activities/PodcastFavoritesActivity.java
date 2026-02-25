@@ -103,10 +103,15 @@ public class PodcastFavoritesActivity extends BaseBottomNavActivity {
 
     private void showResults(List<Podcast> podcastList, String query, String lang) {
         adapter.setItems(podcastList);
-        adapter.notifyDataSetChanged();
         progressBar.setVisibility(View.GONE);
         emptyMessage.setVisibility(podcastList.isEmpty() ? View.VISIBLE : View.GONE);
-        adapter.setHeaderInfo(query, lang, podcastList.size());
+
+        // Construct Header Strings
+        String queryStr = ""; // Hide Search for favorites
+        String langStr = ""; // Hide Language for favorites
+        String countStr = podcastList.size() + " " + getString(R.string.favorites);
+
+        adapter.setHeaderInfo(queryStr, langStr, countStr);
     }
 
 }

@@ -39,7 +39,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
 
     private String headerQuery = "";
     private String headerLang = "";
-    private int headerCount = 0;
+    private String headerCount = "";
 
     public interface OnItemClickListener {
         void onItemClick(Podcast podcast);
@@ -55,7 +55,22 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
         this.autoDownloadToggleListener = autoDownloadToggleListener;
     }
 
-    public void setHeaderInfo(String query, String lang, int count) {
+    public void setHeaderSearch(String query) {
+        this.headerQuery = query;
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderLang(String lang) {
+        this.headerLang = lang;
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderCount(String count) {
+        this.headerCount = count;
+        notifyItemChanged(0);
+    }
+
+    public void setHeaderInfo(String query, String lang, String count) {
         this.headerQuery = query;
         this.headerLang = lang;
         this.headerCount = count;
@@ -72,7 +87,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         if (viewType == VIEW_TYPE_HEADER) {
             View view = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.recyclerview_podcast_header, parent, false);
+                    .inflate(R.layout.recyclerview_search_header, parent, false);
             return new HeaderViewHolder(view);
         } else {
             View v = LayoutInflater.from(parent.getContext())
@@ -84,7 +99,17 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         if (holder instanceof HeaderViewHolder) {
-            ((HeaderViewHolder) holder).bind(headerQuery, headerLang, headerCount);
+            HeaderViewHolder h = (HeaderViewHolder) holder;
+            h.tvSearchTerms.setText(headerQuery);
+            h.tvSearchTerms.setVisibility(headerQuery.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvLanguage.setText(headerLang);
+            h.tvLanguage.setVisibility(headerLang.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvResultsCount.setText(headerCount);
+            h.tvResultsCount.setVisibility(headerCount.isEmpty() ? View.GONE : View.VISIBLE);
+
+            h.tvCountryTag.setVisibility(View.GONE);
         } else {
             Podcast podcast = items.get(position - 1);
             ((PodcastViewHolder) holder).bind(podcast, onItemClickListener, autoDownloadToggleListener);
@@ -102,22 +127,14 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
     }
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
-        private final TextView tvSearchTerms;
-        private final TextView tvLanguage;
-        private final TextView tvResultsCount;
+        final TextView tvSearchTerms, tvLanguage, tvResultsCount, tvCountryTag;
 
         HeaderViewHolder(View v) {
             super(v);
-            tvSearchTerms = v.findViewById(R.id.tvSearchTermsPodcast);
-            tvLanguage = v.findViewById(R.id.tvLanguagePodcast);
-            tvResultsCount = v.findViewById(R.id.tvResultsCountPodcast);
-        }
-
-        void bind(String query, String lang, int count) {
-            tvSearchTerms.setVisibility(View.GONE);
-            tvLanguage.setVisibility(View.GONE);
-            String resultsCount = count + " " + itemView.getContext().getString(R.string.favorites);
-            tvResultsCount.setText(resultsCount);
+            tvSearchTerms = v.findViewById(R.id.tvSearchTerms);
+            tvLanguage = v.findViewById(R.id.tvLanguage);
+            tvResultsCount = v.findViewById(R.id.tvResultsCount);
+            tvCountryTag = v.findViewById(R.id.tvCountryTag);
         }
     }
 

@@ -80,7 +80,22 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
         viewModel.getResults().observe(this, feeds -> {
             if (feeds != null) {
                 adapter.setItems(feeds);
-                adapter.setHeaderInfo(viewModel.getLastQuery(), viewModel.getLastLang(), feeds.size());
+
+                // Construct Header Strings
+                String q = viewModel.getLastQuery();
+                String queryStr = getString(R.string.Search_2pt)
+                        + (q == null || q.isEmpty() ? getString(R.string.Trending) : q);
+
+                com.driot.bookplayer.objects.LanguageItem langItem = com.driot.bookplayer.helpers.LanguageHelper
+                        .getLanguageForPodcastsByCode(viewModel.getLastLang());
+                String langStr = getString(R.string.Language_2pt) + (langItem != null ? langItem.displayName : "");
+
+                String countStr = getString(R.string.Results_2pt) + feeds.size();
+                if (feeds.size() == Option.getPodcastIndexOrgApiNbResults()) {
+                    countStr += " (" + getString(R.string.max_number_of_results_reached) + ")";
+                }
+
+                adapter.setHeaderInfo(queryStr, langStr, countStr);
             }
         });
 
