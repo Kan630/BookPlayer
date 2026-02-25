@@ -53,8 +53,8 @@ public class ImportExportActivity extends BaseActivity {
     private final ActivityResultLauncher<Intent> liveShareLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
-                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    String json = result.getData().getStringExtra(BackupShareActivity.RESULT_JSON);
+                if (result.getResultCode() == Activity.RESULT_OK) {
+                    String json = BackupShareActivity.sBackupPayload;
                     if (json != null) {
                         myLog("Received backup JSON via Live Share, inspecting...");
                         inspectBackupJson(json);
@@ -164,9 +164,9 @@ public class ImportExportActivity extends BaseActivity {
                 String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
                 runOnUiThread(() -> {
                     myLog("Launching BackupShareActivity (SEND mode)");
+                    BackupShareActivity.sBackupPayload = json;
                     Intent intent = new Intent(this, BackupShareActivity.class);
                     intent.putExtra(BackupShareActivity.EXTRA_MODE, BackupShareActivity.MODE_SEND);
-                    intent.putExtra(BackupShareActivity.EXTRA_BACKUP_JSON, json);
                     liveShareLauncher.launch(intent);
                 });
             } catch (Exception e) {

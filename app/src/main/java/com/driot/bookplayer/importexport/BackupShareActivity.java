@@ -36,8 +36,10 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class BackupShareActivity extends BaseActivity {
 
     public static final String EXTRA_MODE = "extra_mode";
-    public static final String EXTRA_BACKUP_JSON = "extra_backup_json";
     public static final String RESULT_JSON = "result_json";
+
+    // Use static payload to avoid TransactionTooLargeException
+    public static String sBackupPayload;
 
     public static final int MODE_SEND = 0;
     public static final int MODE_RECEIVE = 1;
@@ -65,7 +67,7 @@ public class BackupShareActivity extends BaseActivity {
         InsetHelper.apply(this);
 
         mode = getIntent().getIntExtra(EXTRA_MODE, MODE_SEND);
-        backupJson = getIntent().getStringExtra(EXTRA_BACKUP_JSON);
+        backupJson = sBackupPayload;
 
         initViews();
         setupUI();
@@ -256,9 +258,8 @@ public class BackupShareActivity extends BaseActivity {
                     if (MSG_TYPE_BACKUP.equals(obj.optString("type"))) {
                         String backupContent = obj.optString("message");
                         runOnUiThread(() -> {
-                            Intent dataIntent = new Intent();
-                            dataIntent.putExtra(RESULT_JSON, backupContent);
-                            setResult(RESULT_OK, dataIntent);
+                            sBackupPayload = backupContent; // Store for return
+                            setResult(RESULT_OK);
                             finish();
                         });
                     }
@@ -305,6 +306,7 @@ public class BackupShareActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         nearbyHelper.cleanup();
+        sBackupPayload = null; // Clear to prevent memory leaks
         super.onDestroy();
     }
 }
