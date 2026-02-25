@@ -29,19 +29,6 @@
             app:shapeAppearanceOverlay="@style/RoundedCorners12"
             />
 
-        <!-- Border overlay (on top of favicon) -->
-        <View
-            android:id="@+id/radio_border"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:background="@drawable/bg_radio"
-            android:duplicateParentState="true"
-            app:layout_constraintTop_toTopOf="@id/radio_favicon"
-            app:layout_constraintBottom_toBottomOf="@id/radio_favicon"
-            app:layout_constraintStart_toStartOf="@id/radio_favicon"
-            app:layout_constraintEnd_toEndOf="@id/radio_favicon"
-            />
-
         <!-- Default Radio icon (shown only when no favicon is available) -->
         <ImageView
             android:id="@+id/ivDefaultIcon"
@@ -136,6 +123,19 @@
                 android:background="@drawable/bg_badge_translucent"
                 android:maxLines="1" />
         </LinearLayout>
+
+        <!-- Border overlay (on top of EVERYTHING including scrim and badges) -->
+        <View
+            android:id="@+id/radio_border"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_radio"
+            android:duplicateParentState="true"
+            app:layout_constraintTop_toTopOf="@id/radio_favicon"
+            app:layout_constraintBottom_toBottomOf="@id/radio_favicon"
+            app:layout_constraintStart_toStartOf="@id/radio_favicon"
+            app:layout_constraintEnd_toEndOf="@id/radio_favicon"
+            />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
