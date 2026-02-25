@@ -10,27 +10,14 @@ import androidx.room.ForeignKey;
 import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
-@Entity(
-        foreignKeys = {
-                @ForeignKey(
-                        entity = Podcast.class,
-                        parentColumns = "id",
-                        childColumns = "idPodcast",
-                        onDelete = ForeignKey.CASCADE
-                ),
-                @ForeignKey(
-                        entity = ZikFile.class,
-                        parentColumns = "id",
-                        childColumns = "idZikFile",
-                        onDelete = ForeignKey.SET_NULL
-                )
-        },
-        indices = {
-                @androidx.room.Index(value="idPodcast"),
-                @androidx.room.Index(value="idZikFile", unique=true),
-                @androidx.room.Index(value="idEpisode", unique=true)
-        }
-)
+@Entity(foreignKeys = {
+        @ForeignKey(entity = Podcast.class, parentColumns = "id", childColumns = "idPodcast", onDelete = ForeignKey.CASCADE),
+        @ForeignKey(entity = ZikFile.class, parentColumns = "id", childColumns = "idZikFile", onDelete = ForeignKey.SET_NULL)
+}, indices = {
+        @androidx.room.Index(value = "idPodcast"),
+        @androidx.room.Index(value = "idZikFile", unique = true),
+        @androidx.room.Index(value = "idEpisode", unique = true)
+})
 
 public class Episode implements Parcelable {
 
@@ -66,6 +53,7 @@ public class Episode implements Parcelable {
     public long duration;
 
     public String image;
+    public String imageOriginalUrl;
 
     public String guid;
 
@@ -79,11 +67,12 @@ public class Episode implements Parcelable {
 
     // --- Constructors ---
 
-    public Episode() {}
+    public Episode() {
+    }
 
     @Ignore
     public Episode(long idPodcast, long date_add, @Nullable Long idZikFile,
-                   @Nullable Long date_import, @Nullable Long date_delete, @Nullable Long lastAccess) {
+            @Nullable Long date_import, @Nullable Long date_delete, @Nullable Long lastAccess) {
         this.idPodcast = idPodcast;
         this.date_add = date_add;
         this.idZikFile = idZikFile;

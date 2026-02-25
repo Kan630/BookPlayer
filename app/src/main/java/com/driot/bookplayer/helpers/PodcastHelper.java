@@ -445,6 +445,7 @@ public class PodcastHelper {
             ep.description = pe.description;
             ep.title = pe.title;
             ep.image = pe.image;
+            ep.imageOriginalUrl = pe.image;
             ep.guid = pe.guid;
             ep.enclosureUrl = pe.enclosureUrl;
             ep.datePublished = pe.datePublished;

@@ -452,4 +452,23 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_26_27 = new Migration(26, 27) { // 2026-02-25
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 26 => 27");
+            db.execSQL("ALTER TABLE Episode ADD COLUMN imageOriginalUrl TEXT");
+            db.execSQL("ALTER TABLE RadioStation ADD COLUMN imageOriginalUrl TEXT");
+        }
+    };
+
+    static final Migration MIGRATION_27_28 = new Migration(27, 28) { // 2026-02-25
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 27 => 28");
+            db.execSQL("ALTER TABLE Folder ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE RadioStation ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE Podcast ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
 }

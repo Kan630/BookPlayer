@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
+import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.ForeignKey;
 import androidx.room.Index;
@@ -11,19 +12,10 @@ import androidx.room.PrimaryKey;
 
 import com.driot.bookplayer.global.Option;
 
-@Entity(
-        tableName = "Podcast",
-        foreignKeys = @ForeignKey(
-                entity = Folder.class,
-                parentColumns = "id",
-                childColumns = "idFolder",
-                onDelete = ForeignKey.SET_NULL
-        ),
-        indices = {
-                @Index(value = "idFolder", unique = true),
-                @Index(value = "feedId", unique = true)
-        }
-)
+@Entity(tableName = "Podcast", foreignKeys = @ForeignKey(entity = Folder.class, parentColumns = "id", childColumns = "idFolder", onDelete = ForeignKey.SET_NULL), indices = {
+        @Index(value = "idFolder", unique = true),
+        @Index(value = "feedId", unique = true)
+})
 public class Podcast implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
@@ -52,18 +44,25 @@ public class Podcast implements Parcelable {
 
     public boolean sort_newest_top;
 
-    //-------------------------------------------------------
+    @ColumnInfo(defaultValue = "0")
+    public long timeListened;
+
+    // -------------------------------------------------------
 
     public Podcast() {
         this.date_added = System.currentTimeMillis();
         this.sort_newest_top = Option.getPodcastEpisodesSortOrder();
     }
 
-    //-------------------------------------------------------
+    // -------------------------------------------------------
 
-    public void setId(int id) { this.id = id; }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getId() { return id; }
+    public int getId() {
+        return id;
+    }
 
     // --------- Parcelable implementation ---------
 
@@ -86,6 +85,7 @@ public class Podcast implements Parcelable {
         date_added = in.readLong();
         lastCheck = in.readLong();
         sort_newest_top = in.readByte() != 0;
+        timeListened = in.readLong();
     }
 
     public static final Creator<Podcast> CREATOR = new Creator<Podcast>() {
@@ -121,6 +121,7 @@ public class Podcast implements Parcelable {
         parcel.writeLong(date_added);
         parcel.writeLong(lastCheck);
         parcel.writeByte((byte) (sort_newest_top ? 1 : 0));
+        parcel.writeLong(timeListened);
     }
 
     @Override
