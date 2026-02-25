@@ -19,6 +19,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.utils.BackupManager;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
+import com.driot.bookplayer.activities.MsgBoxActivity;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -44,9 +45,34 @@ public class ImportExportActivity extends BaseActivity {
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    restoreBackupFromFile(result.getData().getData());
+                    Uri uri = result.getData().getData();
+                    if (uri != null) {
+                        myLog("Importing backup from: " + uri.toString());
+                        restoreBackupFromFile(uri);
+                    }
                 }
             });
+
+    private final ActivityResultLauncher<Intent> confirmationLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    int which = result.getData().getIntExtra(MsgBoxActivity.RESULT_WHICH,
+                            MsgBoxActivity.WHICH_NEGATIVE);
+                    if (which == MsgBoxActivity.WHICH_POSITIVE) {
+                        launchFilePicker();
+                    }
+                }
+            });
+
+    private void launchFilePicker() {
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.setType("*/*");
+        String[] mimeTypes = { "application/json", "application/octet-stream" };
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes);
+        importLauncher.launch(intent);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,11 +105,13 @@ public class ImportExportActivity extends BaseActivity {
         });
 
         findViewById(R.id.btn_import).setOnClickListener(v -> {
-            myLogI("--- user clicks RESTORE library ---");
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
-            intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("application/json");
-            importLauncher.launch(intent);
+            myLogI("--- user clicks RESTORE library (waiting for confirmation) ---");
+            Intent intent = MsgBoxActivity.buildQuestion(this,
+                    "Caution: Overwrite Library?",
+                    "This action will replace your current library and settings with the data from the backup file. All current data will be PERMANENTLY DELETED.",
+                    "Proceed with caution, ideally on a fresh Bookplayer installation.",
+                    "RESTORE NOW", "CANCEL");
+            confirmationLauncher.launch(intent);
         });
     }
 

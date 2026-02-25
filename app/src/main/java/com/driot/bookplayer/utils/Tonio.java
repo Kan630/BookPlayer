@@ -163,7 +163,7 @@ public class Tonio {
     }
 
     public static String getCurrentDateTimeString() {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd-HH'h'mm'm'ss's'", Locale.US);
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd_HH'h'mm'm'ss's'", Locale.US);
         return sdf.format(new java.util.Date());
     }
 
