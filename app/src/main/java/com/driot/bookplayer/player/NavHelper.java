@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.radio.RadioStationActivity;
 import com.driot.bookplayer.radio.RadioStationDao;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -64,39 +65,44 @@ public class NavHelper {
         return tsb.getPendingIntent(0, flags);
     }
 
-    public static PendingIntent getNavToRadioActivityPendingIntent(Context context) {
+    public static PendingIntent getNavToRadioActivityPendingIntent(Context context, String stationUuid) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
-        Context appCtx = context.getApplicationContext();
+        if (stationUuid != null && !stationUuid.isEmpty()) {
+            // Build back stack: Main -> GetRadio -> RadioStationActivity
+            TaskStackBuilder tsb = TaskStackBuilder.create(context);
+            tsb.addNextIntent(new Intent(context, MainActivity.class));
+            tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
+            tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
+                    .putExtra(Intents.EXTRA_STATION_UUID, stationUuid));
+            return tsb.getPendingIntent(0, flags);
+        }
 
+        Context appCtx = context.getApplicationContext();
+        // ... rest of the logic for no stationUuid ...
         boolean hasFavOrHistory = false;
         try {
-            // Run the Room query on the DB executor, not on the main thread
             hasFavOrHistory = AppDatabase.databaseReadExecutor
                     .submit(() -> {
                         RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
                         return dao.anyFavoriteOrHistoryExists();
                     })
-                    .get(); // wait for result (fast)
+                    .get();
         } catch (Exception e) {
             myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
         }
 
         if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
-            // Build back stack: Main -> GetRadio -> RadioFavorites
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
             tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
             tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class));
             return tsb.getPendingIntent(0, flags);
         } else {
-            // No favorites/history → go straight to radio search
             return PendingIntent.getActivity(
                     context,
                     0,
-                    new Intent(context, GetRadioActivity.class)
-                    // .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP)
-                    , flags);
+                    new Intent(context, GetRadioActivity.class), flags);
         }
     }
 
@@ -254,6 +260,9 @@ public class NavHelper {
                 flags);
     }
 
-    private static void myLogDD(String txt) {if (VERBOSE_DEBUG) myLogD(txt);}
+    private static void myLogDD(String txt) {
+        if (VERBOSE_DEBUG)
+            myLogD(txt);
+    }
 
 }

@@ -688,7 +688,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @NonNull
                         @Override
                         public PendingIntent content() {
-                            return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this);
+                            return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, radioStationUuid);
                         }
                     });
             if (!startForegroundWithBuildCheck(n))
@@ -741,7 +741,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                             @NonNull
                                             @Override
                                             public PendingIntent content() {
-                                                return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this);
+                                                return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this,
+                                                        radioStationUuid);
                                             }
                                         });
                                 startForegroundWithBuildCheck(updated);
@@ -821,7 +822,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         Pref.setPauseTime(0);
 
         updateSessionState(true);
-        if (!(engine instanceof TtsEngine)) setUiPhase(Intents.PHASE_SPEAKING, null);
+        if (!(engine instanceof TtsEngine))
+            setUiPhase(Intents.PHASE_SPEAKING, null);
 
         engine.setSpeed((float) getSpeed());
         if (!media.session().isActive())
