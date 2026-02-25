@@ -214,20 +214,23 @@ public class ImportExportActivity extends BaseActivity {
         MaterialCheckBox cbPodcasts = findViewById(R.id.cb_include_podcasts);
         MaterialCheckBox cbLibrivox = findViewById(R.id.cb_include_librivox);
 
-        cbPrefs.setVisibility(data.preferences != null ? View.VISIBLE : View.GONE);
-        cbRadios.setVisibility(data.radioStations != null ? View.VISIBLE : View.GONE);
-        cbPodcasts.setVisibility((data.podcasts != null || data.episodes != null) ? View.VISIBLE : View.GONE);
-        cbLibrivox.setVisibility(data.bookSources != null ? View.VISIBLE : View.GONE);
+        boolean hasPrefs = data.preferences != null && !data.preferences.isEmpty();
+        boolean hasRadios = data.radioStations != null && !data.radioStations.isEmpty();
+        boolean hasPodcasts = (data.podcasts != null && !data.podcasts.isEmpty())
+                || (data.episodes != null && !data.episodes.isEmpty());
+        boolean hasLibrivox = data.bookSources != null && !data.bookSources.isEmpty();
 
-        // Uncheck segments that are not in the file
-        if (data.preferences == null)
-            cbPrefs.setChecked(false);
-        if (data.radioStations == null)
-            cbRadios.setChecked(false);
-        if (data.podcasts == null && data.episodes == null)
-            cbPodcasts.setChecked(false);
-        if (data.bookSources == null)
-            cbLibrivox.setChecked(false);
+        cbPrefs.setEnabled(hasPrefs);
+        cbPrefs.setChecked(hasPrefs);
+
+        cbRadios.setEnabled(hasRadios);
+        cbRadios.setChecked(hasRadios);
+
+        cbPodcasts.setEnabled(hasPodcasts);
+        cbPodcasts.setChecked(hasPodcasts);
+
+        cbLibrivox.setEnabled(hasLibrivox);
+        cbLibrivox.setChecked(hasLibrivox);
 
         ((MaterialButton) findViewById(R.id.btn_pick_file)).setText("Change Backup File");
     }
