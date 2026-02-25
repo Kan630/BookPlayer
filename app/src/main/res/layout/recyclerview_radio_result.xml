@@ -14,10 +14,9 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@drawable/bg_radio"
         >
 
-        <ImageView
+        <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/radio_favicon"
             android:layout_width="0dp"
             android:layout_height="0dp"
@@ -27,7 +26,20 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintDimensionRatio="1:1"
-            android:background="@drawable/bg_chip_radio"
+            app:shapeAppearanceOverlay="@style/RoundedCorners12"
+            />
+
+        <!-- Border overlay (on top of favicon) -->
+        <View
+            android:id="@+id/radio_border"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@drawable/bg_radio"
+            android:duplicateParentState="true"
+            app:layout_constraintTop_toTopOf="@id/radio_favicon"
+            app:layout_constraintBottom_toBottomOf="@id/radio_favicon"
+            app:layout_constraintStart_toStartOf="@id/radio_favicon"
+            app:layout_constraintEnd_toEndOf="@id/radio_favicon"
             />
 
         <!-- Favorite button -->

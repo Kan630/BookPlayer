@@ -17,6 +17,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
@@ -249,6 +250,14 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         });
 
         recyclerView.setAdapter(adapter);
+
+        // Highlight currently playing radio station
+        PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+        playbackVm.getState().observe(this, state -> {
+            if (state != null) {
+                adapter.setPlayingRadioStationUuid(state.radioStationUuid);
+            }
+        });
 
         // ---- VM + favorites ----
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
