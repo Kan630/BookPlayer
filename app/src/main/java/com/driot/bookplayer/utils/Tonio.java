@@ -271,7 +271,13 @@ public class Tonio {
      * names.
      * but sometimes it's the opposite (metadata is just "1" or same as filename).
      */
-    public static boolean isBetterTitle(@Nullable String metaTitle, @Nullable String filenameDisplay) {
+    /**
+     * librivox and other audiobooks often have better titles in metadata than file
+     * names.
+     * but sometimes it's the opposite (metadata is just "1" or same as filename).
+     */
+    public static boolean isBetterTitle(@Nullable String metaTitle, @Nullable String filenameDisplay,
+            boolean isLibrivox) {
         if (metaTitle == null || metaTitle.trim().isEmpty())
             return false;
         if (filenameDisplay == null || filenameDisplay.trim().isEmpty())
@@ -280,23 +286,48 @@ public class Tonio {
         String m = metaTitle.trim();
         String f = filenameDisplay.trim();
 
-        // if they are the same (ignoring case/extension), metadata isn't "better"
+        // if they are the same (ignoring case), metadata isn't "better"
         if (m.equalsIgnoreCase(f))
             return false;
 
-        // if metadata is just a number, it's probably not better than a filename like
-        // "Chapter 1"
+        // Strip noise from filename for comparison (LibriVox often adds
+        // bitrate/author/identifier)
+        String fClean = f.toLowerCase(Locale.ROOT)
+                .replaceAll("\\d+kb", "") // remove 64kb, 128kb etc
+                .replaceAll("[._-]", " ")
+                .replaceAll("\\s+", " ")
+                .trim();
+
+        int mWords = m.split("\\s+").length;
+        int fWords = fClean.split("\\s+").length;
+
+        // If LibriVox, we are more aggressive
+        if (isLibrivox) {
+            // Pattern "14 - A young Rajah" or "Chapter 016" or "01 - Bk. II..."
+            if (m.contains(" - ") || m.contains(": "))
+                return true;
+            if (m.toLowerCase(Locale.ROOT)
+                    .matches(".*(chapter|section|kapitel|chapitre|capitulo|parte|book|bk|vol).*"))
+                return true;
+            if (mWords > fWords)
+                return true;
+            if (m.length() > fClean.length() + 2)
+                return true;
+        }
+
+        // if metadata is just a number, it's probably not better than a filename
         if (m.matches("\\d+"))
             return false;
 
-        // if metadata is significantly longer or contains more spaces/info, it might be
-        // better
-        // e.g. "Chapter 1: The Beginning" vs "01_chap1"
-        if (m.length() > f.length() + 3)
+        // Conservative improvements for all sources (e.g. if filename is very messy)
+        if (mWords > fWords + 3)
+            return true;
+        if (m.length() > fClean.length() + 15)
             return true;
 
-        // if filename contains underscores/digits and metadata looks like plain English
-        if (f.contains("_") && !m.contains("_") && m.length() > 3)
+        // if filename contains underscores and metadata looks like plain English and
+        // is decent length
+        if (f.contains("_") && !m.contains("_") && m.length() > 8)
             return true;
 
         return false;

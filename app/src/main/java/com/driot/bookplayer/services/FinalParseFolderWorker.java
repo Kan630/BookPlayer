@@ -21,6 +21,7 @@ import com.driot.bookplayer.db.DatabaseClient;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -708,7 +709,10 @@ public class FinalParseFolderWorker extends ImportWorker {
         String filenameDisplay = formatNameForDisplay(info.getDisplayPath());
         String metaTitle = (info.getMeta() != null) ? info.getMeta().get(AudioInfo.K_TITLE) : null;
 
-        if (Tonio.isBetterTitle(metaTitle, filenameDisplay)) {
+        boolean isLibrivox = Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation);
+        boolean useMetadata = isLibrivox || Option.getUseMetadataTitles();
+
+        if (useMetadata && Tonio.isBetterTitle(metaTitle, filenameDisplay, isLibrivox)) {
             myLogD("Using metadata title: [" + metaTitle + "] instead of [" + filenameDisplay + "]");
             file.setDisplayName(metaTitle.trim());
         } else {

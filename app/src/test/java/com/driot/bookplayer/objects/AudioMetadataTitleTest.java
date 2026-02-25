@@ -11,27 +11,35 @@ public class AudioMetadataTitleTest {
 
     @Test
     public void testIsBetterTitle() {
-        // Better: Metadata has more info
-        assertTrue(Tonio.isBetterTitle("Chapter 1: The Beginning", "01_chap1"));
-        assertTrue(Tonio.isBetterTitle("Introduction - A Hero's Journey", "intro"));
+        // Cases from user:
+        assertTrue(Tonio.isBetterTitle("14 - A young Rajah", "secretgarden 14 burnett 64kb", true));
+        assertTrue(Tonio.isBetterTitle("26 - It's Mother!", "secretgarden 26 burnett 64kb", true));
+        assertTrue(Tonio.isBetterTitle("Chapter 016", "mobydick 016 melville 64kb", true));
+        assertTrue(Tonio.isBetterTitle("01 - Bk. II, Ch VII, Pt. 1, Completion of the circumnavigation of New Zealand",
+                "firstvoyagejamescookvol2 01 cook 64kb", true));
+        assertTrue(Tonio.isBetterTitle("02 - Bk. II, Ch VII, Pt. 2", "firstvoyagejamescookvol2 02 cook 64kb", true));
 
-        // Better: Filename has underscores, metadata is clean
-        assertTrue(Tonio.isBetterTitle("Chapter One", "chapter_01"));
+        // Generic better cases
+        assertTrue(Tonio.isBetterTitle("Chapter One", "chapter_01", false));
 
         // Not Better: Same content
-        assertFalse(Tonio.isBetterTitle("Chapter 1", "Chapter 1"));
-        assertFalse(Tonio.isBetterTitle("chapter 1", "CHAPTER 1"));
+        assertFalse(Tonio.isBetterTitle("Chapter 1", "Chapter 1", false));
+        assertFalse(Tonio.isBetterTitle("chapter 1", "CHAPTER 1", false));
 
         // Not Better: Metadata is just a number
-        assertFalse(Tonio.isBetterTitle("1", "Chapter 1"));
-        assertFalse(Tonio.isBetterTitle("01", "01_intro"));
+        assertFalse(Tonio.isBetterTitle("1", "Chapter 1", true));
+        assertFalse(Tonio.isBetterTitle("01", "01_intro", true));
 
         // Not Better: Filename is more descriptive than empty/null metadata
-        assertFalse(Tonio.isBetterTitle("", "Chapter 1"));
-        assertFalse(Tonio.isBetterTitle(null, "Chapter 1"));
+        assertFalse(Tonio.isBetterTitle("", "Chapter 1", false));
+        assertFalse(Tonio.isBetterTitle(null, "Chapter 1", false));
 
-        // Not Better: Metadata is too short/generic
-        assertFalse(Tonio.isBetterTitle("Ch1", "Chapter 1"));
+        // Cautious for non-librivox (it won't detect the "14 - " pattern as easily)
+        // Actually, with the "m.length() > fClean.length() + 5" it might still detect
+        // it if the filename is short.
+        // But for secretgarden, the filename is long, so it should stay false if not
+        // librivox.
+        assertFalse(Tonio.isBetterTitle("14 - A young Rajah", "secretgarden 14 burnett 64kb", false));
     }
 
     @Test

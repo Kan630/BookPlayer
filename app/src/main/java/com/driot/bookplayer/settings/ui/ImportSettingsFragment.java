@@ -32,6 +32,9 @@ public class ImportSettingsFragment extends LoggingFragment {
     private LinearLayout llCreateCover;
     private MaterialCheckBox chkCreateCover;
 
+    private LinearLayout llMetadataTitles;
+    private MaterialCheckBox chkMetadataTitles;
+
     private LinearLayout llSplitM4b;
     private MaterialCheckBox chkSplitM4b;
 
@@ -44,17 +47,19 @@ public class ImportSettingsFragment extends LoggingFragment {
     private LinearLayout llOpenWithAll;
     private MaterialCheckBox chkOpenWithAll;
 
-    @Nullable @Override
+    @Nullable
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
-                             @Nullable ViewGroup container,
-                             @Nullable Bundle savedInstanceState) {
+            @Nullable ViewGroup container,
+            @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_settings_import, container, false);
 
         // Local title visibility (hidden when embedded inline)
         boolean showLocalTitle = true;
         Bundle args = getArguments();
-        if (args != null) showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
+        if (args != null)
+            showLocalTitle = args.getBoolean("ARG_SHOW_LOCAL_TITLE", true);
         View titleContainer = root.findViewById(R.id.ll_title);
         if (titleContainer != null) {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
@@ -75,28 +80,35 @@ public class ImportSettingsFragment extends LoggingFragment {
 
         // ====== Copy file ======
         chkCopyFile = root.findViewById(R.id.chk_copy_file);
-        llCopyFile  = root.findViewById(R.id.ll_copy_file);
+        llCopyFile = root.findViewById(R.id.ll_copy_file);
         chkCopyFile.setChecked(Option.getCopyFile());
         llCopyFile.setOnClickListener(v -> chkCopyFile.toggle());
         chkCopyFile.setOnCheckedChangeListener((button, checked) -> Option.setCopyFile(checked));
 
         // ====== Create cover ======
         chkCreateCover = root.findViewById(R.id.chk_create_cover);
-        llCreateCover  = root.findViewById(R.id.ll_create_cover);
+        llCreateCover = root.findViewById(R.id.ll_create_cover);
         chkCreateCover.setChecked(Option.getCreateCover());
         llCreateCover.setOnClickListener(v -> chkCreateCover.toggle());
         chkCreateCover.setOnCheckedChangeListener((button, checked) -> Option.setCreateCover(checked));
 
+        // ====== Metadata titles ======
+        chkMetadataTitles = root.findViewById(R.id.chk_metadata_titles);
+        llMetadataTitles = root.findViewById(R.id.ll_metadata_titles);
+        chkMetadataTitles.setChecked(Option.getUseMetadataTitles());
+        llMetadataTitles.setOnClickListener(v -> chkMetadataTitles.toggle());
+        chkMetadataTitles.setOnCheckedChangeListener((button, checked) -> Option.setUseMetadataTitles(checked));
+
         // ====== Split m4b ======
         chkSplitM4b = root.findViewById(R.id.chk_split_m4b);
-        llSplitM4b  = root.findViewById(R.id.ll_split_m4b);
+        llSplitM4b = root.findViewById(R.id.ll_split_m4b);
         chkSplitM4b.setChecked(Option.getSplitM4b());
         llSplitM4b.setOnClickListener(v -> chkSplitM4b.toggle());
         chkSplitM4b.setOnCheckedChangeListener((button, checked) -> Option.setSplitM4b(checked));
 
         // ====== Delete source file (with confirm) ======
         chkDeleteSourceFile = root.findViewById(R.id.chk_delete_source_file);
-        llDeleteSourceFile  = root.findViewById(R.id.ll_delete_source_file);
+        llDeleteSourceFile = root.findViewById(R.id.ll_delete_source_file);
         chkDeleteSourceFile.setChecked(Option.getDeleteSourceFile());
         llDeleteSourceFile.setOnClickListener(v -> chkDeleteSourceFile.toggle());
         chkDeleteSourceFile.setOnCheckedChangeListener((button, checked) -> {
@@ -118,7 +130,7 @@ public class ImportSettingsFragment extends LoggingFragment {
 
         // ====== Open With / Open With (All) ======
         chkOpenWith = root.findViewById(R.id.chk_open_with);
-        llOpenWith  = root.findViewById(R.id.ll_open_with);
+        llOpenWith = root.findViewById(R.id.ll_open_with);
         chkOpenWith.setChecked(Option.getOpenWith());
         llOpenWith.setOnClickListener(v -> chkOpenWith.toggle());
         chkOpenWith.setOnCheckedChangeListener((button, checked) -> {
@@ -127,7 +139,7 @@ public class ImportSettingsFragment extends LoggingFragment {
         });
 
         chkOpenWithAll = root.findViewById(R.id.chk_open_with_all);
-        llOpenWithAll  = root.findViewById(R.id.ll_open_with_all);
+        llOpenWithAll = root.findViewById(R.id.ll_open_with_all);
         chkOpenWithAll.setChecked(Option.getOpenWith_all());
         llOpenWithAll.setOnClickListener(v -> chkOpenWithAll.toggle());
         chkOpenWithAll.setOnCheckedChangeListener((button, checked) -> {
@@ -137,8 +149,10 @@ public class ImportSettingsFragment extends LoggingFragment {
 
         // Optional: highlight header text red if you still want that behavior
         // TextView txtCopyFileHead = root.findViewById(R.id.txtCopyFileHead);
-        // if (getActivity() != null && getActivity().getIntent().getBooleanExtra("CopyFileSetRed", false)) {
-        //     txtCopyFileHead.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_500));
+        // if (getActivity() != null &&
+        // getActivity().getIntent().getBooleanExtra("CopyFileSetRed", false)) {
+        // txtCopyFileHead.setTextColor(ContextCompat.getColor(requireContext(),
+        // R.color.red_500));
         // }
 
         return root;
