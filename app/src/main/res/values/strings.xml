@@ -796,7 +796,10 @@
     <string name="import_export_include_podcasts">Podcasts</string>
     <string name="import_export_include_librivox">Librivox Favorites</string>
     <string name="import_export_backup_content_from">Backup Content from: %s</string>
-    <string name="import_export_select_at_least_one_to_export">Please select at least one item to backup</string>
+    <string name="import_export_select_at_least_one_to_backup">Please select at least one item to backup</string>
+    <string name="import_export_select_at_least_one_to_restore">Please select at least one item to restore</string>
+    <string name="import_export_select_at_least_one_to_share">Please select at least one item to share</string>
+    <string name="import_export_select_at_least_one_to_export">Please select at least one item to export</string>
     <string name="import_export_backup_saved">Backup saved successfully</string>
     <string name="import_export_failed_prepare">Failed to prepare backup: %s</string>
     <string name="import_export_failed_share">Failed to prepare share: %s</string>

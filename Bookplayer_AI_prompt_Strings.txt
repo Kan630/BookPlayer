@@ -2,9 +2,12 @@ we will do that :
 ----------------------------------------------
 STRINGS PROCESS
 ----------------------------------------------
-general order : 
+for your general context : 
 * don't forget to escape ' with \'
 * use … instead of ...
+* no ampersand : replace & with &amp;
+* use indications and meanings if any in comments on the right with //
+* if indication is like // stay below 8 chars => it means, try to find a translation that stays below 8 chars
 
 STEP 0 - (identify modifications + additions - deletions)
 check git since commit XXXXXXXXXXXX for any change in the base english strings.xml AND the french (in res/values-b+fr/strings.xml).

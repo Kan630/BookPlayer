@@ -167,8 +167,7 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, getString(R.string.import_export_select_at_least_one_to_export), Toast.LENGTH_SHORT)
-                    .show();
+            myToast(getString(R.string.import_export_select_at_least_one_to_share));
             return;
         }
 
@@ -187,10 +186,7 @@ public class ImportExportActivity extends BaseActivity {
                 });
             } catch (Exception e) {
                 myLogEE(e, "Failed to prepare live backup");
-                runOnUiThread(() -> Toast
-                        .makeText(this, getString(R.string.import_export_failed_prepare, e.getMessage()),
-                                Toast.LENGTH_LONG)
-                        .show());
+                runOnUiThread(() -> myLongToast(getString(R.string.import_export_failed_prepare, e.getMessage())));
             }
         });
     }
@@ -221,8 +217,7 @@ public class ImportExportActivity extends BaseActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, getString(R.string.import_export_error_reading, e.getMessage()), Toast.LENGTH_LONG)
-                    .show();
+            myLongToast(getString(R.string.import_export_error_reading, e.getMessage()));
         }
     }
 
@@ -237,12 +232,11 @@ public class ImportExportActivity extends BaseActivity {
                 this.liveBackupJson = json;
                 updateRestoreOptions(data);
             } else {
-                Toast.makeText(this, getString(R.string.import_export_invalid_data), Toast.LENGTH_SHORT).show();
+                myToast(getString(R.string.import_export_invalid_data));
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, getString(R.string.import_export_error_parsing, e.getMessage()), Toast.LENGTH_LONG)
-                    .show();
+            myLongToast(getString(R.string.import_export_error_parsing, e.getMessage()));
         }
     }
 
@@ -300,8 +294,7 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, getString(R.string.import_export_select_at_least_one, "export"), Toast.LENGTH_SHORT)
-                    .show();
+            myToast(getString(R.string.import_export_select_at_least_one_to_backup));
             return;
         }
 
@@ -322,8 +315,7 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, getString(R.string.import_export_select_at_least_one, "restore"), Toast.LENGTH_SHORT)
-                    .show();
+            myToast(getString(R.string.import_export_select_at_least_one_to_restore));
             return;
         }
 
@@ -356,8 +348,7 @@ public class ImportExportActivity extends BaseActivity {
             }
         } catch (Exception e) {
             myLogEE(e, "Failed to restore backup from file");
-            Toast.makeText(this, getString(R.string.import_export_failed_restore, e.getMessage()), Toast.LENGTH_LONG)
-                    .show();
+            myLongToast(getString(R.string.import_export_failed_restore, e.getMessage()));
         }
     }
 
@@ -365,12 +356,11 @@ public class ImportExportActivity extends BaseActivity {
             boolean librivox) {
         try {
             backupManager.importFromJson(json, prefs, radios, podcasts, librivox);
-            Toast.makeText(this, getString(R.string.import_export_restore_complete), Toast.LENGTH_LONG).show();
+            myLongToast(getString(R.string.import_export_restore_complete));
             finish();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, getString(R.string.import_export_failed_import, e.getMessage()), Toast.LENGTH_LONG)
-                    .show();
+            myLongToast(getString(R.string.import_export_failed_import, e.getMessage()));
         }
     }
 
@@ -383,18 +373,14 @@ public class ImportExportActivity extends BaseActivity {
                         myLog("Backup saved to " + uri.toString());
                         outputStream.write(json.getBytes(StandardCharsets.UTF_8));
                         runOnUiThread(() -> {
-                            Toast.makeText(this, getString(R.string.import_export_backup_saved), Toast.LENGTH_SHORT)
-                                    .show();
+                            myToast(getString(R.string.import_export_backup_saved));
                             finish();
                         });
                     }
                 }
             } catch (Exception e) {
                 myLogEE(e, "Failed to save backup to file");
-                runOnUiThread(() -> Toast
-                        .makeText(this, getString(R.string.import_export_failed_prepare, e.getMessage()),
-                                Toast.LENGTH_LONG)
-                        .show());
+                runOnUiThread(() -> myLongToast(getString(R.string.import_export_failed_prepare, e.getMessage())));
             }
         });
     }
@@ -406,8 +392,7 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, getString(R.string.import_export_select_at_least_one_to_export), Toast.LENGTH_SHORT)
-                    .show();
+            myToast(getString(R.string.import_export_select_at_least_one_to_share));
             return;
         }
 
@@ -432,11 +417,7 @@ public class ImportExportActivity extends BaseActivity {
                 });
             } catch (Exception e) {
                 myLogEE(e, "Failed to share backup file");
-                runOnUiThread(
-                        () -> Toast
-                                .makeText(this, getString(R.string.import_export_failed_share, e.getMessage()),
-                                        Toast.LENGTH_LONG)
-                                .show());
+                runOnUiThread(() -> myLongToast(getString(R.string.import_export_failed_share, e.getMessage())));
             }
         });
     }

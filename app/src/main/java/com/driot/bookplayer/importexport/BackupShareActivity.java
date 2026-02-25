@@ -147,7 +147,7 @@ public class BackupShareActivity extends BaseActivity {
             if (all)
                 startNearby();
             else
-                Toast.makeText(this, getString(R.string.backup_share_permissions_required), Toast.LENGTH_SHORT).show();
+                myToast(getString(R.string.backup_share_permissions_required));
         }
     }
 
@@ -240,8 +240,7 @@ public class BackupShareActivity extends BaseActivity {
             public void onPayloadSent(long id) {
                 if (mode == MODE_SEND) {
                     runOnUiThread(() -> {
-                        Toast.makeText(BackupShareActivity.this, getString(R.string.backup_share_sent),
-                                Toast.LENGTH_SHORT).show();
+                        myToast(getString(R.string.backup_share_sent));
                         finish();
                     });
                 }

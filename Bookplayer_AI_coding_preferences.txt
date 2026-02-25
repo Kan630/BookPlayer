@@ -1,3 +1,5 @@
 For your general context, 
 
 * I dont like to put visibility gone directly in the xml layout, because i like my IDE to render all items in its view, so visibility=gone should only done programmatically
+* never use Toast.makeText(   => use myToast(   or myToastE(
+* never use android.log(   => use myLog(   and its variants
