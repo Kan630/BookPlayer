@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Option;
@@ -32,9 +33,11 @@ public class BackupManager {
         public List<RadioStation> radioStations = new ArrayList<>();
         public List<Podcast> podcasts = new ArrayList<>();
         public List<Episode> episodes = new ArrayList<>();
+        public List<BookSource> bookSources = new ArrayList<>();
     }
 
-    public String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts) {
+    public String exportToJson(boolean includePreferences, boolean includeRadios, boolean includePodcasts,
+            boolean includeLibrivox) {
         BackupData data = new BackupData();
 
         // Preferences
@@ -62,6 +65,9 @@ public class BackupManager {
         if (includePodcasts) {
             data.podcasts = db.podcastDao().getAll();
             data.episodes = db.episodeDao().getAll();
+        }
+        if (includeLibrivox) {
+            data.bookSources = db.bookSourceDao().getAll();
         }
 
         return gson.toJson(data);
@@ -118,6 +124,14 @@ public class BackupManager {
                     // Episodes also use REPLACE strategy in insertAll (IGNORE actually, so we
                     // should be careful)
                     db.episodeDao().insertAll(data.episodes);
+                }
+                if (data.bookSources != null) {
+                    // Important: clear local folder references if folders are not backed up
+                    for (BookSource bs : data.bookSources) {
+                        bs.idFolder = null;
+                    }
+                    db.bookSourceDao().deleteAll();
+                    db.bookSourceDao().insertAll(data.bookSources);
                 }
             });
         });

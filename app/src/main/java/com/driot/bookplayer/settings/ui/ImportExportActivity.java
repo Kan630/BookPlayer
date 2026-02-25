@@ -35,7 +35,8 @@ public class ImportExportActivity extends BaseActivity {
                     boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
                     boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
                     boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-                    saveBackupToFile(result.getData().getData(), prefs, radios, podcasts);
+                    boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+                    saveBackupToFile(result.getData().getData(), prefs, radios, podcasts, librivox);
                 }
             });
 
@@ -59,15 +60,16 @@ public class ImportExportActivity extends BaseActivity {
             boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
             boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
             boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
+            boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
-            if (!prefs && !radios && !podcasts) {
+            if (!prefs && !radios && !podcasts && !librivox) {
                 Toast.makeText(this, "Please select at least one item to export", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             myLogI("--- user clicks EXPORT library --- (prefs=" + prefs + ", radios=" + radios + ", podcasts="
                     + podcasts
-                    + ")");
+                    + ", librivox=" + librivox + ")");
             Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
             intent.setType("application/json");
@@ -85,10 +87,10 @@ public class ImportExportActivity extends BaseActivity {
         });
     }
 
-    private void saveBackupToFile(Uri uri, boolean prefs, boolean radios, boolean podcasts) {
+    private void saveBackupToFile(Uri uri, boolean prefs, boolean radios, boolean podcasts, boolean librivox) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                String json = backupManager.exportToJson(prefs, radios, podcasts);
+                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
                 try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
                     if (outputStream != null) {
                         myLog("Backup saved to " + uri.toString());

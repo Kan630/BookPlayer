@@ -4,6 +4,7 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Transaction;
 import androidx.room.Update;
@@ -32,15 +33,18 @@ public interface BookSourceDao {
     @Query("SELECT * FROM BookSource ORDER BY id DESC")
     List<BookSource> getAll();
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<BookSource> bookSources);
 
-
+    @Query("DELETE FROM BookSource")
+    void deleteAll();
 
     // ---- Toggle favorite (MUST include repoName too) ----
     @Query("""
-        UPDATE BookSource
-        SET is_favorite = :fav, date_maj = :now
-        WHERE repoType = :repoType AND repoName = :repoName AND repoId = :repoId
-    """)
+                UPDATE BookSource
+                SET is_favorite = :fav, date_maj = :now
+                WHERE repoType = :repoType AND repoName = :repoName AND repoId = :repoId
+            """)
     int updateFavoriteFlag(String repoType, String repoName, String repoId, boolean fav, long now);
 
     // ---- Upsert (Room 2.5+) ----
@@ -49,67 +53,64 @@ public interface BookSourceDao {
 
     // ---- State for a batch of ids (enrich search results) ----
     @Query("""
-        SELECT repoId, is_favorite, idFolder
-        FROM BookSource
-        WHERE repoType = :repoType AND repoName = :repoName AND repoId IN (:ids)
-    """)
+                SELECT repoId, is_favorite, idFolder
+                FROM BookSource
+                WHERE repoType = :repoType AND repoName = :repoName AND repoId IN (:ids)
+            """)
     List<RepoStateRow> getStateFor(String repoType, String repoName, List<String> ids);
 
     // Helper projection
     class RepoStateRow {
         public String repoId;
         public boolean is_favorite;
-        public Long idFolder;     // null if not imported
+        public Long idFolder; // null if not imported
     }
 
-
     @Query("""
-        SELECT 
-            repoId AS identifier,
-            book_title AS title,
-            '' AS date,
-            0.0 AS avg_rating,
-            0 AS num_reviews,
-            idFolder,
-            is_favorite,
-            '' AS author,
-            imageRemote AS imageRemote,
-            source_size AS source_size
-        FROM BookSource
-        WHERE repoType = :repoType 
-          AND repoName = :repoName
-          AND (is_favorite = 1 OR idFolder IS NOT NULL)
-        ORDER BY date_maj DESC
-    """)
+                SELECT
+                    repoId AS identifier,
+                    book_title AS title,
+                    '' AS date,
+                    0.0 AS avg_rating,
+                    0 AS num_reviews,
+                    idFolder,
+                    is_favorite,
+                    '' AS author,
+                    imageRemote AS imageRemote,
+                    source_size AS source_size
+                FROM BookSource
+                WHERE repoType = :repoType
+                  AND repoName = :repoName
+                  AND (is_favorite = 1 OR idFolder IS NOT NULL)
+                ORDER BY date_maj DESC
+            """)
     LiveData<List<ArchiveItem>> getFavoriteLibrivoxItems(String repoType, String repoName);
 
-
-
     @Query("""
-        UPDATE BookSource
-        SET idFolder = :folderId,
-            is_favorite = :forceFavorite,
-            book_title = :bookTitle,
-            source_url = :sourceUrl,
-            imageLocal = :imageLocal,
-            imageRemote = :imageRemote,
-            source_size = :sourceSize,
-            date_maj = :now
-        WHERE repoType = :repoType AND repoName = :repoName AND repoId = :repoId
-    """)
+                UPDATE BookSource
+                SET idFolder = :folderId,
+                    is_favorite = :forceFavorite,
+                    book_title = :bookTitle,
+                    source_url = :sourceUrl,
+                    imageLocal = :imageLocal,
+                    imageRemote = :imageRemote,
+                    source_size = :sourceSize,
+                    date_maj = :now
+                WHERE repoType = :repoType AND repoName = :repoName AND repoId = :repoId
+            """)
     int updateOnIntegration(String repoType, String repoName, String repoId,
-                            long folderId, boolean forceFavorite,
-                            String bookTitle, String sourceUrl,
-                            @Nullable String imageLocal, @Nullable String imageRemote,
-                            long sourceSize, long now);
+            long folderId, boolean forceFavorite,
+            String bookTitle, String sourceUrl,
+            @Nullable String imageLocal, @Nullable String imageRemote,
+            long sourceSize, long now);
 
     // Default method wrapper (Java 8 interface default)
     @Transaction
     default void markImported(String repoType, String repoName, String repoId,
-                              long folderId,
-                              String bookTitle, String sourceUrl,
-                              @Nullable String imageLocal, @Nullable String imageRemote,
-                              long sourceSize) {
+            long folderId,
+            String bookTitle, String sourceUrl,
+            @Nullable String imageLocal, @Nullable String imageRemote,
+            long sourceSize) {
         long now = System.currentTimeMillis();
 
         // Try update existing row
@@ -124,9 +125,8 @@ public interface BookSourceDao {
             BookSource bs = new BookSource(
                     bookTitle != null ? bookTitle : "",
                     sourceUrl != null ? sourceUrl : "",
-                    repoType, repoName, repoId, folderId
-            );
-            bs.is_favorite = true;   // new imports are favorited by default
+                    repoType, repoName, repoId, folderId);
+            bs.is_favorite = true; // new imports are favorited by default
             bs.imageLocal = imageLocal;
             bs.imageRemote = imageRemote;
             bs.source_size = sourceSize;

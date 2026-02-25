@@ -47,6 +47,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Podcasts"
+        android:checked="true" />
+
+    <com.google.android.material.checkbox.MaterialCheckBox
+        android:id="@+id/cb_include_librivox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Librivox Favorites"
         android:checked="true"
         android:layout_marginBottom="16dp" />
 
