@@ -49,8 +49,6 @@ public class BackupManager {
                     context.getSharedPreferences("SHARED_PREFERENCES_DIVERSE", Context.MODE_PRIVATE).getAll());
             data.preferences.put("SHARED_PREFERENCES_STATS",
                     context.getSharedPreferences("SHARED_PREFERENCES_STATS", Context.MODE_PRIVATE).getAll());
-            data.preferences.put("SHARED_PREFERENCE_TIMESTAMP",
-                    context.getSharedPreferences("SHARED_PREFERENCE_TIMESTAMP", Context.MODE_PRIVATE).getAll());
             data.preferences.put("SHARED_PREFERENCE_ADMIN",
                     context.getSharedPreferences("SHARED_PREFERENCES_ADMIN", Context.MODE_PRIVATE).getAll());
             data.preferences.put("SHARED_PREFERENCE_BOOK",

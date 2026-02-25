@@ -17,7 +17,7 @@ public class Pref {
 
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
     private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
-    private static final String SHARED_PREFERENCE_TIMESTAMP = "SHARED_PREFERENCE_TIMESTAMP";
+    private static final String SHARED_PREFERENCE_DEVICE_SPECIFIC = "SHARED_PREFERENCE_PER_DEVICE";
     private static final String SHARED_PREFERENCE_ADMIN = "SHARED_PREFERENCES_ADMIN";
     private static final String SHARED_PREFERENCE_SEARCH_HISTORY = "search_history_store";
     public static final String SHARED_PREFERENCE_CHAR_SIZE = "SHARED_PREFERENCE_CHAR_SIZE";
@@ -37,7 +37,7 @@ public class Pref {
     private static Context appContext;
     private static SharedPreferences prefs;
     private static SharedPreferences stats;
-    private static SharedPreferences timeStamp;
+    private static SharedPreferences deviceSpecific;
     private static SharedPreferences introCut;
     private static SharedPreferences speed;
     private static SharedPreferences admin;
@@ -54,7 +54,7 @@ public class Pref {
         PrefMigration.run(appContext);
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
         stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
-        timeStamp = appContext.getSharedPreferences(SHARED_PREFERENCE_TIMESTAMP, MODE_PRIVATE);
+        deviceSpecific = appContext.getSharedPreferences(SHARED_PREFERENCE_DEVICE_SPECIFIC, MODE_PRIVATE);
         introCut = appContext.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE);
         speed = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
         admin = appContext.getSharedPreferences(SHARED_PREFERENCE_ADMIN, MODE_PRIVATE);
@@ -75,8 +75,8 @@ public class Pref {
             prefs.getAll();
         if (stats != null)
             stats.getAll();
-        if (timeStamp != null)
-            timeStamp.getAll();
+        if (deviceSpecific != null)
+            deviceSpecific.getAll();
         if (introCut != null)
             introCut.getAll();
         if (speed != null)
@@ -122,11 +122,11 @@ public class Pref {
     }
 
     public static long getLastDbClean() {
-        return timeStamp.getLong("DB_CLEAN", 0);
+        return deviceSpecific.getLong("DB_CLEAN_TIMESTAMP", 0);
     }
 
     public static void setLastDbClean() {
-        timeStamp.edit().putLong("DB_CLEAN", System.currentTimeMillis()).apply();
+        deviceSpecific.edit().putLong("DB_CLEAN_TIMESTAMP", System.currentTimeMillis()).apply();
     }
 
     public static String get_radio_mirror() {
@@ -261,114 +261,114 @@ public class Pref {
 
     // Internal Storage
     public static void setStorageInternalTotal(long value) {
-        prefs.edit().putLong("STORAGE_INTERNAL_TOTAL", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_INTERNAL_TOTAL", value).apply();
     }
 
     public static long getStorageInternalTotal() {
-        return prefs.getLong("STORAGE_INTERNAL_TOTAL", 0);
+        return deviceSpecific.getLong("STORAGE_INTERNAL_TOTAL", 0);
     }
 
     public static void setStorageInternalUsedByOthers(long value) {
-        prefs.edit().putLong("STORAGE_INTERNAL_USED_BY_OTHERS", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_INTERNAL_USED_BY_OTHERS", value).apply();
     }
 
     public static long getStorageInternalUsedByOthers() {
-        return prefs.getLong("STORAGE_INTERNAL_USED_BY_OTHERS", 0);
+        return deviceSpecific.getLong("STORAGE_INTERNAL_USED_BY_OTHERS", 0);
     }
 
     public static void setStorageInternalUsedByBookPlayer(long value) {
-        prefs.edit().putLong("STORAGE_INTERNAL_USED_BY_BOOKPLAYER", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_INTERNAL_USED_BY_BOOKPLAYER", value).apply();
     }
 
     public static long getStorageInternalUsedByBookPlayer() {
-        return prefs.getLong("STORAGE_INTERNAL_USED_BY_BOOKPLAYER", 0);
+        return deviceSpecific.getLong("STORAGE_INTERNAL_USED_BY_BOOKPLAYER", 0);
     }
 
     public static void setStorageInternalTimestamp(long value) {
-        prefs.edit().putLong("STORAGE_INTERNAL_TIMESTAMP", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_INTERNAL_TIMESTAMP", value).apply();
     }
 
     public static long getStorageInternalTimestamp() {
-        return prefs.getLong("STORAGE_INTERNAL_TIMESTAMP", 0);
+        return deviceSpecific.getLong("STORAGE_INTERNAL_TIMESTAMP", 0);
     }
 
     // SD Card Storage
     public static void setStorageSDCardTotal(long value) {
-        prefs.edit().putLong("STORAGE_SDCARD_TOTAL", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_SDCARD_TOTAL", value).apply();
     }
 
     public static long getStorageSDCardTotal() {
-        return prefs.getLong("STORAGE_SDCARD_TOTAL", 0);
+        return deviceSpecific.getLong("STORAGE_SDCARD_TOTAL", 0);
     }
 
     public static void setStorageSDCardUsedByOthers(long value) {
-        prefs.edit().putLong("STORAGE_SDCARD_USED_BY_OTHERS", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_SDCARD_USED_BY_OTHERS", value).apply();
     }
 
     public static long getStorageSDCardUsedByOthers() {
-        return prefs.getLong("STORAGE_SDCARD_USED_BY_OTHERS", 0);
+        return deviceSpecific.getLong("STORAGE_SDCARD_USED_BY_OTHERS", 0);
     }
 
     public static void setStorageSDCardUsedByBookPlayer(long value) {
-        prefs.edit().putLong("STORAGE_SDCARD_USED_BY_BOOKPLAYER", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_SDCARD_USED_BY_BOOKPLAYER", value).apply();
     }
 
     public static long getStorageSDCardUsedByBookPlayer() {
-        return prefs.getLong("STORAGE_SDCARD_USED_BY_BOOKPLAYER", 0);
+        return deviceSpecific.getLong("STORAGE_SDCARD_USED_BY_BOOKPLAYER", 0);
     }
 
     public static void setStorageSDCardTimestamp(long value) {
-        prefs.edit().putLong("STORAGE_SDCARD_TIMESTAMP", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_SDCARD_TIMESTAMP", value).apply();
     }
 
     public static long getStorageSDCardTimestamp() {
-        return prefs.getLong("STORAGE_SDCARD_TIMESTAMP", 0);
+        return deviceSpecific.getLong("STORAGE_SDCARD_TIMESTAMP", 0);
     }
 
     // Linked Audios (files outside BookPlayer reserved space)
     public static void setStorageInternalLinkedAudios(long value) {
-        prefs.edit().putLong("STORAGE_INTERNAL_LINKED_AUDIOS", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_INTERNAL_LINKED_AUDIOS", value).apply();
     }
 
     public static long getStorageInternalLinkedAudios() {
-        return prefs.getLong("STORAGE_INTERNAL_LINKED_AUDIOS", 0);
+        return deviceSpecific.getLong("STORAGE_INTERNAL_LINKED_AUDIOS", 0);
     }
 
     public static void setStorageSDCardLinkedAudios(long value) {
-        prefs.edit().putLong("STORAGE_SDCARD_LINKED_AUDIOS", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_SDCARD_LINKED_AUDIOS", value).apply();
     }
 
     public static long getStorageSDCardLinkedAudios() {
-        return prefs.getLong("STORAGE_SDCARD_LINKED_AUDIOS", 0);
+        return deviceSpecific.getLong("STORAGE_SDCARD_LINKED_AUDIOS", 0);
     }
 
     // Internal App Storage (app + db + logs + images, excluding audio files)
     public static void setStorageInternalApp(long value) {
-        prefs.edit().putLong("STORAGE_INTERNAL_APP", value).apply();
+        deviceSpecific.edit().putLong("STORAGE_INTERNAL_APP", value).apply();
     }
 
     public static long getStorageInternalApp() {
-        return prefs.getLong("STORAGE_INTERNAL_APP", 0);
+        return deviceSpecific.getLong("STORAGE_INTERNAL_APP", 0);
     }
 
     // Per-folder sizes for Clean Memory (internal unzip subfolders), JSON: path ->
     // size in bytes
     public static void setStorageInternalFolderSizesJson(String value) {
-        prefs.edit().putString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", value != null ? value : "").apply();
+        deviceSpecific.edit().putString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", value != null ? value : "").apply();
     }
 
     public static String getStorageInternalFolderSizesJson() {
-        return prefs.getString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", "");
+        return deviceSpecific.getString("STORAGE_INTERNAL_FOLDER_SIZES_JSON", "");
     }
 
     // Per-folder sizes for Clean Memory (SD card unzip subfolders), JSON: path ->
     // size in bytes
     public static void setStorageSDCardFolderSizesJson(String value) {
-        prefs.edit().putString("STORAGE_SDCARD_FOLDER_SIZES_JSON", value != null ? value : "").apply();
+        deviceSpecific.edit().putString("STORAGE_SDCARD_FOLDER_SIZES_JSON", value != null ? value : "").apply();
     }
 
     public static String getStorageSDCardFolderSizesJson() {
-        return prefs.getString("STORAGE_SDCARD_FOLDER_SIZES_JSON", "");
+        return deviceSpecific.getString("STORAGE_SDCARD_FOLDER_SIZES_JSON", "");
     }
 
     /////////////////// SEARCH HISTORY ///////////////////
