@@ -113,6 +113,10 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
             myToast(getString(com.driot.bookplayer.R.string.app_reset_done));
         });
 
+        root.findViewById(R.id.btn_import_export).setOnClickListener(v -> {
+            startActivity(new Intent(requireContext(), ImportExportActivity.class));
+        });
+
         return root;
     }
 

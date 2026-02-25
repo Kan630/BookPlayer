@@ -115,6 +115,10 @@
             android:enabled="true">
         </activity>
 
+        <activity android:name=".settings.ui.ImportExportActivity"
+            android:label="Import / Export Settings"
+            android:exported="false" />
+
 
         <activity android:name=".radio.RadioResultsActivity" />
         <activity android:name=".radio.RadioFavoritesActivity" />

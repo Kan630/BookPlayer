@@ -3,6 +3,7 @@ package com.driot.bookplayer.db;
 import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 import androidx.room.Update;
 
@@ -37,7 +38,6 @@ public interface PodcastDao {
     @Query("SELECT * FROM Podcast WHERE autoDownload = 1")
     List<Podcast> getAutoDownloads();
 
-
     @Query("DELETE FROM Podcast WHERE feedId = :id")
     void deleteByFeedId(long id);
 
@@ -65,4 +65,9 @@ public interface PodcastDao {
     @Query("SELECT COUNT(*) FROM Podcast WHERE autoDownload = 1")
     int getNbAutoDownload();
 
+    @Query("SELECT * FROM Podcast")
+    List<Podcast> getAll();
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    void insertAll(List<Podcast> podcasts);
 }

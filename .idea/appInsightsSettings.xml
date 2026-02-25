@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="AppInsightsSettings">
-    <option name="selectedTabId" value="Firebase Crashlytics" />
+    <option name="selectedTabId" value="Android vitals" />
     <option name="tabSettings">
       <map>
         <entry key="Android Vitals">
@@ -37,10 +37,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.driot.bookplayerfull.debug" />
-                  <option name="mobileSdkAppId" value="1:20732844117:android:5aa5bad071a9d72f735cdc" />
-                  <option name="projectId" value="bookplayer-debug" />
-                  <option name="projectNumber" value="20732844117" />
+                  <option name="appId" value="com.driot.bookplayerfull" />
+                  <option name="mobileSdkAppId" value="1:793974976163:android:cf82c8359b2db6ccbe1916" />
+                  <option name="projectId" value="bookplayer-bc6cd" />
+                  <option name="projectNumber" value="793974976163" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
