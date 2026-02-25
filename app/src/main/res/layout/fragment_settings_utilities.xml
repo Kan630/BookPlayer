@@ -100,6 +100,8 @@
                 style="@style/OptionTitle"
                 android:text="Backup / Restore"
                 android:layout_marginBottom="15dp" />
+            <TextView
+                style="@style/betatest"/>
 
             <Button
                 style="@style/GetResourceButton"

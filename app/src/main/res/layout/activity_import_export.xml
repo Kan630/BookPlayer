@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="32dp"
-            android:text="Backup / Restore"
+            android:text="@string/import_export_title"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
             android:textStyle="bold" />
 
@@ -24,7 +24,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            android:text="Manage your library data." />
+            android:text="@string/import_export_desc" />
 
         <!-- Restore Step 1 -->
         <LinearLayout
@@ -41,7 +41,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="8dp"
                 android:padding="12dp"
-                android:text="1a. Receive from Nearby Device (Live)"
+                android:text="@string/import_export_receive_live"
                 app:icon="@drawable/ic_connect_without_contact_24px" />
 
             <com.google.android.material.button.MaterialButton
@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
                 android:padding="12dp"
-                android:text="1b. Pick Backup File"
+                android:text="@string/import_export_pick_file"
                 app:icon="@android:drawable/ic_menu_search" />
         </LinearLayout>
 
@@ -75,7 +75,7 @@
                 android:id="@+id/tv_options_prompt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Select data to include:"
+                android:text="@string/import_export_select_data"
                 android:textAppearance="@style/TextAppearance.MaterialComponents.Subtitle2"
                 android:layout_marginBottom="8dp" />
 
@@ -83,28 +83,28 @@
                 android:id="@+id/cb_include_preferences"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="App Preferences"
+                android:text="@string/import_export_include_prefs"
                 android:checked="true" />
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/cb_include_radios"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Radio Stations"
+                android:text="@string/import_export_include_radios"
                 android:checked="true" />
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/cb_include_podcasts"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Podcasts"
+                android:text="@string/import_export_include_podcasts"
                 android:checked="true" />
 
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/cb_include_librivox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Librivox Favorites"
+                android:text="@string/import_export_include_librivox"
                 android:checked="true"
                 android:layout_marginBottom="16dp" />
 
@@ -117,7 +117,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:padding="12dp"
-            android:text="Send to Nearby Device (Live)"
+            android:text="@string/import_export_share_live"
             android:visibility="gone"
             app:icon="@drawable/ic_connect_without_contact_24px" />
 
@@ -128,7 +128,7 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
             android:padding="12dp"
-            android:text="Share Backup File"
+            android:text="@string/import_export_share_file"
             android:visibility="gone"
             app:icon="@drawable/ic_share_24px" />
 
@@ -151,7 +151,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Note: Proceed with caution."
+            android:text="@string/import_export_restore_footer"
             android:textAppearance="@style/TextAppearance.MaterialComponents.Caption"
             android:visibility="gone" />
 

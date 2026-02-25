@@ -111,13 +111,12 @@ public class ImportExportActivity extends BaseActivity {
         TextView tvFooter = findViewById(R.id.tv_footer_note);
 
         if (mode == MODE_BACKUP) {
-            tvTitle.setText("Backup");
-            tvDesc.setText(
-                    "Note: This backup excludes local audiobooks. To save them, use the share or export option on individual book info pages.");
+            tvTitle.setText(getString(R.string.import_export_btn_backup));
+            tvDesc.setText(getString(R.string.import_export_backup_note));
             tvDesc.setTypeface(null, Typeface.ITALIC);
             btnPick.setVisibility(View.GONE);
             optionsContainer.setVisibility(View.VISIBLE);
-            btnAction.setText("Save to Backup File");
+            btnAction.setText(getString(R.string.import_export_btn_backup));
             btnAction.setIconResource(R.drawable.ic_download_action_24);
             btnAction.setOnClickListener(v -> {
                 myLogI("--- user clicks CREATE BACKUP FILE ---");
@@ -132,7 +131,7 @@ public class ImportExportActivity extends BaseActivity {
             });
             tvFooter.setVisibility(View.GONE);
         } else {
-            tvTitle.setText("Restore");
+            tvTitle.setText(getString(R.string.import_export_btn_restore));
             tvDesc.setVisibility(View.GONE);
             btnPick.setVisibility(View.VISIBLE);
             btnPick.setOnClickListener(v -> {
@@ -146,7 +145,7 @@ public class ImportExportActivity extends BaseActivity {
                 startRestoreFlow();
             });
             tvFooter.setVisibility(View.VISIBLE);
-            tvFooter.setText("Note: Restoration will overwrite existing.");
+            tvFooter.setText(getString(R.string.import_export_restore_footer));
 
             findViewById(R.id.ll_restore_step1).setVisibility(View.VISIBLE);
             findViewById(R.id.btn_receive_live).setOnClickListener(v -> {
@@ -188,7 +187,9 @@ public class ImportExportActivity extends BaseActivity {
             } catch (Exception e) {
                 myLogEE(e, "Failed to prepare live backup");
                 runOnUiThread(() -> Toast
-                        .makeText(this, "Failed to prepare backup: " + e.getMessage(), Toast.LENGTH_LONG).show());
+                        .makeText(this, getString(R.string.import_export_failed_prepare, e.getMessage()),
+                                Toast.LENGTH_LONG)
+                        .show());
             }
         });
     }
@@ -219,7 +220,8 @@ public class ImportExportActivity extends BaseActivity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error reading file: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.import_export_error_reading, e.getMessage()), Toast.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -234,11 +236,12 @@ public class ImportExportActivity extends BaseActivity {
                 this.liveBackupJson = json;
                 updateRestoreOptions(data);
             } else {
-                Toast.makeText(this, "Invalid backup data", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.import_export_invalid_data), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Error parsing backup: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.import_export_error_parsing, e.getMessage()), Toast.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -255,14 +258,15 @@ public class ImportExportActivity extends BaseActivity {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM dd, yyyy HH:mm", Locale.getDefault());
             dateStr = sdf.format(new Date(data.timestamp));
         }
-        tvInfo.setText("Backup Content from: " + dateStr);
+        tvInfo.setText(getString(R.string.import_export_backup_content_from, dateStr));
 
         findViewById(R.id.ll_options_container).setVisibility(View.VISIBLE);
         MaterialButton btnAction = findViewById(R.id.btn_action);
         btnAction.setVisibility(View.VISIBLE);
-        btnAction.setText("Proceed with Restoration");
+        btnAction.setText(getString(R.string.import_export_btn_restore));
         btnAction.setIconResource(R.drawable.ic_check_24px);
-        ((TextView) findViewById(R.id.tv_options_prompt)).setText("Select data to restore:");
+        ((TextView) findViewById(R.id.tv_options_prompt))
+                .setText(getString(R.string.import_export_select_data_restore));
 
         MaterialCheckBox cbPrefs = findViewById(R.id.cb_include_preferences);
         MaterialCheckBox cbRadios = findViewById(R.id.cb_include_radios);
@@ -295,7 +299,8 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, "Please select at least one item to export", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.import_export_select_at_least_one, "export"), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
@@ -316,16 +321,17 @@ public class ImportExportActivity extends BaseActivity {
         boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
-            Toast.makeText(this, "Please select at least one item to restore", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, getString(R.string.import_export_select_at_least_one, "restore"), Toast.LENGTH_SHORT)
+                    .show();
             return;
         }
 
         myLogI("--- user clicks RESTORE library (waiting for confirmation) ---");
         Intent intent = MsgBoxActivity.buildQuestion(this,
-                "Caution: Overwrite Library?",
-                "This action will replace items and settings with the selected data from the backup file. All current data for selected items will be PERMANENTLY DELETED.",
-                "Proceed with caution!",
-                "RESTORE NOW", "CANCEL");
+                getString(R.string.import_export_caution_title),
+                getString(R.string.import_export_caution_desc),
+                getString(R.string.import_export_caution_footer),
+                getString(R.string.import_export_caution_positive), getString(R.string.import_export_caution_negative));
         confirmationLauncher.launch(intent);
     }
 
@@ -348,8 +354,9 @@ public class ImportExportActivity extends BaseActivity {
                 executeRestoreFromJson(json, prefs, radios, podcasts, librivox);
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Failed to restore backup: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            myLogEE(e, "Failed to restore backup from file");
+            Toast.makeText(this, getString(R.string.import_export_failed_restore, e.getMessage()), Toast.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -357,13 +364,12 @@ public class ImportExportActivity extends BaseActivity {
             boolean librivox) {
         try {
             backupManager.importFromJson(json, prefs, radios, podcasts, librivox);
-            Toast.makeText(this,
-                    "Restoration complete. Please restart the app if settings don't apply immediately.",
-                    Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.import_export_restore_complete), Toast.LENGTH_LONG).show();
             finish();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "Failed during import: " + e.getMessage(), Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.import_export_failed_import, e.getMessage()), Toast.LENGTH_LONG)
+                    .show();
         }
     }
 
@@ -376,14 +382,17 @@ public class ImportExportActivity extends BaseActivity {
                         myLog("Backup saved to " + uri.toString());
                         outputStream.write(json.getBytes(StandardCharsets.UTF_8));
                         runOnUiThread(() -> {
-                            Toast.makeText(this, "Backup saved successfully", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, getString(R.string.import_export_backup_saved), Toast.LENGTH_SHORT)
+                                    .show();
                             finish();
                         });
                     }
                 }
             } catch (Exception e) {
                 myLogEE(e, "Failed to save backup to file");
-                runOnUiThread(() -> Toast.makeText(this, "Failed to save backup: " + e.getMessage(), Toast.LENGTH_LONG)
+                runOnUiThread(() -> Toast
+                        .makeText(this, getString(R.string.import_export_failed_prepare, e.getMessage()),
+                                Toast.LENGTH_LONG)
                         .show());
             }
         });
@@ -416,14 +425,15 @@ public class ImportExportActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setType("application/json");
-                    intent.putExtra(Intent.EXTRA_STREAM, uri);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                    startActivity(Intent.createChooser(intent, "Share Backup File"));
+                    startActivity(Intent.createChooser(intent, getString(R.string.import_export_share_file)));
                 });
             } catch (Exception e) {
                 myLogEE(e, "Failed to share backup file");
                 runOnUiThread(
-                        () -> Toast.makeText(this, "Failed to prepare share: " + e.getMessage(), Toast.LENGTH_LONG)
+                        () -> Toast
+                                .makeText(this, getString(R.string.import_export_failed_share, e.getMessage()),
+                                        Toast.LENGTH_LONG)
                                 .show());
             }
         });

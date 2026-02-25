@@ -89,15 +89,13 @@ public class BackupShareActivity extends BaseActivity {
 
     private void setupUI() {
         if (mode == MODE_SEND) {
-            tvTitle.setText("Send to Nearby Device");
-            tvExplain.setText(
-                    "Tap the button to make this device visible and send your backup data.\n\nOn the other device, go to Settings > Utilities > Restore and click 'Receive from Nearby Device (Live)'.");
-            btnAction.setText("Start Sending");
+            tvTitle.setText(getString(R.string.backup_share_send_title));
+            tvExplain.setText(getString(R.string.backup_share_send_explain));
+            btnAction.setText(getString(R.string.backup_share_send_btn));
         } else {
-            tvTitle.setText("Receive from Nearby Device");
-            tvExplain.setText(
-                    "Tap the button to look for nearby devices and restore your backup.\n\nOn the other device, go to Settings > Utilities > Backup and click 'Send to Nearby Device (Live)'.");
-            btnAction.setText("Start Receiving");
+            tvTitle.setText(getString(R.string.backup_share_receive_title));
+            tvExplain.setText(getString(R.string.backup_share_receive_explain));
+            btnAction.setText(getString(R.string.backup_share_receive_btn));
         }
     }
 
@@ -149,21 +147,21 @@ public class BackupShareActivity extends BaseActivity {
             if (all)
                 startNearby();
             else
-                Toast.makeText(this, "Permissions required for Live Share", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.backup_share_permissions_required), Toast.LENGTH_SHORT).show();
         }
     }
 
     private void startNearby() {
         isActive = true;
-        btnAction.setText("Stop");
-        tvStatus.setText("Starting...");
+        btnAction.setText(getString(R.string.backup_share_btn_stop));
+        tvStatus.setText(getString(R.string.backup_share_starting));
         String deviceName = getDeviceName();
 
         if (mode == MODE_SEND) {
             nearbyHelper.startAdvertising(deviceName, new NearbyConnectionsHelper.AdvertisingCallback() {
                 @Override
                 public void onAdvertisingStarted() {
-                    runOnUiThread(() -> tvStatus.setText("Device is ready as: " + deviceName));
+                    runOnUiThread(() -> tvStatus.setText(getString(R.string.backup_share_ready_as, deviceName)));
                 }
 
                 @Override
@@ -175,9 +173,9 @@ public class BackupShareActivity extends BaseActivity {
                 public void onConnectionEstablished(String id) {
                     connectedEndpointId = id;
                     runOnUiThread(() -> {
-                        tvStatus.setText("Connected to " + id);
+                        tvStatus.setText(getString(R.string.backup_share_connected_to, id));
                         tvConnected.setVisibility(View.VISIBLE);
-                        tvConnected.setText("Sending backup data...");
+                        tvConnected.setText(getString(R.string.backup_share_sending));
                         nearbyHelper.sendControlMessage(id, MSG_TYPE_BACKUP, backupJson);
                     });
                 }
@@ -191,7 +189,7 @@ public class BackupShareActivity extends BaseActivity {
             nearbyHelper.startDiscovery(new NearbyConnectionsHelper.DiscoveryCallback() {
                 @Override
                 public void onDiscoveryStarted() {
-                    runOnUiThread(() -> tvStatus.setText("Looking for nearby devices..."));
+                    runOnUiThread(() -> tvStatus.setText(getString(R.string.backup_share_looking)));
                 }
 
                 @Override
@@ -212,9 +210,9 @@ public class BackupShareActivity extends BaseActivity {
                 public void onConnectionEstablished(String id) {
                     connectedEndpointId = id;
                     runOnUiThread(() -> {
-                        tvStatus.setText("Connected");
+                        tvStatus.setText(getString(R.string.backup_share_connected));
                         tvConnected.setVisibility(View.VISIBLE);
-                        tvConnected.setText("Waiting for backup data...");
+                        tvConnected.setText(getString(R.string.backup_share_waiting));
                     });
                 }
 
@@ -231,7 +229,7 @@ public class BackupShareActivity extends BaseActivity {
         nearbyHelper.cleanup();
         runOnUiThread(() -> {
             setupUI();
-            tvStatus.setText("Ready");
+            tvStatus.setText(getString(R.string.backup_share_ready));
             tvConnected.setVisibility(View.GONE);
         });
     }
@@ -242,7 +240,8 @@ public class BackupShareActivity extends BaseActivity {
             public void onPayloadSent(long id) {
                 if (mode == MODE_SEND) {
                     runOnUiThread(() -> {
-                        Toast.makeText(BackupShareActivity.this, "Backup sent!", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(BackupShareActivity.this, getString(R.string.backup_share_sent),
+                                Toast.LENGTH_SHORT).show();
                         finish();
                     });
                 }
