@@ -48,7 +48,7 @@
             android:layout_marginBottom="16dp"
             android:padding="12dp"
             android:text="1b. Receive from Device (Live)"
-            app:icon="@android:drawable/ic_menu_share" />
+            app:icon="@drawable/ic_connect_without_contact_24px" />
     </LinearLayout>
 
     <TextView
@@ -117,12 +117,23 @@
 
     <com.google.android.material.button.MaterialButton
         android:id="@+id/btn_share_live"
-        style="@style/Widget.MaterialComponents.Button"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:padding="12dp"
+        android:text="Share Backup Live"
+        android:visibility="gone"
+        app:icon="@drawable/ic_connect_without_contact_24px" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_share_file"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="16dp"
         android:padding="12dp"
-        android:text="Share Backup Live"
+        android:text="Share Backup File"
         android:visibility="gone"
         app:icon="@android:drawable/ic_menu_share" />
 

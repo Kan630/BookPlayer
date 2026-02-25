@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
+import androidx.core.content.FileProvider;
 
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -23,6 +24,8 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -112,8 +115,18 @@ public class ImportExportActivity extends BaseActivity {
             btnPick.setVisibility(View.GONE);
             optionsContainer.setVisibility(View.VISIBLE);
             btnAction.setText("Create Backup File");
-            btnAction.setOnClickListener(v -> startExportFlow());
+            btnAction.setIconResource(R.drawable.ic_download_action_24);
+            btnAction.setOnClickListener(v -> {
+                myLogI("--- user clicks CREATE BACKUP FILE ---");
+                startExportFlow();
+            });
             findViewById(R.id.btn_share_live).setVisibility(View.VISIBLE);
+            View btnShareFile = findViewById(R.id.btn_share_file);
+            btnShareFile.setVisibility(View.VISIBLE);
+            btnShareFile.setOnClickListener(v -> {
+                myLogI("--- user clicks SHARE BACKUP FILE (External) ---");
+                startFileShare();
+            });
             tvFooter.setVisibility(View.GONE);
         } else {
             tvTitle.setText("Restore Library");
@@ -245,6 +258,7 @@ public class ImportExportActivity extends BaseActivity {
         MaterialButton btnAction = findViewById(R.id.btn_action);
         btnAction.setVisibility(View.VISIBLE);
         btnAction.setText("Proceed with Restoration");
+        btnAction.setIconResource(R.drawable.ic_check_24px);
         ((TextView) findViewById(R.id.tv_options_prompt)).setText("Select data to restore:");
 
         MaterialCheckBox cbPrefs = findViewById(R.id.cb_include_preferences);
@@ -365,9 +379,49 @@ public class ImportExportActivity extends BaseActivity {
                     }
                 }
             } catch (Exception e) {
-                e.printStackTrace();
+                myLogEE(e, "Failed to save backup to file");
                 runOnUiThread(() -> Toast.makeText(this, "Failed to save backup: " + e.getMessage(), Toast.LENGTH_LONG)
                         .show());
+            }
+        });
+    }
+
+    private void startFileShare() {
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
+        boolean radios = ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
+        boolean podcasts = ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
+        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+
+        if (!prefs && !radios && !podcasts && !librivox) {
+            Toast.makeText(this, "Please select at least one item to share", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            try {
+                String json = backupManager.exportToJson(prefs, radios, podcasts, librivox);
+                File cacheDir = new File(getCacheDir(), "backups");
+                if (!cacheDir.exists())
+                    cacheDir.mkdirs();
+                File file = new File(cacheDir, "bookplayer_backup_" + Tonio.getCurrentDateTimeString() + ".json");
+                try (FileOutputStream out = new FileOutputStream(file)) {
+                    out.write(json.getBytes(StandardCharsets.UTF_8));
+                }
+
+                Uri uri = FileProvider.getUriForFile(this, getPackageName() + ".FileProvider", file);
+
+                runOnUiThread(() -> {
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setType("application/json");
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
+                    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                    startActivity(Intent.createChooser(intent, "Share Backup File"));
+                });
+            } catch (Exception e) {
+                myLogEE(e, "Failed to share backup file");
+                runOnUiThread(
+                        () -> Toast.makeText(this, "Failed to prepare share: " + e.getMessage(), Toast.LENGTH_LONG)
+                                .show());
             }
         });
     }
