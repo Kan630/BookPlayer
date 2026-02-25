@@ -11,8 +11,8 @@
       "type": "SINGLE",
       "filters": [],
       "attributes": [],
-      "versionCode": 260,
-      "versionName": "260 - Eclipse Meerkat",
+      "versionCode": 265,
+      "versionName": "265 - Eclipse Meerkat",
       "outputFile": "app-release.apk"
     }
   ],
