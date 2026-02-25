@@ -114,7 +114,7 @@ public class ImportExportActivity extends BaseActivity {
             tvDesc.setText("Save your library and preferences to a backup file.");
             btnPick.setVisibility(View.GONE);
             optionsContainer.setVisibility(View.VISIBLE);
-            btnAction.setText("Create Backup File");
+            btnAction.setText("Save to Backup File");
             btnAction.setIconResource(R.drawable.ic_download_action_24);
             btnAction.setOnClickListener(v -> {
                 myLogI("--- user clicks CREATE BACKUP FILE ---");
