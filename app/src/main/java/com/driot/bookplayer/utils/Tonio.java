@@ -266,6 +266,42 @@ public class Tonio {
         return s;
     }
 
+    /**
+     * librivox and other audiobooks often have better titles in metadata than file
+     * names.
+     * but sometimes it's the opposite (metadata is just "1" or same as filename).
+     */
+    public static boolean isBetterTitle(@Nullable String metaTitle, @Nullable String filenameDisplay) {
+        if (metaTitle == null || metaTitle.trim().isEmpty())
+            return false;
+        if (filenameDisplay == null || filenameDisplay.trim().isEmpty())
+            return true;
+
+        String m = metaTitle.trim();
+        String f = filenameDisplay.trim();
+
+        // if they are the same (ignoring case/extension), metadata isn't "better"
+        if (m.equalsIgnoreCase(f))
+            return false;
+
+        // if metadata is just a number, it's probably not better than a filename like
+        // "Chapter 1"
+        if (m.matches("\\d+"))
+            return false;
+
+        // if metadata is significantly longer or contains more spaces/info, it might be
+        // better
+        // e.g. "Chapter 1: The Beginning" vs "01_chap1"
+        if (m.length() > f.length() + 3)
+            return true;
+
+        // if filename contains underscores/digits and metadata looks like plain English
+        if (f.contains("_") && !m.contains("_") && m.length() > 3)
+            return true;
+
+        return false;
+    }
+
     public static String formatDateForDisplay(long timestamp) {
         Date date = new Date(timestamp);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.US); // any local would work, just digits
@@ -361,7 +397,8 @@ public class Tonio {
             myLogE("getSourceLocation - empty uri");
             return "xxx";
         }
-        // myLogD("getSourceLocation - uri = [" + uri + "] - Authority = " + uri.getAuthority());
+        // myLogD("getSourceLocation - uri = [" + uri + "] - Authority = " +
+        // uri.getAuthority());
         if (!Objects.isNull(uri) && !Objects.isNull(uri.getAuthority())) {
             String uriAuthority = uri.getAuthority();
             Set<String> cloudAuthorities = new HashSet<>();

@@ -216,11 +216,13 @@ public class FinalParseFolderWorker extends ImportWorker {
         boolean hasMediaLevel1 = false;
 
         for (DocumentFile sub : files) {
-            if (!sub.isDirectory()) continue;
+            if (!sub.isDirectory())
+                continue;
 
             DocumentFile[] subFiles = sub.listFiles();
             for (DocumentFile f : subFiles) {
-                if (f.isDirectory()) continue;
+                if (f.isDirectory())
+                    continue;
 
                 if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
                     hasMediaLevel1 = true;
@@ -233,7 +235,8 @@ public class FinalParseFolderWorker extends ImportWorker {
                 }
             }
 
-            if (hasMediaLevel1) break;
+            if (hasMediaLevel1)
+                break;
         }
 
         if (hasMediaLevel1) {
@@ -244,17 +247,19 @@ public class FinalParseFolderWorker extends ImportWorker {
         boolean hasMediaLevel2 = false;
         int nbTextLevel2 = 0;
 
-        outer:
-        for (DocumentFile sub1 : files) {
-            if (!sub1.isDirectory()) continue;
+        outer: for (DocumentFile sub1 : files) {
+            if (!sub1.isDirectory())
+                continue;
 
             DocumentFile[] sub1Files = sub1.listFiles();
             for (DocumentFile sub2 : sub1Files) {
-                if (!sub2.isDirectory()) continue;
+                if (!sub2.isDirectory())
+                    continue;
 
                 DocumentFile[] sub2Files = sub2.listFiles();
                 for (DocumentFile f : sub2Files) {
-                    if (f.isDirectory()) continue;
+                    if (f.isDirectory())
+                        continue;
 
                     if (SupportedFilesHelper.isAudio(f) || SupportedFilesHelper.isVideo(f)) {
                         hasMediaLevel2 = true;
@@ -699,7 +704,17 @@ public class FinalParseFolderWorker extends ImportWorker {
     private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
         ZikFile file = new ZikFile();
         file.setName(info.getDisplayPath());
-        file.setDisplayName(formatNameForDisplay(info.getDisplayPath()));
+
+        String filenameDisplay = formatNameForDisplay(info.getDisplayPath());
+        String metaTitle = (info.getMeta() != null) ? info.getMeta().get(AudioInfo.K_TITLE) : null;
+
+        if (Tonio.isBetterTitle(metaTitle, filenameDisplay)) {
+            myLogD("Using metadata title: [" + metaTitle + "] instead of [" + filenameDisplay + "]");
+            file.setDisplayName(metaTitle.trim());
+        } else {
+            file.setDisplayName(filenameDisplay);
+        }
+
         file.setIdFolder(folderId);
         file.setZeorder(zeOrder);
         file.setFolderName(importJob.title);
