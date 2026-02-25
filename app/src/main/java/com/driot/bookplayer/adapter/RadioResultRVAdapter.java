@@ -135,7 +135,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     static class ItemVH extends RecyclerView.ViewHolder {
         ImageView favicon, ivDefaultIcon;
-        TextView title, info, codec, bitrate;
+        TextView title, info;
         ImageButton ibFavorite;
 
         ItemVH(@NonNull View itemView) {
@@ -198,10 +198,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             // Sub-info: country • language • tags
             holder.info.setText((s.country != null ? s.country
                     : (s.language != null ? s.language : (s.tags != null ? normalizeTags(s.tags) : ""))));
-
-            // Codec / bitrate
-            holder.codec.setVisibility(View.GONE);
-            holder.bitrate.setVisibility(View.GONE);
 
             // Favicon
             holder.favicon.setTag(s.stationuuid);
