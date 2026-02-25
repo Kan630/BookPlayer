@@ -75,6 +75,7 @@ public class ImportExportActivity extends BaseActivity {
                 String json = backupManager.exportToJson();
                 try (OutputStream outputStream = getContentResolver().openOutputStream(uri)) {
                     if (outputStream != null) {
+                        myLog("Backup saved to " + uri.toString());
                         outputStream.write(json.getBytes(StandardCharsets.UTF_8));
                         runOnUiThread(
                                 () -> Toast.makeText(this, "Backup saved successfully", Toast.LENGTH_SHORT).show());

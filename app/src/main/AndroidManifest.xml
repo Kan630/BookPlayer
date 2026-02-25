@@ -116,7 +116,7 @@
         </activity>
 
         <activity android:name=".settings.ui.ImportExportActivity"
-            android:label="Import / Export Settings"
+            android:label="Import / Export"
             android:exported="false" />
 
 
