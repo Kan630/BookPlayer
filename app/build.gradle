@@ -33,7 +33,7 @@ android {
             full {
                 applicationId = "com.driot.bookplayerfull"
                 dimension = "version"
-                resValue "string", "app_name", "BookPlayer Full"
+                resValue "string", "app_name", "BookPlayer"
             }
             pure {
                 applicationId = "com.driot.bookplayerpure"
