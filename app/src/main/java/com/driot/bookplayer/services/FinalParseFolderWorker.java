@@ -134,16 +134,7 @@ public class FinalParseFolderWorker extends ImportWorker {
                             context.getString(R.string.Error_Import_CannotReadFile));
                     return Result.failure();
                 }
-                /*
-                 * try {
-                 * // the temp image is updated at the end.. ImageHelper.finalizeTempFolderImage
-                 * MyAudioMetadata metadata = AudioMetadataHelper.extractMetadata(context,
-                 * importJob.Uri.parse(importJob.dynamicUri));
-                 * 
-                 * } catch (Throwable t) {
-                 * myLogEE(t, "Error parsing metadata");
-                 * }
-                 */
+
                 populateArrayListOfTracksFromFile(df);
 
             }
