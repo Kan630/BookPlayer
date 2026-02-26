@@ -125,10 +125,18 @@ public class LibrivoxBookSourceRVAdapter extends RecyclerView.Adapter<RecyclerVi
         File idBasedFile = ImageHelper.getLibrivoxImageFile(context, item.repoId);
         if (idBasedFile.exists()) {
             Glide.with(context).load(idBasedFile).placeholder(R.drawable.placeholder_cover).into(imageView);
-            // Update BookSource if imageLocal is missing
+            // Update BookSource if imageLocal or imageRemote is missing
             new Thread(() -> {
+                boolean updated = false;
                 if (item.imageLocal == null || item.imageLocal.isEmpty()) {
                     item.imageLocal = idBasedFile.getAbsolutePath();
+                    updated = true;
+                }
+                if (item.imageRemote == null || item.imageRemote.isEmpty()) {
+                    item.imageRemote = "https://archive.org/services/img/" + item.repoId;
+                    updated = true;
+                }
+                if (updated) {
                     AppDatabase.getDatabase(context).bookSourceDao().update(item);
                 }
             }).start();
