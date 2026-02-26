@@ -7,6 +7,7 @@ import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.BackupManager;import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
@@ -61,5 +62,8 @@ public class PodcastHelper {
         myLog("stub!");
     }
 
+    public static boolean backupDataHasPodcasts(BackupManager.BackupData data) {
+        return false;
+    }
 
 }

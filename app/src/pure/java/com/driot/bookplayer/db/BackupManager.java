@@ -1,10 +1,8 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.db;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.google.gson.Gson;
@@ -28,9 +26,6 @@ public class BackupManager {
     public static class BackupData {
         public long timestamp;
         public Map<String, Map<String, ?>> preferences = new HashMap<>();
-        public List<RadioStation> radioStations = new ArrayList<>();
-        public List<Podcast> podcasts = new ArrayList<>();
-        public List<Episode> episodes = new ArrayList<>();
         public List<BookSource> bookSources = new ArrayList<>();
     }
 
@@ -54,13 +49,6 @@ public class BackupManager {
 
         // Database
         AppDatabase db = AppDatabase.getDatabase(context);
-        if (includeRadios) {
-            data.radioStations = db.radioStationDao().getAll();
-        }
-        if (includePodcasts) {
-            data.podcasts = db.podcastDao().getAll();
-            data.episodes = db.episodeDao().getAll();
-        }
         if (includeLibrivox) {
             data.bookSources = db.bookSourceDao().getAll();
         }
@@ -106,18 +94,6 @@ public class BackupManager {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
             db.runInTransaction(() -> {
-                if (includeRadios && data.radioStations != null) {
-                    db.radioStationDao().deleteAll();
-                    db.radioStationDao().insertAll(data.radioStations);
-                }
-                if (includePodcasts) {
-                    if (data.podcasts != null) {
-                        db.podcastDao().insertAll(data.podcasts);
-                    }
-                    if (data.episodes != null) {
-                        db.episodeDao().insertAll(data.episodes);
-                    }
-                }
                 if (includeLibrivox && data.bookSources != null) {
                     // Important: clear local folder references if folders are not backed up
                     for (BookSource bs : data.bookSources) {

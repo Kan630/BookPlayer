@@ -6,6 +6,7 @@ import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.player.StartPlayHelper;
 
@@ -26,5 +27,10 @@ public class RadioHelper {
     public static boolean playStreamIfKnownRadio(Context context, String url) {
         return false;
     }
+
+    public static boolean backupDataHasRadios(BackupManager.BackupData data) {
+        return false;
+    }
+
 }
 

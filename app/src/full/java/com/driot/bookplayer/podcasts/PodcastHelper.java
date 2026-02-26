@@ -5,6 +5,7 @@ import static com.driot.bookplayer.helpers.FileHelper.sanitizeFilename;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Folder;
@@ -590,6 +591,11 @@ public class PodcastHelper {
         }
 ///  Podcasts AutoDelete
         PodcastHelper.checkForEpisodesToAutoDelete(context);
+    }
+
+    public static boolean backupDataHasPodcasts(BackupManager.BackupData data) {
+        return (data.podcasts != null && !data.podcasts.isEmpty())
+                || (data.episodes != null && !data.episodes.isEmpty());
     }
 
 

@@ -6,7 +6,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.graphics.Typeface;
 import androidx.core.content.FileProvider;
 
@@ -17,7 +16,9 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.MsgBoxActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.utils.BackupManager;
+import com.driot.bookplayer.db.BackupManager;
+import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.button.MaterialButton;
@@ -275,10 +276,8 @@ public class ImportExportActivity extends BaseActivity {
         MaterialCheckBox cbLibrivox = findViewById(R.id.cb_include_librivox);
 
         boolean hasPrefs = data.preferences != null && !data.preferences.isEmpty();
-        boolean hasRadios = data.radioStations != null && !data.radioStations.isEmpty();
-        boolean hasPodcasts = (data.podcasts != null && !data.podcasts.isEmpty())
-                || (data.episodes != null && !data.episodes.isEmpty());
-
+        boolean hasRadios = RadioHelper.backupDataHasRadios(data);
+        boolean hasPodcasts = PodcastHelper.backupDataHasPodcasts(data);
         boolean hasLibrivox = data.bookSources != null && !data.bookSources.isEmpty();
 
         cbPrefs.setEnabled(hasPrefs);

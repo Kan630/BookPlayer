@@ -7,6 +7,7 @@ import android.net.Uri;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.db.RadioStationDao;
 import com.driot.bookplayer.global.Intents;
@@ -138,6 +139,10 @@ public class RadioHelper {
 				return false;
 			}
 	 }
+
+    public static boolean backupDataHasRadios(BackupManager.BackupData data) {
+        return data.radioStations != null && !data.radioStations.isEmpty();
+    }
 
 
 	
