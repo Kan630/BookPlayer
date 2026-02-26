@@ -34,6 +34,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
 
     private LiveData<List<ArchiveItem>> favoritesLive;
+    private LiveData<List<BookSource>> favoriteBookSourcesLive;
     private LibrivoxRepository repository;
 
     private String lastQuery = null;
@@ -138,6 +139,15 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                     .getFavoriteLibrivoxItems(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX);
         }
         return favoritesLive;
+    }
+
+    public LiveData<List<BookSource>> getFavoriteBookSourcesLive() {
+        if (favoriteBookSourcesLive == null) {
+            AppDatabase db = AppDatabase.getDatabase(getApplication());
+            favoriteBookSourcesLive = db.bookSourceDao()
+                    .getFavoriteLibrivoxBookSourcesLive(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX);
+        }
+        return favoriteBookSourcesLive;
     }
 
     // ============================================================

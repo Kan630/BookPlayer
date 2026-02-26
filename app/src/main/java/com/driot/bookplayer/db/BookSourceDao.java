@@ -104,6 +104,16 @@ public interface BookSourceDao {
             @Nullable String imageLocal, @Nullable String imageRemote,
             long sourceSize, long now);
 
+    @Query("""
+                SELECT *
+                FROM BookSource
+                WHERE repoType = :repoType
+                  AND repoName = :repoName
+                  AND (is_favorite = 1 OR idFolder IS NOT NULL)
+                ORDER BY date_maj DESC
+            """)
+    LiveData<List<BookSource>> getFavoriteLibrivoxBookSourcesLive(String repoType, String repoName);
+
     // Default method wrapper (Java 8 interface default)
     @Transaction
     default void markImported(String repoType, String repoName, String repoId,

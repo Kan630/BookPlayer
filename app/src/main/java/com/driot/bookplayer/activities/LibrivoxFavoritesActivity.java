@@ -11,7 +11,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.adapter.LibrivoxFavoritesRVAdapter;
+import com.driot.bookplayer.adapter.LibrivoxBookSourceRVAdapter;
+import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -27,11 +28,22 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
     private LibrivoxResultsViewModel viewModel;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private LibrivoxFavoritesRVAdapter adapter;
+    private LibrivoxBookSourceRVAdapter adapter;
 
-    @Override protected int getNavId() { return R.id.nav_library; }
-    @Override protected int getLayoutResId() { return R.layout.activity_librivox_results; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_library;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_librivox_results;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -44,32 +56,42 @@ public class LibrivoxFavoritesActivity extends BaseBottomNavActivity {
         int span = getResources().getInteger(R.integer.classic_grid_span);
         recyclerView.setLayoutManager(new GridLayoutManager(this, span));
         recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER))
-        );
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         viewModel = new ViewModelProvider(this).get(LibrivoxResultsViewModel.class);
 
-        adapter = new LibrivoxFavoritesRVAdapter(new LibrivoxFavoritesRVAdapter.OnItemClickListener() {
-            @Override public void onItemClick(ArchiveItem item) {
-                myLogI("--- user clicks favorite item ----   id = [" + item.identifier + "] - title = [" + item.title + "]");
+        adapter = new LibrivoxBookSourceRVAdapter(new LibrivoxBookSourceRVAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(BookSource item) {
+                myLogI("--- user clicks favorite item ----   id = [" + item.repoId + "] - title = [" + item.book_title
+                        + "]");
                 Intent intent = new Intent(LibrivoxFavoritesActivity.this, LibrivoxDetailActivity.class);
-                intent.putExtra("identifier", item.identifier);
-                intent.putExtra("title", item.title);
+                intent.putExtra("identifier", item.repoId);
+                intent.putExtra("title", item.book_title);
                 startActivity(intent);
             }
 
-            @Override public void onFavoriteClick(ArchiveItem item) {
-                myLogI("------- user clicks favorite ------   for [" + item.identifier + "]");
-                viewModel.toggleFavorite(item);
+            @Override
+            public void onFavoriteClick(BookSource item) {
+                myLogI("------- user clicks favorite ------   for [" + item.repoId + "]");
+                // We need to map back to ArchiveItem for toggleFavorite if it only accepts
+                // ArchiveItem
+                // Or better: update toggleFavorite to handle BookSource or use repoId
+                // For now, let's create a minimal ArchiveItem as toggleFavorite expects it
+                ArchiveItem ai = new ArchiveItem();
+                ai.identifier = item.repoId;
+                ai.title = item.book_title;
+                ai.is_favorite = item.is_favorite;
+                viewModel.toggleFavorite(ai);
             }
         });
         recyclerView.setAdapter(adapter);
 
         progressBar.setVisibility(View.VISIBLE);
-        viewModel.getFavoriteLibrivoxsLive().observe(this, favorites -> {
+        viewModel.getFavoriteBookSourcesLive().observe(this, favorites -> {
             progressBar.setVisibility(View.GONE);
             if (favorites == null || favorites.isEmpty()) {
-                adapter.setItems(Collections.emptyList());
+                adapter.setItems(java.util.Collections.emptyList());
             } else {
                 adapter.setItems(favorites);
             }
