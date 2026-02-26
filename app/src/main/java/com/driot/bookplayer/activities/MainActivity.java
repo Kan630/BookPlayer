@@ -48,6 +48,7 @@ import com.driot.bookplayer.utils.KanMail;
 
 import com.driot.bookplayer.player.NavHelper;
 
+import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
@@ -170,10 +171,8 @@ public class MainActivity extends BaseBottomNavActivity {
                     startActivity(new Intent(getApplicationContext(), GetActivity.class));
                 });
                 //emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-                boolean isPure = getPackageName().contains("com.driot.bookplayerpure");
-                myLog("isPure = " + isPure);
                 LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);
-                if (isPure) {
+                if (Tonio.isPure(this)) {
                     ll_welcome_item_podcasts_radio.setVisibility(View.GONE);
                 } else {
                     ll_welcome_item_podcasts_radio.setVisibility(View.VISIBLE);

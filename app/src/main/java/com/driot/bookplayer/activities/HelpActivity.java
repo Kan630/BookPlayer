@@ -9,6 +9,7 @@ import android.widget.TextView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -40,12 +41,9 @@ public class HelpActivity extends BaseActivity {
         ll.setVisibility(LinearLayout.VISIBLE);
         tv.setText(Html.fromHtml(getString(R.string.help_librivox_text), Html.FROM_HTML_MODE_LEGACY));
 
-        boolean isPure = getPackageName().contains("com.driot.bookplayerpure");
-        myLog("isPure = " + isPure);
-
         ll = findViewById(R.id.ll_help_text_podcast);
         tv = findViewById(R.id.tv_help_text_podcast);
-        if (isPure) {
+        if (Tonio.isPure(this)) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);
@@ -64,7 +62,7 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_radio);
         tv = findViewById(R.id.tv_help_text_radio);
-        if (isPure) {
+        if (Tonio.isPure(this)) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);

@@ -669,4 +669,9 @@ public class Tonio {
     public static float dpToPx(float dp, Context context) {
         return dp * context.getResources().getDisplayMetrics().density;
     }
+
+    public static boolean isPure(Context context) {
+        //pure does not have podcasts, radios, and bottomNavigation Bar
+        return context.getPackageName().contains("com.driot.bookplayerpure");
+    }
 }
