@@ -45,23 +45,6 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
         this.sourceHint = sourceHint;
         this.metadata = (metadata == null) ? new HashMap<>() : new HashMap<>(metadata);
     }
-    /*
-     * @Nullable public String getTitle() { return metadata.get(K_TITLE); }
-     * 
-     * @Nullable public String getArtist() { return metadata.get(K_ARTIST); }
-     * 
-     * @Nullable public String getAlbum() { return metadata.get(K_ALBUM); }
-     * 
-     * @Nullable public String getGenre() { return metadata.get(K_GENRE); }
-     * 
-     * @Nullable public String getYear() { return metadata.get(K_YEAR); }
-     * 
-     * @Nullable public String getTrack() { return metadata.get("track"); }
-     * 
-     * @Nullable public String getDisc() { return metadata.get("disc"); }
-     * 
-     * @Nullable public String getBitrate() { return metadata.get("bitrate"); }
-     */
 
     // ---- Parcelable ----
     protected AudioInfo(Parcel in) {
