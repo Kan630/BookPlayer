@@ -132,7 +132,7 @@
             android:launchMode="singleTop"
             />
         <activity android:name=".podcasts.PodcastFavoritesActivity"/>
-        <activity android:name=".activities.GetPodcastActivity" />
+        <activity android:name=".podcasts.GetPodcastActivity" />
         <activity android:name=".radio.GetRadioActivity"
             android:launchMode="singleTop"
             />
