@@ -245,8 +245,11 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                 bGet.setEnabled(!running && viewModel.download_link.getValue() != null
                         && !viewModel.download_link.getValue().isEmpty());
                 if (running) {
-                    tvDownloadLink
-                            .setText(tvDownloadLink.getText() + "\n❌ " + getString(R.string.please_wait_another_book));
+                    String waitMessage = "\n❌ " + getString(R.string.please_wait_another_book);
+                    String currentText = tvDownloadLink.getText().toString();
+                    if (!currentText.contains(waitMessage)) {
+                        tvDownloadLink.setText(currentText + waitMessage);
+                    }
                 }
             });
         });
