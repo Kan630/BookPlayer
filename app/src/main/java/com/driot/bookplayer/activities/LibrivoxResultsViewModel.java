@@ -442,6 +442,8 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         Var.REPO_TYPE_AUDIOBOOK,
                         Var.REPO_NAME_LIBRIVOX,
                         archiveItem.identifier,
+                        null,
+                        archiveItem.imageRemote,
                         null
                 );
                 bs.is_favorite = true;

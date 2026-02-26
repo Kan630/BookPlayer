@@ -125,7 +125,7 @@ public interface BookSourceDao {
             BookSource bs = new BookSource(
                     bookTitle != null ? bookTitle : "",
                     sourceUrl != null ? sourceUrl : "",
-                    repoType, repoName, repoId, folderId);
+                    repoType, repoName, repoId, imageLocal, imageRemote, folderId);
             bs.is_favorite = true; // new imports are favorited by default
             bs.imageLocal = imageLocal;
             bs.imageRemote = imageRemote;

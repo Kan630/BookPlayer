@@ -47,6 +47,8 @@ public class BookSource {
                       String repoType,
                       String repoName,
                       String repoId,
+                      String imageLocal,
+                      String imageRemote,
                       Long idFolder) {
         this.book_title = book_title;
         this.source_url = source_url;
@@ -54,6 +56,8 @@ public class BookSource {
         this.repoName = repoName;
         this.repoId = repoId;
         this.idFolder = idFolder;
+        this.imageRemote = imageRemote;
+        this.imageLocal = null;
         this.source_size = 0;
         this.is_favorite = false;
         this.date_add = System.currentTimeMillis();
