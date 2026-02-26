@@ -29,9 +29,9 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     /** Override to true in activities that should show the ongoing-task overlay */
     protected abstract boolean enableOngoingTaskOverlay();
 
-    /** Override to false in activities that should NOT show the bottom nav bar */
+    /** false in pure flavour */
     protected boolean displayBottomNavBar() {
-        return true;
+        return false;
     }
 
     private NavigationBarView bottomNav;
