@@ -15,22 +15,18 @@ import androidx.core.content.ContextCompat;
 import androidx.media.MediaBrowserServiceCompat;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
+import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.podcasts.DisplayableEpisode;
-import com.driot.bookplayer.radio.RadioFavoriteItem;
-import com.driot.bookplayer.radio.RadioStation;
-import com.driot.bookplayer.radio.RadioStationDao;
-import com.driot.bookplayer.radio.Station;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -49,61 +45,6 @@ public class StartPlayHelper {
     private static final int ART_MAX_PX = 512; // big artwork
     private static final int ICON_MAX_PX = 158; // was 128 158=hints fron AndroidAuto // list thumbnails
 
-    public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
-        String cover = ep.image == null || ep.image.isEmpty() ? podcast.image : ep.image;
-        playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title, cover, caller);
-    }
-
-    public static void playRadioFromUuidAndUrl(Context context, String uuid, String streamUrl, String caller) {
-        Station station = new Station();
-        station.stationuuid = uuid;
-        station.url = streamUrl;
-        station.name = "shared station";
-        onRadioClick(context, station, streamUrl, caller);
-    }
-
-    public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
-        myLogI("onRadioClick()");
-        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon, caller);
-        // update DB
-        if (s.stationuuid == null) {
-            myLogEE(null, "onRadioClick() - null uuid - caller=" + caller);
-            return;
-        }
-        final Station station = s;
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
-            RadioStation radioStation = dao.findByUuid(station.stationuuid);
-            if (radioStation == null) {
-                radioStation = RadioStation.fromStation(station, streamUrl);
-                radioStation.date_last_played = System.currentTimeMillis();
-                dao.insert(radioStation);
-            } else {
-                radioStation.url_resolved = streamUrl;
-                radioStation.date_maj = System.currentTimeMillis();
-                radioStation.date_last_played = System.currentTimeMillis();
-            }
-            AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(radioStation);
-        });
-    }
-
-    public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
-        playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name, f.favicon, caller);
-        // update DB
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
-            RadioStation radioStation = dao.findByUuid(f.stationuuid);
-            if (radioStation == null) {
-                myLogE("this should not happens, radio station should already been in Favorites");
-                // dao.insert(f)...
-            } else {
-                radioStation.url_resolved = streamUrl;
-                radioStation.date_maj = System.currentTimeMillis();
-                radioStation.date_last_played = System.currentTimeMillis();
-            }
-            AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(radioStation);
-        });
-    }
 
     public static void onFolderClick(Context context, Folder clickedFolder, String caller) {
         // DB work off main; UI nav back on main
@@ -128,11 +69,7 @@ public class StartPlayHelper {
                 if (Var.SOURCE_LOCATION_PODCAST.equals(clickedFolder.getSourceLocation())
                         && (Option.getPodcastOpenSpecificView()
                                 || (!Option.getPodcastOpenSpecificView() && zikFilesList.isEmpty()))) {
-                    Podcast p = AppDatabase.getDatabase(context).podcastDao()
-                            .getPodcastByFolderId(clickedFolder.getId());
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-                        context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p));
-                    });
+                    PodcastHelper.startPlayOpenPodcast(clickedFolder, context);
                 } else {
                     if (zikFilesList.size() > 1) {
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
@@ -603,7 +540,7 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    private static void playStream(Context context, String playMode, String streamUrl, long id, String uuid,
+    public static void playStream(Context context, String playMode, String streamUrl, long id, String uuid,
             String title, String cover, String caller) {
         stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
         PlayList.createFromStream(context, playMode, streamUrl);
@@ -620,6 +557,42 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_IMAGE_URL, cover)
                         .putExtra(Intents.EXTRA_CALLER, caller)
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
+    }
+    public static void playUndefinedStream(Context context, String url) {
+        AppDatabase.databaseReadExecutor.execute(() -> {
+            RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
+            if (rs != null) {
+                String title = rs.name;
+                String imageUrl = rs.favicon;
+                //broadcastUiState("loadAndPlay");
+                //main.post(() -> {
+                playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
+                    //if (!ok) { myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio"); }
+                //});
+                return;
+            }
+            Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
+            if (episode != null) {
+                String title = episode.title;
+                String imageUrl = episode.image;
+                // TODO => we need a position, or it will start the episode from the
+                // beggining....
+                //broadcastUiState("loadAndPlay");
+                //main.post(() -> {
+                playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
+                /*
+                    boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
+                    if (!ok) {
+                        myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
+                    }
+
+                 */
+                //});
+                return;
+            }
+            myLogEE(null, "could not retrieve stream object");
+        });
+
     }
 
     // private Helpers

@@ -27,8 +27,8 @@ import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
@@ -36,7 +36,7 @@ import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.radio.RadioStation;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.tts.TtsEngine;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.tts.TtsErrorUtils;
@@ -2490,11 +2490,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         List<ZikFile> list;
         if (isPodcast) {
-            if (newestFirst) {
-                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesDesc(folder.getId());
-            } else {
-                list = AppDatabase.getDatabase(this).zikFileDao().getPodcastZikFilesAsc(folder.getId());
-            }
+            list = PodcastHelper.getPodcastZikFiles(folder, this.getApplicationContext(), newestFirst);
         } else {
             list = AppDatabase.getDatabase(this).zikFileDao().getZikFiles(folder.getId());
         }
@@ -2566,38 +2562,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     myLogEE(null, "null url in createFromStorage");
                     return;
                 }
-                AppDatabase.databaseReadExecutor.execute(() -> {
-                    RadioStation rs = AppDatabase.getDatabase(this).radioStationDao().getFromUrl(url);
-                    if (rs != null) {
-                        String title = rs.name;
-                        String imageUrl = rs.favicon;
-                        broadcastUiState("loadAndPlay");
-                        main.post(() -> {
-                            boolean ok = playStream(Var.PLAY_MODE_RADIO, url, title, imageUrl);
-                            if (!ok) {
-                                myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio");
-                            }
-                        });
-                        return;
-                    }
-                    Episode episode = AppDatabase.getDatabase(this).episodeDao().getFromUrl(url);
-                    if (episode != null) {
-                        String title = episode.title;
-                        String imageUrl = episode.image;
-                        // TODO => we need a position, or it will start the episode from the
-                        // beggining....
-                        broadcastUiState("loadAndPlay");
-                        main.post(() -> {
-                            boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
-                            if (!ok) {
-                                myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
-                            }
-                        });
-                        return;
-                    }
-                    myLogEE(null, "could not retrieve stream object");
-                });
-
+                StartPlayHelper.playUndefinedStream(this.getApplicationContext(), url);
             } else {
                 myLogEE(null, "error wrong playMode = " + pl.getPlayMode());
             }

@@ -8,6 +8,7 @@ for your general context :
 * no ampersand : replace & with &amp;
 * use indications and meanings if any in comments on the right with //
 * if indication is like // stay below 8 chars => it means, try to find a translation that stays below 8 chars
+* dont translate line translatable=false
 
 STEP 0 - (identify modifications + additions - deletions)
 check git since commit XXXXXXXXXXXX for any change in the base english strings.xml AND the french (in res/values-b+fr/strings.xml).
@@ -18,7 +19,7 @@ for each key in MODIFIED_KEYS_IN_BASE_STRINGS_XML, check the wording in english 
 If anything looks not so nice, show me, I want to review any potential change you may propose.
 
 STEP 2 - french tranlsation and correctness
-for each key in MODIFIED_KEYS_IN_BASE_STRINGS_XML, propose a french translation if no one is found, or check correctness if a translation already exists.
+for each key in MODIFIED_KEYS_IN_BASE_STRINGS_XML, propose a french translation if no one is found and not translatable=false, or check correctness if a translation already exists.
 I want also to review, one by one, any change you will do here.
 
 STEP 3 - (fr+eng ok => others)
@@ -32,6 +33,7 @@ let's start with step 0
 
 dc112f77ea2844fa9f46f48d65d61587adce23b8
 6f5bf818c20e01449503e5d7c363ccc80d221e85
+35018d348d0e11efcba5470b9efc2d51231f859d
 
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------

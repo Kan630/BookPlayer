@@ -15,7 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;

@@ -1,5 +1,9 @@
 package com.driot.bookplayer.player;
 
+import static androidx.core.content.ContextCompat.startActivity;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogI;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogW;
+
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -22,13 +26,10 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.PodcastEpisodeActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.player.heatmaps.PlayHeatMapView;
 import com.driot.bookplayer.player.heatmaps.PlaySession;
@@ -41,6 +42,8 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.podcasts.PodcastEpisodeActivity;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.tts.TtsHighlighter;
@@ -120,7 +123,7 @@ public class PlayActivity extends BaseActivity {
     // State moved to TtsHighlighter
 
     private long podcastLastClickTime = 0;
-    private static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
+    public static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
     private boolean suppressAutoScroll = false;
     private int touchSlop;
@@ -312,16 +315,16 @@ public class PlayActivity extends BaseActivity {
                 if (Var.PLAY_MODE_TTS.equals(s.playMode)) {
                     applyTtsToggleUi(s);
                 }
-                if (Var.PLAY_MODE_BOOK.equals(s.playMode)) { // open podcast view.
-                    AppDatabase.databaseReadExecutor.execute(() -> {
-                        PodcastDao dao = AppDatabase.getDatabase(getApplicationContext()).podcastDao();
-                        Podcast podcast = dao.getPodcastByFolderId(folder.getId());
-                        if (podcast != null) {
-                            runOnUiThread(() -> {
-                                handlePodcastClick(podcast);
-                            });
-                        }
-                    });
+                if (Var.PLAY_MODE_BOOK.equals(s.playMode)) {
+                    long now = System.currentTimeMillis();
+                    if (now - podcastLastClickTime > PlayActivity.PODCAST_DOUBLE_CLICK_THRESHOLD) {
+                        myLogI("user clicks podcast");
+                        PodcastHelper.openPodcastEpisodeActivityFromActivity(folder, PlayActivity.this);
+                    } else {
+                        myLogW("user clicks podcast - bypassing" + now + "-" + podcastLastClickTime);
+                    }
+                    podcastLastClickTime = now;
+
                 }
             }
 
@@ -707,16 +710,6 @@ public class PlayActivity extends BaseActivity {
         }
     }
 
-    private void handlePodcastClick(@NonNull Podcast p) {
-        long now = System.currentTimeMillis();
-        if (now - podcastLastClickTime > PODCAST_DOUBLE_CLICK_THRESHOLD) {
-            myLogI("user clicks podcast");
-            startActivity(new Intent(this, PodcastEpisodeActivity.class).putExtra("podcast", p));
-        } else {
-            myLogW("user clicks podcast - bypassing" + now + "-" + podcastLastClickTime);
-        }
-        podcastLastClickTime = now;
-    }
 
     public void showTtsLoading(boolean show, @Nullable String msg) {
         if (progressOverlay == null) {

@@ -21,10 +21,10 @@ import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.utils.Tonio;
@@ -52,7 +52,7 @@ public class PodcastSyncWorker extends LoggingWorker {
 
         AppDatabase db = AppDatabase.getDatabase(getApplicationContext());
         FolderDao folderDao = db.folderDao();
-        ZikFileDao zikFileDao = db.zikFileDao();
+        CommonZikFileDao zikFileDao = db.zikFileDao();
         PodcastDao podcastDao = db.podcastDao();
         EpisodeDao episodeDao = db.episodeDao();
 

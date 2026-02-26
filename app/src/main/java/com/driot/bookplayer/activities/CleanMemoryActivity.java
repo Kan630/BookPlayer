@@ -20,6 +20,7 @@ import com.driot.bookplayer.adapter.CleanMemoryRVAdapter;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.objects.FolderWithSummary;
 import com.driot.bookplayer.utils.Tonio;
 

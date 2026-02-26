@@ -36,7 +36,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.SupportedExtensionsActivity;
 import com.driot.bookplayer.adapter.FolderSpinnerAdapter;
 import com.driot.bookplayer.db.AppDatabase;

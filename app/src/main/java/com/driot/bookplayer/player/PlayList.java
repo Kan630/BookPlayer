@@ -10,7 +10,6 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
@@ -52,8 +51,6 @@ public final class PlayList {
     private ZikFile zikFile;
     private List<ZikFile> zikFilesList = Collections.emptyList();
     private int index = -1;
-    private Podcast podcast;
-    private boolean isPodcast;
 
     // Invalidate racing async loads
     private long version = 0L;
@@ -212,9 +209,7 @@ public final class PlayList {
             zikFilesList = Collections.emptyList();
             index = -1;
             folder = null;
-            podcast = null;
             url = null;
-            isPodcast = false;
             version++;
         }
         clearStorage();
@@ -331,8 +326,6 @@ public final class PlayList {
             this.zikFilesList = Collections.emptyList();
             this.index = -1;
             this.url = url;
-            this.podcast = null;
-            this.isPodcast = false;
             this.version++; // invalidate prior asyncs
         }
     }
@@ -446,9 +439,7 @@ public final class PlayList {
                 ", version=" + version +
                 ", zikFilesList.count=" + zikFilesList.size() +
                 ", index=" + index +
-                ", podcast=" + podcast +
                 ", folder=" + folder +
-                ", isPodcast=" + isPodcast +
                 '}';
     }
 

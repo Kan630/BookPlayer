@@ -18,9 +18,9 @@ import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.radio.RadioStation;
+import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.radio.RadioHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -47,7 +47,7 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
 
     // TODO ASYNC...
-    private static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath,
+    public static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath,
             boolean isCached) {
         try {
             byte[] imageBytes = NetworkHelper.fetchBytesWithHttpsFallbackForImage(imageUrl);
@@ -115,19 +115,7 @@ public class ImageHelper {
             }
 
             // --- Handle Podcast images ---
-            List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
-            for (Podcast podcast : pendingPodcasts) {
-                String url = podcast.image;
-                if (url == null || !url.startsWith("http"))
-                    continue;
-
-                String imagePath = IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
-                String localPath = downloadAndMaybeCompressImage(context, url, imagePath, true);
-                if (localPath != null) {
-                    podcast.image = localPath;
-                    db.podcastDao().update(podcast);
-                }
-            }
+            PodcastHelper.handlePodcastImages(context);
 
             // Move Folder cover if on SD card
             try {
@@ -183,33 +171,8 @@ public class ImageHelper {
             }
 
             // --- Handle Radio images ---
-            if (NetworkHelper.hasInternet(context)) {
-                List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImages();
-                for (RadioStation radioStation : radioStations) {
-                    String url = radioStation.favicon;
-                    String imagePath = IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
-                    String localPath = null;
-                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
-                    if (localPath != null) {
-                        File f = new File(localPath);
-                        if (f.exists() && f.length() > 0L) {
-                            // OK, non-empty file → persist local path
-                            radioStation.favicon = localPath;
-                            db.radioStationDao().update(radioStation);
-                        } else {
-                            // 0 KB or missing → treat as failure, clean up
-                            myLogW("Radio favicon download failed or empty (" + f.length() + " bytes) for " + url);
-                            if (f.exists() && f.length() == 0L) {
-                                try {
-                                    myLog("deleting bad file, success=" + f.delete());
-                                } catch (Exception ignored) {
-                                }
-                            }
-                            // keep old favicon URL in DB so Glide can still try remote
-                        }
-                    }
-                }
-            }
+            RadioHelper.handleRadioImages(context);
+
 
         });
     }

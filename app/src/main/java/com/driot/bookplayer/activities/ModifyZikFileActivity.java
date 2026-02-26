@@ -15,13 +15,13 @@ import androidx.appcompat.app.AlertDialog;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.MetaJson;
 import com.driot.bookplayer.utils.MetadataFormatter;
 import com.driot.bookplayer.utils.MsgBox;
@@ -122,19 +122,15 @@ public class ModifyZikFileActivity extends BaseActivity {
         // delete ZikFile if exist in app memory
         if (deleteZikFileFromDisk()) {
             myLog("Ok file deleted");
-            deleteZikFileFromDB(); // to delete from DB
+            deleteZikFileFromDB(zikFile.getId()); // to delete from DB
         } else {
             myToastEE(null, "Error deleting zik file from internal app memory");
         }
     }
 
-    private void deleteZikFileFromDB() {
+    private void deleteZikFileFromDB(int id) {
         new Thread(() -> {
-            Episode episode = AppDatabase.getDatabase(this).episodeDao().getByZikFileId(zikFile.getId());
-            if (episode != null) {
-                episode.date_delete = System.currentTimeMillis();
-                AppDatabase.getDatabase(this).episodeDao().update(episode);
-            }
+            PodcastHelper.deleteEpisode(id, this.getApplicationContext());
             AppDatabase.getDatabase(this).zikFileDao().deleteZikFile(zikFile.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.ZikFile_Deleted));

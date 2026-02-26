@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
@@ -103,7 +104,7 @@ public class DeleteFolderWorker extends LoggingWorker {
 
             db.folderDao().delete((int) folderId);
             db.zikFileDao().deleteAllZikFilesInFolder((int) folderId);
-            com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload(appCtx, (int) folderId);
+            PodcastHelper.cancelAutoDownload(appCtx, (int) folderId);
 
             myLog("delete finished");
 

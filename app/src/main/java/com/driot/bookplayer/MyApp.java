@@ -19,7 +19,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StrictModeHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
-import com.driot.bookplayer.radio.RadioBrowserServiceFactory;
+import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 
@@ -104,7 +104,7 @@ public class MyApp extends Application {
 
         MediaControllerHolder.ensureConnected(getApplicationContext());
 
-        RadioBrowserServiceFactory.init(getApplicationContext());
+        RadioHelper.initRadioBrowserServiceFactory(getApplicationContext());
 
         Executors.newSingleThreadExecutor().execute(() -> {
             myLog("isNetworkAvailable : " + NetworkHelper.isNetworkAvailable(getApplicationContext()));

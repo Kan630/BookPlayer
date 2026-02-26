@@ -9,7 +9,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.player.heatmaps.PlayTick;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
@@ -72,7 +72,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 }
 
                 AppDatabase db = AppDatabase.getDatabase(app);
-                ZikFileDao dao = db.zikFileDao();
+                CommonZikFileDao dao = db.zikFileDao();
                 int r = dao.update(zf);
                 if (r > 0) {
                     myLogD("zik updated " + String.valueOf(timestamp).substring(8) + " (" + zf.getName() + ") pos="

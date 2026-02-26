@@ -1,7 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import static com.driot.bookplayer.global.Var.FOLDER_UNZIPPED;
-import static com.driot.bookplayer.helpers.PodcastHelper.cancelAutoDownload;
+import static com.driot.bookplayer.podcasts.PodcastHelper.cancelAutoDownload;
 
 import android.app.Application;
 

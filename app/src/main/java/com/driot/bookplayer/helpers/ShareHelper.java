@@ -7,7 +7,7 @@ import android.net.Uri;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.player.StartPlayHelper;
-import com.driot.bookplayer.radio.RadioStationActivity;
+import com.driot.bookplayer.radio.RadioHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -64,20 +64,7 @@ public class ShareHelper {
                 switch (path) {
 
                     case "/share/radio":
-                        String url = data.getQueryParameter("url");
-                        String uuid = data.getQueryParameter("uuid");
-                        myLog("url=[" + url + "] - uuid=[" + uuid + "]");
-
-                        if (uuid != null) {
-                            Intent i = new Intent(context, RadioStationActivity.class);
-                            i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
-                            i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                            context.startActivity(i);
-                        }
-                        if (url != null) {
-                            StartPlayHelper.playRadioFromUuidAndUrl(context, uuid, url, "DeepLink");
-                        }
-
+                        RadioHelper.handleDeepLink(context, data);
                         break;
 
                 }

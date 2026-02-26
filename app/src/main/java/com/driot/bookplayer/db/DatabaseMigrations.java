@@ -6,10 +6,24 @@ import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import static com.driot.bookplayer.utils.log.KanLogger.myLogI;
 
+import android.database.Cursor;
+
+import com.driot.bookplayer.utils.Tonio;
+
 public class DatabaseMigrations {
 
     // EXPECTED = Class Object ; MIGRATION = FOUND (2nd part in log message) = state
     // of DB ?
+
+
+
+    private static boolean tableExists(SupportSQLiteDatabase db, String tableName) {
+        try (Cursor cursor = db.query(
+                "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
+                new String[]{tableName})) {
+            return cursor.moveToFirst();
+        }
+    }
 
     static final Migration MIGRATION_1_2 = new Migration(1, 2) {
         @Override
@@ -456,8 +470,12 @@ public class DatabaseMigrations {
         @Override
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 26 => 27");
-            db.execSQL("ALTER TABLE Episode ADD COLUMN imageOriginalUrl TEXT");
-            db.execSQL("ALTER TABLE RadioStation ADD COLUMN imageOriginalUrl TEXT");
+            if (tableExists(db, "Episode")) {
+                db.execSQL("ALTER TABLE Episode ADD COLUMN imageOriginalUrl TEXT");
+            }
+            if (tableExists(db, "RadioStation")) {
+                db.execSQL("ALTER TABLE RadioStation ADD COLUMN imageOriginalUrl TEXT");
+            }
         }
     };
 
@@ -466,8 +484,12 @@ public class DatabaseMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 27 => 28");
             db.execSQL("ALTER TABLE Folder ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
-            db.execSQL("ALTER TABLE RadioStation ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
-            db.execSQL("ALTER TABLE Podcast ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            if (tableExists(db, "RadioStation")) {
+                db.execSQL("ALTER TABLE RadioStation ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            }
+            if (tableExists(db, "Podcast")) {
+                db.execSQL("ALTER TABLE Podcast ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            }
         }
     };
 

@@ -15,12 +15,30 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunnerArguments clearPackageData: "false"
 
-        buildConfigField "String", "RADIO_PROXY_BASE_URL", "\"https://radio.driot.com\""
         buildConfigField "String", "LIBRIVOX_PROXY_BASE_URL", "\"https://librivox.driot.com\"";
-        buildConfigField "String", "PODCASTINDEX_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev/podcastindex/\""
         buildConfigField "String", "PIXABAY_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev\""
+        buildConfigField "String", "PODCASTINDEX_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev/podcastindex/\""
+        buildConfigField "String", "RADIO_PROXY_BASE_URL", "\"https://radio.driot.com\""
 
         buildConfigField "String", "APP_TOKEN", "\"bookplayer_petit_mais_costaud\""
+
+        flavorDimensions += "version"
+        productFlavors {
+            original {
+                applicationId = "com.driot.bookplayer"
+                dimension = "version"
+            }
+            full {
+                applicationId = "com.driot.bookplayerfull"
+                dimension = "version"
+            }
+            pure {
+                applicationId = "com.driot.bookplayerpure"
+                dimension = "version"
+                // Flags to toggle features off
+                // buildConfigField "boolean", "HAS_RADIOS", "false"
+            }
+        }
 
         //  16   = android 4.1 Jelly Bean    2012
         //  19   = android 4.4 KitKat        2013       --> support dropped 2023 (Play store hs)

@@ -9,7 +9,7 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.helpers.PodcastHelper;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.concurrent.Executors;

@@ -7,6 +7,7 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

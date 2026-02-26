@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.LibrivoxResultsActivity;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;

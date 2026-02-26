@@ -21,13 +21,14 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.ZikFilesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 
 import java.util.List;
 
@@ -253,15 +254,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
 
     private void goUserClickHeader() {
         if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
-            AppDatabase.databaseReadExecutor.execute(() -> {
-                Podcast podcast = AppDatabase.getDatabase(this).podcastDao().getPodcastByFolderId(folderId);
-                if (podcast != null) {
-                    myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
-                    startActivity(new Intent(this, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
-                } else {
-                    myLogI("No podcast linked to folder " + folderId);
-                }
-            });
+            PodcastHelper.openPodcastEpisodeActivityFromActivity(folder, this);
         }
     }
 

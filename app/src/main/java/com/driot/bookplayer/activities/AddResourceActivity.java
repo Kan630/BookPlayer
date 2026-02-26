@@ -18,6 +18,7 @@ import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.OngoingTaskUiState;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.services.DownloadControl;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 
 import dagger.hilt.android.AndroidEntryPoint;
 

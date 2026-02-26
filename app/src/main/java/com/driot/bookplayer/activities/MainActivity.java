@@ -38,6 +38,8 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.helpers.InfoHelper;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -45,8 +47,6 @@ import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.utils.InAppMsgManager;
 import com.driot.bookplayer.utils.KanMail;
-
-import com.driot.bookplayer.player.NavHelper;
 
 import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.button.MaterialButton;
@@ -107,9 +107,7 @@ public class MainActivity extends BaseBottomNavActivity {
             });
 
     @Override
-    protected int getNavId() {
-        return R.id.nav_library;
-    }
+    protected int getNavId() { return Tonio.isPure(this) ? -1 : R.id.nav_library; }
 
     @Override
     protected int getLayoutResId() {

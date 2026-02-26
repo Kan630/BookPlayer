@@ -17,6 +17,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.ArchiveItem;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 
 import java.util.Collections;
 

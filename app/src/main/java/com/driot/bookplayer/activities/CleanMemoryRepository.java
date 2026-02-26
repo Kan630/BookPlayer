@@ -4,7 +4,7 @@ import android.app.Application;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.FolderDao;
-import com.driot.bookplayer.db.ZikFileDao;
+import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.concurrent.ExecutorService;
@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
  */
 public class CleanMemoryRepository {
 
-    private final ZikFileDao zikFileDao;
+    private final CommonZikFileDao zikFileDao;
     private final FolderDao folderDao;
     private final ExecutorService executorService;
 

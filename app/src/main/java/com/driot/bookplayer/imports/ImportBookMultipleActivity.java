@@ -16,7 +16,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.BaseBottomNavActivity;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;

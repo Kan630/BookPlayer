@@ -19,6 +19,7 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.views.TtsTextView;
