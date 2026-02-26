@@ -1,3 +1,5 @@
+import com.android.build.api.variant.ResValue
+
 plugins {
     id 'com.android.application'
     id 'com.google.gms.google-services'
@@ -11,7 +13,6 @@ android {
     namespace = 'com.driot.bookplayer'
 
     defaultConfig {
-        applicationId = "com.driot.bookplayerfull"  //CHANGE HERE : ORIGINAL - FULL
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         //testInstrumentationRunnerArguments clearPackageData: "false"
 
@@ -24,19 +25,31 @@ android {
 
         flavorDimensions += "version"
         productFlavors {
-            original {
+            legacy {
                 applicationId = "com.driot.bookplayer"
                 dimension = "version"
+                resValue "string", "app_name", "BookPlayer Legacy"
             }
             full {
                 applicationId = "com.driot.bookplayerfull"
                 dimension = "version"
+                resValue "string", "app_name", "BookPlayer Full"
             }
             pure {
                 applicationId = "com.driot.bookplayerpure"
                 dimension = "version"
+                resValue "string", "app_name", "BookPlayer Pure"
                 // Flags to toggle features off
                 // buildConfigField "boolean", "HAS_RADIOS", "false"
+            }
+        }
+        sourceSets {
+            // Give 'original' access to the same code/resources as 'full'
+            legacy {
+                java.srcDirs += 'src/full/java'
+                // res.srcDirs  += 'src/full/res'
+                // assets.srcDirs  += 'src/full/assets'
+                // manifest.srcFile 'src/full/AndroidManifest.xml'  ← only if you have a flavor-specific manifest
             }
         }
 
@@ -109,11 +122,12 @@ android {
         }
     }
 
+
     buildTypes {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
-            resValue "string", "app_name", "DEBUG BookPlayer"
+            //resValue "string", "app_name", "D. BookPlayer"
 
             // Make tests debuggable
             debuggable = true
@@ -146,6 +160,49 @@ android {
         }
 
     }
+
+    androidComponents {
+        onVariants(selector().all()) { variant ->
+            if (variant.buildType == "debug") {
+                // variant.name is e.g. "legacyDebug", "fullDebug", "pureRelease"
+                def variantName = variant.name
+
+                // Remove known build type suffixes to get flavor part
+                def flavor
+                if (variantName.endsWith("Debug")) {
+                    flavor = variantName - "Debug"   // Groovy string subtract
+                } else if (variantName.endsWith("Release")) {
+                    flavor = variantName - "Release"
+                } else {
+                    flavor = "unknown"
+                }
+
+                // Optional: lowercase/trim if needed
+                flavor = flavor.trim().toLowerCase()
+
+                def debugName
+                switch (flavor) {
+                    case "legacy":
+                        debugName = "D. BookPlayer Legacy"
+                        break
+                    case "full":
+                        debugName = "D. BookPlayer Full"
+                        break
+                    case "pure":
+                        debugName = "D. BookPlayer Pure"
+                        break
+                    default:
+                        debugName = "D. BookPlayer Unknown (" + flavor + ")"
+                }
+
+                def key = variant.makeResValueKey("string", "app_name")
+                variant.resValues.put(key, new ResValue(debugName, "Debug variant name"))
+            }
+        }
+    }
+
+
+
     testFixtures {
         enable = true
     }

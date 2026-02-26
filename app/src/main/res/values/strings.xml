@@ -3,7 +3,6 @@
     <!-- NO TRANSLATION (translatable=false) -->
 
 
-    <string name="app_name" translatable="false">BookPlayer</string>
     <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
     <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
     <string name="asset_statements" translatable="false">
