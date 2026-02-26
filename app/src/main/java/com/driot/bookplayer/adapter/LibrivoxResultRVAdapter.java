@@ -206,7 +206,11 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
                 // 🚀 Run actual download in background
                 new Thread(() -> {
-                    String imageUrl = "https://archive.org/services/img/" + item.identifier;
+                    String imageUrl = item.imageRemote;
+                    if (imageUrl == null || imageUrl.isEmpty()) {
+                        imageUrl = "https://archive.org/services/img/" + item.identifier;
+                    }
+
                     String localPath = ImageHelper.getOrDownloadLibrivoxImage(
                             appContext,
                             item.identifier,

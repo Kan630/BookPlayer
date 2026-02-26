@@ -41,7 +41,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     private boolean fetchStarted = false;
 
     // Pagination for MODE_TRENDING and MODE_LAST_ADDED (archive.org)
-    private String lastPagedMode = null;  // "MODE_TRENDING" or "MODE_LAST_ADDED"
+    private String lastPagedMode = null; // "MODE_TRENDING" or "MODE_LAST_ADDED"
     private String lastLangCode3 = null;
     private int currentPage = 1;
     private boolean hasMore = false;
@@ -61,7 +61,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         public final String apiSource; // e.g. "librivox.org"
 
         public HeaderStatusData(int count, long totalCount, boolean isFinal, boolean isMaxReached,
-                                boolean isLoading, String apiSource) {
+                boolean isLoading, String apiSource) {
             this.count = count;
             this.totalCount = totalCount;
             this.isFinal = isFinal;
@@ -75,25 +75,61 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         super(application);
         repository = new LibrivoxRepository(
                 application.getApplicationContext(),
-                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
     }
 
     // Getters
-    public LiveData<List<ArchiveItem>> getResults() { return results; }
-    public LiveData<Boolean> getShouldFinish() { return shouldFinish; }
-    public LiveData<HeaderStatusData> getHeaderStatus() { return headerStatus; }
-    public LiveData<String> getErrorMessage() { return errorMessage; }
-    public LiveData<Boolean> getIsLoading() { return isLoading; }
-    public LiveData<Boolean> getIsLoadingMore() { return isLoadingMoreLive; }
-    public boolean hasMore() { return hasMore; }
-    public boolean isLoadingMore() { return isLoadingMore; }
+    public LiveData<List<ArchiveItem>> getResults() {
+        return results;
+    }
 
-    public void requestFinish() { shouldFinish.setValue(true); }
-    public String getLastQuery() { return lastQuery; }
-    public void setLastQuery(String lastQuery) { this.lastQuery = lastQuery; }
-    public String getLastLang() { return lastLang; }
-    public void setLastLang(String lastLang) { this.lastLang = lastLang; }
+    public LiveData<Boolean> getShouldFinish() {
+        return shouldFinish;
+    }
+
+    public LiveData<HeaderStatusData> getHeaderStatus() {
+        return headerStatus;
+    }
+
+    public LiveData<String> getErrorMessage() {
+        return errorMessage;
+    }
+
+    public LiveData<Boolean> getIsLoading() {
+        return isLoading;
+    }
+
+    public LiveData<Boolean> getIsLoadingMore() {
+        return isLoadingMoreLive;
+    }
+
+    public boolean hasMore() {
+        return hasMore;
+    }
+
+    public boolean isLoadingMore() {
+        return isLoadingMore;
+    }
+
+    public void requestFinish() {
+        shouldFinish.setValue(true);
+    }
+
+    public String getLastQuery() {
+        return lastQuery;
+    }
+
+    public void setLastQuery(String lastQuery) {
+        this.lastQuery = lastQuery;
+    }
+
+    public String getLastLang() {
+        return lastLang;
+    }
+
+    public void setLastLang(String lastLang) {
+        this.lastLang = lastLang;
+    }
 
     public LiveData<List<ArchiveItem>> getFavoriteLibrivoxsLive() {
         if (favoritesLive == null) {
@@ -116,8 +152,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 query,
                 langCode3,
                 Option.getLibrivoxApiNbResults(),
-                createArchiveCallback("search", query)
-        );
+                createArchiveCallback("search", query));
     }
 
     public void searchTrending(String langCode3) {
@@ -134,8 +169,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 langCode3,
                 Option.getLibrivoxApiNbResults(),
                 1,
-                createArchiveCallbackFirstPage("trending", null)
-        );
+                createArchiveCallbackFirstPage("trending", null));
     }
 
     public void searchLastAdded(String langCode3) {
@@ -152,11 +186,13 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 langCode3,
                 Option.getLibrivoxApiNbResults(),
                 1,
-                createArchiveCallbackFirstPage("last added", null)
-        );
+                createArchiveCallbackFirstPage("last added", null));
     }
 
-    /** Load next page for MODE_TRENDING or MODE_LAST_ADDED. No-op if not paged mode or no more pages. */
+    /**
+     * Load next page for MODE_TRENDING or MODE_LAST_ADDED. No-op if not paged mode
+     * or no more pages.
+     */
     public void loadNextPage() {
         if (lastPagedMode == null || lastLangCode3 == null || isLoadingMore || !hasMore) {
             return;
@@ -176,13 +212,20 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                     return;
                 }
                 List<ArchiveItem> newItems = response.body().response.docs;
-                if (newItems == null) newItems = new ArrayList<>();
+                if (newItems == null)
+                    newItems = new ArrayList<>();
+                for (ArchiveItem it : newItems) {
+                    if (it.imageRemote == null && it.identifier != null) {
+                        it.imageRemote = "https://archive.org/services/img/" + it.identifier;
+                    }
+                }
                 if (newItems.isEmpty()) {
                     hasMore = false;
                     return;
                 }
                 List<ArchiveItem> current = results.getValue();
-                if (current == null) current = new ArrayList<>();
+                if (current == null)
+                    current = new ArrayList<>();
                 List<ArchiveItem> merged = new ArrayList<>(current);
                 merged.addAll(newItems);
                 currentPage++;
@@ -190,6 +233,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 enrichWithLocalState(merged);
                 updateSimpleSearchHeader(merged, pagedTotalCount);
             }
+
             @Override
             public void onFailure(Call<ArchiveApiResponse> call, Throwable t) {
                 isLoadingMore = false;
@@ -213,8 +257,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 langCode3,
                 author,
                 Option.getLibrivoxApiNbResults(),
-                createArchiveCallback("author", author)
-        );
+                createArchiveCallback("author", author));
     }
 
     public void searchByGenre(String genre, String langCode3) {
@@ -265,15 +308,17 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                             requestFinish();
                         }
                     }
-                }
-        );
+                });
     }
 
     // ============================================================
     // PRIVATE HELPER METHODS
     // ============================================================
 
-    /** Callback for first page (search by query, or first page of trending/last added). */
+    /**
+     * Callback for first page (search by query, or first page of trending/last
+     * added).
+     */
     private Callback<ArchiveApiResponse> createArchiveCallback(String searchType, String query) {
         return new Callback<ArchiveApiResponse>() {
             @Override
@@ -289,7 +334,13 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         requestFinish();
                     } else {
                         long total = response.body().response.numFound >= 0
-                                ? response.body().response.numFound : -1;
+                                ? response.body().response.numFound
+                                : -1;
+                        for (ArchiveItem it : items) {
+                            if (it.imageRemote == null && it.identifier != null) {
+                                it.imageRemote = "https://archive.org/services/img/" + it.identifier;
+                            }
+                        }
                         enrichWithLocalState(items);
                         updateSimpleSearchHeader(items, total);
                         myLog(items.size() + " results found for " + searchType);
@@ -311,7 +362,10 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         };
     }
 
-    /** Callback for first page of MODE_TRENDING / MODE_LAST_ADDED (enables pagination). */
+    /**
+     * Callback for first page of MODE_TRENDING / MODE_LAST_ADDED (enables
+     * pagination).
+     */
     private Callback<ArchiveApiResponse> createArchiveCallbackFirstPage(String searchType, String query) {
         return new Callback<ArchiveApiResponse>() {
             @Override
@@ -330,11 +384,18 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         currentPage = 2;
                         hasMore = items.size() >= pageSize;
                         long total = response.body().response.numFound >= 0
-                                ? response.body().response.numFound : -1;
+                                ? response.body().response.numFound
+                                : -1;
                         pagedTotalCount = total;
+                        for (ArchiveItem it : items) {
+                            if (it.imageRemote == null && it.identifier != null) {
+                                it.imageRemote = "https://archive.org/services/img/" + it.identifier;
+                            }
+                        }
                         enrichWithLocalState(items);
                         updateSimpleSearchHeader(items, total);
-                        myLog(items.size() + " results found for " + searchType + ", hasMore=" + hasMore + ", total=" + total);
+                        myLog(items.size() + " results found for " + searchType + ", hasMore=" + hasMore + ", total="
+                                + total);
                     }
                 } else {
                     myLogEE(null, "Invalid response body from archive.org");
@@ -360,7 +421,8 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     private void updateSimpleSearchHeader(List<ArchiveItem> items, long totalCount) {
         int count = items == null ? 0 : items.size();
         boolean isMaxReached = count >= Option.getLibrivoxApiNbResults();
-        if (totalCount < 0 && lastPagedMode != null) totalCount = pagedTotalCount;
+        if (totalCount < 0 && lastPagedMode != null)
+            totalCount = pagedTotalCount;
         headerStatus.postValue(new HeaderStatusData(count, totalCount, true, isMaxReached, false, "archive.org"));
     }
 
@@ -395,8 +457,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 List<BookSourceDao.RepoStateRow> rows = dao.getStateFor(
                         Var.REPO_TYPE_AUDIOBOOK,
                         Var.REPO_NAME_LIBRIVOX,
-                        batchIds
-                );
+                        batchIds);
                 for (BookSourceDao.RepoStateRow r : rows) {
                     map.put(r.repoId, r);
                 }
@@ -419,7 +480,8 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     }
 
     public void toggleFavorite(ArchiveItem archiveItem) {
-        if (archiveItem == null) return;
+        if (archiveItem == null)
+            return;
         boolean newFav = !archiveItem.is_favorite;
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
@@ -431,8 +493,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                     Var.REPO_NAME_LIBRIVOX,
                     archiveItem.identifier,
                     newFav,
-                    now
-            );
+                    now);
 
             if (updated == 0 && newFav) {
                 String url = "https://archive.org/details/" + archiveItem.identifier;
@@ -444,8 +505,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         archiveItem.identifier,
                         null,
                         archiveItem.imageRemote,
-                        null
-                );
+                        null);
                 bs.is_favorite = true;
                 bs.date_add = now;
                 bs.date_maj = now;

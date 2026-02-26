@@ -102,7 +102,10 @@ public class LibrivoxFavoritesRVAdapter extends RecyclerView.Adapter<RecyclerVie
         } else {
             holder.image.setImageResource(R.drawable.placeholder_cover);
             new Thread(() -> {
-                String imageUrl = "https://archive.org/services/img/" + item.identifier;
+                String imageUrl = item.imageRemote;
+                if (imageUrl == null || imageUrl.isEmpty()) {
+                    imageUrl = "https://archive.org/services/img/" + item.identifier;
+                }
                 String localPath = ImageHelper.getOrDownloadLibrivoxImage(context, item.identifier, imageUrl, false);
                 if (localPath != null) {
                     ((android.app.Activity) context).runOnUiThread(() -> Glide.with(holder.image)
