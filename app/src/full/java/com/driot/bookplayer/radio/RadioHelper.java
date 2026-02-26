@@ -122,6 +122,23 @@ public class RadioHelper {
 		});
 	}
 
+	 public static boolean playStreamIfKnownRadio(Context context, String url) {
+		 
+            RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
+            if (rs != null) {
+                String title = rs.name;
+                String imageUrl = rs.favicon;
+                //broadcastUiState("loadAndPlay");
+                //main.post(() -> {
+                StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
+                    //if (!ok) { myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio"); }
+                //});
+                return true;
+            } else {
+				return false;
+			}
+	 }
+
 
 	
 }

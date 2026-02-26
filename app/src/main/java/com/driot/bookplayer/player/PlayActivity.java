@@ -42,7 +42,6 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.podcasts.PodcastEpisodeActivity;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;

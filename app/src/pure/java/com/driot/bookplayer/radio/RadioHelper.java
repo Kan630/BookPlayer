@@ -22,5 +22,9 @@ public class RadioHelper {
     public static void initRadioBrowserServiceFactory(Context context) {
         myLog("stub!");
     }
+
+    public static boolean playStreamIfKnownRadio(Context context, String url) {
+        return false;
+    }
 }
 

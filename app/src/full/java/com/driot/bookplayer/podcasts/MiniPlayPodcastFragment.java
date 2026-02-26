@@ -1,4 +1,4 @@
-package com.driot.bookplayer.player;
+package com.driot.bookplayer.podcasts;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -15,6 +15,11 @@ import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.player.MediaControllerHolder;
+import com.driot.bookplayer.player.PlaybackCommands;
+import com.driot.bookplayer.player.PlaybackUiState;
+import com.driot.bookplayer.player.PlaybackViewModel;
+import com.driot.bookplayer.player.UiHelper;
 import com.driot.bookplayer.podcasts.PodcastEpisodeActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;

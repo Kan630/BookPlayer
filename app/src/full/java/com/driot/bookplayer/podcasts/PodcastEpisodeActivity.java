@@ -43,15 +43,11 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.podcasts.DisplayableEpisode;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
-import com.driot.bookplayer.podcasts.PodcastEpisode;
-import com.driot.bookplayer.podcasts.PodcastFeed;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
-import com.driot.bookplayer.utils.PodcastDownloadManager;
 
 import java.io.File;
 import java.util.ArrayList;

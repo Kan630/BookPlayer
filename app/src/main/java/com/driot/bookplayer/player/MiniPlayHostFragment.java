@@ -14,6 +14,8 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+import com.driot.bookplayer.radio.MiniPlayRadioFragment;
+import com.driot.bookplayer.podcasts.MiniPlayPodcastFragment;
 
 import java.util.Objects;
 

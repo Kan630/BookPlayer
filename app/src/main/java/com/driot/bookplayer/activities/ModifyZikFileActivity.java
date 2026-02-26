@@ -130,7 +130,7 @@ public class ModifyZikFileActivity extends BaseActivity {
 
     private void deleteZikFileFromDB(int id) {
         new Thread(() -> {
-            PodcastHelper.deleteEpisode(id, this.getApplicationContext());
+            PodcastHelper.deleteEpisode(id, this);
             AppDatabase.getDatabase(this).zikFileDao().deleteZikFile(zikFile.getId());
             runOnUiThread(() -> {
                 myToast(getString(R.string.ZikFile_Deleted));

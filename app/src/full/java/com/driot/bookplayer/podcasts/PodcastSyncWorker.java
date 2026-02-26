@@ -1,9 +1,6 @@
-package com.driot.bookplayer.services;
+package com.driot.bookplayer.podcasts;
 
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_PODCAST;
-import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FEED_ID;
-import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_NAME;
-import static com.driot.bookplayer.utils.FinalizeDownloadWorker.KEY_FOLDER_PATH;
 
 import android.content.Context;
 import android.net.Uri;
@@ -24,7 +21,6 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.ImageHelper;
-import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.utils.Tonio;
@@ -42,9 +38,9 @@ public class PodcastSyncWorker extends LoggingWorker {
     @NonNull
     @Override
     public Result doWorkBody() {
-        String path = getInputData().getString(KEY_FOLDER_PATH);
-        String name = getInputData().getString(KEY_FOLDER_NAME);
-        long feedId = getInputData().getLong(KEY_FEED_ID,0);
+        String path = getInputData().getString(FinalizeDownloadWorker.KEY_FOLDER_PATH);
+        String name = getInputData().getString(FinalizeDownloadWorker.KEY_FOLDER_NAME);
+        long feedId = getInputData().getLong(FinalizeDownloadWorker.KEY_FEED_ID,0);
         Long podcastId = null;
         Long newZikFileId = null;
         File folder = new File(path);

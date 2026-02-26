@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.podcasts;
 
 import android.content.Context;
 
@@ -6,10 +6,6 @@ import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkContinuation;
 import androidx.work.WorkManager;
-
-import com.driot.bookplayer.podcasts.PodcastHelper;
-import com.driot.bookplayer.podcasts.PodcastEpisode;
-import com.driot.bookplayer.services.PodcastDownloadEpisodeWorker;
 
 import java.io.File;
 import java.util.List;

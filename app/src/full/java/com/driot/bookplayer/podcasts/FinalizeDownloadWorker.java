@@ -1,4 +1,4 @@
-package com.driot.bookplayer.utils;
+package com.driot.bookplayer.podcasts;
 
 import android.content.Context;
 
@@ -9,7 +9,6 @@ import androidx.work.WorkManager;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.services.PodcastSyncWorker;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 public class FinalizeDownloadWorker extends Worker {

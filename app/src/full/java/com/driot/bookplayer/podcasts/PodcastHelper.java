@@ -13,6 +13,7 @@ import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -20,7 +21,6 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.player.StartPlayHelper;
-import com.driot.bookplayer.utils.PodcastDownloadManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -532,7 +532,65 @@ public class PodcastHelper {
         }
     }
 
+	public static boolean playStreamIfKnownPodcast(Context context, String url) {
+            Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
+            if (episode != null) {
+                String title = episode.title;
+                String imageUrl = episode.image;
+                // TODO => we need a position, or it will start the episode from the
+                // beggining....
+                //broadcastUiState("loadAndPlay");
+                //main.post(() -> {
+                StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
+                /*
+                    boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
+                    if (!ok) {
+                        myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
+                    }
 
+                 */
+                //});
+		
+                return true;
+            } else {
+				return false;
+			}
+	 }
+
+    public static void deletePodcastFolder(int folderId, Context context) {
+        AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+            Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
+            if (podcast == null) {
+                Folder f = db.folderDao().getById(folderId); // ensure DAO exists
+                if (f != null)
+                    ImageHelper.deleteImage(context.getApplicationContext(), f);
+            }
+
+            List<ZikFile> zikFileList = db.zikFileDao().getZikFiles(folderId);
+            for (ZikFile zikFile : zikFileList) {
+                Episode episode = db.episodeDao().getByZikFileId(zikFile.getId());
+                if (episode != null) {
+                    episode.date_delete = System.currentTimeMillis();
+                    db.episodeDao().update(episode);
+                    myLogD("Podcast Episode date deleted set for " + episode.title);
+                }
+            }
+    }
+
+
+    public static void doAutoDownloadAndDelete(Context context) {
+        final int nbPodcastAutoDownload = AppDatabase.getDatabase(context).podcastDao().getNbAutoDownload();
+///  Podcasts AutoDownload
+        if (nbPodcastAutoDownload > 0 && (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY)) {
+            if (NetworkHelper.hasInternet(context)) {
+                PodcastHelper.checkForNewEpisodesToAutoDownload(context, Var.PODCAST_INDEX_ORG_SINCE);
+            } else {
+                myLogD("no internet => bypassing podcast auto-download");
+            }
+        }
+///  Podcasts AutoDelete
+        PodcastHelper.checkForEpisodesToAutoDelete(context);
+    }
 
 
 }

@@ -15,9 +15,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -85,22 +83,7 @@ public class DeleteFolderWorker extends LoggingWorker {
                 myLogD("Disk delete done");
             }
 
-            Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
-            if (podcast == null) {
-                Folder f = db.folderDao().getById(folderId); // ensure DAO exists
-                if (f != null)
-                    ImageHelper.deleteImage(appCtx, f);
-            }
-
-            List<ZikFile> zikFileList = db.zikFileDao().getZikFiles(folderId);
-            for (ZikFile zikFile : zikFileList) {
-                Episode episode = db.episodeDao().getByZikFileId(zikFile.getId());
-                if (episode != null) {
-                    episode.date_delete = System.currentTimeMillis();
-                    db.episodeDao().update(episode);
-                    myLogD("Podcast Episode date deleted set for " + episode.title);
-                }
-            }
+            PodcastHelper.deletePodcastFolder((int) folderId, appCtx);
 
             db.folderDao().delete((int) folderId);
             db.zikFileDao().deleteAllZikFilesInFolder((int) folderId);

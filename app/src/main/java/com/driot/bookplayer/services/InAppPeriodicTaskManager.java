@@ -1,6 +1,7 @@
 package com.driot.bookplayer.services;
 
 import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogD;
 
 import android.content.Context;
 
@@ -33,21 +34,12 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
     public void start() {
 
         AppDatabase.databaseReadExecutor.execute(() -> {
-            final int nbPodcastAutoDownload = AppDatabase.getDatabase(context).podcastDao().getNbAutoDownload();
 
             if (scheduledFuture == null || scheduledFuture.isCancelled()) {
                 scheduledFuture = scheduler.scheduleWithFixedDelay(() -> {
                     myLogD("InAppPeriodicTask (images caching, optional podcasts auto-download and auto-delete) - every " + periodMinutes + " min.");
-///  Podcasts AutoDownload
-                    if (nbPodcastAutoDownload > 0 && (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY)) {
-                        if (NetworkHelper.hasInternet(context)) {
-                            PodcastHelper.checkForNewEpisodesToAutoDownload(context, PODCAST_INDEX_ORG_SINCE);
-                        } else {
-                            myLogD("no internet => bypassing podcast auto-download");
-                        }
-                    }
-///  Podcasts AutoDelete
-                    PodcastHelper.checkForEpisodesToAutoDelete(context);
+/// Podcast auto-download + auto-delete
+                    PodcastHelper.doAutoDownloadAndDelete(context);
 /// Images
                     ImageHelper.processPendingImages(context);
 

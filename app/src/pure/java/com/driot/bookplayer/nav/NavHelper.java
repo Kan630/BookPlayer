@@ -10,20 +10,16 @@ import androidx.core.app.TaskStackBuilder;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.GetLibrivoxActivity;
-import com.driot.bookplayer.activities.GetPodcastActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
 import com.driot.bookplayer.imports.ImportBookMultipleActivity;
-import com.driot.bookplayer.radio.GetRadioActivity;
 import com.driot.bookplayer.activities.MainActivity;
-import com.driot.bookplayer.podcasts.PodcastFavoritesActivity;
-import com.driot.bookplayer.radio.RadioFavoritesActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.radio.RadioStationActivity;
-import com.driot.bookplayer.db.RadioStationDao;
+import com.driot.bookplayer.player.PlayActivity;
+import com.driot.bookplayer.player.PlayList;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -66,44 +62,7 @@ public class NavHelper {
     }
 
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, String stationUuid) {
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-
-        if (stationUuid != null && !stationUuid.isEmpty()) {
-            // Build back stack: Main -> GetRadio -> RadioStationActivity
-            TaskStackBuilder tsb = TaskStackBuilder.create(context);
-            tsb.addNextIntent(new Intent(context, MainActivity.class));
-            tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
-            tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
-                    .putExtra(Intents.EXTRA_STATION_UUID, stationUuid));
-            return tsb.getPendingIntent(0, flags);
-        }
-
-        Context appCtx = context.getApplicationContext();
-        // ... rest of the logic for no stationUuid ...
-        boolean hasFavOrHistory = false;
-        try {
-            hasFavOrHistory = AppDatabase.databaseReadExecutor
-                    .submit(() -> {
-                        RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
-                        return dao.anyFavoriteOrHistoryExists();
-                    })
-                    .get();
-        } catch (Exception e) {
-            myLogEE(e, "getNavToRadioActivityPendingIntent: DB check failed");
-        }
-
-        if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
-            TaskStackBuilder tsb = TaskStackBuilder.create(context);
-            tsb.addNextIntent(new Intent(context, MainActivity.class));
-            tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
-            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class));
-            return tsb.getPendingIntent(0, flags);
-        } else {
-            return PendingIntent.getActivity(
-                    context,
-                    0,
-                    new Intent(context, GetRadioActivity.class), flags);
-        }
+        return null;
     }
 
     /**
@@ -162,102 +121,11 @@ public class NavHelper {
     }
 
     public static void navigateToRadioSection(Activity activity, boolean removeTransitions) {
-        myLogD("navigateToRadioSection start");
-        Context appCtx = activity.getApplicationContext();
-
-        AppDatabase.databaseWriteExecutor.execute(() -> {
-            myLogD("navigateToRadioSection: inside executor");
-            RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
-            boolean hasFavOrHistory = dao.anyFavoriteOrHistoryExists();
-            myLogD("navigateToRadioSection: hasFavOrHistory=" + hasFavOrHistory);
-
-            activity.runOnUiThread(() -> {
-                myLogD("navigateToRadioSection: runOnUiThread start");
-                // Prepare base intent (MainActivity) to ensure correct back stack
-                Intent mainIntent = new Intent(activity, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                if (Option.getRadioOpenFavoritesFirst() && hasFavOrHistory) {
-                    // 1) Base screen in stack: radio search/list
-                    Intent listIntent = new Intent(activity, GetRadioActivity.class);
-
-                    // 2) Top screen shown to the user: favorites/history screen
-                    Intent favIntent = new Intent(activity, RadioFavoritesActivity.class);
-
-                    // Build back stack: Main -> GetRadio -> RadioFavorites
-                    activity.startActivities(new Intent[] { mainIntent, listIntent, favIntent });
-
-                } else {
-                    // No favorites and no history yet: go to radio search
-                    Intent intent = new Intent(activity, GetRadioActivity.class);
-
-                    // Build back stack: Main -> GetRadio
-                    activity.startActivities(new Intent[] { mainIntent, intent });
-                }
-
-                if (removeTransitions) {
-                    activity.overridePendingTransition(0, 0);
-                }
-                myLogD("navigateToRadioSection: runOnUiThread done");
-            });
-        });
+        myLogD("stub!");
     }
 
     public static void navigateToPodcastSection(Activity activity, boolean removeTransitions) {
-        myLogD("navigateToPodcastSection start");
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            myLogD("navigateToPodcastSection: inside executor");
-            int nbFavorite = AppDatabase.getDatabase(activity)
-                    .podcastDao()
-                    .getFavoriteCount();
-            myLogD("navigateToPodcastSection: nbFavorite=" + nbFavorite);
-
-            activity.runOnUiThread(() -> {
-                myLogD("navigateToPodcastSection: runOnUiThread start");
-                // Prepare base intent (MainActivity) to ensure correct back stack
-                Intent mainIntent = new Intent(activity, MainActivity.class);
-                mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-                if (Option.getPodcastOpenFavoritesFirst() && nbFavorite > 0) {
-                    // 1) Base screen in stack
-                    Intent listIntent = new Intent(activity, GetPodcastActivity.class);
-
-                    // 2) Top screen shown to the user
-                    Intent favIntent = new Intent(activity, PodcastFavoritesActivity.class);
-
-                    // Build back stack: Main -> GetPodcast -> PodcastFavorites
-                    activity.startActivities(new Intent[] { mainIntent, listIntent, favIntent });
-                } else {
-                    // No favorites → go directly to GetPodcast
-                    Intent intent = new Intent(activity, GetPodcastActivity.class);
-                    // Build back stack: Main -> GetPodcast
-                    activity.startActivities(new Intent[] { mainIntent, intent });
-                }
-                if (removeTransitions)
-                    activity.overridePendingTransition(0, 0);
-                myLogD("navigateToPodcastSection: runOnUiThread done");
-            });
-        });
-    }
-
-    public static PendingIntent navigateToPodcastActivity(Context context) {
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        return PendingIntent.getActivity(
-                context,
-                0,
-                new Intent(context, GetPodcastActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                flags);
-    }
-
-    public static PendingIntent navigateToLibrivoxActivity(Context context) {
-        final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
-        return PendingIntent.getActivity(
-                context,
-                0,
-                new Intent(context, GetLibrivoxActivity.class)
-                        .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP),
-                flags);
+        myLogD("stub!");
     }
 
     private static void myLogDD(String txt) {

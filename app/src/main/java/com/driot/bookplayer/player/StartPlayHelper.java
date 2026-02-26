@@ -17,9 +17,7 @@ import androidx.media.MediaBrowserServiceCompat;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
-import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
@@ -27,6 +25,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.radio.RadioHelper;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -560,39 +559,13 @@ public class StartPlayHelper {
     }
     public static void playUndefinedStream(Context context, String url) {
         AppDatabase.databaseReadExecutor.execute(() -> {
-            RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
-            if (rs != null) {
-                String title = rs.name;
-                String imageUrl = rs.favicon;
-                //broadcastUiState("loadAndPlay");
-                //main.post(() -> {
-                playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
-                    //if (!ok) { myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio"); }
-                //});
-                return;
+            boolean playStreamIfKnownRadio = RadioHelper.playStreamIfKnownRadio(context, url);
+            if (playStreamIfKnownRadio) { return; }
+            boolean playStreamIfKnownPodcast = PodcastHelper.playStreamIfKnownPodcast(context, url);
+            if (playStreamIfKnownPodcast) {
+                myLogEE(null, "could not play undefined stream : [" + url + "]");
             }
-            Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
-            if (episode != null) {
-                String title = episode.title;
-                String imageUrl = episode.image;
-                // TODO => we need a position, or it will start the episode from the
-                // beggining....
-                //broadcastUiState("loadAndPlay");
-                //main.post(() -> {
-                playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
-                /*
-                    boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
-                    if (!ok) {
-                        myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
-                    }
-
-                 */
-                //});
-                return;
-            }
-            myLogEE(null, "could not retrieve stream object");
         });
-
     }
 
     // private Helpers
