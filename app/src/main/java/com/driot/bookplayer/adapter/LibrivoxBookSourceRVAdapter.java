@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -19,12 +20,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LibrivoxBookSourceRVAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class LibrivoxBookSourceRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
 
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM = 1;
@@ -44,8 +46,44 @@ public class LibrivoxBookSourceRVAdapter extends RecyclerView.Adapter<RecyclerVi
     }
 
     public void setItems(List<BookSource> newItems) {
-        items = newItems != null ? newItems : new ArrayList<>();
-        notifyDataSetChanged();
+        List<BookSource> oldItems = this.items;
+        this.items = newItems != null ? new ArrayList<>(newItems) : new ArrayList<>();
+
+        DiffUtil.calculateDiff(new DiffUtil.Callback() {
+            @Override
+            public int getOldListSize() {
+                return oldItems.size() + 1; // +1 for header
+            }
+
+            @Override
+            public int getNewListSize() {
+                return items.size() + 1; // +1 for header
+            }
+
+            @Override
+            public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+                if (oldItemPosition == 0 || newItemPosition == 0) {
+                    return oldItemPosition == newItemPosition;
+                }
+                BookSource oldItem = oldItems.get(oldItemPosition - 1);
+                BookSource newItem = items.get(newItemPosition - 1);
+                return oldItem.id == newItem.id;
+            }
+
+            @Override
+            public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+                if (oldItemPosition == 0 || newItemPosition == 0) {
+                    return oldItemPosition == newItemPosition;
+                }
+                BookSource oldItem = oldItems.get(oldItemPosition - 1);
+                BookSource newItem = items.get(newItemPosition - 1);
+                // Simple check for content equality
+                return oldItem.is_favorite == newItem.is_favorite &&
+                        oldItem.book_title.equals(newItem.book_title) &&
+                        (oldItem.idFolder == null ? newItem.idFolder == null
+                                : oldItem.idFolder.equals(newItem.idFolder));
+            }
+        }).dispatchUpdatesTo(this);
     }
 
     @Override
@@ -103,8 +141,8 @@ public class LibrivoxBookSourceRVAdapter extends RecyclerView.Adapter<RecyclerVi
         } else {
             holder.ibFavorite.setColorFilter(ContextCompat.getColor(context, R.color.white));
         }
-        holder.ibFavorite.setOnClickListener(v -> listener.onFavoriteClick(item));
 
+        holder.ibFavorite.setOnClickListener(v -> listener.onFavoriteClick(item));
         ImageView ivImported = holder.itemView.findViewById(R.id.ivImported);
         ivImported.setVisibility(item.idFolder != null && item.idFolder > 0 ? View.VISIBLE : View.GONE);
     }
