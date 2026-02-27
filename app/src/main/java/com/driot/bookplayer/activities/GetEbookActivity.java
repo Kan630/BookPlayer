@@ -15,6 +15,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageItem;
 import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
@@ -29,8 +30,8 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
     Spinner spinnerEbookLang;
     EditText1lineWithSearch editTextEbook;
-    Button bMostDownloaded;
-    Button bBookshelves;
+    Button bEbookMostDownloaded;
+    Button bEbookBookshelves;
 
     String query, lang;
 
@@ -56,8 +57,8 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
         spinnerEbookLang = findViewById(R.id.spinnerEbookLang);
         editTextEbook = findViewById(R.id.etEbook);
-        bMostDownloaded = findViewById(R.id.bMostDownloaded);
-        bBookshelves = findViewById(R.id.bBookshelves);
+        bEbookMostDownloaded = findViewById(R.id.bEbookMostDownloaded);
+        bEbookBookshelves = findViewById(R.id.bEbookBookshelves);
 
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
@@ -76,13 +77,17 @@ public class GetEbookActivity extends BaseBottomNavActivity {
                 gutenbergLanguages,
                 langItem -> Pref.set_Audio_Language_Ebook(this, langItem.code2));
 
-        bMostDownloaded.setOnClickListener(v -> {
+        bEbookMostDownloaded.setOnClickListener(v -> {
             myLogI("--- User clicks MOST DOWNLOADED ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             query = "";
             doSearch();
         });
 
-        bBookshelves.setOnClickListener(v -> {
+        bEbookBookshelves.setOnClickListener(v -> {
             myLogI("--- User clicks BOOKSHELVES ---");
             GutenbergLanguageItem selected = (GutenbergLanguageItem) spinnerEbookLang.getSelectedItem();
             if (selected == null) {
@@ -123,6 +128,10 @@ public class GetEbookActivity extends BaseBottomNavActivity {
 
     private void doSearch() {
         // Get selected language from spinner
+        if (!NetworkHelper.isConnected(this)) {
+            myToastE(getString(R.string.no_internet_connection));
+            return;
+        }
         GutenbergLanguageItem selected = (GutenbergLanguageItem) spinnerEbookLang.getSelectedItem();
         if (selected == null) {
             myToast(getString(com.driot.bookplayer.R.string.selected_language_error));

@@ -139,36 +139,16 @@
                     android:layout_marginBottom="6dp"
                     android:layout_marginHorizontal="6dp"
                     android:text="@string/last_added"
-                     />
-                <LinearLayout
+                    />
+                <Button
+                    android:id="@+id/bLibrivoxByGenre"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_gravity="center_horizontal"
                     android:layout_marginTop="6dp"
+                    android:layout_marginBottom="6dp"
                     android:layout_marginHorizontal="6dp"
-                    android:baselineAligned="false"
-                    android:gravity="top"
-                    >
-
-                    <Button
-                        android:id="@+id/bLibrivoxByGenre"
-                        android:layout_width="match_parent"
-                        android:layout_weight="1"
-                        android:layout_height="48dp"
-                        android:text="@string/by_genre_all_languages"
-                        />
-
-                    <Button
-                        android:id="@+id/bByAuthor"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
-                        android:layout_height="48dp"
-                        android:text="@string/by_author"
-                        android:visibility="gone"
-                        />
-                </LinearLayout>
-
+                    android:text="@string/by_genre_all_languages"
+                    />
 
                 <View style="@style/GetResourceHorizontalBar" />
 
@@ -178,7 +158,7 @@
                     style="@style/GetResourceTextTopOfButton" />
 
                 <com.driot.bookplayer.views.EditText1lineWithSearch
-                    android:id="@+id/etLibrivox"
+                    android:id="@+id/etLibrivoxSearch"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:scrollOnFocus="true"

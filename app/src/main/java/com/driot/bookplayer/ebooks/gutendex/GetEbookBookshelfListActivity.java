@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.EbookResultsActivity;
 import com.driot.bookplayer.global.Var;
@@ -64,6 +65,10 @@ public class GetEbookBookshelfListActivity extends BaseBottomNavActivity {
         }
         adapter = new EbookBookshelfCardAdapter(item -> {
             myLogI("--- user clicks bookshelf " + item.name);
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             openEbookResultsForBookshelf(item.name);
         });
         rv.setAdapter(adapter);

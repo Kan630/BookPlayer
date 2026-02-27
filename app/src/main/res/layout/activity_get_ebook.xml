@@ -101,7 +101,7 @@
                         android:text="@string/quick_lists"
                         style="@style/GetResourceTextTopOfButton" />
                     <Button
-                        android:id="@+id/bMostDownloaded"
+                        android:id="@+id/bEbookMostDownloaded"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"
@@ -109,7 +109,7 @@
                         android:text="@string/most_downloaded"
                         style="@style/GetResourceButton" />
                     <Button
-                        android:id="@+id/bBookshelves"
+                        android:id="@+id/bEbookBookshelves"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="10dp"

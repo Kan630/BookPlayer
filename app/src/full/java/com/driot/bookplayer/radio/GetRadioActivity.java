@@ -10,6 +10,7 @@ import android.widget.Spinner;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Var;
@@ -70,10 +71,10 @@ public class GetRadioActivity extends BaseBottomNavActivity {
                 /* discoverMirrors */ false,
                 /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
-        bTopClick = findViewById(R.id.bTopClick);
-        bTopVote = findViewById(R.id.bTopVote);
-        bLastClick = findViewById(R.id.blastClick);
-        bLastChange = findViewById(R.id.blastChange);
+        bTopClick = findViewById(R.id.bRadioTopClicked);
+        bTopVote = findViewById(R.id.bRadioTopVoted);
+        bLastClick = findViewById(R.id.bRadioLastClicked);
+        bLastChange = findViewById(R.id.bRadioLastChanged);
 
         etRadio = findViewById(R.id.etRadio);
         // buttonSearch = findViewById(R.id.bRadioSearch); // Removed
@@ -86,18 +87,30 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         ibFavorite.setOnClickListener(v -> clickFavorite());
         ibSettings.setOnClickListener(v -> clickSettings());
 
-        findViewById(R.id.bByTag).setOnClickListener(v -> {
+        findViewById(R.id.bRadioByTag).setOnClickListener(v -> {
             myLogI("---- user clicks BY TAG ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("tag");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_TAG);
         });
-        findViewById(R.id.bByCountry).setOnClickListener(v -> {
+        findViewById(R.id.bRadioByCountry).setOnClickListener(v -> {
             myLogI("---- user clicks BY COUNTRY ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("country");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_COUNTRY);
         });
-        findViewById(R.id.bByLanguage).setOnClickListener(v -> {
+        findViewById(R.id.bRadioByLang).setOnClickListener(v -> {
             myLogI("---- user clicks BY LANGUAGE ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             FirebaseAnalyticsHelper.tellAnalyticsRadioBy("lang");
             GetRadioCardListActivity.start(this, GetRadioCardListActivity.MODE_LANGUAGE);
         });
@@ -108,6 +121,10 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bTopClick.setOnClickListener(v -> {
             myLogI("---- user clicks TOP CLICK ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TOP_CLICK");
             startActivity(i);
@@ -116,6 +133,10 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bTopVote.setOnClickListener(v -> {
             myLogI("---- user clicks TOP VOTE ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TOP_VOTE");
             startActivity(i);
@@ -124,6 +145,10 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bLastClick.setOnClickListener(v -> {
             myLogI("---- user clicks LAST CLICK ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LAST_CLICK");
             startActivity(i);
@@ -132,6 +157,10 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
         bLastChange.setOnClickListener(v -> {
             myLogI("---- user clicks LAST CHANGE ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             Intent i = new Intent(getApplicationContext(), RadioResultsActivity.class)
                     .putExtra(EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LAST_CHANGE");
             startActivity(i);
@@ -176,6 +205,10 @@ public class GetRadioActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
+        if (!NetworkHelper.isConnected(this)) {
+            myToastE(getString(R.string.no_internet_connection));
+            return;
+        }
         query = Tonio.cleanSearchString(etRadio.getText());
         if (query.isEmpty()) {
             myToast(getString(R.string.please_type_a_search_string));

@@ -122,25 +122,25 @@
                     >
 
                     <Button
-                        android:id="@+id/bTopClick"
+                        android:id="@+id/bRadioTopClicked"
                         android:text="@string/top_click"
                         style="@style/radio_btn"
                         />
 
                     <Button
-                        android:id="@+id/bTopVote"
+                        android:id="@+id/bRadioTopVoted"
                         android:text="@string/top_vote"
                         style="@style/radio_btn"
                         />
 
                     <Button
-                        android:id="@+id/blastClick"
+                        android:id="@+id/bRadioLastClicked"
                         android:text="@string/last_click"
                         style="@style/radio_btn"
                         />
 
                     <Button
-                        android:id="@+id/blastChange"
+                        android:id="@+id/bRadioLastChanged"
                         android:text="@string/last_change"
                         style="@style/radio_btn"
                         />
@@ -159,19 +159,19 @@
                     >
 
                     <Button
-                        android:id="@+id/bByTag"
+                        android:id="@+id/bRadioByTag"
                         android:text="@string/by_tag"
                         style="@style/radio_btn"
                         />
 
                     <Button
-                        android:id="@+id/bByCountry"
+                        android:id="@+id/bRadioByCountry"
                         android:text="@string/by_country"
                         style="@style/radio_btn"
                         />
 
                     <Button
-                        android:id="@+id/bByLanguage"
+                        android:id="@+id/bRadioByLang"
                         android:text="@string/by_language"
                         style="@style/radio_btn"
                         />

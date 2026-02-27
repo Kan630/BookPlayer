@@ -16,6 +16,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +28,7 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";
 
-    public static final int MODE_GENRE  = 0;
+    public static final int MODE_GENRE = 0;
     public static final int MODE_AUTHOR = 1; // we’ll wire this later
 
     private RecyclerView rv;
@@ -47,9 +48,20 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
 
     // (Later you can add: startForAuthors(Context, String lang) similarly)
 
-    @Override protected int getNavId() { return R.id.nav_add; }
-    @Override protected int getLayoutResId() { return R.layout.activity_get_librivox_by_facet; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_add;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_get_librivox_by_facet;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle b) {
@@ -59,7 +71,8 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
         rv = findViewById(R.id.recyclerView);
         progress = findViewById(R.id.progressBar);
 
-        librivoxLanguageItem = (LibrivoxLanguageItem) getIntent().getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
+        librivoxLanguageItem = (LibrivoxLanguageItem) getIntent()
+                .getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
 
         if (rv != null) {
             int span = getResources().getInteger(R.integer.classic_grid_span);
@@ -70,6 +83,10 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
         }
         adapter = new LibrivoxFacetCardAdapter(item -> {
             myLogI("--- user clicks genre " + item.name);
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             openLibrivoxResultsForGenre(item.name);
         });
         rv.setAdapter(adapter);
@@ -91,12 +108,11 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
 
     private void openLibrivoxResultsForGenre(String genre) {
         Intent intent = new Intent(this, LibrivoxResultsActivity.class);
-        intent.putExtra("mode",  "MODE_GENRE");
-        intent.putExtra("query", "");   // query not used in TRENDING
+        intent.putExtra("mode", "MODE_GENRE");
+        intent.putExtra("query", ""); // query not used in TRENDING
         intent.putExtra("genre", genre);
-        intent.putExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM,  librivoxLanguageItem);
+        intent.putExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM, librivoxLanguageItem);
         startActivity(intent);
     }
-
 
 }

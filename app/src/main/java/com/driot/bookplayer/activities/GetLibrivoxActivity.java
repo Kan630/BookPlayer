@@ -18,6 +18,7 @@ import com.driot.bookplayer.librivox.GetLibrivoxFacetListActivity;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageStore;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
@@ -31,11 +32,11 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
     Spinner spinnerLibrivox;
-    EditText1lineWithSearch editTextLibrivox;
+    EditText1lineWithSearch etLibrivoxSearch;
     Button bFavorite;
     ImageButton ibFavorite;
-    Button buttonTrending, bLibrivoxLastAdded;
-    Button buttonByGenre;
+    Button bLibrivoxTrending, bLibrivoxLastAdded;
+    Button bLibrivoxByGenre;
     Button buttonByAuthor;
 
     String query;
@@ -61,12 +62,11 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        buttonTrending = findViewById(R.id.bLibrivoxTrending);
+        bLibrivoxTrending = findViewById(R.id.bLibrivoxTrending);
         bLibrivoxLastAdded = findViewById(R.id.bLibrivoxLastAdded);
-        buttonByGenre = findViewById(R.id.bLibrivoxByGenre);
-        buttonByAuthor = findViewById(R.id.bByAuthor);
+        bLibrivoxByGenre = findViewById(R.id.bLibrivoxByGenre);
         spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
-        editTextLibrivox = findViewById(R.id.etLibrivox);
+        etLibrivoxSearch = findViewById(R.id.etLibrivoxSearch);
         bFavorite = findViewById(R.id.bFavorite);
         ibFavorite = findViewById(R.id.ibFavorite);
 
@@ -74,9 +74,9 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
         ibFavorite.setOnClickListener(v -> clickFavorite());
         findViewById(R.id.ibSettings).setOnClickListener(v -> clickSettings());
 
-        editTextLibrivox.setHistoryKey("librivox_search"); // keep histories separate
-        editTextLibrivox.setCompletionThreshold(1); // suggestions after 1 char
-        editTextLibrivox.setSuggestOnFocus(true); // show dropdown on focus if empty
+        etLibrivoxSearch.setHistoryKey("librivox_search"); // keep histories separate
+        etLibrivoxSearch.setCompletionThreshold(1); // suggestions after 1 char
+        etLibrivoxSearch.setSuggestOnFocus(true); // show dropdown on focus if empty
 
         LibrivoxLanguageStore store = new LibrivoxLanguageStore(this);
         List<LibrivoxLanguageItem> librivox_languages = store.loadLanguages(R.raw.librivox_languages);
@@ -92,8 +92,12 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
                 spinnerItems,
                 lli -> Pref.set_Audio_Language_Librivox(this, lli.name));
 
-        buttonTrending.setOnClickListener(v -> {
+        bLibrivoxTrending.setOnClickListener(v -> {
             myLogI("--- User clicks MOST DOWNLOADED ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             query = "";
             if (!checkLangFromSpinner())
                 return;
@@ -103,6 +107,10 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
         bLibrivoxLastAdded.setOnClickListener(v -> {
             myLogI("--- User clicks LAST ADDED ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             query = "";
             if (!checkLangFromSpinner())
                 return;
@@ -110,44 +118,39 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
             FirebaseAnalyticsHelper.tellAnalyticsLibrivoxQuickList(query, selectedLanguageItem.name, "last_added");
         });
 
-        buttonByGenre.setOnClickListener(v -> {
+        bLibrivoxByGenre.setOnClickListener(v -> {
             myLogI("--- User clicks BY GENRE ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             if (!checkLangFromSpinner())
                 return;
             GetLibrivoxFacetListActivity.startForGenres(this, selectedLanguageItem);
             FirebaseAnalyticsHelper.tellAnalyticsLibrivoxQuickList("", selectedLanguageItem.name, "by_genre");
         });
 
-        // --- BY AUTHOR: open facet list activity (no spinner there) ---
-        buttonByAuthor.setOnClickListener(v -> {
-            myLogI("--- User clicks BY AUTHOR ---");
-            if (!checkLangFromSpinner())
-                return;
-            // TODO
-            FirebaseAnalyticsHelper.tellAnalyticsLibrivoxBy("author", selectedLanguageItem.name);
-        });
-
-        editTextLibrivox.getSearchButton().setOnClickListener(v -> {
+        etLibrivoxSearch.getSearchButton().setOnClickListener(v -> {
             myLogI("--- User clicks SEARCH ---");
             if (!checkLangFromSpinner())
                 return;
             doSearch();
         });
-        editTextLibrivox.getEditText().setOnEditorActionListener((v, actionId, event) -> {
+
+        etLibrivoxSearch.getEditText().setOnEditorActionListener((v, actionId, event) -> {
             boolean isEnterKey = event != null
                     && event.getAction() == android.view.KeyEvent.ACTION_DOWN
                     && event.getKeyCode() == android.view.KeyEvent.KEYCODE_ENTER;
 
             if (actionId == EditorInfo.IME_ACTION_SEARCH || isEnterKey) {
                 myLogI("--- User clicks SEARCH --- (via keyboard)");
-
                 // 2) run your existing search
                 if (!checkLangFromSpinner())
                     return true;
                 doSearch();
 
                 // 3) optional: close suggestions dropdown
-                editTextLibrivox.getEditText().dismissDropDown();
+                etLibrivoxSearch.getEditText().dismissDropDown();
 
                 return true;
             }
@@ -170,8 +173,12 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
-        query = Tonio.cleanSearchString(editTextLibrivox.getText());
-        editTextLibrivox.saveCurrentTextToHistory();
+        query = Tonio.cleanSearchString(etLibrivoxSearch.getText());
+        etLibrivoxSearch.saveCurrentTextToHistory();
+        if (!NetworkHelper.isConnected(this)) {
+            myToastE(getString(R.string.no_internet_connection));
+            return;
+        }
         openLibrivoxResultsActivity();
         FirebaseAnalyticsHelper.tellAnalyticsLibrivoxSearch(query, selectedLanguageItem.name);
     }
