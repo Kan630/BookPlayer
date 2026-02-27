@@ -54,43 +54,40 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 //COUNT
         h.tvCount.setText(String.valueOf(t.stationcount));
 //FLAG
-        Integer flagResId = null;
+        int flagResId = 0;
         if (t.iso_3166_1 != null) {
             flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_3166_1, "country");
         } else if (t.iso_639 != null) {
             flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_639, "language");
-        } else if ("american english".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "us", "country");
-        } else if ("brazilian portuguese".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
-        } else if ("português  brasil".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
-        } else if ("español internacional".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
-        } else if ("castellano. español".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
-        } else if ("español argentina".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "ar", "country");
-        } else if ("español mexico".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "mx", "country");
-        } else if ("english uk".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
-        } else if ("cantonese".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "cn", "country");
-        } else if ("british english".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
-        } else if ("filipino".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "ph", "country");
-        } else if ("punjabi".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
-        } else if ("romania".equals(t.name)) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "ro", "country");
-        } else if ("breton".equalsIgnoreCase(t.name)) {
-            flagResId = LanguageMapper.getMapping("breton").flagRes;
+        }
+        if (flagResId == 0) {
+            flagResId = LanguageMapper.getFlagFromName(t.name);
+        }
+        if (flagResId == 0) {
+            if ("american english".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "us", "country");
+            } else if ("brazilian portuguese".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
+            } else if ("português  brasil".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
+            } else if ("español internacional".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
+            } else if ("castellano. español".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
+            } else if ("español argentina".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "ar", "country");
+            } else if ("español mexico".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "mx", "country");
+            } else if ("english uk".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
+            } else if ("british english".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
+            } else if ("romania".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "ro", "country");
+            }
         }
 
-
-        if (flagResId != null && flagResId != 0) {
+        if (flagResId != 0) {
             //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" + h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
             Glide.with(h.ivFlag.getContext()).load(flagResId).signature(new ObjectKey(t.name + "_" + flagResId)).into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
