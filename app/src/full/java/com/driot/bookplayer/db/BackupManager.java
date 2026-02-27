@@ -13,7 +13,6 @@ public class BackupManager extends BaseBackupManager {
     public static class BackupData extends BaseBackupData {
         public List<RadioStation> radioStations = new ArrayList<>();
         public List<Podcast> podcasts = new ArrayList<>();
-        public List<Episode> episodes = new ArrayList<>();
     }
 
     @Override
@@ -29,7 +28,6 @@ public class BackupManager extends BaseBackupManager {
         }
         if (includePodcasts) {
             data.podcasts = db.podcastDao().getAll();
-            data.episodes = db.episodeDao().getAll();
         }
 
         return gson.toJson(data);
@@ -60,9 +58,6 @@ public class BackupManager extends BaseBackupManager {
                 if (includePodcasts) {
                     if (data.podcasts != null) {
                         db.podcastDao().insertAll(data.podcasts);
-                    }
-                    if (data.episodes != null) {
-                        db.episodeDao().insertAll(data.episodes);
                     }
                 }
             });

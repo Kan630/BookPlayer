@@ -492,7 +492,7 @@ public class PodcastHelper {
      */
     @androidx.annotation.Nullable
     public static String getOriginalCoverPath(Context context, int folderId) {
-        //LEGACY
+        // LEGACY
         Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
                 .getPodcastByFolderId(folderId);
         if (podcast == null)
@@ -629,8 +629,7 @@ public class PodcastHelper {
     }
 
     public static boolean backupDataHasPodcasts(BackupManager.BackupData data) {
-        return (data.podcasts != null && !data.podcasts.isEmpty())
-                || (data.episodes != null && !data.episodes.isEmpty());
+        return (data.podcasts != null && !data.podcasts.isEmpty());
     }
 
 }
