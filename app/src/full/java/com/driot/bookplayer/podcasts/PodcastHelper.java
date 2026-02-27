@@ -492,13 +492,21 @@ public class PodcastHelper {
      */
     @androidx.annotation.Nullable
     public static String getOriginalCoverPath(Context context, int folderId) {
+        //LEGACY
         Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
                 .getPodcastByFolderId(folderId);
         if (podcast == null)
             return null;
 
-        File dir = com.driot.bookplayer.helpers.StorageHelper.getImageFolder(context, false);
+        File dir = com.driot.bookplayer.helpers.StorageHelper.getImageFolder(context, true);
         File jpgFile = new File(dir, ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg");
+
+        if (jpgFile.exists()) {
+            return jpgFile.getAbsolutePath();
+        }
+
+        dir = com.driot.bookplayer.helpers.StorageHelper.getImageFolder(context, false);
+        jpgFile = new File(dir, ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg");
 
         if (jpgFile.exists()) {
             return jpgFile.getAbsolutePath();

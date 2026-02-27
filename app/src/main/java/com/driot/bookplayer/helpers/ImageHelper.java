@@ -44,6 +44,7 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_RADIO_COVERS = "radio_station_";
     public static final String IMAGE_PREFIX_FOR_LIBRIVOX_COVERS = "librivox_img_";
     public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
+    public static final String IMAGE_PREFIX_FOR_ORIGINAL_COVER = "saved_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
 
     // TODO ASYNC...
@@ -316,6 +317,16 @@ public class ImageHelper {
         if (!tmpFile.exists()) {
             myLogD("Temp image not found: " + tmpFile.getAbsolutePath());
             return;
+        }
+
+        // Also save a copy as "original" (saved_XX.jpg)
+        File originalFile = new File(StorageHelper.getImageFolder(context, false),
+                IMAGE_PREFIX_FOR_ORIGINAL_COVER + folderId + ".jpg");
+        try {
+            copyFile(tmpFile, originalFile);
+            myLog("Original cover preserved at: " + originalFile.getAbsolutePath());
+        } catch (IOException e) {
+            myLogE("Failed to preserve original cover: " + e.getMessage());
         }
 
         boolean renamed = tmpFile.renameTo(newFile);
@@ -1038,10 +1049,32 @@ public class ImageHelper {
      */
     @Nullable
     public static String getOriginalCoverPath(Context context, int folderId) {
+        // 1) Check for preserved original image (saved_XX.jpg)
+        File dirPermanant = StorageHelper.getImageFolder(context, false);
+        File savedOriginal = new File(dirPermanant, IMAGE_PREFIX_FOR_ORIGINAL_COVER + folderId + ".jpg");
+        if (savedOriginal.exists()) {
+            return savedOriginal.getAbsolutePath();
+        }
+
+        //LEGACY :
+
+        // --- Backwards compatibility / Specialized handlers ---
         // Try Podcast first
         String podcastPath = PodcastHelper.getOriginalCoverPath(context, folderId);
         if (podcastPath != null) {
             return podcastPath;
+        }
+
+        // Try Librivox
+        AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+        Folder folder = db.folderDao().getById(folderId);
+        if (folder != null && Var.SOURCE_LOCATION_LIBRIVOX.equals(folder.getSourceLocation())) {
+            String identifier = com.driot.bookplayer.utils.Tonio.getFileNameFromPath(folder.getPath());
+            File cachedDir = StorageHelper.getImageFolder(context, true);
+            File librivoxFile = new File(cachedDir, IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg");
+            if (librivoxFile.exists()) {
+                return librivoxFile.getAbsolutePath();
+            }
         }
 
         File dir = StorageHelper.getImageFolder(context, false);
@@ -1154,4 +1187,14 @@ public class ImageHelper {
         }
     }
 
+    private static void copyFile(File source, File dest) throws IOException {
+        try (java.io.FileInputStream is = new java.io.FileInputStream(source);
+                java.io.FileOutputStream os = new java.io.FileOutputStream(dest)) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = is.read(buffer)) > 0) {
+                os.write(buffer, 0, length);
+            }
+        }
+    }
 }
