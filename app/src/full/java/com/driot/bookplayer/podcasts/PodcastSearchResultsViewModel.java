@@ -105,6 +105,13 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
             public void onSuccess(List<PodcastFeed> feeds) {
                 isLoading.postValue(false);
                 if (feeds != null) {
+                    Set<String> censored = LiveCensorshipManager.getCensoredPodcasts(getApplication());
+                    Iterator<PodcastFeed> it = feeds.iterator();
+                    while (it.hasNext()) {
+                        if (LiveCensorshipManager.isCensored(it.next().title, censored)) {
+                            it.remove();
+                        }
+                    }
                     results.postValue(feeds);
                 } else {
                     results.postValue(new ArrayList<>());
@@ -128,6 +135,13 @@ public class PodcastSearchResultsViewModel extends LoggingAndroidViewModel {
             public void onSuccess(List<PodcastFeed> feeds) {
                 isLoading.postValue(false);
                 if (feeds != null) {
+                    Set<String> censored = LiveCensorshipManager.getCensoredPodcasts(getApplication());
+                    Iterator<PodcastFeed> it = feeds.iterator();
+                    while (it.hasNext()) {
+                        if (LiveCensorshipManager.isCensored(it.next().title, censored)) {
+                            it.remove();
+                        }
+                    }
                     results.postValue(feeds);
                 } else {
                     results.postValue(new ArrayList<>());
