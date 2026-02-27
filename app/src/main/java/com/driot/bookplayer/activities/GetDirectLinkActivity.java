@@ -103,6 +103,10 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 myToast(getString(R.string.Please_enter_a_URL));
                 return;
             }
+            if (!NetworkHelper.isConnected(this)) {
+                myToast(getString(R.string.no_internet_connection));
+                return;
+            }
             if (Option.getNetworkPolicyManualDownload()
                     .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                     && !NetworkHelper.isUnmeteredConnected(this)) {
@@ -117,17 +121,11 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                         REQ_DOWNLOAD_UNMETERED);
 
             } else {
-                checkWWW(canReach -> {
-                    if (getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
-                        if (canReach) {
-                            Intent intent = new Intent(this, ImportBookSingleActivity.class);
-                            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
-                            loadBookActivityResultLauncher.launch(intent);
-                            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
-                        }
-                    }
-                });
+                Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(justGetItUrl));
+                intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
+                loadBookActivityResultLauncher.launch(intent);
+                FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
             }
         });
 
@@ -154,29 +152,6 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 etDirectDownload.setText(Var.AUTOTEST_FILE_01);
             }
         });
-    }
-
-    public interface WWWCheckCallback {
-        void onResult(boolean canReach);
-    }
-
-    private void checkWWW(WWWCheckCallback callback) {
-        if (!NetworkHelper.isNetworkAvailable(this)) {
-            myToast(getString(com.driot.bookplayer.R.string.error_network_not_available));
-            callback.onResult(false);
-            return;
-        }
-        new Thread(() -> {
-            boolean canReach = NetworkHelper.canReachUrl("https://bookplayer.driot.com");
-            runOnUiThread(() -> {
-                if (canReach)
-                    callback.onResult(true);
-                else {
-                    myToast(getString(com.driot.bookplayer.R.string.error_server_not_reachable));
-                    callback.onResult(false);
-                }
-            });
-        }).start();
     }
 
     private void setImportOverlayVisible(boolean show) {
@@ -213,17 +188,11 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
         if (requestCode == REQ_DOWNLOAD_UNMETERED) {
             if (resultCode == RESULT_OK && pendingDownloadUrl != null) {
                 String urlToGet = pendingDownloadUrl;
-                checkWWW(canReach -> {
-                    if (getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
-                        if (canReach) {
-                            Intent intent = new Intent(this, ImportBookSingleActivity.class);
-                            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(urlToGet));
-                            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
-                            loadBookActivityResultLauncher.launch(intent);
-                            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(urlToGet, "no_se");
-                        }
-                    }
-                });
+                Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(urlToGet));
+                intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
+                loadBookActivityResultLauncher.launch(intent);
+                FirebaseAnalyticsHelper.tellAnalyticsManualDownload(urlToGet, "no_se");
             } else {
                 myLogD("User cancelled download (Network state popup)");
             }

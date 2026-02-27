@@ -224,7 +224,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             String downloadLinkText;
             if (!download_link.isEmpty()) {
                 long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                downloadLinkText = "\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + Tonio.getReadableSize(size) + ")";
+                downloadLinkText = "\n✅ " + getString(R.string.librivox_zip_mp3_available) + " ("
+                        + Tonio.getReadableSize(size) + ")";
             } else {
                 downloadLinkText = "\n❌ " + getString(R.string.librivox_zip_mp3_not_found);
             }
@@ -484,6 +485,11 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             } else {
                 NetworkHelper.logCurrentNetworkState(this);
                 runOnUiThread(() -> {
+                    if (!NetworkHelper.isConnected(this)) {
+                        myToast(getString(R.string.no_internet_connection));
+                        bGet.setEnabled(true);
+                        return;
+                    }
                     if (Option.getNetworkPolicyManualDownload()
                             .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                             && !NetworkHelper.isUnmeteredConnected(this)) {

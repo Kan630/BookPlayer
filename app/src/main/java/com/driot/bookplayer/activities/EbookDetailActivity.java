@@ -206,6 +206,12 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
     }
 
     private void handleNetworkPolicyThenDownload(String url, String futurePath) {
+        if (!NetworkHelper.isConnected(this)) {
+            myToast(getString(R.string.no_internet_connection));
+            bGet.setEnabled(true);
+            return;
+        }
+
         if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                 && !NetworkHelper.isUnmeteredConnected(this)) {
             pendingDownloadUrl = url;
