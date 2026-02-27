@@ -70,7 +70,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     private Button bGet;
     private TextView tvLinkArchive, tvLinkLibrivox, tvDownloadLink;
     private NetworkStatusMonitor networkMonitor;
-    private boolean isCurrentlyOnline = true;
+    private boolean isCurrentlyOnline = false;
 
     // cover handling
     private long cachedPicSizeBytes;
@@ -156,7 +156,9 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
                 setupDownloadLinkObserver();
                 // Check download file availability
                 if (viewModel.download_link.getValue() == null) {
-                    checkDownloadFile();
+                    if (isCurrentlyOnline) {
+                        checkDownloadFile();
+                    }
                 } else {
                     updateGetButtonEnabled();
                 }
