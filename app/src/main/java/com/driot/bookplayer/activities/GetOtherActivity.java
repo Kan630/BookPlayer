@@ -2,7 +2,6 @@ package com.driot.bookplayer.activities;
 
 import android.Manifest;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -37,6 +36,7 @@ import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.utils.MediaScanner2;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isReadAudioPermissionGranted;
@@ -45,6 +45,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class GetOtherActivity extends BaseBottomNavActivity {
+
+    private static final int REQ_PERMISSION_DENIED = 2001;
 
     private View importDimScrim;
     private OngoingTaskViewModel viewModel;
@@ -454,13 +456,13 @@ public class GetOtherActivity extends BaseBottomNavActivity {
     }
 
     private void showPermissionDeniedDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.Permission_Required))
-                .setMessage(R.string.permission_read_write_denied)
-                .setPositiveButton(getString(R.string.App_Info), (dialog, which) -> openAppInfo())
-                .setNeutralButton(getString(R.string.Settings), (dialog, which) -> openOptionActivity())
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        Intent neutralIntent = new Intent(this, SettingsActivity.class).putExtra("CopyFileSetRed", true);
+        MsgBox.alertWithNeutral(this,
+                getString(R.string.Permission_Required),
+                getString(R.string.permission_read_write_denied),
+                null,
+                getString(R.string.Settings),
+                neutralIntent);
     }
 
     @Override

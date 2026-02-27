@@ -1,7 +1,6 @@
 package com.driot.bookplayer.activities;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -23,6 +22,7 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.imports.OngoingTaskViewModel;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText2linesWithPaste;
 
@@ -30,6 +30,9 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class GetDirectLinkActivity extends BaseBottomNavActivity {
+
+    private static final int REQ_DOWNLOAD_UNMETERED = 2001;
+    private String pendingDownloadUrl;
 
     private View importDimScrim;
     private EditText2linesWithPaste etDirectDownload;
@@ -103,29 +106,16 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
             if (Option.getNetworkPolicyManualDownload()
                     .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                     && !NetworkHelper.isUnmeteredConnected(this)) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.download_warning_title_unmetered)
-                        .setMessage(R.string.download_warning_message_unmetered)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            runOnUiThread(() -> {
-                                checkWWW(canReach -> {
-                                    if (getLifecycle().getCurrentState()
-                                            .isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
-                                        if (canReach) {
-                                            Intent intent = new Intent(this, ImportBookSingleActivity.class);
-                                            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                                            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
-                                            loadBookActivityResultLauncher.launch(intent);
-                                            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
-                                        }
-                                    }
-                                });
-                            });
-                        })
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                            myLogD("User cancelled download (Network state popup)");
-                        })
-                        .show();
+
+                pendingDownloadUrl = justGetItUrl;
+                MsgBox.ask(this,
+                        getString(R.string.download_warning_title_unmetered),
+                        getString(R.string.download_warning_message_unmetered),
+                        null,
+                        getString(android.R.string.ok),
+                        getString(android.R.string.cancel),
+                        REQ_DOWNLOAD_UNMETERED);
+
             } else {
                 checkWWW(canReach -> {
                     if (getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
@@ -217,4 +207,27 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
         importDimMessage.setText(getString(R.string.please_wait_another_book_is_being_imported));
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_DOWNLOAD_UNMETERED) {
+            if (resultCode == RESULT_OK && pendingDownloadUrl != null) {
+                String urlToGet = pendingDownloadUrl;
+                checkWWW(canReach -> {
+                    if (getLifecycle().getCurrentState().isAtLeast(androidx.lifecycle.Lifecycle.State.STARTED)) {
+                        if (canReach) {
+                            Intent intent = new Intent(this, ImportBookSingleActivity.class);
+                            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(urlToGet));
+                            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
+                            loadBookActivityResultLauncher.launch(intent);
+                            FirebaseAnalyticsHelper.tellAnalyticsManualDownload(urlToGet, "no_se");
+                        }
+                    }
+                });
+            } else {
+                myLogD("User cancelled download (Network state popup)");
+            }
+            pendingDownloadUrl = null;
+        }
+    }
 }

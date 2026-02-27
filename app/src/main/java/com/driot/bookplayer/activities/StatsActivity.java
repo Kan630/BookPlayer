@@ -17,7 +17,7 @@ import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.widgets.StorageBarView;
@@ -33,6 +33,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.GoogleServicesHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
@@ -46,6 +47,9 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 public class StatsActivity extends BaseActivity {
+
+    private static final int REQ_DELETE_LOGS = 2001;
+    private static final int REQ_DELETE_CACHED_IMAGES = 2002;
 
     private StatsViewModel viewModel;
     private StorageBarView storageBarInternal;
@@ -248,14 +252,13 @@ public class StatsActivity extends BaseActivity {
 
     private void deleteLogsClick() {
         myLogI("--- user clicks DELETE LOGS ---");
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.AskDelete_popupTitle))
-                .setMessage(getString(R.string.DeleteLogs_AskConfirm))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteLogs())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                })
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteLogs_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_LOGS);
     }
 
     private void deleteLogs() {
@@ -266,14 +269,13 @@ public class StatsActivity extends BaseActivity {
 
     private void deleteCachedImagesClick() {
         myLogI("--- user clicks DELETE CACHED IMAGES ---");
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.AskDelete_popupTitle))
-                .setMessage(getString(R.string.DeleteImages_AskConfirm))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteCachedImages())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                })
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteImages_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_CACHED_IMAGES);
     }
 
     private void deleteCachedImages() {
@@ -482,7 +484,8 @@ public class StatsActivity extends BaseActivity {
      */
     private void addTableRowWithPercentage(TableLayout tableLayout, String label, String value, long totalMs,
             long valueMs) {
-        if (valueMs<=0) return;
+        if (valueMs <= 0)
+            return;
 
         TableRow row = new TableRow(this);
 
@@ -638,4 +641,15 @@ public class StatsActivity extends BaseActivity {
         return DatabaseBackupHelper.getSQLiteVersion(db);
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_DELETE_LOGS) {
+                deleteLogs();
+            } else if (requestCode == REQ_DELETE_CACHED_IMAGES) {
+                deleteCachedImages();
+            }
+        }
+    }
 }
