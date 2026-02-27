@@ -11,18 +11,27 @@ REM Flavors: Full (default), Legacy, Pure - change FLAVOR below if needed
 REM
 setlocal EnableExtensions EnableDelayedExpansion
 cd /d "%~dp0"
+
+REM Enable ANSI color support (Windows 10+)
+reg add HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1 /f >nul 2>&1
+for /f %%a in ('echo prompt $E^| cmd /q') do set "ESC=%%a"
+set "BLUE=!ESC![94m"
+set "RESET=!ESC![0m"
+
 set FLAVOR=Full
 set FLAVOR_LOWER=full
 set BUILD_VARIANT=%FLAVOR%Debug
-set START_TIME=%DATE% %TIME%
-echo ------------------------------------------------------------------------------
+set START_TIME=%TIME%
+
+echo !BLUE!------------------------------------------------------------------------------!RESET!
 echo Arguments received:
 echo Arg1: %~1
 echo Arg2: %~2
 echo Arg3: %~3
 echo Arg4: %~4
 echo Total arguments: %*
-echo ------------------------------------------------------------------------------
+echo !BLUE!------------------------------------------------------------------------------!RESET!
+
 set TEST_CLASS=com.driot.bookplayer.test.ImportBookTest
 set EXTRA_ARGS=
 set DEVICE_ARG=
@@ -68,12 +77,12 @@ set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=!CURREN
 shift & goto parse_loop
 
 :parse_done
-echo ------------------------------------------------------------------------------
+echo !BLUE!------------------------------------------------------------------------------!RESET!
 echo Running: %TEST_CLASS% %EXTRA_ARGS% %DEVICE_ARG%
 echo Using flavor: %FLAVOR% (%BUILD_VARIANT%)
 echo Push mode: %PUSH_MODE%   Keep app: %KEEP_APP%
 echo Device serial: %DEVICE_SERIAL%
-echo ------------------------------------------------------------------------------
+echo !BLUE!------------------------------------------------------------------------------!RESET!
 
 REM ────────────────────────────────────────────────
 REM Uninstall if not keeping
@@ -91,16 +100,19 @@ if %KEEP_APP%==0 (
     echo Keeping app installs - no uninstall
 )
 
-echo ------------------------------------------------------------------------------
-echo [%TIME%] Building APKs...
+echo !BLUE!------------------------------------------------------------------------------!RESET!
+echo !BLUE![%TIME%] Building APKs...!RESET!
+set SECTION_START=%TIME%
 call gradlew.bat :app:assemble%BUILD_VARIANT% :app:assemble%BUILD_VARIANT%AndroidTest
 if errorlevel 1 (
     echo Build failed!
     exit /b 1
 )
+call :elapsed "!SECTION_START!" "Building APKs"
 
-echo ------------------------------------------------------------------------------
-echo [%TIME%] Verifying APK files were built...
+echo !BLUE!------------------------------------------------------------------------------!RESET!
+echo !BLUE![%TIME%] Verifying APK files were built...!RESET!
+set SECTION_START=%TIME%
 set "APK_APP_PATH=%CD%\app\build\outputs\apk\%FLAVOR_LOWER%\debug\app-%FLAVOR_LOWER%-debug.apk"
 set "APK_TEST_PATH=%CD%\app\build\outputs\apk\androidTest\%FLAVOR_LOWER%\debug\app-%FLAVOR_LOWER%-debug-androidTest.apk"
 if exist "%APK_APP_PATH%" (
@@ -120,9 +132,11 @@ if exist "%APK_TEST_PATH%" (
     if exist "%CD%\app\build\outputs\apk\androidTest\%FLAVOR_LOWER%\debug\" dir "%CD%\app\build\outputs\apk\androidTest\%FLAVOR_LOWER%\debug\"
     exit /b 1
 )
+call :elapsed "!SECTION_START!" "Verifying APK files"
 
-echo ------------------------------------------------------------------------------
-echo [%TIME%] Installing APKs...
+echo !BLUE!------------------------------------------------------------------------------!RESET!
+echo !BLUE![%TIME%] Installing APKs...!RESET!
+set SECTION_START=%TIME%
 
 if %PUSH_MODE%==1 (
     echo Using PUSH install mode (manual adb install^)...
@@ -145,18 +159,22 @@ if %PUSH_MODE%==1 (
         )
         echo Auto-detected single device: !DEVICE_SERIAL!
     )
-	echo Disabling Play Protect scan prompt...
-	adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 0
+    echo Disabling Play Protect scan prompt...
+    adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 0
     adb -s "!DEVICE_SERIAL!" install -r -g --no-streaming "%APK_APP_PATH%"
     if errorlevel 1 (
         echo Push install failed - app APK
+        adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 1
         exit /b 1
     )
     adb -s "!DEVICE_SERIAL!" install -r -g --no-streaming "%APK_TEST_PATH%"
     if errorlevel 1 (
         echo Push install failed - androidTest APK
+        adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 1
         exit /b 1
     )
+    echo Re-enabling Play Protect...
+    adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 1
     echo Push install completed.
 ) else if not "!DEVICE_SERIAL!"=="" (
     echo Using regular manual install on specified device !DEVICE_SERIAL!...
@@ -165,13 +183,14 @@ if %PUSH_MODE%==1 (
     echo Cleaning up ADB temp files...
     adb -s "!DEVICE_SERIAL!" shell rm -rf /data/local/tmp/*.apk 2>nul
     adb -s "!DEVICE_SERIAL!" shell rm -rf /sdcard/Download/*.apk 2>nul
-	echo Disabling Play Protect scan prompt...
-	adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 0
+    echo Disabling Play Protect scan prompt...
+    adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 0
     echo Installing app APK...
     adb -s "!DEVICE_SERIAL!" install -r -g "%APK_APP_PATH%"
     if errorlevel 1 (
         echo Install failed - app APK
         echo Path was: %APK_APP_PATH%
+        adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 1
         exit /b 1
     )
     echo App APK installed.
@@ -180,9 +199,12 @@ if %PUSH_MODE%==1 (
     if errorlevel 1 (
         echo Install failed - androidTest APK
         echo Path was: %APK_TEST_PATH%
+        adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 1
         exit /b 1
     )
     echo androidTest APK installed.
+    echo Re-enabling Play Protect...
+    adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 1
     echo Verifying test package...
     adb -s "!DEVICE_SERIAL!" shell pm path com.driot.bookplayer.debug.test
 ) else (
@@ -193,9 +215,11 @@ if %PUSH_MODE%==1 (
         exit /b 1
     )
 )
+call :elapsed "!SECTION_START!" "Installing APKs"
 
-echo ------------------------------------------------------------------------------
-echo [%TIME%] Running test...
+echo !BLUE!------------------------------------------------------------------------------!RESET!
+echo !BLUE![%TIME%] Running test...!RESET!
+set SECTION_START=%TIME%
 
 set GRADLE_CMD=call gradlew.bat :app:connected%BUILD_VARIANT%AndroidTest
 set GRADLE_CMD=!GRADLE_CMD! -Pandroid.testInstrumentationRunnerArguments.class=%TEST_CLASS%
@@ -215,8 +239,33 @@ if not "!DEVICE_SERIAL!"=="" (
 
 echo Command: !GRADLE_CMD!
 !GRADLE_CMD!
+call :elapsed "!SECTION_START!" "Running test"
 
-echo ------------------------------------------------------------------------------
+echo !BLUE!------------------------------------------------------------------------------!RESET!
 echo [%TIME%] Done. Started at %START_TIME%
-echo ------------------------------------------------------------------------------
+call :elapsed "!START_TIME!" "Total"
+echo !BLUE!------------------------------------------------------------------------------!RESET!
 exit /b %ERRORLEVEL%
+
+REM ────────────────────────────────────────────────
+REM Subroutine: compute elapsed time
+REM Call: call :elapsed "HH:MM:SS.CC" "Label"
+REM ────────────────────────────────────────────────
+:elapsed
+set _START=%~1
+set _LABEL=%~2
+for /f "tokens=1-4 delims=:.," %%a in ("!_START!") do (
+    set /a _SH=%%a, _SM=%%b, _SS=%%c
+)
+for /f "tokens=1-4 delims=:.," %%a in ("%TIME%") do (
+    set /a _EH=%%a, _EM=%%b, _ES=%%c
+)
+set /a _TOTAL_S=(_EH-_SH)*3600+(_EM-_SM)*60+(_ES-_SS)
+if !_TOTAL_S! LSS 0 set /a _TOTAL_S+=86400
+set /a _MIN=_TOTAL_S/60, _SEC=_TOTAL_S%%60
+if !_MIN! GTR 0 (
+    echo !_LABEL! took !_MIN!min !_SEC!sec
+) else (
+    echo !_LABEL! took !_SEC!sec
+)
+goto :eof

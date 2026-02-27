@@ -178,18 +178,28 @@ public class DeepSettingsTest implements LogSupport {
                 if (view instanceof CheckBox && view.isShown()) {
                     CheckBox cb = (CheckBox) view;
                     myLogD("Toggling checkbox: " + getResourceName(cb.getId()));
-                    cb.performClick();
-                    uiController.loopMainThreadForAtLeast(200);
-                    dismissAnyDialog(uiController);
-                    cb.performClick(); // Toggle back
-                    uiController.loopMainThreadForAtLeast(200);
-                    dismissAnyDialog(uiController);
+                    try {
+                        // Use Espresso click() for better synchronization than performClick()
+                        androidx.test.espresso.action.ViewActions.click().perform(uiController, cb);
+                        uiController.loopMainThreadForAtLeast(300);
+                        dismissAnyDialog(uiController);
+
+                        androidx.test.espresso.action.ViewActions.click().perform(uiController, cb); // Toggle back
+                        uiController.loopMainThreadForAtLeast(300);
+                        dismissAnyDialog(uiController);
+                    } catch (Exception e) {
+                        myLog("Error toggling checkbox " + getResourceName(cb.getId()) + ": " + e.getMessage());
+                    }
                 } else if (view instanceof EditText && view.isShown()) {
                     EditText et = (EditText) view;
                     String val = randomValues[random.nextInt(randomValues.length)];
                     myLogD("Setting text in " + getResourceName(et.getId()) + " to: " + val);
-                    et.setText(val);
-                    uiController.loopMainThreadUntilIdle();
+                    try {
+                        androidx.test.espresso.action.ViewActions.replaceText(val).perform(uiController, et);
+                        uiController.loopMainThreadUntilIdle();
+                    } catch (Exception e) {
+                        myLog("Error setting text in " + getResourceName(et.getId()) + ": " + e.getMessage());
+                    }
                 }
 
                 if (view instanceof android.view.ViewGroup) {
@@ -269,10 +279,12 @@ public class DeepSettingsTest implements LogSupport {
 
     private void dismissAnyDialog(UiController uiController) {
         // Try to find an "OK" or "Cancel" button on top of everything to dismiss
-        // dialogs
+        // dialogs. We try standard IDs first then common text.
         try {
             // Use inRoot(isDialog()) to find the button in the AlertDialog window
             androidx.test.espresso.Espresso.onView(anyOf(
+                    withId(android.R.id.button1),
+                    withId(android.R.id.button2),
                     withText(android.R.string.ok),
                     withText(android.R.string.cancel),
                     withText("OK"),
