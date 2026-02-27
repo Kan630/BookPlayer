@@ -332,14 +332,6 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             tag = "";
 
         viewModel.setLastParams(q, lang, country, tag);
-
-        // ---- Header text (optional, like Librivox) ----
-        String headerSearch = getString(R.string.Search_2pt)
-                + (q.isEmpty() ? getString(R.string.search_nothing_specified) : q);
-        String headerLang = getString(R.string.Language_2pt) + lang;
-        String headerCountryTag = (country.isEmpty() && tag.isEmpty()) ? ""
-                : (country + (tag.isEmpty() ? "" : " • " + tag));
-        adapter.setHeader(headerSearch, headerLang, headerCountryTag);
         adapter.setHeaderCount(getString(R.string.Results_2pt) + "...");
 
         // ---- Repo ----
@@ -402,6 +394,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
                 repo.byTag(tag, Option.getRadioApiNbResults(), resultsCb("tag"));
                 adapter.setHeaderSearch(getString(R.string.by_tag) + " : " + tag);
+                adapter.setHeaderCountryTag(country);
                 break;
 
             case "MODE_COUNTRY":
@@ -412,6 +405,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
                 repo.byCountry(country, Option.getRadioApiNbResults(), resultsCb("country"));
                 adapter.setHeaderSearch(getString(R.string.by_country) + " : " + country);
+                adapter.setHeaderCountryTag(tag);
                 break;
 
             case "MODE_LANGUAGE":
@@ -422,6 +416,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
                 repo.byLanguage(lang, Option.getRadioApiNbResults(), resultsCb("language"));
                 adapter.setHeaderSearch(getString(R.string.by_language) + " : " + lang);
+                adapter.setHeaderLang("");
                 break;
 
             case "MODE_SEARCH":
