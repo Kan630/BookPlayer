@@ -49,8 +49,12 @@ public abstract class BaseBackupManager {
                     context.getSharedPreferences("SHARED_PREFERENCES_STATS", Context.MODE_PRIVATE).getAll());
             data.preferences.put("SHARED_PREFERENCE_ADMIN",
                     context.getSharedPreferences("SHARED_PREFERENCES_ADMIN", Context.MODE_PRIVATE).getAll());
-            data.preferences.put("SHARED_PREFERENCE_RADIO_FAVORITES",
-                    context.getSharedPreferences("radio_favorites_store", Context.MODE_PRIVATE).getAll());
+            data.preferences.put("SHARED_PREFERENCE_SEARCH_HISTORY",
+                    context.getSharedPreferences("search_history_store", Context.MODE_PRIVATE).getAll());
+
+            //Just for Admin visual check
+            //data.preferences.put("SHARED_PREFERENCE_CENSORSHIP",
+            //        context.getSharedPreferences("SHARED_PREFERENCE_CENSORSHIP", Context.MODE_PRIVATE).getAll());
         }
 
         if (includeLibrivox) {

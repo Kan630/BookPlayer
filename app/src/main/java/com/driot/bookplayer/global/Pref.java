@@ -15,22 +15,15 @@ import com.driot.bookplayer.utils.Tonio;
 
 public class Pref {
 
+    private static final String SHARED_PREFERENCE_DEVICE_SPECIFIC = "SHARED_PREFERENCE_PER_DEVICE";
     private static final String SHARED_PREFERENCES_DIVERSE = "SHARED_PREFERENCES_DIVERSE";
     private static final String SHARED_PREFERENCES_STATS = "SHARED_PREFERENCES_STATS";
-    private static final String SHARED_PREFERENCE_DEVICE_SPECIFIC = "SHARED_PREFERENCE_PER_DEVICE";
     private static final String SHARED_PREFERENCE_ADMIN = "SHARED_PREFERENCES_ADMIN";
     private static final String SHARED_PREFERENCE_SEARCH_HISTORY = "search_history_store";
-    public static final String SHARED_PREFERENCE_CHAR_SIZE = "SHARED_PREFERENCE_CHAR_SIZE";
-    public static final String SHARED_PREFERENCE_POS_SCROLLVIEW = "SHARED_PREFERENCE_POSITION_SCROLLVIEW";
-    private static final String SHARED_PREFERENCE_IN_APP_MSG = "inapp_msgs";
-    private static final String SHARED_PREFERENCE_RADIO_FAVORITES = "radio_favorites_store";
+    private static final String SHARED_PREFERENCE_IN_APP_MSG = "SHARED_PREFERENCE_IN_APP_MSG";
     private static final String SHARED_PREFERENCE_PLAYLIST = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
     public static final String SHARED_PREFERENCE_MIGRATION = "SHARED_PREFERENCE_MIGRATION";
-    private static final String SHARED_PREFERENCE_CENSORSHIP = "censorship_prefs";
-
-    private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
-    private static final String SHARED_PREFERENCE_SPEED = "SHARED_PREFERENCE_SPEED";
-    private static final String SHARED_PREFERENCE_BOOK = "book_prefs";
+    private static final String SHARED_PREFERENCE_CENSORSHIP = "SHARED_PREFERENCE_CENSORSHIP";
 
     private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
     private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
@@ -39,14 +32,9 @@ public class Pref {
     private static SharedPreferences prefs;
     private static SharedPreferences stats;
     private static SharedPreferences deviceSpecific;
-    private static SharedPreferences introCut;
-    private static SharedPreferences speed;
     private static SharedPreferences admin;
-    private static SharedPreferences book;
     private static SharedPreferences searchHistory;
-    private static SharedPreferences charSize;
     private static SharedPreferences inAppMsgs;
-    private static SharedPreferences radioFavorites;
     private static SharedPreferences migration;
     private static SharedPreferences playlist;
     private static SharedPreferences censorship;
@@ -57,14 +45,9 @@ public class Pref {
         prefs = appContext.getSharedPreferences(SHARED_PREFERENCES_DIVERSE, MODE_PRIVATE);
         stats = appContext.getSharedPreferences(SHARED_PREFERENCES_STATS, MODE_PRIVATE);
         deviceSpecific = appContext.getSharedPreferences(SHARED_PREFERENCE_DEVICE_SPECIFIC, MODE_PRIVATE);
-        introCut = appContext.getSharedPreferences(SHARED_PREFERENCE_INTRO_CUT, MODE_PRIVATE);
-        speed = appContext.getSharedPreferences(SHARED_PREFERENCE_SPEED, MODE_PRIVATE);
         admin = appContext.getSharedPreferences(SHARED_PREFERENCE_ADMIN, MODE_PRIVATE);
-        book = appContext.getSharedPreferences(SHARED_PREFERENCE_BOOK, MODE_PRIVATE);
         searchHistory = appContext.getSharedPreferences(SHARED_PREFERENCE_SEARCH_HISTORY, MODE_PRIVATE);
-        charSize = appContext.getSharedPreferences(SHARED_PREFERENCE_CHAR_SIZE, MODE_PRIVATE);
         inAppMsgs = appContext.getSharedPreferences(SHARED_PREFERENCE_IN_APP_MSG, MODE_PRIVATE);
-        radioFavorites = appContext.getSharedPreferences(SHARED_PREFERENCE_RADIO_FAVORITES, MODE_PRIVATE);
         migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
         playlist = appContext.getSharedPreferences(SHARED_PREFERENCE_PLAYLIST, MODE_PRIVATE);
         censorship = appContext.getSharedPreferences(SHARED_PREFERENCE_CENSORSHIP, MODE_PRIVATE);
@@ -80,22 +63,12 @@ public class Pref {
             stats.getAll();
         if (deviceSpecific != null)
             deviceSpecific.getAll();
-        if (introCut != null)
-            introCut.getAll();
-        if (speed != null)
-            speed.getAll();
         if (admin != null)
             admin.getAll();
-        if (book != null)
-            book.getAll();
         if (searchHistory != null)
             searchHistory.getAll();
-        if (charSize != null)
-            charSize.getAll();
         if (inAppMsgs != null)
             inAppMsgs.getAll();
-        if (radioFavorites != null)
-            radioFavorites.getAll();
         if (migration != null)
             migration.getAll();
         if (playlist != null)
@@ -432,10 +405,6 @@ public class Pref {
 
     public static SharedPreferences getInAppMsgPrefs() {
         return inAppMsgs;
-    }
-
-    public static SharedPreferences getRadioFavoritesPrefs() {
-        return radioFavorites;
     }
 
     public static SharedPreferences getMigrationPrefs(Context context) {

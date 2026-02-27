@@ -429,6 +429,7 @@ public class ImportExportActivity extends BaseActivity {
                 runOnUiThread(() -> {
                     Intent intent = new Intent(Intent.ACTION_SEND);
                     intent.setType("application/json");
+                    intent.putExtra(Intent.EXTRA_STREAM, uri);
                     intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
                     startActivity(Intent.createChooser(intent, getString(R.string.import_export_share_file)));
                 });

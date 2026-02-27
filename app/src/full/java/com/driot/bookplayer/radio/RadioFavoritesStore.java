@@ -1,5 +1,7 @@
 package com.driot.bookplayer.radio;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 
@@ -7,7 +9,6 @@ import androidx.annotation.NonNull;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import com.driot.bookplayer.global.Pref;
 
 import java.lang.reflect.Type;
 import java.util.*;
@@ -15,7 +16,6 @@ import java.util.*;
 /** DEPRECATED -- only there to ensure migration from Prefs => Room */
 public class RadioFavoritesStore {
 
-    private static final String PREF = "radio_favorites_store";
     private static final String KEY_MAP = "favorites_map"; // Map<String, RadioFavoriteItem>
     private static final String KEY_ORDER = "favorites_order"; // List<String> (most recent first)
 
@@ -28,7 +28,8 @@ public class RadioFavoritesStore {
     private final SharedPreferences sp;
 
     public RadioFavoritesStore(@NonNull Context ctx) {
-        sp = Pref.getRadioFavoritesPrefs();
+        sp = ctx.getSharedPreferences("radio_favorites_store", MODE_PRIVATE);
+
     }
 
     public synchronized boolean isFavorite(@NonNull String uuid) {

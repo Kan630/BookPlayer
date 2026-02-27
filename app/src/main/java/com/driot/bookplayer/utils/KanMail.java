@@ -1,12 +1,10 @@
 package com.driot.bookplayer.utils;
 
-import static android.content.Context.MODE_PRIVATE;
 import static com.driot.bookplayer.utils.log.KanLogger.myToast;
 
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
@@ -26,7 +24,6 @@ public class KanMail {
     private static Context appContext;
 
     // cannot get import, maybe because the java class is in another Lib...
-    public static final String SHARED_PREFERENCES_OPTIONS = "SHARED_PREFERENCES_OPTIONS"; // shared prefs xml file
     public static final boolean DEFAULT_SEND_MAIL_METHOD_DEFAULT = true;
 
     public static void sendDaMail(Context c, String listRecipients, String subject, String body, Uri attachmentUri) {
