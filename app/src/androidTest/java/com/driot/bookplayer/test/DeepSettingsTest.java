@@ -157,7 +157,10 @@ public class DeepSettingsTest implements LogSupport {
         // Expand
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, true);
-        TestNavUtils.sleep(WAIT_DELAY_SECTION_INTERACTION_START, "WAIT_DELAY_SECTION_INTERACTION_START"); // Wait for fragment to load and layout
+        TestNavUtils.sleep(WAIT_DELAY_SECTION_INTERACTION_START, "WAIT_DELAY_SECTION_INTERACTION_START"); // Wait for
+                                                                                                          // fragment to
+                                                                                                          // load and
+                                                                                                          // layout
 
         final java.util.List<View> targetViews = new java.util.ArrayList<>();
 
@@ -314,24 +317,31 @@ public class DeepSettingsTest implements LogSupport {
     }
 
     private void dismissAnyDialog() {
-        // Try to find an "OK" or "Cancel" button on top of everything to dismiss
-        // dialogs. We try standard IDs first then common text.
         try {
-            // Use inRoot(isDialog()) to find the button in the AlertDialog window
-            androidx.test.espresso.Espresso.onView(anyOf(
-                    withId(android.R.id.button1),
-                    withId(android.R.id.button2),
-                    withText(android.R.string.ok),
-                    withText(android.R.string.cancel),
-                    withText("OK"),
-                    withText("Annuler")))
-                    .inRoot(isDialog())
-                    .perform(androidx.test.espresso.action.ViewActions.click());
+            androidx.test.uiautomator.UiDevice device = androidx.test.uiautomator.UiDevice
+                    .getInstance(InstrumentationRegistry.getInstrumentation());
+            androidx.test.uiautomator.UiObject btn1 = device
+                    .findObject(new androidx.test.uiautomator.UiSelector().resourceId("android:id/button1"));
+            androidx.test.uiautomator.UiObject btn2 = device
+                    .findObject(new androidx.test.uiautomator.UiSelector().resourceId("android:id/button2"));
+            androidx.test.uiautomator.UiObject okBtn = device.findObject(
+                    new androidx.test.uiautomator.UiSelector().textMatches("(?i)ok|annuler|cancel|oui|yes"));
 
-            TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
-            myLog("Dismissed a dialog");
+            if (btn1.exists()) {
+                btn1.click();
+                myLog("Dismissed a dialog via button1");
+                TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
+            } else if (btn2.exists()) {
+                btn2.click();
+                myLog("Dismissed a dialog via button2");
+                TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
+            } else if (okBtn.exists()) {
+                okBtn.click();
+                myLog("Dismissed a dialog via text match");
+                TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
+            }
         } catch (Exception e) {
-            // No dialog found or already dismissed, ignore
+            myLog("Exception in dismissAnyDialog: " + e.getMessage());
         }
     }
 }
