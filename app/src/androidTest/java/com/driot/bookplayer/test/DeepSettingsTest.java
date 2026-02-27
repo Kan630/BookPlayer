@@ -12,6 +12,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
+import static org.hamcrest.Matchers.not;
 
 import android.content.Context;
 import android.util.Log;
@@ -128,18 +129,20 @@ public class DeepSettingsTest implements LogSupport {
         myLogD("Testing stability for section: " + sectionName);
 
         // Scroll to section and expand
-        onView(withId(sectionId)).perform(scrollTo(), click());
+        onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, true);
 
         // Scroll up/down while expanded
         myLogD("Scrolling while expanded...");
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
+        onView(allOf(withId(R.id.scrollView), not(isDescendantOfA(isAssignableFrom(SettingsSectionView.class)))))
+                .perform(TestNavUtils.scrollScrollViewToBottom());
         TestNavUtils.sleep(500);
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
+        onView(allOf(withId(R.id.scrollView), not(isDescendantOfA(isAssignableFrom(SettingsSectionView.class)))))
+                .perform(TestNavUtils.scrollScrollViewToTop());
         TestNavUtils.sleep(500);
 
         // Collapse
-        onView(withId(sectionId)).perform(scrollTo(), click());
+        onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, false);
     }
 
@@ -148,7 +151,7 @@ public class DeepSettingsTest implements LogSupport {
         myLogI("Testing interactions for section: " + sectionName);
 
         // Expand
-        onView(withId(sectionId)).perform(scrollTo(), click());
+        onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, true);
         TestNavUtils.sleep(1000); // Wait for fragment to load and layout
 
@@ -200,7 +203,7 @@ public class DeepSettingsTest implements LogSupport {
         TestNavUtils.sleep(1000);
 
         // Collapse
-        onView(withId(sectionId)).perform(scrollTo(), click());
+        onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, false);
     }
 
@@ -238,4 +241,27 @@ public class DeepSettingsTest implements LogSupport {
     // or just rely on the fact that some fragments might only have one or two.
     // Better: use a helper to find all views of type in the hierarchy and act on
     // them.
+
+    private ViewAction clickHeader() {
+        return new ViewAction() {
+            @Override
+            public Matcher<View> getConstraints() {
+                return isDisplayed();
+            }
+
+            @Override
+            public String getDescription() {
+                return "click the header card of SettingsSectionView";
+            }
+
+            @Override
+            public void perform(UiController uiController, View view) {
+                if (view instanceof SettingsSectionView) {
+                    SettingsSectionView ssv = (SettingsSectionView) view;
+                    ssv.getHeaderView().performClick();
+                    uiController.loopMainThreadUntilIdle();
+                }
+            }
+        };
+    }
 }
