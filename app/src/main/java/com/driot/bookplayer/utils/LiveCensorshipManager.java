@@ -32,13 +32,11 @@ import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogD;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogE;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogEE;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogI;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogW;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public final class LiveCensorshipManager {
+
+    private static final boolean SHOW_LOG_CENSORSHIP = true;
 
     public static final String ENDPOINT = "https://bookplayer.driot.com/app_live_data/censored_items.json";
 
@@ -144,6 +142,7 @@ public final class LiveCensorshipManager {
             return false;
         }
         for (String censored : censoredList) {
+            myLog("Censored item: [" + censored + "] vs [" + trimmedName + "]");
             if (trimmedName.contains(censored)) {
                 return true;
             }
