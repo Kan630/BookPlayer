@@ -20,7 +20,7 @@ import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -57,6 +57,17 @@ import java.util.List;
  * created by Antoine Driot -- antoine.driot.com -- on 15/11/20
  */
 public class ModifyFolderActivity extends BaseActivity {
+
+    private static final int REQ_DELETE_FOLDER = 2001;
+    private static final int REQ_RESET_FOLDER = 2002;
+    private static final int REQ_RENAME_FOLDER = 2003;
+    private static final int REQ_DELETE_COVER = 2004;
+    private static final int REQ_RESET_TRACKS_ORDER = 2005;
+    private static final int REQ_CHANGE_SOURCE = 2006;
+
+    private String pendingNewName;
+    private Uri pendingPickedTreeUri;
+    private String pendingTreeDocumentId;
 
     private Folder folder;
     private View blockingOverlay;
@@ -244,14 +255,13 @@ public class ModifyFolderActivity extends BaseActivity {
             return;
         }
 
-        new AlertDialog.Builder(ModifyFolderActivity.this)
-                .setTitle(getString(R.string.AskDelete_popupTitle))
-                .setMessage(getString(R.string.ModifyFolder_AskDelete))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> startDeleteWorker())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                })
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.ModifyFolder_AskDelete),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_FOLDER);
     }
 
     private static String deleteTag(long folderId) {
@@ -339,14 +349,13 @@ public class ModifyFolderActivity extends BaseActivity {
 
     private void bResetClick() {
         myLogI("user clicks - reset");
-        new AlertDialog.Builder(ModifyFolderActivity.this)
-                .setTitle(getString((R.string.AskReset_popupTitle)))
-                .setMessage(getString((R.string.ModifyFolder_AskReset)))
-                .setCancelable(true)
-                .setPositiveButton(android.R.string.ok, (dialog, i) -> resetFolder())
-                .setNegativeButton(android.R.string.cancel, (dialog, i) -> {
-                })
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskReset_popupTitle),
+                getString(R.string.ModifyFolder_AskReset),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_RESET_FOLDER);
     }
 
     private void bExportClick() {
@@ -507,12 +516,14 @@ public class ModifyFolderActivity extends BaseActivity {
     public void checkBeforeLeave() {
         String newName = etRename.getText().toString().trim();
         if (!newName.equals(folder.getName().trim())) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.AskRename_popupTitle)
-                    .setMessage(getString(R.string.AskRename_Book) + "\n[ " + newName + " ]")
-                    .setPositiveButton(R.string.Yes, (dialog, which) -> renameBook(newName))
-                    .setNegativeButton(R.string.No, (dialog, which) -> finish())
-                    .show();
+            pendingNewName = newName;
+            MsgBox.ask(this,
+                    getString(R.string.AskRename_popupTitle),
+                    getString(R.string.AskRename_Book) + "\n[ " + newName + " ]",
+                    null,
+                    getString(R.string.Yes),
+                    getString(R.string.No),
+                    REQ_RENAME_FOLDER);
         } else {
             finish(); // No changes, just leave
         }
@@ -558,14 +569,13 @@ public class ModifyFolderActivity extends BaseActivity {
 
     private void clickDeleteCover() {
         myLogI("user clicks - DELETE cover IMAGE");
-        new AlertDialog.Builder(ModifyFolderActivity.this)
-                .setTitle(getString(R.string.AskDelete_popupTitle))
-                .setMessage(getString(R.string.DeleteCoverImage_AskDelete))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteCover())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                })
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteCoverImage_AskDelete),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_COVER);
     }
 
     private void deleteCover() {
@@ -860,14 +870,13 @@ public class ModifyFolderActivity extends BaseActivity {
 
     private void clickResetTracksOrder() {
         myLogI("user clicks - RESET tracks ORDER");
-        new AlertDialog.Builder(ModifyFolderActivity.this)
-                .setTitle(getString(R.string.AskReset_popupTitle))
-                .setMessage(getString(R.string.AskReset_popupText_order))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> resetTrackOrder())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {
-                })
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskReset_popupTitle),
+                getString(R.string.AskReset_popupText_order),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_RESET_TRACKS_ORDER);
     }
 
     private void resetTrackOrder() {
@@ -954,16 +963,15 @@ public class ModifyFolderActivity extends BaseActivity {
                                     + "\n\n" + nbBetterFinal + " files will be fixed"
                                     + (nbWorseFinal > 0 ? "\n" + "BUT " + nbWorseFinal + " files will be broken" : "");
 
-                            new AlertDialog.Builder(ModifyFolderActivity.this)
-                                    .setTitle(getString(R.string.AskChangeSource_popupTitle))
-                                    .setMessage(textMsg)
-                                    .setCancelable(true)
-                                    .setPositiveButton(getString(R.string.proceed), (dialog, ii) -> {
-                                        updateZikFilePaths(pickedTreeUri, treeDocumentId);
-                                    })
-                                    .setNegativeButton(android.R.string.cancel, (dialog, ii) -> {
-                                    })
-                                    .show();
+                            pendingPickedTreeUri = pickedTreeUri;
+                            pendingTreeDocumentId = treeDocumentId;
+                            MsgBox.ask(ModifyFolderActivity.this,
+                                    getString(R.string.AskChangeSource_popupTitle),
+                                    textMsg,
+                                    null,
+                                    getString(R.string.proceed),
+                                    getString(android.R.string.cancel),
+                                    REQ_CHANGE_SOURCE);
                         });
                     }
                 });
@@ -1088,4 +1096,38 @@ public class ModifyFolderActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_DELETE_FOLDER) {
+                startDeleteWorker();
+            } else if (requestCode == REQ_RESET_FOLDER) {
+                resetFolder();
+            } else if (requestCode == REQ_RENAME_FOLDER) {
+                if (pendingNewName != null) {
+                    renameBook(pendingNewName);
+                    pendingNewName = null;
+                }
+            } else if (requestCode == REQ_DELETE_COVER) {
+                deleteCover();
+            } else if (requestCode == REQ_RESET_TRACKS_ORDER) {
+                resetTrackOrder();
+            } else if (requestCode == REQ_CHANGE_SOURCE) {
+                if (pendingPickedTreeUri != null && pendingTreeDocumentId != null) {
+                    updateZikFilePaths(pendingPickedTreeUri, pendingTreeDocumentId);
+                    pendingPickedTreeUri = null;
+                    pendingTreeDocumentId = null;
+                }
+            }
+        } else {
+            if (requestCode == REQ_RENAME_FOLDER) {
+                pendingNewName = null;
+                finish(); // Handle 'No' action for rename gracefully
+            } else if (requestCode == REQ_CHANGE_SOURCE) {
+                pendingPickedTreeUri = null;
+                pendingTreeDocumentId = null;
+            }
+        }
+    }
 }

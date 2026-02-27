@@ -13,26 +13,32 @@ import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.utils.MsgBox;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class ViewHelper {
 
     public static void showAlertDialogText(Context context, CharSequence text, CharSequence title) {
-        new AlertDialog.Builder(context)
-                .setTitle(title)
-                .setMessage(text)
-                .setPositiveButton(context.getString(R.string.Close), null)
-                .show();
+        MsgBox.info(context, title != null ? title.toString() : "", text != null ? text.toString() : "");
     }
 
     public static class SpacesItemDecoration extends RecyclerView.ItemDecoration {
         private final int space;
-        public SpacesItemDecoration(int space) { this.space = space; }
-        @Override public void getItemOffsets(Rect outRect, View v, RecyclerView parent, RecyclerView.State s) {
+
+        public SpacesItemDecoration(int space) {
+            this.space = space;
+        }
+
+        @Override
+        public void getItemOffsets(Rect outRect, View v, RecyclerView parent, RecyclerView.State s) {
             outRect.set(space, space, space, space);
         }
     }
-    public static int dp(Context c, int v){ return Math.round(c.getResources().getDisplayMetrics().density * v); }
+
+    public static int dp(Context c, int v) {
+        return Math.round(c.getResources().getDisplayMetrics().density * v);
+    }
 
     public static void pasteClipboard(Context context, AppCompatAutoCompleteTextView editText) {
         try {
@@ -51,9 +57,8 @@ public class ViewHelper {
                 Toast.makeText(context, context.getString(R.string.Clipboard_is_empty), Toast.LENGTH_SHORT).show();
             }
         } catch (Exception e) {
-            myToastEE(e,context.getString(R.string.error) + " : " + e.getMessage());
+            myToastEE(e, context.getString(R.string.error) + " : " + e.getMessage());
         }
     }
-
 
 }

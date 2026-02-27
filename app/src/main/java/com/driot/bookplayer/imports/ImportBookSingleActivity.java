@@ -7,7 +7,6 @@ import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 import static com.driot.bookplayer.utils.Tonio.getCurrentDateTimeString;
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.net.Uri;
@@ -50,6 +49,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
 
@@ -103,6 +103,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     Folder folderToAddTo = null;
 
     private PermissionRequest mPermissionRequest;
+
+    private static final int REQ_DELETE_SOURCE = 2001;
 
     @Override
     protected int getNavId() {
@@ -216,15 +218,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 ivCover.setImageResource(R.drawable.no_image_icon);
             }
             tvInfoLine1.setText(bookCandidate.infoLine1);
-
-            /*
-             if ("Folder".equals(gotten_type)) {
-             startCounting(uri, 10, tvMimeExtension, bookCandidate.infoMimeExtension,
-             bookCandidate.playType);
-             } else {
-             tvMimeExtension.setText(bookCandidate.infoMimeExtension);
-             }
-             */
             tvMimeExtension.setText(bookCandidate.infoMimeExtension);
 
             if (!detailMode) {
@@ -300,7 +293,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             tvProgressStatusStep1.setVisibility(View.GONE);
             progressBarStep2.setVisibility(View.GONE);
             tvProgressStatusStep2.setVisibility(View.GONE);
-
 
         } else {
             // SINGLE IMPORT MODE
@@ -437,18 +429,13 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 myLog("USER CHECKS -DELETE- " + isChecked);
                 if (!internalCheckBoxStateCalculationInProgress) {
                     if (isChecked) {
-                        new AlertDialog.Builder(this)
-                                .setTitle(getString(R.string.option_alert_delete_picked_source_file_title))
-                                .setMessage(getString(R.string.option_alert_delete_picked_source_file_message))
-                                .setCancelable(false)
-                                .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                                    BookCandidate bc = viewModel.getBookCandidate().getValue();
-                                    if (bc != null)
-                                        calculateCheckboxState(bc);
-                                })
-                                .setNegativeButton(android.R.string.cancel,
-                                        (dialog, which) -> cbDelete.setChecked(false))
-                                .show();
+                        MsgBox.ask(this,
+                                getString(R.string.option_alert_delete_picked_source_file_title),
+                                getString(R.string.option_alert_delete_picked_source_file_message),
+                                null,
+                                getString(android.R.string.ok),
+                                getString(android.R.string.cancel),
+                                REQ_DELETE_SOURCE);
                     } else {
                         Option.setDeleteSourceFile(false);
                     }
@@ -750,12 +737,13 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     }
 
     private void showPermissionDeniedDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.Permission))
-                .setMessage(getString(R.string.permission_read_denied_short_text_on_load))
-                .setPositiveButton("App Info", (dialog, which) -> openAppInfo())
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        MsgBox.alertWithNeutral(this,
+                getString(R.string.Permission),
+                getString(R.string.permission_read_denied_short_text_on_load),
+                null,
+                "App Info",
+                new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS)
+                        .setData(Uri.fromParts("package", getPackageName(), null)));
     }
 
     @Override
@@ -1095,6 +1083,21 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             if (!isKO) {
                 // only enable controls if we are not in an error state
                 activateInteractive();
+            }
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_DELETE_SOURCE) {
+            if (resultCode == RESULT_OK) {
+                BookCandidate bc = viewModel.getBookCandidate().getValue();
+                if (bc != null) {
+                    calculateCheckboxState(bc);
+                }
+            } else {
+                cbDelete.setChecked(false);
             }
         }
     }

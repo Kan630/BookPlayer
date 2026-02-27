@@ -7,7 +7,6 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -16,6 +15,7 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.objects.MyFile;
 import com.driot.bookplayer.adapter.MyFileRVAdapter;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.io.File;
@@ -50,7 +50,7 @@ public class LogListActivity extends BaseActivity {
 
         String file = getIntent().getStringExtra("file");
 
-        //textOptions = new TextOptions(this);
+        // textOptions = new TextOptions(this);
         loadRecyclerView();
 
         View secretEntry = findViewById(R.id.viewSecretEntry);
@@ -69,17 +69,20 @@ public class LogListActivity extends BaseActivity {
         ArrayList<MyFile> myItemArrayList = getFileInArrayList(this, "log");
         recyclerView.setAdapter(new MyFileRVAdapter(this, myItemArrayList));
     }
+
     private ArrayList<MyFile> getFileInArrayList(Context c, String path) {
         ArrayList<String> fileNameArrayList = new ArrayList<>();
         ArrayList<MyFile> myFileArrayList = new ArrayList<>();
         listClassicFiles(c, path, fileNameArrayList);
-        if (fileNameArrayList.isEmpty()) myLogE("Warning fileNameArrayList empty");
+        if (fileNameArrayList.isEmpty())
+            myLogE("Warning fileNameArrayList empty");
         for (String s : fileNameArrayList) {
             myFileArrayList.add(new MyFile(s));
         }
         myFileArrayList.sort(Collections.reverseOrder(Comparator.comparing(MyFile::getDate)));
         return myFileArrayList;
     }
+
     private boolean listClassicFiles(Context c, String path, ArrayList<String> arrayList) {
         File dir = new File(c.getFilesDir(), path);
         File[] fileList = dir.listFiles();
@@ -96,15 +99,26 @@ public class LogListActivity extends BaseActivity {
         return arrayList.size() > 0;
     }
 
+    private static final int REQ_DELETE_LOGS = 2001;
+
     private void btnDeleteLogsClick() {
-        new AlertDialog.Builder(this)
-                .setTitle(getString(R.string.AskDelete_popupTitle))
-                .setMessage(getString(R.string.DeleteLogs_AskConfirm))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteLogs())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteLogs_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_LOGS);
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK && requestCode == REQ_DELETE_LOGS) {
+            deleteLogs();
+        }
+    }
+
     private void deleteLogs() {
         File dir = new File(this.getFilesDir(), "log");
         FileHelper.recursiveRemove(dir);
