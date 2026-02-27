@@ -63,7 +63,7 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
         buttonTrending = findViewById(R.id.bLibrivoxTrending);
         bLibrivoxLastAdded = findViewById(R.id.bLibrivoxLastAdded);
-        buttonByGenre = findViewById(R.id.bByGenre);
+        buttonByGenre = findViewById(R.id.bLibrivoxByGenre);
         buttonByAuthor = findViewById(R.id.bByAuthor);
         spinnerLibrivox = findViewById(R.id.spinnerLibrivox);
         editTextLibrivox = findViewById(R.id.etLibrivox);
