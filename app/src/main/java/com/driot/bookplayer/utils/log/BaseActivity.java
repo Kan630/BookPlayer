@@ -37,7 +37,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LocaleHelper;
 //import com.driot.bookplayer.utils.log.KanLogger;
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
+
 
 /**
  * This abstract class extends the Activity class and overrides
@@ -295,6 +295,8 @@ public abstract class BaseActivity extends AppCompatActivity {
         KanLogger.myToastLong(TAG_FROM, str);
     }
 
+    protected void myLogIntentExtras(Intent intent, String optionalTag) { KanLogger.myLogIntentExtras(TAG_FROM, intent, optionalTag); }
+
     private void myLifecycleLog(String str) {
         KanLogger.myLogD(LOG_TAG, str);
     }
@@ -306,6 +308,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     private void myLifecycleLogEE(Throwable t, String str) {
         KanLogger.myLogEE(t, LOG_TAG, str);
     }
+
+
 
     /// ///////////////////////////////////////////////////////////////////
     /// LIVE LOG FRAGMENT SUPPORT

@@ -1,13 +1,11 @@
 package com.driot.bookplayer.utils.log;
 
-import static android.content.Context.MODE_PRIVATE;
-
 import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Parcelable;
 import android.text.TextUtils;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,14 +13,14 @@ import android.widget.Toast;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-
-import static com.driot.bookplayer.utils.TonioCommonStuff.MD5;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -31,6 +29,8 @@ import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
+
+import javax.annotation.Nonnull;
 
 /**
  * created by Antoine Driot -- antoine.driot.com -- on 20/12/20
@@ -54,6 +54,12 @@ public class KanLogger {
     private static final boolean LOG_THEM_ALL = true;
 
     private static final String LOGCAT_PREFIX = "toto";
+
+    // Safety limit — very large bundles are usually suspicious
+    final static int MAX_BUNDLE_KEYS_TO_LOG = 10;
+    final static int MAX_BUNDLE_STRING_SIZE = 200;
+
+
 
     /** Single thread so file writes stay in call order. */
     private static final ExecutorService logFileExecutor = Executors.newSingleThreadExecutor();
@@ -444,6 +450,92 @@ public class KanLogger {
             zeReturn = str.substring(0, str.length() - "$Logger".length());
         }
         return zeReturn;
+    }
+
+    /**
+     * Logs all extras from an Intent (or Bundle) in a reasonably safe way.
+     * Prevents extremely large Bundles from causing ANR or log spam.
+     * .
+     * logIntentExtras(getIntent(), "MainActivity");
+     * logBundleExtras(intent.getExtras(), "DeepLinkHandler");
+     * logBundleExtras(savedInstanceState, "onCreate - savedState");
+     */
+
+    public static void myLogIntentExtras(String classTag, @Nullable Intent intent, @Nullable String tag) {
+        if (intent == null) {
+            myLogW(classTag, "LogBundle : " + tag + " - Intent is null");
+            return;
+        }
+
+        Bundle extras = intent.getExtras();
+        logBundleExtras(classTag, extras, tag != null ? tag : "IntentExtras");
+    }
+
+    public static void logBundleExtras(String classTag, @Nullable Bundle bundle, @Nonnull String tag) {
+        if (bundle == null) {
+            myLogD(classTag, "Bundle is null");
+            return;
+        }
+
+        if (bundle.isEmpty()) {
+            myLogD(classTag, "Bundle is empty");
+            return;
+        }
+
+        int count = bundle.size();
+        myLogD(classTag, tag + " bundle contains " + count + " keys");
+
+        if (count > MAX_BUNDLE_KEYS_TO_LOG * 2) {
+            myLogW("Very large bundle detected (" + count + " keys) — logging only first " + MAX_BUNDLE_KEYS_TO_LOG + " items");
+        }
+
+        int logged = 0;
+
+        for (String key : bundle.keySet()) {
+            if (logged >= MAX_BUNDLE_KEYS_TO_LOG) {
+                myLogD(classTag, "… (skipped remaining " + (count - logged) + " keys)");
+                break;
+            }
+
+            Object value = bundle.get(key);
+
+            String valueStr;
+            String typeStr;
+
+            if (value == null) {
+                valueStr = "null";
+                typeStr = "null";
+            } else if (value instanceof String ||
+                    value instanceof Integer ||
+                    value instanceof Long ||
+                    value instanceof Boolean ||
+                    value instanceof Float ||
+                    value instanceof Double) {
+                valueStr = value.toString();
+                typeStr = value.getClass().getSimpleName();
+            } else if (value.getClass().isArray()) {
+                valueStr = "array[" + Array.getLength(value) + "]";
+                typeStr = value.getClass().getComponentType().getSimpleName() + "[]";
+            } else if (value instanceof Parcelable) {
+                valueStr = value.getClass().getSimpleName();
+                typeStr = "Parcelable";
+            } else if (value instanceof Serializable) {
+                valueStr = value.getClass().getSimpleName();
+                typeStr = "Serializable";
+            } else {
+                valueStr = value.toString();
+                typeStr = value.getClass().getSimpleName();
+            }
+
+            // Prevent logging huge strings (e.g. base64 image, huge JSON…)
+            if (valueStr.length() > MAX_BUNDLE_STRING_SIZE) {
+                valueStr = valueStr.substring(0, MAX_BUNDLE_STRING_SIZE) + "… (truncated, " + valueStr.length() + " chars)";
+            }
+
+            myLogD(classTag, "extra " + typeStr + " [" + key + "] = [" + valueStr + "]");
+
+            logged++;
+        }
     }
 
 }

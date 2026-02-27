@@ -21,6 +21,7 @@ import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -318,6 +319,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         String lang = getIntent().getStringExtra("lang"); // e.g., "fr"
         String country = getIntent().getStringExtra("country"); // e.g., "FR"
         String tag = getIntent().getStringExtra("tag"); // e.g., "jazz"
+        myLogIntentExtras(getIntent(), "Radio Query");
 
         if (q == null)
             q = "";
