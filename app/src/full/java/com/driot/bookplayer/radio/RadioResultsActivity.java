@@ -366,9 +366,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         }
 
         // No existing results, perform initial search
+        viewModel.resetPagination();
         viewModel.setLoading(true);
         progressBar.setVisibility(View.VISIBLE);
-        viewModel.resetPagination();
         myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country
                 + " - tag=" + tag);
 
