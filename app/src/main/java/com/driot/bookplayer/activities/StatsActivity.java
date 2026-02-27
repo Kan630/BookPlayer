@@ -444,6 +444,10 @@ public class StatsActivity extends BaseActivity {
      * @param value       The value text (right column)
      */
     private void addTableHeaderRow(TableLayout tableLayout, String label, String value) {
+        if (value == null || value.isEmpty()) {
+            return;
+        }
+
         TableRow row = new TableRow(this);
 
         // Label TextView (left column) - bold
