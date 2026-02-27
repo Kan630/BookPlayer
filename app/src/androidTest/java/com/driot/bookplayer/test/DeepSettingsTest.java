@@ -26,6 +26,7 @@ import androidx.test.espresso.ViewAction;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.LargeTest;
+import androidx.test.platform.app.InstrumentationRegistry;
 import androidx.work.Configuration;
 import androidx.work.testing.SynchronousExecutor;
 import androidx.work.testing.WorkManagerTestInitHelper;
@@ -175,30 +176,59 @@ public class DeepSettingsTest implements LogSupport {
             }
 
             private void findAllAndInteract(View view, UiController uiController) {
-                if (view instanceof CheckBox && view.isShown()) {
-                    CheckBox cb = (CheckBox) view;
-                    myLogD("Toggling checkbox: " + getResourceName(cb.getId()));
-                    try {
-                        // Use Espresso click() for better synchronization than performClick()
-                        androidx.test.espresso.action.ViewActions.click().perform(uiController, cb);
-                        uiController.loopMainThreadForAtLeast(300);
-                        dismissAnyDialog(uiController);
+                if (view.isShown()) {
+                    if (view instanceof CheckBox) {
+                        CheckBox cb = (CheckBox) view;
+                        myLogD("Toggling checkbox: " + getResourceName(cb.getId()));
+                        try {
+                            // Scroll to ensure it is clickable on screen
+                            androidx.test.espresso.action.ViewActions.scrollTo().perform(uiController, cb);
+                            uiController.loopMainThreadUntilIdle();
 
-                        androidx.test.espresso.action.ViewActions.click().perform(uiController, cb); // Toggle back
-                        uiController.loopMainThreadForAtLeast(300);
-                        dismissAnyDialog(uiController);
-                    } catch (Exception e) {
-                        myLog("Error toggling checkbox " + getResourceName(cb.getId()) + ": " + e.getMessage());
-                    }
-                } else if (view instanceof EditText && view.isShown()) {
-                    EditText et = (EditText) view;
-                    String val = randomValues[random.nextInt(randomValues.length)];
-                    myLogD("Setting text in " + getResourceName(et.getId()) + " to: " + val);
-                    try {
-                        androidx.test.espresso.action.ViewActions.replaceText(val).perform(uiController, et);
-                        uiController.loopMainThreadUntilIdle();
-                    } catch (Exception e) {
-                        myLog("Error setting text in " + getResourceName(et.getId()) + ": " + e.getMessage());
+                            // Use Espresso click() for better synchronization than performClick()
+                            androidx.test.espresso.action.ViewActions.click().perform(uiController, cb);
+                            uiController.loopMainThreadForAtLeast(300);
+                            dismissAnyDialog(uiController);
+
+                            androidx.test.espresso.action.ViewActions.click().perform(uiController, cb); // Toggle back
+                            uiController.loopMainThreadForAtLeast(300);
+                            dismissAnyDialog(uiController);
+                        } catch (Exception e) {
+                            myLog("Error toggling checkbox " + getResourceName(cb.getId()) + ": " + e.getMessage());
+                        }
+                    } else if (view instanceof EditText) {
+                        EditText et = (EditText) view;
+                        String val = randomValues[random.nextInt(randomValues.length)];
+                        myLogD("Setting text in " + getResourceName(et.getId()) + " to: " + val);
+                        try {
+                            androidx.test.espresso.action.ViewActions.scrollTo().perform(uiController, et);
+                            uiController.loopMainThreadUntilIdle();
+
+                            androidx.test.espresso.action.ViewActions.replaceText(val).perform(uiController, et);
+                            uiController.loopMainThreadUntilIdle();
+                        } catch (Exception e) {
+                            myLog("Error setting text in " + getResourceName(et.getId()) + ": " + e.getMessage());
+                        }
+                    } else if (view instanceof android.widget.Spinner) {
+                        android.widget.Spinner spinner = (android.widget.Spinner) view;
+                        myLogD("Interacting with spinner: " + getResourceName(spinner.getId()));
+                        try {
+                            androidx.test.espresso.action.ViewActions.scrollTo().perform(uiController, spinner);
+                            uiController.loopMainThreadUntilIdle();
+
+                            int count = spinner.getCount();
+                            if (count > 0) {
+                                int index = random.nextInt(count);
+                                myLogD("Selecting index " + index + " in spinner " + getResourceName(spinner.getId()));
+                                // Direct selection for stress test stability
+                                InstrumentationRegistry.getInstrumentation()
+                                        .runOnMainSync(() -> spinner.setSelection(index));
+                                uiController.loopMainThreadUntilIdle();
+                            }
+                        } catch (Exception e) {
+                            myLog("Error interacting with spinner " + getResourceName(spinner.getId()) + ": "
+                                    + e.getMessage());
+                        }
                     }
                 }
 
