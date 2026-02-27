@@ -10,7 +10,7 @@ import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +22,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.objects.FolderWithSummary;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.Tonio;
 
 import java.io.File;
@@ -31,6 +32,8 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanMemoryRVAdapter.OnDeleteClickListener {
+    private static final int REQ_DELETE_AUDIO = 3001;
+    private File pendingFileToDelete;
     private CleanMemoryRVAdapter cacheFilesAdapter;
     private CleanMemoryViewModel cacheFilesViewModel;
     private RadioGroup storageSelector;
@@ -44,14 +47,26 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
     private final Handler refreshElapsedHandler = new Handler(Looper.getMainLooper());
     private Runnable refreshElapsedRunnable;
     private final Runnable showMessageAfterOneSecRunnable = () -> {
-        if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue())) return;
+        if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue()))
+            return;
         progressScanMessage.setVisibility(View.VISIBLE);
         startRefreshElapsedTimer();
     };
 
-    @Override protected int getNavId() { return R.id.nav_settings; } //TODO change to correct one after migrating menu items
-    @Override protected int getLayoutResId() { return R.layout.activity_clean_memory; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_library;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_clean_memory;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,12 +103,12 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         });
 
         cacheFilesViewModel.getTotalAudioSizeMB().observe(this, audioMB -> {
-            long audioMBToShow = Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue()) ? -1L : (audioMB != null ? audioMB : -1L);
+            long audioMBToShow = Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue()) ? -1L
+                    : (audioMB != null ? audioMB : -1L);
             FillTextViewMemoryStats(audioMBToShow,
                     StorageHelper.getAvailableStorageMB(this, cacheFilesViewModel.isUsingInternal()),
                     StorageHelper.getTotalStorageMB(this, cacheFilesViewModel.isUsingInternal()),
-                    null
-            );
+                    null);
         });
 
         cacheFilesViewModel.getIsLoading().observe(this, isLoading -> {
@@ -152,12 +167,14 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
     private void startRefreshElapsedTimer() {
         stopRefreshElapsedTimer();
         Long startTime = cacheFilesViewModel.getRefreshStartTime().getValue();
-        if (startTime == null || startTime == 0) return;
+        if (startTime == null || startTime == 0)
+            return;
         boolean onSdCardView = !cacheFilesViewModel.isUsingInternal();
         refreshElapsedRunnable = new Runnable() {
             @Override
             public void run() {
-                if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue())) return;
+                if (!Boolean.TRUE.equals(cacheFilesViewModel.getIsRefreshing().getValue()))
+                    return;
                 long elapsedSec = (System.currentTimeMillis() - startTime) / 1000;
                 String msg = getString(R.string.clean_memory_scanning_folders, (int) elapsedSec);
                 if (onSdCardView) {
@@ -183,8 +200,8 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
 
     private void setupRadioButtons() {
         storageSelector = findViewById(R.id.storage_selector);
-        radioInternal   = findViewById(R.id.radio_internal);
-        radioSdCard     = findViewById(R.id.radio_sdcard);
+        radioInternal = findViewById(R.id.radio_internal);
+        radioSdCard = findViewById(R.id.radio_sdcard);
 
         String sdPath = StorageHelper.getSdCardUnzippedFolder(this);
         if (sdPath == null) {
@@ -200,8 +217,7 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
                     -1,
                     StorageHelper.getAvailableStorageMB(this, useInternal),
                     StorageHelper.getTotalStorageMB(this, useInternal),
-                    useInternal ? getString(R.string.device) : getString(R.string.SD_card)
-            );
+                    useInternal ? getString(R.string.device) : getString(R.string.SD_card));
             cacheFilesViewModel.setUseInternal(useInternal);
         });
 
@@ -212,30 +228,11 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
 
         if (!internalHas && sdHas) {
             myLogD("Internal empty, SD has content -> default to SD view");
-            radioSdCard.setChecked(true);     // triggers listener -> setUseInternal(false)
+            radioSdCard.setChecked(true); // triggers listener -> setUseInternal(false)
         } else {
             radioInternal.setChecked(true);
         }
-/*
-        // ---- one-time fallback after first load (in case scanning finishes empty) ----
-        final boolean[] triedAutoSwitch = { false };
-        cacheFilesViewModel.getEnrichedFiles().observe(this, list -> {
-            if (!triedAutoSwitch[0]
-                    && cacheFilesViewModel.isUsingInternal()
-                    && (list == null || list.isEmpty())) {
-
-                String sd = StorageHelper.getSdCardUnzippedFolder(this);
-                if (sd != null && hasAnyContent(false)) {
-                    triedAutoSwitch[0] = true;
-                    myLogD("Auto-switching to SD (internal list ended up empty).");
-                    radioSdCard.setChecked(true);
-                }
-            }
-        });
-
- */
     }
-
 
     private void FillTextViewMemoryStats(long MB_audio, long MB_leftOnDevice, long MB_deviceMemory, String forceLabel) {
         String label;
@@ -248,28 +245,29 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         String MB_left_on_label = getString(R.string.MB) + ": " + getString(R.string.left_on) + " " + label;
         String MB_label_memory = getString(R.string.MB) + ": " + label + " " + getString(R.string.memory);
 
-        String str_MB_audio = MB_audio >= 0 ? Tonio.formatMemPadding(this.getApplicationContext(), MB_audio) : String.format("%9s", "...");
+        String str_MB_audio = MB_audio >= 0 ? Tonio.formatMemPadding(this.getApplicationContext(), MB_audio)
+                : String.format("%9s", "...");
 
         String zeText = str_MB_audio + " " + MB_audio_in_app + "\n\n" +
-                Tonio.formatMemPadding(this.getApplicationContext(), MB_leftOnDevice) + " " + MB_left_on_label + "\n\n" +
+                Tonio.formatMemPadding(this.getApplicationContext(), MB_leftOnDevice) + " " + MB_left_on_label + "\n\n"
+                +
                 Tonio.formatMemPadding(this.getApplicationContext(), MB_deviceMemory) + " " + MB_label_memory;
 
         statsTextView.setText(zeText);
     }
 
-
     @Override
     public void onDeleteClick(File file, int position) {
         myLogI("Delete Click on [" + file.getName() + "]");
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.AskDelete_popupTitle)
-                .setMessage(getString(R.string.You_are_about_to_delete_this_audio_book) + ":\n [" + file.getName() + "]\n    " + getString(R.string.are_you_sure))
-                .setCancelable(false)
-                .setPositiveButton(getString(R.string.Delete), (dialog, which) -> {
-                    cacheFilesViewModel.deleteAudio(file);
-                })
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        pendingFileToDelete = file;
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.You_are_about_to_delete_this_audio_book) + ":\n [" + file.getName() + "]\n    "
+                        + getString(R.string.are_you_sure),
+                null,
+                getString(R.string.Delete),
+                getString(android.R.string.cancel),
+                REQ_DELETE_AUDIO);
     }
 
     private boolean hasAnyContent(boolean internal) {
@@ -277,15 +275,19 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
             String basePath = internal
                     ? getFilesDir().getPath() + "/" + Var.FOLDER_UNZIPPED
                     : StorageHelper.getSdCardUnzippedFolder(this);
-            if (basePath == null) return false;
+            if (basePath == null)
+                return false;
 
             File base = new File(basePath);
             File[] kids = base.listFiles();
-            if (kids == null || kids.length == 0) return false;
+            if (kids == null || kids.length == 0)
+                return false;
 
             for (File f : kids) {
-                if (f.isDirectory()) return true;
-                if (f.isFile() && f.length() > 0) return true;
+                if (f.isDirectory())
+                    return true;
+                if (f.isFile() && f.length() > 0)
+                    return true;
             }
             return false;
         } catch (Throwable t) {
@@ -293,4 +295,12 @@ public class CleanMemoryActivity extends BaseBottomNavActivity implements CleanM
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable android.content.Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_DELETE_AUDIO && resultCode == RESULT_OK && pendingFileToDelete != null) {
+            cacheFilesViewModel.deleteAudio(pendingFileToDelete);
+            pendingFileToDelete = null;
+        }
+    }
 }

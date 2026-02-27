@@ -3,7 +3,6 @@ package com.driot.bookplayer.activities;
 import static com.driot.bookplayer.global.Var.SOURCE_LOCATION_EBOOK_GUTENDEX;
 import static com.driot.bookplayer.helpers.StorageHelper.getUnzipFolder;
 
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -27,6 +26,7 @@ import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.utils.HashWorker;
+import com.driot.bookplayer.utils.MsgBox;
 
 import java.util.Locale;
 
@@ -34,6 +34,12 @@ import dagger.hilt.android.AndroidEntryPoint;
 
 @AndroidEntryPoint
 public class EbookDetailActivity extends BaseBottomNavActivity {
+
+    private static final int REQ_DOWNLOAD_UNMETERED = 2001;
+    private static final int REQ_DOWNLOAD_ROAMING = 2002;
+
+    private String pendingDownloadUrl;
+    private String pendingDownloadPath;
 
     private ImageView coverView;
     private TextView tvTitle;
@@ -202,28 +208,28 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
     private void handleNetworkPolicyThenDownload(String url, String futurePath) {
         if (Option.getNetworkPolicyManualDownload().equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_UNMETERED)
                 && !NetworkHelper.isUnmeteredConnected(this)) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.download_warning_title_unmetered)
-                    .setMessage(R.string.download_warning_message_unmetered)
-                    .setPositiveButton(android.R.string.ok, (dialog, which) -> proceedWithDownload(url, futurePath))
-                    .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                        myLogD("User cancelled download (unmetered warning)");
-                        bGet.setEnabled(true);
-                    })
-                    .show();
+            pendingDownloadUrl = url;
+            pendingDownloadPath = futurePath;
+            MsgBox.ask(this,
+                    getString(R.string.download_warning_title_unmetered),
+                    getString(R.string.download_warning_message_unmetered),
+                    null,
+                    getString(android.R.string.ok),
+                    getString(android.R.string.cancel),
+                    REQ_DOWNLOAD_UNMETERED);
         } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             if (Option.getNetworkPolicyManualDownload()
                     .equals(NetworkHelper.NetworkPolicyManual.NETWORK_POLICY_NOT_ROAMING)
                     && !NetworkHelper.isRoaming(this)) {
-                new AlertDialog.Builder(this)
-                        .setTitle(R.string.download_warning_title_roaming)
-                        .setMessage(R.string.download_warning_message_roaming)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> proceedWithDownload(url, futurePath))
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                            myLogD("User cancelled download (roaming warning)");
-                            bGet.setEnabled(true);
-                        })
-                        .show();
+                pendingDownloadUrl = url;
+                pendingDownloadPath = futurePath;
+                MsgBox.ask(this,
+                        getString(R.string.download_warning_title_roaming),
+                        getString(R.string.download_warning_message_roaming),
+                        null,
+                        getString(android.R.string.ok),
+                        getString(android.R.string.cancel),
+                        REQ_DOWNLOAD_ROAMING);
             } else {
                 proceedWithDownload(url, futurePath);
             }
@@ -280,5 +286,29 @@ public class EbookDetailActivity extends BaseBottomNavActivity {
         FirebaseAnalyticsHelper.tellEbookDownloadFromGutendex(title);
 
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_DOWNLOAD_UNMETERED || requestCode == REQ_DOWNLOAD_ROAMING) {
+                if (pendingDownloadUrl != null && pendingDownloadPath != null) {
+                    proceedWithDownload(pendingDownloadUrl, pendingDownloadPath);
+                }
+            }
+        } else {
+            if (requestCode == REQ_DOWNLOAD_UNMETERED) {
+                myLogD("User cancelled download (unmetered warning)");
+                bGet.setEnabled(true);
+            } else if (requestCode == REQ_DOWNLOAD_ROAMING) {
+                myLogD("User cancelled download (roaming warning)");
+                bGet.setEnabled(true);
+            }
+        }
+
+        // Clear pending strings
+        pendingDownloadUrl = null;
+        pendingDownloadPath = null;
     }
 }

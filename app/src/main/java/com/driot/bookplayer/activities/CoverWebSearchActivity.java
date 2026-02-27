@@ -12,7 +12,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.work.Data;
@@ -25,6 +25,7 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.net.CoverSearchRepository;
 import com.driot.bookplayer.objects.CoverResult;
 import com.driot.bookplayer.services.DownloadCoverWorker;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -34,6 +35,9 @@ public class CoverWebSearchActivity extends BaseActivity {
     public static final String EXTRA_DEFAULT_TITLE = "defaultTitle";
     public static final int MAX_NB_COVER_SEARCH_RESULT = 24;
 
+    private static final int REQ_DOWNLOAD_COVER = 2001;
+    private CoverResult pendingCoverResult;
+
     private long folderId;
     private EditText etQuery;
     private ProgressBar progressBar;
@@ -41,18 +45,21 @@ public class CoverWebSearchActivity extends BaseActivity {
     private final CoverSearchRepository repo = new CoverSearchRepository(this);
 
     private ImageButton btnSearch;
-    private final java.util.concurrent.ExecutorService searchExecutor =
-            Executors.newSingleThreadExecutor();
+    private final java.util.concurrent.ExecutorService searchExecutor = Executors.newSingleThreadExecutor();
     private volatile boolean searching = false;
 
-    @Override protected void onCreate(@Nullable Bundle savedInstanceState) {
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_cover_web_search);
         InsetHelper.apply(this);
 
         folderId = getIntent().getLongExtra(EXTRA_FOLDER_ID, -1L);
         String defaultTitle = getIntent().getStringExtra(EXTRA_DEFAULT_TITLE);
-        if (folderId <= 0) { finish(); return; }
+        if (folderId <= 0) {
+            finish();
+            return;
+        }
 
         etQuery = findViewById(R.id.etQuery);
         btnSearch = findViewById(R.id.btnSearch);
@@ -75,17 +82,23 @@ public class CoverWebSearchActivity extends BaseActivity {
         });
 
         // Button click
-        btnSearch.setOnClickListener(v ->
-                runSearch(etQuery.getText().toString().trim()));
+        btnSearch.setOnClickListener(v -> runSearch(etQuery.getText().toString().trim()));
 
         // Enable/disable button based on text present (optional)
         btnSearch.setEnabled(!TextUtils.isEmpty(etQuery.getText()));
         etQuery.addTextChangedListener(new android.text.TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int st, int c, int a) {}
-            @Override public void onTextChanged(CharSequence s, int st, int b, int c) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int st, int c, int a) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int st, int b, int c) {
                 btnSearch.setEnabled(s != null && !s.toString().trim().isEmpty() && !searching);
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
         });
 
         // Auto search on open if we have a title
@@ -102,7 +115,8 @@ public class CoverWebSearchActivity extends BaseActivity {
     }
 
     private void runSearch(String q) {
-        if (q.isEmpty()) return;
+        if (q.isEmpty())
+            return;
 
         setSearching(true);
 
@@ -131,19 +145,21 @@ public class CoverWebSearchActivity extends BaseActivity {
         });
     }
 
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
         searchExecutor.shutdownNow();
     }
 
-
     private void onResultClicked(CoverResult r) {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.confirm)
-                .setMessage(getString(R.string.use_this_image_as_cover))
-                .setPositiveButton(android.R.string.ok, (d, w) -> downloadCover(r))
-                .setNegativeButton(android.R.string.cancel, null)
-                .show();
+        pendingCoverResult = r;
+        MsgBox.ask(this,
+                getString(R.string.confirm),
+                getString(R.string.use_this_image_as_cover),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DOWNLOAD_COVER);
     }
 
     private void downloadCover(CoverResult r) {
@@ -162,5 +178,14 @@ public class CoverWebSearchActivity extends BaseActivity {
         out.putExtra("downloadEnqueued", true);
         setResult(RESULT_OK, out);
         finish();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_DOWNLOAD_COVER && resultCode == RESULT_OK && pendingCoverResult != null) {
+            downloadCover(pendingCoverResult);
+            pendingCoverResult = null;
+        }
     }
 }
