@@ -131,16 +131,19 @@ public class MsgBoxActivity extends BaseActivity {
                 }
             }
             setResult(RESULT_OK, resultData(WHICH_NEUTRAL, checkbox));
+            myLogI("checbox [" + t + "] - neutral button clicked [" + WHICH_NEUTRAL + "] => setResult=RESULT_OK");
             finish();
         });
 
         btnNegative.setOnClickListener(v -> {
             setResult(RESULT_CANCELED, resultData(WHICH_NEGATIVE, checkbox));
+            myLogI("checbox [" + t + "] - negative button clicked [" + WHICH_NEGATIVE + "] setResult=RESULT_CANCELED");
             finish();
         });
 
         btnPositive.setOnClickListener(v -> {
             setResult(RESULT_OK, resultData(WHICH_POSITIVE, checkbox));
+            myLogI("checbox [" + t + "] - positive button clicked [" + WHICH_POSITIVE + "] => setResult=RESULT_OK");
             finish();
         });
 
@@ -148,6 +151,7 @@ public class MsgBoxActivity extends BaseActivity {
         root.setOnClickListener(v -> {
             if (type != TYPE_QUESTION) {
                 setResult(RESULT_CANCELED, withCheck(it, checkbox));
+                myLogI("checbox [" + t + "] - scrim clicked => setResult=RESULT_CANCELED");
                 finish();
             }
         });

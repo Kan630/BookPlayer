@@ -193,7 +193,7 @@ public class TestNavUtils {
         String log = "sleep " + Tonio.formatMS(millis);
         if (!customLogMessage.isEmpty())
             log += " - " + customLogMessage;
-        myLog(log);
+        myLogD(log);
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
