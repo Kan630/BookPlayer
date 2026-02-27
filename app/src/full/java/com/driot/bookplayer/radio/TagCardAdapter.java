@@ -13,12 +13,15 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
+public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
+//public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
 
     public interface OnClick { void onTagClick(TagItem t); }
 
@@ -51,7 +54,6 @@ public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
         h.tvCount.setText(String.valueOf(t.stationcount));
 //FLAG
         Integer flagResId = null;
-        //KanLogger.myLog("tagitem - name=" + t.name + "- iso_3166_1=" + t.iso_3166_1 + "- iso_639=" + t.iso_639);
         if (t.iso_3166_1 != null) {
             flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_3166_1, "country");
         } else if (t.iso_639 != null) {
@@ -63,6 +65,8 @@ public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
         } else if ("português  brasil".equals(t.name)) {
             flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
         } else if ("español internacional".equals(t.name)) {
+            flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
+        } else if ("castellano. español".equals(t.name)) {
             flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
         } else if ("español argentina".equals(t.name)) {
             flagResId = getFlagResId(h.ivFlag.getContext(), "ar", "country");
@@ -78,15 +82,19 @@ public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
             flagResId = getFlagResId(h.ivFlag.getContext(), "ph", "country");
         } else if ("punjabi".equals(t.name)) {
             flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
-        } else if (t.name.contains("castellan")) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
-        } else if (t.name.toLowerCase().contains("breton")) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
+        } else if ("romania".equals(t.name)) {
+            flagResId = getFlagResId(h.ivFlag.getContext(), "ro", "country");
+        } else if ("breton".equalsIgnoreCase(t.name)) {
+            flagResId = LanguageMapper.getMapping("breton").flagRes;
         }
+
+
         if (flagResId != null && flagResId != 0) {
+            KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" + h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
             Glide.with(h.ivFlag.getContext()).load(flagResId).into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
         } else {
+            KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
             h.ivFlag.setVisibility(View.GONE);
         }
 //CLICK
