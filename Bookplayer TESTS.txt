@@ -4,13 +4,13 @@
 cd C:\Users\adrio\StudioProjects\BookPlayer
 
 //Huawei 9
-run-import-test.bat LoadManyBookTest FPMPH18C17900002 keep
+run-test.bat LoadManyBookTest FPMPH18C17900002 keep
 
 //Samsung 16
-run-import-test.bat LoadManyBookTest RF8Y50GB1XP keep
+run-test.bat LoadManyBookTest RF8Y50GB1XP keep
 
 //Samsung 9
-run-import-test.bat LoadManyBookTest 52003931eec16435 keep
+run-test.bat LoadManyBookTest 52003931eec16435 keep
  
  
  

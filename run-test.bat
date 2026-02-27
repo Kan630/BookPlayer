@@ -16,6 +16,7 @@ REM Enable ANSI color support (Windows 10+)
 reg add HKCU\Console /v VirtualTerminalLevel /t REG_DWORD /d 1 /f >nul 2>&1
 for /f %%a in ('echo prompt $E^| cmd /q') do set "ESC=%%a"
 set "BLUE=!ESC![94m"
+set "ORANGE=!ESC![33m"
 set "RESET=!ESC![0m"
 
 set FLAVOR=Full
@@ -264,8 +265,8 @@ set /a _TOTAL_S=(_EH-_SH)*3600+(_EM-_SM)*60+(_ES-_SS)
 if !_TOTAL_S! LSS 0 set /a _TOTAL_S+=86400
 set /a _MIN=_TOTAL_S/60, _SEC=_TOTAL_S%%60
 if !_MIN! GTR 0 (
-    echo !_LABEL! took !_MIN!min !_SEC!sec
+    echo !_LABEL! took !ORANGE!!_MIN!min !_SEC!sec!RESET!
 ) else (
-    echo !_LABEL! took !_SEC!sec
+    echo !_LABEL! took !ORANGE!!_SEC!sec!RESET!
 )
 goto :eof
