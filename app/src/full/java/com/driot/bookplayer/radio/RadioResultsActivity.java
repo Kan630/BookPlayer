@@ -523,16 +523,11 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
                 List<Station> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
+                    int rawSize = body.size();
+                    boolean serverHasMorePages = rawSize >= Option.getRadioApiNbResults();
+                    myLog("serverHasMorePages : " + serverHasMorePages + " (rawSize=" + rawSize + ")");
 
                     Set<String> censoredRadios = LiveCensorshipManager.getCensoredRadios(getApplicationContext());
-                    /*
-                     * StringBuilder listCensured = new StringBuilder();
-                     * for (String censored : censoredRadios) {
-                     * listCensured.append(censored + ", ");
-                     * }
-                     * myLog("Censured radio list: " + listCensured);
-                     */
-
                     String headerTxt = "";
                     boolean removeDubious = Option.getRadioRemoveDubiousStations();
                     boolean removeDuplicates = Option.getRadioRemoveSpamStations();
@@ -543,33 +538,23 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                     if (removeDubious || removeDuplicates) {
                         Map<String, Integer> countMap = new HashMap<>();
-
                         Iterator<Station> iterator = body.iterator();
                         while (iterator.hasNext()) {
                             Station s = iterator.next();
                             if (s.name == null)
                                 continue;
-
                             String trimmedName = s.name.toLowerCase().replaceAll("[^a-z]", "");
-
-                            // 1) CENSORSHIP CHECK
-                            boolean isCensored = LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmedName,
-                                    censoredRadios);
-                            if (isCensored) {
+                            if (LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmedName, censoredRadios)) {
                                 myLogW("[" + s.name + "] is censured.     trimmedName=" + trimmedName);
                                 iterator.remove();
                                 continue;
                             }
-
-                            // 2) DUBIOUS CHECK
                             if (removeDubious && Var.RADIO_STATION_BLACKLIST_LOWERCASE.contains(trimmedName)) {
                                 iterator.remove();
                                 nbRemovedDubious++;
                                 removedNamesDubious.add(s.name);
                                 continue;
                             }
-
-                            // 3) DUPLICATE CHECK
                             if (removeDuplicates) {
                                 String normalizedName = s.name.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
                                 Integer countObj = countMap.get(normalizedName);
@@ -584,9 +569,6 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             }
                         }
                     }
-
-                    boolean serverHasMorePages = rsp.body().size() >= Option.getRadioApiNbResults();
-                    myLog("serverHasMorePages : " + serverHasMorePages);
 
                     if (nbRemovedDuplicates > 0) {
                         headerTxt = "    (" + nbRemovedDuplicates + " "
@@ -603,7 +585,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     }
 
                     if (isPagination) {
-                        viewModel.appendResults(body, rsp.body().size());
+                        viewModel.appendResults(body, rawSize);
                         viewModel.setHasMore(serverHasMorePages);
 
                         List<Station> allResults = viewModel.getResults().getValue();
@@ -614,7 +596,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: "
                                 + (allResults != null ? allResults.size() : 0));
                     } else {
-                        viewModel.setResults(body, rsp.body().size());
+                        viewModel.setResults(body, rawSize);
                         viewModel.setHasMore(serverHasMorePages);
                         viewModel.setHeaderCount(getString(R.string.Results_2pt) + body.size() + headerTxt);
                         myLog("radio results (" + source + ") = " + body.size());
