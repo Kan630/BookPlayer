@@ -78,6 +78,10 @@ public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
             flagResId = getFlagResId(h.ivFlag.getContext(), "ph", "country");
         } else if ("punjabi".equals(t.name)) {
             flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
+        } else if (t.name.contains("castellan")) {
+            flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
+        } else if (t.name.toLowerCase().contains("breton")) {
+            flagResId = getFlagResId(h.ivFlag.getContext(), "in", "country");
         }
         if (flagResId != null && flagResId != 0) {
             Glide.with(h.ivFlag.getContext()).load(flagResId).into(h.ivFlag);
