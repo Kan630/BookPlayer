@@ -10,6 +10,7 @@ import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
+import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
 import static org.hamcrest.Matchers.not;
@@ -180,8 +181,10 @@ public class DeepSettingsTest implements LogSupport {
                     myLogD("Toggling checkbox: " + getResourceName(cb.getId()));
                     cb.performClick();
                     uiController.loopMainThreadUntilIdle();
+                    dismissAnyDialog(uiController);
                     cb.performClick(); // Toggle back
                     uiController.loopMainThreadUntilIdle();
+                    dismissAnyDialog(uiController);
                 } else if (view instanceof EditText && view.isShown()) {
                     EditText et = (EditText) view;
                     String val = randomValues[random.nextInt(randomValues.length)];
@@ -263,5 +266,19 @@ public class DeepSettingsTest implements LogSupport {
                 }
             }
         };
+    }
+
+    private void dismissAnyDialog(UiController uiController) {
+        // Try to find an "OK" or "Cancel" button on top of everything to dismiss
+        // dialogs
+        try {
+            onView(anyOf(withText(android.R.string.ok), withText(android.R.string.cancel), withText("OK"),
+                    withText("Annuler")))
+                    .perform(click());
+            uiController.loopMainThreadUntilIdle();
+            myLogD("Dismissed a dialog");
+        } catch (Exception e) {
+            // No dialog found, ignore
+        }
     }
 }
