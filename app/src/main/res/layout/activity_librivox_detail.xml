@@ -49,7 +49,7 @@
             android:layout_marginEnd="20dp"
             />
         <Button
-            android:id="@+id/bGet"
+            android:id="@+id/bGetLibrivoxBook"
             android:text="@string/Librivox_bGetAudioBook"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

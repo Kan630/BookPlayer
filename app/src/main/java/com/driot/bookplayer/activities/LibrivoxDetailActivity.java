@@ -100,7 +100,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         infoView = findViewById(R.id.textDetailInfo);
         synopsisView = findViewById(R.id.textDetailSynopsis);
         coverView = findViewById(R.id.imageDetailCover);
-        bGet = findViewById(R.id.bGet);
+        bGet = findViewById(R.id.bGetLibrivoxBook);
         tvLinkArchive = findViewById(R.id.tvLinkArchive);
         tvLinkLibrivox = findViewById(R.id.tvLinkLibrivox);
         tvDownloadLink = findViewById(R.id.tvDownloadLink);
@@ -270,6 +270,10 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         viewModel.download_link.observe(this, download_link -> {
             if (download_link == null)
                 return;
+
+            if (!isCurrentlyOnline) {
+                return; // Let updateUiForNetworkState handle the offline text
+            }
 
             String downloadLinkText;
             if (!download_link.isEmpty()) {
@@ -514,6 +518,10 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             }
 
             runOnUiThread(() -> {
+                if (!isCurrentlyOnline) {
+                    return; // Prevent overwriting offline UI
+                }
+
                 viewModel.zipFileSizeBytes.setValue(finalSize[0]);
                 if (finalResult[0]) {
                     viewModel.download_link.setValue(successfulUrl[0]);
