@@ -36,7 +36,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public final class LiveCensorshipManager {
 
-    private static final boolean SHOW_LOG_CENSORSHIP = true;
+    private static final boolean SHOW_LOG_CENSORSHIP = false;
 
     public static final String ENDPOINT = "https://bookplayer.driot.com/app_live_data/censored_items.json";
 
@@ -142,7 +142,7 @@ public final class LiveCensorshipManager {
             return false;
         }
         for (String censored : censoredList) {
-            myLog("Censored item: [" + censored + "] vs [" + trimmedName + "]");
+            if (SHOW_LOG_CENSORSHIP) myLog("Censored item: [" + censored + "] vs [" + trimmedName + "]");
             if (trimmedName.contains(censored)) {
                 return true;
             }
