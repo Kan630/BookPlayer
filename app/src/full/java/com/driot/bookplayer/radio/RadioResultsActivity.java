@@ -545,7 +545,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             continue;
                         String trimmedName = s.name.toLowerCase().replaceAll("[^a-z0-9]", "");
                         if (LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmedName, censoredRadios)) {
-                            myLogW("[" + s.name + "] is censured.     trimmedName=" + trimmedName);
+                            myLogW("[" + s.name + "] is censored.     trimmedName=" + trimmedName);
                             iterator.remove();
                             continue;
                         }
@@ -556,15 +556,14 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             continue;
                         }
                         if (removeDuplicates) {
-                            String normalizedName = s.name.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
-                            Integer countObj = countMap.get(normalizedName);
+                            Integer countObj = countMap.get(trimmedName);
                             int count = countObj != null ? countObj : 0;
                             if (count >= Var.RADIO_STATION_MAX_DUPLICATES) {
                                 iterator.remove();
                                 nbRemovedDuplicates++;
                                 removedNamesDuplicates.add(s.name);
                             } else {
-                                countMap.put(normalizedName, count + 1);
+                                countMap.put(trimmedName, count + 1);
                             }
                         }
                     }
