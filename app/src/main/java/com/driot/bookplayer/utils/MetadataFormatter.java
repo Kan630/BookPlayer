@@ -20,8 +20,8 @@ public final class MetadataFormatter {
 
     /** Order + labels for common keys; the rest will follow alphabetically. */
     private static final String[] PREFERRED_ORDER = {
-            "title", "artist", "album", "genre", "year", "track", "disc",
-            "bitrate", "samplerate", "channels"
+            "title", "album", "artist", "composer", "year", "genre", "track", "disc",
+            "bitrate", "samplerate", "channels", "mime"
     };
 
     public static @Nullable CharSequence format(@NonNull Context ctx, @Nullable Map<String,String> meta) {
@@ -61,20 +61,21 @@ public final class MetadataFormatter {
     private static boolean isNotEmpty(String s) { return s != null && !s.trim().isEmpty(); }
 
     private static String label(Context ctx, String key) {
-        // If you later add localized strings for labels, map them here.
+        String localized = null;
         switch (key) {
-            case "title": return ctx.getString(R.string.title);
-            case "artist": return ctx.getString(R.string.Artist);
-            case "album": return ctx.getString(R.string.Album);
-            case "genre": return ctx.getString(R.string.Genre);
-            case "year": return ctx.getString(R.string.Year);
-            case "track": return ctx.getString(R.string.Track);
-            case "disc": return ctx.getString(R.string.Disc);
-            case "bitrate": return ctx.getString(R.string.Bitrate);
-            case "samplerate": return ctx.getString(R.string.sample_rate);
-            case "channels": return ctx.getString(R.string.Channels);
+            case "title": localized = ctx.getString(R.string.title); break;
+            case "artist": localized = ctx.getString(R.string.Artist); break;
+            case "album": localized = ctx.getString(R.string.Album); break;
+            case "genre": localized = ctx.getString(R.string.Genre); break;
+            case "year": localized = ctx.getString(R.string.Year); break;
+            case "track": localized = ctx.getString(R.string.Track); break;
+            case "disc": localized = ctx.getString(R.string.Disc); break;
+            case "bitrate": localized = ctx.getString(R.string.Bitrate); break;
+            case "samplerate": localized = ctx.getString(R.string.sample_rate); break;
+            case "channels": localized = ctx.getString(R.string.Channels); break;
             default: return prettyKey(key);
         }
+        return prettyKey(localized);
     }
 
     private static String prettyKey(String key) {
