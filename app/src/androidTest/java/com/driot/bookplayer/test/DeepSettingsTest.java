@@ -2,14 +2,13 @@ package com.driot.bookplayer.test;
 
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
-import static androidx.test.espresso.action.ViewActions.replaceText;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
 import static androidx.test.espresso.assertion.ViewAssertions.matches;
-import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
-import static androidx.test.espresso.matcher.ViewMatchers.withId;
-import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
+import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
+import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
 import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.anyOf;
@@ -180,10 +179,10 @@ public class DeepSettingsTest implements LogSupport {
                     CheckBox cb = (CheckBox) view;
                     myLogD("Toggling checkbox: " + getResourceName(cb.getId()));
                     cb.performClick();
-                    uiController.loopMainThreadUntilIdle();
+                    uiController.loopMainThreadForAtLeast(200);
                     dismissAnyDialog(uiController);
                     cb.performClick(); // Toggle back
-                    uiController.loopMainThreadUntilIdle();
+                    uiController.loopMainThreadForAtLeast(200);
                     dismissAnyDialog(uiController);
                 } else if (view instanceof EditText && view.isShown()) {
                     EditText et = (EditText) view;
@@ -272,13 +271,19 @@ public class DeepSettingsTest implements LogSupport {
         // Try to find an "OK" or "Cancel" button on top of everything to dismiss
         // dialogs
         try {
-            onView(anyOf(withText(android.R.string.ok), withText(android.R.string.cancel), withText("OK"),
+            // Use inRoot(isDialog()) to find the button in the AlertDialog window
+            androidx.test.espresso.Espresso.onView(anyOf(
+                    withText(android.R.string.ok),
+                    withText(android.R.string.cancel),
+                    withText("OK"),
                     withText("Annuler")))
-                    .perform(click());
+                    .inRoot(isDialog())
+                    .perform(androidx.test.espresso.action.ViewActions.click());
+
             uiController.loopMainThreadUntilIdle();
             myLogD("Dismissed a dialog");
         } catch (Exception e) {
-            // No dialog found, ignore
+            // No dialog found or already dismissed, ignore
         }
     }
 }

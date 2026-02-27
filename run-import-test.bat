@@ -33,44 +33,39 @@ set PUSH_MODE=0
 REM ────────────────────────────────────────────────
 REM Parse arguments - scan all args for flags
 REM ────────────────────────────────────────────────
-set ARG_INDEX=1
 :parse_loop
-set CURRENT_ARG=
-for /f "tokens=%ARG_INDEX%*" %%a in ("%*") do set CURRENT_ARG=%%a
-if "!CURRENT_ARG!"=="" goto parse_done
+if "%~1"=="" goto parse_done
 
-REM Check for named modes first
+set CURRENT_ARG=%~1
+
 if /i "!CURRENT_ARG!"=="keep" (
     set KEEP_APP=1
-    goto next_arg
+    shift & goto parse_loop
 )
 if /i "!CURRENT_ARG!"=="push" (
     set PUSH_MODE=1
-    goto next_arg
+    shift & goto parse_loop
 )
 if /i "!CURRENT_ARG!"=="build" (
     set EXTRA_ARGS=-Pandroid.testInstrumentationRunnerArguments.MODE=build
-    goto next_arg
+    shift & goto parse_loop
 )
 if /i "!CURRENT_ARG!"=="test" (
     set EXTRA_ARGS=-Pandroid.testInstrumentationRunnerArguments.MODE=test
-    goto next_arg
+    shift & goto parse_loop
 )
 
 REM Check if it looks like a test class name
 echo "!CURRENT_ARG!" | findstr /i "Test" >nul
 if not errorlevel 1 (
     set TEST_CLASS=com.driot.bookplayer.test.!CURRENT_ARG!
-    goto next_arg
+    shift & goto parse_loop
 )
 
 REM Otherwise assume it's a device serial
 set DEVICE_SERIAL=!CURRENT_ARG!
 set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=!CURRENT_ARG!
-
-:next_arg
-set /a ARG_INDEX+=1
-if !ARG_INDEX! LEQ 9 goto parse_loop
+shift & goto parse_loop
 
 :parse_done
 echo ------------------------------------------------------------------------------
@@ -173,7 +168,7 @@ if %PUSH_MODE%==1 (
 	echo Disabling Play Protect scan prompt...
 	adb -s "!DEVICE_SERIAL!" shell settings put global package_verifier_enable 0
     echo Installing app APK...
-    adb -s "!DEVICE_SERIAL!" install -r -g --no-streaming "%APK_APP_PATH%"
+    adb -s "!DEVICE_SERIAL!" install -r -g "%APK_APP_PATH%"
     if errorlevel 1 (
         echo Install failed - app APK
         echo Path was: %APK_APP_PATH%
@@ -181,7 +176,7 @@ if %PUSH_MODE%==1 (
     )
     echo App APK installed.
     echo Installing androidTest APK...
-    adb -s "!DEVICE_SERIAL!" install -r -g --no-streaming "%APK_TEST_PATH%"
+    adb -s "!DEVICE_SERIAL!" install -r -g "%APK_TEST_PATH%"
     if errorlevel 1 (
         echo Install failed - androidTest APK
         echo Path was: %APK_TEST_PATH%
