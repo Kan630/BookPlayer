@@ -631,8 +631,10 @@
 
 
     <string name="Progression_reset_done">"Progress has been reset"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirm Reset"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"You are about to reset progression from this audio\nAre you sure ?"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"Confirm Reset from this track till the end"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"You are about to reset progression for this track and all the next ones\nAre you sure ?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Confirm Reset for this track (only)"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"You are about to reset progression for this track\nAre you sure ?"</string>
     <string name="tv_ListeningTimeWithNoUserAction">No user action since</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Note that this value will only be used for the current playing session.\nThe global Auto Sleep Value is located in Settings</i>"</string>
     <string name="tv_TimeLeft">Time before sleep</string>

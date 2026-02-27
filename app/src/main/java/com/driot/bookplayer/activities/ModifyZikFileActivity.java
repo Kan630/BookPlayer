@@ -11,7 +11,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
@@ -34,7 +34,13 @@ import java.io.File;
  */
 public class ModifyZikFileActivity extends BaseActivity {
 
+    private static final int REQ_DELETE_ZIKFILE = 2001;
+    private static final int REQ_RESET_PROGRESS = 2002;
+    private static final int REQ_RESET_FROM_THIS = 2003;
+    private static final int REQ_RENAME_TRACK = 2004;
+
     private ZikFile zikFile;
+    private String pendingNewName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +71,13 @@ public class ModifyZikFileActivity extends BaseActivity {
         tvTitle.setText(zikFileDisplayName);
         etRename.setText(zikFileDisplayName);
 
-// METADATA
+        // METADATA
         String json = null;
         try {
             json = zikFile.metadataJson;
-        } catch (Throwable ignore) {}
-        java.util.Map<String,String> meta = MetaJson.fromJson(json);
+        } catch (Throwable ignore) {
+        }
+        java.util.Map<String, String> meta = MetaJson.fromJson(json);
         CharSequence pretty = MetadataFormatter.format(this, meta);
         if (pretty != null && pretty.length() > 0) {
             SpannableStringBuilder sb = new SpannableStringBuilder(); // for bold to stay bold
@@ -90,17 +97,17 @@ public class ModifyZikFileActivity extends BaseActivity {
         findViewById(R.id.bChangeTracksOrder).setOnClickListener(view -> {
             startActivity(new Intent(this, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER_ID, zikFile.getIdFolder())
-                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true)
-            );
+                    .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true));
             String warning = null;
-            if ( PlaybackUiBus.get().state().getValue() != null) {
+            if (PlaybackUiBus.get().state().getValue() != null) {
                 warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
             }
-            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text), warning);
+            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text),
+                    warning);
         });
 
-        bResetOnlyThisTrack.setOnClickListener(view -> bResetClick(zikFile));
-        bResetFromThisTrack.setOnClickListener(view -> bResetFromThisZikFileClick(zikFile));
+        bResetOnlyThisTrack.setOnClickListener(view -> bResetClick());
+        bResetFromThisTrack.setOnClickListener(view -> bResetFromThisZikFileClick());
 
         bDelete.setOnClickListener(view -> bDeleteClick());
 
@@ -108,15 +115,14 @@ public class ModifyZikFileActivity extends BaseActivity {
     }
 
     private void bDeleteClick() {
-        new AlertDialog.Builder(ModifyZikFileActivity.this)
-                .setTitle(getString(R.string.AskDelete_popupTitle))
-                .setMessage(getString(R.string.ModifyZikFile_AskDelete))
-                .setCancelable(false)
-                .setPositiveButton(android.R.string.ok, (dialog, which) -> deleteZikFile())
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
-                .show();
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.ModifyZikFile_AskDelete),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_ZIKFILE);
     }
-
 
     private void deleteZikFile() {
         // delete ZikFile if exist in app memory
@@ -154,7 +160,7 @@ public class ModifyZikFileActivity extends BaseActivity {
     private void eraseFileFromDisk(String strPath) {
         String starter = "file:///";
         myLog("Deleting ZikFile : [" + strPath + "]");
-        if (strPath.length()>5) {
+        if (strPath.length() > 5) {
             if (!StorageHelper.isInInternalMemory(strPath)) {
                 myLog("NO DISK DELETE : Not a folder in user data, skip deletion");
             } else {
@@ -170,52 +176,56 @@ public class ModifyZikFileActivity extends BaseActivity {
                             }
                         }
                     } catch (Exception e) {
-                        myLogEE(e,"Error remove ZikFile from Disk");
+                        myLogEE(e, "Error remove ZikFile from Disk");
                     }
                 } else {
                     myLogEE(null, "NO DISK DELETE : weird Path, does not starts with [" + starter + "]");
                 }
             }
         } else {
-            myLogEE(null,"should not happen uri less than 5 chars");
+            myLogEE(null, "should not happen uri less than 5 chars");
         }
     }
 
-    private void bResetClick(ZikFile zikFile) {
-        new AlertDialog.Builder(ModifyZikFileActivity.this)
-                .setTitle(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
-                .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
-                .setCancelable(false)
-                .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgress(zikFile))
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
-                .show();
+    private void bResetClick() {
+        MsgBox.ask(this,
+                getString(R.string.ModifyFolder_AskDeleteProgressForThisZikFile_Title),
+                getString(R.string.ModifyFolder_AskDeleteProgressForThisZikFile_Text),
+                null,
+                getString(R.string.Yes),
+                getString(android.R.string.cancel),
+                REQ_RESET_PROGRESS);
     }
-    private void bResetFromThisZikFileClick(ZikFile zikFile) {
-        new AlertDialog.Builder(ModifyZikFileActivity.this)
-                .setTitle(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Title))
-                .setMessage(ModifyZikFileActivity.this.getString(R.string.ModifyFolder_AskDeleteProgressFromZikFile_Text))
-                .setCancelable(false)
-                .setPositiveButton(ModifyZikFileActivity.this.getString(R.string.Yes), (dialog, which) -> deleteProgressFromThisZikFile(zikFile))
-                .setNegativeButton(android.R.string.cancel, (dialogInterface, i) -> {})
-                .show();
+
+    private void bResetFromThisZikFileClick() {
+        MsgBox.ask(this,
+                getString(R.string.ModifyFolder_AskDeleteProgressFromThisZikFile_Title),
+                getString(R.string.ModifyFolder_AskDeleteProgressFromThisZikFile_Text),
+                null,
+                getString(R.string.Yes),
+                getString(android.R.string.cancel),
+                REQ_RESET_FROM_THIS);
     }
+
     private void deleteProgress(ZikFile zikFile) {
         new Thread(() -> {
             AppDatabase.getDatabase(this).zikFileDao().resetProgressionFully(zikFile.getId());
             Sql.calculateFolderProgress(ModifyZikFileActivity.this, zikFile.getIdFolder());
             runOnUiThread(() -> {
                 myToast(ModifyZikFileActivity.this.getString(R.string.Progression_reset_done));
-                finish(); //close activity
+                finish(); // close activity
             });
         }).start();
     }
+
     private void deleteProgressFromThisZikFile(ZikFile zikFile) {
         new Thread(() -> {
-            AppDatabase.getDatabase(this).zikFileDao().resetProgressionFromThisZikFileFully(zikFile.getIdFolder(), zikFile.getZeorder());
+            AppDatabase.getDatabase(this).zikFileDao().resetProgressionFromThisZikFileFully(zikFile.getIdFolder(),
+                    zikFile.getZeorder());
             Sql.calculateFolderProgress(ModifyZikFileActivity.this, zikFile.getIdFolder());
             runOnUiThread(() -> {
                 myToast(ModifyZikFileActivity.this.getString(R.string.Progression_reset_done));
-                finish(); //close activity
+                finish(); // close activity
             });
         }).start();
     }
@@ -224,18 +234,19 @@ public class ModifyZikFileActivity extends BaseActivity {
     public void onBackPressed() {
         String newName = ((TextView) findViewById(R.id.etRename)).getText().toString().trim();
         if (!newName.equals(zikFile.getDisplayName())) {
-            new AlertDialog.Builder(this)
-                    .setTitle(R.string.AskRename_popupTitle)
-                    .setMessage(getString(R.string.AskRename_Track) + "\n[ " + newName + " ]")
-                    .setPositiveButton(R.string.Yes, (dialog, which) -> renameTrack(newName))
-                    .setNegativeButton(R.string.No, (dialog, which) -> {
-                        super.onBackPressed(); // Just leave
-                    })
-                    .show();
+            this.pendingNewName = newName;
+            MsgBox.ask(this,
+                    getString(R.string.AskRename_popupTitle),
+                    getString(R.string.AskRename_Track) + "\n[ " + newName + " ]",
+                    null,
+                    getString(R.string.Yes),
+                    getString(R.string.No),
+                    REQ_RENAME_TRACK);
         } else {
             super.onBackPressed(); // No changes, just leave
         }
     }
+
     private void renameTrack(String newDisplayName) {
         if (newDisplayName.length() < 2) {
             myToast(getString(R.string.Error_NameTooShort));
@@ -244,10 +255,31 @@ public class ModifyZikFileActivity extends BaseActivity {
                 AppDatabase.getDatabase(this).zikFileDao().setDisplayName(zikFile.getId(), newDisplayName);
                 runOnUiThread(() -> {
                     myToast(getString(R.string.ZikFile_Renamed));
-                    myLogInFile(getString(R.string.ZikFile_Renamed) + " : [" + zikFile.getDisplayName() + "] -> [" + newDisplayName + "]");
+                    myLogInFile(getString(R.string.ZikFile_Renamed) + " : [" + zikFile.getDisplayName() + "] -> ["
+                            + newDisplayName + "]");
                     finish();
                 });
             }).start();
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_DELETE_ZIKFILE) {
+                deleteZikFile();
+            } else if (requestCode == REQ_RESET_PROGRESS) {
+                deleteProgress(zikFile);
+            } else if (requestCode == REQ_RESET_FROM_THIS) {
+                deleteProgressFromThisZikFile(zikFile);
+            } else if (requestCode == REQ_RENAME_TRACK) {
+                if (pendingNewName != null) {
+                    renameTrack(pendingNewName);
+                }
+            }
+        } else if (resultCode == RESULT_CANCELED && requestCode == REQ_RENAME_TRACK) {
+            super.onBackPressed();
         }
     }
 }
