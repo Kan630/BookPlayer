@@ -552,7 +552,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             if (removeDubious && Var.RADIO_STATION_BLACKLIST_LOWERCASE.contains(trimmedName)) {
                                 iterator.remove();
                                 nbRemovedDubious++;
-                                removedNamesDubious.add(s.name);
+                                //removedNamesDubious.add(s.name); //don't display dubious names for now
                                 continue;
                             }
                             if (removeDuplicates) {
