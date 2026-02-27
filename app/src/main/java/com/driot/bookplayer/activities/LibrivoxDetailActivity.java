@@ -64,10 +64,10 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     private LibrivoxDetailViewModel viewModel;
     private LibrivoxApi api;
 
-    private TextView titleView, idView, infoView, synopsisView;
+    private TextView titleView, infoView, synopsisView;
     private ImageView coverView;
     private Button bGet;
-    private TextView tvLinkArchive, tvLinkLibrivox, tvOtherInfo, tvDownloadLink;
+    private TextView tvLinkArchive, tvLinkLibrivox, tvDownloadLink;
 
     // cover handling
     private long cachedPicSizeBytes;
@@ -94,7 +94,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         InsetHelper.apply(this);
 
         titleView = findViewById(R.id.textDetailTitle);
-        idView = findViewById(R.id.textDetailIdentifier);
         infoView = findViewById(R.id.textDetailInfo);
         synopsisView = findViewById(R.id.textDetailSynopsis);
         coverView = findViewById(R.id.imageDetailCover);
@@ -102,8 +101,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         tvLinkArchive = findViewById(R.id.tvLinkArchive);
         tvLinkLibrivox = findViewById(R.id.tvLinkLibrivox);
         tvDownloadLink = findViewById(R.id.tvDownloadLink);
-        tvOtherInfo = findViewById(R.id.tvOtherInfo);
-        tvOtherInfo.setVisibility(View.GONE);
 
         // Init ViewModel
         viewModel = new ViewModelProvider(this).get(LibrivoxDetailViewModel.class);
@@ -111,7 +108,6 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         viewModel.title = getIntent().getStringExtra("title");
 
         titleView.setText(viewModel.title);
-        idView.setText(getString(com.driot.bookplayer.R.string.id_label) + viewModel.identifier);
         infoView.setText(getString(R.string.loading_details));
 
         // Load cached image if any
@@ -225,13 +221,14 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             if (download_link == null)
                 return;
 
+            String downloadLinkText;
             if (!download_link.isEmpty()) {
                 long size = viewModel.zipFileSizeBytes.getValue() != null ? viewModel.zipFileSizeBytes.getValue() : 0;
-                tvDownloadLink.setText("\n✅ " + getString(R.string.librivox_zip_mp3_available) + " ("
-                        + Tonio.getReadableSize(size) + ")");
+                downloadLinkText = "\n✅ " + getString(R.string.librivox_zip_mp3_available) + " (" + Tonio.getReadableSize(size) + ")";
             } else {
-                tvDownloadLink.setText("\n❌ " + getString(R.string.librivox_zip_mp3_not_found));
+                downloadLinkText = "\n❌ " + getString(R.string.librivox_zip_mp3_not_found);
             }
+            tvDownloadLink.setText(downloadLinkText);
             updateGetButtonEnabled();
         });
     }
