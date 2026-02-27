@@ -14,11 +14,11 @@ public final class MsgBox {
     }
 
     // ==== INFO ====
-    public static void info(Context ctx, String title, String message) {
+    public static void info(Context ctx, CharSequence title, CharSequence message) {
         info(ctx, title, message, null);
     }
 
-    public static void info(Context ctx, String title, String message, @Nullable String details) {
+    public static void info(Context ctx, CharSequence title, CharSequence message, @Nullable CharSequence details) {
         Intent i = MsgBoxActivity.buildInfo(ctx, title, message, details);
         if (!(ctx instanceof Activity)) {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -27,11 +27,11 @@ public final class MsgBox {
     }
 
     // ==== ALERT ====
-    public static void alert(Context ctx, String title, String message) {
+    public static void alert(Context ctx, CharSequence title, CharSequence message) {
         alert(ctx, title, message, null);
     }
 
-    public static void alert(Context ctx, String title, String message, @Nullable String details) {
+    public static void alert(Context ctx, CharSequence title, CharSequence message, @Nullable CharSequence details) {
         Intent i = MsgBoxActivity.buildAlert(ctx, title, message, details);
         if (!(ctx instanceof Activity)) {
             i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -40,10 +40,10 @@ public final class MsgBox {
     }
 
     public static void alertWithNeutral(Context ctx,
-            String title,
-            String message,
-            @Nullable String details,
-            String neutralText,
+            CharSequence title,
+            CharSequence message,
+            @Nullable CharSequence details,
+            CharSequence neutralText,
             @Nullable Intent neutralIntent) {
         Intent i = MsgBoxActivity.buildAlert(ctx, title, message, details);
         i.putExtra(MsgBoxActivity.EXTRA_NEUTRAL, neutralText);
@@ -62,22 +62,22 @@ public final class MsgBox {
      * Utilise startActivityForResult, donc appelle depuis une Activity !
      */
     public static void ask(Activity activity,
-            String title,
-            String message,
-            @Nullable String details,
-            @Nullable String positiveText,
-            @Nullable String negativeText,
+            CharSequence title,
+            CharSequence message,
+            @Nullable CharSequence details,
+            @Nullable CharSequence positiveText,
+            @Nullable CharSequence negativeText,
             int requestCode) {
         Intent i = MsgBoxActivity.buildQuestion(activity, title, message, details, positiveText, negativeText);
         activity.startActivityForResult(i, requestCode);
     }
 
     public static void ask(androidx.fragment.app.Fragment fragment,
-            String title,
-            String message,
-            @Nullable String details,
-            @Nullable String positiveText,
-            @Nullable String negativeText,
+            CharSequence title,
+            CharSequence message,
+            @Nullable CharSequence details,
+            @Nullable CharSequence positiveText,
+            @Nullable CharSequence negativeText,
             int requestCode) {
         Intent i = MsgBoxActivity.buildQuestion(fragment.requireContext(), title, message, details, positiveText,
                 negativeText);

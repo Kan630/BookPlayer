@@ -1,4 +1,4 @@
-    package com.driot.bookplayer.activities;
+package com.driot.bookplayer.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,7 +26,7 @@ public class MsgBoxActivity extends BaseActivity {
     public static final int TYPE_ALERT = 1;
     public static final int TYPE_QUESTION = 2;
 
-    @IntDef({TYPE_INFO, TYPE_ALERT, TYPE_QUESTION})
+    @IntDef({ TYPE_INFO, TYPE_ALERT, TYPE_QUESTION })
     @Retention(RetentionPolicy.SOURCE)
     public @interface MsgType {
     }
@@ -45,8 +45,8 @@ public class MsgBoxActivity extends BaseActivity {
     public static final String EXTRA_NEGATIVE = "negative";
     public static final String EXTRA_CHECKBOX_TEXT = "checkbox_text";
     public static final String EXTRA_ICON_RES = "icon_res";
-    public static final String EXTRA_NEUTRAL = "neutral";         // text
-    public static final String EXTRA_NEUTRAL_INTENT = "neutral_intent";  // optional Intent to launch
+    public static final String EXTRA_NEUTRAL = "neutral"; // text
+    public static final String EXTRA_NEUTRAL_INTENT = "neutral_intent"; // optional Intent to launch
 
     public static final String RESULT_CHECKED = "result_checked";
 
@@ -70,14 +70,14 @@ public class MsgBoxActivity extends BaseActivity {
         Intent it = getIntent();
         int type = it.getIntExtra(EXTRA_TYPE, TYPE_INFO);
 
-        String t = it.getStringExtra(EXTRA_TITLE);
-        String msg = it.getStringExtra(EXTRA_MESSAGE);
-        String det = it.getStringExtra(EXTRA_DETAILS);
-        String pos = it.getStringExtra(EXTRA_POSITIVE);
-        String neg = it.getStringExtra(EXTRA_NEGATIVE);
-        String cbText = it.getStringExtra(EXTRA_CHECKBOX_TEXT);
+        CharSequence t = it.getCharSequenceExtra(EXTRA_TITLE);
+        CharSequence msg = it.getCharSequenceExtra(EXTRA_MESSAGE);
+        CharSequence det = it.getCharSequenceExtra(EXTRA_DETAILS);
+        CharSequence pos = it.getCharSequenceExtra(EXTRA_POSITIVE);
+        CharSequence neg = it.getCharSequenceExtra(EXTRA_NEGATIVE);
+        CharSequence cbText = it.getCharSequenceExtra(EXTRA_CHECKBOX_TEXT);
         int iconRes = it.getIntExtra(EXTRA_ICON_RES, 0);
-        String neutral = it.getStringExtra(EXTRA_NEUTRAL);
+        CharSequence neutral = it.getCharSequenceExtra(EXTRA_NEUTRAL);
         Intent neutralIntent;
         if (android.os.Build.VERSION.SDK_INT >= 33) {
             neutralIntent = it.getParcelableExtra(EXTRA_NEUTRAL_INTENT, Intent.class);
@@ -88,12 +88,12 @@ public class MsgBoxActivity extends BaseActivity {
         title.setText(t != null ? t : getString(R.string.app_name));
         message.setText(msg != null ? msg : "");
 
-        if (det != null && !det.isEmpty()) {
+        if (det != null && det.length() > 0) {
             details.setText(det);
             details.setVisibility(View.VISIBLE);
         }
 
-        if (cbText != null && !cbText.isEmpty()) {
+        if (cbText != null && cbText.length() > 0) {
             checkbox.setText(cbText);
             checkbox.setVisibility(View.VISIBLE);
         }
@@ -102,7 +102,8 @@ public class MsgBoxActivity extends BaseActivity {
         if (iconRes == 0) {
             iconRes = defaultIconFor(type);
         }
-        if (iconRes != 0) icon.setImageResource(iconRes);
+        if (iconRes != 0)
+            icon.setImageResource(iconRes);
 
         // Boutons
 
@@ -114,7 +115,7 @@ public class MsgBoxActivity extends BaseActivity {
             btnNegative.setVisibility(View.GONE);
             btnPositive.setText(pos != null ? pos : getString(android.R.string.ok));
         }
-        if (neutral != null && !neutral.isEmpty()) {
+        if (neutral != null && neutral.length() > 0) {
             btnNeutral.setVisibility(View.VISIBLE);
             btnNeutral.setText(neutral);
         } else {
@@ -155,7 +156,8 @@ public class MsgBoxActivity extends BaseActivity {
                 finish();
             }
         });
-        findViewById(R.id.card).setOnClickListener(v -> {/* bloquer propagation */});
+        findViewById(R.id.card).setOnClickListener(v -> {
+            /* bloquer propagation */});
         myLog("MsgBox created.   type=" + type);
     }
 
@@ -167,11 +169,12 @@ public class MsgBoxActivity extends BaseActivity {
 
     @DrawableRes
     private int defaultIconFor(@MsgType int type) {
-        if (type == TYPE_ALERT) return R.drawable.ic_warning_24;
-        if (type == TYPE_QUESTION) return R.drawable.ic_help_24;
+        if (type == TYPE_ALERT)
+            return R.drawable.ic_warning_24;
+        if (type == TYPE_QUESTION)
+            return R.drawable.ic_help_24;
         return R.drawable.ic_info_24;
     }
-
 
     private Intent resultData(int which, MaterialCheckBox cb) {
         Intent data = new Intent();
@@ -180,10 +183,10 @@ public class MsgBoxActivity extends BaseActivity {
         return data;
     }
 
-
     // Helpers statiques pratiques
 
-    public static Intent buildInfo(android.content.Context ctx, String title, String message, @Nullable String details) {
+    public static Intent buildInfo(android.content.Context ctx, CharSequence title, CharSequence message,
+            @Nullable CharSequence details) {
         return new Intent(ctx, MsgBoxActivity.class)
                 .putExtra(EXTRA_TYPE, TYPE_INFO)
                 .putExtra(EXTRA_TITLE, title)
@@ -191,7 +194,8 @@ public class MsgBoxActivity extends BaseActivity {
                 .putExtra(EXTRA_DETAILS, details);
     }
 
-    public static Intent buildAlert(android.content.Context ctx, String title, String message, @Nullable String details) {
+    public static Intent buildAlert(android.content.Context ctx, CharSequence title, CharSequence message,
+            @Nullable CharSequence details) {
         return new Intent(ctx, MsgBoxActivity.class)
                 .putExtra(EXTRA_TYPE, TYPE_ALERT)
                 .putExtra(EXTRA_TITLE, title)
@@ -199,10 +203,10 @@ public class MsgBoxActivity extends BaseActivity {
                 .putExtra(EXTRA_DETAILS, details);
     }
 
-    public static Intent buildQuestion(android.content.Context ctx, String title, String message,
-                                       @Nullable String details,
-                                       @Nullable String positiveText,
-                                       @Nullable String negativeText) {
+    public static Intent buildQuestion(android.content.Context ctx, CharSequence title, CharSequence message,
+            @Nullable CharSequence details,
+            @Nullable CharSequence positiveText,
+            @Nullable CharSequence negativeText) {
         return new Intent(ctx, MsgBoxActivity.class)
                 .putExtra(EXTRA_TYPE, TYPE_QUESTION)
                 .putExtra(EXTRA_TITLE, title)

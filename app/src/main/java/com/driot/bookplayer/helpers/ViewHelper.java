@@ -20,7 +20,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 public class ViewHelper {
 
     public static void showAlertDialogText(Context context, CharSequence text, CharSequence title) {
-        MsgBox.info(context, title != null ? title.toString() : "", text != null ? text.toString() : "");
+        MsgBox.info(context, title != null ? title : "", text != null ? text : "");
     }
 
     public static class SpacesItemDecoration extends RecyclerView.ItemDecoration {
