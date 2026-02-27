@@ -30,8 +30,6 @@ public class Var {
          */
         public static final Set<String> RADIO_STATION_BLACKLIST_LOWERCASE = new HashSet<>(Arrays.asList(
                         "abdulbasitabdulsamad"));
-        public static final Set<String> RADIO_STATION_CENSORED_LOWERCASE = new HashSet<>(Arrays.asList(
-                        "alnour", "albayan", "alaqsa", "samfm"));
 
         public static final String IMPORT_STATUS_IDLE = "IDLE";
         public static final String IMPORT_STATUS_QUEUED = "QUEUED";
@@ -123,9 +121,12 @@ public class Var {
         public static final String FOLDER_DOWNLOAD = "download";
         public static final String FOLDER_IMAGE = "images";
         public static final String FOLDER_CACHED_IMAGE = "cached_images";
-        public static final Set<String>  PATH_CHECK_AUDIO_FILE_INTERNAL = new HashSet<>(
-                Arrays.asList( "com.driot.bookplayer/files/unzipped", "com.driot.bookplayerfull/files/unzipped", "com.driot.bookplayerpure/files/unzipped",
-                "com.driot.bookplayer.debug/files/unzipped", "com.driot.bookplayerfull.debug/files/unzipped", "com.driot.bookplayerpure.debug/files/unzipped"));
+        public static final Set<String> PATH_CHECK_AUDIO_FILE_INTERNAL = new HashSet<>(
+                        Arrays.asList("com.driot.bookplayer/files/unzipped", "com.driot.bookplayerfull/files/unzipped",
+                                        "com.driot.bookplayerpure/files/unzipped",
+                                        "com.driot.bookplayer.debug/files/unzipped",
+                                        "com.driot.bookplayerfull.debug/files/unzipped",
+                                        "com.driot.bookplayerpure.debug/files/unzipped"));
 
         public static final int ZIP_SIZE_MAX_COEF = 3;
         public static final int M4B_SIZE_MAX_COEF = 3;

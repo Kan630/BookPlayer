@@ -88,7 +88,7 @@ public final class LiveCensorshipManager {
     @NonNull
     public static Set<String> getCensoredRadios(Context context) {
         ensureLoaded(context);
-        Set<String> allRadios = new HashSet<>(Var.RADIO_STATION_CENSORED_LOWERCASE);
+        Set<String> allRadios = new HashSet<>();
         if (cachedRadios != null) {
             allRadios.addAll(cachedRadios);
         }
@@ -132,7 +132,27 @@ public final class LiveCensorshipManager {
 
         SharedPreferences prefs = Pref.getCensorshipPrefs();
         String json = prefs.getString(KEY_JSON, null);
+
+        if (json == null || json.trim().isEmpty()) {
+            json = readRawResource(ctx, com.driot.bookplayer.R.raw.censored_items);
+        }
+
         parseJsonToCache(json);
+    }
+
+    private static String readRawResource(Context context, int resId) {
+        try (InputStream is = context.getResources().openRawResource(resId);
+                ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buf = new byte[1024];
+            int n;
+            while ((n = is.read(buf)) != -1) {
+                out.write(buf, 0, n);
+            }
+            return out.toString("UTF-8");
+        } catch (Exception e) {
+            myLogEE(e, "LiveCensorshipManager failed to read raw resource");
+            return null;
+        }
     }
 
     private static synchronized void parseJsonToCache(@Nullable String json) {
