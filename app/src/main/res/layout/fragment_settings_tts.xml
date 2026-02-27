@@ -63,8 +63,6 @@
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_tts_show_loading_overlay" />
         </LinearLayout>
-
-        <!-- Overlay timeout -->
         <LinearLayout
             android:id="@+id/ll_tts_overlay_timeout"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
@@ -94,6 +92,10 @@
         </LinearLayout>
         <TextView android:text="Min = 5" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
         <TextView android:text="Max = 20" style="@style/OptionMiniText" android:layout_marginStart="60dp"/>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_tts_overlay_timeout_explain"
+            />
 
 
         <!-- IMPORT -->
@@ -165,7 +167,7 @@
         <LinearLayout
             android:id="@+id/ll_ebook_remove_references"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp"
+            android:layout_marginTop="10dp"
             >
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_ebook_remove_references"
