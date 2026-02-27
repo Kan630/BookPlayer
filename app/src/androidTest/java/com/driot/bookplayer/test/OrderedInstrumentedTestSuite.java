@@ -13,6 +13,7 @@ import org.junit.runners.Suite;
         BasicNavPortraitTest.class,
         BasicNavLandscapeTest.class,
         LoadManyBookTest.class,
+        DeepSettingsTest.class,
 })
 public class OrderedInstrumentedTestSuite {
 }

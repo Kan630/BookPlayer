@@ -3,7 +3,6 @@ package com.driot.bookplayer.test;
 import static androidx.test.espresso.Espresso.onView;
 import static androidx.test.espresso.action.ViewActions.click;
 import static androidx.test.espresso.action.ViewActions.scrollTo;
-import static androidx.test.espresso.assertion.ViewAssertions.matches;
 import static androidx.test.espresso.matcher.RootMatchers.isDialog;
 import static androidx.test.espresso.matcher.ViewMatchers.isAssignableFrom;
 import static androidx.test.espresso.matcher.ViewMatchers.isDescendantOfA;
@@ -40,9 +39,7 @@ import com.driot.bookplayer.testutil.TestNavUtils;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.views.SettingsSectionView;
 
-import org.hamcrest.Description;
 import org.hamcrest.Matcher;
-import org.hamcrest.TypeSafeMatcher;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +58,12 @@ import java.util.concurrent.Executors;
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class DeepSettingsTest implements LogSupport {
+
+    private final int WAIT_DELAY_AFTER_CHECKBOX_CLICK_MS = 50;
+    private final int WAIT_DELAY_DIALOG_MS = 100;
+    private final int WAIT_DELAY_SECTION_INTERACTION_START = 500;
+    private final int WAIT_DELAY_SECTION_INTERACTION_END = 500;
+    private final int WAIT_DELAY_SECTION_AFTER_SCROLL = 500;
 
     private Context appContext;
     private final Random random = new Random();
@@ -137,10 +140,10 @@ public class DeepSettingsTest implements LogSupport {
         myLogD("Scrolling while expanded...");
         onView(allOf(withId(R.id.scrollView), not(isDescendantOfA(isAssignableFrom(SettingsSectionView.class)))))
                 .perform(TestNavUtils.scrollScrollViewToBottom());
-        TestNavUtils.sleep(500);
+        TestNavUtils.sleep(WAIT_DELAY_SECTION_AFTER_SCROLL, "WAIT_DELAY_SECTION_AFTER_SCROLL");
         onView(allOf(withId(R.id.scrollView), not(isDescendantOfA(isAssignableFrom(SettingsSectionView.class)))))
                 .perform(TestNavUtils.scrollScrollViewToTop());
-        TestNavUtils.sleep(500);
+        TestNavUtils.sleep(WAIT_DELAY_SECTION_AFTER_SCROLL, "WAIT_DELAY_SECTION_AFTER_SCROLL");
 
         // Collapse
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
@@ -154,10 +157,10 @@ public class DeepSettingsTest implements LogSupport {
         // Expand
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
         verifyExpanded(sectionId, true);
-        TestNavUtils.sleep(1000); // Wait for fragment to load and layout
+        TestNavUtils.sleep(WAIT_DELAY_SECTION_INTERACTION_START, "WAIT_DELAY_SECTION_INTERACTION_START"); // Wait for fragment to load and layout
 
-        // Stress check CheckBoxes and EditTexts using a single traversal to avoid
-        // multi-match errors
+        final java.util.List<View> targetViews = new java.util.ArrayList<>();
+
         onView(withId(sectionId)).perform(new ViewAction() {
             @Override
             public Matcher<View> getConstraints() {
@@ -166,83 +169,86 @@ public class DeepSettingsTest implements LogSupport {
 
             @Override
             public String getDescription() {
-                return "interact with all checkboxes and edittexts in section";
+                return "collect interactable views";
             }
 
             @Override
             public void perform(UiController uiController, View view) {
-                // Recursive search for all CheckBox and EditText children
-                findAllAndInteract(view, uiController);
+                collectTargets(view, targetViews);
             }
 
-            private void findAllAndInteract(View view, UiController uiController) {
+            private void collectTargets(View view, java.util.List<View> targets) {
                 if (view.isShown()) {
-                    if (view instanceof CheckBox) {
-                        CheckBox cb = (CheckBox) view;
-                        myLogD("Toggling checkbox: " + getResourceName(cb.getId()));
-                        try {
-                            // Scroll to ensure it is clickable on screen
-                            androidx.test.espresso.action.ViewActions.scrollTo().perform(uiController, cb);
-                            uiController.loopMainThreadUntilIdle();
-
-                            // Use Espresso click() for better synchronization than performClick()
-                            androidx.test.espresso.action.ViewActions.click().perform(uiController, cb);
-                            uiController.loopMainThreadForAtLeast(300);
-                            dismissAnyDialog(uiController);
-
-                            androidx.test.espresso.action.ViewActions.click().perform(uiController, cb); // Toggle back
-                            uiController.loopMainThreadForAtLeast(300);
-                            dismissAnyDialog(uiController);
-                        } catch (Exception e) {
-                            myLog("Error toggling checkbox " + getResourceName(cb.getId()) + ": " + e.getMessage());
-                        }
-                    } else if (view instanceof EditText) {
-                        EditText et = (EditText) view;
-                        String val = randomValues[random.nextInt(randomValues.length)];
-                        myLogD("Setting text in " + getResourceName(et.getId()) + " to: " + val);
-                        try {
-                            androidx.test.espresso.action.ViewActions.scrollTo().perform(uiController, et);
-                            uiController.loopMainThreadUntilIdle();
-
-                            androidx.test.espresso.action.ViewActions.replaceText(val).perform(uiController, et);
-                            uiController.loopMainThreadUntilIdle();
-                        } catch (Exception e) {
-                            myLog("Error setting text in " + getResourceName(et.getId()) + ": " + e.getMessage());
-                        }
-                    } else if (view instanceof android.widget.Spinner) {
-                        android.widget.Spinner spinner = (android.widget.Spinner) view;
-                        myLogD("Interacting with spinner: " + getResourceName(spinner.getId()));
-                        try {
-                            androidx.test.espresso.action.ViewActions.scrollTo().perform(uiController, spinner);
-                            uiController.loopMainThreadUntilIdle();
-
-                            int count = spinner.getCount();
-                            if (count > 0) {
-                                int index = random.nextInt(count);
-                                myLogD("Selecting index " + index + " in spinner " + getResourceName(spinner.getId()));
-                                // Direct selection for stress test stability
-                                InstrumentationRegistry.getInstrumentation()
-                                        .runOnMainSync(() -> spinner.setSelection(index));
-                                uiController.loopMainThreadUntilIdle();
-                            }
-                        } catch (Exception e) {
-                            myLog("Error interacting with spinner " + getResourceName(spinner.getId()) + ": "
-                                    + e.getMessage());
-                        }
+                    if (view instanceof CheckBox || view instanceof EditText
+                            || view instanceof android.widget.Spinner) {
+                        targets.add(view);
                     }
                 }
-
                 if (view instanceof android.view.ViewGroup) {
                     android.view.ViewGroup group = (android.view.ViewGroup) view;
                     for (int i = 0; i < group.getChildCount(); i++) {
-                        findAllAndInteract(group.getChildAt(i), uiController);
+                        collectTargets(group.getChildAt(i), targets);
                     }
                 }
             }
         });
 
+        for (final View target : targetViews) {
+            Matcher<View> instanceMatcher = new org.hamcrest.TypeSafeMatcher<View>() {
+                @Override
+                protected boolean matchesSafely(View item) {
+                    return item == target;
+                }
+
+                @Override
+                public void describeTo(org.hamcrest.Description description) {
+                    description.appendText("matches specific view instance");
+                }
+            };
+
+            if (target instanceof CheckBox) {
+                myLogD("Toggling checkbox: " + getResourceName(target.getId()));
+                try {
+                    onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.scrollTo());
+                    onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.click());
+                    TestNavUtils.sleep(WAIT_DELAY_AFTER_CHECKBOX_CLICK_MS, "WAIT_DELAY_AFTER_CHECKBOX_CLICK_MS");
+                    dismissAnyDialog();
+                    onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.click());
+                    TestNavUtils.sleep(WAIT_DELAY_AFTER_CHECKBOX_CLICK_MS, "WAIT_DELAY_AFTER_CHECKBOX_CLICK_MS");
+                    dismissAnyDialog();
+                } catch (Exception e) {
+                    myLog("Error toggling checkbox " + getResourceName(target.getId()) + ": " + e.getMessage());
+                }
+            } else if (target instanceof EditText) {
+                String val = randomValues[random.nextInt(randomValues.length)];
+                myLogD("Setting text in " + getResourceName(target.getId()) + " to: " + val);
+                try {
+                    onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.scrollTo(),
+                            androidx.test.espresso.action.ViewActions.replaceText(val));
+                } catch (Exception e) {
+                    myLog("Error setting text in " + getResourceName(target.getId()) + ": " + e.getMessage());
+                }
+            } else if (target instanceof android.widget.Spinner) {
+                final android.widget.Spinner spinner = (android.widget.Spinner) target;
+                myLogD("Interacting with spinner: " + getResourceName(spinner.getId()));
+                try {
+                    onView(instanceMatcher).perform(androidx.test.espresso.action.ViewActions.scrollTo());
+                    int count = spinner.getCount();
+                    if (count > 0) {
+                        int index = random.nextInt(count);
+                        myLogD("Selecting index " + index + " in spinner " + getResourceName(spinner.getId()));
+                        InstrumentationRegistry.getInstrumentation()
+                                .runOnMainSync(() -> spinner.setSelection(index));
+                    }
+                } catch (Exception e) {
+                    myLog("Error interacting with spinner " + getResourceName(spinner.getId()) + ": "
+                            + e.getMessage());
+                }
+            }
+        }
+
         // Small wait for potential background saves
-        TestNavUtils.sleep(1000);
+        TestNavUtils.sleep(WAIT_DELAY_SECTION_INTERACTION_END, "WAIT_DELAY_SECTION_INTERACTION_END");
 
         // Collapse
         onView(withId(sectionId)).perform(scrollTo(), clickHeader());
@@ -307,7 +313,7 @@ public class DeepSettingsTest implements LogSupport {
         };
     }
 
-    private void dismissAnyDialog(UiController uiController) {
+    private void dismissAnyDialog() {
         // Try to find an "OK" or "Cancel" button on top of everything to dismiss
         // dialogs. We try standard IDs first then common text.
         try {
@@ -322,8 +328,8 @@ public class DeepSettingsTest implements LogSupport {
                     .inRoot(isDialog())
                     .perform(androidx.test.espresso.action.ViewActions.click());
 
-            uiController.loopMainThreadUntilIdle();
-            myLogD("Dismissed a dialog");
+            TestNavUtils.sleep(WAIT_DELAY_DIALOG_MS, "WAIT_DELAY_DIALOG_MS");
+            myLog("Dismissed a dialog");
         } catch (Exception e) {
             // No dialog found or already dismissed, ignore
         }
