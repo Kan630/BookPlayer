@@ -249,9 +249,9 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
 
             if (viewModel.download_link.getValue() == null) {
                 tvDownloadLink.setText(getString(R.string.librivox_zip_mp3_not_found).replace("❌ ", ""));
+                bGet.setEnabled(false); // disable while checking again
                 checkDownloadFile();
             } else {
-                updateGetButtonEnabled();
                 viewModel.download_link.setValue(viewModel.download_link.getValue());
             }
         }
