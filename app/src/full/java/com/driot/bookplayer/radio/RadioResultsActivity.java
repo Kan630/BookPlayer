@@ -366,6 +366,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         }
 
         // No existing results, perform initial search
+        viewModel.setLoading(true);
         progressBar.setVisibility(View.VISIBLE);
         viewModel.resetPagination();
         myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country
@@ -530,11 +531,11 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                     Set<String> censoredRadios = LiveCensorshipManager.getCensoredRadios(getApplicationContext());
                     /*
-                    StringBuilder listCensured = new StringBuilder();
-                    for (String censored : censoredRadios) {
-                        listCensured.append(censored + ", ");
-                    }
-                    myLog("Censured radio list: " + listCensured);
+                     * StringBuilder listCensured = new StringBuilder();
+                     * for (String censored : censoredRadios) {
+                     * listCensured.append(censored + ", ");
+                     * }
+                     * myLog("Censured radio list: " + listCensured);
                      */
 
                     String headerTxt = "";
@@ -557,7 +558,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             String trimmedName = s.name.toLowerCase().replaceAll("[^a-z]", "");
 
                             // 1) CENSORSHIP CHECK
-                            boolean isCensored = LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmedName, censoredRadios);
+                            boolean isCensored = LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmedName,
+                                    censoredRadios);
                             if (isCensored) {
                                 myLogW("[" + s.name + "] is censured.     trimmedName=" + trimmedName);
                                 iterator.remove();
@@ -606,15 +608,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     }
 
                     if (isPagination) {
-                        viewModel.appendResults(body);
+                        viewModel.appendResults(body, rsp.body().size());
+                        viewModel.setHasMore(serverHasMorePages);
 
-                        // We use the boolean variable evaluating the original un-filtered response
-                        // array size
-                        if (!serverHasMorePages) {
-                            viewModel.setLoading(false);
-                            List<Station> empty = new ArrayList<>();
-                            viewModel.appendResults(empty); // Stop further pagination
-                        }
                         List<Station> allResults = viewModel.getResults().getValue();
                         if (allResults != null) {
                             viewModel.setHeaderCount(
@@ -623,15 +619,10 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         myLog("radio pagination (" + source + ") = " + body.size() + " new items, total: "
                                 + (allResults != null ? allResults.size() : 0));
                     } else {
-                        viewModel.setResults(body);
+                        viewModel.setResults(body, rsp.body().size());
+                        viewModel.setHasMore(serverHasMorePages);
                         viewModel.setHeaderCount(getString(R.string.Results_2pt) + body.size() + headerTxt);
                         myLog("radio results (" + source + ") = " + body.size());
-
-                        if (!serverHasMorePages) {
-                            viewModel.setLoading(false);
-                            List<Station> empty = new ArrayList<>();
-                            viewModel.appendResults(empty); // Tell adapter we've hit the end immediately
-                        }
                     }
                 } else {
                     if (!isPagination) {
@@ -640,9 +631,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     } else {
                         // No more results for pagination
                         viewModel.setLoading(false);
-                        // Empty response means no more
-                        List<Station> empty = new ArrayList<>();
-                        viewModel.appendResults(empty); // This will set hasMore to false
+                        viewModel.setHasMore(false);
                     }
                 }
             }

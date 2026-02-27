@@ -54,11 +54,11 @@ public class RadioResultsViewModel extends LoggingViewModel {
         return shouldFinish;
     }
 
-    public void setResults(List<Station> stations) {
+    public void setResults(List<Station> stations, int rawResponseSize) {
         results.postValue(stations);
         // Reset pagination state when setting new results (first page)
-        currentOffset = stations != null ? stations.size() : 0;
-        hasMore = stations != null && stations.size() > 0;
+        currentOffset = rawResponseSize;
+        hasMore = rawResponseSize > 0;
         isLoading = false;
         isLoadingMore.postValue(false);
     }
@@ -71,7 +71,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
         return headerCount;
     }
 
-    public void appendResults(List<Station> stations) {
+    public void appendResults(List<Station> stations, int rawResponseSize) {
         List<Station> current = results.getValue();
         if (current == null) {
             current = new ArrayList<>();
@@ -94,20 +94,20 @@ public class RadioResultsViewModel extends LoggingViewModel {
 
             if (!uniqueStations.isEmpty()) {
                 current.addAll(uniqueStations);
-                currentOffset += stations.size(); // Keep offset logic based on API batch size
-                hasMore = true;
-            } else {
-                // We got results but they were all duplicates.
-                // We should probably still increment offset to try next page?
-                currentOffset += stations.size();
-                hasMore = true;
             }
-        } else {
-            hasMore = false; // No more results
         }
+
+        // We increment offset by the number of items the server treated as "sent"
+        // even if we filtered some of them out.
+        currentOffset += rawResponseSize;
+
         results.postValue(current);
         isLoading = false;
         isLoadingMore.postValue(false);
+    }
+
+    public void setHasMore(boolean hasMore) {
+        this.hasMore = hasMore;
     }
 
     public void requestFinish() {
