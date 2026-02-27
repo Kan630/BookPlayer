@@ -34,6 +34,7 @@ import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.librivox.ItemMetadata;
 import com.driot.bookplayer.librivox.LibrivoxApi;
 import com.driot.bookplayer.librivox.LanguageMapper;
+import com.driot.bookplayer.helpers.NetworkStatusMonitor;
 import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.BookLoadingWorkLauncher;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
@@ -68,6 +69,8 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
     private ImageView coverView;
     private Button bGet;
     private TextView tvLinkArchive, tvLinkLibrivox, tvDownloadLink;
+    private NetworkStatusMonitor networkMonitor;
+    private boolean isCurrentlyOnline = true;
 
     // cover handling
     private long cachedPicSizeBytes;
@@ -118,20 +121,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
             myLogD("local Image found : (" + getReadableSize(cachedPicSizeBytes) + ") " + localImage.getAbsolutePath());
             Glide.with(coverView.getContext()).load(localImage).into(coverView);
         } else {
-            myLogD("no local Image found => check on internet");
-            // Fallback low-res: archive.org/services/img
-            new Thread(() -> {
-                String fallbackUrl = "https://archive.org/services/img/" + viewModel.identifier;
-                String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, fallbackUrl,
-                        false);
-                if (localPath != null) {
-                    futureCoverPic = localPath;
-                    runOnUiThread(() -> Glide.with(coverView.getContext())
-                            .load(new File(localPath))
-                            .placeholder(R.drawable.placeholder_cover)
-                            .into(coverView));
-                }
-            }).start();
+            fetchFallbackImage();
         }
 
         // Retrofit
@@ -174,9 +164,13 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         });
 
         // Kick off metadata fetch and existing folder check
-        if (viewModel.metadata.getValue() == null)
-            fetchMetadata();
         checkIfAlreadyDownloaded();
+
+        networkMonitor = new NetworkStatusMonitor(this, hasInternet -> {
+            isCurrentlyOnline = hasInternet;
+            updateUiForNetworkState(hasInternet);
+        });
+        networkMonitor.start();
 
         bGet.setOnClickListener(v -> {
             bGet.setEnabled(false);
@@ -205,6 +199,62 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         // Re-check if book exists (user might have deleted it)
         checkIfAlreadyDownloaded();
         // updateGetButtonEnabled will be called by the observer
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (networkMonitor != null) {
+            networkMonitor.stop();
+        }
+    }
+
+    private void fetchFallbackImage() {
+        myLogD("no local Image found => check on internet");
+        // Fallback low-res: archive.org/services/img
+        new Thread(() -> {
+            String fallbackUrl = "https://archive.org/services/img/" + viewModel.identifier;
+            String localPath = ImageHelper.getOrDownloadLibrivoxImage(this, viewModel.identifier, fallbackUrl,
+                    false);
+            if (localPath != null) {
+                futureCoverPic = localPath;
+                runOnUiThread(() -> Glide.with(coverView.getContext())
+                        .load(new File(localPath))
+                        .placeholder(R.drawable.placeholder_cover)
+                        .into(coverView));
+            }
+        }).start();
+    }
+
+    private void updateUiForNetworkState(boolean hasInternet) {
+        if (!hasInternet) {
+            tvDownloadLink.setText("\n❌ " + getString(R.string.no_internet_connection));
+            bGet.setVisibility(View.GONE);
+            infoView.setVisibility(View.GONE);
+            synopsisView.setVisibility(View.GONE);
+            findViewById(R.id.ll_links).setVisibility(View.GONE);
+        } else {
+            bGet.setVisibility(View.VISIBLE);
+            infoView.setVisibility(View.VISIBLE);
+
+            if (viewModel.metadata.getValue() == null) {
+                infoView.setText(getString(R.string.loading_details));
+                fetchMetadata();
+                if (futureCoverPic == null && !ImageHelper.getLibrivoxImageFile(this, viewModel.identifier).exists()) {
+                    fetchFallbackImage();
+                }
+            } else {
+                showMetadata(viewModel.metadata.getValue());
+            }
+
+            if (viewModel.download_link.getValue() == null) {
+                tvDownloadLink.setText(getString(R.string.librivox_zip_mp3_not_found).replace("❌ ", ""));
+                checkDownloadFile();
+            } else {
+                updateGetButtonEnabled();
+                viewModel.download_link.setValue(viewModel.download_link.getValue());
+            }
+        }
     }
 
     private void checkIfAlreadyDownloaded() {
