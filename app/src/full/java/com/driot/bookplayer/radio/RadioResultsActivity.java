@@ -19,6 +19,7 @@ import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.StartPlayHelper;
+import com.driot.bookplayer.utils.LiveCensorshipManager;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
@@ -545,13 +546,16 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                             String trimmedName = s.name.toLowerCase().replaceAll("[^a-z]", "");
 
-                            boolean isCensored = false;
-                            for (String censoredStation : Var.RADIO_STATION_CENSORED_LOWERCASE) {
-                                if (trimmedName.contains(censoredStation)) {
+                            Set<String> censoredRadios = LiveCensorshipManager
+                                    .getCensoredRadios(getApplicationContext());
+                            boolean isCensored = LiveCensorshipManager.isCensored(s.name, censoredRadios);
+                            if (!isCensored) {
+                                // check url as well if we have it
+                                if (s.url != null && LiveCensorshipManager.isCensored(s.url, censoredRadios)) {
                                     isCensored = true;
-                                    break;
                                 }
                             }
+
                             if (isCensored) {
                                 iterator.remove();
                                 continue;

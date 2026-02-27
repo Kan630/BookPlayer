@@ -26,6 +26,7 @@ public class Pref {
     private static final String SHARED_PREFERENCE_RADIO_FAVORITES = "radio_favorites_store";
     private static final String SHARED_PREFERENCE_PLAYLIST = "SHARED_PREFERENCE_CURRENT_PLAYLIST";
     public static final String SHARED_PREFERENCE_MIGRATION = "SHARED_PREFERENCE_MIGRATION";
+    private static final String SHARED_PREFERENCE_CENSORSHIP = "censorship_prefs";
 
     private static final String SHARED_PREFERENCE_INTRO_CUT = "SHARED_PREFERENCE_INTRO_CUT";
     private static final String SHARED_PREFERENCE_SPEED = "SHARED_PREFERENCE_SPEED";
@@ -48,6 +49,7 @@ public class Pref {
     private static SharedPreferences radioFavorites;
     private static SharedPreferences migration;
     private static SharedPreferences playlist;
+    private static SharedPreferences censorship;
 
     public static void init(Context context) {
         appContext = context.getApplicationContext();
@@ -65,6 +67,7 @@ public class Pref {
         radioFavorites = appContext.getSharedPreferences(SHARED_PREFERENCE_RADIO_FAVORITES, MODE_PRIVATE);
         migration = appContext.getSharedPreferences(SHARED_PREFERENCE_MIGRATION, MODE_PRIVATE);
         playlist = appContext.getSharedPreferences(SHARED_PREFERENCE_PLAYLIST, MODE_PRIVATE);
+        censorship = appContext.getSharedPreferences(SHARED_PREFERENCE_CENSORSHIP, MODE_PRIVATE);
 
         if (getFirstOpenTimeStamp(appContext) == 0)
             setFirstOpen();
@@ -97,6 +100,8 @@ public class Pref {
             migration.getAll();
         if (playlist != null)
             playlist.getAll();
+        if (censorship != null)
+            censorship.getAll();
     }
 
     public static SharedPreferences getStats(Context context) {
@@ -441,5 +446,9 @@ public class Pref {
 
     public static SharedPreferences getPlaylistPrefs() {
         return playlist;
+    }
+
+    public static SharedPreferences getCensorshipPrefs() {
+        return censorship;
     }
 }

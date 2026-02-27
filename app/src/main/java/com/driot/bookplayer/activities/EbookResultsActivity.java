@@ -28,11 +28,13 @@ import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.utils.LiveCensorshipManager;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -342,8 +344,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
 
+                Set<String> censoredEbooks = LiveCensorshipManager.getCensoredEbooks(getApplicationContext());
+
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
+                    if (LiveCensorshipManager.isCensored(b.title, censoredEbooks)) {
+                        continue;
+                    }
+
                     String epubUrl = GutendexMapper.findBestEpubUrl(b);
                     if (epubUrl == null || epubUrl.isEmpty())
                         continue;
@@ -443,8 +451,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                     return;
                 }
 
+                Set<String> censoredEbooks = LiveCensorshipManager.getCensoredEbooks(getApplicationContext());
+
                 List<EbookItem> mapped = new ArrayList<>();
                 for (GutendexBook b : books) {
+                    if (LiveCensorshipManager.isCensored(b.title, censoredEbooks)) {
+                        continue;
+                    }
+
                     String epubUrl = GutendexMapper.findBestEpubUrl(b);
                     if (epubUrl == null || epubUrl.isEmpty()) {
                         continue; // skip entries without EPUB

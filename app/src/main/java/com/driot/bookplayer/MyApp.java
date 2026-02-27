@@ -21,6 +21,7 @@ import com.driot.bookplayer.helpers.StrictModeHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.InAppMsgManager;
+import com.driot.bookplayer.utils.LiveCensorshipManager;
 import com.driot.bookplayer.helpers.LocaleHelper;
 
 import com.driot.bookplayer.services.InAppPeriodicTaskManager;
@@ -80,6 +81,7 @@ public class MyApp extends Application {
         SdCardChecker.isExternalSDCardAvailable(getApplicationContext()); // set cache
 
         InAppMsgManager.schedule(getApplicationContext());
+        LiveCensorshipManager.schedule(getApplicationContext());
 
         AppUpgrade.runMigrations(getApplicationContext());
 

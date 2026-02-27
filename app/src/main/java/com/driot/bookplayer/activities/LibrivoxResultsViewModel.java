@@ -19,10 +19,14 @@ import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
 import retrofit2.Callback;
+import retrofit2.Response;
+
+import com.driot.bookplayer.utils.LiveCensorshipManager;
+import java.util.Set;
+import java.util.Iterator;
 import retrofit2.Response;
 
 public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
@@ -233,6 +237,16 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                     hasMore = false;
                     return;
                 }
+
+                Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
+                Iterator<ArchiveItem> iterator = newItems.iterator();
+                while (iterator.hasNext()) {
+                    ArchiveItem item = iterator.next();
+                    if (LiveCensorshipManager.isCensored(item.title, censored)) {
+                        iterator.remove();
+                    }
+                }
+
                 List<ArchiveItem> current = results.getValue();
                 if (current == null)
                     current = new ArrayList<>();
@@ -293,6 +307,17 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                             return;
                         }
 
+                        if (items != null) {
+                            Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
+                            Iterator<ArchiveItem> iterator = items.iterator();
+                            while (iterator.hasNext()) {
+                                ArchiveItem item = iterator.next();
+                                if (LiveCensorshipManager.isCensored(item.title, censored)) {
+                                    iterator.remove();
+                                }
+                            }
+                        }
+
                         enrichWithLocalState(items);
                         updateHeaderStatus(items, isFinalPage, "librivox.org");
 
@@ -343,6 +368,15 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         errorMessage.postValue(msg);
                         requestFinish();
                     } else {
+                        Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
+                        Iterator<ArchiveItem> iterator = items.iterator();
+                        while (iterator.hasNext()) {
+                            ArchiveItem item = iterator.next();
+                            if (LiveCensorshipManager.isCensored(item.title, censored)) {
+                                iterator.remove();
+                            }
+                        }
+
                         long total = response.body().response.numFound >= 0
                                 ? response.body().response.numFound
                                 : -1;
@@ -390,6 +424,15 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         errorMessage.postValue(msg);
                         requestFinish();
                     } else {
+                        Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
+                        Iterator<ArchiveItem> iterator = items.iterator();
+                        while (iterator.hasNext()) {
+                            ArchiveItem item = iterator.next();
+                            if (LiveCensorshipManager.isCensored(item.title, censored)) {
+                                iterator.remove();
+                            }
+                        }
+
                         int pageSize = Option.getLibrivoxApiNbResults();
                         currentPage = 2;
                         hasMore = items.size() >= pageSize;
