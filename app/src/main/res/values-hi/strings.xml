@@ -564,8 +564,8 @@
 
 
     <string name="Progression_reset_done">"प्रोग्रेस रीसेट कर दिया गया"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"रीसेट की पुष्टि"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"आप इस ऑडियो से प्रोग्रेस रीसेट करने वाले हैं\nक्या आप सुनिश्चित हैं ?"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">बिना उपयोगकर्ता क्रिया के समय</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>ध्यान दें यह मान केवल वर्तमान प्ले सत्र के लिए उपयोग होगा.\nवैश्विक ऑटो स्लीप मान सेटिंग्स में है (मेनू में, ऐप की स्टार्ट पेज से उपलब्ध)</i>"</string>
     <string name="tv_TimeLeft">स्लीप से पहले शेष समय</string>

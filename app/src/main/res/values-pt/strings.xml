@@ -566,8 +566,8 @@
 
 
     <string name="Progression_reset_done">"Progresso redefinido"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirmar redefinição"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Você está prestes a redefinir o progresso deste áudio\nTem certeza?"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">Sem ação do usuário desde</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Observação: este valor será usado apenas para a sessão de reprodução atual.\nO valor global de pausa automática fica em Opções (no menu, acessível na tela inicial do app)</i>"</string>
     <string name="tv_TimeLeft">Tempo antes do descanso</string>

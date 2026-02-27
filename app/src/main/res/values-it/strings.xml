@@ -567,8 +567,8 @@
 
 
     <string name="Progression_reset_done">"Avanzamento azzerato"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Conferma azzeramento"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Stai per azzerare l\'avanzamento di questo audio\nSei sicuro?"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">Nessuna azione utente da</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Nota: questo valore verrà usato solo per la sessione in riproduzione corrente.\nIl valore globale di pausa automatica è nelle Opzioni (nel menu, accessibile dalla pagina iniziale dell\'app)</i>"</string>
     <string name="tv_TimeLeft">Tempo prima dello sleep</string>

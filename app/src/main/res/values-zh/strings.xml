@@ -566,8 +566,8 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 
 
     <string name="Progression_reset_done">"进度已重置"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"确认重置"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"您即将重置此音频的播放进度\n您确定吗？"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">自上次操作以来</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>请注意，此值仅适用于当前播放会话。\n全局自动睡眠值位于“选项”菜单（应用启动页）中。</i>"</string>
     <string name="tv_TimeLeft">剩余时间</string>

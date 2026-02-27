@@ -568,8 +568,8 @@ Soll die App technische Debug-Protokolle erstellen?
 
 
     <string name="Progression_reset_done">"Fortschritt wurde zurückgesetzt"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Zurücksetzen bestätigen"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Sie sind dabei, den Fortschritt dieses Audios zurückzusetzen\nSind Sie sicher?"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">Keine Benutzeraktion seit</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Beachten Sie, dass dieser Wert nur für die aktuelle Wiedergabesitzung gilt.\nDer globale Auto-Sleep-Wert befindet sich in den Optionen (im Menü auf der Startseite der App).</i>"</string>
     <string name="tv_TimeLeft">Zeit bis zum Schlaf</string>

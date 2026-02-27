@@ -565,8 +565,8 @@
 
 
     <string name="Progression_reset_done">"Прогресс сброшен"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Подтвердите сброс"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Вы собираетесь сбросить прогресс этой аудиодорожки\nВы уверены?"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">Нет действий пользователя с</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Обратите внимание, что это значение будет использоваться только в текущей сессии воспроизведения.\nГлобальное значение таймера сна находится в настройках (в меню на стартовом экране приложения)</i>"</string>
     <string name="tv_TimeLeft">Осталось до сна</string>

@@ -564,8 +564,8 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
 
 
     <string name="Progression_reset_done">"Progreso restablecido"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"Confirmar reinicio"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"Está a punto de restablecer el progreso de este audio\n¿Está seguro?"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">Sin interacción del usuario desde</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>Nota: este valor solo se usará durante la sesión actual de reproducción.
 El valor global de apagado automático está en Opciones (en el menú de la pantalla de inicio)</i>"</string>

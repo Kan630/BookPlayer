@@ -561,8 +561,8 @@
 
 
     <string name="Progression_reset_done">"تمت إعادة تعيين التقدم"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Title">"تأكيد إعادة التعيين"</string>
-    <string name="ModifyFolder_AskDeleteProgressFromZikFile_Text">"أنت على وشك إعادة تعيين تقدم هذا الملف الصوتي\nهل أنت متأكد؟"</string>
+
+
     <string name="tv_ListeningTimeWithNoUserAction">لا توجد تفاعلات من المستخدم منذ</string>
     <string name="tv_CustomSleepDialog_generalInfo">"<i>لاحظ أن هذه القيمة ستُستخدم فقط لجلسة الاستماع الحالية.\nالقيمة العامة لمؤقت النوم موجودة في قسم الخيارات (في القائمة على صفحة بدء التطبيق)</i>"</string>
     <string name="tv_TimeLeft">الوقت المتبقي قبل النوم</string>
