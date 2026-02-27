@@ -135,14 +135,7 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             >
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/beta_test"
-                android:textColor="@color/orange"
-                android:layout_gravity="end"
-                android:layout_marginEnd="100dp"
-                />
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
