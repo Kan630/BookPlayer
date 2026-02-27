@@ -90,11 +90,11 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 
 
         if (flagResId != null && flagResId != 0) {
-            KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" + h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
+            //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" + h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
             Glide.with(h.ivFlag.getContext()).load(flagResId).into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
         } else {
-            KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
+            //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
             h.ivFlag.setVisibility(View.GONE);
         }
 //CLICK
