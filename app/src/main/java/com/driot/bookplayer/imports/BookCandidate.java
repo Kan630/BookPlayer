@@ -251,10 +251,14 @@ public class BookCandidate implements Parcelable {
         myLogD("loadEasyMetadata() START for: " + name);
 
         DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
-        if (file == null)
-            return;
+        if (file == null) {
+            String scheme = uri != null ? uri.getScheme() : null;
+            if (!("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
+                return;
+            }
+        }
 
-        myLogD("document file ok");
+        myLogD("document file ok (or web link)");
         // Calculate fields
         this.originalHash = computeHash(context, uri);
         myLogD("Hash ok");
@@ -271,7 +275,7 @@ public class BookCandidate implements Parcelable {
         } else {
             // Calculate fields (files are fast)
             if (!isSizeCalculated) {
-                this.size = file.length();
+                this.size = file != null ? file.length() : -1;
                 this.isSizeCalculated = true;
             }
             myLogD("calculateSize ok");
@@ -335,31 +339,41 @@ public class BookCandidate implements Parcelable {
         myLogD("loadHeavyMetadata() START for: " + name);
 
         DocumentFile file = UriHelper.getDocumentFileFromAnyUri(context, uri);
-        if (file == null)
-            return;
+        if (file == null) {
+            String scheme = uri != null ? uri.getScheme() : null;
+            if (!("http".equalsIgnoreCase(scheme) || "https".equalsIgnoreCase(scheme))) {
+                return;
+            }
+        }
 
         if ("Folder".equals(sourceType)) {
             // HEAVY PHASE
             if (Thread.currentThread().isInterrupted())
                 return;
 
-            scanFolderCombined(context, file, listener);
+            if (file != null) {
+                scanFolderCombined(context, file, listener);
+            }
         } else {
             // HEAVY PHASE
             if (Thread.currentThread().isInterrupted())
                 return;
 
-            if ("M4B".equals(sourceType)) {
-                scanM4BCombined(context, file, listener);
-            } else if ("Archive".equals(sourceType)) {
-                scanArchiveCombined(context, file, listener);
+            if (file != null) {
+                if ("M4B".equals(sourceType)) {
+                    scanM4BCombined(context, file, listener);
+                } else if ("Archive".equals(sourceType)) {
+                    scanArchiveCombined(context, file, listener);
+                } else {
+                    this.tracksCount = 1;
+                    this.coverImagePath = detectCoverForFile(context, file, sourceType);
+                    myLogD("detectCoverForFile ok");
+                    if (this.coverImagePath != null && listener != null) {
+                        listener.onCoverFound(this.coverImagePath);
+                    }
+                }
             } else {
                 this.tracksCount = 1;
-                this.coverImagePath = detectCoverForFile(context, file, sourceType);
-                myLogD("detectCoverForFile ok");
-                if (this.coverImagePath != null && listener != null) {
-                    listener.onCoverFound(this.coverImagePath);
-                }
             }
         }
 
