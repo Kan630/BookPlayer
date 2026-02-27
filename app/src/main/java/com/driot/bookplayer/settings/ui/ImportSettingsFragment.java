@@ -164,11 +164,9 @@ public class ImportSettingsFragment extends LoggingFragment {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQ_DELETE_SOURCE_FILE) {
             if (resultCode == Activity.RESULT_OK) {
-                myLogI("MsgBox : user clicks ok");
                 Option.setDeleteSourceFile(true);
             } else {
                 // revert UI state
-                myLogI("MsgBox : user clicks cancel");
                 chkDeleteSourceFile.setChecked(Option.getDeleteSourceFile());
             }
         }
