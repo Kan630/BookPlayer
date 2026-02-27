@@ -173,7 +173,6 @@ public class ImageHelper {
             // --- Handle Radio images ---
             RadioHelper.handleRadioImages(context);
 
-
         });
     }
 
@@ -1039,6 +1038,12 @@ public class ImageHelper {
      */
     @Nullable
     public static String getOriginalCoverPath(Context context, int folderId) {
+        // Try Podcast first
+        String podcastPath = PodcastHelper.getOriginalCoverPath(context, folderId);
+        if (podcastPath != null) {
+            return podcastPath;
+        }
+
         File dir = StorageHelper.getImageFolder(context, false);
 
         // Check for PNG first (preferred format for transparency)

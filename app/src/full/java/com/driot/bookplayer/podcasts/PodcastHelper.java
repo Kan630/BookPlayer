@@ -481,10 +481,36 @@ public class PodcastHelper {
             AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().update(episode);
         }
     }
-	
-	public static void openPodcastEpisodeActivityFromActivity(Folder folder, Activity activity) {
+
+    /**
+     * Gets the path to the original cover for a podcast folder.
+     * Podcast covers are saved as podcast_feed_{feedId}.jpg
+     * 
+     * @param context  Android context
+     * @param folderId Database ID of the folder
+     * @return Absolute path to original cover, or null if not found
+     */
+    @androidx.annotation.Nullable
+    public static String getOriginalCoverPath(Context context, int folderId) {
+        Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
+                .getPodcastByFolderId(folderId);
+        if (podcast == null)
+            return null;
+
+        File dir = com.driot.bookplayer.helpers.StorageHelper.getImageFolder(context, false);
+        File jpgFile = new File(dir, ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg");
+
+        if (jpgFile.exists()) {
+            return jpgFile.getAbsolutePath();
+        }
+
+        return null;
+    }
+
+    public static void openPodcastEpisodeActivityFromActivity(Folder folder, Activity activity) {
         AppDatabase.databaseReadExecutor.execute(() -> {
-            Podcast podcast = AppDatabase.getDatabase(activity.getApplicationContext()).podcastDao().getPodcastByFolderId(folder.getId());
+            Podcast podcast = AppDatabase.getDatabase(activity.getApplicationContext()).podcastDao()
+                    .getPodcastByFolderId(folder.getId());
             if (podcast != null) {
                 myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
                 activity.startActivity(new Intent(activity, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
@@ -493,95 +519,96 @@ public class PodcastHelper {
             }
         });
     }
-	
+
     public static void handlePodcastImages(Context context) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-            List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
-            for (Podcast podcast : pendingPodcasts) {
-                String url = podcast.image;
-                if (url == null || !url.startsWith("http"))
-                    continue;
+        List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
+        for (Podcast podcast : pendingPodcasts) {
+            String url = podcast.image;
+            if (url == null || !url.startsWith("http"))
+                continue;
 
-                String imagePath = ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
-                String localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, true);
-                if (localPath != null) {
-                    podcast.image = localPath;
-                    db.podcastDao().update(podcast);
-                }
+            String imagePath = ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
+            String localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, true);
+            if (localPath != null) {
+                podcast.image = localPath;
+                db.podcastDao().update(podcast);
             }
-	}
-
+        }
+    }
 
     public static void startPlayOpenPodcast(Folder folder, Context context) {
-    Podcast p = AppDatabase.getDatabase(context).podcastDao()
-            .getPodcastByFolderId(folder.getId());
-                    new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
-        context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p));
-    });
+        Podcast p = AppDatabase.getDatabase(context).podcastDao()
+                .getPodcastByFolderId(folder.getId());
+        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+            context.startActivity(new Intent(context, PodcastEpisodeActivity.class).putExtra("podcast", p));
+        });
     }
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
         String cover = ep.image == null || ep.image.isEmpty() ? podcast.image : ep.image;
-        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title, cover, caller);
+        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title,
+                cover, caller);
     }
 
     public static List<ZikFile> getPodcastZikFiles(Folder folder, Context context, boolean newestFirst) {
         if (newestFirst) {
-            return AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao().getPodcastZikFilesDesc(folder.getId());
+            return AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao()
+                    .getPodcastZikFilesDesc(folder.getId());
         } else {
-            return AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao().getPodcastZikFilesAsc(folder.getId());
+            return AppDatabase.getDatabase(context.getApplicationContext()).zikFileDao()
+                    .getPodcastZikFilesAsc(folder.getId());
         }
     }
 
-	public static boolean playStreamIfKnownPodcast(Context context, String url) {
-            Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
-            if (episode != null) {
-                String title = episode.title;
-                String imageUrl = episode.image;
-                // TODO => we need a position, or it will start the episode from the
-                // beggining....
-                //broadcastUiState("loadAndPlay");
-                //main.post(() -> {
-                StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
-                /*
-                    boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
-                    if (!ok) {
-                        myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
-                    }
+    public static boolean playStreamIfKnownPodcast(Context context, String url) {
+        Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
+        if (episode != null) {
+            String title = episode.title;
+            String imageUrl = episode.image;
+            // TODO => we need a position, or it will start the episode from the
+            // beggining....
+            // broadcastUiState("loadAndPlay");
+            // main.post(() -> {
+            StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
+            /*
+             * boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
+             * if (!ok) {
+             * myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
+             * }
+             * 
+             */
+            // });
 
-                 */
-                //});
-		
-                return true;
-            } else {
-				return false;
-			}
-	 }
+            return true;
+        } else {
+            return false;
+        }
+    }
 
     public static void deletePodcastFolder(int folderId, Context context) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-            Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
-            if (podcast == null) {
-                Folder f = db.folderDao().getById(folderId); // ensure DAO exists
-                if (f != null)
-                    ImageHelper.deleteImage(context.getApplicationContext(), f);
-            }
+        Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
+        if (podcast == null) {
+            Folder f = db.folderDao().getById(folderId); // ensure DAO exists
+            if (f != null)
+                ImageHelper.deleteImage(context.getApplicationContext(), f);
+        }
 
-            List<ZikFile> zikFileList = db.zikFileDao().getZikFiles(folderId);
-            for (ZikFile zikFile : zikFileList) {
-                Episode episode = db.episodeDao().getByZikFileId(zikFile.getId());
-                if (episode != null) {
-                    episode.date_delete = System.currentTimeMillis();
-                    db.episodeDao().update(episode);
-                    myLogD("Podcast Episode date deleted set for " + episode.title);
-                }
+        List<ZikFile> zikFileList = db.zikFileDao().getZikFiles(folderId);
+        for (ZikFile zikFile : zikFileList) {
+            Episode episode = db.episodeDao().getByZikFileId(zikFile.getId());
+            if (episode != null) {
+                episode.date_delete = System.currentTimeMillis();
+                db.episodeDao().update(episode);
+                myLogD("Podcast Episode date deleted set for " + episode.title);
             }
+        }
     }
-
 
     public static void doAutoDownloadAndDelete(Context context) {
         final int nbPodcastAutoDownload = AppDatabase.getDatabase(context).podcastDao().getNbAutoDownload();
-///  Podcasts AutoDownload
+        /// Podcasts AutoDownload
         if (nbPodcastAutoDownload > 0 && (Pref.doCheckForPodcastAutoDownload() || Var.FORCE_AUTO_DOWNLOAD_NO_DELAY)) {
             if (NetworkHelper.hasInternet(context)) {
                 PodcastHelper.checkForNewEpisodesToAutoDownload(context, Var.PODCAST_INDEX_ORG_SINCE);
@@ -589,7 +616,7 @@ public class PodcastHelper {
                 myLogD("no internet => bypassing podcast auto-download");
             }
         }
-///  Podcasts AutoDelete
+        /// Podcasts AutoDelete
         PodcastHelper.checkForEpisodesToAutoDelete(context);
     }
 
@@ -597,6 +624,5 @@ public class PodcastHelper {
         return (data.podcasts != null && !data.podcasts.isEmpty())
                 || (data.episodes != null && !data.episodes.isEmpty());
     }
-
 
 }

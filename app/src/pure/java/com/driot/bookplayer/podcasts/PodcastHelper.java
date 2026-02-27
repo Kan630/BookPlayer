@@ -7,7 +7,8 @@ import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.db.AppDatabase;
-import com.driot.bookplayer.db.BackupManager;import com.driot.bookplayer.db.BackupManager;
+import com.driot.bookplayer.db.BackupManager;
+import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
@@ -19,11 +20,16 @@ import java.util.List;
 public class PodcastHelper {
 
     public static void cancelAutoDownload(Context c, int folderId) {
-		myLog("stub!");
+        myLog("stub!");
     }
 
     public static void deleteEpisode(int id, Context context) {
         myLog("stub!");
+    }
+
+    @androidx.annotation.Nullable
+    public static String getOriginalCoverPath(Context context, int folderId) {
+        return null;
     }
 
     public static void goUserClickHeader(Folder folder, Context c) {
@@ -42,8 +48,8 @@ public class PodcastHelper {
         myLog("stub!");
     }
 
-	public static List<ZikFile> getPodcastZikFiles(Folder folder, Context context, boolean bool) {
-		return null;
+    public static List<ZikFile> getPodcastZikFiles(Folder folder, Context context, boolean bool) {
+        return null;
     }
 
     public static boolean playStreamIfKnownPodcast(Context context, String url) {
