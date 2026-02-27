@@ -31,10 +31,6 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     public static final String EXTRA_RADIO_STATION_SEARCH_MODE = "EXTRA_RADIO_STATION_SEARCH_MODE";
 
-    Spinner spinnerLang;
-    Spinner spinnerCountry; // optional: country filter (2-letter codes like FR/US…)
-    Spinner spinnerTag; // optional: tag/genre (e.g., "jazz", "news", …)
-
     EditText1lineWithSearch etRadio;
     Button bFavorite;
     ImageButton ibFavorite;
@@ -43,7 +39,6 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     String query, lang, country, tag;
 
-    TagCardAdapter tagAdapter;
     RadioBrowserRepository repo;
 
     @Override
@@ -229,31 +224,5 @@ public class GetRadioActivity extends BaseBottomNavActivity {
         FirebaseAnalyticsHelper.tellAnalyticsRadioSearch(query, lang, country, tag);
     }
 
-    private static String safeSpinnerStr(Spinner sp) {
-        if (sp == null || sp.getSelectedItem() == null)
-            return "";
-        return String.valueOf(sp.getSelectedItem()).trim().toLowerCase();
-    }
-
-    /** 2-letter language from LanguageItem. */
-    private static String safeLang(Spinner sp) {
-        Object it = (sp == null) ? null : sp.getSelectedItem();
-        if (it instanceof com.driot.bookplayer.objects.LanguageItem) {
-            return ((com.driot.bookplayer.objects.LanguageItem) it).twoLetterCode; // "de", "fr", ...
-        }
-        return "";
-    }
-
-    /**
-     * If you use a real CountryItem model, mirror safeLang; else keep "" until you
-     * wire one.
-     */
-    private static String safeCountry(Spinner sp) {
-        if (sp == null || sp.getSelectedItem() == null)
-            return "";
-        String s = String.valueOf(sp.getSelectedItem()).trim();
-        // Expect values like "FR", "US" or "" – normalize to upper
-        return s.length() == 2 ? s.toUpperCase() : "";
-    }
 
 }
