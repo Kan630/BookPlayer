@@ -49,27 +49,15 @@ if "%~1"=="build" (
         set DEVICE_SERIAL=%~2
     )
 ) else if not "%~1"=="" (
-    REM Arg1: known test class name, or device serial
-    if "%~1"=="ImportBookTest" (
-        set TEST_CLASS=com.driot.bookplayer.test.ImportBookTest
-        if not "%~2"=="" (
-            set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
-            set DEVICE_SERIAL=%~2
-        )
-    ) else if "%~1"=="JustOpenAndWait" (
-        set TEST_CLASS=com.driot.bookplayer.test.JustOpenAndWait
-        if not "%~2"=="" (
-            set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
-            set DEVICE_SERIAL=%~2
-        )
-    ) else if "%~1"=="LoadManyBookTest" (
-        set TEST_CLASS=com.driot.bookplayer.test.LoadManyBookTest
+    echo "%~1" | findstr /i "Test" >nul
+    if not errorlevel 1 (
+        set TEST_CLASS=com.driot.bookplayer.test.%~1
         if not "%~2"=="" (
             set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~2
             set DEVICE_SERIAL=%~2
         )
     ) else (
-        REM Unknown first arg = assume device serial
+        REM Assume device serial
         set DEVICE_ARG=-Pandroid.testInstrumentationRunnerArguments.deviceSerial=%~1
         set DEVICE_SERIAL=%~1
     )
