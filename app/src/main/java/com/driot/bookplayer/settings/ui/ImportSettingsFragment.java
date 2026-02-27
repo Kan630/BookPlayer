@@ -1,6 +1,7 @@
 package com.driot.bookplayer.settings.ui;
 
-import android.app.AlertDialog;
+import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import androidx.annotation.NonNull;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -22,6 +24,8 @@ import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled;
 import static com.driot.bookplayer.utils.ComponentUtils.setOpenWithProxyEnabled_all;
 
 public class ImportSettingsFragment extends LoggingFragment {
+
+    private static final int REQ_DELETE_SOURCE_FILE = 2001;
 
     private LinearLayout llContainerSdCard;
     private MaterialCheckBox chkUseSdCard;
@@ -113,20 +117,13 @@ public class ImportSettingsFragment extends LoggingFragment {
         llDeleteSourceFile.setOnClickListener(v -> chkDeleteSourceFile.toggle());
         chkDeleteSourceFile.setOnCheckedChangeListener((button, checked) -> {
             if (checked) {
-                new AlertDialog.Builder(requireContext())
-                        .setTitle(getString(R.string.option_alert_delete_source_file_title))
-                        .setMessage(getString(R.string.option_alert_delete_source_file_message))
-                        .setCancelable(false)
-                        .setPositiveButton(android.R.string.ok, (dialog, which) -> {
-                            myLogI("alertDialog : user clicks ok");
-                            Option.setDeleteSourceFile(true);
-                        })
-                        .setNegativeButton(android.R.string.cancel, (dialog, which) -> {
-                            // revert UI state
-                            myLogI("alertDialog : user clicks cancel");
-                            chkDeleteSourceFile.setChecked(Option.getDeleteSourceFile());
-                        })
-                        .show();
+                MsgBox.ask(this,
+                        getString(R.string.option_alert_delete_source_file_title),
+                        getString(R.string.option_alert_delete_source_file_message),
+                        null,
+                        getString(android.R.string.ok),
+                        getString(android.R.string.cancel),
+                        REQ_DELETE_SOURCE_FILE);
             } else {
                 Option.setDeleteSourceFile(false);
             }
@@ -160,5 +157,20 @@ public class ImportSettingsFragment extends LoggingFragment {
         // }
 
         return root;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQ_DELETE_SOURCE_FILE) {
+            if (resultCode == Activity.RESULT_OK) {
+                myLogI("MsgBox : user clicks ok");
+                Option.setDeleteSourceFile(true);
+            } else {
+                // revert UI state
+                myLogI("MsgBox : user clicks cancel");
+                chkDeleteSourceFile.setChecked(Option.getDeleteSourceFile());
+            }
+        }
     }
 }

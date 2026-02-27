@@ -10,7 +10,8 @@ import com.driot.bookplayer.activities.MsgBoxActivity;
 
 public final class MsgBox {
 
-    private MsgBox() {}
+    private MsgBox() {
+    }
 
     // ==== INFO ====
     public static void info(Context ctx, String title, String message) {
@@ -39,11 +40,11 @@ public final class MsgBox {
     }
 
     public static void alertWithNeutral(Context ctx,
-                                        String title,
-                                        String message,
-                                        @Nullable String details,
-                                        String neutralText,
-                                        @Nullable Intent neutralIntent) {
+            String title,
+            String message,
+            @Nullable String details,
+            String neutralText,
+            @Nullable Intent neutralIntent) {
         Intent i = MsgBoxActivity.buildAlert(ctx, title, message, details);
         i.putExtra(MsgBoxActivity.EXTRA_NEUTRAL, neutralText);
         if (neutralIntent != null) {
@@ -61,13 +62,25 @@ public final class MsgBox {
      * Utilise startActivityForResult, donc appelle depuis une Activity !
      */
     public static void ask(Activity activity,
-                           String title,
-                           String message,
-                           @Nullable String details,
-                           @Nullable String positiveText,
-                           @Nullable String negativeText,
-                           int requestCode) {
+            String title,
+            String message,
+            @Nullable String details,
+            @Nullable String positiveText,
+            @Nullable String negativeText,
+            int requestCode) {
         Intent i = MsgBoxActivity.buildQuestion(activity, title, message, details, positiveText, negativeText);
         activity.startActivityForResult(i, requestCode);
+    }
+
+    public static void ask(androidx.fragment.app.Fragment fragment,
+            String title,
+            String message,
+            @Nullable String details,
+            @Nullable String positiveText,
+            @Nullable String negativeText,
+            int requestCode) {
+        Intent i = MsgBoxActivity.buildQuestion(fragment.requireContext(), title, message, details, positiveText,
+                negativeText);
+        fragment.startActivityForResult(i, requestCode);
     }
 }
