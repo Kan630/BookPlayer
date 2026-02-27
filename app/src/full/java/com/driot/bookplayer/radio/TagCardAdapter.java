@@ -70,8 +70,12 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
             } else if ("português  brasil".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
+            } else if ("portugues do brasil".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
             } else if ("español internacional".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
+            } else if ("español chile".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "cl", "country");
             } else if ("castellano. español".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
             } else if ("español argentina".equals(t.name)) {
