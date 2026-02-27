@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
@@ -91,7 +92,7 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 
         if (flagResId != null && flagResId != 0) {
             //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" + h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
-            Glide.with(h.ivFlag.getContext()).load(flagResId).into(h.ivFlag);
+            Glide.with(h.ivFlag.getContext()).load(flagResId).signature(new ObjectKey(t.name + "_" + flagResId)).into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
         } else {
             //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
