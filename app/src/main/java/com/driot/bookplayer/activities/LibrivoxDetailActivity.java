@@ -167,6 +167,7 @@ public class LibrivoxDetailActivity extends BaseBottomNavActivity {
         checkIfAlreadyDownloaded();
 
         networkMonitor = new NetworkStatusMonitor(this, hasInternet -> {
+            myLogW("networkMonitor : hasInternet = " + hasInternet);
             isCurrentlyOnline = hasInternet;
             updateUiForNetworkState(hasInternet);
         });
