@@ -528,14 +528,24 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 List<Station> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
 
+                    Set<String> censoredRadios = LiveCensorshipManager.getCensoredRadios(getApplicationContext());
+                    /*
+                    StringBuilder listCensured = new StringBuilder();
+                    for (String censored : censoredRadios) {
+                        listCensured.append(censored + ", ");
+                    }
+                    myLog("Censured radio list: " + listCensured);
+                     */
+
                     String headerTxt = "";
                     boolean removeDubious = Option.getRadioRemoveDubiousStations();
                     boolean removeDuplicates = Option.getRadioRemoveSpamStations();
+                    int nbRemovedDuplicates = 0;
+                    int nbRemovedDubious = 0;
+                    Set<String> removedNamesDuplicates = new HashSet<>();
+                    Set<String> removedNamesDubious = new HashSet<>();
+
                     if (removeDubious || removeDuplicates) {
-                        int nbRemovedDuplicates = 0;
-                        int nbRemovedDubious = 0;
-                        Set<String> removedNamesDuplicates = new HashSet<>();
-                        Set<String> removedNamesDubious = new HashSet<>();
                         Map<String, Integer> countMap = new HashMap<>();
 
                         Iterator<Station> iterator = body.iterator();
@@ -546,65 +556,64 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                             String trimmedName = s.name.toLowerCase().replaceAll("[^a-z]", "");
 
-                            Set<String> censoredRadios = LiveCensorshipManager
-                                    .getCensoredRadios(getApplicationContext());
-                            boolean isCensored = LiveCensorshipManager.isCensored(s.name, censoredRadios);
-                            if (!isCensored) {
-                                // check url as well if we have it
-                                if (s.url != null && LiveCensorshipManager.isCensored(s.url, censoredRadios)) {
-                                    isCensored = true;
-                                }
-                            }
-
+                            // 1) CENSORSHIP CHECK
+                            boolean isCensored = LiveCensorshipManager.isCensoredAlreadyTrimmed(trimmedName, censoredRadios);
                             if (isCensored) {
+                                myLogW("[" + s.name + "] is censured.     trimmedName=" + trimmedName);
                                 iterator.remove();
                                 continue;
                             }
 
+                            // 2) DUBIOUS CHECK
                             if (removeDubious && Var.RADIO_STATION_BLACKLIST_LOWERCASE.contains(trimmedName)) {
                                 iterator.remove();
                                 nbRemovedDubious++;
-                                removedNamesDubious.add(trimmedName);
+                                removedNamesDubious.add(s.name);
                                 continue;
                             }
 
+                            // 3) DUPLICATE CHECK
                             if (removeDuplicates) {
-                                String normalizedName = trimmedName.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+                                String normalizedName = s.name.toLowerCase().replaceAll("[^a-zA-Z0-9]", "");
                                 Integer countObj = countMap.get(normalizedName);
                                 int count = countObj != null ? countObj : 0;
                                 if (count >= Var.RADIO_STATION_MAX_DUPLICATES) {
                                     iterator.remove();
                                     nbRemovedDuplicates++;
-                                    removedNamesDuplicates.add(trimmedName);
+                                    removedNamesDuplicates.add(s.name);
                                 } else {
                                     countMap.put(normalizedName, count + 1);
                                 }
                             }
                         }
+                    }
 
-                        if (nbRemovedDuplicates > 0) {
-                            headerTxt = "    (" + nbRemovedDuplicates + " "
-                                    + getString(R.string.spam_fake_stations_removed) + " : " + removedNamesDuplicates
-                                    + ")";
-                            myLog(nbRemovedDuplicates + " stations removed (duplicates)");
-                            myLog("Removed duplicate names: " + removedNamesDuplicates);
-                        }
-                        if (nbRemovedDubious > 0) {
-                            headerTxt = headerTxt + "    (" + nbRemovedDubious + " "
-                                    + getString(R.string.dubious_stations_removed) + " : " + removedNamesDubious + ")";
-                            myLog(nbRemovedDubious + " stations removed (dubious)");
-                            myLog("Removed dubious names: " + removedNamesDubious);
-                        }
+                    boolean serverHasMorePages = rsp.body().size() >= Option.getRadioApiNbResults();
+                    myLog("serverHasMorePages : " + serverHasMorePages);
+
+                    if (nbRemovedDuplicates > 0) {
+                        headerTxt = "    (" + nbRemovedDuplicates + " "
+                                + getString(R.string.spam_fake_stations_removed) + " : " + removedNamesDuplicates
+                                + ")";
+                        myLog(nbRemovedDuplicates + " stations removed (duplicates)");
+                        myLog("Removed duplicate names: " + removedNamesDuplicates);
+                    }
+                    if (nbRemovedDubious > 0) {
+                        headerTxt = headerTxt + "    (" + nbRemovedDubious + " "
+                                + getString(R.string.dubious_stations_removed) + " : " + removedNamesDubious + ")";
+                        myLog(nbRemovedDubious + " stations removed (dubious)");
+                        myLog("Removed dubious names: " + removedNamesDubious);
                     }
 
                     if (isPagination) {
                         viewModel.appendResults(body);
-                        // If we got fewer results than requested, no more pages
-                        if (body.size() < Option.getRadioApiNbResults()) {
+
+                        // We use the boolean variable evaluating the original un-filtered response
+                        // array size
+                        if (!serverHasMorePages) {
                             viewModel.setLoading(false);
-                            // hasMore will be set to false in appendResults if body is empty
-                            // but we should also check if size < limit
-                            // Actually, let's add a method to explicitly set hasMore
+                            List<Station> empty = new ArrayList<>();
+                            viewModel.appendResults(empty); // Stop further pagination
                         }
                         List<Station> allResults = viewModel.getResults().getValue();
                         if (allResults != null) {
@@ -617,6 +626,12 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         viewModel.setResults(body);
                         viewModel.setHeaderCount(getString(R.string.Results_2pt) + body.size() + headerTxt);
                         myLog("radio results (" + source + ") = " + body.size());
+
+                        if (!serverHasMorePages) {
+                            viewModel.setLoading(false);
+                            List<Station> empty = new ArrayList<>();
+                            viewModel.appendResults(empty); // Tell adapter we've hit the end immediately
+                        }
                     }
                 } else {
                     if (!isPagination) {

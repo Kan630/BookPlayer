@@ -126,6 +126,31 @@ public final class LiveCensorshipManager {
         return false;
     }
 
+    public static boolean isCensoredHardTrim(String name, Set<String> censoredList) {
+        if (name == null || name.isEmpty() || censoredList == null || censoredList.isEmpty()) {
+            return false;
+        }
+        String trimmedName = name.toLowerCase(Locale.ROOT).replaceAll("[^a-z]", "");
+        for (String censored : censoredList) {
+            if (trimmedName.contains(censored)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public static boolean isCensoredAlreadyTrimmed(String trimmedName, Set<String> censoredList) {
+        if (trimmedName == null || trimmedName.isEmpty() || censoredList == null || censoredList.isEmpty()) {
+            return false;
+        }
+        for (String censored : censoredList) {
+            if (trimmedName.contains(censored)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static synchronized void ensureLoaded(Context ctx) {
         if (cachedRadios != null)
             return;
