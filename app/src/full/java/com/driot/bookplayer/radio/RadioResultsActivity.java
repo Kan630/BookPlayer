@@ -7,6 +7,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -17,6 +18,7 @@ import com.driot.bookplayer.adapter.RadioResultRVAdapter;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
@@ -53,9 +55,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
 
-    private long searchStartTime;
-    private final Handler progressMessageHandler = new Handler(Looper.getMainLooper());
-    private Runnable progressMessageRunnable;
+    private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
     private static final int RADIO_BROWSER_TIMEOUT_SEC = 60;
 
     @Override
@@ -118,26 +118,17 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 final boolean renewOnClick = Option.getRadioRenewUrl();
                 final boolean hasCachedUrl = s.url_resolved != null && !s.url_resolved.isEmpty();
 
-                // ---------------------------------------------------------------------
-                // FAST PATH:
-                // - We already have url_resolved
-                // - AND user did NOT ask "renew URL on click"
-                //
-                // → Play immediately, then background-renew without blocking the user.
-                // ---------------------------------------------------------------------
                 if (hasCachedUrl && !renewOnClick) {
                     myLogD("RadioResults: using cached url_resolved, scheduling background renew. url_resolved = ["
                             + s.url_resolved + "]");
                     final long startTime = System.currentTimeMillis();
 
-                    // 1) Immediate playback
                     RadioHelper.onRadioClick(
                             getApplicationContext(),
                             s,
                             s.url_resolved,
                             "RadioResultsActivity - onPlay() - using cached url_resolved");
 
-                    // 2) Background renewal (no spinner / no toast)
                     repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
                         @Override
                         public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
@@ -160,49 +151,47 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                             myLogI("RadioResults background resolveUrl success for [" + s.name + "] -> [" + newUrl
                                     + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
-                            s.url_resolved = newUrl; // update in-memory
-
-                            // Optional: persist in Room if you track stations there.
-                            // For example, if you add this to your ViewModel:
-                            // viewModel.updateResolvedUrl(getApplicationContext(), s.stationuuid, newUrl);
+                            s.url_resolved = newUrl;
                         }
 
                         @Override
                         public void onFailure(Call<UrlResolve> call, Throwable t) {
                             myLogW("RadioResults background resolveUrl failed for [" + s.name + "] : [" + t + "] in "
                                     + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
-                            // Silent failure, cached url still works.
                         }
                     });
 
                     return;
                 }
 
-                // ---------------------------------------------------------------------
-                // STRICT PATH:
-                // - No cached url_resolved (first click)
-                // - OR "always renew URL" option enabled
-                //
-                // → Show spinner, wait for resolveUrl, then play.
-                // ---------------------------------------------------------------------
                 myLog("RadioResults: Option renew Url = " + renewOnClick
                         + ", url_resolved = [" + s.url_resolved + "]"
                         + " => repo.resolveUrl(" + s.stationuuid + ") - " + s.name);
 
                 progressBar.setVisibility(View.VISIBLE);
                 if (progressText != null) {
-                    progressText.setText(getString(R.string.radio_browser_contacting));
-                    progressText.setVisibility(View.VISIBLE);
+                    progressHelper.start(progressText, new LoadingProgressHelper.MessageProvider() {
+                        @NonNull
+                        @Override
+                        public String getInitialMessage() {
+                            return getString(R.string.radio_browser_contacting);
+                        }
+
+                        @NonNull
+                        @Override
+                        public String getTickMessage(long elapsedSec) {
+                            return getString(R.string.radio_browser_wait_elapsed,
+                                    (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                        }
+                    });
                 }
-                searchStartTime = System.currentTimeMillis();
-                startProgressMessageTicker();
                 final long topStart = System.currentTimeMillis();
 
                 repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
                     @Override
                     public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         progressBar.setVisibility(View.GONE);
-                        stopProgressMessageAndHide();
+                        progressHelper.stop();
                         myLog("radio resolveUrl onResponse in " + (System.currentTimeMillis() - topStart) + "ms.");
 
                         String stream = null;
@@ -213,15 +202,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                             stream = rsp.body().url;
                             myLogI("resolveUrl success : " + stream);
-
-                            // cache it in the Station object
                             s.url_resolved = stream;
 
-                            // Optional: persist in Room via VM
-                            // viewModel.updateResolvedUrl(getApplicationContext(), s.stationuuid, stream);
-
                         } else if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
-                            // fallback to previous cached/known resolved URL
                             myLogI("fallback url_resolved : " + s.url_resolved);
                             stream = s.url_resolved;
                         }
@@ -240,13 +223,12 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     @Override
                     public void onFailure(Call<UrlResolve> call, Throwable t) {
                         progressBar.setVisibility(View.GONE);
-                        stopProgressMessageAndHide();
+                        progressHelper.stop();
 
                         if (NetworkHelper.isUnknownHost(t)) {
                             myToastE(getString(R.string.no_internet_connection));
                         } else {
                             myLogEE(t, "resolveUrl failed");
-                            // Fallback to cached url_resolved if we have one
                             if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
                                 myLogI("fallback url_resolved (failure) : " + s.url_resolved);
                                 RadioHelper.onRadioClick(
@@ -301,7 +283,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
             }
             progressBar.setVisibility(View.GONE);
-            stopProgressMessageAndHide();
+            progressHelper.stop();
         });
         viewModel.getIsLoadingMore().observe(this, isLoading -> {
             if (progressBarLoadMore != null) {
@@ -371,7 +353,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             // We have existing results, don't reload - observer will update adapter
             myLog("Using existing results from ViewModel (orientation change), count: " + existingResults.size());
             progressBar.setVisibility(View.GONE);
-            stopProgressMessageAndHide();
+            progressHelper.stop();
             // Don't return - let the observer handle it, but skip the API call below
             // Actually, we should return to avoid making the API call
             return;
@@ -382,11 +364,21 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         viewModel.setLoading(true);
         progressBar.setVisibility(View.VISIBLE);
         if (progressText != null) {
-            progressText.setText(getString(R.string.radio_browser_contacting));
-            progressText.setVisibility(View.VISIBLE);
+            progressHelper.start(progressText, new LoadingProgressHelper.MessageProvider() {
+                @NonNull
+                @Override
+                public String getInitialMessage() {
+                    return getString(R.string.radio_browser_contacting);
+                }
+
+                @NonNull
+                @Override
+                public String getTickMessage(long elapsedSec) {
+                    return getString(R.string.radio_browser_wait_elapsed,
+                            (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                }
+            });
         }
-        searchStartTime = System.currentTimeMillis();
-        startProgressMessageTicker();
 
         myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country
                 + " - tag=" + tag);
@@ -547,7 +539,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
-                    stopProgressMessageAndHide();
+                    progressHelper.stop();
                 }
                 List<Station> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
@@ -643,7 +635,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             public void onFailure(Call<List<Station>> call, Throwable t) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
-                    stopProgressMessageAndHide();
+                    progressHelper.stop();
                 }
                 viewModel.setLoading(false);
                 if (NetworkHelper.isUnknownHost(t)) {
@@ -664,30 +656,6 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopProgressMessageAndHide();
-    }
-
-    private void startProgressMessageTicker() {
-        progressMessageHandler.removeCallbacks(progressMessageRunnable);
-        progressMessageRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (progressText == null || progressText.getVisibility() != View.VISIBLE)
-                    return;
-                long elapsedSec = (System.currentTimeMillis() - searchStartTime) / 1000;
-                String msg = getString(R.string.radio_browser_wait_elapsed,
-                        (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
-                progressText.setText(msg);
-                progressMessageHandler.postDelayed(this, 1000);
-            }
-        };
-        progressMessageHandler.postDelayed(progressMessageRunnable, 1000);
-    }
-
-    private void stopProgressMessageAndHide() {
-        progressMessageHandler.removeCallbacks(progressMessageRunnable);
-        progressMessageRunnable = null;
-        if (progressText != null)
-            progressText.setVisibility(View.GONE);
+        progressHelper.stop();
     }
 }

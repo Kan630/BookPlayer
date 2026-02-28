@@ -25,6 +25,7 @@ import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
+import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
@@ -54,12 +55,10 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     TextView tvProgressMessage;
     TextView tvEmptyMessage;
 
-    EbookResultRVAdapter adapter;
+    private EbookResultRVAdapter adapter;
 
-    private long searchStartTime;
-    private int currentTryNumber;
-    private final Handler progressMessageHandler = new Handler(Looper.getMainLooper());
-    private Runnable progressMessageRunnable;
+    private int currentTryNumber = 1;
+    private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
     private String nextPageUrl;
     private boolean isLoadingMore = false;
@@ -205,7 +204,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopProgressMessageAndHide();
+        progressHelper.stop();
     }
 
     @Override
@@ -237,48 +236,36 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         recyclerView.setVisibility(View.GONE);
         tvEmptyMessage.setVisibility(View.GONE);
 
-        searchStartTime = System.currentTimeMillis();
         currentTryNumber = 1;
-        tvProgressMessage.setText(getString(R.string.gutenberg_contacting));
-        tvProgressMessage.setVisibility(View.VISIBLE);
-        startProgressMessageTicker();
+        progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
+            @NonNull
+            @Override
+            public String getInitialMessage() {
+                return getString(R.string.gutenberg_contacting);
+            }
+
+            @NonNull
+            @Override
+            public String getTickMessage(long elapsedSec) {
+                String tryLabel = currentTryNumber == 1
+                        ? getString(R.string.gutenberg_try_1st)
+                        : getString(R.string.gutenberg_try_2nd);
+                return getString(R.string.gutenberg_wait_elapsed,
+                        (int) elapsedSec, tryLabel, GUTENDEX_READ_TIMEOUT_SEC);
+            }
+        });
 
         performInitialSearch(0);
     }
 
-    private void startProgressMessageTicker() {
-        progressMessageHandler.removeCallbacks(progressMessageRunnable);
-        progressMessageRunnable = new Runnable() {
-            @Override
-            public void run() {
-                if (tvProgressMessage == null || tvProgressMessage.getVisibility() != View.VISIBLE)
-                    return;
-                long elapsedSec = (System.currentTimeMillis() - searchStartTime) / 1000;
-                String tryLabel = currentTryNumber == 1
-                        ? getString(R.string.gutenberg_try_1st)
-                        : getString(R.string.gutenberg_try_2nd);
-                String msg = getString(R.string.gutenberg_wait_elapsed,
-                        (int) elapsedSec, tryLabel, GUTENDEX_READ_TIMEOUT_SEC);
-                tvProgressMessage.setText(msg);
-                progressMessageHandler.postDelayed(this, 1000);
-            }
-        };
-        progressMessageHandler.postDelayed(progressMessageRunnable, 1000);
-    }
-
-    private void stopProgressMessageAndHide() {
-        progressMessageHandler.removeCallbacks(progressMessageRunnable);
-        progressMessageRunnable = null;
-        if (tvProgressMessage != null)
-            tvProgressMessage.setVisibility(View.GONE);
-    }
+    // Ticker logic removed and replaced by progressHelper
 
     /**
      * Gutendex can be slow (e.g. "most downloaded"); use longer timeouts and one
      * retry on failure.
      */
-    private static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 30;
-    private static final int GUTENDEX_READ_TIMEOUT_SEC = 60;
+    private static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 20;
+    private static final int GUTENDEX_READ_TIMEOUT_SEC = 30;
 
     private OkHttpClient buildGutendexClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
@@ -314,7 +301,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             @Override
             public void onResponse(Call<GutendexResponse> call, Response<GutendexResponse> response) {
                 progressBar.setVisibility(View.GONE);
-                stopProgressMessageAndHide();
+                progressHelper.stop();
 
                 if (!response.isSuccessful() || response.body() == null) {
                     myLogEE(null, "Gutendex invalid response, HTTP=" + response.code());
@@ -396,12 +383,29 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 if (retryCount == 0) {
                     myLogW("Gutendex initial search failed, retrying once: " + t.getMessage());
                     currentTryNumber = 2;
-                    searchStartTime = System.currentTimeMillis();
+                    // Restart ticker to reset elapsed time for second try (original behavior)
+                    progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
+                        @NonNull
+                        @Override
+                        public String getInitialMessage() {
+                            return getString(R.string.gutenberg_contacting);
+                        }
+
+                        @NonNull
+                        @Override
+                        public String getTickMessage(long elapsedSec) {
+                            String tryLabel = currentTryNumber == 1
+                                    ? getString(R.string.gutenberg_try_1st)
+                                    : getString(R.string.gutenberg_try_2nd);
+                            return getString(R.string.gutenberg_wait_elapsed,
+                                    (int) elapsedSec, tryLabel, GUTENDEX_READ_TIMEOUT_SEC);
+                        }
+                    });
                     performInitialSearch(1);
                     return;
                 }
                 progressBar.setVisibility(View.GONE);
-                stopProgressMessageAndHide();
+                progressHelper.stop();
                 myToastEE(t, getString(R.string.an_error_occurred));
                 String errMsg = getString(R.string.an_error_occurred) + "\n" + t.getMessage();
                 tvEmptyMessage.setText(errMsg);
