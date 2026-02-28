@@ -755,6 +755,7 @@
     <string name="stats_radio_time">* Radio</string>
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(These stats started in 2025 (oct-nov))</string>
+    <string name="stats_database_title">Database</string>
     <string name="stats_install_date_label">Install Date:</string>
     
     <string name="bMassImport">📁 Mass Import</string>

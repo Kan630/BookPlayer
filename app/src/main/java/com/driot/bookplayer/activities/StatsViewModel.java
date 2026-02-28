@@ -19,6 +19,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.StorageInfoCacheHelper;
 import com.driot.bookplayer.utils.Tonio;
@@ -34,6 +35,7 @@ public class StatsViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<StorageInfo> sdCardStorageInfo = new MutableLiveData<>();
     private final MutableLiveData<CharSequence> internalStorageText = new MutableLiveData<>();
     private final MutableLiveData<CharSequence> sdCardStorageText = new MutableLiveData<>();
+    private final MutableLiveData<String> dbStats = new MutableLiveData<>();
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     public StatsViewModel(@NonNull Application application) {
@@ -66,6 +68,10 @@ public class StatsViewModel extends LoggingAndroidViewModel {
         return sdCardStorageText;
     }
 
+    public LiveData<String> getDbStats() {
+        return dbStats;
+    }
+
     public void loadStorageInfo() {
         executorService.execute(() -> {
             try {
@@ -89,6 +95,12 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                 }
             } catch (Exception e) {
                 myLogEE(e, "Error loading storage info");
+            }
+
+            try {
+                dbStats.postValue(Sql.getDbStats(getApplication()));
+            } catch (Exception e) {
+                myLogEE(e, "Error loading DB stats");
             }
         });
     }

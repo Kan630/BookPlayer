@@ -214,6 +214,14 @@ public class StatsActivity extends BaseActivity {
             tv_duration_stats_note.setVisibility(View.GONE);
         }
 
+        // Observe DB stats
+        TextView tv_body4 = findViewById(R.id.tv4_body);
+        viewModel.getDbStats().observe(this, stats -> {
+            if (stats != null && tv_body4 != null) {
+                tv_body4.setText(stats);
+            }
+        });
+
         // ----------------------------------------
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
