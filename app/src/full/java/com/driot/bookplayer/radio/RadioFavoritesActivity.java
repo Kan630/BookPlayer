@@ -5,6 +5,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -17,6 +18,7 @@ import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.adapter.RadioFavoritesRVAdapter;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
@@ -38,17 +40,32 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     private RadioResultsViewModel viewModel;
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
+    private TextView tvProgressMessage;
     private RadioFavoritesRVAdapter adapter;
     private RadioBrowserRepository repo; // for resolveUrl on play()
     private View dropZone;
     private ItemTouchHelper touchHelper;
     private boolean isHistoryMode = false;
 
+    private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
+
     private boolean updatingToggleFromVm = false;
 
-    @Override protected int getNavId() { return R.id.nav_radio; }
-    @Override protected int getLayoutResId() { return R.layout.activity_radio_results; }
-    @Override protected boolean enableOngoingTaskOverlay() { return true; }
+    @Override
+    protected int getNavId() {
+        return R.id.nav_radio;
+    }
+
+    @Override
+    protected int getLayoutResId() {
+        return R.layout.activity_radio_results;
+    }
+
+    @Override
+    protected boolean enableOngoingTaskOverlay() {
+        return true;
+    }
 
     private boolean hasInternet = true;
 
@@ -58,37 +75,41 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView);
-        dropZone     = findViewById(R.id.dragDeleteZone);
+        progressBar = findViewById(R.id.progressBar);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        dropZone = findViewById(R.id.dragDeleteZone);
 
         View networkRowView = findViewById(R.id.includeNetworkStatus);
         NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
         new NetworkStatusRowController(this, networkRowView, this, netVm);
-        netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet );
+        netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
-            @Override public int getSpanSize(int position) {
+            @Override
+            public int getSpanSize(int position) {
                 // position 0 = header → take the whole row
                 return position == 0 ? span : 1;
             }
         });
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO))
-        );
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
 
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         playbackVm.getState().observe(this, state -> {
-            if (state!=null) adapter.setPlayingRadioStationUuid(state.radioStationUuid);
+            if (state != null)
+                adapter.setPlayingRadioStationUuid(state.radioStationUuid);
         });
 
-// Favorites vs History Toggle
+        // Favorites vs History Toggle
         MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);
         group.addOnButtonCheckedListener((g, checkedId, isChecked) -> {
-            if (!isChecked) return; // ignore un-check events
+            if (!isChecked)
+                return; // ignore un-check events
 
             // IGNORE changes coming from VM/UI syncing
             if (updatingToggleFromVm) {
@@ -106,9 +127,9 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         });
         viewModel.initMode(this);
 
-
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
-            @Override public void onPlay(RadioFavoriteItem f) {
+            @Override
+            public void onPlay(RadioFavoriteItem f) {
                 myLogI("--- user clicks 'favorite/history' radio item --- : " + f.name);
 
                 if (!hasInternet) {
@@ -121,8 +142,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
                 // -------------------------------------------------------------------------
                 // FAST PATH:
-                //   - We already have a cached URL
-                //   - AND user did NOT request "renew on click"
+                // - We already have a cached URL
+                // - AND user did NOT request "renew on click"
                 //
                 // → Play immediately (no spinner), then refresh URL in background.
                 // -------------------------------------------------------------------------
@@ -134,11 +155,11 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             getApplicationContext(),
                             f,
                             f.last_url,
-                            "RadioFavoritesActivity - onPlay() - using cached last_url"
-                    );
+                            "RadioFavoritesActivity - onPlay() - using cached last_url");
 
                     // 2) Background best-effort renew (no UI spinner/toasts)
-                    repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { //RadioBrowser wants us to ping for their STATS
+                    repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { // RadioBrowser wants us to ping for
+                                                                                // their STATS
                         @Override
                         public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                             if (!rsp.isSuccessful() || rsp.body() == null ||
@@ -159,8 +180,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             viewModel.updateFavoriteLastUrl(
                                     getApplicationContext(),
                                     f.stationuuid,
-                                    newUrl
-                            );
+                                    newUrl);
                         }
 
                         @Override
@@ -173,11 +193,10 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     return;
                 }
 
-
                 // -------------------------------------------------------------------------
                 // SLOW / STRICT PATH:
-                //   - No cached URL (first time or old data)
-                //   - OR user option = "always renew URL before play"
+                // - No cached URL (first time or old data)
+                // - OR user option = "always renew URL before play"
                 //
                 // → Show spinner, wait for resolveUrl, then play.
                 // -------------------------------------------------------------------------
@@ -185,7 +204,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                         + " => resolveUrl(" + f.stationuuid + ") - " + f.name);
                 setProgressVisible(true, getString(R.string.checking_for_best_mirror));
 
-                repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { //RadioBrowser wants us to ping for their STATS
+                repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { // RadioBrowser wants us to ping for their
+                                                                            // STATS
                     @Override
                     public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         setProgressVisible(false, null);
@@ -200,8 +220,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             viewModel.updateFavoriteLastUrl(
                                     getApplicationContext(),
                                     f.stationuuid,
-                                    stream
-                            );
+                                    stream);
                         } else if (hasCachedUrl) {
                             // fallback to previous last_url if we had it
                             stream = f.last_url;
@@ -213,8 +232,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                     getApplicationContext(),
                                     f,
                                     stream,
-                                    "RadioFavoritesActivity - onPlay() - after url renewed"
-                            );
+                                    "RadioFavoritesActivity - onPlay() - after url renewed");
                         } else {
                             myToastE(getString(R.string.radio_could_not_resolve_url));
                         }
@@ -235,21 +253,22 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                         getApplicationContext(),
                                         f,
                                         f.last_url,
-                                        "RadioFavoritesActivity - onPlay() - url NOT renewed (fallback)"
-                                );
+                                        "RadioFavoritesActivity - onPlay() - url NOT renewed (fallback)");
                             }
                         }
                     }
                 });
             }
 
-            @Override public void onUnfavorite(RadioFavoriteItem f) {
+            @Override
+            public void onUnfavorite(RadioFavoriteItem f) {
                 myLogI("--- user Unfavorite radio item --- : " + f.name);
                 // Remove and refresh (reuse VM’s toggle which expects a Station)
                 viewModel.removeFavoriteUuid(RadioFavoritesActivity.this, f.stationuuid);
             }
 
-            @Override public void onPersistOrder(List<RadioFavoriteItem> newOrder) {
+            @Override
+            public void onPersistOrder(List<RadioFavoriteItem> newOrder) {
                 myLogI("--- user change favorite radio station order --- ");
                 viewModel.reorderFavorites(RadioFavoritesActivity.this, newOrder);
             }
@@ -267,13 +286,11 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             }
         });
 
-
         // repo for resolveUrl
         repo = new RadioBrowserRepository(
                 this,
                 /* discoverMirrors */ false, // keep async discovery for later if you want
-                /* log level */ com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL
-        );
+                /* log level */ com.driot.bookplayer.global.Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
 
         viewModel.getShowingHistory().observe(this, isHistory -> {
             boolean history = Boolean.TRUE.equals(isHistory);
@@ -288,17 +305,16 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             if (history) {
                 dropZone.setVisibility(View.GONE);
                 if (touchHelper != null) {
-                    touchHelper.attachToRecyclerView(null);   // disable drag
+                    touchHelper.attachToRecyclerView(null); // disable drag
                 }
             } else {
                 if (touchHelper != null) {
-                    touchHelper.attachToRecyclerView(recyclerView);  // enable drag
+                    touchHelper.attachToRecyclerView(recyclerView); // enable drag
                 }
             }
 
             adapter.setHistoryMode(history);
         });
-
 
         setProgressVisible(true, getString(R.string.loading));
         viewModel.getFavoriteItems().observe(this, favorites -> {
@@ -308,20 +324,35 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        progressHelper.stop();
+    }
+
     private void setProgressVisible(boolean visible, String progressMessage) {
-        ProgressBar progressBar = findViewById(R.id.progressBar);
-        TextView progressText = findViewById(R.id.progressText);
         if (visible) {
             progressBar.setVisibility(View.VISIBLE);
             if (progressMessage != null && !progressMessage.isEmpty()) {
-                progressText.setText(progressMessage);
-                progressText.setVisibility(View.VISIBLE);
+                progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
+                    @NonNull
+                    @Override
+                    public String getInitialMessage() {
+                        return progressMessage;
+                    }
+
+                    @NonNull
+                    @Override
+                    public String getTickMessage(long elapsedSec) {
+                        return progressMessage + " (" + elapsedSec + "s)";
+                    }
+                });
             } else {
-                progressText.setVisibility(View.GONE);
+                progressHelper.stop();
             }
         } else {
             progressBar.setVisibility(View.GONE);
-            progressText.setVisibility(View.GONE);
+            progressHelper.stop();
         }
     }
 }

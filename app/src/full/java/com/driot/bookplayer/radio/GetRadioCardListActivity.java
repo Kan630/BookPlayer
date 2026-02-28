@@ -46,8 +46,8 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
     public @interface FacetMode {
     }
 
-    private RecyclerView rv;
-    private ProgressBar progress;
+    private RecyclerView recyclerView;
+    private ProgressBar progressBar;
     private TextView tvProgressMessage;
     private RadioBrowserRepository repo;
     private TagCardAdapter adapter;
@@ -81,16 +81,16 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        rv = findViewById(R.id.recyclerView);
-        progress = findViewById(R.id.progressBar);
+        recyclerView = findViewById(R.id.recyclerView);
+        progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
         if (span < 2)
             span = 2;
         GridLayoutManager glm = new GridLayoutManager(this, span);
-        rv.setLayoutManager(glm);
-        rv.addItemDecoration(
+        recyclerView.setLayoutManager(glm);
+        recyclerView.addItemDecoration(
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
 
         repo = new RadioBrowserRepository(
@@ -131,7 +131,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
             }
             startActivity(i);
         });
-        rv.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
 
         int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
         List<TagItem> cachedItems = RadioCacheHelper.loadCache(this, mode);
@@ -150,7 +150,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
     private void loadFacetItems(@FacetMode int mode) {
         if (adapter.getItemCount() == 0) {
-            progress.setVisibility(View.VISIBLE);
+            progressBar.setVisibility(View.VISIBLE);
             if (tvProgressMessage != null && adapter.getItemCount() == 0) {
                 progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
                     @NonNull
@@ -179,7 +179,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                 repo.getTopCountries(Var.RADIO_LIST_MAX_CARD_ITEM, new Callback<>() {
                     @Override
                     public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                        progress.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         progressHelper.stop();
                         if (rsp.isSuccessful() && rsp.body() != null) {
                             adapter.setItems(rsp.body());
@@ -191,7 +191,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
                     @Override
                     public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                        progress.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         progressHelper.stop();
                         adapter.setItems(new ArrayList<>());
                         myLogEE(t, "getTopCountries failed");
@@ -205,7 +205,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                 repo.getTopLanguages(Var.RADIO_LIST_MAX_CARD_ITEM, new Callback<>() {
                     @Override
                     public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                        progress.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         progressHelper.stop();
                         if (rsp.isSuccessful() && rsp.body() != null) {
                             adapter.setItems(rsp.body());
@@ -217,7 +217,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
                     @Override
                     public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                        progress.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         progressHelper.stop();
                         adapter.setItems(new ArrayList<>());
                         myLogEE(t, "getTopLanguages failed");
@@ -230,7 +230,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                 repo.getTopTags(Var.RADIO_LIST_MAX_CARD_ITEM, new Callback<>() {
                     @Override
                     public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                        progress.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         progressHelper.stop();
                         if (rsp.isSuccessful() && rsp.body() != null) {
                             adapter.setItems(rsp.body());
@@ -242,7 +242,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
                     @Override
                     public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                        progress.setVisibility(View.GONE);
+                        progressBar.setVisibility(View.GONE);
                         progressHelper.stop();
                         adapter.setItems(new ArrayList<>());
                         myLogEE(t, "getTopTags failed");

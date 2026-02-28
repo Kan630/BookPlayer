@@ -48,7 +48,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     // --- list ---
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private TextView progressText;
+    private TextView tvProgressMessage;
     private ProgressBar progressBarLoadMore;
 
     private RadioResultsViewModel viewModel;
@@ -89,7 +89,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        progressText = findViewById(R.id.progressText);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         // ---- grid span (header full width) ----
@@ -169,8 +169,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         + " => repo.resolveUrl(" + s.stationuuid + ") - " + s.name);
 
                 progressBar.setVisibility(View.VISIBLE);
-                if (progressText != null) {
-                    progressHelper.start(progressText, new LoadingProgressHelper.MessageProvider() {
+                if (tvProgressMessage != null) {
+                    progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
                         @NonNull
                         @Override
                         public String getInitialMessage() {
@@ -363,8 +363,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         viewModel.resetPagination();
         viewModel.setLoading(true);
         progressBar.setVisibility(View.VISIBLE);
-        if (progressText != null) {
-            progressHelper.start(progressText, new LoadingProgressHelper.MessageProvider() {
+        if (tvProgressMessage != null) {
+            progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
                 @NonNull
                 @Override
                 public String getInitialMessage() {
