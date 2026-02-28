@@ -3,8 +3,11 @@ package com.driot.bookplayer.radio;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.Nullable;
@@ -42,8 +45,14 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
     private RecyclerView rv;
     private ProgressBar progress;
-    private TagCardAdapter adapter;
-    private RadioBrowserRepository repo;
+    TextView tvProgressMessage;
+    RadioBrowserRepository repo;
+    TagCardAdapter adapter;
+
+    private long searchStartTime;
+    private final Handler progressMessageHandler = new Handler(Looper.getMainLooper());
+    private Runnable progressMessageRunnable;
+    private static final int RADIO_BROWSER_TIMEOUT_SEC = 60;
 
     public static void start(Context ctx, @FacetMode int mode) {
         Intent i = new Intent(ctx, GetRadioCardListActivity.class)
@@ -73,6 +82,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
         rv = findViewById(R.id.recyclerView);
         progress = findViewById(R.id.progressBar);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
 
         int span = getResources().getInteger(R.integer.radio_grid_span);
         if (span < 2)
@@ -131,9 +141,21 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         loadFacetItems(mode);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopProgressMessageAndHide();
+    }
+
     private void loadFacetItems(@FacetMode int mode) {
         if (adapter.getItemCount() == 0) {
             progress.setVisibility(View.VISIBLE);
+            if (tvProgressMessage != null) {
+                tvProgressMessage.setText(getString(R.string.radio_browser_contacting));
+                tvProgressMessage.setVisibility(View.VISIBLE);
+            }
+            searchStartTime = System.currentTimeMillis();
+            startProgressMessageTicker();
         }
         // Reuse your existing repo list endpoints.
         // We’ll standardize them into TagItem(name, count, imageUrl?) for the adapter.
@@ -147,6 +169,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
                         progress.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         if (rsp.isSuccessful() && rsp.body() != null) {
                             adapter.setItems(rsp.body());
                             RadioCacheHelper.saveCache(GetRadioCardListActivity.this, mode, rsp.body());
@@ -158,6 +181,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public void onFailure(Call<List<TagItem>> call, Throwable t) {
                         progress.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         adapter.setItems(new ArrayList<>());
                         myLogEE(t, "getTopCountries failed");
                     }
@@ -171,6 +195,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
                         progress.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         if (rsp.isSuccessful() && rsp.body() != null) {
                             adapter.setItems(rsp.body());
                             RadioCacheHelper.saveCache(GetRadioCardListActivity.this, mode, rsp.body());
@@ -182,6 +207,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public void onFailure(Call<List<TagItem>> call, Throwable t) {
                         progress.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         adapter.setItems(new ArrayList<>());
                         myLogEE(t, "getTopLanguages failed");
                     }
@@ -194,6 +220,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
                         progress.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         if (rsp.isSuccessful() && rsp.body() != null) {
                             adapter.setItems(rsp.body());
                             RadioCacheHelper.saveCache(GetRadioCardListActivity.this, mode, rsp.body());
@@ -205,11 +232,36 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public void onFailure(Call<List<TagItem>> call, Throwable t) {
                         progress.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         adapter.setItems(new ArrayList<>());
                         myLogEE(t, "getTopTags failed");
                     }
                 });
                 break;
         }
+    }
+
+    private void startProgressMessageTicker() {
+        progressMessageHandler.removeCallbacks(progressMessageRunnable);
+        progressMessageRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (tvProgressMessage == null || tvProgressMessage.getVisibility() != View.VISIBLE)
+                    return;
+                long elapsedSec = (System.currentTimeMillis() - searchStartTime) / 1000;
+                String msg = getString(R.string.radio_browser_wait_elapsed,
+                        (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                tvProgressMessage.setText(msg);
+                progressMessageHandler.postDelayed(this, 1000);
+            }
+        };
+        progressMessageHandler.postDelayed(progressMessageRunnable, 1000);
+    }
+
+    private void stopProgressMessageAndHide() {
+        progressMessageHandler.removeCallbacks(progressMessageRunnable);
+        progressMessageRunnable = null;
+        if (tvProgressMessage != null)
+            tvProgressMessage.setVisibility(View.GONE);
     }
 }

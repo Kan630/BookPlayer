@@ -52,9 +52,12 @@
     <TextView
         android:id="@+id/progressText"
         style="@style/simpleText"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:gravity="center"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
+        android:textSize="14sp"
         android:visibility="gone"/>
 
     <TextView

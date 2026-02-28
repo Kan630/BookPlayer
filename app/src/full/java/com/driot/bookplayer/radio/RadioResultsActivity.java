@@ -1,8 +1,11 @@
 package com.driot.bookplayer.radio;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
@@ -43,11 +46,17 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     // --- list ---
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private TextView progressText;
     private ProgressBar progressBarLoadMore;
 
     private RadioResultsViewModel viewModel;
     private RadioBrowserRepository repo;
     private RadioResultRVAdapter adapter;
+
+    private long searchStartTime;
+    private final Handler progressMessageHandler = new Handler(Looper.getMainLooper());
+    private Runnable progressMessageRunnable;
+    private static final int RADIO_BROWSER_TIMEOUT_SEC = 60;
 
     @Override
     protected int getNavId() {
@@ -80,6 +89,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
+        progressText = findViewById(R.id.progressText);
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         // ---- grid span (header full width) ----
@@ -180,12 +190,19 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         + " => repo.resolveUrl(" + s.stationuuid + ") - " + s.name);
 
                 progressBar.setVisibility(View.VISIBLE);
+                if (progressText != null) {
+                    progressText.setText(getString(R.string.radio_browser_contacting));
+                    progressText.setVisibility(View.VISIBLE);
+                }
+                searchStartTime = System.currentTimeMillis();
+                startProgressMessageTicker();
                 final long topStart = System.currentTimeMillis();
 
                 repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
                     @Override
                     public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         progressBar.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
                         myLog("radio resolveUrl onResponse in " + (System.currentTimeMillis() - topStart) + "ms.");
 
                         String stream = null;
@@ -223,6 +240,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     @Override
                     public void onFailure(Call<UrlResolve> call, Throwable t) {
                         progressBar.setVisibility(View.GONE);
+                        stopProgressMessageAndHide();
 
                         if (NetworkHelper.isUnknownHost(t)) {
                             myToastE(getString(R.string.no_internet_connection));
@@ -283,6 +301,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
             }
             progressBar.setVisibility(View.GONE);
+            stopProgressMessageAndHide();
         });
         viewModel.getIsLoadingMore().observe(this, isLoading -> {
             if (progressBarLoadMore != null) {
@@ -352,6 +371,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             // We have existing results, don't reload - observer will update adapter
             myLog("Using existing results from ViewModel (orientation change), count: " + existingResults.size());
             progressBar.setVisibility(View.GONE);
+            stopProgressMessageAndHide();
             // Don't return - let the observer handle it, but skip the API call below
             // Actually, we should return to avoid making the API call
             return;
@@ -361,6 +381,13 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         viewModel.resetPagination();
         viewModel.setLoading(true);
         progressBar.setVisibility(View.VISIBLE);
+        if (progressText != null) {
+            progressText.setText(getString(R.string.radio_browser_contacting));
+            progressText.setVisibility(View.VISIBLE);
+        }
+        searchStartTime = System.currentTimeMillis();
+        startProgressMessageTicker();
+
         myLog("API CALL...[" + station_search_mode + "] - q=" + q + " - lang=" + lang + " - country=" + country
                 + " - tag=" + tag);
 
@@ -520,6 +547,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
+                    stopProgressMessageAndHide();
                 }
                 List<Station> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
@@ -552,7 +580,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         if (removeDubious && Var.RADIO_STATION_BLACKLIST_LOWERCASE.contains(trimmedName)) {
                             iterator.remove();
                             nbRemovedDubious++;
-                            //removedNamesDubious.add(s.name); //don't display dubious names for now
+                            // removedNamesDubious.add(s.name); //don't display dubious names for now
                             continue;
                         }
                         if (removeDuplicates) {
@@ -615,6 +643,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             public void onFailure(Call<List<Station>> call, Throwable t) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
+                    stopProgressMessageAndHide();
                 }
                 viewModel.setLoading(false);
                 if (NetworkHelper.isUnknownHost(t)) {
@@ -630,5 +659,35 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
             }
         };
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopProgressMessageAndHide();
+    }
+
+    private void startProgressMessageTicker() {
+        progressMessageHandler.removeCallbacks(progressMessageRunnable);
+        progressMessageRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (progressText == null || progressText.getVisibility() != View.VISIBLE)
+                    return;
+                long elapsedSec = (System.currentTimeMillis() - searchStartTime) / 1000;
+                String msg = getString(R.string.radio_browser_wait_elapsed,
+                        (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                progressText.setText(msg);
+                progressMessageHandler.postDelayed(this, 1000);
+            }
+        };
+        progressMessageHandler.postDelayed(progressMessageRunnable, 1000);
+    }
+
+    private void stopProgressMessageAndHide() {
+        progressMessageHandler.removeCallbacks(progressMessageRunnable);
+        progressMessageRunnable = null;
+        if (progressText != null)
+            progressText.setVisibility(View.GONE);
     }
 }
