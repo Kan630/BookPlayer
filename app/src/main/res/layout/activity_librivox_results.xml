@@ -7,14 +7,11 @@
     style="@style/MainContainer"
     >
 
-    <ProgressBar
-        android:id="@+id/progressBar"
-        style="?android:attr/progressBarStyleLarge"
+    <include
+        layout="@layout/layout_loading_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:visibility="gone"
-        android:indeterminate="true" />
+        android:layout_gravity="center" />
 
     <TextView
         android:id="@+id/tvEmptyMessage"

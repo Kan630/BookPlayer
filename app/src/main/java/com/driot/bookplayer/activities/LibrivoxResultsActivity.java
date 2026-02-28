@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -21,6 +22,8 @@ import com.driot.bookplayer.librivox.ArchiveItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 
+import com.driot.bookplayer.helpers.LoadingProgressHelper;
+import android.widget.TextView;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
@@ -32,14 +35,10 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
     private RecyclerView recyclerView;
     private LibrivoxResultRVAdapter adapter;
-    private ProgressBar progressBar;
-    private ProgressBar progressBarLoadMore;
     private LibrivoxResultsViewModel viewModel;
-
-    // For animated loading dots
-    private android.os.Handler dotAnimationHandler;
-    private Runnable dotAnimationRunnable;
-    private int dotCount = 0;
+    private ProgressBar progressBar;
+    private LoadingProgressHelper progressHelper;
+    private TextView tvProgressMessage;
 
     @Override
     protected int getNavId() {
@@ -64,11 +63,10 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         // Initialize views
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
-        progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        //progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
-        // Initialize dot animation
-        dotAnimationHandler = new android.os.Handler(getMainLooper());
-        setupDotAnimation();
+        progressHelper = new LoadingProgressHelper();
 
         // Setup RecyclerView
         int span = getResources().getInteger(R.integer.classic_grid_span);
@@ -151,7 +149,30 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private void setupObservers() {
         // Observe loading state
         viewModel.getIsLoading().observe(this, isLoading -> {
-            progressBar.setVisibility(isLoading ? View.VISIBLE : View.GONE);
+            if (Boolean.TRUE.equals(isLoading)) {
+                progressBar.setVisibility(View.VISIBLE);
+                progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
+                    @NonNull
+                    @Override
+                    public String getInitialMessage() {
+                        LibrivoxResultsViewModel.HeaderStatusData status = viewModel.getHeaderStatus().getValue();
+                        String source = (status != null && status.apiSource != null) ? status.apiSource : "archive.org";
+                        return getString(R.string.getting_first_results_from) + " " + source + "…";
+                    }
+
+                    @NonNull
+                    @Override
+                    public String getTickMessage(long elapsedSec) {
+                        LibrivoxResultsViewModel.HeaderStatusData status = viewModel.getHeaderStatus().getValue();
+                        String source = (status != null && status.apiSource != null) ? status.apiSource : "archive.org";
+                        return getString(R.string.getting_first_results_from) + " " + source + "…\n"
+                                + elapsedSec + " " + getString(R.string.sec) + " " + getString(R.string.elapsed);
+                    }
+                });
+            } else {
+                progressBar.setVisibility(View.GONE);
+                progressHelper.stop();
+            }
         });
 
         // Observe results (replace on first load, append on pagination)
@@ -174,29 +195,22 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
             String status;
             if (statusData.isLoading) {
-                // Still loading more - start animation
-                startDotAnimation();
                 if (statusData.count == 0) {
                     // First fetch
-                    status = getString(R.string.getting_first_results_from) + " "
-                            + statusData.apiSource + getAnimatedDots();
+                    status = getString(R.string.getting_first_results_from) + " " + statusData.apiSource + "…";
                 } else {
                     // Subsequent pages
                     if (statusData.totalCount >= 0) {
                         status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
                                 formatCount(statusData.count), formatCount(statusData.totalCount))
-                                + " (" + getString(R.string.getting_more_from) + " "
-                                + statusData.apiSource + getAnimatedDots() + ")";
+                                + " (" + getString(R.string.getting_more_from) + " " + statusData.apiSource + "…)";
                     } else {
                         status = getString(R.string.Results_2pt)
                                 + getString(R.string.librivox_books_loaded, formatCount(statusData.count))
-                                + " (" + getString(R.string.getting_more_from) + " "
-                                + statusData.apiSource + getAnimatedDots() + ")";
+                                + " (" + getString(R.string.getting_more_from) + " " + statusData.apiSource + "…)";
                     }
                 }
             } else {
-                // Done loading - stop animation
-                stopDotAnimation();
                 if (statusData.totalCount >= 0) {
                     // Show "Results: XX / YY books" when total is known (locale-formatted)
                     status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
@@ -251,11 +265,19 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 finish();
             }
         });
+/*
         viewModel.getIsLoadingMore().observe(this, isLoadingMore -> {
             if (progressBarLoadMore != null) {
                 progressBarLoadMore.setVisibility(Boolean.TRUE.equals(isLoadingMore) ? View.VISIBLE : View.GONE);
             }
         });
+
+ */
+    }
+
+    /** Locale-aware number formatting (e.g. 60399 → "60,399" or "60 399"). */
+    private static String formatCount(long n) {
+        return NumberFormat.getNumberInstance(Locale.getDefault()).format(n);
     }
 
     /**
@@ -372,84 +394,12 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         }
     }
 
-    // =====================================================================
-    // DOT ANIMATION FOR LOADING STATE
-    // =====================================================================
-
-    private void setupDotAnimation() {
-        dotAnimationRunnable = new Runnable() {
-            @Override
-            public void run() {
-                dotCount = (dotCount + 1) % 4; // Cycle through 0, 1, 2, 3
-
-                // Update the header directly instead of re-triggering observer
-                LibrivoxResultsViewModel.HeaderStatusData currentStatus = viewModel.getHeaderStatus().getValue();
-                if (currentStatus != null && currentStatus.isLoading) {
-                    updateHeaderWithDots(currentStatus);
-                    dotAnimationHandler.postDelayed(this, 500); // Update every 500ms
-                }
-            }
-        };
-    }
-
-    private void updateHeaderWithDots(LibrivoxResultsViewModel.HeaderStatusData statusData) {
-        String status;
-        if (statusData.count == 0) {
-            // First fetch
-            status = getString(R.string.getting_first_results_from) + " "
-                    + statusData.apiSource + getAnimatedDots();
-        } else {
-            // Subsequent pages (loading more)
-            if (statusData.totalCount >= 0) {
-                status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
-                        formatCount(statusData.count), formatCount(statusData.totalCount))
-                        + " (" + getString(R.string.getting_more_from) + " "
-                        + statusData.apiSource + getAnimatedDots() + ")";
-            } else {
-                status = getString(R.string.Results_2pt)
-                        + getString(R.string.librivox_books_loaded, formatCount(statusData.count))
-                        + " (" + getString(R.string.getting_more_from) + " "
-                        + statusData.apiSource + getAnimatedDots() + ")";
-            }
-        }
-        adapter.setHeaderCount(status);
-    }
-
-    /** Locale-aware number formatting (e.g. 60399 → "60,399" or "60 399"). */
-    private static String formatCount(long n) {
-        return NumberFormat.getNumberInstance(Locale.getDefault()).format(n);
-    }
-
-    private void startDotAnimation() {
-        stopDotAnimation(); // Ensure no duplicate runnables
-        dotCount = 0;
-        dotAnimationHandler.postDelayed(dotAnimationRunnable, 500);
-    }
-
-    private void stopDotAnimation() {
-        dotAnimationHandler.removeCallbacks(dotAnimationRunnable);
-        dotCount = 0;
-    }
-
-    private String getAnimatedDots() {
-        switch (dotCount) {
-            case 0:
-                return "";
-            case 1:
-                return ".";
-            case 2:
-                return "..";
-            case 3:
-                return "...";
-            default:
-                return "";
-        }
-    }
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        stopDotAnimation();
+        if (progressHelper != null) {
+            progressHelper.stop();
+        }
     }
 
 }

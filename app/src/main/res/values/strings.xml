@@ -1301,4 +1301,8 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
     <string name="nearby_share_error_payload_transfer_failed">Payload transfer failed: %s</string>
     <string name="nearby_share_error_unknown">Unknown error</string>
 
+    <string name="loading_categories">loading categories</string>
+    <string name="elapsed">elapsed</string> //for seconds count
+
+
 </resources>

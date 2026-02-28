@@ -4,7 +4,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ProgressBar;
+import android.widget.TextView;
+import androidx.annotation.NonNull;
 
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,6 +15,7 @@ import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.LibrivoxResultsActivity;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -32,7 +34,8 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
     public static final int MODE_AUTHOR = 1; // we’ll wire this later
 
     private RecyclerView rv;
-    private ProgressBar progress;
+    private LoadingProgressHelper progressHelper;
+    private TextView tvProgressMessage;
     private LibrivoxFacetCardAdapter adapter;
     private LibrivoxRepository repo;
 
@@ -69,7 +72,8 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
         InsetHelper.apply(this);
 
         rv = findViewById(R.id.recyclerView);
-        progress = findViewById(R.id.progressBar);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        progressHelper = new LoadingProgressHelper();
 
         librivoxLanguageItem = (LibrivoxLanguageItem) getIntent()
                 .getSerializableExtra(Intents.EXTRA_LIBRIVOX_LANGUAGE_ITEM);
@@ -96,13 +100,27 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
     }
 
     private void loadGenres() {
-        progress.setVisibility(View.VISIBLE);
+        progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
+            @NonNull
+            @Override
+            public String getInitialMessage() {
+                return getString(R.string.loading_categories);
+            }
+
+            @NonNull
+            @Override
+            public String getTickMessage(long elapsedSec) {
+                return getString(R.string.loading_categories) + "\n"
+                        + elapsedSec + " " + getString(R.string.sec) + " " + getString(R.string.elapsed);
+            }
+        });
+
         List<LibrivoxGenre> all = LibrivoxGenreStore.getGenres(this);
         List<LibrivoxFacetItem> out = new ArrayList<>();
         for (LibrivoxGenre g : all) {
             out.add(new LibrivoxFacetItem(g.name, g.count));
         }
-        progress.setVisibility(View.GONE);
+        progressHelper.stop();
         adapter.setItems(out);
     }
 
