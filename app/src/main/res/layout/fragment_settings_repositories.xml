@@ -54,5 +54,26 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/Gutenberg"/>
+
+        <LinearLayout
+            android:id="@+id/ll_option_gutenberg_use_cloudfare"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_option_gutenberg_use_cloudfare"
+                style="@style/OptionCheckBox"
+                android:layout_height="match_parent" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_gutenberg_use_cloudfare" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_gutenberg_use_cloudfare_subtitle" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
     </LinearLayout>
 </ScrollView>

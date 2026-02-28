@@ -60,7 +60,7 @@
                     android:id="@+id/section_librivox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:sectionTitle="@string/librivox"
+                    app:sectionTitle="@string/Repositories"
                     app:sectionIcon="@drawable/ic_librivox_24" />
 
                 <com.driot.bookplayer.views.SettingsSectionView

@@ -10,6 +10,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.StyleRes;
 
+import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.NetworkHelper;
 
@@ -94,6 +95,7 @@ public class Option {
     private static final boolean DEFAULT_USE_HEATMAP_SEEKBAR_IN_PLAY_ACTIVITY = false;
     public static final boolean DEFAULT_RADIO_SLEEP_COPY = false;
     public static final boolean DEFAULT_RADIO_USE_CLOUDFARE = false;
+    public static final boolean DEFAULT_GUTENBERG_USE_CLOUDFARE = true;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
     public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
     private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
@@ -242,6 +244,23 @@ public class Option {
 
     public static void setRadioOpenFavoritesFirst(boolean bool) {
         prefs.edit().putBoolean("RADIO_OPEN_FAVORITES_FIRST", bool).apply();
+    }
+
+    /////////////////// GUTENBERG ///////////////////
+    public static void setGutenbergUseCloudflare(boolean bool) {
+        prefs.edit().putBoolean("GUTENBERG_USE_CLOUDFARE", bool).apply();
+    }
+
+    public static boolean getGutenbergUseCloudflare() {
+        return prefs.getBoolean("GUTENBERG_USE_CLOUDFARE", DEFAULT_GUTENBERG_USE_CLOUDFARE);
+    }
+
+    public static String getGutenbergBaseUrl() {
+        if (getGutenbergUseCloudflare()) {
+            return BuildConfig.GUTENDEX_BASE_URL;
+        } else {
+            return "https://gutendex.com/";
+        }
     }
 
     /////////////////// HEAT_MAPS ///////////////////

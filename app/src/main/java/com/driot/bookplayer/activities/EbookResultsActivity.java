@@ -22,6 +22,7 @@ import com.driot.bookplayer.ebooks.gutendex.GutendexMapper;
 import com.driot.bookplayer.ebooks.gutendex.GutendexResponse;
 import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageItem;
 import com.driot.bookplayer.ebooks.gutendex.GutenbergLanguageStore;
+import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LanguageHelper;
@@ -298,7 +299,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
     private void performInitialSearch(final int retryCount) {
         OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(GutendexApiService.BASE_URL)
+                .baseUrl(Option.getGutenbergBaseUrl())
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
@@ -451,7 +452,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
         OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(GutendexApiService.BASE_URL)
+                .baseUrl(Option.getGutenbergBaseUrl())
                 .client(client)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
