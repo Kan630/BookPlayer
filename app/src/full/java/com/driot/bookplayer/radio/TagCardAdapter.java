@@ -8,6 +8,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -22,38 +23,94 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
-//public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
+    // public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
 
-    public interface OnClick { void onTagClick(TagItem t); }
+    public interface OnClick {
+        void onTagClick(TagItem t);
+    }
 
     private final List<TagItem> items = new ArrayList<>();
     private final OnClick cb;
 
-    public TagCardAdapter(OnClick cb) { this.cb = cb; }
+    public TagCardAdapter(OnClick cb) {
+        this.cb = cb;
+    }
 
-    public void setItems(List<TagItem> data) {
-        items.clear();
-        if (data != null) items.addAll(data);
-        notifyDataSetChanged();
+    public void setItems(List<TagItem> newData) {
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(this.items, newData));
+        this.items.clear();
+        if (newData != null) {
+            this.items.addAll(newData);
+        }
+        diffResult.dispatchUpdatesTo(this);
+    }
+
+    private static class DiffCallback extends DiffUtil.Callback {
+        private final List<TagItem> oldList;
+        private final List<TagItem> newList;
+
+        public DiffCallback(List<TagItem> oldList, List<TagItem> newList) {
+            this.oldList = oldList;
+            this.newList = newList != null ? newList : new ArrayList<>();
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size();
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size();
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            // Using name as unique identifier for facets
+            TagItem oldItem = oldList.get(oldItemPosition);
+            TagItem newItem = newList.get(newItemPosition);
+            if (oldItem.name == null || newItem.name == null)
+                return false;
+            return oldItem.name.equals(newItem.name);
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            TagItem oldItem = oldList.get(oldItemPosition);
+            TagItem newItem = newList.get(newItemPosition);
+            return oldItem.stationcount == newItem.stationcount
+                    && equals(oldItem.iso_3166_1, newItem.iso_3166_1)
+                    && equals(oldItem.iso_639, newItem.iso_639);
+        }
+
+        private boolean equals(String s1, String s2) {
+            if (s1 == null && s2 == null)
+                return true;
+            if (s1 == null || s2 == null)
+                return false;
+            return s1.equals(s2);
+        }
     }
 
     @NonNull
-    @Override public VH onCreateViewHolder(@NonNull ViewGroup p, int vtype) {
+    @Override
+    public VH onCreateViewHolder(@NonNull ViewGroup p, int vtype) {
         View v = LayoutInflater.from(p.getContext()).inflate(R.layout.item_tag_card, p, false);
         return new VH(v);
     }
 
-    @Override public void onBindViewHolder(@NonNull VH h, int pos) {
+    @Override
+    public void onBindViewHolder(@NonNull VH h, int pos) {
         TagItem t = items.get(pos);
-//NAME
+        // NAME
         String name = "---";
         if (t.name != null && !t.name.isEmpty()) {
             name = t.name.substring(0, 1).toUpperCase() + t.name.substring(1);
         }
         h.tvName.setText(name);
-//COUNT
+        // COUNT
         h.tvCount.setText(String.valueOf(t.stationcount));
-//FLAG
+        // FLAG
         int flagResId = 0;
         if (t.iso_3166_1 != null) {
             flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_3166_1, "country");
@@ -92,45 +149,59 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
         }
 
         if (flagResId != 0) {
-            //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" + h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
-            Glide.with(h.ivFlag.getContext()).load(flagResId).signature(new ObjectKey(t.name + "_" + flagResId)).into(h.ivFlag);
+            // KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" +
+            // t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" +
+            // h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
+            Glide.with(h.ivFlag.getContext()).load(flagResId).signature(new ObjectKey(t.name + "_" + flagResId))
+                    .into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
         } else {
-            //KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" + t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
+            // KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" +
+            // t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
             h.ivFlag.setVisibility(View.GONE);
         }
-//CLICK
-        h.card.setOnClickListener(v -> { if (cb != null) cb.onTagClick(t); });
+        // CLICK
+        h.card.setOnClickListener(v -> {
+            if (cb != null)
+                cb.onTagClick(t);
+        });
 
     }
 
-    @Override public int getItemCount() { return items.size(); }
+    @Override
+    public int getItemCount() {
+        return items.size();
+    }
 
     static final class VH extends RecyclerView.ViewHolder {
         final View card;
         final TextView tvName;
         final TextView tvCount;
         final ImageView ivFlag;
+
         VH(@NonNull View v) {
             super(v);
             card = v.findViewById(R.id.card);
-            tvName  = v.findViewById(R.id.tvTagName);
+            tvName = v.findViewById(R.id.tvTagName);
             tvCount = v.findViewById(R.id.tvTagCount);
-            ivFlag  = v.findViewById(R.id.ivFlag);
+            ivFlag = v.findViewById(R.id.ivFlag);
         }
     }
 
     private static int getFlagResId(Context context, String code2, String codeType) {
-        if (code2 == null) return 0;
+        if (code2 == null)
+            return 0;
         if (codeType.equals("language")) {
             String countryCode = LanguageHelper.getCountryForLanguage(code2);
-            if (countryCode == null) return 0;
-            return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable", context.getPackageName());
+            if (countryCode == null)
+                return 0;
+            return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable",
+                    context.getPackageName());
         } else if (codeType.equals("country")) {
-            return context.getResources().getIdentifier("flag_" + code2.toLowerCase(), "drawable", context.getPackageName());
+            return context.getResources().getIdentifier("flag_" + code2.toLowerCase(), "drawable",
+                    context.getPackageName());
         } else {
             return 0;
         }
     }
 }
-
