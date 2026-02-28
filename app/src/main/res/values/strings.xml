@@ -1184,7 +1184,7 @@
     <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d sec elapsed - %3$s\n(read timeout: %4$d sec)</string>
     <string name="gutenberg_try_1st">1st try</string>
     <string name="gutenberg_try_2nd">2nd try</string>
-    <string name="gutenberg_connected">Connected! Receiving data… \n(Gutenberg is a free volunteer project. It can be quite slow…)\n</string>
+    <string name="gutenberg_connected">Connected! Receiving data… \n\nGutenberg is a free volunteer project.\nIt can be quite slow…\n\n</string>
     <string name="radio_browser_contacting">Contacting radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d sec elapsed - (timeout is %2$d sec)</string>
     <string name="api_paging_size">Api paging size</string>
@@ -1308,6 +1308,8 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
 
     <string name="loading_categories">loading categories</string>
     <string name="elapsed">elapsed</string> //for seconds count
+    <string name="Librivox_Audiobooks">Librivox Audiobooks</string>
+    <string name="Gutenberg_Ebooks">Gutenberg Ebooks</string>
 
 
 </resources>

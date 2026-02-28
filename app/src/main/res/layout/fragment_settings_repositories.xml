@@ -21,7 +21,7 @@
 
         <TextView
             style="@style/OptionTitle"
-            android:text="@string/Librivox"/>
+            android:text="@string/Librivox_Audiobooks"/>
 
         <LinearLayout
             android:id="@+id/ll_Search"
@@ -56,7 +56,7 @@
 
         <TextView
             style="@style/OptionTitle"
-            android:text="@string/Gutenberg"/>
+            android:text="@string/Gutenberg_Ebooks"/>
 
         <LinearLayout
             android:id="@+id/ll_option_gutenberg_use_cloudfare"
