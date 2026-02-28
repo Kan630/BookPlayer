@@ -39,6 +39,7 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import okhttp3.EventListener;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Call;
@@ -62,6 +63,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
     private String nextPageUrl;
     private boolean isLoadingMore = false;
+    private volatile boolean gutendexConnected = false;
     private int totalCount = 0;
     private String query;
     private String lang;
@@ -229,6 +231,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         // Reset pagination state
         nextPageUrl = null;
         isLoadingMore = false;
+        gutendexConnected = false;
         totalCount = 0;
         adapter.setLoading(false);
 
@@ -250,7 +253,10 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 String tryLabel = currentTryNumber == 1
                         ? getString(R.string.gutenberg_try_1st)
                         : getString(R.string.gutenberg_try_2nd);
-                return getString(R.string.gutenberg_wait_elapsed,
+
+                String prefix = gutendexConnected ? getString(R.string.gutenberg_connected) + " " : "";
+
+                return prefix + getString(R.string.gutenberg_wait_elapsed,
                         (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
             }
         });
@@ -274,6 +280,14 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 .readTimeout(Var.GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(logging)
+                .eventListener(new EventListener() {
+                    @Override
+                    public void connectionAcquired(@NonNull okhttp3.Call call, @NonNull okhttp3.Connection connection) {
+                        super.connectionAcquired(call, connection);
+                        gutendexConnected = true;
+                        myLogD("Gutendex: Connection acquired.");
+                    }
+                })
                 .build();
     }
 
@@ -382,6 +396,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 if (retryCount == 0) {
                     myLogW("Gutendex initial search failed, retrying once: " + t.getMessage());
                     currentTryNumber = 2;
+                    gutendexConnected = false;
                     // Restart ticker to reset elapsed time for second try (original behavior)
                     progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
                         @NonNull
@@ -396,7 +411,10 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                             String tryLabel = currentTryNumber == 1
                                     ? getString(R.string.gutenberg_try_1st)
                                     : getString(R.string.gutenberg_try_2nd);
-                            return getString(R.string.gutenberg_wait_elapsed,
+
+                            String prefix = gutendexConnected ? getString(R.string.gutenberg_connected) + " " : "";
+
+                            return prefix + getString(R.string.gutenberg_wait_elapsed,
                                     (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
                         }
                     });
