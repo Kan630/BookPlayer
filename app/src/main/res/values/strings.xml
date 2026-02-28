@@ -1175,9 +1175,11 @@
     <string name="no_ebooks_found_bookshelf">No ebooks found \nfor bookshelf [%1$s] \nwith language [%2$s]</string>
     <string name="gutenberg_contacting">Contacting gutenberg.org…</string>
     <string name="gutenberg_wait_elapsed">%1$d sec elapsed - %2$s - (timeout is %3$d sec)</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d sec elapsed - %3$s\n(connection timeout: %4$d sec)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d sec elapsed - %3$s\n(read timeout: %4$d sec)</string>
     <string name="gutenberg_try_1st">1st try</string>
     <string name="gutenberg_try_2nd">2nd try</string>
-    <string name="gutenberg_connected">Connected, receiving data…</string>
+    <string name="gutenberg_connected">Connected! Receiving data…</string>
     <string name="radio_browser_contacting">Contacting radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d sec elapsed - (timeout is %2$d sec)</string>
     <string name="api_paging_size">Api paging size</string>

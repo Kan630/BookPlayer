@@ -254,10 +254,15 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                         ? getString(R.string.gutenberg_try_1st)
                         : getString(R.string.gutenberg_try_2nd);
 
-                String prefix = gutendexConnected ? getString(R.string.gutenberg_connected) + " " : "";
-
-                return prefix + getString(R.string.gutenberg_wait_elapsed,
-                        (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
+                if (gutendexConnected) {
+                    return getString(R.string.gutenberg_wait_elapsed_connected,
+                            getString(R.string.gutenberg_connected),
+                            (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
+                } else {
+                    return getString(R.string.gutenberg_wait_elapsed_connecting,
+                            getString(R.string.gutenberg_contacting),
+                            (int) elapsedSec, tryLabel, Var.GUTENDEX_CONNECT_TIMEOUT_SEC);
+                }
             }
         });
 
@@ -270,13 +275,12 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
      * Gutendex can be slow (e.g. "most downloaded"); use longer timeouts and one
      * retry on failure.
      */
-    private static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 20;
 
     private OkHttpClient buildGutendexClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
         logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
         return new OkHttpClient.Builder()
-                .connectTimeout(GUTENDEX_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .connectTimeout(Var.GUTENDEX_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
                 .readTimeout(Var.GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(logging)
@@ -412,10 +416,15 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                                     ? getString(R.string.gutenberg_try_1st)
                                     : getString(R.string.gutenberg_try_2nd);
 
-                            String prefix = gutendexConnected ? getString(R.string.gutenberg_connected) + " " : "";
-
-                            return prefix + getString(R.string.gutenberg_wait_elapsed,
-                                    (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
+                            if (gutendexConnected) {
+                                return getString(R.string.gutenberg_wait_elapsed_connected,
+                                        getString(R.string.gutenberg_connected),
+                                        (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
+                            } else {
+                                return getString(R.string.gutenberg_wait_elapsed_connecting,
+                                        getString(R.string.gutenberg_contacting),
+                                        (int) elapsedSec, tryLabel, Var.GUTENDEX_CONNECT_TIMEOUT_SEC);
+                            }
                         }
                     });
                     performInitialSearch(1);
