@@ -29,7 +29,7 @@ public final class FirebaseAnalyticsHelper {
     public static void init(Context context) {
         try {
             appContext = context.getApplicationContext();
-            appVersion = String.valueOf(BuildConfig.VERSION_CODE);
+            appVersion = String.valueOf(BuildConfig.FLAVOR) + " - " + String.valueOf(BuildConfig.VERSION_CODE);
 
             String sdkVersion = String.valueOf(Build.VERSION.SDK_INT);
             String androidVersion = Build.VERSION.RELEASE;
