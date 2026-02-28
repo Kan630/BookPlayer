@@ -53,7 +53,6 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
     private TagCardAdapter adapter;
 
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
-    private static final int RADIO_BROWSER_TIMEOUT_SEC = 60;
 
     public static void start(Context ctx, @FacetMode int mode) {
         Intent i = new Intent(ctx, GetRadioCardListActivity.class)
@@ -163,7 +162,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     @Override
                     public String getTickMessage(long elapsedSec) {
                         return getString(R.string.radio_browser_wait_elapsed,
-                                (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                                (int) elapsedSec, Var.RADIO_BROWSER_TIMEOUT_SEC);
                     }
                 });
             }

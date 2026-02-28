@@ -56,7 +56,6 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     private RadioResultRVAdapter adapter;
 
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
-    private static final int RADIO_BROWSER_TIMEOUT_SEC = 60;
 
     @Override
     protected int getNavId() {
@@ -181,7 +180,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         @Override
                         public String getTickMessage(long elapsedSec) {
                             return getString(R.string.radio_browser_wait_elapsed,
-                                    (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                                    (int) elapsedSec, Var.RADIO_BROWSER_TIMEOUT_SEC);
                         }
                     });
                 }
@@ -375,7 +374,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 @Override
                 public String getTickMessage(long elapsedSec) {
                     return getString(R.string.radio_browser_wait_elapsed,
-                            (int) elapsedSec, RADIO_BROWSER_TIMEOUT_SEC);
+                            (int) elapsedSec, Var.RADIO_BROWSER_TIMEOUT_SEC);
                 }
             });
         }

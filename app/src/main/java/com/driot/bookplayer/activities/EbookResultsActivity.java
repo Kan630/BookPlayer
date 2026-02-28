@@ -251,7 +251,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                         ? getString(R.string.gutenberg_try_1st)
                         : getString(R.string.gutenberg_try_2nd);
                 return getString(R.string.gutenberg_wait_elapsed,
-                        (int) elapsedSec, tryLabel, GUTENDEX_READ_TIMEOUT_SEC);
+                        (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
             }
         });
 
@@ -265,14 +265,13 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
      * retry on failure.
      */
     private static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 20;
-    private static final int GUTENDEX_READ_TIMEOUT_SEC = 30;
 
     private OkHttpClient buildGutendexClient() {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(this::myLog);
         logging.setLevel(Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
         return new OkHttpClient.Builder()
                 .connectTimeout(GUTENDEX_CONNECT_TIMEOUT_SEC, TimeUnit.SECONDS)
-                .readTimeout(GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
+                .readTimeout(Var.GUTENDEX_READ_TIMEOUT_SEC, TimeUnit.SECONDS)
                 .writeTimeout(30, TimeUnit.SECONDS)
                 .addInterceptor(logging)
                 .build();
@@ -398,7 +397,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                                     ? getString(R.string.gutenberg_try_1st)
                                     : getString(R.string.gutenberg_try_2nd);
                             return getString(R.string.gutenberg_wait_elapsed,
-                                    (int) elapsedSec, tryLabel, GUTENDEX_READ_TIMEOUT_SEC);
+                                    (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
                         }
                     });
                     performInitialSearch(1);
