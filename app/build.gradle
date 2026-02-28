@@ -20,7 +20,6 @@ android {
         buildConfigField "String", "PIXABAY_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev\""
         buildConfigField "String", "PODCASTINDEX_BASE_URL", "\"https://steep-hat-11ff.adriot.workers.dev/podcastindex/\""
         buildConfigField "String", "RADIO_PROXY_BASE_URL", "\"https://radio.driot.com\""
-
         buildConfigField "String", "APP_TOKEN", "\"bookplayer_petit_mais_costaud\""
 
         flavorDimensions += "version"
@@ -44,7 +43,9 @@ android {
             }
         }
         sourceSets {
-            // Give 'original' access to the same code/resources as 'full'
+            main {
+                res.srcDirs += 'src/main/res-flags'
+            }
             legacy {
                 java.srcDirs += 'src/full/java'
                 // res.srcDirs  += 'src/full/res'
@@ -77,8 +78,8 @@ android {
 
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
-        versionCode = 266
-        versionName = "266 - Eclipse Meerkat"  //Midnight Raccoon
+        versionCode = 267
+        versionName = "267 - Eclipse Meerkat"  //Midnight Raccoon
         /////////////////////////////////////////////////////////////////////////
         /////////////////////////////////////////////////////////////////////////
 
@@ -92,12 +93,6 @@ android {
 
         androidResources {
             generateLocaleConfig = true
-        }
-
-        sourceSets {
-            main {
-                res.srcDirs = ['src/main/res', 'src/main/res-flags']
-            }
         }
 
     }
