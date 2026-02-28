@@ -9,13 +9,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
+import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
 import com.driot.bookplayer.views.SettingsSectionView;
 
 import com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment;
 import com.driot.bookplayer.settings.ui.DesignSettingsFragment;
 import com.driot.bookplayer.settings.ui.ImportSettingsFragment;
 import com.driot.bookplayer.settings.ui.LanguageSettingsFragment;
-import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
 import com.driot.bookplayer.settings.ui.MassiveImportSettingsFragment;
 import com.driot.bookplayer.settings.ui.NetworkSettingsFragment;
 import com.driot.bookplayer.settings.ui.PlayBehaviourSettingsFragment;
@@ -103,7 +103,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
         registerSection(
                 sectionLibrivox,
                 "expand_librivox",
-                LibrivoxSettingsFragment::new,
+                RepositoriesSettingsFragment::new,
                 savedInstanceState);
 
         SettingsSectionView sectionRadio = findViewById(R.id.section_radio);

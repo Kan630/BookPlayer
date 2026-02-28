@@ -193,9 +193,6 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     private void clickSettings() {
         myLogI("--- User clicks RADIO SETTINGS ---");
-        // Reuse your SettingsHostActivity with a RadioSettingsFragment (build like
-        // LibrivoxSettingsFragment)
-
         SettingsHostActivity.start(this, RadioSettingsFragment.class, true, R.string.Radio_Settings);
     }
 

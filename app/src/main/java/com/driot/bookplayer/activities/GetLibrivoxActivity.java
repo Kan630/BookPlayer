@@ -19,7 +19,7 @@ import com.driot.bookplayer.librivox.LibrivoxLanguageItem;
 import com.driot.bookplayer.librivox.LibrivoxLanguageStore;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.settings.ui.LibrivoxSettingsFragment;
+import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.EditText1lineWithSearch;
 
@@ -169,7 +169,7 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
 
     private void clickSettings() {
         myLogI("--- User clicks SETTINGS ---");
-        SettingsHostActivity.start(this, LibrivoxSettingsFragment.class, true, R.string.librivox_settings);
+        SettingsHostActivity.start(this, RepositoriesSettingsFragment.class, true, R.string.repositories_settings);
     }
 
     private void doSearch() {

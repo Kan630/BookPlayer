@@ -16,7 +16,7 @@ import com.driot.bookplayer.utils.log.LoggingFragment;
 
 import java.util.concurrent.Executors;
 
-public class LibrivoxSettingsFragment extends LoggingFragment {
+public class RepositoriesSettingsFragment extends LoggingFragment {
 
     private EditText etLibrivoxNbResults;
 
@@ -25,7 +25,7 @@ public class LibrivoxSettingsFragment extends LoggingFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        View root = inflater.inflate(R.layout.fragment_settings_librivox, container, false);
+        View root = inflater.inflate(R.layout.fragment_settings_repositories, container, false);
 
 
         boolean showLocalTitle = true;

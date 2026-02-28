@@ -14,13 +14,14 @@
         <!-- Optional local title (hidden when embedded inline) -->
         <LinearLayout android:id="@+id/ll_title" style="@style/wideLinearLayout_Vertical">
             <View style="@style/myStyleViewSimpleHorizontalBar" />
-            <TextView android:text="@string/librivox_settings" style="@style/OptionMasterTitle"/>
+            <TextView android:text="@string/repositories_settings" style="@style/OptionMasterTitle"/>
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
+
         <TextView
             style="@style/OptionTitle"
-            android:text="@string/Technical"/>
+            android:text="@string/Librivox"/>
 
         <LinearLayout
             android:id="@+id/ll_Search"
