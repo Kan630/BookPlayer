@@ -655,9 +655,9 @@
     <string name="saving_folder">حفظ المجلد</string>
     <string name="saving_track">حفظ المقطع</string>
     <string name="MB_taken_by_images">" ميغابايت مشغولة بالصور"</string>
-    <string name="DeleteImages_AskConfirm">"أنت على وشك حذف جميع الصور.
+    <string name="deprecated_DeleteImages_AskConfirm">"أنت على وشك حذف جميع الصور.
        هل أنت متأكد؟"</string>
-    <string name="delete_cached_images">حذف الصور المخزنة مؤقتًا</string>
+    <string name="deprecated_delete_cached_images">حذف الصور المخزنة مؤقتًا</string>
     <string name="too_low">منخفض جدًا</string>
     <string name="too_high">مرتفع جدًا</string>
     <string name="delay_for_auto_deletion">تأخير الحذف التلقائي</string>

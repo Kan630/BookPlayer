@@ -675,9 +675,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="saving_folder">enregistrement du dossier</string>
     <string name="saving_track">enregistrement de la piste</string>
     <string name="MB_taken_by_images">" Mo pris par les images"</string>
-    <string name="DeleteImages_AskConfirm">"Vous êtes sur le point de supprimer toutes les images.
+    <string name="deprecated_DeleteImages_AskConfirm">"Vous êtes sur le point de supprimer toutes les images.
        Êtes-vous sûr ?"</string>
-    <string name="delete_cached_images">Supprimer les images en cache</string>
+    <string name="deprecated_delete_cached_images">Supprimer les images en cache</string>
     <string name="too_low">trop bas</string>
     <string name="too_high">trop élevé</string>
     <string name="delay_for_auto_deletion">délai pour suppression automatique</string>

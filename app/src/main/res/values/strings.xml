@@ -728,9 +728,13 @@
     <string name="saving_folder">registering folder</string>
     <string name="saving_track">registering track</string>
     <string name="MB_taken_by_images">" MB taken by images"</string>
-    <string name="DeleteImages_AskConfirm">"You are about to delete all images.
+    <string name="deprecated_DeleteImages_AskConfirm">"You are about to delete all images.
        Are you sure ?"</string>
-    <string name="delete_cached_images">Delete cached images</string>
+    <string name="deprecated_delete_cached_images">Delete cached images</string>
+    <string name="delete_cache">Delete cache</string>
+    <string name="DeleteCache_AskConfirm">"You are about to delete cached items.
+        This will save space but may affect performance.
+        Are you sure ?"</string>
     <string name="too_low">too low</string>
     <string name="too_high">too high</string>
     <string name="delay_for_auto_deletion">delay for auto deletion</string>

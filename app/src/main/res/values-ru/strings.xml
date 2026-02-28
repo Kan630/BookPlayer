@@ -659,9 +659,9 @@
     <string name="saving_folder">сохранение папки</string>
     <string name="saving_track">сохранение трека</string>
     <string name="MB_taken_by_images">" МБ занято изображениями"</string>
-    <string name="DeleteImages_AskConfirm">"Вы собираетесь удалить все изображения.
+    <string name="deprecated_DeleteImages_AskConfirm">"Вы собираетесь удалить все изображения.
        Вы уверены?"</string>
-    <string name="delete_cached_images">Удалить кэшированные изображения</string>
+    <string name="deprecated_delete_cached_images">Удалить кэшированные изображения</string>
     <string name="too_low">слишком низко</string>
     <string name="too_high">слишком высоко</string>
     <string name="delay_for_auto_deletion">задержка для автоматического удаления</string>

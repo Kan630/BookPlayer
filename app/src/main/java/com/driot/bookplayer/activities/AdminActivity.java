@@ -31,15 +31,19 @@ import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.services.DeleteFolderWorker;
+import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 public class AdminActivity extends BaseActivity {
+
+    private static final int REQ_DELETE_LOGS = 2001;
 
     private LinearLayout btnContainer;
     private ListView listActivities;
@@ -102,7 +106,7 @@ public class AdminActivity extends BaseActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // Apply height change when user releases slider
-                recreate();
+                //recreate();
             }
         });
 
@@ -110,6 +114,8 @@ public class AdminActivity extends BaseActivity {
         findViewById(R.id.bOpenLogList).setOnClickListener(v -> {
             startActivity(new Intent(this, LogListActivity.class));
         });
+
+        findViewById(R.id.bDeleteLogs).setOnClickListener(v -> deleteLogsClick());
 
         findViewById(R.id.bFlushDiskBooks).setOnClickListener(v -> {
             new Thread(() -> {
@@ -156,9 +162,6 @@ public class AdminActivity extends BaseActivity {
             String crashText = ((EditText) findViewById(R.id.etCrashText)).getText().toString();
             throw new RuntimeException(crashText); // Force a crash
         });
-
-        findViewById(R.id.bCarConnect)
-                .setOnClickListener(v -> myToast(getString(com.driot.bookplayer.R.string.nothing)));
 
         findViewById(R.id.bDeleteRecentBooks).setOnClickListener(v -> {
             EditText etMinutes = findViewById(R.id.etMinutesAgo);
@@ -310,5 +313,34 @@ public class AdminActivity extends BaseActivity {
             Toast.makeText(this, "Cannot launch " + clazz.getSimpleName(), Toast.LENGTH_SHORT).show();
         }
     }
+
+    private void deleteLogsClick() {
+        myLogI("--- user clicks DELETE LOGS ---");
+        MsgBox.ask(this,
+                getString(R.string.AskDelete_popupTitle),
+                getString(R.string.DeleteLogs_AskConfirm),
+                null,
+                getString(android.R.string.ok),
+                getString(android.R.string.cancel),
+                REQ_DELETE_LOGS);
+    }
+
+    private void deleteLogs() {
+        File dir = new File(this.getFilesDir(), "log");
+        FileHelper.recursiveRemove(dir);
+        recreate();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQ_DELETE_LOGS) {
+                deleteLogs();
+            }
+        }
+    }
+
+
 
 }

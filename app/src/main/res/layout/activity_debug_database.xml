@@ -12,7 +12,7 @@
         android:id="@+id/tvBackupInfo"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textColor="@android:color/white"
+        style="@style/OptionTitle"
         android:textSize="14sp"
         android:padding="16dp"
         android:text="Backup info will appear here..."

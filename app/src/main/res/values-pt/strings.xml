@@ -660,9 +660,9 @@
     <string name="saving_folder">registrando pasta</string>
     <string name="saving_track">registrando faixa</string>
     <string name="MB_taken_by_images">" MB usados por imagens"</string>
-    <string name="DeleteImages_AskConfirm">"Você está prestes a excluir todas as imagens.
+    <string name="deprecated_DeleteImages_AskConfirm">"Você está prestes a excluir todas as imagens.
        Tem certeza?"</string>
-    <string name="delete_cached_images">Excluir imagens em cache</string>
+    <string name="deprecated_delete_cached_images">Excluir imagens em cache</string>
     <string name="too_low">muito baixo</string>
     <string name="too_high">muito alto</string>
     <string name="delay_for_auto_deletion">atraso para exclusão automática</string>

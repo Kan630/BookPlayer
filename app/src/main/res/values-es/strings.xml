@@ -659,9 +659,9 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="saving_folder">guardando carpeta</string>
     <string name="saving_track">guardando pista</string>
     <string name="MB_taken_by_images">" MB ocupados por imágenes"</string>
-    <string name="DeleteImages_AskConfirm">"Está a punto de eliminar todas las imágenes.
+    <string name="deprecated_DeleteImages_AskConfirm">"Está a punto de eliminar todas las imágenes.
        ¿Está seguro?"</string>
-    <string name="delete_cached_images">Eliminar imágenes en caché</string>
+    <string name="deprecated_delete_cached_images">Eliminar imágenes en caché</string>
     <string name="too_low">demasiado bajo</string>
     <string name="too_high">demasiado alto</string>
     <string name="delay_for_auto_deletion">retardo para eliminación automática</string>

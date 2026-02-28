@@ -658,9 +658,9 @@
     <string name="saving_folder">फ़ोल्डर पंजीकृत कर रहे हैं</string>
     <string name="saving_track">ट्रैक पंजीकृत कर रहे हैं</string>
     <string name="MB_taken_by_images">" MB छवियाँ"</string>
-    <string name="DeleteImages_AskConfirm">"आप सभी छवियाँ हटाने वाले हैं.
+    <string name="deprecated_DeleteImages_AskConfirm">"आप सभी छवियाँ हटाने वाले हैं.
        क्या आप सुनिश्चित हैं ?"</string>
-    <string name="delete_cached_images">कैश्ड छवियाँ हटाएँ</string>
+    <string name="deprecated_delete_cached_images">कैश्ड छवियाँ हटाएँ</string>
     <string name="too_low">बहुत कम</string>
     <string name="too_high">बहुत अधिक</string>
     <string name="delay_for_auto_deletion">स्वतः हटाने के लिए विलंब</string>

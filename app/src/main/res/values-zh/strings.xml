@@ -660,9 +660,9 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="saving_folder">保存文件夹</string>
     <string name="saving_track">保存音轨</string>
     <string name="MB_taken_by_images">" MB 被图片占用"</string>
-    <string name="DeleteImages_AskConfirm">"您将删除所有图片。
+    <string name="deprecated_DeleteImages_AskConfirm">"您将删除所有图片。
        确定吗？"</string>
-    <string name="delete_cached_images">删除缓存图片</string>
+    <string name="deprecated_delete_cached_images">删除缓存图片</string>
     <string name="too_low">太低</string>
     <string name="too_high">太高</string>
     <string name="delay_for_auto_deletion">自动删除延迟</string>

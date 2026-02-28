@@ -25,6 +25,14 @@
             android:backgroundTint="#4CAF50"
             android:text="Open Log List"
             android:textColor="#FFFFFF" />
+        <Button
+            android:id="@+id/bDeleteLogs"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#AF4C50"
+            android:text="Delete Logs"
+             />
 
         <View style="@style/GetResourceHorizontalBar" />
 
@@ -32,29 +40,33 @@
             android:id="@+id/bFlushDiskImages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#4C50AF"
             android:text="Flush to log : DISK images"/>
         <Button
             android:id="@+id/bFlushDiskCachedImages"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#4C50AF"
             android:text="Flush to log : DISK cached images"/>
         <Button
             android:id="@+id/bFlushDiskBooks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#4C50AF"
             android:text="Flush to log : DISK book files"/>
         <Button
             android:id="@+id/bFlushSQL"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#4C50AF"
             android:text="Flush to log : SQL"/>
-        <Button
-            android:id="@+id/bCarConnect"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Car Connect"/>
 
-    <View style="@style/GetResourceHorizontalBar" />
+
+        <View style="@style/GetResourceHorizontalBar" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -83,6 +95,8 @@
             android:id="@+id/bDeleteRecentBooks"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#AF4C50"
             android:text="Delete books imported since"/>
         <EditText
             android:id="@+id/etMinutesAgo"

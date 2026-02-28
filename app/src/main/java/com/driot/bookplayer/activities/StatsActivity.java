@@ -48,8 +48,7 @@ import java.util.TimeZone;
 
 public class StatsActivity extends BaseActivity {
 
-    private static final int REQ_DELETE_LOGS = 2001;
-    private static final int REQ_DELETE_CACHED_IMAGES = 2002;
+    private static final int REQ_DELETE_CACHE = 2002;
 
     private StatsViewModel viewModel;
     private StorageBarView storageBarInternal;
@@ -225,8 +224,7 @@ public class StatsActivity extends BaseActivity {
         // ----------------------------------------
 
         findViewById(R.id.bt_01).setOnClickListener(v -> openAppInfo());
-        findViewById(R.id.bt_02).setOnClickListener(v -> deleteLogsClick());
-        findViewById(R.id.bt_03).setOnClickListener(v -> deleteCachedImagesClick());
+        findViewById(R.id.bt_DeleteCache).setOnClickListener(v -> deleteCacheClick());
         findViewById(R.id.bt_04).setOnClickListener(v -> resetApp());
 
     }
@@ -258,32 +256,15 @@ public class StatsActivity extends BaseActivity {
         }
     }
 
-    private void deleteLogsClick() {
-        myLogI("--- user clicks DELETE LOGS ---");
+    private void deleteCacheClick() {
+        myLogI("--- user clicks DELETE CACHE ---");
         MsgBox.ask(this,
                 getString(R.string.AskDelete_popupTitle),
-                getString(R.string.DeleteLogs_AskConfirm),
+                getString(R.string.DeleteCache_AskConfirm),
                 null,
                 getString(android.R.string.ok),
                 getString(android.R.string.cancel),
-                REQ_DELETE_LOGS);
-    }
-
-    private void deleteLogs() {
-        File dir = new File(this.getFilesDir(), "log");
-        FileHelper.recursiveRemove(dir);
-        recreate();
-    }
-
-    private void deleteCachedImagesClick() {
-        myLogI("--- user clicks DELETE CACHED IMAGES ---");
-        MsgBox.ask(this,
-                getString(R.string.AskDelete_popupTitle),
-                getString(R.string.DeleteImages_AskConfirm),
-                null,
-                getString(android.R.string.ok),
-                getString(android.R.string.cancel),
-                REQ_DELETE_CACHED_IMAGES);
+                REQ_DELETE_CACHE);
     }
 
     private void deleteCachedImages() {
@@ -653,9 +634,7 @@ public class StatsActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            if (requestCode == REQ_DELETE_LOGS) {
-                deleteLogs();
-            } else if (requestCode == REQ_DELETE_CACHED_IMAGES) {
+            if (requestCode == REQ_DELETE_CACHE) {
                 deleteCachedImages();
             }
         }

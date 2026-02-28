@@ -661,9 +661,9 @@
     <string name="saving_folder">registrazione cartella</string>
     <string name="saving_track">registrazione traccia</string>
     <string name="MB_taken_by_images">" MB occupati dalle immagini"</string>
-    <string name="DeleteImages_AskConfirm">"Stai per eliminare tutte le immagini.
+    <string name="deprecated_DeleteImages_AskConfirm">"Stai per eliminare tutte le immagini.
        Sei sicuro?"</string>
-    <string name="delete_cached_images">Elimina immagini in cache</string>
+    <string name="deprecated_delete_cached_images">Elimina immagini in cache</string>
     <string name="too_low">troppo basso</string>
     <string name="too_high">troppo alto</string>
     <string name="delay_for_auto_deletion">ritardo per l\'eliminazione automatica</string>

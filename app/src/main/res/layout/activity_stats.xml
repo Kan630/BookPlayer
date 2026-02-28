@@ -217,27 +217,15 @@
             android:text="@string/app_info"
             android:layout_margin="10dp"
             />
-
         <Button
-            android:id="@+id/bt_02"
+            android:id="@+id/bt_DeleteCache"
             android:layout_marginTop="40sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:gravity="center_horizontal"
             android:textAlignment="center"
             android:textSize="16sp"
-            android:text="@string/delete_logs"
-            android:layout_margin="10dp"
-            />
-        <Button
-            android:id="@+id/bt_03"
-            android:layout_marginTop="40sp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center_horizontal"
-            android:textAlignment="center"
-            android:textSize="16sp"
-            android:text="@string/delete_cached_images"
+            android:text="@string/delete_cache"
             android:layout_margin="10dp"
             />
         <Button
