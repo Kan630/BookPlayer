@@ -16,14 +16,12 @@ import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
-import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
-    // public class TagCardAdapter extends RecyclerView.Adapter<TagCardAdapter.VH> {
 
     public interface OnClick {
         void onTagClick(TagItem t);
@@ -127,6 +125,8 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
             } else if ("português  brasil".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
+            } else if ("português (brasil)".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
             } else if ("portugues do brasil".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "br", "country");
             } else if ("español internacional".equals(t.name)) {
@@ -134,6 +134,8 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
             } else if ("español chile".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "cl", "country");
             } else if ("castellano. español".equals(t.name)) {
+                flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
+            } else if ("español - latinoamerica".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "es", "country");
             } else if ("español argentina".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "ar", "country");
@@ -143,8 +145,10 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
             } else if ("british english".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "uk", "country");
+            } else if ("swiss german".equals(t.name)) {
+                flagResId = R.drawable.flag_ch;
             } else if ("romania".equals(t.name)) {
-                flagResId = getFlagResId(h.ivFlag.getContext(), "ro", "country");
+                flagResId = R.drawable.flag_ro;
             }
         }
 
@@ -158,6 +162,7 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
         } else {
             // KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" +
             // t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
+            Glide.with(h.ivFlag.getContext()).clear(h.ivFlag);
             h.ivFlag.setVisibility(View.GONE);
         }
         // CLICK

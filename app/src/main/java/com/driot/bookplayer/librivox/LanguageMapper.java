@@ -63,15 +63,8 @@ public final class LanguageMapper {
         m.put("hungarian", new Mapping("hun", "hu", R.drawable.flag_hu));
         m.put("ukrainian", new Mapping("ukr", "uk", R.drawable.flag_ua));
         m.put("bosnian", new Mapping("", "ba", R.drawable.flag_ba));
-        m.put("walloon", new Mapping("", "ba", R.drawable.flag_be));
-        m.put("catalan", new Mapping("cat", "ca", R.drawable.flag_catalan));
-        m.put("galician", new Mapping("glg", "gl", R.drawable.flag_galician));
-        m.put("basque", new Mapping("eus", "eu", R.drawable.flag_basque));
-        m.put("gaelic, scottish", new Mapping("gla", "gd", R.drawable.flag_scotland));
-        m.put("gaelic", new Mapping("gla", "gd", R.drawable.flag_scotland));
-        m.put("irish", new Mapping("gle", "ga", R.drawable.flag_ie));
-        m.put("welsh", new Mapping("cym", "cy", R.drawable.flag_wales));
-        m.put("breton", new Mapping("bre", "br", R.drawable.flag_breton));
+        m.put("albanian", new Mapping("", "", R.drawable.flag_al));
+
         m.put("slovenian", new Mapping("slv", "sl", R.drawable.flag_si));
         m.put("slovak", new Mapping("slk", "sk", R.drawable.flag_sk));
         m.put("bulgarian", new Mapping("bul", "bg", R.drawable.flag_bg));
@@ -90,8 +83,21 @@ public final class LanguageMapper {
         m.put("icelandic", new Mapping("isl", "is", R.drawable.flag_is));
         m.put("norwegian nynorsk", new Mapping("nno", "nn", R.drawable.flag_no));
         m.put("nynorsk", new Mapping("nno", "nn", R.drawable.flag_no));
+        m.put("norsk", new Mapping("nno", "nn", R.drawable.flag_no));
         m.put("old norse", new Mapping("non", "", R.drawable.flag_no));
         m.put("faroese", new Mapping("", "", R.drawable.flag_fo));
+
+        m.put("walloon", new Mapping("", "ba", R.drawable.flag_be));
+        m.put("catalan", new Mapping("cat", "ca", R.drawable.flag_catalan));
+        m.put("galician", new Mapping("glg", "gl", R.drawable.flag_galician));
+        m.put("basque", new Mapping("eus", "eu", R.drawable.flag_basque));
+        m.put("gaelic, scottish", new Mapping("gla", "gd", R.drawable.flag_scotland));
+        m.put("gaelic", new Mapping("gla", "gd", R.drawable.flag_scotland));
+        m.put("irish", new Mapping("gle", "ga", R.drawable.flag_ie));
+        m.put("welsh", new Mapping("cym", "cy", R.drawable.flag_wales));
+        m.put("breton", new Mapping("bre", "br", R.drawable.flag_breton));
+        m.put("deutsch fränkisch", new Mapping("", "", R.drawable.flag_franken));
+        m.put("flemish", new Mapping("", "", R.drawable.flag_flanders));
 
         m.put("indonesian", new Mapping("ind", "id", R.drawable.flag_id));
         m.put("javanese", new Mapping("jav", "", R.drawable.flag_id));
@@ -116,6 +122,7 @@ public final class LanguageMapper {
         m.put("cantonese", new Mapping("yue", "", R.drawable.flag_cn));
         m.put("mandarin", new Mapping("cmn", "", R.drawable.flag_cn));
         m.put("chinese", new Mapping("zho", "zh", R.drawable.flag_cn));
+        m.put("hokkien", new Mapping("", "", R.drawable.flag_tw));
         m.put("japanese", new Mapping("jpn", "ja", R.drawable.flag_jp));
         m.put("korean", new Mapping("kor", "ko", R.drawable.flag_kr));
         m.put("vietnamese", new Mapping("vie", "vi", R.drawable.flag_vn));
@@ -149,12 +156,18 @@ public final class LanguageMapper {
         m.put("braj", new Mapping("bra", "", R.drawable.flag_in));
         m.put("garo", new Mapping("", "", R.drawable.flag_in));
         m.put("khasi", new Mapping("", "", R.drawable.flag_in));
+        m.put("bangla", new Mapping("", "", R.drawable.flag_bd));
+        m.put("nepali", new Mapping("", "", R.drawable.flag_np));
 
         m.put("sinhala", new Mapping("sin", "si", R.drawable.flag_lk));
+
+        m.put("creole", new Mapping("", "", R.drawable.flag_ht));
+        m.put("haitian creole", new Mapping("", "", R.drawable.flag_ht));
 
         m.put("afrikaans", new Mapping("afr", "af", R.drawable.flag_za));
         m.put("dholuo/luo", new Mapping("luo", "", R.drawable.flag_ke));
         m.put("luganda", new Mapping("uga", "ug", R.drawable.flag_ug));
+        m.put("amharic", new Mapping("", "", R.drawable.flag_et));
 
         m.put("latin", new Mapping("lat", "la", R.drawable.flag_spqr));
         m.put("esperanto", new Mapping("epo", "", R.drawable.flag_esperanto));
