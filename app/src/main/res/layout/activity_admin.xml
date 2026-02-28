@@ -164,15 +164,15 @@
 
             <TextView
                 style="@style/OptionSubTitle"
-                android:text="Live Log Height: 50%" 
+                android:text="Live Log Height: 10%" 
                 android:id="@+id/tv_live_log_height"/>
 
             <SeekBar
                 android:id="@+id/seekbar_live_log_height"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:max="5"
-                android:progress="2"
+                android:max="48"
+                android:progress="8"
                 android:layout_marginTop="8dp"/>
         </LinearLayout>
     </LinearLayout>

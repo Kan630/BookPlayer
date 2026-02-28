@@ -84,15 +84,15 @@ public class AdminActivity extends BaseActivity {
         SeekBar seekBar = findViewById(R.id.seekbar_live_log_height);
         TextView tvHeight = findViewById(R.id.tv_live_log_height);
         int savedHeight = Pref.getLiveLogsSavedHeight();
-        int progress = Math.max(0, Math.min(5, (savedHeight - 10) / 12)); // Convert percentage to slider position
-                                                                          // (0-5), range 10-70%
+        int progress = Math.max(0, Math.min(48, savedHeight - 2)); // Convert percentage to slider position (0-48),
+                                                                   // range 2-50%
         seekBar.setProgress(progress);
         tvHeight.setText("Live Log Height: " + savedHeight + "%");
 
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                int percentage = 10 + (progress * 12); // 0->10%, 1->22%, 2->34%, 3->46%, 4->58%, 5->70%
+                int percentage = 2 + progress; // 0->2%, 48->50%
                 tvHeight.setText("Live Log Height: " + percentage + "%");
                 if (fromUser) {
                     Pref.setLiveLogsSavedHeight(percentage);
@@ -106,7 +106,7 @@ public class AdminActivity extends BaseActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 // Apply height change when user releases slider
-                //recreate();
+                // recreate();
             }
         });
 
@@ -340,7 +340,5 @@ public class AdminActivity extends BaseActivity {
             }
         }
     }
-
-
 
 }

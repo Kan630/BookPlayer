@@ -4,6 +4,7 @@ import static com.driot.bookplayer.db.DatabaseBackupHelper.BACKUP_NAME;
 import static com.driot.bookplayer.db.DatabaseBackupHelper.getBackupDir;
 
 import android.os.Bundle;
+import android.text.format.Formatter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -33,7 +34,9 @@ public class DebugDatabaseActivity extends BaseActivity {
             if (backupFile.exists()) {
                 String info = "📁 Folder: " + getBackupDir().getAbsolutePath() + "\n\n" +
                         "📄 File: " + backupFile.getName() + "\n\n" +
-                        "🕒 Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(backupFile.lastModified());
+                        "🕒 Date: " + new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(backupFile.lastModified())
+                        + "\n\n" +
+                        "⚖️ Size: " + Formatter.formatFileSize(this, backupFile.length());
                 tvBackupInfo.setText(info);
             } else {
                 tvBackupInfo.setText(

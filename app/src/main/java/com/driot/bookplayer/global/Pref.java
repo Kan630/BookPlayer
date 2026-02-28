@@ -26,7 +26,7 @@ public class Pref {
     private static final String SHARED_PREFERENCE_CENSORSHIP = "SHARED_PREFERENCE_CENSORSHIP";
 
     private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
-    private static final int DEFAULT_LIVE_LOG_HEIGHT = 50; // percentage
+    private static final int DEFAULT_LIVE_LOG_HEIGHT = 10; // percentage
 
     private static Context appContext;
     private static SharedPreferences prefs;
