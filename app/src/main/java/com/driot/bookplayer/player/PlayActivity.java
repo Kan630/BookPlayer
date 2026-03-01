@@ -218,6 +218,7 @@ public class PlayActivity extends BaseActivity {
             ttsHighlighter = new TtsHighlighter(this, tvTtsText);
             ttsHighlighter.setListener(this::applyAutoScroll);
             ttsHighlighter.attachTouchLogic(vm);
+            ttsHighlighter.subscribe(this, vm);
             ttsOverlayManager = new TtsOverlayManager(this);
             findViewById(R.id.btnToggleTtsView).setOnClickListener(v -> {
                 TtsReaderActivity.start(PlayActivity.this);
@@ -330,7 +331,6 @@ public class PlayActivity extends BaseActivity {
             updateVisualizer(s);
 
             if (isTextBook) {
-                ttsHighlighter.onPlaybackStateChanged(s, vm);
                 ttsOverlayManager.onPlaybackStateChanged(s);
             }
 

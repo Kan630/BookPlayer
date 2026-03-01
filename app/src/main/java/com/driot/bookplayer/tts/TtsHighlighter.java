@@ -10,11 +10,13 @@ import android.text.method.ScrollingMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.widget.TextView;
+import com.driot.bookplayer.views.TtsTextView;
+import androidx.lifecycle.LifecycleOwner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
-                                                                                                                                                                                                                                                                             import android.view.GestureDetector;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
@@ -37,10 +39,10 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 public class TtsHighlighter {
 
     public interface Listener {
-        void onTtsHighlightApplied(TextView tv, int startPos);
+        void onTtsHighlightApplied(TtsTextView tv, int startPos);
     }
 
-    private final TextView tvTtsText;
+    private final TtsTextView tvTtsText;
     private final Handler uiH = new Handler(Looper.getMainLooper());
 
     private Spannable spannableText;
@@ -76,7 +78,7 @@ public class TtsHighlighter {
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
 
-    public TtsHighlighter(Context context, TextView tvTtsText) {
+    public TtsHighlighter(Context context, TtsTextView tvTtsText) {
         this.tvTtsText = tvTtsText;
         this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
     }
@@ -91,7 +93,7 @@ public class TtsHighlighter {
         if (!text.equals(lastTtsTextString)) {
             lastTtsTextString = text;
             SpannableStringBuilder sb = new SpannableStringBuilder(text);
-            tvTtsText.setText(sb, TextView.BufferType.SPANNABLE);
+            tvTtsText.setText(sb, TtsTextView.BufferType.SPANNABLE);
             spannableText = (Spannable) tvTtsText.getText();
             tvTtsText.setMovementMethod(ScrollingMovementMethod.getInstance());
             tvTtsText.setVerticalScrollBarEnabled(true);
@@ -346,5 +348,22 @@ public class TtsHighlighter {
     @Nullable
     public String getLastTtsTextString() {
         return lastTtsTextString;
+    }
+
+    /** Centralized subscription to common TTS playback state */
+    public void subscribe(LifecycleOwner owner, PlaybackViewModel vm) {
+        // Text content
+        vm.getTtsText().observe(owner, this::onTextReady);
+
+        // Highlight range
+        vm.getTtsRange().observe(owner, p -> {
+            if (p != null)
+                scheduleHighlight(p.first, p.second);
+        });
+
+        // Playback state (reset suppression on track change or play/pause)
+        vm.getState().observe(owner, s -> {
+            onPlaybackStateChanged(s, vm);
+        });
     }
 }

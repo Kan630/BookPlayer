@@ -54,11 +54,6 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     private TtsTextView tvTtsFull;
     private TtsHighlighter ttsHighlighter;
 
-    private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
-
-    private int lastTrackId = -1;
-    private boolean lastPlaying = false;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,28 +66,13 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         ttsHighlighter.setListener(this::applyAutoScroll);
         ttsHighlighter.attachTouchLogic(vm);
 
-        // Text content
-        vm.getTtsText().observe(this, txt -> {
-            ttsHighlighter.onTextReady(txt);
-        });
-
-        // Highlight range
-        vm.getTtsRange().observe(this, p -> {
-            if (p != null)
-                ttsHighlighter.scheduleHighlight(p.first, p.second);
-        });
-
-        vm.getState().observe(this, s -> {
-            if (s == null)
-                return;
-            ttsHighlighter.onPlaybackStateChanged(s, vm);
-        });
+        ttsHighlighter.subscribe(this, vm);
 
         // If service hasn't sent text yet, ask once -> handled by VM auto-fetch
         // vm.requestTtsTextOnce();
     }
 
-    private void applyAutoScroll(TextView tv, int s) {
+    private void applyAutoScroll(TtsTextView tv, int s) {
         tv.post(() -> {
             try {
                 Layout layout = tv.getLayout();
