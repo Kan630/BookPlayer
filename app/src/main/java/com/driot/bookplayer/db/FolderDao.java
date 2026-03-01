@@ -50,6 +50,7 @@ public interface FolderDao {
 
     @Query("UPDATE Folder SET name = :newName WHERE id =:id")
     void changeName(int id, String newName);
+
     @Query("UPDATE ZikFile SET folderName = :newFolderName WHERE idFolder = :folderId")
     void updateFolderNameInZikFile(int folderId, String newFolderName);
 
@@ -88,8 +89,8 @@ public interface FolderDao {
     @Query("UPDATE Folder SET lLastAccess = :timestamp WHERE id = :folderId")
     void updateLastAccess(int folderId, long timestamp);
 
-    @Query("SELECT * FROM Folder WHERE image LIKE 'http%'")
-    List<Folder> getAllWithRemoteImage();
+    @Query("SELECT * FROM Folder WHERE image IS NOT NULL AND image LIKE 'http%' AND :now - date_maj > 24*60*60*1000")
+    List<Folder> getAllWithExternalImagesUnchangedSince24h(long now);
 
     @Query("UPDATE Folder SET image = :imagePath WHERE id = :id")
     void updateImage(int id, String imagePath);
@@ -97,17 +98,12 @@ public interface FolderDao {
     @Query("SELECT COUNT(*) FROM Folder WHERE hash = :hash")
     boolean hashExists(String hash);
 
-    // Exemple avec dates :
-    //@Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
-    //List<User> findUsersBornBetweenDates(Date from, Date to);
-
     @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE path = :path LIMIT 1)")
     boolean existsByPath(String path);
 
     // Optional: by original hash if you use it consistently
     @Query("SELECT EXISTS(SELECT 1 FROM Folder WHERE originalHash = :hash LIMIT 1)")
     boolean existsByOriginalHash(String hash);
-
 
     @Query("SELECT DISTINCT path, name, id, percentdone as percentDone, sourceLocation, playType, image FROM Folder")
     LiveData<List<FolderSummary>> getFoldersForCleaning();
@@ -123,4 +119,3 @@ public interface FolderDao {
     List<Folder> getFoldersCreatedSince(long sinceTimestamp);
 
 }
-

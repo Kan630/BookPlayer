@@ -543,21 +543,11 @@ public class PodcastHelper {
                     continue;
                 }
                 String imagePath = ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
-                String localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, true);
+                String localPath = ImageHelper.downloadAndVerifyImage(context, url, imagePath, true);
                 if (localPath != null) {
-                    File f = new File(localPath);
-                    if (f.exists() && f.length() > 0L) {
-                        podcast.image = localPath;
-                    } else {
-                        try {
-                            myLog("deleting bad file, success=" + f.delete());
-                        } catch (Exception ignored) {
-                            myLogE("deleting bad file, KO");
-                        }
-                        myLogW("caching podcast image for: " + podcast.title + " => weird file returned");
-                    }
+                    podcast.image = localPath;
                 } else {
-                    myLogW("caching podcast image for: " + podcast.title + " => failed");
+                    myLogW("caching podcast image for: " + podcast.title + " => failed or invalid");
                 }
                 podcast.date_maj = System.currentTimeMillis();
                 db.podcastDao().update(podcast);

@@ -84,6 +84,9 @@ public class Folder implements Parcelable {
     public String jsonData;
 
     @ColumnInfo(defaultValue = "0")
+    public long date_maj;
+
+    @ColumnInfo(defaultValue = "0")
     public long timeListened;
 
     public long nbZikFile;
@@ -131,6 +134,7 @@ public class Folder implements Parcelable {
         speed = in.readDouble();
         ttsVoice = in.readString();
         jsonData = in.readString();
+        date_maj = in.readLong();
         timeListened = in.readLong();
         nbZikFile = in.readLong();
         date_added = in.readLong();
@@ -169,6 +173,7 @@ public class Folder implements Parcelable {
         dest.writeDouble(speed);
         dest.writeString(ttsVoice);
         dest.writeString(jsonData);
+        dest.writeLong(date_maj);
         dest.writeLong(timeListened);
         dest.writeLong(nbZikFile);
         dest.writeLong(date_added);

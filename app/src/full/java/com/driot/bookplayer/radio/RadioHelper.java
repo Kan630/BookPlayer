@@ -20,50 +20,31 @@ import java.io.File;
 import java.util.List;
 
 public class RadioHelper {
-	
+
 	public static void handleRadioImages(Context context) {
 		if (NetworkHelper.hasInternet(context)) {
 			AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-			List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
+			List<RadioStation> radioStations = db.radioStationDao()
+					.getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
 			for (RadioStation radioStation : radioStations) {
 				myLog("caching favicon for: " + radioStation.name);
 				String url = radioStation.favicon;
 				String imagePath = ImageHelper.IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
-				String localPath = null;
-				boolean failed = true;
-				localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, false);
+				String localPath = ImageHelper.downloadAndVerifyImage(context, url, imagePath, false);
+
 				if (localPath != null) {
-					File f = new File(localPath);
-					if (f.exists() && f.length() > 0L) {
-						// OK, non-empty file → persist local path
-						failed = false;
-						radioStation.favicon = localPath;
-						radioStation.date_maj = System.currentTimeMillis();
-						db.radioStationDao().update(radioStation);
-					} else {
-						// 0 KB or missing → treat as failure, clean up
-						myLogW("Radio favicon downloaded file ko or empty (" + f.length() + " bytes) for " + url);
-						if (f.exists() && f.length() == 0L) {
-							try {
-								myLog("deleting bad file, success=" + f.delete());
-							} catch (Exception ignored) {
-								myLogE("deleting bad file, KO");
-							}
-						}
-						// keep old favicon URL in DB so Glide can still try remote
-					}
+					myLogD("Radio favicon downloaded for " + url);
+					radioStation.favicon = localPath;
 				} else {
-					myLogW("Radio favicon download failed for: " + url);
+					myLogW("Radio favicon download failed or invalid for: " + url);
 				}
-				if (failed) {
-					radioStation.date_maj = System.currentTimeMillis();
-					db.radioStationDao().update(radioStation);
-				}
+				radioStation.date_maj = System.currentTimeMillis();
+				db.radioStationDao().update(radioStation);
 			}
 		}
-	}			
-	
-    public static void handleDeepLink(Context context, Uri data) {
+	}
+
+	public static void handleDeepLink(Context context, Uri data) {
 		String url = data.getQueryParameter("url");
 		String uuid = data.getQueryParameter("uuid");
 		myLog("url=[" + url + "] - uuid=[" + uuid + "]");
@@ -79,9 +60,9 @@ public class RadioHelper {
 		}
 	}
 
-    public static void initRadioBrowserServiceFactory(Context context) {
-        RadioBrowserServiceFactory.init(context.getApplicationContext());
-    }
+	public static void initRadioBrowserServiceFactory(Context context) {
+		RadioBrowserServiceFactory.init(context.getApplicationContext());
+	}
 
 	public static void playRadioFromUuidAndUrl(Context context, String uuid, String streamUrl, String caller) {
 		Station station = new Station();
@@ -93,7 +74,8 @@ public class RadioHelper {
 
 	public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
 		myLogI("onRadioClick()");
-		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon, caller);
+		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon,
+				caller);
 		// update DB
 		if (s.stationuuid == null) {
 			myLogEE(null, "onRadioClick() - null uuid - caller=" + caller);
@@ -117,7 +99,8 @@ public class RadioHelper {
 	}
 
 	public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
-		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name, f.favicon, caller);
+		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name, f.favicon,
+				caller);
 		// update DB
 		AppDatabase.databaseWriteExecutor.execute(() -> {
 			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
@@ -134,28 +117,26 @@ public class RadioHelper {
 		});
 	}
 
-	 public static boolean playStreamIfKnownRadio(Context context, String url) {
-		 
-            RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
-            if (rs != null) {
-                String title = rs.name;
-                String imageUrl = rs.favicon;
-                //broadcastUiState("loadAndPlay");
-                //main.post(() -> {
-                StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
-                    //if (!ok) { myLogEE(null, "loadAndPlayFromStorage(): playback failed - radio"); }
-                //});
-                return true;
-            } else {
-				return false;
-			}
-	 }
+	public static boolean playStreamIfKnownRadio(Context context, String url) {
 
-    public static boolean backupDataHasRadios(BackupManager.BackupData data) {
-        return data.radioStations != null && !data.radioStations.isEmpty();
-    }
+		RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
+		if (rs != null) {
+			String title = rs.name;
+			String imageUrl = rs.favicon;
+			// broadcastUiState("loadAndPlay");
+			// main.post(() -> {
+			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
+			// if (!ok) { myLogEE(null, "loadAndPlayFromStorage(): playback failed -
+			// radio"); }
+			// });
+			return true;
+		} else {
+			return false;
+		}
+	}
 
+	public static boolean backupDataHasRadios(BackupManager.BackupData data) {
+		return data.radioStations != null && !data.radioStations.isEmpty();
+	}
 
-	
 }
-

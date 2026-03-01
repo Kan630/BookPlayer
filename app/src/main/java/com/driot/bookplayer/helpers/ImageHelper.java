@@ -70,6 +70,31 @@ public class ImageHelper {
         }
     }
 
+    /**
+     * Common function to download, compress, and verify an image.
+     * Returns absolute path if successful (non-empty file exists), null otherwise.
+     */
+    public static @Nullable String downloadAndVerifyImage(Context context, String imageUrl, String imageFileName,
+            boolean isCached) {
+        String absPath = downloadAndMaybeCompressImage(context, imageUrl, imageFileName, isCached);
+        if (absPath == null)
+            return null;
+
+        File f = new File(absPath);
+        if (f.exists() && f.length() > 0L) {
+            return absPath;
+        } else {
+            // Clean up potentially corrupted/empty file
+            if (f.exists()) {
+                try {
+                    f.delete();
+                } catch (Exception ignored) {
+                }
+            }
+            return null;
+        }
+    }
+
     private static String saveBytesToFile(Context context, byte[] data, String imagePath, boolean isCached)
             throws IOException {
         File dir = StorageHelper.getImageFolder(context, isCached);
@@ -149,26 +174,28 @@ public class ImageHelper {
             }
 
             // --- Handle Folder images ---
-            List<Folder> pendingFolders = db.folderDao().getAllWithRemoteImage();
+            List<Folder> pendingFolders = db.folderDao()
+                    .getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
             for (Folder folder : pendingFolders) {
                 String url = folder.image;
-
                 if (url == null)
                     continue;
 
+                myLog("caching folder image for: " + folder.getName());
                 String localPath = null;
                 String imagePath = IMAGE_PREFIX_FOR_SAVED_BOOK + folder.getId() + ".jpg";
 
                 if (url.startsWith("http")) {
-                    localPath = downloadAndMaybeCompressImage(context, url, imagePath, false);
+                    localPath = downloadAndVerifyImage(context, url, imagePath, false);
                 } else if (isContentUri(url)) {
                     localPath = copyContentUriToImageFile(context, url, imagePath, false);
                 }
 
                 if (localPath != null) {
                     folder.image = localPath;
-                    db.folderDao().update(folder);
                 }
+                folder.date_maj = System.currentTimeMillis();
+                db.folderDao().update(folder);
             }
 
             // --- Handle Radio images ---
@@ -1056,7 +1083,7 @@ public class ImageHelper {
             return savedOriginal.getAbsolutePath();
         }
 
-        //LEGACY :
+        // LEGACY :
 
         // --- Backwards compatibility / Specialized handlers ---
         // Try Podcast first

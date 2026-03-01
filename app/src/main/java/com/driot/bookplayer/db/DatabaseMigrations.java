@@ -501,4 +501,14 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_29_30 = new Migration(29, 30) { // 2026-03-01
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 29 => 30");
+            if (tableExists(db, "Folder")) {
+                db.execSQL("ALTER TABLE Folder ADD COLUMN date_maj INTEGER NOT NULL DEFAULT 0");
+            }
+        }
+    };
+
 }
