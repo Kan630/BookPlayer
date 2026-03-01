@@ -184,6 +184,7 @@ public class PlayActivity extends BaseActivity {
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
+        //value in pixel for which touch on the screen is a scroll and not a tap
         touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
         progressOverlay = findViewById(R.id.progress_overlay);
@@ -216,6 +217,9 @@ public class PlayActivity extends BaseActivity {
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
         // TTS
+        ttsContainer.setVisibility(isTextBook ? View.VISIBLE : View.GONE);
+        frequencyVisualizerView.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);;
+        ivCover.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);;
         if (isTextBook) {
             initTtsVoiceSpinner(folder);
             ttsHighlighter = new TtsHighlighter(this, tvTtsText);
@@ -226,6 +230,70 @@ public class PlayActivity extends BaseActivity {
             findViewById(R.id.ib_tts_settings).setOnClickListener((v) -> {
                 myLogI("--- User clicks SETTINGS ---");
                 SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
+            });
+            // Tap-to-seek within text
+            final GestureDetector tapDetector = new GestureDetector(tvTtsText.getContext(),
+                    new GestureDetector.SimpleOnGestureListener() {
+                        @Override
+                        public boolean onDown(@NonNull MotionEvent e) {
+                            // must return true so we keep receiving events
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                            // Only on real tap, not on scroll/fling
+                            // tap logic
+                            Layout layout = tvTtsText.getLayout();
+                            Spannable sp = ttsHighlighter.getSpannableText();
+                            if (layout == null || sp == null)
+                                return false;
+
+                            int x = (int) e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
+                            int y = (int) e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
+                            int line = layout.getLineForVertical(y);
+                            int off = layout.getOffsetForHorizontal(line, x);
+                            off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
+
+                            int[] word = TtsHelper.findWordBounds(sp, off);
+                            ttsHighlighter.updateHighlightForManualSeek(word[0], word[1]);
+
+                            vm.setTtsStartOffsetChars(word[0]);
+                            return true; // we handled the tap
+                        }
+                    });
+            // Scroll
+            tvTtsText.setOnTouchListener((v, ev) -> {
+                switch (ev.getActionMasked()) {
+                    case MotionEvent.ACTION_DOWN:
+                        downY = ev.getY();
+                        v.getParent().requestDisallowInterceptTouchEvent(true);
+                        tapDetector.onTouchEvent(ev);
+                        return false; // let TextView handle scroll
+                    case MotionEvent.ACTION_MOVE:
+                        // If user dragged enough, disable auto-scroll
+                        if (!suppressAutoScrollToHighlightedText && Math.abs(ev.getY() - downY) > touchSlop) {
+                            suppressAutoScrollToHighlightedText = true;
+                        }
+                        tapDetector.onTouchEvent(ev);
+                        return false;
+                    case MotionEvent.ACTION_UP: {
+                        boolean tapped = tapDetector.onTouchEvent(ev);
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        if (tapped) {
+                            // Re-enable auto-scroll only when the user *taps* a word
+                            suppressAutoScrollToHighlightedText = false;
+                        }
+                        // Satisfy accessibility/lint:
+                        v.performClick();
+                        return tapped; // consume only real taps
+                    }
+                    case MotionEvent.ACTION_CANCEL:
+                        v.getParent().requestDisallowInterceptTouchEvent(false);
+                        return false;
+                    default:
+                        return false;
+                }
             });
         }
 
@@ -287,9 +355,7 @@ public class PlayActivity extends BaseActivity {
                     myLogE("no PlaybackUiState");
                     return;
                 }
-                if (isTextBook) {
-                    applyTtsToggleUi(s);
-                } else if (isPodcast) {
+                if (isPodcast) {
                     long now = System.currentTimeMillis();
                     if (now - podcastLastClickTime > PlayActivity.PODCAST_DOUBLE_CLICK_THRESHOLD) {
                         myLogI("user clicks podcast");
@@ -313,20 +379,13 @@ public class PlayActivity extends BaseActivity {
         // Observe playback state (single source of truth)
         vm.getState().observe(this, s -> {
             if (s == null) {
-                myLogD("observe : s == null");
+                myLogE("observe : s == null");
                 return;
             }
-            // myLog("observe : " + s);
 
             updateCover(s.cover);
+            updateSpeed(s);
 
-            Double speed = null;
-            if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
-                speed = s.extras.getDouble(Intents.EXTRA_SPEED);
-            }
-            if (speed != null) {
-                tvSpeed.setText(Tonio.formatPercentStringForSpeed(speed * 100.0));
-            }
             reDrawSleepTextViews(vm.getSleepCustomMinutes(s.playMode));
 
             // Title/sub; when heatmap seek, pass null for slider so time is still updated
@@ -337,25 +396,8 @@ public class PlayActivity extends BaseActivity {
             tvCurTime.setText(Tonio.formatTime((int) s.positionMs, true));
             tvTotalTime.setText(Tonio.formatTime((int) s.durationMs, true));
 
-            if (useHeatMapSeek && heatMapSeek != null && s.durationMs > 0) {
-                float norm = (float) Math.min(s.positionMs, s.durationMs) / s.durationMs;
-                heatMapSeek.setPlayingCursor(norm);
-                heatMapSeek.setCursors(new float[0]);
-                if (s.trackId > 0) {
-                    boolean trackOrDurationChanged = (s.trackId != lastHeatMapTrackId
-                            || s.durationMs != lastHeatMapDurationMs);
-                    boolean refreshDue = (System.currentTimeMillis()
-                            - lastHeatMapLoadTime >= HEATMAP_REFRESH_INTERVAL_MS);
-                    if (trackOrDurationChanged || refreshDue) {
-                        if (trackOrDurationChanged) {
-                            lastHeatMapTrackId = s.trackId;
-                            lastHeatMapDurationMs = s.durationMs;
-                        }
-                        lastHeatMapLoadTime = System.currentTimeMillis();
-                        loadHeatMapIntensities(s.trackId, s.durationMs);
-                    }
-                }
-            }
+            updateHeatMapSeek(s);
+            updateVisualizer(s);
 
             if (isTextBook) {
                 if ((s.playing != lastPlaying) || (s.trackId != lastTrackId)) {
@@ -366,9 +408,6 @@ public class PlayActivity extends BaseActivity {
             }
 
             bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
-
-            // TTS vs Audio UI
-            applyTtsToggleUi(s);
 
             // Check screensaver activation
             checkAndLaunchScreensaver(s);
@@ -694,106 +733,6 @@ public class PlayActivity extends BaseActivity {
         showTtsLoading(show, null);
     }
 
-    private void applyTtsToggleUi(@Nullable PlaybackUiState s) {
-        if (s == null)
-            return;
-
-        if (!isTextBook) {
-            // AUDIO MODE
-            ttsContainer.setVisibility(View.GONE);
-
-            // Optional visualizer (requires session id → ask VM)
-            Integer sessionId = null;
-            if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
-                sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
-            }
-            if (Option.getVisualizerOn() && PermissionRequest.isRecordAudioPermissionGranted(this)
-                    && sessionId != null) {
-                try {
-                    // myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
-                    frequencyVisualizerView.setMode(Option.getVisualizerType());
-                    frequencyVisualizerView.link_toto(sessionId);
-                    frequencyVisualizerView.setVisibility(View.VISIBLE);
-                } catch (Throwable ignored) {
-                }
-            } else {
-                frequencyVisualizerView.setVisibility(View.GONE);
-            }
-            ivCover.setVisibility(View.VISIBLE);
-
-        } else {
-            // TTS MODE
-            frequencyVisualizerView.setVisibility(View.GONE);
-            ttsContainer.setVisibility(View.VISIBLE);
-            ivCover.setVisibility(View.GONE);
-
-            // Tap-to-seek within text
-            final GestureDetector tapDetector = new GestureDetector(tvTtsText.getContext(),
-                    new GestureDetector.SimpleOnGestureListener() {
-                        @Override
-                        public boolean onDown(@NonNull MotionEvent e) {
-                            // must return true so we keep receiving events
-                            return true;
-                        }
-
-                        @Override
-                        public boolean onSingleTapUp(@NonNull MotionEvent e) {
-                            // Only on real tap, not on scroll/fling
-                            // tap logic
-                            Layout layout = tvTtsText.getLayout();
-                            Spannable sp = ttsHighlighter.getSpannableText();
-                            if (layout == null || sp == null)
-                                return false;
-
-                            int x = (int) e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
-                            int y = (int) e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
-                            int line = layout.getLineForVertical(y);
-                            int off = layout.getOffsetForHorizontal(line, x);
-                            off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
-
-                            int[] word = TtsHelper.findWordBounds(sp, off);
-                            ttsHighlighter.updateHighlightForManualSeek(word[0], word[1]);
-
-                            vm.setTtsStartOffsetChars(word[0]);
-                            return true; // we handled the tap
-                        }
-                    });
-            // Scroll
-            tvTtsText.setOnTouchListener((v, ev) -> {
-                switch (ev.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        downY = ev.getY();
-                        v.getParent().requestDisallowInterceptTouchEvent(true);
-                        tapDetector.onTouchEvent(ev);
-                        return false; // let TextView handle scroll
-                    case MotionEvent.ACTION_MOVE:
-                        // If user dragged enough, disable auto-scroll
-                        if (!suppressAutoScrollToHighlightedText && Math.abs(ev.getY() - downY) > touchSlop) {
-                            suppressAutoScrollToHighlightedText = true;
-                        }
-                        tapDetector.onTouchEvent(ev);
-                        return false;
-                    case MotionEvent.ACTION_UP: {
-                        boolean tapped = tapDetector.onTouchEvent(ev);
-                        v.getParent().requestDisallowInterceptTouchEvent(false);
-                        if (tapped) {
-                            // Re-enable auto-scroll only when the user *taps* a word
-                            suppressAutoScrollToHighlightedText = false;
-                        }
-                        // Satisfy accessibility/lint:
-                        v.performClick();
-                        return tapped; // consume only real taps
-                    }
-                    case MotionEvent.ACTION_CANCEL:
-                        v.getParent().requestDisallowInterceptTouchEvent(false);
-                        return false;
-                    default:
-                        return false;
-                }
-            });
-        }
-    }
-
     // --- Refactored TTS Highlighter ---
     private TtsHighlighter ttsHighlighter;
     private TtsOverlayManager ttsOverlayManager;
@@ -1044,7 +983,7 @@ public class PlayActivity extends BaseActivity {
         if (vm != null) {
             PlaybackUiState s = vm.getState().getValue();
             if (s != null) {
-                applyTtsToggleUi(s);
+                updateVisualizer(s);
             }
         }
     }
@@ -1057,17 +996,69 @@ public class PlayActivity extends BaseActivity {
                 myLogD("gliding image : " + cover);
                 Glide.with(ivCover.getContext()).load(cover).into(ivCover);
             }
-            ivCover.setVisibility(View.VISIBLE);
-            frequencyVisualizerView.setAlpha(0.6f);
         } else {
             if (lastCoverUri != null) {
                 lastCoverUri = null;
                 myLogD("hiding image");
                 ivCover.setImageDrawable(null); // free memory
+                Glide.with(ivCover.getContext()).clear(ivCover);
             }
-            ivCover.setVisibility(View.GONE);
-            frequencyVisualizerView.setAlpha(1f);
         }
     }
+    private void updateSpeed(PlaybackUiState s) {
+        Double speed = null;
+        if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
+            speed = s.extras.getDouble(Intents.EXTRA_SPEED);
+        }
+        if (speed != null) {
+            tvSpeed.setText(Tonio.formatPercentStringForSpeed(speed * 100.0));
+        }
+    }
+    private void updateHeatMapSeek(PlaybackUiState s) {
+        if (useHeatMapSeek && heatMapSeek != null && s.durationMs > 0) {
+            float norm = (float) Math.min(s.positionMs, s.durationMs) / s.durationMs;
+            heatMapSeek.setPlayingCursor(norm);
+            heatMapSeek.setCursors(new float[0]);
+            if (s.trackId > 0) {
+                boolean trackOrDurationChanged = (s.trackId != lastHeatMapTrackId
+                        || s.durationMs != lastHeatMapDurationMs);
+                boolean refreshDue = (System.currentTimeMillis()
+                        - lastHeatMapLoadTime >= HEATMAP_REFRESH_INTERVAL_MS);
+                if (trackOrDurationChanged || refreshDue) {
+                    if (trackOrDurationChanged) {
+                        lastHeatMapTrackId = s.trackId;
+                        lastHeatMapDurationMs = s.durationMs;
+                    }
+                    lastHeatMapLoadTime = System.currentTimeMillis();
+                    loadHeatMapIntensities(s.trackId, s.durationMs);
+                }
+            }
+
+        }
+    }
+    private void updateVisualizer(PlaybackUiState s) {
+        Integer sessionId = null;
+        if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
+            sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
+        }
+        if (Option.getVisualizerOn() && PermissionRequest.isRecordAudioPermissionGranted(this)
+                && sessionId != null) {
+            try {
+                // myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
+                frequencyVisualizerView.setMode(Option.getVisualizerType());
+                frequencyVisualizerView.link_toto(sessionId);
+                frequencyVisualizerView.setVisibility(View.VISIBLE);
+                if (lastCoverUri != null) {
+                    frequencyVisualizerView.setAlpha(0.6f);
+                } else {
+                    frequencyVisualizerView.setAlpha(1f);
+                }
+            } catch (Throwable ignored) {
+            }
+        } else {
+            frequencyVisualizerView.setVisibility(View.GONE);
+        }
+    }
+
 
 }
