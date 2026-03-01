@@ -25,7 +25,7 @@
             android:layout_weight="1" />
 
         <ImageButton
-            android:id="@+id/ib_settings"
+            android:id="@+id/ib_tts_settings"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="8dp"

@@ -1,9 +1,5 @@
 package com.driot.bookplayer.player;
 
-import static androidx.core.content.ContextCompat.startActivity;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogI;
-import static com.driot.bookplayer.utils.log.LoggerStaticHelper.myLogW;
-
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,9 +11,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Layout;
 import android.text.Spannable;
+import android.view.GestureDetector;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -119,12 +117,11 @@ public class PlayActivity extends BaseActivity {
 
     private View ttsContainer;
     private TtsTextView tvTtsText;
-    // State moved to TtsHighlighter
 
     private long podcastLastClickTime = 0;
     public static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
-    private boolean suppressAutoScroll = false;
+    private boolean suppressAutoScrollToHighlightedText = false;
     private int touchSlop;
     private float downY;
 
@@ -135,6 +132,7 @@ public class PlayActivity extends BaseActivity {
      */
     private long resumeScreensaverGraceUntilRealtime = 0L;
     private boolean isTextBook = false;
+    private boolean isPodcast = false;
 
     // --- Broadcasts we still care about at the Activity level (UI only) ---
     private final BroadcastReceiver uiReceiver = new BroadcastReceiver() {
@@ -183,15 +181,12 @@ public class PlayActivity extends BaseActivity {
             myLogEE(null, "PlayList.getInstance().getFolder() == null");
             return;
         }
+        isTextBook = Var.PLAY_TYPE_TEXT.equalsIgnoreCase(folder.playType);
+        isPodcast = Var.SOURCE_LOCATION_PODCAST.equalsIgnoreCase(folder.getSourceLocation());
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
-        // TTS voices (early)
-        isTextBook = folder.playType != null && folder.playType.equals(Var.PLAY_TYPE_TEXT);
-        if (isTextBook) {
-            initTtsVoiceSpinner(folder);
-        }
-        touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
+        touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay = findViewById(R.id.message_overlay);
@@ -211,56 +206,51 @@ public class PlayActivity extends BaseActivity {
         tvListeningTime = findViewById(R.id.tv_ListeningTime);
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
 
+        ttsContainer = findViewById(R.id.ttsContainer);
+        tvTtsText = findViewById(R.id.tvTtsText);
+
+        ClickInterceptFrameLayout coverContainerClickIntercept = findViewById(R.id.coverContainer);
+
         sbSeek = findViewById(R.id.sbSeek);
         heatMapSeek = findViewById(R.id.heatMapSeek);
         ivCover = findViewById(R.id.folderImage);
         ivCover.setImageURI(null);
         frequencyVisualizerView = findViewById(R.id.frequencyVisualizerView);
 
+        // TTS
+        if (isTextBook) {
+            initTtsVoiceSpinner(folder);
+            ttsHighlighter = new TtsHighlighter(this, tvTtsText);
+            ttsOverlayManager = new TtsOverlayManager(this);
+            findViewById(R.id.btnToggleTtsView).setOnClickListener(v -> {
+                TtsReaderActivity.start(PlayActivity.this);
+            });
+            findViewById(R.id.ib_tts_settings).setOnClickListener((v) -> {
+                myLogI("--- User clicks SETTINGS ---");
+                SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
+            });
+        }
+
+        // HEATMAP
         useHeatMapSeek = Option.getUseHeatmapSeekbarInPlayActivity();
         if (useHeatMapSeek && heatMapSeek != null) {
             sbSeek.setVisibility(View.GONE);
             heatMapSeek.setVisibility(View.VISIBLE);
             setupHeatMapSeek();
         } else {
-            if (heatMapSeek != null)
-                heatMapSeek.setVisibility(View.GONE);
-            sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
-            sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
-                @Override
-                public void onStartTrackingTouch(@NonNull Slider slider) {
-                    startDragResetTimer();
-                }
-
-                @Override
-                public void onStopTrackingTouch(@NonNull Slider slider) {
-                    stopDragResetTimer();
-                    suppressAutoScroll = false;
-                    PlaybackCommands.resetLastUserAction(PlayActivity.this);
-                }
-            });
+            setupSliderSeek();
         }
 
-        ttsContainer = findViewById(R.id.ttsContainer);
-        tvTtsText = findViewById(R.id.tvTtsText);
-        ttsHighlighter = new TtsHighlighter(this, tvTtsText);
-        ttsOverlayManager = new TtsOverlayManager(this);
-
-        final TextView progressTitle = progressOverlay.findViewById(R.id.tv_progress_overlay_title);
-        final TextView progressMessage = progressOverlay.findViewById(R.id.tv_progress_overlay_message);
-        progressTitle.setText(getString(R.string.Text_To_Speech));
-
+        // BUTTONS
         String nbSec = String.valueOf(Option.get_ForwardSeconds());
         String bRewindText = "-" + nbSec + " " + getString(R.string.sec);
         bRewind.setText(bRewindText);
         String bForwardText = "-" + nbSec + " " + getString(R.string.sec);
         bForward.setText(bForwardText);
-
-        // Clicks
         bPlayPause.setOnClickListener(v -> {
             myLogI("--- user press PLAY/PAUSE ---");
             vm.playPause();
-            suppressAutoScroll = false;
+            suppressAutoScrollToHighlightedText = false;
         });
         bForward.setOnClickListener(v -> {
             myLogI("--- user press FORWARD ---");
@@ -283,19 +273,7 @@ public class PlayActivity extends BaseActivity {
             showSleepDialog();
         });
 
-        ImageButton btnToggleTtsViewFullScreen = findViewById(R.id.btnToggleTtsView);
-        btnToggleTtsViewFullScreen.setOnClickListener(v -> {
-            TtsReaderActivity.start(PlayActivity.this);
-        });
-
-        ImageButton ib_settings = findViewById(R.id.ib_settings);
-        ib_settings.setOnClickListener((v) -> {
-            myLogI("--- User clicks SETTINGS ---");
-            SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
-        });
-
-        ClickInterceptFrameLayout container = findViewById(R.id.coverContainer);
-        container.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
+        coverContainerClickIntercept.setCallbacks(new ClickInterceptFrameLayout.Callbacks() {
             @Override
             public void onSingleTap() {
                 myLogD("ClickInterceptFrameLayout - single tap");
@@ -308,13 +286,12 @@ public class PlayActivity extends BaseActivity {
                 myLogD("ClickInterceptFrameLayout - double tap");
                 PlaybackUiState s = vm.getState().getValue();
                 if (s == null) {
-                    myLogD("no PlaybackUiState");
+                    myLogE("no PlaybackUiState");
                     return;
                 }
-                if (Var.PLAY_MODE_TTS.equals(s.playMode)) {
+                if (isTextBook) {
                     applyTtsToggleUi(s);
-                }
-                if (Var.PLAY_MODE_BOOK.equals(s.playMode)) {
+                } else if (isPodcast) {
                     long now = System.currentTimeMillis();
                     if (now - podcastLastClickTime > PlayActivity.PODCAST_DOUBLE_CLICK_THRESHOLD) {
                         myLogI("user clicks podcast");
@@ -323,7 +300,6 @@ public class PlayActivity extends BaseActivity {
                         myLogW("user clicks podcast - bypassing" + now + "-" + podcastLastClickTime);
                     }
                     podcastLastClickTime = now;
-
                 }
             }
 
@@ -343,6 +319,8 @@ public class PlayActivity extends BaseActivity {
                 return;
             }
             // myLog("observe : " + s);
+
+            updateCover(s.cover);
 
             Double speed = null;
             if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
@@ -381,38 +359,17 @@ public class PlayActivity extends BaseActivity {
                 }
             }
 
-            boolean isTts = Var.PLAY_MODE_TTS.equalsIgnoreCase(s.playMode);
 
-            // set back auto-follow highlighted text
-            if (isTts && ((s.playing != lastPlaying) || (s.trackId != lastTrackId))) {
-                suppressAutoScroll = false;
+            if (isTextBook) {
+                if ((s.playing != lastPlaying) || (s.trackId != lastTrackId)) {
+                    suppressAutoScrollToHighlightedText = false;
+                }
+                ttsHighlighter.onPlaybackStateChanged(s, vm);
+                ttsOverlayManager.onPlaybackStateChanged(s);
             }
 
-            // Delegate logic to highlighter and overlay manager
-            ttsHighlighter.onPlaybackStateChanged(s, vm);
-            ttsOverlayManager.onPlaybackStateChanged(s);
 
             bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
-
-            // cover
-            if (s.cover != null && !s.cover.isEmpty()) {
-                if (!s.cover.equals(lastCoverUri)) {
-                    lastCoverUri = s.cover;
-                    ivCover.setImageURI(null);
-                    myLogD("gliding image : " + s.cover);
-                    Glide.with(ivCover.getContext()).load(s.cover).into(ivCover);
-                }
-                ivCover.setVisibility(View.VISIBLE);
-                frequencyVisualizerView.setAlpha(0.6f);
-            } else {
-                myLogD("hiding image");
-                if (lastCoverUri != null) {
-                    lastCoverUri = null;
-                    ivCover.setImageDrawable(null); // free memory
-                }
-                ivCover.setVisibility(View.GONE);
-                frequencyVisualizerView.setAlpha(1f);
-            }
 
             // TTS vs Audio UI
             applyTtsToggleUi(s);
@@ -426,14 +383,11 @@ public class PlayActivity extends BaseActivity {
             // myLog("Phase observer : " + p);
 
             // Default: hide overlays for pure audio mode unless we’re in an error phase
-            if (!isTts) {
+            if (!isTextBook) {
                 // Show only ERROR message if present
                 boolean showError = Intents.PHASE_ERROR.equals(p);
                 progressOverlay.setVisibility(View.GONE);
                 if (showError) {
-                    progressTitle.setText("");
-                    // progressMessage.setText(p.message != null ? p.message :
-                    // getString(R.string.error_generic));
                     messageOverlay.setVisibility(View.VISIBLE);
                 } else {
                     messageOverlay.setVisibility(View.GONE);
@@ -452,20 +406,21 @@ public class PlayActivity extends BaseActivity {
 
         });
 
-        vm.getTtsRange().observe(this, p -> {
-            // myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
-            if (p != null) {
-                ttsHighlighter.scheduleHighlight(p.first, p.second);
-                ttsOverlayManager.onHighlightReceived();
-            }
-        });
+        if (isTextBook) {
+            vm.getTtsRange().observe(this, p -> {
+                // myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
+                if (p != null) {
+                    ttsHighlighter.scheduleHighlight(p.first, p.second);
+                    ttsOverlayManager.onHighlightReceived();
+                }
+            });
 
-        vm.getTtsText().observe(this, txt -> {
-            // myLog("observe Tts Text : [" + txt + "]");
-            ttsHighlighter.onTextReady(txt);
-        });
+            vm.getTtsText().observe(this, txt -> {
+                // myLog("observe Tts Text : [" + txt + "]");
+                ttsHighlighter.onTextReady(txt);
+            });
+        }
 
-        // Back press: if not playing, ask service to stop; then finish.
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
             @Override
             public void handleOnBackPressed() {
@@ -506,6 +461,26 @@ public class PlayActivity extends BaseActivity {
         if (ttsOverlayManager != null)
             ttsOverlayManager.onDestroy();
         super.onDestroy();
+    }
+
+    // bottom progress SLIDER
+    private void setupSliderSeek() {
+        if (heatMapSeek != null)
+            heatMapSeek.setVisibility(View.GONE);
+        sliderBinding = UiHelper.bindSeekBar(sbSeek, tvCurTime, vm);
+        sbSeek.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
+            @Override
+            public void onStartTrackingTouch(@NonNull Slider slider) {
+                startDragResetTimer();
+            }
+
+            @Override
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                stopDragResetTimer();
+                suppressAutoScrollToHighlightedText = false;
+                PlaybackCommands.resetLastUserAction(PlayActivity.this);
+            }
+        });
     }
 
     // ---------- Heatmap seek (when Option.getUseHeatmapSeekbarInPlayActivity())
@@ -571,7 +546,7 @@ public class PlayActivity extends BaseActivity {
                     heatMapSeek.setPlayingCursorDragging(false);
                     vm.setSeekPreview(null);
                     vm.seekTo(seekMs);
-                    suppressAutoScroll = false;
+                    suppressAutoScrollToHighlightedText = false;
                     PlaybackCommands.resetLastUserAction(this);
                     return true;
                 default:
@@ -739,15 +714,7 @@ public class PlayActivity extends BaseActivity {
         if (s == null)
             return;
 
-        // If s.playMode is null (e.g. after service stop) we FALLBACK to isTextBook
-        String mode = s.playMode;
-        if ((mode == null || mode.isEmpty()) && isTextBook) {
-            mode = "tts";
-        }
-
-        final boolean tts = "tts".equals(mode);
-
-        if (!tts) {
+        if (!isTextBook) {
             // AUDIO MODE
             ttsContainer.setVisibility(View.GONE);
 
@@ -776,8 +743,8 @@ public class PlayActivity extends BaseActivity {
             ivCover.setVisibility(View.GONE);
 
             // Tap-to-seek within text
-            final android.view.GestureDetector tapDetector = new android.view.GestureDetector(tvTtsText.getContext(),
-                    new android.view.GestureDetector.SimpleOnGestureListener() {
+            final GestureDetector tapDetector = new GestureDetector(tvTtsText.getContext(),
+                    new GestureDetector.SimpleOnGestureListener() {
                         @Override
                         public boolean onDown(@NonNull MotionEvent e) {
                             // must return true so we keep receiving events
@@ -816,8 +783,8 @@ public class PlayActivity extends BaseActivity {
                         return false; // let TextView handle scroll
                     case MotionEvent.ACTION_MOVE:
                         // If user dragged enough, disable auto-scroll
-                        if (!suppressAutoScroll && Math.abs(ev.getY() - downY) > touchSlop) {
-                            suppressAutoScroll = true;
+                        if (!suppressAutoScrollToHighlightedText && Math.abs(ev.getY() - downY) > touchSlop) {
+                            suppressAutoScrollToHighlightedText = true;
                         }
                         tapDetector.onTouchEvent(ev);
                         return false;
@@ -826,7 +793,7 @@ public class PlayActivity extends BaseActivity {
                         v.getParent().requestDisallowInterceptTouchEvent(false);
                         if (tapped) {
                             // Re-enable auto-scroll only when the user *taps* a word
-                            suppressAutoScroll = false;
+                            suppressAutoScrollToHighlightedText = false;
                         }
                         // Satisfy accessibility/lint:
                         v.performClick();
@@ -848,7 +815,7 @@ public class PlayActivity extends BaseActivity {
 
     // Callbacks from TtsHighlighter
     public void onTtsHighlightApplied(TextView tv, int startPos) {
-        if (suppressAutoScroll)
+        if (suppressAutoScrollToHighlightedText)
             return;
         tvTtsText.post(() -> {
             try {
@@ -1100,6 +1067,27 @@ public class PlayActivity extends BaseActivity {
             if (s != null) {
                 applyTtsToggleUi(s);
             }
+        }
+    }
+
+    private void updateCover(String cover) {
+        if (cover != null && !cover.isEmpty()) {
+            if (!cover.equals(lastCoverUri)) {
+                lastCoverUri = cover;
+                ivCover.setImageURI(null);
+                myLogD("gliding image : " + cover);
+                Glide.with(ivCover.getContext()).load(cover).into(ivCover);
+            }
+            ivCover.setVisibility(View.VISIBLE);
+            frequencyVisualizerView.setAlpha(0.6f);
+        } else {
+            if (lastCoverUri != null) {
+                lastCoverUri = null;
+                myLogD("hiding image");
+                ivCover.setImageDrawable(null); // free memory
+            }
+            ivCover.setVisibility(View.GONE);
+            frequencyVisualizerView.setAlpha(1f);
         }
     }
 
