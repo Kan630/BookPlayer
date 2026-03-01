@@ -175,14 +175,6 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
         PlaybackCommands.stop(getApplication());
     }
 
-    // Speed / Sleep timer via custom actions (or fallback intents)
-    @Nullable
-    public Double getSpeedOrNull() {
-        // Prefer surfacing speed in PlaybackUiState or via MediaSession extras;
-        // otherwise return null and let UI render “—”.
-        return null;
-    }
-
     public void setSpeed(double s) {
         PlaybackCommands.setSpeed(getApplication(), s);
     }
@@ -190,10 +182,6 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
     public void updateSleepTimer(int minutes) {
         PlaybackCommands.updateSleepTimer(getApplication(), minutes);
         sleepCustomMinutes = minutes; // for activity display (listening without actions since...)
-    }
-
-    public void resetSleepTimer() {
-        PlaybackCommands.resetLastUserAction(getApplication());
     }
 
     // --------------------------------------------------------------------

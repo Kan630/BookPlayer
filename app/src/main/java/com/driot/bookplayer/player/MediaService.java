@@ -1790,7 +1790,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public void resetLastUserActionTimer() {
         if (playTimer != null && playTimer.isRunning()) {
             playTimer.resetLastUserAction();
-            // broadcastUiState("resetSleepTimer");
         }
     }
 

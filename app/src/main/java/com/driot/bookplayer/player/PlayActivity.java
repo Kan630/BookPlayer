@@ -18,7 +18,6 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -39,7 +38,6 @@ import com.driot.bookplayer.player.heatmaps.PlayTickHeatMapHelper;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
@@ -877,12 +875,6 @@ public class PlayActivity extends BaseActivity {
                     spinnerTtsVoice.setEnabled(false); // Disable immediately (guard against rapid taps)
                     myLogD("spinnerTtsVoice disabled");
 
-                    boolean wasPlaying = false;
-                    PlaybackUiState s = vm.getState().getValue();
-                    if (s != null)
-                        wasPlaying = s.playing;
-
-                    final boolean wasPlayingFinal = wasPlaying;
                     final String prevGood = currentVoiceName[0];
                     try {
                         if (vm != null) {
