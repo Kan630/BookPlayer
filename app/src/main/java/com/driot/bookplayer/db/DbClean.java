@@ -150,7 +150,7 @@ public class DbClean {
                     nbWithImage = nbWithImage + 1;
 
                     String pathType = (path.startsWith("content://") ? "[CONTENT] " : "");
-                    String logStrPrefix = "img " + nbWithImage + "/" + nbFolders
+                    String logStrPrefix = "img " + i + "/" + nbFolders
                             + " [" + folder.getName() + "]";
 
                     newPath = StorageHelper.checkAndCleanImagePath(ctx, path);
