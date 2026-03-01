@@ -21,6 +21,7 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
+import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -385,19 +386,20 @@ public class ModifyFolderActivity extends BaseActivity {
                     // Original cover exists - simple pointer swap
                     folder.image = originalPath;
                     AppDatabase.getDatabase(this).folderDao().update(folder);
-
-                    runOnUiThread(() -> {
-                        myToast("Original cover restored");
-                        myLogI("Cover reset to original: " + originalPath);
-                    });
+                    myToast("Original cover restored");
+                    myLog("Cover reset to original: " + originalPath);
                 } else {
                     // No original cover file found - need to detect/create one
-                    myLogI("No original cover file found, detecting from folder");
-                    detectAndSaveOriginalCover();
+                    // => legacy + fallback
+                    myLog("No original cover file found, detecting from folder");
+                    boolean resultOk = detectAndSaveOriginalCover();
+                    if (!resultOk) {
+                        myToast("Could not find original cover");
+                    }
                 }
             } catch (Exception e) {
                 myLogEE(e, "Error resetting cover to original");
-                runOnUiThread(() -> myToast("Error resetting cover"));
+                myToast("Error resetting cover");
             }
         });
     }
@@ -407,30 +409,21 @@ public class ModifyFolderActivity extends BaseActivity {
      * This is a fallback for books imported before the original cover preservation
      * feature.
      */
-    private void detectAndSaveOriginalCover() {
+    private boolean detectAndSaveOriginalCover() {
         try {
             // Get the folder URI to scan for images
-            String folderUri = folder.getUri();
-            if (folderUri == null || folderUri.isEmpty()) {
-                runOnUiThread(() -> myToast("Cannot detect original cover: folder location not found"));
-                return;
+            Uri uri = Uri.parse(folder.getUri());
+            if (uri == null) {
+                myLog("Cannot parse Uri");
+                return false;
             }
 
             // Parse the URI and get DocumentFile
-            androidx.documentfile.provider.DocumentFile docFolder = null;
-            if (folderUri.startsWith("content://")) {
-                docFolder = androidx.documentfile.provider.DocumentFile.fromTreeUri(this, Uri.parse(folderUri));
-            } else {
-                // File path
-                java.io.File file = new java.io.File(folderUri);
-                if (file.exists() && file.isDirectory()) {
-                    docFolder = androidx.documentfile.provider.DocumentFile.fromFile(file);
-                }
-            }
+            DocumentFile docFolder = UriHelper.getDocumentFileFromAnyUri(this, uri);
 
             if (docFolder == null || !docFolder.exists()) {
-                runOnUiThread(() -> myToast("Cannot access folder to detect cover"));
-                return;
+                myToast("Cannot access folder to detect cover");
+                return false;
             }
 
             // Step 1: Try to detect cover from folder images
@@ -440,13 +433,14 @@ public class ModifyFolderActivity extends BaseActivity {
             String finalCoverPath = null;
             String sourceMessage = null;
 
-            if (result.imagePath != null) {
+            if (result!=null && result.imagePath != null) {
                 // Found an image in the folder
                 finalCoverPath = result.imagePath;
                 sourceMessage = "Original cover image restored from folder";
             } else {
                 // Step 2: No image found
-                myLogI("No cover image found in folder");
+                myLog("No cover image found in folder");
+                //check originalPath
             }
 
             // Update database if we have a cover
@@ -455,18 +449,15 @@ public class ModifyFolderActivity extends BaseActivity {
                 AppDatabase.getDatabase(this).folderDao().update(folder);
 
                 // Create final copies for lambda
-                final String messageForUser = sourceMessage;
-                final String coverPathForLog = finalCoverPath;
-                runOnUiThread(() -> {
-                    myToast(messageForUser);
-                    myLogI("Cover reset to: " + coverPathForLog);
-                });
+                myToast(sourceMessage);
+                myLog("Cover reset to: " + finalCoverPath);
+                return true;
             } else {
-                runOnUiThread(() -> myToast("No original cover found"));
+                return false;
             }
         } catch (Exception e) {
             myLogEE(e, "Error detecting original cover");
-            runOnUiThread(() -> myToast("Error detecting original cover"));
+            return false;
         }
     }
 
