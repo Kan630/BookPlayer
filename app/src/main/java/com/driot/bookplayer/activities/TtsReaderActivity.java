@@ -50,26 +50,19 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         return false;
     }
 
-    private PlaybackViewModel vm;
-    private TtsTextView tvTtsFull;
-    private TtsHighlighter ttsHighlighter;
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+        PlaybackViewModel vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
-        tvTtsFull = findViewById(R.id.tvTtsFullText);
-        ttsHighlighter = new TtsHighlighter(this, tvTtsFull);
+        TtsTextView tvTtsFull = findViewById(R.id.tvTtsFullText);
+        TtsHighlighter ttsHighlighter = new TtsHighlighter(this, tvTtsFull);
         ttsHighlighter.setListener(this::applyAutoScroll);
         ttsHighlighter.attachTouchLogic(vm);
-
         ttsHighlighter.subscribe(this, vm);
 
-        // If service hasn't sent text yet, ask once -> handled by VM auto-fetch
-        // vm.requestTtsTextOnce();
     }
 
     private void applyAutoScroll(TtsTextView tv, int s) {

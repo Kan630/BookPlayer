@@ -41,6 +41,7 @@ public class TtsSettingsFragment extends LoggingFragment {
     private Spinner spinnerEpubSplitMode;
     private MaterialCheckBox chkEbookRemoveReferences;
     private MaterialCheckBox chkDocxSplitIntoChapters;
+    private MaterialCheckBox chkTtsFullscreenControls;
     private LinearLayout llEbookRemoveReferences;
     private LinearLayout llDocxSplitIntoChapters;
     private boolean hasBeenInitialized = false;
@@ -112,7 +113,8 @@ public class TtsSettingsFragment extends LoggingFragment {
         chkEbookRemoveReferences.setChecked(Option.getEbookRemoveReferencesFootnotes());
         llEbookRemoveReferences.setOnClickListener(v -> chkEbookRemoveReferences.toggle());
         chkEbookRemoveReferences
-                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setEbookRemoveReferencesFootnotes(isChecked));
+                .setOnCheckedChangeListener(
+                        (buttonView, isChecked) -> Option.setEbookRemoveReferencesFootnotes(isChecked));
 
         // Docx split into chapters
         chkDocxSplitIntoChapters = root.findViewById(R.id.chk_docx_split_into_chapters);
@@ -139,6 +141,15 @@ public class TtsSettingsFragment extends LoggingFragment {
         llTtsShowLoadingOverlay.setOnClickListener(v -> chkTtsShowLoadingOverlay.toggle());
         chkTtsShowLoadingOverlay
                 .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTtsShowLoadingOverlay(isChecked));
+
+        chkTtsFullscreenControls = root.findViewById(R.id.chk_tts_fullscreen_controls);
+        LinearLayout llTtsFullscreenControls = root.findViewById(R.id.ll_tts_fullscreen_controls);
+        if (chkTtsFullscreenControls != null && llTtsFullscreenControls != null) {
+            chkTtsFullscreenControls.setChecked(Option.getTtsFullscreenControls());
+            llTtsFullscreenControls.setOnClickListener(v -> chkTtsFullscreenControls.toggle());
+            chkTtsFullscreenControls
+                    .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setTtsFullscreenControls(isChecked));
+        }
 
         etTtsOverlayTimeout = root.findViewById(R.id.et_tts_overlay_timeout);
         etTtsOverlayTimeout.setText(String.valueOf(Option.getTtsOverlayTimeoutSec()));

@@ -103,10 +103,11 @@ public class Option {
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
     private static final int MIN_SCREENSAVER_DELAY_SECONDS = 10;
-    private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60*60;
+    private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60 * 60;
     private static final String DEFAULT_SCREENSAVER_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_WAVE;
     private static final boolean DEFAULT_SCREENSAVER_FORCE_ORIENTATION = false;
     private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
+    private static final boolean DEFAULT_TTS_FULLSCREEN_CONTROLS = false;
     private static final boolean DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS = false;
 
     private static Context appContext;
@@ -1046,6 +1047,14 @@ public class Option {
 
     public static void setTtsOverlayTimeoutSec(int seconds) {
         prefs.edit().putInt("TTS_OVERLAY_TIMEOUT_SEC", seconds).apply();
+    }
+
+    public static boolean getTtsFullscreenControls() {
+        return prefs.getBoolean("TTS_FULLSCREEN_CONTROLS", DEFAULT_TTS_FULLSCREEN_CONTROLS);
+    }
+
+    public static void setTtsFullscreenControls(boolean bool) {
+        prefs.edit().putBoolean("TTS_FULLSCREEN_CONTROLS", bool).apply();
     }
 
 }

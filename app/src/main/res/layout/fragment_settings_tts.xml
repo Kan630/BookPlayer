@@ -97,6 +97,25 @@
             android:text="@string/option_tts_overlay_timeout_explain"
             />
 
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+        <!-- Display playback controls in full screen -->
+        <LinearLayout
+            android:id="@+id/ll_tts_fullscreen_controls"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="0dp">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_tts_fullscreen_controls"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_tts_fullscreen_controls" />
+        </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_tts_fullscreen_controls_explain"
+            />
+
 
         <!-- IMPORT -->
 
