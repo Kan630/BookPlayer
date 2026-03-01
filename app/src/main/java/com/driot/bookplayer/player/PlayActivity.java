@@ -359,7 +359,6 @@ public class PlayActivity extends BaseActivity {
                 }
             }
 
-
             if (isTextBook) {
                 if ((s.playing != lastPlaying) || (s.trackId != lastTrackId)) {
                     suppressAutoScrollToHighlightedText = false;
@@ -367,7 +366,6 @@ public class PlayActivity extends BaseActivity {
                 ttsHighlighter.onPlaybackStateChanged(s, vm);
                 ttsOverlayManager.onPlaybackStateChanged(s);
             }
-
 
             bPlayPause.setIconResource(s.playing ? R.drawable.ic_media_pause_24 : R.drawable.ic_media_play_24);
 
@@ -486,12 +484,6 @@ public class PlayActivity extends BaseActivity {
     // ---------- Heatmap seek (when Option.getUseHeatmapSeekbarInPlayActivity())
     // ----------
 
-    /**
-     * Half-width (px) of the touch zone centered on the cursor; total zone = 2 *
-     * this.
-     */
-    private static final int HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP = 40;
-
     private void startDragResetTimer() {
         dragResetHandler.removeCallbacks(dragResetRunnable);
         PlaybackCommands.resetLastUserAction(this);
@@ -515,14 +507,9 @@ public class PlayActivity extends BaseActivity {
             float x = event.getX();
             float ratio = Math.max(0f, Math.min(1f, x / w));
             long seekMs = (long) (ratio * s.durationMs);
-            String curTimeTxt="...";
+            String curTimeTxt = "...";
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_DOWN: {
-                    float cursorX = (s.positionMs / (float) s.durationMs) * w;
-                    float halfZonePx = ViewHelper.dp(this, HEATMAP_TOUCH_ZONE_HALF_WIDTH_DP);
-                    if (x < cursorX - halfZonePx || x > cursorX + halfZonePx) {
-                        return false;
-                    }
                     startDragResetTimer();
                     heatMapSeekStartPositionMs = s.positionMs;
                     heatMapSeek.setPlayingCursorDragging(true);
@@ -684,7 +671,6 @@ public class PlayActivity extends BaseActivity {
         }
     }
 
-
     public void showTtsLoading(boolean show, @Nullable String msg) {
         if (progressOverlay == null) {
             myLogE("showTtsLoading: progressOverlay is null!");
@@ -723,7 +709,8 @@ public class PlayActivity extends BaseActivity {
             if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
                 sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
             }
-            if (Option.getVisualizerOn() && PermissionRequest.isRecordAudioPermissionGranted(this) && sessionId != null) {
+            if (Option.getVisualizerOn() && PermissionRequest.isRecordAudioPermissionGranted(this)
+                    && sessionId != null) {
                 try {
                     // myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
                     frequencyVisualizerView.setMode(Option.getVisualizerType());
