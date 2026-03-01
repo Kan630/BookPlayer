@@ -28,12 +28,8 @@ public class PodcastHelper {
     }
 
     @androidx.annotation.Nullable
-    public static String getOriginalCoverPath(Context context, int folderId) {
+    public static String getPodcastOriginalCoverPath(Context context, int folderId) {
         return null;
-    }
-
-    public static void goUserClickHeader(Folder folder, Context c) {
-        myLog("stub!");
     }
 
     @androidx.annotation.Nullable
@@ -41,11 +37,7 @@ public class PodcastHelper {
         return null;
     }
 
-    public static void handlePodcastImages(Context context) {
-        myLog("stub!");
-    }
-
-    public static void playActivityOnDoubleTap(Folder folder, Context c) {
+    public static void handlePodcastImages(Context context, long currentTime) {
         myLog("stub!");
     }
 

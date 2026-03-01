@@ -12,7 +12,7 @@ import com.driot.bookplayer.player.StartPlayHelper;
 
 public class RadioHelper {
 	
-	public static void handleRadioImages(Context context) {
+	public static void handleRadioImages(Context context, long currentTime) {
         myLog("stub!");
     }
 
