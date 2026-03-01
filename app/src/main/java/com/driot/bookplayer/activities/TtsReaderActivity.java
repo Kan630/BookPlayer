@@ -22,6 +22,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.tts.TtsHelper;
+import com.driot.bookplayer.tts.TtsHighlighter;
 import com.driot.bookplayer.views.TtsTextView;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -51,16 +52,8 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
 
     private PlaybackViewModel vm;
     private TtsTextView tvTtsFull;
-    private Spannable spannableText;
+    private TtsHighlighter ttsHighlighter;
 
-    private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
-    private final ForegroundColorSpan ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
-
-    private boolean suppressAutoScroll = false;
-    private float downY;
-    private int touchSlop;
-    private int pendingStart = -1, pendingEnd = -1;
-    private boolean highlightScheduled = false;
     private final android.os.Handler uiH = new android.os.Handler(android.os.Looper.getMainLooper());
 
     private int lastTrackId = -1;
@@ -74,142 +67,40 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
         tvTtsFull = findViewById(R.id.tvTtsFullText);
-        tvTtsFull.setMovementMethod(ScrollingMovementMethod.getInstance());
-        tvTtsFull.setVerticalScrollBarEnabled(true);
-
-        touchSlop = android.view.ViewConfiguration.get(this).getScaledTouchSlop();
+        ttsHighlighter = new TtsHighlighter(this, tvTtsFull);
+        ttsHighlighter.setListener(this::applyAutoScroll);
+        ttsHighlighter.attachTouchLogic(vm);
 
         // Text content
         vm.getTtsText().observe(this, txt -> {
-            if (txt == null)
-                txt = "";
-            SpannableStringBuilder sb = new SpannableStringBuilder(txt);
-            tvTtsFull.setText(sb, TextView.BufferType.SPANNABLE);
-            spannableText = (Spannable) tvTtsFull.getText();
+            ttsHighlighter.onTextReady(txt);
         });
 
         // Highlight range
         vm.getTtsRange().observe(this, p -> {
             if (p != null)
-                scheduleTtsHighlight(p.first, p.second);
+                ttsHighlighter.scheduleHighlight(p.first, p.second);
         });
 
         vm.getState().observe(this, s -> {
             if (s == null)
                 return;
-
-            // set back auto-follow highlighted text
-            if (Var.PLAY_MODE_TTS.equalsIgnoreCase(s.playMode) &&
-                    ((s.playing != lastPlaying) || (s.trackId != lastTrackId))) {
-                suppressAutoScroll = false;
-            }
-
-            lastTrackId = s.trackId;
-            lastPlaying = s.playing;
-        });
-
-        // Tap-to-seek
-        final android.view.GestureDetector tapDetector = new android.view.GestureDetector(tvTtsFull.getContext(),
-                new android.view.GestureDetector.SimpleOnGestureListener() {
-                    @Override
-                    public boolean onDown(@NonNull MotionEvent e) {
-                        return true;
-                    }
-
-                    @Override
-                    public boolean onSingleTapUp(@NonNull MotionEvent e) {
-                        Layout layout = tvTtsFull.getLayout();
-                        if (layout == null || spannableText == null)
-                            return false;
-
-                        int x = (int) e.getX() - tvTtsFull.getTotalPaddingLeft() + tvTtsFull.getScrollX();
-                        int y = (int) e.getY() - tvTtsFull.getTotalPaddingTop() + tvTtsFull.getScrollY();
-                        int line = layout.getLineForVertical(y);
-                        int off = layout.getOffsetForHorizontal(line, x);
-                        off = Math.max(0, Math.min(off, tvTtsFull.getText().length()));
-
-                        int[] word = TtsHelper.findWordBounds(spannableText, off);
-                        try {
-                            spannableText.removeSpan(ttsBgSpan);
-                            spannableText.removeSpan(ttsFgSpan);
-                            spannableText.setSpan(ttsBgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                            spannableText.setSpan(ttsFgSpan, word[0], word[1], Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                        } catch (Throwable ignored) {
-                        }
-
-                        vm.setTtsStartOffsetChars(word[0]);
-                        return true;
-                    }
-                });
-
-        tvTtsFull.setOnTouchListener((v, ev) -> {
-            switch (ev.getActionMasked()) {
-                case MotionEvent.ACTION_DOWN:
-                    downY = ev.getY();
-                    v.getParent().requestDisallowInterceptTouchEvent(true);
-                    tapDetector.onTouchEvent(ev);
-                    return false;
-                case MotionEvent.ACTION_MOVE:
-                    if (!suppressAutoScroll && Math.abs(ev.getY() - downY) > touchSlop) {
-                        suppressAutoScroll = true;
-                    }
-                    tapDetector.onTouchEvent(ev);
-                    return false;
-                case MotionEvent.ACTION_UP: {
-                    boolean tapped = tapDetector.onTouchEvent(ev);
-                    v.getParent().requestDisallowInterceptTouchEvent(false);
-                    if (tapped) {
-                        suppressAutoScroll = false;
-                    }
-                    v.performClick();
-                    return tapped;
-                }
-                case MotionEvent.ACTION_CANCEL:
-                    v.getParent().requestDisallowInterceptTouchEvent(false);
-                    return false;
-                default:
-                    return false;
-            }
+            ttsHighlighter.onPlaybackStateChanged(s, vm);
         });
 
         // If service hasn't sent text yet, ask once -> handled by VM auto-fetch
         // vm.requestTtsTextOnce();
     }
 
-    private void scheduleTtsHighlight(int s, int e) {
-        pendingStart = s;
-        pendingEnd = e;
-        if (highlightScheduled)
-            return;
-        highlightScheduled = true;
-        uiH.postDelayed(this::applyTtsHighlight, Option.getTtsHighlightDelayMs());
-    }
-
-    private void applyTtsHighlight() {
-        highlightScheduled = false;
-        if (spannableText == null || pendingStart < 0)
-            return;
-        int len = spannableText.length();
-        int s = Math.max(0, Math.min(pendingStart, len));
-        int e = Math.max(s + 1, Math.min(pendingEnd, len));
-        try {
-            spannableText.removeSpan(ttsBgSpan);
-            spannableText.removeSpan(ttsFgSpan);
-            spannableText.setSpan(ttsBgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-            spannableText.setSpan(ttsFgSpan, s, e, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-        } catch (Throwable ignored) {
-        }
-
-        if (suppressAutoScroll)
-            return;
-        tvTtsFull.post(() -> {
+    private void applyAutoScroll(TextView tv, int s) {
+        tv.post(() -> {
             try {
-                Layout layout = tvTtsFull.getLayout();
+                Layout layout = tv.getLayout();
                 if (layout != null) {
                     int line = layout.getLineForOffset(s);
                     int y = layout.getLineTop(line);
-                    int targetY = Math.max(0, y - tvTtsFull.getHeight() / 3);
-                    tvTtsFull.scrollTo(0, targetY);
+                    int targetY = Math.max(0, y - tv.getHeight() / 3);
+                    tv.scrollTo(0, targetY);
                 }
             } catch (Throwable ignored) {
             }

@@ -1,5 +1,6 @@
 package com.driot.bookplayer.tts;
 
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Handler;
 import android.os.Looper;
@@ -10,14 +11,20 @@ import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+                                                                                                                                                                                                                                                                             import android.view.GestureDetector;
+import android.view.MotionEvent;
+import android.view.View;
+import android.view.ViewConfiguration;
+import android.text.Layout;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.player.PlayActivity;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.utils.log.BaseActivity;
 
 import java.lang.ref.WeakReference;
 
@@ -29,7 +36,10 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
  */
 public class TtsHighlighter {
 
-    private final WeakReference<BaseActivity> activityRef;
+    public interface Listener {
+        void onTtsHighlightApplied(TextView tv, int startPos);
+    }
+
     private final TextView tvTtsText;
     private final Handler uiH = new Handler(Looper.getMainLooper());
 
@@ -55,6 +65,10 @@ public class TtsHighlighter {
 
     // Seek / Sync logic
     private long lastSeekTime = 0;
+    private boolean suppressAutoScroll = false;
+    private float downY;
+    private final int touchSlop;
+    private Listener listener;
 
     // Constants
     private static final long MIN_HIGHLIGHT_INTERVAL_MS = 50;
@@ -62,9 +76,13 @@ public class TtsHighlighter {
     // Increased from 2000 to 5000 to avoid false positives at high playback speeds
     private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
 
-    public TtsHighlighter(BaseActivity activity, TextView tvTtsText) {
-        this.activityRef = new WeakReference<>(activity);
+    public TtsHighlighter(Context context, TextView tvTtsText) {
         this.tvTtsText = tvTtsText;
+        this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+    }
+
+    public void setListener(Listener listener) {
+        this.listener = listener;
     }
 
     public void onTextReady(@Nullable String text) {
@@ -116,6 +134,8 @@ public class TtsHighlighter {
             if (!isSpeak) {
                 resetHighlightTracking();
             }
+            // Reset suppression when starting to speak or pausing
+            suppressAutoScroll = false;
         }
 
         // Detect large jumps
@@ -207,24 +227,77 @@ public class TtsHighlighter {
             lastHighlightTime = System.currentTimeMillis();
 
             // Trigger auto-scroll if needed
-            triggerAutoScroll(s);
+            if (!suppressAutoScroll) {
+                triggerAutoScroll(s);
+            }
 
         } catch (Throwable ignored) {
         }
     }
 
     private void triggerAutoScroll(int startPos) {
-        // We need to call back to activity or handle scroll layout here.
-        // Since we have the TextView, we can try to scroll it if suppress flag isn't
-        // set.
-        // But the suppress flag is in PlayActivity.
-        // For now, let's assume PlayActivity handles the scroll via a callback or we
-        // execute a Runnable passed in?
-        // Or simpler: We define an interface or a public method in PlayActivity.
-        BaseActivity a = activityRef.get();
-        if (a instanceof PlayActivity) {
-            ((PlayActivity) a).onTtsHighlightApplied(tvTtsText, startPos);
+        if (listener != null) {
+            listener.onTtsHighlightApplied(tvTtsText, startPos);
         }
+    }
+
+    public void attachTouchLogic(PlaybackViewModel vm) {
+        final GestureDetector tapDetector = new GestureDetector(tvTtsText.getContext(),
+                new GestureDetector.SimpleOnGestureListener() {
+                    @Override
+                    public boolean onDown(@NonNull MotionEvent e) {
+                        return true;
+                    }
+
+                    @Override
+                    public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                        Layout layout = tvTtsText.getLayout();
+                        if (layout == null || spannableText == null)
+                            return false;
+
+                        int x = (int) e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
+                        int y = (int) e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
+                        int line = layout.getLineForVertical(y);
+                        int off = layout.getOffsetForHorizontal(line, x);
+                        off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
+
+                        int[] word = TtsHelper.findWordBounds(spannableText, off);
+                        updateHighlightForManualSeek(word[0], word[1]);
+
+                        vm.setTtsStartOffsetChars(word[0]);
+                        return true;
+                    }
+                });
+
+        tvTtsText.setOnTouchListener((v, ev) -> {
+            switch (ev.getActionMasked()) {
+                case MotionEvent.ACTION_DOWN:
+                    downY = ev.getY();
+                    v.getParent().requestDisallowInterceptTouchEvent(true);
+                    tapDetector.onTouchEvent(ev);
+                    return false;
+                case MotionEvent.ACTION_MOVE:
+                    if (!suppressAutoScroll && Math.abs(ev.getY() - downY) > touchSlop) {
+                        suppressAutoScroll = true;
+                    }
+                    tapDetector.onTouchEvent(ev);
+                    return false;
+                case MotionEvent.ACTION_UP: {
+                    boolean tapped = tapDetector.onTouchEvent(ev);
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    if (tapped) {
+                        suppressAutoScroll = false;
+                    }
+                    v.performClick();
+                    return tapped;
+                }
+                case MotionEvent.ACTION_CANCEL:
+                    v.getParent().requestDisallowInterceptTouchEvent(false);
+                    return false;
+                default:
+                    return false;
+            }
+        });
     }
 
     public void resetHighlightTracking() {

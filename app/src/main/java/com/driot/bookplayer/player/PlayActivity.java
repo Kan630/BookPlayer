@@ -119,10 +119,6 @@ public class PlayActivity extends BaseActivity {
     private long podcastLastClickTime = 0;
     public static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
 
-    private boolean suppressAutoScrollToHighlightedText = false;
-    private int touchSlop;
-    private float downY;
-
     private boolean screensaverActive = false;
     /**
      * After onResume, don't launch screensaver for this long (avoids launching when
@@ -184,9 +180,6 @@ public class PlayActivity extends BaseActivity {
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
-        // value in pixel for which touch on the screen is a scroll and not a tap
-        touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
-
         progressOverlay = findViewById(R.id.progress_overlay);
         messageOverlay = findViewById(R.id.message_overlay);
 
@@ -223,6 +216,8 @@ public class PlayActivity extends BaseActivity {
         if (isTextBook) {
             initTtsVoiceSpinner(folder);
             ttsHighlighter = new TtsHighlighter(this, tvTtsText);
+            ttsHighlighter.setListener(this::applyAutoScroll);
+            ttsHighlighter.attachTouchLogic(vm);
             ttsOverlayManager = new TtsOverlayManager(this);
             findViewById(R.id.btnToggleTtsView).setOnClickListener(v -> {
                 TtsReaderActivity.start(PlayActivity.this);
@@ -230,70 +225,6 @@ public class PlayActivity extends BaseActivity {
             findViewById(R.id.ib_tts_settings).setOnClickListener((v) -> {
                 myLogI("--- User clicks SETTINGS ---");
                 SettingsHostActivity.start(this, TtsSettingsFragment.class, true, R.string.tts_settings);
-            });
-            // Tap-to-seek within text
-            final GestureDetector tapDetector = new GestureDetector(tvTtsText.getContext(),
-                    new GestureDetector.SimpleOnGestureListener() {
-                        @Override
-                        public boolean onDown(@NonNull MotionEvent e) {
-                            // must return true so we keep receiving events
-                            return true;
-                        }
-
-                        @Override
-                        public boolean onSingleTapUp(@NonNull MotionEvent e) {
-                            // Only on real tap, not on scroll/fling
-                            // tap logic
-                            Layout layout = tvTtsText.getLayout();
-                            Spannable sp = ttsHighlighter.getSpannableText();
-                            if (layout == null || sp == null)
-                                return false;
-
-                            int x = (int) e.getX() - tvTtsText.getTotalPaddingLeft() + tvTtsText.getScrollX();
-                            int y = (int) e.getY() - tvTtsText.getTotalPaddingTop() + tvTtsText.getScrollY();
-                            int line = layout.getLineForVertical(y);
-                            int off = layout.getOffsetForHorizontal(line, x);
-                            off = Math.max(0, Math.min(off, tvTtsText.getText().length()));
-
-                            int[] word = TtsHelper.findWordBounds(sp, off);
-                            ttsHighlighter.updateHighlightForManualSeek(word[0], word[1]);
-
-                            vm.setTtsStartOffsetChars(word[0]);
-                            return true; // we handled the tap
-                        }
-                    });
-            // Scroll
-            tvTtsText.setOnTouchListener((v, ev) -> {
-                switch (ev.getActionMasked()) {
-                    case MotionEvent.ACTION_DOWN:
-                        downY = ev.getY();
-                        v.getParent().requestDisallowInterceptTouchEvent(true);
-                        tapDetector.onTouchEvent(ev);
-                        return false; // let TextView handle scroll
-                    case MotionEvent.ACTION_MOVE:
-                        // If user dragged enough, disable auto-scroll
-                        if (!suppressAutoScrollToHighlightedText && Math.abs(ev.getY() - downY) > touchSlop) {
-                            suppressAutoScrollToHighlightedText = true;
-                        }
-                        tapDetector.onTouchEvent(ev);
-                        return false;
-                    case MotionEvent.ACTION_UP: {
-                        boolean tapped = tapDetector.onTouchEvent(ev);
-                        v.getParent().requestDisallowInterceptTouchEvent(false);
-                        if (tapped) {
-                            // Re-enable auto-scroll only when the user *taps* a word
-                            suppressAutoScrollToHighlightedText = false;
-                        }
-                        // Satisfy accessibility/lint:
-                        v.performClick();
-                        return tapped; // consume only real taps
-                    }
-                    case MotionEvent.ACTION_CANCEL:
-                        v.getParent().requestDisallowInterceptTouchEvent(false);
-                        return false;
-                    default:
-                        return false;
-                }
             });
         }
 
@@ -316,7 +247,6 @@ public class PlayActivity extends BaseActivity {
         bPlayPause.setOnClickListener(v -> {
             myLogI("--- user press PLAY/PAUSE ---");
             vm.playPause();
-            suppressAutoScrollToHighlightedText = false;
         });
         bForward.setOnClickListener(v -> {
             myLogI("--- user press FORWARD ---");
@@ -400,9 +330,6 @@ public class PlayActivity extends BaseActivity {
             updateVisualizer(s);
 
             if (isTextBook) {
-                if ((s.playing != lastPlaying) || (s.trackId != lastTrackId)) {
-                    suppressAutoScrollToHighlightedText = false;
-                }
                 ttsHighlighter.onPlaybackStateChanged(s, vm);
                 ttsOverlayManager.onPlaybackStateChanged(s);
             }
@@ -514,7 +441,6 @@ public class PlayActivity extends BaseActivity {
             @Override
             public void onStopTrackingTouch(@NonNull Slider slider) {
                 stopDragResetTimer();
-                suppressAutoScrollToHighlightedText = false;
                 PlaybackCommands.resetLastUserAction(PlayActivity.this);
             }
         });
@@ -572,7 +498,6 @@ public class PlayActivity extends BaseActivity {
                     heatMapSeek.setPlayingCursorDragging(false);
                     vm.setSeekPreview(null);
                     vm.seekTo(seekMs);
-                    suppressAutoScrollToHighlightedText = false;
                     PlaybackCommands.resetLastUserAction(this);
                     return true;
                 default:
@@ -740,9 +665,7 @@ public class PlayActivity extends BaseActivity {
     private TtsOverlayManager ttsOverlayManager;
 
     // Callbacks from TtsHighlighter
-    public void onTtsHighlightApplied(TextView tv, int startPos) {
-        if (suppressAutoScrollToHighlightedText)
-            return;
+    public void applyAutoScroll(TextView tv, int startPos) {
         tvTtsText.post(() -> {
             try {
                 Layout layout = tvTtsText.getLayout();
