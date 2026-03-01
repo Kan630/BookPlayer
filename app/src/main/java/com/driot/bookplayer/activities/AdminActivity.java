@@ -23,13 +23,16 @@ import androidx.work.WorkManager;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.DbClean;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FileHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
@@ -150,6 +153,25 @@ public class AdminActivity extends BaseActivity {
                 myLogD("-----------------");
             }).start();
         });
+
+
+        findViewById(R.id.bImageStuff).setOnClickListener(v -> {
+            new Thread(() -> {
+                ImageHelper.processPendingImages(this.getApplicationContext());
+            }).start();
+        });
+        findViewById(R.id.bPodcastStuff).setOnClickListener(v -> {
+            new Thread(() -> {
+                PodcastHelper.doAutoDownloadAndDelete(this.getApplicationContext());
+            }).start();
+        });
+        findViewById(R.id.bDbStuff).setOnClickListener(v -> {
+            new Thread(() -> {
+                DbClean.doClean(this.getApplicationContext(), true, true, true);
+            }).start();
+        });
+
+
 
         findViewById(R.id.bFlushSQL).setOnClickListener(v -> {
             new Thread(() -> {

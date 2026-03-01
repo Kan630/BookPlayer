@@ -68,7 +68,37 @@
 
         <View style="@style/GetResourceHorizontalBar" />
 
-    <LinearLayout
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@style/simpleText"
+            android:text="perdiodic tasks"/>
+        <Button
+            android:id="@+id/bImageStuff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7070BB"
+            android:text="Image Stuff"/>
+        <Button
+            android:id="@+id/bPodcastStuff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7070BB"
+            android:text="Podcast Stuff"/>
+        <Button
+            android:id="@+id/bDbStuff"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#7070BB"
+            android:text="DB clean"/>
+
+
+        <View style="@style/GetResourceHorizontalBar" />
+
+        <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal" >
