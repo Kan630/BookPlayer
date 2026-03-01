@@ -176,8 +176,8 @@ public class FrequencyVisualizerView extends View {
         return v * getResources().getDisplayMetrics().density;
     }
 
-    /** Keep your original entry point name */
-    public void link_toto(int audioSessionId) {
+    /** Link this view to an Android Audio Session ID to start visualizing. */
+    public void attachToSession(int audioSessionId) {
         if (VISUALIZER_DISABLED) {
             myLog("Visualizer disabled (test mode)");
             // Make sure we don’t hold any native resources
@@ -189,21 +189,21 @@ public class FrequencyVisualizerView extends View {
             // Often session 0 is the global mix, which requires special permissions
             // or is simply empty. Better to wait for a real session ID.
             if (visualizer != null) {
-                myLog("link_toto - invalid session " + audioSessionId + " / releasing current");
+                myLog("attachToSession - invalid session " + audioSessionId + " / releasing current");
                 release();
             }
             return;
         }
 
         if (visualizer == null || audioSessionId != currentAudioSessionId) {
-            myLog("link_toto - session changed " + currentAudioSessionId + " -> " + audioSessionId);
-            boolean ok = link(audioSessionId);
+            myLog("attachToSession - session changed " + currentAudioSessionId + " -> " + audioSessionId);
+            boolean ok = initializeVisualizer(audioSessionId);
             if (!ok) {
                 if (pendingLinkRetry != null)
                     removeCallbacks(pendingLinkRetry);
                 pendingLinkRetry = () -> {
                     pendingLinkRetry = null;
-                    link_toto(audioSessionId);
+                    attachToSession(audioSessionId);
                 };
                 postDelayed(pendingLinkRetry, 500); // slightly longer delay
             }
@@ -214,11 +214,11 @@ public class FrequencyVisualizerView extends View {
      * @return true if linked successfully, false if init failed (e.g. session in
      *         use).
      */
-    private boolean link(int audioSessionId) {
+    private boolean initializeVisualizer(int audioSessionId) {
         if (VISUALIZER_DISABLED)
             return false;
         release();
-        myLog("link - audioSessionId = [" + audioSessionId + "]");
+        myLog("initializeVisualizer - audioSessionId = [" + audioSessionId + "]");
         try {
             currentAudioSessionId = audioSessionId;
             visualizer = new Visualizer(audioSessionId);

@@ -21,8 +21,10 @@ public class ScreensaverActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Force orientation before setContentView to avoid config change recreating the activity
-        // (manifest has configChanges=orientation|screenSize so we won't recreate anyway).
+        // Force orientation before setContentView to avoid config change recreating the
+        // activity
+        // (manifest has configChanges=orientation|screenSize so we won't recreate
+        // anyway).
         if (Option.getScreensaverForceOrientation()) {
             String mode = Option.getScreensaverOrientationMode();
             if ("PORTRAIT".equals(mode)) {
@@ -59,7 +61,7 @@ public class ScreensaverActivity extends BaseActivity {
                 && isRecordAudioPermissionGranted(this)) {
             try {
                 visualizer.setMode(Option.getScreensaverVisualizerType());
-                visualizer.link_toto(sessionId);
+                visualizer.attachToSession(sessionId);
                 myLogI("Screensaver visualizer linked to session " + sessionId);
             } catch (Throwable t) {
                 myLogEE(t, "Failed to link visualizer");

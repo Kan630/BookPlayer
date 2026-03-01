@@ -184,7 +184,7 @@ public class PlayActivity extends BaseActivity {
 
         vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
-        //value in pixel for which touch on the screen is a scroll and not a tap
+        // value in pixel for which touch on the screen is a scroll and not a tap
         touchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
 
         progressOverlay = findViewById(R.id.progress_overlay);
@@ -1007,6 +1007,7 @@ public class PlayActivity extends BaseActivity {
             }
         }
     }
+
     private void updateSpeed(PlaybackUiState s) {
         Double speed = null;
         if (s.extras != null && s.extras.containsKey(Intents.EXTRA_SPEED)) {
@@ -1016,6 +1017,7 @@ public class PlayActivity extends BaseActivity {
             tvSpeed.setText(Tonio.formatPercentStringForSpeed(speed * 100.0));
         }
     }
+
     private void updateHeatMapSeek(PlaybackUiState s) {
         if (useHeatMapSeek && heatMapSeek != null && s.durationMs > 0) {
             float norm = (float) Math.min(s.positionMs, s.durationMs) / s.durationMs;
@@ -1038,6 +1040,7 @@ public class PlayActivity extends BaseActivity {
 
         }
     }
+
     private void updateVisualizer(PlaybackUiState s) {
         Integer sessionId = null;
         if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
@@ -1048,7 +1051,7 @@ public class PlayActivity extends BaseActivity {
             try {
                 // myLogD("linking visualizer"); //TODO : is RUN every SECOND, check it out....
                 frequencyVisualizerView.setMode(Option.getVisualizerType());
-                frequencyVisualizerView.link_toto(sessionId);
+                frequencyVisualizerView.attachToSession(sessionId);
                 frequencyVisualizerView.setVisibility(View.VISIBLE);
                 if (lastCoverUri != null) {
                     frequencyVisualizerView.setAlpha(0.6f);
@@ -1061,6 +1064,5 @@ public class PlayActivity extends BaseActivity {
             frequencyVisualizerView.setVisibility(View.GONE);
         }
     }
-
 
 }
