@@ -1,27 +1,17 @@
 package com.driot.bookplayer.activities;
 
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Layout;
-import android.text.Spannable;
-import android.text.SpannableStringBuilder;
-import android.text.method.ScrollingMovementMethod;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ForegroundColorSpan;
-import android.view.MotionEvent;
-import android.widget.TextView;
+import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.tts.TtsHelper;
 import com.driot.bookplayer.tts.TtsHighlighter;
 import com.driot.bookplayer.views.TtsTextView;
 
@@ -33,7 +23,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     @Override
     protected int getNavId() {
         return R.id.nav_library;
-    } // or whatever your "play" tab id is
+    }
 
     @Override
     protected int getLayoutResId() {
@@ -42,7 +32,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
 
     @Override
     protected boolean enableOngoingTaskOverlay() {
-        return true;
+        return false;
     }
 
     @Override
@@ -62,7 +52,7 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         ttsHighlighter.setListener(this::applyAutoScroll);
         ttsHighlighter.attachTouchLogic(vm);
         ttsHighlighter.subscribe(this, vm);
-
+        findViewById(R.id.miniNowPlaying).setVisibility(Option.getTtsFullscreenControls() ? View.VISIBLE : View.GONE);
     }
 
     private void applyAutoScroll(TtsTextView tv, int s) {

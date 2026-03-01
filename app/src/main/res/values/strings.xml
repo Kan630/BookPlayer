@@ -530,8 +530,7 @@
     <string name="option_tts_overlay_timeout_explain">On recent devices and/or for often used voices, it may be so fast you won\'t even see that loading message.</string>
     <string name="option_tts_overlay_timeout_title">Overlay timeout</string>
     <string name="option_tts_overlay_timeout_text">Max load time :</string> //keep it short
-    <string name="option_tts_fullscreen_controls">Show playback controls in full screen</string>
-    <string name="option_tts_fullscreen_controls_explain">Displays Rewind, Play/Pause, and Forward buttons at the bottom of the full-screen reader view.</string>
+    <string name="option_tts_fullscreen_controls">Show playback controls</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
 
@@ -1312,6 +1311,7 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
     <string name="elapsed">elapsed</string> //for seconds count
     <string name="Librivox_Audiobooks">Librivox Audiobooks</string>
     <string name="Gutenberg_Ebooks">Gutenberg Ebooks</string>
+    <string name="Full_Screen">Full Screen</string>
 
 
 </resources>
