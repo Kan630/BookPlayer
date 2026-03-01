@@ -108,7 +108,7 @@ public class ImageHelper {
         return imageFile.getAbsolutePath();
     }
 
-    public static void processPendingImages(Context context) {
+    public static void processPendingImages(Context context, long currentTime) {
         // myLogD("processPendingImages");
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
@@ -141,7 +141,7 @@ public class ImageHelper {
             }
 
             // --- Handle Podcast images ---
-            PodcastHelper.handlePodcastImages(context);
+            PodcastHelper.handlePodcastImages(context, currentTime);
 
             // Move Folder cover if on SD card
             try {
@@ -175,7 +175,7 @@ public class ImageHelper {
 
             // --- Handle Folder images ---
             List<Folder> pendingFolders = db.folderDao()
-                    .getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
+                    .getAllWithExternalImagesUnchangedSince24h(currentTime);
             for (Folder folder : pendingFolders) {
                 String url = folder.image;
                 if (url == null)
@@ -199,7 +199,7 @@ public class ImageHelper {
             }
 
             // --- Handle Radio images ---
-            RadioHelper.handleRadioImages(context);
+            RadioHelper.handleRadioImages(context, currentTime);
 
         });
     }

@@ -336,7 +336,7 @@ public class NetworkHelper {
                 if (isRedirect(code)) {
                     String loc = conn.getHeaderField("Location");
                     if (loc == null || loc.isEmpty()) {
-                        myLogEE(null, "Redirect without Location from: " + url);
+                        myLogE("Redirect without Location from: " + url);
                         return null;
                     }
                     url = new URL(u, loc).toString();
@@ -344,7 +344,7 @@ public class NetworkHelper {
                 }
 
                 if (code != HttpURLConnection.HTTP_OK) {
-                    myLogEE(null, "HTTP " + code + " for: " + url);
+                    myLogE("HTTP " + code + " for: " + url);
                     return null;
                 }
 
@@ -359,14 +359,14 @@ public class NetworkHelper {
                         }
                     }
                     if (!ok) {
-                        myLogEE(null, "Unexpected content-type '" + ctype + "' for: " + url);
+                        myLogE("Unexpected content-type '" + ctype + "' for: " + url);
                         return null;
                     }
                 }
 
                 long declared = conn.getContentLengthLong();
                 if (declared > 0 && declared > GET_IMAGE_MAX_DOWNLOAD_BYTES) {
-                    myLogEE(null, "Image too large (" + declared + " bytes) for: " + url);
+                    myLogE("Image too large (" + declared + " bytes) for: " + url);
                     return null;
                 }
 
@@ -397,7 +397,7 @@ public class NetworkHelper {
                     conn.disconnect();
             }
         }
-        myLogEE(null, "Too many redirects for: " + startUrl);
+        myLogE("Too many redirects for: " + startUrl);
         return null;
     }
 

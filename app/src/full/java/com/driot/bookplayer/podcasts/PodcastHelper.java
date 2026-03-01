@@ -528,11 +528,11 @@ public class PodcastHelper {
         });
     }
 
-    public static void handlePodcastImages(Context context) {
+    public static void handlePodcastImages(Context context, long currentTime) {
         if (NetworkHelper.hasInternet(context)) {
             AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
             List<Podcast> pendingPodcasts = db.podcastDao()
-                    .getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
+                    .getAllWithExternalImagesUnchangedSince24h(currentTime);
             for (Podcast podcast : pendingPodcasts) {
                 myLog("caching podcast image for: " + podcast.title);
                 String url = podcast.image;

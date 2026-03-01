@@ -41,7 +41,7 @@ public class InAppPeriodicTaskManager extends LoggerHelper {
 /// Podcast auto-download + auto-delete
                     PodcastHelper.doAutoDownloadAndDelete(context);
 /// Images
-                    ImageHelper.processPendingImages(context);
+                    ImageHelper.processPendingImages(context, System.currentTimeMillis());
 
                 }, Var.PERIODIC_TASK_MANAGER_INITIAL_DELAY_IN_SECONDS, periodMinutes, TimeUnit.MINUTES);
             }

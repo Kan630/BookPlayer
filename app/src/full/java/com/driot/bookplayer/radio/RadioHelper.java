@@ -21,11 +21,11 @@ import java.util.List;
 
 public class RadioHelper {
 
-	public static void handleRadioImages(Context context) {
+	public static void handleRadioImages(Context context, long currentTime) {
 		if (NetworkHelper.hasInternet(context)) {
 			AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 			List<RadioStation> radioStations = db.radioStationDao()
-					.getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
+					.getAllWithExternalImagesUnchangedSince24h(currentTime);
 			for (RadioStation radioStation : radioStations) {
 				myLog("caching favicon for: " + radioStation.name);
 				String url = radioStation.favicon;

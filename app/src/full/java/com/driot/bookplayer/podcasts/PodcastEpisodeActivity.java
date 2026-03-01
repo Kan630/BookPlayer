@@ -294,7 +294,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
                 btnAutoDownloadOverlay.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
                 btnAutoDownloadToolbar.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
             });
-            ImageHelper.processPendingImages(this);
+            ImageHelper.processPendingImages(this, System.currentTimeMillis());
             FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(podcast.title, podcast.language);
         });
     }

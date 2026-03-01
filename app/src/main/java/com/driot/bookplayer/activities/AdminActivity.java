@@ -157,7 +157,7 @@ public class AdminActivity extends BaseActivity {
 
         findViewById(R.id.bImageStuff).setOnClickListener(v -> {
             new Thread(() -> {
-                ImageHelper.processPendingImages(this.getApplicationContext());
+                ImageHelper.processPendingImages(this.getApplicationContext(), System.currentTimeMillis() + 24*60*1000);
             }).start();
         });
         findViewById(R.id.bPodcastStuff).setOnClickListener(v -> {

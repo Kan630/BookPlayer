@@ -173,7 +173,7 @@ public class PodcastSyncWorker extends LoggingWorker {
         // 3. Notify user
         if (newFilesCount > 0) {
             Sql.updateFolderTable(getApplicationContext(), idFolder);
-            ImageHelper.processPendingImages(getApplicationContext());
+            ImageHelper.processPendingImages(getApplicationContext(), System.currentTimeMillis());
             if (Option.getPodcastAutoDownloadedAtTheTop()) {
                 folderDao.updateLastAccess(idFolder, System.currentTimeMillis()); //triggers livedata update and reload of Book list
             }
