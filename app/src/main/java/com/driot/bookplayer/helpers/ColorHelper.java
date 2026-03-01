@@ -17,36 +17,33 @@ public class ColorHelper {
     private ColorHelper() {
     }
 
-
-
     public static int getColorPrimaryForTtsCursor(Context context) {
         int themeResId = Option.getThemeColor();
         return getColorPrimaryFromTheme(context, themeResId);
     }
+
     public static int getColorOnPrimaryForTtsCursor(Context context) {
         int themeResId = Option.getThemeColor();
         return getColorOnPrimaryFromTheme(context, themeResId);
     }
 
-
     private static int getColorPrimaryFromTheme(Context context, int themeResId) {
         Resources.Theme theme = context.getResources().newTheme();
         theme.applyStyle(themeResId, true);
-        TypedArray ta = theme.obtainStyledAttributes(new int[]{ androidx.appcompat.R.attr.colorPrimary });
-        int color = ta.getColor(0,, ContextCompat.getColor(context, android.R.color.white));
+        TypedArray ta = theme.obtainStyledAttributes(new int[] { androidx.appcompat.R.attr.colorPrimary });
+        int color = ta.getColor(0, ContextCompat.getColor(context, android.R.color.white));
         ta.recycle();
         return color;
     }
+
     private static int getColorOnPrimaryFromTheme(Context context, int themeResId) {
         Resources.Theme theme = context.getResources().newTheme();
         theme.applyStyle(themeResId, true);
-        TypedArray ta = theme.obtainStyledAttributes(new int[]{ com.google.android.material.R.attr.colorOnPrimary });
+        TypedArray ta = theme.obtainStyledAttributes(new int[] { com.google.android.material.R.attr.colorOnPrimary });
         int color = ta.getColor(0, ContextCompat.getColor(context, android.R.color.black));
         ta.recycle();
         return color;
     }
-
-
 
     /**
      * Resolves a color from a theme attribute using the context's current theme.
@@ -55,6 +52,7 @@ public class ColorHelper {
     public static int resolveThemeColor(@NonNull Context context, @AttrRes int attrRes, int defaultColor) {
         return resolveColor(context.getTheme(), attrRes, defaultColor);
     }
+
     /**
      * Resolves a color from a theme attribute for a specific theme.
      */

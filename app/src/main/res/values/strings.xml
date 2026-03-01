@@ -531,6 +531,7 @@
     <string name="option_tts_overlay_timeout_title">Overlay timeout</string>
     <string name="option_tts_overlay_timeout_text">Max load time :</string> //keep it short
     <string name="option_tts_use_theme_color_for_cursor">Use theme color for cursor</string>
+    <string name="option_tts_fullscreen_text_size">Text size</string>
     <string name="option_tts_fullscreen_controls">Show playback controls</string>
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>

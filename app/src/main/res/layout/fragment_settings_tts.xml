@@ -122,13 +122,42 @@
         <LinearLayout
             android:id="@+id/ll_tts_fullscreen_controls"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-            android:layout_marginTop="0dp">
+            android:layout_marginTop="10dp">
             <com.google.android.material.checkbox.MaterialCheckBox
                 android:id="@+id/chk_tts_fullscreen_controls"
                 style="@style/OptionCheckBox" />
             <TextView
                 style="@style/OptionCheckBoxText"
                 android:text="@string/option_tts_fullscreen_controls" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/OptionCheckBoxText"
+            android:layout_marginTop="16dp"
+            android:text="@string/option_tts_fullscreen_text_size" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingStart="40dp"
+            android:paddingEnd="16dp">
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_tts_fullscreen_text_size"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:valueFrom="10.0"
+                android:valueTo="40.0"
+                android:stepSize="1.0" />
+            <TextView
+                android:id="@+id/tv_tts_fullscreen_text_size_value"
+                style="@style/OptionMiniText"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="20" />
         </LinearLayout>
 
 

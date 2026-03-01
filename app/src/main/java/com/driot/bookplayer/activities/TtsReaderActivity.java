@@ -1,6 +1,7 @@
 package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
+import android.util.TypedValue;
 import android.text.Layout;
 import android.view.View;
 
@@ -48,6 +49,8 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
         PlaybackViewModel vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
         TtsTextView tvTtsFull = findViewById(R.id.tvTtsFullText);
+        tvTtsFull.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) Option.getTtsFullscreenTextSize());
+
         TtsHighlighter ttsHighlighter = new TtsHighlighter(this, tvTtsFull);
         ttsHighlighter.setListener(this::applyAutoScroll);
         ttsHighlighter.attachTouchLogic(vm);

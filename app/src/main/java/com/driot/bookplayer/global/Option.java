@@ -84,6 +84,7 @@ public class Option {
     public static final int DEFAULT_RADIO_API_NB_RESULTS = 200;
     public static final int DEFAULT_TTS_HIGHLIGHT_DELAY_MS = 100;
     public static final boolean DEFAULT_TTS_USE_THEME_COLOR_FOR_CURSOR = true;
+    public static final int DEFAULT_TTS_FULL_SCREEN_TEXT_SIZE = 20;
     public static final int DEFAULT_TTS_CHUNK_SIZE = 1800;
     public static final String DEFAULT_EPUB_SPLIT_MODE = "auto"; // "auto", "toc", "spine"
     public static final boolean DEFAULT_DOCX_SPLIT_INTO_CHAPTERS = true;
@@ -854,7 +855,9 @@ public class Option {
         prefs.edit().putInt("TTS_HIGHLIGHT_DELAY_MS", delayMs).apply();
     }
 
-    public static int getTtsHighlightDelayMs() { return prefs.getInt("TTS_HIGHLIGHT_DELAY_MS", DEFAULT_TTS_HIGHLIGHT_DELAY_MS); }
+    public static int getTtsHighlightDelayMs() {
+        return prefs.getInt("TTS_HIGHLIGHT_DELAY_MS", DEFAULT_TTS_HIGHLIGHT_DELAY_MS);
+    }
 
     public static boolean getTtsUseThemeColorForCursor() {
         return prefs.getBoolean("TTS_USE_THEME_COLOR_FOR_CURSOR", DEFAULT_TTS_USE_THEME_COLOR_FOR_CURSOR);
@@ -862,6 +865,14 @@ public class Option {
 
     public static void setTtsUseThemeColorForCursor(boolean bool) {
         prefs.edit().putBoolean("TTS_USE_THEME_COLOR_FOR_CURSOR", bool).apply();
+    }
+
+    public static int getTtsFullscreenTextSize() {
+        return prefs.getInt("TTS_FULL_SCREEN_TEXT_SIZE", DEFAULT_TTS_FULL_SCREEN_TEXT_SIZE);
+    }
+
+    public static void setTtsFullscreenTextSize(int size) {
+        prefs.edit().putInt("TTS_FULL_SCREEN_TEXT_SIZE", size).apply();
     }
 
     public static void setTtsChunkSize(int chunkSize) {

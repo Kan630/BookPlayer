@@ -42,6 +42,9 @@ public class TtsSettingsFragment extends LoggingFragment {
     private MaterialCheckBox chkEbookRemoveReferences;
     private MaterialCheckBox chkDocxSplitIntoChapters;
     private MaterialCheckBox chkTtsFullscreenControls;
+    private MaterialCheckBox chkTtsUseThemeColorForCursor;
+    private com.google.android.material.slider.Slider sliderTtsFullscreenTextSize;
+    private TextView tvTtsFullscreenTextSizeValue;
     private LinearLayout llEbookRemoveReferences;
     private LinearLayout llDocxSplitIntoChapters;
     private boolean hasBeenInitialized = false;
@@ -153,6 +156,33 @@ public class TtsSettingsFragment extends LoggingFragment {
 
         etTtsOverlayTimeout = root.findViewById(R.id.et_tts_overlay_timeout);
         etTtsOverlayTimeout.setText(String.valueOf(Option.getTtsOverlayTimeoutSec()));
+
+        // Theme color for cursor
+        chkTtsUseThemeColorForCursor = root.findViewById(R.id.chk_tts_use_theme_color_for_cursor);
+        LinearLayout llTtsUseThemeColorForCursor = root.findViewById(R.id.ll_tts_use_theme_color_for_cursor);
+        if (chkTtsUseThemeColorForCursor != null && llTtsUseThemeColorForCursor != null) {
+            chkTtsUseThemeColorForCursor.setChecked(Option.getTtsUseThemeColorForCursor());
+            llTtsUseThemeColorForCursor.setOnClickListener(v -> chkTtsUseThemeColorForCursor.toggle());
+            chkTtsUseThemeColorForCursor
+                    .setOnCheckedChangeListener((bv, isChecked) -> Option.setTtsUseThemeColorForCursor(isChecked));
+        }
+
+        // Text size slider
+        sliderTtsFullscreenTextSize = root.findViewById(R.id.slider_tts_fullscreen_text_size);
+        tvTtsFullscreenTextSizeValue = root.findViewById(R.id.tv_tts_fullscreen_text_size_value);
+        if (sliderTtsFullscreenTextSize != null) {
+            int currentSize = Option.getTtsFullscreenTextSize();
+            sliderTtsFullscreenTextSize.setValue((float) currentSize);
+            if (tvTtsFullscreenTextSizeValue != null)
+                tvTtsFullscreenTextSizeValue.setText(String.valueOf(currentSize));
+
+            sliderTtsFullscreenTextSize.addOnChangeListener((slider, value, fromUser) -> {
+                int val = (int) value;
+                if (tvTtsFullscreenTextSizeValue != null)
+                    tvTtsFullscreenTextSizeValue.setText(String.valueOf(val));
+                Option.setTtsFullscreenTextSize(val);
+            });
+        }
 
         return root;
     }
