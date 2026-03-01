@@ -24,7 +24,7 @@ public class RadioHelper {
 	public static void handleRadioImages(Context context) {
 		if (NetworkHelper.hasInternet(context)) {
 			AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-			List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImages();
+			List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
 			for (RadioStation radioStation : radioStations) {
 				String url = radioStation.favicon;
 				String imagePath = ImageHelper.IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
@@ -35,6 +35,7 @@ public class RadioHelper {
 					if (f.exists() && f.length() > 0L) {
 						// OK, non-empty file → persist local path
 						radioStation.favicon = localPath;
+						radioStation.date_maj = System.currentTimeMillis();
 						db.radioStationDao().update(radioStation);
 					} else {
 						// 0 KB or missing → treat as failure, clean up
@@ -45,6 +46,8 @@ public class RadioHelper {
 							} catch (Exception ignored) {
 							}
 						}
+						radioStation.date_maj = System.currentTimeMillis();
+						db.radioStationDao().update(radioStation);
 						// keep old favicon URL in DB so Glide can still try remote
 					}
 				}

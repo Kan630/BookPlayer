@@ -35,8 +35,8 @@ public interface RadioStationDao {
     @Query("SELECT * FROM RadioStation WHERE stationuuid = :uuid LIMIT 1")
     LiveData<RadioStation> getLiveDataByUuid(String uuid);
 
-    @Query("SELECT * FROM RadioStation WHERE favicon IS NOT NULL AND favicon LIKE 'http%'")
-    List<RadioStation> getAllWithExternalImages();
+    @Query("SELECT * FROM RadioStation WHERE favicon IS NOT NULL AND favicon LIKE 'http%' AND :now - date_maj > 24*60*1000")
+    List<RadioStation> getAllWithExternalImagesUnchangedSince24h(long now);
 
     @Query("SELECT * FROM RadioStation WHERE stationuuid = :uuid LIMIT 1")
     RadioStation findByUuid(String uuid);
