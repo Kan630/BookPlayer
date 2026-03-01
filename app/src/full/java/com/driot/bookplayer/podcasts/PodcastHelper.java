@@ -529,17 +529,28 @@ public class PodcastHelper {
     }
 
     public static void handlePodcastImages(Context context) {
-        AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-        List<Podcast> pendingPodcasts = db.podcastDao().getAllWithRemoteImage();
-        for (Podcast podcast : pendingPodcasts) {
-            String url = podcast.image;
-            if (url == null || !url.startsWith("http"))
-                continue;
+        if (NetworkHelper.hasInternet(context)) {
+            AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+            List<Podcast> pendingPodcasts = db.podcastDao()
+                    .getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
+            for (Podcast podcast : pendingPodcasts) {
+                myLog("caching podcast image for: " + podcast.title);
+                String url = podcast.image;
+                if (url == null || !url.startsWith("http")) {
+                    myLogE("caching podcast image for: " + podcast.title + " => bad URL");
+                    podcast.date_maj = System.currentTimeMillis();
+                    db.podcastDao().update(podcast);
+                    continue;
+                }
 
-            String imagePath = ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
-            String localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, true);
-            if (localPath != null) {
-                podcast.image = localPath;
+                String imagePath = ImageHelper.IMAGE_PREFIX_FOR_PODCAST_COVERS + podcast.feedId + ".jpg";
+                String localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, true);
+                if (localPath != null) {
+                    podcast.image = localPath;
+                } else {
+                    myLogE("caching podcast image for: " + podcast.title + " => failed");
+                }
+                podcast.date_maj = System.currentTimeMillis();
                 db.podcastDao().update(podcast);
             }
         }

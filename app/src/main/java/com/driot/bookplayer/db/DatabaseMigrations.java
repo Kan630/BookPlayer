@@ -15,12 +15,10 @@ public class DatabaseMigrations {
     // EXPECTED = Class Object ; MIGRATION = FOUND (2nd part in log message) = state
     // of DB ?
 
-
-
     private static boolean tableExists(SupportSQLiteDatabase db, String tableName) {
         try (Cursor cursor = db.query(
                 "SELECT 1 FROM sqlite_master WHERE type='table' AND name=?",
-                new String[]{tableName})) {
+                new String[] { tableName })) {
             return cursor.moveToFirst();
         }
     }
@@ -489,6 +487,16 @@ public class DatabaseMigrations {
             }
             if (tableExists(db, "Podcast")) {
                 db.execSQL("ALTER TABLE Podcast ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            }
+        }
+    };
+
+    static final Migration MIGRATION_28_29 = new Migration(28, 29) { // 2026-03-01
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 28 => 29");
+            if (tableExists(db, "Podcast")) {
+                db.execSQL("ALTER TABLE Podcast ADD COLUMN date_maj INTEGER NOT NULL DEFAULT 0");
             }
         }
     };

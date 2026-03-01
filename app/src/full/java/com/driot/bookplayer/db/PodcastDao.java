@@ -53,8 +53,8 @@ public interface PodcastDao {
     @Query("UPDATE Podcast SET idFolder = :idFolder WHERE feedId = :feedId")
     void updateFolderIdByFeedId(long feedId, Long idFolder);
 
-    @Query("SELECT * FROM Podcast WHERE image LIKE 'http%'")
-    List<Podcast> getAllWithRemoteImage();
+    @Query("SELECT * FROM Podcast WHERE image IS NOT NULL AND image LIKE 'http%' AND :now - date_maj > 24*60*60*1000")
+    List<Podcast> getAllWithExternalImagesUnchangedSince24h(long now);
 
     @Query("SELECT id FROM Podcast WHERE feedId = :feedId")
     Long getIdByFeedId(long feedId);

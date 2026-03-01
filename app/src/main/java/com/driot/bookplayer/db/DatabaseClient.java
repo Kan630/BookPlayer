@@ -69,20 +69,21 @@ public class DatabaseClient {
                             DatabaseMigrations.MIGRATION_21_22, DatabaseMigrations.MIGRATION_22_23,
                             DatabaseMigrations.MIGRATION_23_24, DatabaseMigrations.MIGRATION_24_25,
                             DatabaseMigrations.MIGRATION_25_26, DatabaseMigrations.MIGRATION_26_27,
-                            DatabaseMigrations.MIGRATION_27_28)
+                            DatabaseMigrations.MIGRATION_27_28, DatabaseMigrations.MIGRATION_28_29)
 
                     .addCallback(new RoomDatabase.Callback() {
                         @Override
                         public void onOpen(@NonNull SupportSQLiteDatabase db) {
                             super.onOpen(db);
 
-                            /* TODO check migrate that into flavour
-                            RadioMigrationHelper.migrateFavoritesFromPrefsToRoomOnce(mCtx.getApplicationContext(), db);
-                            */
+                            /*
+                             * TODO check migrate that into flavour
+                             * RadioMigrationHelper.migrateFavoritesFromPrefsToRoomOnce(mCtx.
+                             * getApplicationContext(), db);
+                             */
                         }
                     })
                     .build();
-
 
             // Force early access to trigger DB open and migrations (and also check SQL
             // version)

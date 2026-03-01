@@ -41,6 +41,7 @@ public class Podcast implements Parcelable {
     public boolean autoDelete;
 
     public long lastCheck;
+    public long date_maj;
 
     public boolean sort_newest_top;
 
@@ -51,6 +52,7 @@ public class Podcast implements Parcelable {
 
     public Podcast() {
         this.date_added = System.currentTimeMillis();
+        this.date_maj = this.date_added;
         this.sort_newest_top = Option.getPodcastEpisodesSortOrder();
     }
 
@@ -84,6 +86,7 @@ public class Podcast implements Parcelable {
         }
         date_added = in.readLong();
         lastCheck = in.readLong();
+        date_maj = in.readLong();
         sort_newest_top = in.readByte() != 0;
         timeListened = in.readLong();
     }
@@ -120,6 +123,7 @@ public class Podcast implements Parcelable {
         }
         parcel.writeLong(date_added);
         parcel.writeLong(lastCheck);
+        parcel.writeLong(date_maj);
         parcel.writeByte((byte) (sort_newest_top ? 1 : 0));
         parcel.writeLong(timeListened);
     }
