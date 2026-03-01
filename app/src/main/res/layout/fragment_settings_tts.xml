@@ -96,6 +96,18 @@
             style="@style/OptionExplainText"
             android:text="@string/option_tts_overlay_timeout_explain"
             />
+        <View style="@style/myStyleViewSimpleHorizontalBar"/>
+        <LinearLayout
+            android:id="@+id/ll_tts_use_theme_color_for_cursor"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:layout_marginTop="0dp">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_tts_use_theme_color_for_cursor"
+                style="@style/OptionCheckBox" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_tts_use_theme_color_for_cursor" />
+        </LinearLayout>
 
 
         <View style="@style/myStyleViewSimpleHorizontalBar"
