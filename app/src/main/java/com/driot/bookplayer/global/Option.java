@@ -102,10 +102,10 @@ public class Option {
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
     private static final int DEFAULT_SCREENSAVER_DELAY_SECONDS = 10;
-    private static final int MIN_SCREENSAVER_DELAY_SECONDS = 2;
-    private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60;
+    private static final int MIN_SCREENSAVER_DELAY_SECONDS = 10;
+    private static final int MAX_SCREENSAVER_DELAY_SECONDS = 60*60;
     private static final String DEFAULT_SCREENSAVER_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_WAVE;
-    private static final boolean DEFAULT_SCREENSAVER_FORCE_ORIENTATION = true;
+    private static final boolean DEFAULT_SCREENSAVER_FORCE_ORIENTATION = false;
     private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
     private static final boolean DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS = false;
 
