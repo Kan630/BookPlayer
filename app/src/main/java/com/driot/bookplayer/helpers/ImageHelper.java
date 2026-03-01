@@ -65,7 +65,7 @@ public class ImageHelper {
             return compressAndSaveImage(context, imageBytes, imagePath, isCached);
 
         } catch (Throwable t) {
-            myLogEE(t, "downloadAndMaybeCompressImage() failed for: " + imageUrl);
+            myLogE("downloadAndMaybeCompressImage() failed for: " + imageUrl);
             return null;
         }
     }
