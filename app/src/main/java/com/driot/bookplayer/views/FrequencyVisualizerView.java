@@ -131,6 +131,7 @@ public class FrequencyVisualizerView extends View {
     // RUNTIME STATE
     // ───────────────────────────────────────────
     private Visualizer visualizer;
+    private int currentAudioSessionId = -1;
     private byte[] fftBytes; // raw [re0, im0, re1, im1, ...]
     private byte[] waveformBytes; // raw waveform (legacy mode)
     private final float[] bars = new float[NB_BARS]; // smoothed 0..1 values
@@ -180,38 +181,46 @@ public class FrequencyVisualizerView extends View {
         if (VISUALIZER_DISABLED) {
             myLog("Visualizer disabled (test mode)");
             // Make sure we don’t hold any native resources
-            if (visualizer != null) {
-                try {
-                    visualizer.release();
-                } catch (Throwable ignored) {
-                }
-            }
-            visualizer = null;
-            fftBytes = null;
-            waveformBytes = null;
-            invalidate();
+            release();
             return;
         }
-        if (visualizer == null) {
+
+        if (audioSessionId <= 0) {
+            // Often session 0 is the global mix, which requires special permissions
+            // or is simply empty. Better to wait for a real session ID.
+            if (visualizer != null) {
+                myLog("link_toto - invalid session " + audioSessionId + " / releasing current");
+                release();
+            }
+            return;
+        }
+
+        if (visualizer == null || audioSessionId != currentAudioSessionId) {
+            myLog("link_toto - session changed " + currentAudioSessionId + " -> " + audioSessionId);
             boolean ok = link(audioSessionId);
-            if (!ok && audioSessionId > 0) {
-                if (pendingLinkRetry != null) removeCallbacks(pendingLinkRetry);
+            if (!ok) {
+                if (pendingLinkRetry != null)
+                    removeCallbacks(pendingLinkRetry);
                 pendingLinkRetry = () -> {
                     pendingLinkRetry = null;
                     link_toto(audioSessionId);
                 };
-                postDelayed(pendingLinkRetry, 250);
+                postDelayed(pendingLinkRetry, 500); // slightly longer delay
             }
         }
     }
 
-    /** @return true if linked successfully, false if init failed (e.g. session in use). */
+    /**
+     * @return true if linked successfully, false if init failed (e.g. session in
+     *         use).
+     */
     private boolean link(int audioSessionId) {
         if (VISUALIZER_DISABLED)
             return false;
         release();
         myLog("link - audioSessionId = [" + audioSessionId + "]");
         try {
+            currentAudioSessionId = audioSessionId;
             visualizer = new Visualizer(audioSessionId);
             int maxSize = Visualizer.getCaptureSizeRange()[1];
             visualizer.setCaptureSize(maxSize);
@@ -441,7 +450,8 @@ public class FrequencyVisualizerView extends View {
 
     /**
      * Draw a smooth closed path whose radius varies with angle.
-     * - Global pulse: base radius scales with average energy (whole circle breathes).
+     * - Global pulse: base radius scales with average energy (whole circle
+     * breathes).
      * - Per-segment: power-curved value * deform scale for more bounce.
      * - Catmull-Rom style cubic Bezier for smooth, rounded shape.
      */
@@ -579,12 +589,15 @@ public class FrequencyVisualizerView extends View {
         }
         if (visualizer != null) {
             try {
+                visualizer.setEnabled(false);
                 visualizer.release();
             } catch (Throwable ignored) {
             }
             visualizer = null;
         }
+        currentAudioSessionId = -1;
         fftBytes = null;
         waveformBytes = null;
+        invalidate();
     }
 }

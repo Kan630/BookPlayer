@@ -218,8 +218,8 @@ public class PlayActivity extends BaseActivity {
 
         // TTS
         ttsContainer.setVisibility(isTextBook ? View.VISIBLE : View.GONE);
-        frequencyVisualizerView.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);;
-        ivCover.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);;
+        frequencyVisualizerView.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);
+        ivCover.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);
         if (isTextBook) {
             initTtsVoiceSpinner(folder);
             ttsHighlighter = new TtsHighlighter(this, tvTtsText);
@@ -495,6 +495,8 @@ public class PlayActivity extends BaseActivity {
             ttsHighlighter.onDestroy();
         if (ttsOverlayManager != null)
             ttsOverlayManager.onDestroy();
+        if (frequencyVisualizerView != null)
+            frequencyVisualizerView.release();
         super.onDestroy();
     }
 
