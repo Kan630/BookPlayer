@@ -36,6 +36,11 @@ public class PodcastHelper {
         myLog("stub!");
     }
 
+    @androidx.annotation.Nullable
+    public static String getPodcastOriginalCoverUrl(Context context, int folderId) {
+        return null;
+    }
+
     public static void handlePodcastImages(Context context) {
         myLog("stub!");
     }

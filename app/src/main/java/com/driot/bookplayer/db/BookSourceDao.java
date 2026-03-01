@@ -30,6 +30,9 @@ public interface BookSourceDao {
     @Query("SELECT * FROM BookSource WHERE id = :id")
     BookSource getById(long id);
 
+    @Query("SELECT * FROM BookSource WHERE idFolder = :folderId LIMIT 1")
+    BookSource getByFolderId(long folderId);
+
     @Query("SELECT * FROM BookSource ORDER BY id DESC")
     List<BookSource> getAll();
 

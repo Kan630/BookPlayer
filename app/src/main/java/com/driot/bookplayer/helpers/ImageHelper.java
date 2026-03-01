@@ -17,10 +17,12 @@ import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -44,7 +46,7 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_RADIO_COVERS = "radio_station_";
     public static final String IMAGE_PREFIX_FOR_LIBRIVOX_COVERS = "librivox_img_";
     public static final String IMAGE_PREFIX_FOR_SAVED_BOOK = "folder_id_";
-    public static final String IMAGE_PREFIX_FOR_ORIGINAL_COVER = "saved_";
+    public static final String IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER = "saved_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
 
     // TODO ASYNC...
@@ -334,6 +336,10 @@ public class ImageHelper {
         finalizeTempFolderImage(context, folderId, "");
     }
 
+    private static File getOriginalImageSavedCopy(Context context, int folderId) {
+        return new File(StorageHelper.getImageFolder(context, false), IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER + folderId + ".jpg");
+    }
+
     public static void finalizeTempFolderImage(Context context, int folderId, String suffix) {
         String safeSuffix = (suffix == null) ? "" : suffix;
         File tmpFile = new File(StorageHelper.getImageFolder(context, true),
@@ -346,25 +352,24 @@ public class ImageHelper {
             return;
         }
 
-        // Also save a copy as "original" (saved_XX.jpg)
-        File originalFile = new File(StorageHelper.getImageFolder(context, false),
-                IMAGE_PREFIX_FOR_ORIGINAL_COVER + folderId + ".jpg");
+        // First, save a copy as "original" (saved_XX.jpg)
+        File originalSavedCopyFile = getOriginalImageSavedCopy(context, folderId);
         try {
-            copyFile(tmpFile, originalFile);
-            myLog("Original cover preserved at: " + originalFile.getAbsolutePath());
+            copyFile(tmpFile, originalSavedCopyFile);
+            myLog("Original cover preserved at: " + originalSavedCopyFile.getAbsolutePath());
         } catch (IOException e) {
             myLogE("Failed to preserve original cover: " + e.getMessage());
         }
 
+        // Then, renamed the tmp file to a proper name
         boolean renamed = tmpFile.renameTo(newFile);
         if (!renamed) {
             myLogE("Failed to rename temp image to: " + newFile.getAbsolutePath());
             return;
         }
-
         myLog("Temp image renamed to: " + newFile.getAbsolutePath());
 
-        // Update folder in DB
+        // And persist its new name in DB
         AppDatabase.databaseWriteExecutor.execute(() -> {
             Folder folder = AppDatabase.getDatabase(context).folderDao().getById(folderId);
             if (folder != null) {
@@ -1067,9 +1072,8 @@ public class ImageHelper {
 
     /**
      * Gets the path to the original cover for a folder.
-     * Original covers are saved as folder_id_{id}.png or folder_id_{id}.jpg
-     * (without hash suffix).
-     * 
+     * for "reset to original" button
+     *
      * @param context  Android context
      * @param folderId Database ID of the folder
      * @return Absolute path to original cover, or null if not found
@@ -1077,34 +1081,33 @@ public class ImageHelper {
     @Nullable
     public static String getOriginalCoverPath(Context context, int folderId) {
         // 1) Check for preserved original image (saved_XX.jpg)
-        File dirPermanant = StorageHelper.getImageFolder(context, false);
-        File savedOriginal = new File(dirPermanant, IMAGE_PREFIX_FOR_ORIGINAL_COVER + folderId + ".jpg");
-        if (savedOriginal.exists()) {
-            return savedOriginal.getAbsolutePath();
+        File dir = StorageHelper.getImageFolder(context, false);
+        File originalSavedCopyFile = getOriginalImageSavedCopy(context, folderId);
+        if (originalSavedCopyFile.exists() && originalSavedCopyFile.isFile()) {
+            return originalSavedCopyFile.getAbsolutePath();
         }
 
-        // LEGACY :
-
-        // --- Backwards compatibility / Specialized handlers ---
+        // --- Backwards compatibility / Legacy paths ---
         // Try Podcast first
-        String podcastPath = PodcastHelper.getOriginalCoverPath(context, folderId);
+        String podcastPath = PodcastHelper.getPodcastOriginalCoverPath(context, folderId);
         if (podcastPath != null) {
             return podcastPath;
         }
 
-        // Try Librivox
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
         Folder folder = db.folderDao().getById(folderId);
-        if (folder != null && Var.SOURCE_LOCATION_LIBRIVOX.equals(folder.getSourceLocation())) {
-            String identifier = com.driot.bookplayer.utils.Tonio.getFileNameFromPath(folder.getPath());
+        if (folder == null)
+            return null;
+
+        // Try Librivox legacy
+        if (Var.SOURCE_LOCATION_LIBRIVOX.equals(folder.getSourceLocation())) {
+            String identifier = Tonio.getFileNameFromPath(folder.getPath());
             File cachedDir = StorageHelper.getImageFolder(context, true);
             File librivoxFile = new File(cachedDir, IMAGE_PREFIX_FOR_LIBRIVOX_COVERS + identifier + ".jpg");
             if (librivoxFile.exists()) {
                 return librivoxFile.getAbsolutePath();
             }
         }
-
-        File dir = StorageHelper.getImageFolder(context, false);
 
         // Check for PNG first (preferred format for transparency)
         File pngFile = new File(dir, IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".png");
@@ -1116,6 +1119,70 @@ public class ImageHelper {
         File jpgFile = new File(dir, IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + ".jpg");
         if (jpgFile.exists()) {
             return jpgFile.getAbsolutePath();
+        }
+
+        // artillerie lourde
+        try {
+            myLog("trying CoverPictureDetection");
+            Uri uri = Uri.parse(folder.getUri());
+            if (uri == null) {
+                myLog("Cannot parse Uri");
+            }
+            DocumentFile docFolder = UriHelper.getDocumentFileFromAnyUri(context, uri);
+            if (docFolder == null || !docFolder.exists()) {
+                myToast("Cannot access folder to detect cover");
+            }
+
+            // Step 1: Try to detect cover from folder images
+            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(context,
+                    docFolder, null);
+            if (result!=null && result.imagePath != null) {
+                return result.imagePath;
+            }
+        } catch (Exception e) {
+            myLogEE(e, "CoverPictureDetection - getOriginalCoverPath");
+        }
+
+        // --- Step 2: External Recovery (Re-download) ---
+        String externalUrl = null;
+
+        // --- 2a: Check BookSource first ---
+        try {
+            BookSource bs = db.bookSourceDao().getByFolderId(folderId);
+            if (bs != null && bs.imageRemote != null && !bs.imageRemote.isEmpty()) {
+                externalUrl = bs.imageRemote;
+                myLog("Found remote cover URL in BookSource: " + externalUrl);
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error checking BookSource for cover");
+        }
+
+        // --- 2b: Fallback to specialized logic if no BookSource URL found ---
+        if (externalUrl == null) {
+            if (Var.SOURCE_LOCATION_PODCAST.equals(folder.getSourceLocation())) {
+                externalUrl = PodcastHelper.getPodcastOriginalCoverUrl(context, folderId);
+            } else if (Var.SOURCE_LOCATION_LIBRIVOX.equals(folder.getSourceLocation())) {
+                String identifier = Tonio.getFileNameFromPath(folder.getPath());
+                if (identifier != null && !identifier.isEmpty()) {
+                    externalUrl = "https://archive.org/services/img/" + identifier;
+                }
+            } else if (Var.SOURCE_LOCATION_EBOOK_GUTENDEX.equals(folder.getSourceLocation())) {
+                String identifier = Tonio.getFileNameFromPath(folder.getPath());
+                if (identifier != null && identifier.startsWith("gutendex_")) {
+                    String id = identifier.substring("gutendex_".length());
+                    externalUrl = "https://www.gutenberg.org/cache/epub/" + id + "/pg" + id + ".cover.medium.jpg";
+                }
+            }
+        }
+
+        if (externalUrl != null) {
+            String fileName = IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER + folderId + ".jpg";
+            myLog("Attempting to redownload missing original cover: " + externalUrl);
+            if (NetworkHelper.isConnected(context)) {
+                return downloadAndVerifyImage(context, externalUrl, fileName, false);
+            } else {
+                myToast("no internet connection");
+            }
         }
 
         return null;

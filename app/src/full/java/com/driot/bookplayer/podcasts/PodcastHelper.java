@@ -491,7 +491,7 @@ public class PodcastHelper {
      * @return Absolute path to original cover, or null if not found
      */
     @androidx.annotation.Nullable
-    public static String getOriginalCoverPath(Context context, int folderId) {
+    public static String getPodcastOriginalCoverPath(Context context, int folderId) {
         // LEGACY
         Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
                 .getPodcastByFolderId(folderId);
@@ -526,6 +526,16 @@ public class PodcastHelper {
                 myLogI("No podcast linked to folder " + folder.getId());
             }
         });
+    }
+
+    @androidx.annotation.Nullable
+    public static String getPodcastOriginalCoverUrl(Context context, int folderId) {
+        Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
+                .getPodcastByFolderId(folderId);
+        if (podcast != null) {
+            return podcast.imageOriginalUrl;
+        }
+        return null;
     }
 
     public static void handlePodcastImages(Context context, long currentTime) {

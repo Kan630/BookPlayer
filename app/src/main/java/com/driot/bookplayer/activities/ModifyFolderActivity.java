@@ -21,7 +21,6 @@ import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
-import androidx.documentfile.provider.DocumentFile;
 import androidx.work.Data;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
@@ -35,13 +34,11 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.UriHelper;
-import com.driot.bookplayer.helpers.CoverPictureDetection;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.quickshare.NearbyShareActivity;
@@ -389,76 +386,13 @@ public class ModifyFolderActivity extends BaseActivity {
                     myToast("Original cover restored");
                     myLog("Cover reset to original: " + originalPath);
                 } else {
-                    // No original cover file found - need to detect/create one
-                    // => legacy + fallback
-                    myLog("No original cover file found, detecting from folder");
-                    boolean resultOk = detectAndSaveOriginalCover();
-                    if (!resultOk) {
-                        myToast("Could not find original cover");
-                    }
+                    myToastE("Could not restore original cover");
                 }
             } catch (Exception e) {
                 myLogEE(e, "Error resetting cover to original");
-                myToast("Error resetting cover");
+                myToastE("Error resetting cover");
             }
         });
-    }
-
-    /**
-     * Detects cover from folder and saves it as the original.
-     * This is a fallback for books imported before the original cover preservation
-     * feature.
-     */
-    private boolean detectAndSaveOriginalCover() {
-        try {
-            // Get the folder URI to scan for images
-            Uri uri = Uri.parse(folder.getUri());
-            if (uri == null) {
-                myLog("Cannot parse Uri");
-                return false;
-            }
-
-            // Parse the URI and get DocumentFile
-            DocumentFile docFolder = UriHelper.getDocumentFileFromAnyUri(this, uri);
-
-            if (docFolder == null || !docFolder.exists()) {
-                myToast("Cannot access folder to detect cover");
-                return false;
-            }
-
-            // Step 1: Try to detect cover from folder images
-            CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection.detectCoverFromFolder(this,
-                    docFolder, null);
-
-            String finalCoverPath = null;
-            String sourceMessage = null;
-
-            if (result!=null && result.imagePath != null) {
-                // Found an image in the folder
-                finalCoverPath = result.imagePath;
-                sourceMessage = "Original cover image restored from folder";
-            } else {
-                // Step 2: No image found
-                myLog("No cover image found in folder");
-                //check originalPath
-            }
-
-            // Update database if we have a cover
-            if (finalCoverPath != null) {
-                folder.image = finalCoverPath;
-                AppDatabase.getDatabase(this).folderDao().update(folder);
-
-                // Create final copies for lambda
-                myToast(sourceMessage);
-                myLog("Cover reset to: " + finalCoverPath);
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error detecting original cover");
-            return false;
-        }
     }
 
     private void resetFolder() {
