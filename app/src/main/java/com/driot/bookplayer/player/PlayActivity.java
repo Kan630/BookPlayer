@@ -113,8 +113,10 @@ public class PlayActivity extends BaseActivity {
 
     private FrequencyVisualizerView frequencyVisualizerView;
 
-    private View ttsContainer;
+    private TtsHighlighter ttsHighlighter;
+    private TtsOverlayManager ttsOverlayManager;
     private TtsTextView tvTtsText;
+    private View ttsContainer;
 
     private long podcastLastClickTime = 0;
     public static final long PODCAST_DOUBLE_CLICK_THRESHOLD = 300;
@@ -659,10 +661,6 @@ public class PlayActivity extends BaseActivity {
     public void showTtsLoading(boolean show) {
         showTtsLoading(show, null);
     }
-
-    // --- Refactored TTS Highlighter ---
-    private TtsHighlighter ttsHighlighter;
-    private TtsOverlayManager ttsOverlayManager;
 
     // Callbacks from TtsHighlighter
     public void applyAutoScroll(TextView tv, int startPos) {
