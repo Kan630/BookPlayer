@@ -26,30 +26,38 @@ public class RadioHelper {
 			AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 			List<RadioStation> radioStations = db.radioStationDao().getAllWithExternalImagesUnchangedSince24h(System.currentTimeMillis());
 			for (RadioStation radioStation : radioStations) {
+				myLog("caching favicon for: " + radioStation.name);
 				String url = radioStation.favicon;
 				String imagePath = ImageHelper.IMAGE_PREFIX_FOR_RADIO_COVERS + radioStation.stationuuid + ".jpg";
 				String localPath = null;
+				boolean failed = true;
 				localPath = ImageHelper.downloadAndMaybeCompressImage(context, url, imagePath, false);
 				if (localPath != null) {
 					File f = new File(localPath);
 					if (f.exists() && f.length() > 0L) {
 						// OK, non-empty file → persist local path
+						failed = false;
 						radioStation.favicon = localPath;
 						radioStation.date_maj = System.currentTimeMillis();
 						db.radioStationDao().update(radioStation);
 					} else {
 						// 0 KB or missing → treat as failure, clean up
-						myLogW("Radio favicon download failed or empty (" + f.length() + " bytes) for " + url);
+						myLogW("Radio favicon downloaded file ko or empty (" + f.length() + " bytes) for " + url);
 						if (f.exists() && f.length() == 0L) {
 							try {
 								myLog("deleting bad file, success=" + f.delete());
 							} catch (Exception ignored) {
+								myLogE("deleting bad file, KO");
 							}
 						}
-						radioStation.date_maj = System.currentTimeMillis();
-						db.radioStationDao().update(radioStation);
 						// keep old favicon URL in DB so Glide can still try remote
 					}
+				} else {
+					myLogW("Radio favicon download failed for: " + url);
+				}
+				if (failed) {
+					radioStation.date_maj = System.currentTimeMillis();
+					db.radioStationDao().update(radioStation);
 				}
 			}
 		}
