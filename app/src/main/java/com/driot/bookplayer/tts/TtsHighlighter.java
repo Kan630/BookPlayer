@@ -9,7 +9,8 @@ import android.text.SpannableStringBuilder;
 import android.text.method.ScrollingMovementMethod;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
-import android.widget.TextView;
+
+import com.driot.bookplayer.helpers.ColorHelper;
 import com.driot.bookplayer.views.TtsTextView;
 import androidx.lifecycle.LifecycleOwner;
 
@@ -18,17 +19,13 @@ import androidx.annotation.Nullable;
 
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 import android.view.ViewConfiguration;
 import android.text.Layout;
 
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
-
-import java.lang.ref.WeakReference;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -46,8 +43,8 @@ public class TtsHighlighter {
     private final Handler uiH = new Handler(Looper.getMainLooper());
 
     private Spannable spannableText;
-    private final BackgroundColorSpan ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
-    private final ForegroundColorSpan ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
+    private final BackgroundColorSpan ttsBgSpan;
+    private final ForegroundColorSpan ttsFgSpan;
 
     // State tracking
     @Nullable
@@ -81,6 +78,17 @@ public class TtsHighlighter {
     public TtsHighlighter(Context context, TtsTextView tvTtsText) {
         this.tvTtsText = tvTtsText;
         this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+
+        if (Option.getTtsUseThemeColorForCursor()) {
+            int colorPrimary = ColorHelper.getColorPrimaryForTtsCursor(context);
+            int colorOnPrimary = ColorHelper.getColorOnPrimaryForTtsCursor(context);
+            //this.ttsBgSpan = new BackgroundColorSpan(ColorHelper.withAlpha(colorPrimary, 0x88));
+            this.ttsBgSpan = new BackgroundColorSpan(colorPrimary);
+            this.ttsFgSpan = new ForegroundColorSpan(colorOnPrimary);
+        } else {
+            this.ttsBgSpan = new BackgroundColorSpan(0x55FFFF00);
+            this.ttsFgSpan = new ForegroundColorSpan(Color.BLACK);
+        }
     }
 
     public void setListener(Listener listener) {
