@@ -13,6 +13,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.librivox.ArchiveApiResponse;
 import com.driot.bookplayer.librivox.ArchiveItem;
+import com.driot.bookplayer.librivox.LibrivoxLanguageStore;
 import com.driot.bookplayer.librivox.LibrivoxRepository;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
@@ -440,6 +441,10 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                                 ? response.body().response.numFound
                                 : -1;
                         pagedTotalCount = total;
+                        if ("trending".equals(searchType) && lastLangCode3 != null && total >= 0) {
+                            new LibrivoxLanguageStore(getApplication())
+                                    .updateLanguageCompletedCount(lastLangCode3, (int) total);
+                        }
                         for (ArchiveItem it : items) {
                             if (it.imageRemote == null && it.identifier != null) {
                                 it.imageRemote = "https://archive.org/services/img/" + it.identifier;
