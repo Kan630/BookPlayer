@@ -475,6 +475,7 @@
     <string name="loading_detail_failed">Не удалось загрузить сведения</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3 файл доступен</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 файл не найден</string>
+    <string name="librivox_zip_mp3_checking">проверка ZIP-MP3 файла</string>
 
     <string name="librivox_cover_desc">Обложка Librivox</string>
 

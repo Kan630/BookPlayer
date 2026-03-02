@@ -477,6 +477,7 @@
     <string name="loading_detail_failed">Caricamento dettagli non riuscito</string>
     <string name="librivox_zip_mp3_available">File ZIP-MP3 disponibile</string>
     <string name="librivox_zip_mp3_not_found">File ZIP-MP3 non trovato</string>
+    <string name="librivox_zip_mp3_checking">verifica del file ZIP-MP3</string>
 
     <string name="librivox_cover_desc">Copertina Librivox</string>
 

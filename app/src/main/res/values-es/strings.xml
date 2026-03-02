@@ -474,6 +474,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="loading_detail_failed">Error al cargar detalles</string>
     <string name="librivox_zip_mp3_available">Archivo ZIP-MP3 disponible</string>
     <string name="librivox_zip_mp3_not_found">Archivo ZIP-MP3 no encontrado</string>
+    <string name="librivox_zip_mp3_checking">comprobando archivo ZIP-MP3</string>
 
     <string name="librivox_cover_desc">Portada de Librivox</string>
 

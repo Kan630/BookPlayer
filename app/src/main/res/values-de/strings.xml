@@ -478,6 +478,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="loading_detail_failed">Details konnten nicht geladen werden</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3-Datei verfügbar</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3-Datei nicht gefunden</string>
+    <string name="librivox_zip_mp3_checking">ZIP-MP3-Datei wird geprüft</string>
 
     <string name="librivox_cover_desc">Librivox-Cover</string>
 

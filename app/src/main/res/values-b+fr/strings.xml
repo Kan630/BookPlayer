@@ -489,6 +489,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="loading_detail_failed">Échec du chargement des détails</string>
     <string name="librivox_zip_mp3_available">Fichier ZIP-MP3 disponible</string>
     <string name="librivox_zip_mp3_not_found">Fichier ZIP-MP3 introuvable</string>
+    <string name="librivox_zip_mp3_checking">vérification du fichier ZIP-MP3</string>
 
     <string name="librivox_cover_desc">Couverture Librivox</string>
 

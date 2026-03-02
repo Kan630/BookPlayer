@@ -471,6 +471,7 @@
     <string name="loading_detail_failed">فشل في تحميل التفاصيل</string>
     <string name="librivox_zip_mp3_available">ملف ZIP-MP3 متاح</string>
     <string name="librivox_zip_mp3_not_found">لم يتم العثور على ملف ZIP-MP3</string>
+    <string name="librivox_zip_mp3_checking">جاري التحقق من ملف ZIP-MP3</string>
 
     <string name="librivox_cover_desc">غلاف Librivox</string>
 

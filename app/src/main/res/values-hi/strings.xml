@@ -474,6 +474,7 @@
     <string name="loading_detail_failed">विवरण लोड करने में विफल</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3 फ़ाइल उपलब्ध</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 फ़ाइल नहीं मिली</string>
+    <string name="librivox_zip_mp3_checking">ZIP-MP3 फ़ाइल की जाँच की जा रही है</string>
 
     <string name="librivox_cover_desc">Librivox कवर</string>
 
