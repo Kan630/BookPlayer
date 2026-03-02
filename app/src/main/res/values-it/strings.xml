@@ -758,7 +758,7 @@
     <string name="return_max">ritorno massimo</string>
     <string name="maximum_number_of_results_for_">Numero massimo di risultati per </string>
     <string name="minimum_number_of_results_for_">Numero minimo di risultati per </string>
-    <string name="repositories_settings">impostazioni Librivox</string>
+    <string name="repositories_settings">Impostazioni archivi</string>
     <string name="error_no_space_left">Spazio insufficiente sul dispositivo</string>
     <string name="solution_free_space">Libera spazio di archiviazione e riprova.</string>
     <string name="invalid_resource">Risorsa non valida.</string>
@@ -857,7 +857,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="massiveimport_title">Importazione di più libri</string>
     <string name="scanning_folder">scansione cartella</string>
     <string name="Nothing_to_re_import_among">Niente da reimportare tra</string>
-    <string name="please_wait_another_book">Attendi — un altro libro è ancora in fase di download o caricamento.\nSe non è così, usa il pulsante Ripristina app in [Impostazioni &gt; Utilità &gt; Annulla operazione in corso].</string>
+    <string name="please_wait_another_book">Attendere, un altro libro è in fase di caricamento…</string>
     <string name="Podcast_source_error">Errore sorgente podcast</string>
     <string name="Streaming_Podcast">Podcast in streaming</string>
     <string name="librivox_search_edittext_title">Cerca per autore o titolo…\nSuggerimento: una sola parola spesso dà risultati migliori</string>
@@ -1148,4 +1148,23 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="nearby_share_error_connection_lost">Connessione persa</string>
     <string name="nearby_share_error_payload_transfer_failed">Trasferimento del payload fallito: %s</string>
 
+
+    <string name="Full_Screen">Schermo intero</string>
+    <string name="Gutenberg_Ebooks">Ebook di Gutenberg</string>
+    <string name="Librivox_Audiobooks">Audiolibri di Librivox</string>
+    <string name="Repositories">Archivi pubblici</string>
+    <string name="backup_share_btn_cancel">Annulla</string>
+    <string name="backup_share_btn_stop">Ferma</string>
+    <string name="backup_share_live_title">Condivisione dal vivo</string>
+    <string name="backup_share_ready">Pronto</string>
+    <string name="backup_share_sending">Invio dei dati di backup…</string>
+    <string name="backup_share_sent">Backup inviato!</string>
+    <string name="backup_share_starting">Avvio…</string>
+    <string name="elapsed">trascorso</string>
+    <string name="import_export_btn_backup">Backup</string>
+    <string name="import_export_btn_restore">Procedi con il ripristino</string>
+    <string name="import_export_caution_title">Cautela: Sovrascrivere la libreria?</string>
+    <string name="import_export_desc">Backup o ripristino di oggetti…</string>
+    <string name="import_export_title">Importa / Esporta</string>
+    <string name="loading_categories">Caricamento categorie</string>
 </resources>

@@ -757,7 +757,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="return_max">макс. возврат</string>
     <string name="maximum_number_of_results_for_">Максимальное количество результатов для </string>
     <string name="minimum_number_of_results_for_">Минимальное количество результатов для </string>
-    <string name="repositories_settings">настройки Librivox</string>
+    <string name="repositories_settings">Настройки архивов</string>
     <string name="error_no_space_left">Недостаточно места на устройстве</string>
     <string name="solution_free_space">Освободите место в памяти и попробуйте снова.</string>
     <string name="invalid_resource">Недопустимый ресурс.</string>
@@ -855,7 +855,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="massiveimport_title">Импорт нескольких книг</string>
     <string name="scanning_folder">сканирование папки</string>
     <string name="Nothing_to_re_import_among">Нечего повторно импортировать среди</string>
-    <string name="please_wait_another_book">Пожалуйста, подождите — другая книга всё ещё загружается или открывается.\nЕсли это не так, используйте кнопку Сброс приложения в [Настройки &gt; Утилиты &gt; Отменить текущую операцию].</string>
+    <string name="please_wait_another_book">Пожалуйста, подождите — загружается другая книга…</string>
     <string name="Podcast_source_error">Ошибка источника подкаста</string>
     <string name="Streaming_Podcast">Потоковый подкаст</string>
     <string name="librivox_search_edittext_title">Поиск по автору или названию...\nСовет: одно слово часто даёт лучшие результаты</string>
@@ -1150,5 +1150,24 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="nearby_share_error_connection_lost">Соединение разорвано</string>
     <string name="nearby_share_error_payload_transfer_failed">Сбой передачи полезной нагрузки: %s</string>
 
+
+    <string name="Full_Screen">Полноэкранный режим</string>
+    <string name="Gutenberg_Ebooks">Электронные книги Гутенберга</string>
+    <string name="Librivox_Audiobooks">Аудиокниги Либривокс</string>
+    <string name="Repositories">Публичные архивы</string>
+    <string name="backup_share_btn_cancel">Отмена</string>
+    <string name="backup_share_btn_stop">Стоп</string>
+    <string name="backup_share_live_title">Живой обмен</string>
+    <string name="backup_share_ready">Готово</string>
+    <string name="backup_share_sending">Отправка данных резервного копирования…</string>
+    <string name="backup_share_sent">Резервная копия отправлена!</string>
+    <string name="backup_share_starting">Запуск…</string>
+    <string name="elapsed">прошло</string>
+    <string name="import_export_btn_backup">Резервное копирование</string>
+    <string name="import_export_btn_restore">Продолжить восстановление</string>
+    <string name="import_export_caution_title">Внимание: Перезаписать библиотеку?</string>
+    <string name="import_export_desc">Резервное копирование или восстановление…</string>
+    <string name="import_export_title">Импорт / Экспорт</string>
+    <string name="loading_categories">Загрузка категорий</string>
 </resources>
 
