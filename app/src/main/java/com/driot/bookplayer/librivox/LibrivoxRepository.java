@@ -78,7 +78,7 @@ public class LibrivoxRepository {
     }
 
     // =====================================================================
-    // HOT LISTS (with Cloudflare fallback)
+    // HOT LISTS
     // =====================================================================
 
     private void searchHotListWithFallback(String label, String q, List<String> fields,
@@ -128,12 +128,6 @@ public class LibrivoxRepository {
         });
     }
 
-    /** First page (page 1) only. */
-    public void mostDownloadedByLang(String lang, int limit,
-                                     Callback<ArchiveApiResponse> cb) {
-        mostDownloadedByLang(lang, limit, 1, cb);
-    }
-
     /** With page (1-based) for pagination. */
     public void mostDownloadedByLang(String lang, int limit, int page,
                                      Callback<ArchiveApiResponse> cb) {
@@ -145,45 +139,6 @@ public class LibrivoxRepository {
                 API_SORT_DOWNLOADS_DESC, cb);
     }
 
-    public void mostDownloadedByGenre(String lang, String genre, int limit,
-                                      Callback<ArchiveApiResponse> cb) {
-        List<String> fields = Arrays.asList("identifier", "title", "date",
-                "avg_rating", "num_reviews");
-        String q = "collection:librivoxaudio AND language:(" + lang + ")";
-
-        if (genre != null && !genre.trim().isEmpty()) {
-            String g = genre.trim().toLowerCase();
-            q += " AND subject:(\"" + g + "\")";
-        }
-
-        myLog("Librivox mostDownloadedByGenre: [" + q + "]");
-        searchHotListWithFallback("mostDownloadedByGenre", q, fields, limit, 1,
-                API_SORT_DOWNLOADS_DESC, cb);
-    }
-
-    public void mostDownloadedByAuthor(String lang, String author, int limit,
-                                       Callback<ArchiveApiResponse> cb) {
-        List<String> fields = Arrays.asList("identifier", "title", "date",
-                "avg_rating", "num_reviews");
-        String q = "collection:librivoxaudio AND language:(" + lang + ")";
-
-        if (author != null && !author.trim().isEmpty()) {
-            String a = author.trim().toLowerCase();
-            q += " AND creator:(" + a + ")";
-        }
-
-        myLog("Librivox mostDownloadedByAuthor: [" + q + "]");
-        searchHotListWithFallback("mostDownloadedByAuthor", q, fields, limit, 1,
-                API_SORT_DOWNLOADS_DESC, cb);
-    }
-
-    /** First page (page 1) only. */
-    public void mostRecentlyAddedByLang(String lang, int limit,
-                                        Callback<ArchiveApiResponse> cb) {
-        mostRecentlyAddedByLang(lang, limit, 1, cb);
-    }
-
-    /** With page (1-based) for pagination. */
     public void mostRecentlyAddedByLang(String lang, int limit, int page,
                                         Callback<ArchiveApiResponse> cb) {
         List<String> fields = Arrays.asList("identifier", "title", "date",
