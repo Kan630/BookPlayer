@@ -46,10 +46,8 @@
     <string name="device">устройство</string>
     <string name="Disc">Диск</string>
     <string name="done">готово</string>
-    <string name="done.">готово.</string>
     <string name="download">скачать</string>
     <string name="Download">Загрузить</string>
-    <string name="download_verb">Скачать</string>
     <string name="download_noun">Загрузка</string>
     <string name="downloaded">"загружено"</string>
     <string name="Downloading">"Загрузка"</string>
@@ -63,7 +61,6 @@
     <string name="Exit">Выход</string>
     <string name="expand">развернуть</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Экспорт…"</string>
-    <string name="Share_3pt">"Поделиться…"</string>
     <string name="favorite">избранное</string>
     <string name="favorites">избранное</string>
     <string name="Favorites">Избранное</string>
@@ -84,7 +81,6 @@
     <string name="History">История</string> //means already listened, used for radio stations
     <string name="homepage">домашняя страница</string>
     <string name="icon">значок</string>
-    <string name="id_label">ID: </string>
     <string name="Import">импортировать</string>
     <string name="in">в</string>
     <string name="Integration">Интеграция</string>
@@ -94,7 +90,6 @@
     <string name="Language_2pt">"Язык: "</string>
     <string name="last">последние</string>
     <string name="legacy">старый</string>
-    <string name="library">библиотека</string>
     <string name="linked">связанные</string>
     <string name="links">ссылки</string>
     <string name="listened">"прослушано"</string>
@@ -111,9 +106,7 @@
     <string name="min.">мин.</string>
     <string name="Miscellaneous">Разное</string>
     <string name="ms.">мс.</string> //short for milliseconds
-    <string name="new_label">новый</string>
     <string name="No">Нет</string>
-    <string name="nothing">ничего</string>
     <string name="open">открыть</string>
     <string name="others">прочее</string>
     <string name="paste">вставить</string>
@@ -126,7 +119,6 @@
     <string name="radial">радиал</string> //for graphic vizualizer
     <string name="radio">радио</string>
     <string name="Radio">Радио</string>
-    <string name="Ready">Готово</string>
     <string name="refresh">обновить</string>
     <string name="reorder">изменить порядок</string>
     <string name="Results_2pt">"Результаты: "</string>
@@ -184,8 +176,6 @@
     <string name="About_to_start_download">Сейчас начнётся загрузка…</string>
     <string name="Please_enter_a_URL">Пожалуйста, введите URL.</string>
     <string name="Permission_Required">Требуется разрешение</string>
-
-    <string name="App_Info">Информация о приложении</string>
 
     <string name="reset_app">Сбросить приложение</string>
     <string name="add_book">добавить книгу</string>
@@ -427,11 +417,8 @@
         \n* Понадобится больше памяти, если не удалять исходный файл.
 </string>
     <string name="option_copy_file_text">Копировать аудиофайлы во внутреннюю, зарезервированную память приложения BookPlayer.</string>
-    <string name="option_night_mode_title">Режим темы  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ Система</string>
     <string name="option_night_mode_light">☀️ Светлая</string>
     <string name="option_night_mode_dark">🌙 Тёмная</string>
-    <string name="option_night_mode_dialog_title">Выберите режим темы</string>
     <string name="option_text_appearance_title">Вид текста</string>
     <string name="option_podcast_open_specific_view">Открыть определенное представление</string>
     <string name="option_podcast_open_specific_view_subtitle">При нажатии на книгу типа \'подкаст\', нужно ли открыть представление подкаста со всеми эпизодами или представление книги только с загруженными?</string>
@@ -451,7 +438,6 @@
     <string name="option_tts_language_text">Язык TTS по умолчанию для новых электронных книг.</string>
     <string name="option_tts_highlight_delay_title">Подсветка слов.</string>
     <string name="option_tts_highlight_delay_text">Задержка движка:</string>
-    <string name="option_epub_split_mode_title">Разбивка глав EPUB</string>
     <string name="option_epub_split_mode_text">Как разбивать EPUB на главы:</string>
     <string name="option_epub_split_mode_auto">Авто (Оглавление если есть, иначе Spine)</string>
     <string name="option_epub_split_mode_toc">По оглавлению (одна глава на пункт)</string>
@@ -659,9 +645,6 @@
     <string name="saving_folder">сохранение папки</string>
     <string name="saving_track">сохранение трека</string>
     <string name="MB_taken_by_images">" МБ занято изображениями"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"Вы собираетесь удалить все изображения.
-       Вы уверены?"</string>
-    <string name="deprecated_delete_cached_images">Удалить кэшированные изображения</string>
     <string name="too_low">слишком низко</string>
     <string name="too_high">слишком высоко</string>
     <string name="delay_for_auto_deletion">задержка для автоматического удаления</string>
@@ -707,7 +690,6 @@
     <string name="option_podcast_episodes_expand">показать описания</string>
     <string name="option_create_cover">Создать обложки</string>
     <string name="option_create_cover_text">Если при загрузке книги не найдено изображение обложки, будет создано пастельное изображение с инициалами названия книги.</string>
-    <string name="toggle_text_image">Переключить текст/изображение</string>
     <string name="reset_progress_from_this_track">сбросить прогресс с этой дорожки</string>
 
     <string name="rename_track">переименовать дорожку</string>
@@ -1036,7 +1018,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="error_server_not_reachable">Ой. bookplayer.driot.com недоступен.</string>
     <string name="no_favorite_podcasts_found">Избранные подкасты не найдены</string>
     <string name="permission_read_storage_not_granted">разрешение на чтение памяти не предоставлено</string>
-    <string name="error_file_not_found_attach">Файл не найден, невозможно прикрепить.</string>
     <string name="max_value_label">Макс = </string>
     <string name="already_imported_under_name">Уже импортировано под именем: </string>
     <string name="no_episode_downloaded">Нет загруженных эпизодов</string>
@@ -1062,32 +1043,17 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
     <!-- Nearby Sharing -->
     <string name="share_book">Поделиться книгой</string>
-    <string name="deprecated_nearby_share_explain">
-    Быстро делитесь книгой между двумя устройствами поблизости с установленным BookPlayer. (интернет не требуется)\n
-    ➜ Чтобы поделиться книгой, откройте её, перейдите в настройки (значок вверху справа) и нажмите [Быстрый обмен] внизу.\n
-    ➜ Чтобы получить книгу, нажмите на меню с тремя точками (вверху справа) на главном экране и выберите [Быстрый обмен].
-    </string>
     <string name="Quick_Share_3dots">Быстрый обмен…</string>
-    <string name="nearby_share_send_tab">Отправить</string>
-    <string name="nearby_share_receive_tab">Получить</string>
     <string name="nearby_share_receive_book">Быстрый обмен</string>
     <string name="nearby_share_start_advertising">Начать отправку</string>
     <string name="nearby_share_stop_advertising">Остановить отправку</string>
     <string name="nearby_share_start_discovering">Начать поиск</string>
     <string name="nearby_share_stop_discovering">Остановить поиск</string>
-    <string name="nearby_share_searching">Поиск устройств поблизости…</string>
     <string name="nearby_share_found_device">Устройство найдено: %s</string>
     <string name="nearby_share_connecting">Подключение…</string>
-    <string name="nearby_share_transferring">Передача: %d%%</string>
-    <string name="nearby_share_receiving">Получение: %d%%</string>
     <string name="nearby_share_complete">¡Передача завершена!</string>
-    <string name="nearby_share_failed">Ошибка передачи</string>
-    <string name="nearby_share_accept_transfer">Принять книгу от %s?</string>
-    <string name="nearby_share_auto_importing">Автоматический импорт книги…</string>
     <string name="nearby_share_permissions_required">Для работы быстрого обмена требуются разрешения для Bluetooth и доступа к местоположению</string>
-    <string name="nearby_share_no_devices">Устройства не найдены</string>
     <string name="nearby_share_book_info">(%1$d треков, %2$s)</string>
-    <string name="nearby_share_receive_mode_info">Ожидание получения книги от ближайшего устройства…</string>
     <string name="nearby_share_ready">Готово</string>
 
     <plurals name="audio_files_count">
@@ -1183,7 +1149,6 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="nearby_share_error_connection_failed_status">Ошибка подключения со статусом: %s</string>
     <string name="nearby_share_error_connection_lost">Соединение разорвано</string>
     <string name="nearby_share_error_payload_transfer_failed">Сбой передачи полезной нагрузки: %s</string>
-    <string name="nearby_share_error_unknown">Неизвестная ошибка</string>
 
 </resources>
 

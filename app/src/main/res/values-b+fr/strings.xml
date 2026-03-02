@@ -46,10 +46,8 @@
     <string name="device">appareil</string>
     <string name="Disc">Disque</string>
     <string name="done">terminé</string>
-    <string name="done.">terminé.</string>
     <string name="download">télécharger</string>
     <string name="Download">Télécharger</string>
-    <string name="download_verb">Télécharger</string>
     <string name="download_noun">Téléchargement</string>
     <string name="downloaded">téléchargé</string>
     <string name="Downloading">Téléchargement</string>
@@ -63,7 +61,6 @@
     <string name="Exit">Quitter</string>
     <string name="expand">développer</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">Exporter…</string>
-    <string name="Share_3pt">Partager…</string>
     <string name="favorite">favori</string>
     <string name="favorites">favoris</string>
     <string name="Favorites">Favoris</string>
@@ -84,7 +81,6 @@
     <string name="History">Historique</string> //means already listened, used for radio stations
     <string name="homepage">page d\'accueil</string>
     <string name="icon">icône</string>
-    <string name="id_label">ID : </string>
     <string name="Import">Importer</string>
     <string name="in">dans</string>
     <string name="Integration">Intégration</string>
@@ -94,7 +90,6 @@
     <string name="Language_2pt">Langue : </string>
     <string name="last">derniers</string>
     <string name="legacy">ancien</string>
-    <string name="library">bibliothèque</string>
     <string name="linked">lié</string>
     <string name="links">liens</string>
     <string name="listened">écouté</string>
@@ -111,9 +106,7 @@
     <string name="min.">min.</string>
     <string name="Miscellaneous">Divers</string>
     <string name="ms.">ms.</string> //short for milliseconds
-    <string name="new_label">nouveau</string>
     <string name="No">Non</string>
-    <string name="nothing">rien</string>
     <string name="open">ouvrir</string>
     <string name="others">autres</string>
     <string name="paste">coller</string>
@@ -127,7 +120,6 @@
     <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">radio</string>
     <string name="Radio">Radio</string>
-    <string name="Ready">Prêt</string>
     <string name="refresh">rafraîchir</string>
     <string name="reorder">réorganiser</string>
     <string name="Results_2pt">Résultats : </string>
@@ -185,8 +177,6 @@
     <string name="About_to_start_download">Sur le point de commencer le téléchargement…</string>
     <string name="Please_enter_a_URL">Veuillez saisir une URL.</string>
     <string name="Permission_Required">Autorisation requise</string>
-
-    <string name="App_Info">Infos sur l\'application</string>
 
     <string name="reset_app">Réinitialiser l\'application</string>
     <string name="add_book">ajouter un livre</string>
@@ -432,11 +422,8 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
 \n\nInconvénients :
 \n* Nécessite plus de mémoire si vous ne supprimez pas le fichier source.</string>
     <string name="option_copy_file_text">Copier les fichiers audio dans la mémoire interne réservée de BookPlayer.</string>
-    <string name="option_night_mode_title">Mode du thème  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ Système</string>
     <string name="option_night_mode_light">☀️ Clair</string>
     <string name="option_night_mode_dark">🌙 Sombre</string>
-    <string name="option_night_mode_dialog_title">Choisir le mode du thème</string>
     <string name="option_theme_mode_title">Mode du thème</string>
     <string name="option_theme_mode_force_checkbox">Forcer le thème (ignorer le système)</string>
     <string name="option_theme_mode_force_explain">Si activé, l\'app ignore le réglage clair/sombre du téléphone et utilise votre choix ci-dessous. Si désactivé, l\'app suit le système.</string>
@@ -462,7 +449,6 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>
     <string name="option_tts_highlight_delay_title">Surlignage des mots.</string>
     <string name="option_tts_highlight_delay_text">Délai du moteur :</string>
-    <string name="option_epub_split_mode_title">Découpage de chapitres EPUB</string>
     <string name="option_epub_split_mode_text">Comment découper les fichiers EPUB en chapitres :</string>
     <string name="option_epub_split_mode_auto">Auto (TOC si dispo, sinon séquence)</string>
     <string name="option_epub_split_mode_toc">Basé sur la TOC (un chapitre par entrée de table des matières)</string>
@@ -675,9 +661,6 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="saving_folder">enregistrement du dossier</string>
     <string name="saving_track">enregistrement de la piste</string>
     <string name="MB_taken_by_images">" Mo pris par les images"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"Vous êtes sur le point de supprimer toutes les images.
-       Êtes-vous sûr ?"</string>
-    <string name="deprecated_delete_cached_images">Supprimer les images en cache</string>
     <string name="too_low">trop bas</string>
     <string name="too_high">trop élevé</string>
     <string name="delay_for_auto_deletion">délai pour suppression automatique</string>
@@ -724,7 +707,6 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_podcast_episodes_expand">afficher les descriptions</string>
     <string name="option_create_cover">Créer des couvertures</string>
     <string name="option_create_cover_text">Si aucune image de couverture n\'est trouvée lors du chargement du livre, une image pastel avec les initiales du titre sera créée.</string>
-    <string name="toggle_text_image">Basculer texte/image</string>
     <string name="reset_progress_from_this_track">réinitialiser la progression depuis ce morceau</string>
 
     <string name="rename_track">renommer le morceau</string>
@@ -1043,7 +1025,6 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="error_server_not_reachable">Aïe. bookplayer.driot.com injoignable.</string>
     <string name="no_favorite_podcasts_found">Aucun podcast favori trouvé</string>
     <string name="permission_read_storage_not_granted">permission de lecture du stockage non accordée</string>
-    <string name="error_file_not_found_attach">Fichier introuvable, impossible de joindre.</string>
     <string name="max_value_label">Max = </string>
     <string name="already_imported_under_name">Déjà importé sous le nom : </string>
     <string name="no_episode_downloaded">Aucun épisode téléchargé</string>
@@ -1079,35 +1060,20 @@ avec la langue [%2$s]</string>
     <string name="share_book">Partager le livre</string>
     <string name="nearby_share_title_send">Partage Rapide - Envoyer</string>
     <string name="nearby_share_title_receive">Partage Rapide - Recevoir</string>
-    <string name="deprecated_nearby_share_explain">
-Partagez rapidement un livre entre deux appareils proches avec BookPlayer installé. (aucune connexion internet requise)\n
-➜ Pour partager un livre, ouvrez-le, puis allez dans ses paramètres (icône en haut à droite) et appuyez sur [Partage rapide] en bas.\n
-➜ Pour recevoir un livre, appuyez sur le menu (trois points en haut à droite) de l\'écran principal et sélectionnez [Partage rapide].
-</string>
     <string name="nearby_share_explain_intro">Partagez rapidement un livre entre deux appareils proches avec BookPlayer installé (sans internet).</string>
     <string name="nearby_share_explain_send">➜ Pour recevoir ce livre, sur l\'autre appareil, appuyez sur le menu à trois points (en haut à droite) de l\'écran principal et sélectionnez [Partage Rapide].</string>
     <string name="nearby_share_explain_receive">➜ Pour envoyer un livre, ouvrez un livre sur l\'autre appareil, puis ouvrez ses paramètres (icône en haut à droite) et appuyez sur [Partage Rapide] en bas.</string>
     <string name="Quick_Share_3dots">Partage rapide…</string>
-    <string name="nearby_share_send_tab">Envoyer</string>
-    <string name="nearby_share_receive_tab">Recevoir</string>
     <string name="nearby_share_receive_book">Partage rapide</string>
     <string name="nearby_share_start_advertising">Démarrer l\'envoi</string>
     <string name="nearby_share_stop_advertising">Arrêter l\'envoi</string>
     <string name="nearby_share_start_discovering">Démarrer la réception</string>
     <string name="nearby_share_stop_discovering">Arrêter la réception</string>
-    <string name="nearby_share_searching">Recherche d\'appareils proches…</string>
     <string name="nearby_share_found_device">Appareil trouvé : %s</string>
     <string name="nearby_share_connecting">Connexion…</string>
-    <string name="nearby_share_transferring">Transfert : %d%%</string>
-    <string name="nearby_share_receiving">Réception : %d%%</string>
     <string name="nearby_share_complete">Transfert terminé !</string>
-    <string name="nearby_share_failed">Échec du transfert</string>
-    <string name="nearby_share_accept_transfer">Accepter le livre de %s ?</string>
-    <string name="nearby_share_auto_importing">Importation auto du livre…</string>
     <string name="nearby_share_permissions_required">Les autorisations Bluetooth et de localisation sont requises pour le partage à proximité</string>
-    <string name="nearby_share_no_devices">Aucun appareil trouvé</string>
     <string name="nearby_share_book_info">(%1$d pistes, %2$s)</string>
-    <string name="nearby_share_receive_mode_info">Attente de réception d\'un livre depuis un appareil proche…</string>
     <string name="nearby_share_ready">Prêt</string>
     <string name="nearby_share_transfer_progress">Transférer aussi la progression et les paramètres</string>
     <string name="nearby_share_waiting_for_book">En attente du livre…</string>
@@ -1188,6 +1154,5 @@ Partagez rapidement un livre entre deux appareils proches avec BookPlayer instal
     <string name="nearby_share_error_connection_failed_status">Échec de la connexion avec le statut : %s</string>
     <string name="nearby_share_error_connection_lost">Connexion perdue</string>
     <string name="nearby_share_error_payload_transfer_failed">Échec du transfert du payload : %s</string>
-    <string name="nearby_share_error_unknown">Erreur inconnue</string>
 
 </resources>

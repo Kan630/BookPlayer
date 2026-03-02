@@ -46,10 +46,8 @@
     <string name="device">डिवाइस</string>
     <string name="Disc">डिस्क</string>
     <string name="done">पूर्ण</string>
-    <string name="done.">पूर्ण।</string>
     <string name="download">डाउनलोड करें</string>
     <string name="Download">डाउनलोड</string>
-    <string name="download_verb">डाउनलोड करें</string>
     <string name="download_noun">डाउनलोड</string>
     <string name="downloaded">"डाउनलोड किया गया"</string>
     <string name="Downloading">"डाउनलोड हो रहा है"</string>
@@ -63,7 +61,6 @@
     <string name="Exit">बाहर निकलें</string>
     <string name="expand">विस्तृत करें</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"निर्यात…"</string>
-    <string name="Share_3pt">"साझा करें…"</string>
     <string name="favorite">पसंदीदा</string>
     <string name="favorites">पसंदीदा</string>
     <string name="Favorites">पसंदीदा</string>
@@ -84,7 +81,6 @@
     <string name="History">इतिहास</string> //means already listened, used for radio stations
     <string name="homepage">मुखपृष्ठ</string>
     <string name="icon">आइकन</string>
-    <string name="id_label">आईडी: </string>
     <string name="Import">आयात</string>
     <string name="in">में</string>
     <string name="Integration">एकीकरण</string>
@@ -94,7 +90,6 @@
     <string name="Language_2pt">"भाषा: "</string>
     <string name="last">अंतिम</string>
     <string name="legacy">पुराना</string>
-    <string name="library">लाइब्रेरी</string>
     <string name="linked">लिंक्ड</string>
     <string name="links">लिंक</string>
     <string name="listened">"सुना गया"</string>
@@ -110,9 +105,7 @@
     <string name="min.">मि.</string>
     <string name="Miscellaneous">विविध</string>
     <string name="ms.">मि.से.</string> //short for milliseconds
-    <string name="new_label">नया</string>
     <string name="No">नहीं</string>
-    <string name="nothing">कुछ नहीं</string>
     <string name="open">खोलें</string>
     <string name="others">अन्य</string>
     <string name="paste">पेस्ट</string>
@@ -125,7 +118,6 @@
     <string name="radial">रेडियल</string> //for graphic vizualizer
     <string name="radio">रेडियो</string>
     <string name="Radio">रेडियो</string>
-    <string name="Ready">तैयार</string>
     <string name="refresh">रीफ़्रेश</string>
     <string name="reorder">पुनः क्रमित करें</string>
     <string name="Results_2pt">"परिणाम: "</string>
@@ -183,8 +175,6 @@
     <string name="About_to_start_download">डाउनलोड शुरू होने वाला है…</string>
     <string name="Please_enter_a_URL">कृपया एक URL दर्ज करें.</string>
     <string name="Permission_Required">अनुमति आवश्यक</string>
-
-    <string name="App_Info">ऐप जानकारी</string>
 
     <string name="reset_app">ऐप रीसेट करें</string>
     <string name="add_book">पुस्तक जोड़ें</string>
@@ -423,11 +413,8 @@
         \n* यदि आप स्रोत फ़ाइल नहीं हटाते हैं तो अधिक मेमोरी की आवश्यकता होगी।
     </string>
     <string name="option_copy_file_text">ऑडियो फ़ाइलों को BookPlayer ऐप की आंतरिक, आरक्षित मेमोरी में कॉपी करें।</string>
-    <string name="option_night_mode_title">डार्क मोड  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ सिस्टम</string>
     <string name="option_night_mode_light">☀️ लाइट</string>
     <string name="option_night_mode_dark">🌙 डार्क</string>
-    <string name="option_night_mode_dialog_title">थीम मोड चुनें</string>
     <string name="option_text_appearance_title">टेक्स्ट की बनावट</string>
     <string name="option_podcast_open_specific_view">लाइव व्यू खोलें</string>
     <string name="option_podcast_open_specific_view_subtitle">किसी \'पॉडकास्ट\' आइटम पर क्लिक करने पर, क्या सभी एपिसोड वाले स्ट्रीम पॉडकास्ट व्यू खुले, या डाउनलोड किए गए एपिसोड के साथ \'किताब\' व्यू?</string>
@@ -450,7 +437,6 @@
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
     <string name="option_tts_highlight_delay_title">शब्द हाइलाइट।</string>
     <string name="option_tts_highlight_delay_text">विलंब :</string>
-    <string name="option_epub_split_mode_title">EPUB अध्याय विभाजन</string>
     <string name="option_epub_split_mode_text">EPUB फ़ाइलों को अध्यायों में कैसे विभाजित करें:</string>
     <string name="option_epub_split_mode_auto">ऑटो (विषय-सूची यदि उपलब्ध हो, अन्यथा Spine)</string>
     <string name="option_epub_split_mode_toc">विषय-सूची पर आधारित (प्रति सामग्री तालिका प्रविष्टि एक अध्याय)</string>
@@ -658,9 +644,6 @@
     <string name="saving_folder">फ़ोल्डर पंजीकृत कर रहे हैं</string>
     <string name="saving_track">ट्रैक पंजीकृत कर रहे हैं</string>
     <string name="MB_taken_by_images">" MB छवियाँ"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"आप सभी छवियाँ हटाने वाले हैं.
-       क्या आप सुनिश्चित हैं ?"</string>
-    <string name="deprecated_delete_cached_images">कैश्ड छवियाँ हटाएँ</string>
     <string name="too_low">बहुत कम</string>
     <string name="too_high">बहुत अधिक</string>
     <string name="delay_for_auto_deletion">स्वतः हटाने के लिए विलंब</string>
@@ -705,7 +688,6 @@
     <string name="option_podcast_episodes_expand">विवरण दिखाएँ</string>
     <string name="option_create_cover">कवर बनाएँ</string>
     <string name="option_create_cover_text">यदि पुस्तक लोड करते समय कोई कवर छवि नहीं मिली, तो पुस्तक शीर्षक के आद्याक्षरों के साथ एक पेस्टल छवि बनाई जाएगी।</string>
-    <string name="toggle_text_image">टेक्स्ट छवि टॉगल करें</string>
     <string name="reset_progress_from_this_track">इस ट्रैक से प्रोग्रेस रीसेट करें</string>
 
     <string name="rename_track">ट्रैक का नाम बदलें</string>
@@ -1034,7 +1016,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="error_server_not_reachable">उफ़. bookplayer.driot.com तक नहीं पहुँचा जा सकता।</string>
     <string name="no_favorite_podcasts_found">कोई पसंदीदा पॉडकास्ट नहीं मिला</string>
     <string name="permission_read_storage_not_granted">भंडारण पढ़ने की अनुमति नहीं दी गई</string>
-    <string name="error_file_not_found_attach">फ़ाइल नहीं मिली, संलग्न नहीं किया जा सकता।</string>
     <string name="max_value_label">अधिकतम = </string>
     <string name="already_imported_under_name">इस नाम से पहले ही आयातित: </string>
     <string name="no_episode_downloaded">कोई एपिसोड डाउनलोड नहीं हुआ</string>
@@ -1060,28 +1041,17 @@ Android Auto को कार से जुड़ने पर स्वतः �
 
     <!-- Nearby Sharing -->
     <string name="share_book">किताब साझा करें</string>
-    <string name="deprecated_nearby_share_explain">BookPlayer स्थापित दो पास के उपकरणों के बीच अपनी पुस्तक को जल्दी से साझा करें (इंटरनेट की आवश्यकता नहीं है)।\n\n➜ साझा करने के लिए: किताब खोलें, विकल्पों पर जाएं (ऊपर दाईं ओर आइकन) और नीचे [त्वरित साझाकरण] दबाएं।\n\n➜ प्राप्त करने के लिए: मुख्य स्क्रीन पर तीन बिंदुओं वाले मेनू (ऊपर दाईं ओर) को दबाएं और [त्वरित साझाकरण] चुनें।</string>
     <string name="Quick_Share_3dots">त्वरित साझाकरण…</string>
-    <string name="nearby_share_send_tab">भेजें</string>
-    <string name="nearby_share_receive_tab">प्राप्त करें</string>
     <string name="nearby_share_receive_book">त्वरित साझाकरण</string>
     <string name="nearby_share_start_advertising">दृश्यता सक्षम करें</string>
     <string name="nearby_share_stop_advertising">दृश्यता अक्षम करें</string>
     <string name="nearby_share_start_discovering">खोज शुरू करें</string>
     <string name="nearby_share_stop_discovering">खोज बंद करें</string>
-    <string name="nearby_share_searching">आस-पास के उपकरणों की खोज की जा रही है…</string>
     <string name="nearby_share_found_device">उपकरण मिला: %s</string>
     <string name="nearby_share_connecting">कनेक्ट किया जा रहा है…</string>
-    <string name="nearby_share_transferring">स्थानांतरण: %d%%</string>
-    <string name="nearby_share_receiving">प्राप्त हो रहा है: %d%%</string>
     <string name="nearby_share_complete">स्थानांतरण पूर्ण!</string>
-    <string name="nearby_share_failed">स्थानांतरण विफल रहा</string>
-    <string name="nearby_share_accept_transfer">%s से किताब स्वीकार करें?</string>
-    <string name="nearby_share_auto_importing">स्वचालित रूप से किताब का आयात पूरा किया जा रहा है…</string>
     <string name="nearby_share_permissions_required">त्वरित साझाकरण के लिए ब्लूटूथ और स्थान अनुमतियाँ आवश्यक हैं</string>
-    <string name="nearby_share_no_devices">कोई उपकरण नहीं मिला</string>
     <string name="nearby_share_book_info">(%1$d ट्रैक, %2$s)</string>
-    <string name="nearby_share_receive_mode_info">आस-पास के उपकरण से किताब प्राप्त होने की प्रतीक्षा की जा रही है…</string>
     <string name="nearby_share_ready">तैयार</string>
 
 
@@ -1175,6 +1145,5 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="nearby_share_error_connection_failed_status">कनेक्शन इस स्थिति के साथ विफल रहा: %s</string>
     <string name="nearby_share_error_connection_lost">कनेक्शन टूट गया</string>
     <string name="nearby_share_error_payload_transfer_failed">पेलोड स्थानांतरण विफल: %s</string>
-    <string name="nearby_share_error_unknown">अज्ञात त्रुटि</string>
 
 </resources>

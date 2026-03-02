@@ -46,10 +46,8 @@
     <string name="device">dispositivo</string>
     <string name="Disc">Disco</string>
     <string name="done">listo</string>
-    <string name="done.">hecho.</string>
     <string name="download">descargar</string>
     <string name="Download">Descargar</string>
-    <string name="download_verb">Descargar</string>
     <string name="download_noun">Descarga</string>
     <string name="downloaded">"descargado"</string>
     <string name="Downloading">"Descargando"</string>
@@ -63,7 +61,6 @@
     <string name="Exit">Salir</string>
     <string name="expand">expandir</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Exportar…"</string>
-    <string name="Share_3pt">"Compartir…"</string>
     <string name="favorite">favorito</string>
     <string name="favorites">favoritos</string>
     <string name="Favorites">Favoritos</string>
@@ -84,7 +81,6 @@
     <string name="History">Historial</string> //means already listened, used for radio stations
     <string name="homepage">página de inicio</string>
     <string name="icon">icono</string>
-    <string name="id_label">ID: </string>
     <string name="Import">importar</string>
     <string name="in">en</string>
     <string name="Integration">Integración</string>
@@ -94,7 +90,6 @@
     <string name="Language_2pt">"Idioma: "</string>
     <string name="last">últimos</string>
     <string name="legacy">antiguo</string>
-    <string name="library">biblioteca</string>
     <string name="linked">enlazados</string>
     <string name="links">enlaces</string>
     <string name="listened">"escuchado"</string>
@@ -111,9 +106,7 @@
     <string name="min.">min.</string>
     <string name="Miscellaneous">Varios</string>
     <string name="ms.">ms.</string> //short for milliseconds
-    <string name="new_label">nuevo</string>
     <string name="No">No</string>
-    <string name="nothing">nada</string>
     <string name="open">abrir</string>
     <string name="others">otros</string>
     <string name="paste">pegar</string>
@@ -126,7 +119,6 @@
     <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">radio</string>
     <string name="Radio">Radio</string>
-    <string name="Ready">Listo</string>
     <string name="refresh">actualizar</string>
     <string name="reorder">reordenar</string>
     <string name="Results_2pt">"Resultados: "</string>
@@ -184,8 +176,6 @@
     <string name="About_to_start_download">A punto de comenzar la descarga…</string>
     <string name="Please_enter_a_URL">Por favor, introduzca una URL.</string>
     <string name="Permission_Required">Permiso requerido</string>
-
-    <string name="App_Info">Información de la aplicación</string>
 
     <string name="reset_app">Restablecer aplicación</string>
     <string name="add_book">añadir libro</string>
@@ -426,11 +416,8 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
 \n\nDesventajas :
 \n* Se necesitará más espacio si no se elimina el archivo fuente.</string>
     <string name="option_copy_file_text">Copiar archivos de audio en la memoria interna reservada de la app BookPlayer.</string>
-    <string name="option_night_mode_title">Modo de tema  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ Sistema</string>
     <string name="option_night_mode_light">☀️ Claro</string>
     <string name="option_night_mode_dark">🌙 Oscuro</string>
-    <string name="option_night_mode_dialog_title">Elegir modo de tema</string>
     <string name="option_text_appearance_title">Apariencia del texto</string>
     <string name="option_podcast_open_specific_view">Abrir vista específica</string>
     <string name="option_podcast_open_specific_view_subtitle">Al hacer clic en un libro de tipo \'podcast\', ¿debe abrirse la vista de podcast con todos los episodios o la vista del libro solo con los descargados?</string>
@@ -450,7 +437,6 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_tts_language_text">Idioma TTS predeterminado para nuevos libros electrónicos.</string>
     <string name="option_tts_highlight_delay_title">Resaltado de palabras.</string>
     <string name="option_tts_highlight_delay_text">Retraso del motor:</string>
-    <string name="option_epub_split_mode_title">División de capítulos EPUB</string>
     <string name="option_epub_split_mode_text">Cómo dividir archivos EPUB en capítulos:</string>
     <string name="option_epub_split_mode_auto">Auto (Índice si está disp., si no secuencia)</string>
     <string name="option_epub_split_mode_toc">Basado en el Índice (un capítulo por entrada de índice)</string>
@@ -659,9 +645,6 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="saving_folder">guardando carpeta</string>
     <string name="saving_track">guardando pista</string>
     <string name="MB_taken_by_images">" MB ocupados por imágenes"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"Está a punto de eliminar todas las imágenes.
-       ¿Está seguro?"</string>
-    <string name="deprecated_delete_cached_images">Eliminar imágenes en caché</string>
     <string name="too_low">demasiado bajo</string>
     <string name="too_high">demasiado alto</string>
     <string name="delay_for_auto_deletion">retardo para eliminación automática</string>
@@ -707,7 +690,6 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="option_podcast_episodes_expand">mostrar descripciones</string>
     <string name="option_create_cover">Crear portadas</string>
     <string name="option_create_cover_text">Si no se encuentra una imagen de portada al cargar el libro, se creará una imagen en tonos pastel con las iniciales del título.</string>
-    <string name="toggle_text_image">Alternar texto/imagen</string>
     <string name="reset_progress_from_this_track">reiniciar progreso desde esta pista</string>
 
     <string name="rename_track">renombrar pista</string>
@@ -1036,7 +1018,6 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="error_server_not_reachable">Ay. bookplayer.driot.com no accesible.</string>
     <string name="no_favorite_podcasts_found">No se encontraron podcasts favoritos</string>
     <string name="permission_read_storage_not_granted">permiso de lectura de almacenamiento no concedido</string>
-    <string name="error_file_not_found_attach">Archivo no encontrado, no se puede adjuntar.</string>
     <string name="max_value_label">Máx = </string>
     <string name="already_imported_under_name">Ya importado con el nombre: </string>
     <string name="no_episode_downloaded">Ningún episodio descargado</string>
@@ -1062,32 +1043,17 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
 
     <!-- Nearby Sharing -->
     <string name="share_book">Compartir libro</string>
-    <string name="deprecated_nearby_share_explain">
-Comparte rápidamente un libro entre dos dispositivos cercanos con BookPlayer instalado. (no se requiere internet)\n
-➜ Para compartir un libro, ábrelo, luego abre sus ajustes (icono superior derecho) y toca [Compartir rápido] en la parte inferior.\n
-➜ Para recibir un libro, toca el menú de tres puntos (superior derecho) en la pantalla principal y selecciona [Compartir rápido].
-</string>
     <string name="Quick_Share_3dots">Compartir rápido…</string>
-    <string name="nearby_share_send_tab">Enviar</string>
-    <string name="nearby_share_receive_tab">Recibir</string>
     <string name="nearby_share_receive_book">Compartir rápido</string>
     <string name="nearby_share_start_advertising">Iniciar envío</string>
     <string name="nearby_share_stop_advertising">Cesar envío</string>
     <string name="nearby_share_start_discovering">Iniciar recepción</string>
     <string name="nearby_share_stop_discovering">Cesar recepción</string>
-    <string name="nearby_share_searching">Buscando dispositivos cercanos…</string>
     <string name="nearby_share_found_device">Dispositivo encontrado: %s</string>
     <string name="nearby_share_connecting">Conectando…</string>
-    <string name="nearby_share_transferring">Transfiriendo: %d%%</string>
-    <string name="nearby_share_receiving">Recibiendo: %d%%</string>
     <string name="nearby_share_complete">¡Transferencia completa!</string>
-    <string name="nearby_share_failed">Transferencia fallida</string>
-    <string name="nearby_share_accept_transfer">¿Aceptar libro de %s?</string>
-    <string name="nearby_share_auto_importing">Importando libro automáticamente…</string>
     <string name="nearby_share_permissions_required">Se requieren permisos de Bluetooth y ubicación para compartir con dispositivos cercanos</string>
-    <string name="nearby_share_no_devices">No se encontraron dispositivos</string>
     <string name="nearby_share_book_info">(%1$d pistas, %2$s)</string>
-    <string name="nearby_share_receive_mode_info">Esperando recibir un libro de un dispositivo cercano…</string>
     <string name="nearby_share_ready">Listo</string>
 
     <plurals name="audio_files_count">
@@ -1179,7 +1145,6 @@ Comparte rápidamente un libro entre dos dispositivos cercanos con BookPlayer in
     <string name="nearby_share_error_connection_failed_status">Conexión fallida con el estado: %s</string>
     <string name="nearby_share_error_connection_lost">Conexión perdida</string>
     <string name="nearby_share_error_payload_transfer_failed">Error en la transferencia de la carga útil: %s</string>
-    <string name="nearby_share_error_unknown">Error desconocido</string>
 
 </resources>
 

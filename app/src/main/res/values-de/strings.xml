@@ -46,10 +46,8 @@
     <string name="device">Gerät</string>
     <string name="Disc">Disk</string>
     <string name="done">fertig</string>
-    <string name="done.">fertig.</string>
     <string name="download">herunterladen</string>
     <string name="Download">Download</string>
-    <string name="download_verb">Herunterladen</string>
     <string name="download_noun">Download</string>
     <string name="downloaded">"heruntergeladen"</string>
     <string name="Downloading">"Wird heruntergeladen"</string>
@@ -63,7 +61,6 @@
     <string name="Exit">Beenden</string>
     <string name="expand">aufklappen</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Exportieren…"</string>
-    <string name="Share_3pt">"Teilen…"</string>
     <string name="favorite">Favorit</string>
     <string name="favorites">Favoriten</string>
     <string name="Favorites">Favoriten</string>
@@ -84,7 +81,6 @@
     <string name="History">Verlauf</string> //means already listened, used for radio stations
     <string name="homepage">Startseite</string>
     <string name="icon">Symbol</string>
-    <string name="id_label">ID: </string>
     <string name="Import">Importieren</string>
     <string name="in">in</string>
     <string name="Integration">Integration</string>
@@ -94,7 +90,6 @@
     <string name="Language_2pt">"Sprache: "</string>
     <string name="last">letzte</string>
     <string name="legacy">alt</string>
-    <string name="library">bibliothek</string>
     <string name="linked">verlinkt</string>
     <string name="links">Links</string>
     <string name="listened">"gehört"</string>
@@ -111,9 +106,7 @@
     <string name="min.">Min.</string>
     <string name="Miscellaneous">Verschiedenes</string>
     <string name="ms.">ms.</string> //short for milliseconds
-    <string name="new_label">neu</string>
     <string name="No">Nein</string>
-    <string name="nothing">nichts</string>
     <string name="open">Öffnen</string>
     <string name="others">andere</string>
     <string name="paste">einfügen</string>
@@ -126,7 +119,6 @@
     <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">Radio</string>
     <string name="Radio">Radio</string>
-    <string name="Ready">Bereit</string>
     <string name="refresh">aktualisieren</string>
     <string name="reorder">neu ordnen</string>
     <string name="Results_2pt">"Ergebnisse: "</string>
@@ -184,8 +176,6 @@
     <string name="About_to_start_download">Download wird gestartet…</string>
     <string name="Please_enter_a_URL">Bitte geben Sie eine URL ein.</string>
     <string name="Permission_Required">Berechtigung erforderlich</string>
-
-    <string name="App_Info">App-Info</string>
 
     <string name="reset_app">App zurücksetzen</string>
     <string name="add_book">Buch hinzufügen</string>
@@ -430,11 +420,8 @@ Soll die App technische Debug-Protokolle erstellen?
 \n* Mehr Speicherplatz wird benötigt, wenn Sie die Quelldatei nicht löschen.
 </string>
     <string name="option_copy_file_text">Audiodateien in den internen, reservierten Speicher der BookPlayer-App kopieren.</string>
-    <string name="option_night_mode_title">Designmodus  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ System</string>
     <string name="option_night_mode_light">☀️ Hell</string>
     <string name="option_night_mode_dark">🌙 Dunkel</string>
-    <string name="option_night_mode_dialog_title">Designmodus wählen</string>
     <string name="option_text_appearance_title">Textdarstellung</string>
     <string name="option_podcast_open_specific_view">Spezifische Ansicht öffnen</string>
     <string name="option_podcast_open_specific_view_subtitle">Beim Klicken auf ein Buch vom Typ \'Podcast\', soll die Podcast-Ansicht mit allen Episoden oder die Buchansicht nur mit den heruntergeladenen geöffnet werden?</string>
@@ -454,7 +441,6 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_tts_language_text">Standard-TTS-Sprache für neue E-Books.</string>
     <string name="option_tts_highlight_delay_title">Wortmarkierung.</string>
     <string name="option_tts_highlight_delay_text">Verzögerung der Engine:</string>
-    <string name="option_epub_split_mode_title">EPUB-Kapitelteilung</string>
     <string name="option_epub_split_mode_text">Wie EPUB-Dateien in Kapitel unterteilt werden:</string>
     <string name="option_epub_split_mode_auto">Auto (Inhaltsverzeichnis falls verf., sonst Spine)</string>
     <string name="option_epub_split_mode_toc">TOC-basiert (ein Kapitel pro Inhaltsverzeichnis-Eintrag)</string>
@@ -662,9 +648,6 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="saving_folder">Ordner wird gespeichert</string>
     <string name="saving_track">Titel wird gespeichert</string>
     <string name="MB_taken_by_images">" MB belegt von Bildern"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"Sie sind dabei, alle Bilder zu löschen.
-Sind Sie sicher?"</string>
-    <string name="deprecated_delete_cached_images">Zwischengespeicherte Bilder löschen</string>
     <string name="too_low">zu niedrig</string>
     <string name="too_high">zu hoch</string>
     <string name="delay_for_auto_deletion">Verzögerung für automatisches Löschen</string>
@@ -710,7 +693,6 @@ Sind Sie sicher?"</string>
     <string name="option_podcast_episodes_expand">Beschreibungen anzeigen</string>
     <string name="option_create_cover">Cover erstellen</string>
     <string name="option_create_cover_text">Wenn beim Laden des Buches kein Coverbild gefunden wird, wird ein Pastellbild mit den Initialen des Buchtitels erstellt.</string>
-    <string name="toggle_text_image">Textbild umschalten</string>
     <string name="reset_progress_from_this_track">Fortschritt ab diesem Titel zurücksetzen</string>
 
     <string name="rename_track">Titel umbenennen</string>
@@ -1039,7 +1021,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="error_server_not_reachable">Autsch. bookplayer.driot.com nicht erreichbar.</string>
     <string name="no_favorite_podcasts_found">Keine Lieblingspodcasts gefunden</string>
     <string name="permission_read_storage_not_granted">Speicherlesezugriff nicht gewährt</string>
-    <string name="error_file_not_found_attach">Datei nicht gefunden, kann nicht angehängt werden.</string>
     <string name="max_value_label">Max = </string>
     <string name="already_imported_under_name">Bereits importiert unter dem Namen: </string>
     <string name="no_episode_downloaded">Keine Episode heruntergeladen</string>
@@ -1065,32 +1046,17 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
 
     <!-- Nearby Sharing -->
     <string name="share_book">Buch teilen</string>
-    <string name="deprecated_nearby_share_explain">
-    Teilen Sie schnell ein Buch zwischen zwei Geräten in der Nähe, auf denen BookPlayer installiert ist. (kein Internet erforderlich)\n
-    ➜ Um ein Buch zu teilen, öffnen Sie es, gehen Sie zu den Einstellungen (Symbol oben rechts) und tippen Sie unten auf [Schnelles Teilen].\n
-    ➜ Um ein Buch zu empfangen, tippen Sie auf das Drei-Punkte-Menü (oben rechts) im Hauptbildschirm und wählen Sie [Schnelles Teilen].
-    </string>
     <string name="Quick_Share_3dots">Schnelles Teilen…</string>
-    <string name="nearby_share_send_tab">Senden</string>
-    <string name="nearby_share_receive_tab">Empfangen</string>
     <string name="nearby_share_receive_book">Schnelles Teilen</string>
     <string name="nearby_share_start_advertising">Senden starten</string>
     <string name="nearby_share_stop_advertising">Senden stoppen</string>
     <string name="nearby_share_start_discovering">Empfangen starten</string>
     <string name="nearby_share_stop_discovering">Empfangen stoppen</string>
-    <string name="nearby_share_searching">Suche nach Geräten in der Nähe…</string>
     <string name="nearby_share_found_device">Gerät gefunden: %s</string>
     <string name="nearby_share_connecting">Verbindung wird hergestellt…</string>
-    <string name="nearby_share_transferring">Übertragung: %d%%</string>
-    <string name="nearby_share_receiving">Empfang: %d%%</string>
     <string name="nearby_share_complete">¡Übertragung abgeschlossen!</string>
-    <string name="nearby_share_failed">Übertragung fehlgeschlagen</string>
-    <string name="nearby_share_accept_transfer">Buch von %s akzeptieren?</string>
-    <string name="nearby_share_auto_importing">Buch wird automatisch importiert…</string>
     <string name="nearby_share_permissions_required">Bluetooth- und Standortberechtigungen sind für das Teilen in der Nähe erforderlich</string>
-    <string name="nearby_share_no_devices">Keine Geräte gefunden</string>
     <string name="nearby_share_book_info">(%1$d Titel, %2$s)</string>
-    <string name="nearby_share_receive_mode_info">Warten auf den Empfang eines Buches von einem Gerät in der Nähe…</string>
     <string name="nearby_share_ready">Bereit</string>
 
     <plurals name="audio_files_count">
@@ -1182,7 +1148,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="nearby_share_error_connection_failed_status">Verbindung fehlgeschlagen mit Status: %s</string>
     <string name="nearby_share_error_connection_lost">Verbindung verloren</string>
     <string name="nearby_share_error_payload_transfer_failed">Übertragung der Nutzlast fehlgeschlagen: %s</string>
-    <string name="nearby_share_error_unknown">Unbekannter Fehler</string>
 
 </resources>
 

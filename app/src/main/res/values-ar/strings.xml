@@ -46,10 +46,8 @@
     <string name="device">الجهاز</string>
     <string name="Disc">القرص</string>
     <string name="done">تم</string>
-    <string name="done.">تم.</string>
     <string name="download">تنزيل</string>
     <string name="Download">تنزيل</string>
-    <string name="download_verb">تنزيل</string>
     <string name="download_noun">تنزيل</string>
     <string name="downloaded">"تم التنزيل"</string>
     <string name="Downloading">"جاري التنزيل"</string>
@@ -63,7 +61,6 @@
     <string name="Exit">خروج</string>
     <string name="expand">توسيع</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"تصدير…"</string>
-    <string name="Share_3pt">"مشاركة…"</string>
     <string name="favorite">مفضل</string>
     <string name="favorites">المفضلة</string>
     <string name="Favorites">المفضلة</string>
@@ -84,7 +81,6 @@
     <string name="History">التاريخ</string> //means already listened, used for radio stations
     <string name="homepage">الصفحة الرئيسية</string>
     <string name="icon">رمز</string>
-    <string name="id_label">المعرف: </string>
     <string name="Import">استيراد</string>
     <string name="in">في</string>
     <string name="Integration">دمج</string>
@@ -94,7 +90,6 @@
     <string name="Language_2pt">"اللغة: "</string>
     <string name="last">الأخيرة</string>
     <string name="legacy">قديم</string>
-    <string name="library">المكتبة</string>
     <string name="linked">مرتبط</string>
     <string name="links">روابط</string>
     <string name="listened">"تم الاستماع"</string>
@@ -111,9 +106,7 @@
     <string name="min.">دقيقة</string>
     <string name="Miscellaneous">متنوع</string>
     <string name="ms.">مللي ثانية.</string> //short for milliseconds
-    <string name="new_label">جديد</string>
     <string name="No">لا</string>
-    <string name="nothing">لا شيء</string>
     <string name="open">فتح</string>
     <string name="others">أخرى</string>
     <string name="paste">لصق</string>
@@ -126,7 +119,6 @@
     <string name="radial">دائري</string> //for graphic vizualizer
     <string name="radio">راديو</string>
     <string name="Radio">راديو</string>
-    <string name="Ready">جاهز</string>
     <string name="refresh">تحديث</string>
     <string name="reorder">إعادة الترتيب</string>
     <string name="Results_2pt">"النتائج: "</string>
@@ -184,8 +176,6 @@
     <string name="About_to_start_download">على وشك بدء التنزيل…</string>
     <string name="Please_enter_a_URL">يرجى إدخال عنوان URL.</string>
     <string name="Permission_Required">الإذن مطلوب</string>
-
-    <string name="App_Info">معلومات التطبيق</string>
 
     <string name="reset_app">إعادة تعيين التطبيق</string>
     <string name="add_book">إضافة كتاب</string>
@@ -423,11 +413,8 @@
         \n* ستحتاج إلى مزيد من الذاكرة إذا لم تحذف الملف المصدر.
 </string>
     <string name="option_copy_file_text">انسخ ملفات الصوت إلى ذاكرة التطبيق الداخلية المحجوزة لـ BookPlayer.</string>
-    <string name="option_night_mode_title">وضع السمة  ☀️ 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ النظام</string>
     <string name="option_night_mode_light">☀️ فاتح</string>
     <string name="option_night_mode_dark">🌙 داكن</string>
-    <string name="option_night_mode_dialog_title">اختر وضع السمة</string>
     <string name="option_text_appearance_title">مظهر النص</string>
     <string name="option_podcast_open_specific_view">فتح عرض محدد</string>
     <string name="option_podcast_open_specific_view_subtitle">عند النقر على كتاب من نوع \'بودكاست\'، هل يجب فتح عرض البودكاست مع جميع الحلقات، أم عرض الكتاب مع الحلقات التي تم تنزيلها فقط؟</string>
@@ -447,7 +434,6 @@
     <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
     <string name="option_tts_highlight_delay_title">تمييز الكلمات.</string>
     <string name="option_tts_highlight_delay_text">تأخير المحرك:</string>
-    <string name="option_epub_split_mode_title">تقسيم فصول EPUB</string>
     <string name="option_epub_split_mode_text">كيفية تقسيم ملفات EPUB إلى فصول:</string>
     <string name="option_epub_split_mode_auto">تلقائي (جدول المحتويات إذا كان متاحًا، وإلا Spine)</string>
     <string name="option_epub_split_mode_toc">يعتمد على جدول المحتويات (فصل واحد لكل إدخال جدول محتويات)</string>
@@ -655,9 +641,6 @@
     <string name="saving_folder">حفظ المجلد</string>
     <string name="saving_track">حفظ المقطع</string>
     <string name="MB_taken_by_images">" ميغابايت مشغولة بالصور"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"أنت على وشك حذف جميع الصور.
-       هل أنت متأكد؟"</string>
-    <string name="deprecated_delete_cached_images">حذف الصور المخزنة مؤقتًا</string>
     <string name="too_low">منخفض جدًا</string>
     <string name="too_high">مرتفع جدًا</string>
     <string name="delay_for_auto_deletion">تأخير الحذف التلقائي</string>
@@ -703,7 +686,6 @@
     <string name="option_podcast_episodes_expand">عرض الأوصاف</string>
     <string name="option_create_cover">إنشاء أغلفة</string>
     <string name="option_create_cover_text">إذا لم يتم العثور على صورة غلاف عند تحميل الكتاب، سيتم إنشاء صورة باستيل مع الأحرف الأولى لعنوان الكتاب.</string>
-    <string name="toggle_text_image">تبديل نص/صورة</string>
     <string name="reset_progress_from_this_track">إعادة تعيين التقدم من هذا المقطع</string>
 
     <string name="rename_track">إعادة تسمية المقطع</string>
@@ -1032,7 +1014,6 @@
     <string name="error_server_not_reachable">عذراً. bookplayer.driot.com لا يمكن الوصول إليه.</string>
     <string name="no_favorite_podcasts_found">لم يتم العثور على ملفات بودكاست مفضلة</string>
     <string name="permission_read_storage_not_granted">لم يتم منح إذن قراءة التخزين</string>
-    <string name="error_file_not_found_attach">لم يتم العثور على الملف، لا يمكن إرفاقه.</string>
     <string name="max_value_label">الحد الأقصى = </string>
     <string name="already_imported_under_name">تم الاستيراد بالفعل تحت الاسم: </string>
     <string name="no_episode_downloaded">لم يتم تنزيل أي حلقة</string>
@@ -1058,32 +1039,17 @@
 
     <!-- Nearby Sharing -->
     <string name="share_book">مشاركة الكتاب</string>
-    <string name="deprecated_nearby_share_explain">
-شارك كتابك بسرعة بين جهازين قريبين مثبت عليهما BookPlayer (لا يتطلب إنترنت).\n
-➜ للمشاركة: افتح الكتاب، المجلد، اذهب إلى الخيارات (الأيقونة في الأعلى يميناً) واضغط على [مشاركة سريعة] في الأسفل.\n
-➜ للاستلام: اضغط على قائمة الثلاث نقاط (في الأعلى يميناً) في الشاشة الرئيسية واختبر [مشاركة سريعة].
-</string>
     <string name="Quick_Share_3dots">مشاركة سريعة…</string>
-    <string name="nearby_share_send_tab">إرسال</string>
-    <string name="nearby_share_receive_tab">استلام</string>
     <string name="nearby_share_receive_book">مشاركة سريعة</string>
     <string name="nearby_share_start_advertising">بدء الإرسال</string>
     <string name="nearby_share_stop_advertising">إيقاف الإرسال</string>
     <string name="nearby_share_start_discovering">بدء الاستقبال</string>
     <string name="nearby_share_stop_discovering">إيقاف الاستقبال</string>
-    <string name="nearby_share_searching">البحث عن أجهزة قريبة…</string>
     <string name="nearby_share_found_device">تم العثور على جهاز: %s</string>
     <string name="nearby_share_connecting">جارٍ الاتصال…</string>
-    <string name="nearby_share_transferring">جارٍ النقل: %d%%</string>
-    <string name="nearby_share_receiving">جارٍ الاستلام: %d%%</string>
     <string name="nearby_share_complete">اكتمل النقل!</string>
-    <string name="nearby_share_failed">فشل النقل</string>
-    <string name="nearby_share_accept_transfer">قبول الكتاب من %s؟</string>
-    <string name="nearby_share_auto_importing">جارٍ إنهاء استيراد الكتاب تلقائياً…</string>
     <string name="nearby_share_permissions_required">تتطلب المشاركة السريعة أذونات البلوتوث والموقع</string>
-    <string name="nearby_share_no_devices">لم يتم العثور على أجهزة</string>
     <string name="nearby_share_book_info">(%1$d مقطع، %2$s)</string>
-    <string name="nearby_share_receive_mode_info">في انتظار استلام كتاب من جهاز قريب…</string>
     <string name="nearby_share_ready">جاهز</string>
 
 
@@ -1175,6 +1141,5 @@
     <string name="nearby_share_error_connection_failed_status">فشل الاتصال بالحالة: %s</string>
     <string name="nearby_share_error_connection_lost">فقد الاتصال</string>
     <string name="nearby_share_error_payload_transfer_failed">فشل نقل الحمولة: %s</string>
-    <string name="nearby_share_error_unknown">خطأ غير معروف</string>
 
 </resources>

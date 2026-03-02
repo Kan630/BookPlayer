@@ -217,7 +217,7 @@ public class M4bSplitWorker extends ImportWorker {
 
             emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath(),
                     context.getString(R.string.import_task_m4b_split) + " " +
-                            context.getString(R.string.done_));
+                            context.getString(R.string.done));
             return true;
 
         } catch (Exception e) {

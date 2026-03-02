@@ -1,10 +1,6 @@
 <resources>
     <!-- ********************************** -->
     <!-- NO TRANSLATION (translatable=false) -->
-
-
-    <string name="lorem_ipsum" translatable="false">lorem ipsum</string>
-    <string name="PlayerActivity_Title" translatable="false">TextBook Player</string>
     <string name="asset_statements" translatable="false">
     [{
       \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
@@ -24,10 +20,6 @@
     <string name="pause" translatable="false">||</string>
     <string name="btnSleepSet" translatable="false">Sleep</string>
     <string name="menu_seeLog" translatable="false">See Logs</string>
-
-    <string name="otherApp_droitpositif" translatable="false">Droit Positif</string>
-    <string name="otherApp_deces" translatable="false">Dead Frogs</string>
-    <string name="otherApp_scanner" translatable="false">Scanner</string>
     <string name="permissions_ok_button" translatable="false">OK</string>
     <string name="AutoTest_b4_text" translatable="false">zip (220MB)</string>
     <string name="emoji_paste" translatable="false">📋</string>
@@ -82,10 +74,8 @@
     <string name="device">device</string>
     <string name="Disc">Disc</string>
     <string name="done">done</string>
-    <string name="done.">done.</string>
     <string name="download">download</string>
     <string name="Download">Download</string>
-    <string name="download_verb">Download</string>
     <string name="download_noun">Download</string>
     <string name="downloaded">"downloaded"</string>
     <string name="Downloading">"Downloading"</string>
@@ -99,7 +89,6 @@
     <string name="Exit">Exit</string>
     <string name="expand">expand</string> //opposite of collapse, used for "enlarge" or "show description"
     <string name="Export_3pt">"Export…"</string>
-    <string name="Share_3pt">"Share…"</string>
     <string name="favorite">favorite</string>
     <string name="favorites">favorites</string>
     <string name="Favorites">Favorites</string>
@@ -120,7 +109,6 @@
     <string name="History">History</string> //means already listened, used for radio stations
     <string name="homepage">homepage</string>
     <string name="icon">icon</string>
-    <string name="id_label">"ID: "</string>
     <string name="Import">Import</string>
     <string name="in">in</string>
     <string name="Integration">Integration</string>
@@ -130,7 +118,6 @@
     <string name="Language_2pt">"Language: "</string>
     <string name="last">last</string>
     <string name="legacy">legacy</string>
-    <string name="library">Library</string>
     <string name="linked">linked</string>
     <string name="links">links</string>
     <string name="listened">"listened"</string>
@@ -147,9 +134,7 @@
     <string name="min.">min.</string>
     <string name="Miscellaneous">Miscellaneous</string>
     <string name="ms.">ms.</string> //short for milliseconds
-    <string name="new_label">new</string>
     <string name="No">No</string>
-    <string name="nothing">nothing</string>
     <string name="open">open</string>
     <string name="others">others</string>
     <string name="paste">paste</string>
@@ -163,7 +148,6 @@
     <string name="radial">radial</string> //for graphic vizualizer
     <string name="radio">Radio</string>
     <string name="Radio">Radio</string>
-    <string name="Ready">Ready</string>
     <string name="refresh">refresh</string>
     <string name="reorder">reorder</string>
     <string name="Results_2pt">"Results: "</string>
@@ -221,8 +205,6 @@
     <string name="About_to_start_download">About to start download…</string>
     <string name="Please_enter_a_URL">Please enter a URL.</string>
     <string name="Permission_Required">Permission Required</string>
-
-    <string name="App_Info">App Info</string>
 
     <string name="reset_app">Reset App</string>
     <string name="add_book">Add Book</string>
@@ -482,11 +464,8 @@
         \n* More memory will be needed if you do not delete the source file.
     </string>
     <string name="option_copy_file_text">Copy audio files to the internal, reserved, BookPlayer app memory.</string>
-    <string name="option_night_mode_title">Dark mode &#160;&#160; ☀️ &#160; 🌙</string>
-    <string name="option_night_mode_follow_system">⚙️ &#160; System</string>
     <string name="option_night_mode_light">☀️ &#160; Light</string>
     <string name="option_night_mode_dark">🌙 &#160; Dark</string>
-    <string name="option_night_mode_dialog_title">Choose theme mode</string>
 
     <!-- Theme mode section (Design): override system vs follow, then Light/Dark choice -->
     <string name="option_theme_mode_title">Night mode</string>
@@ -514,7 +493,6 @@
     <string name="option_tts_language_text">Default voice for new e-books.</string>
     <string name="option_tts_highlight_delay_title">Words highlight.</string>
     <string name="option_tts_highlight_delay_text">delay :</string>
-    <string name="option_epub_split_mode_title">EPUB chapter splitting</string>
     <string name="option_epub_split_mode_text">How to split EPUB files into chapters:</string>
     <string name="option_epub_split_mode_auto">Auto (use TOC if available, otherwise use spine)</string>
     <string name="option_epub_split_mode_toc">TOC-based (one chapter per table of contents entry)</string>
@@ -735,9 +713,6 @@
     <string name="saving_folder">registering folder</string>
     <string name="saving_track">registering track</string>
     <string name="MB_taken_by_images">" MB taken by images"</string>
-    <string name="deprecated_DeleteImages_AskConfirm">"You are about to delete all images.
-       Are you sure ?"</string>
-    <string name="deprecated_delete_cached_images">Delete cached images</string>
     <string name="delete_cache">Delete cache</string>
     <string name="DeleteCache_AskConfirm">"You are about to delete cached items.
         This will save space but may affect performance.
@@ -813,7 +788,6 @@
     <string name="import_export_select_at_least_one_to_backup">Please select at least one item to backup</string>
     <string name="import_export_select_at_least_one_to_restore">Please select at least one item to restore</string>
     <string name="import_export_select_at_least_one_to_share">Please select at least one item to share</string>
-    <string name="import_export_select_at_least_one_to_export">Please select at least one item to export</string>
     <string name="import_export_backup_saved">Backup saved successfully</string>
     <string name="import_export_failed_prepare">Failed to prepare backup: %s</string>
     <string name="import_export_failed_share">Failed to prepare share: %s</string>
@@ -854,7 +828,6 @@
     <string name="backup_share_sent">Backup sent!</string>
     <string name="backup_share_btn_stop">Stop</string>
     <string name="backup_share_btn_cancel">Cancel</string>
-    <string name="toggle_text_image">Toggle Text Image</string>
     <string name="reset_progress_from_this_track">reset progress from this track</string>
 
     <string name="rename_track">rename track</string>
@@ -1172,7 +1145,6 @@
     <string name="error_server_not_reachable">Error: bookplayer.driot.com is unreachable.</string>
     <string name="no_favorite_podcasts_found">No favorite podcasts found</string>
     <string name="permission_read_storage_not_granted">permission read storage not granted</string>
-    <string name="error_file_not_found_attach">File not found, cannot attach.</string>
     <string name="max_value_label">"Max = "</string>
     <string name="already_imported_under_name">"Already imported under the name: "</string>
     <string name="no_episode_downloaded">No episode downloaded</string>
@@ -1213,35 +1185,20 @@
     <string name="share_book">Share Book</string>
     <string name="nearby_share_title_send">Quick Share - Send</string>
     <string name="nearby_share_title_receive">Quick Share - Receive</string>
-    <string name="deprecated_nearby_share_explain">
-Quickly share a book between two nearby devices with BookPlayer installed. (no internet required)\n
-➜ To share a book, open the book, then open its settings (top right icon) and tap [Quick Share] at the bottom.\n
-➜ To receive a book, tap the three-dot menu (top right) on the main screen and select [Quick Share].
-</string>
     <string name="nearby_share_explain_intro">Quickly share a book between two nearby devices with BookPlayer installed. (no internet required)</string>
     <string name="nearby_share_explain_send">➜ To receive that book, on the other device, tap the three-dot menu (top right) on the main screen, and tap [Quick Share].</string>
     <string name="nearby_share_explain_receive">➜ To send a book, open a book on the other device, then open its settings (top right icon) and tap [Quick Share] at the bottom.</string>
     <string name="Quick_Share_3dots">Quick Share…</string>
-    <string name="nearby_share_send_tab">Send</string>
-    <string name="nearby_share_receive_tab">Receive</string>
     <string name="nearby_share_receive_book">Quick share</string>
     <string name="nearby_share_start_advertising">Start Sending</string>
     <string name="nearby_share_stop_advertising">Stop Sending</string>
     <string name="nearby_share_start_discovering">Start Receiving</string>
     <string name="nearby_share_stop_discovering">Stop Receiving</string>
-    <string name="nearby_share_searching">Searching for nearby devices…</string>
     <string name="nearby_share_found_device">Found device: %s</string>
     <string name="nearby_share_connecting">Connecting…</string>
-    <string name="nearby_share_transferring">Transferring: %d%%</string>
-    <string name="nearby_share_receiving">Receiving: %d%%</string>
     <string name="nearby_share_complete">Transfer complete!</string>
-    <string name="nearby_share_failed">Transfer failed</string>
-    <string name="nearby_share_accept_transfer">Accept book from %s?</string>
-    <string name="nearby_share_auto_importing">Auto-importing book…</string>
     <string name="nearby_share_permissions_required">Permissions are required for nearby sharing</string>
-    <string name="nearby_share_no_devices">No devices found</string>
     <string name="nearby_share_book_info">(%1$d tracks, %2$s)</string>
-    <string name="nearby_share_receive_mode_info">Waiting to receive a book from nearby device…</string>
     <string name="nearby_share_ready">Ready</string>
     <string name="nearby_share_transfer_progress">Also transfer book progress and settings</string>
     <string name="nearby_share_waiting_for_book">Waiting for book…</string>
@@ -1307,7 +1264,6 @@ Quickly share a book between two nearby devices with BookPlayer installed. (no i
     <string name="nearby_share_error_connection_failed_status">Connection failed with status: %s</string>
     <string name="nearby_share_error_connection_lost">Connection lost</string>
     <string name="nearby_share_error_payload_transfer_failed">Payload transfer failed: %s</string>
-    <string name="nearby_share_error_unknown">Unknown error</string>
 
     <string name="loading_categories">loading categories</string>
     <string name="elapsed">elapsed</string> //for seconds count

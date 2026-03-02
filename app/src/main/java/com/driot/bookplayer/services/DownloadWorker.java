@@ -374,7 +374,7 @@ public class DownloadWorker extends ImportWorker {
 
                 // Success
                 emitTaskCompleted(TASK_NAME, outFile.getAbsolutePath(), ctx.getString(R.string.download_noun)
-                        + " " + ctx.getString(R.string.done_));
+                        + " " + ctx.getString(R.string.done));
                 setProgressAsync(new Data.Builder()
                         .putInt(PROG_PERCENT, 100)
                         .putString(PROG_TEXT, progressText(written, fileLenIfKnown))

@@ -119,7 +119,7 @@ public class UncompressWorker extends ImportWorker {
             // If zip contained a single book (epub/odt/fb2/m4b) and no audio, update job so split runs
             detectAndUpdateForSingleBookInZip(unzipFolder, j);
 
-            emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.Uncompress) + " " + context.getString(R.string.done_));
+            emitTaskCompleted(TASK_NAME, destinationFolderPath, context.getString(R.string.Uncompress) + " " + context.getString(R.string.done));
             return Result.success();
 
         } catch (Exception e) {

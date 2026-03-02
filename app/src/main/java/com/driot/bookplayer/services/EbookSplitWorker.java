@@ -217,7 +217,7 @@ public class EbookSplitWorker extends ImportWorker {
 
             // Reuse existing completion hook for EPUB (keeps app logic unchanged)
             emitTaskCompleted(TASK_NAME, outFolder.getAbsolutePath(), ctx.getString(R.string.import_task_ebook_split)
-                    + " " + context.getString(R.string.done_));
+                    + " " + context.getString(R.string.done));
             return true;
 
         } catch (Exception e) {
