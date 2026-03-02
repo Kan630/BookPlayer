@@ -659,7 +659,7 @@
     <string name="MB_taken_by_databases">" ميغابايت مشغولة بقاعدة البيانات"</string>
     
     <!-- Stats Activity Table -->
-    <string name="stats_audio_time">إجمالي وقت الاستماع</string>
+    <string name="stats_audio_time">إجمالي وقت التشغيل</string>
     <string name="stats_book_time">* الكتب الصوتية</string>
     <string name="stats_tts_time">* الكتب الإلكترونية</string>
     <string name="stats_radio_time">* الراديو</string>
@@ -1158,7 +1158,60 @@
     <string name="import_export_btn_backup">نسخ احتياطي</string>
     <string name="import_export_btn_restore">متابعة الاستعادة</string>
     <string name="import_export_caution_title">تنبيه: استبدال المكتبة؟</string>
-    <string name="import_export_desc">نسخ احتياطي أو استعادة العناصر والتفضيلات…</string>
+    <string name="import_export_desc">نسخ احتياطي أو استعادة العناصر والتفضيلات من/إلى ملف أو عبر المشاركة السريعة.</string>
     <string name="import_export_title">استيراد / تصدير</string>
     <string name="loading_categories">جاري تحميل الفئات</string>
+
+    <string name="Usage">الاستخدام</string>
+    <string name="backup_share_connected">متصل</string>
+    <string name="backup_share_connected_to">متصل بـ %s</string>
+    <string name="backup_share_connecting">الاتصال بأجهزة قريبة…</string>
+    <string name="backup_share_looking">البحث عن أجهزة قريبة…</string>
+    <string name="backup_share_permissions_required">الأذونات المطلوبة للمشاركة المباشرة</string>
+    <string name="backup_share_ready_as">الجهاز جاهز كـ: %s</string>
+    <string name="backup_share_receive_btn">بدء الاستلام</string>
+    <string name="backup_share_receive_explain">اضغط على الزر للبحث عن أجهزة قريبة واستعادة النسخة الاحتياطية الخاصة بك.
+
+على الجهاز الآخر، انتقل إلى الإعدادات > الأدوات > النسخ الاحتياطي وانقر على \'إرسال إلى جهاز قريب (مباشر)\'.</string>
+    <string name="backup_share_receive_title">استلام من جهاز قريب</string>
+    <string name="backup_share_send_btn">بدء الإرسال</string>
+    <string name="backup_share_send_explain">اضغط على الزر لجعل هذا الجهاز مرئياً وإرسال بيانات النسخ الاحتياطي الخاصة بك.
+
+على الجهاز الآخر، انتقل إلى الإعدادات > الأدوات > الاستعادة وانقر على \'الاستلام من جهاز قريب (مباشر)\'.</string>
+    <string name="backup_share_send_title">إرسال إلى جهاز قريب</string>
+    <string name="backup_share_waiting">في انتظار بيانات النسخ الاحتياطية…</string>
+    <string name="gutenberg_connected">متصل! جاري استلام البيانات… 
+
+غوتنبرغ هو مشروع تطوعي مجاني.
+يمكن أن يكون بطيئاً جداً…
+
+</string>
+    <string name="import_export_backup_content_from">محتوى النسخ الاحتياطي من: %s</string>
+    <string name="import_export_backup_saved">تم حفظ النسخة الاحتياطية بنجاح</string>
+    <string name="import_export_caution_desc">سيؤدي هذا الإجراء إلى استبدال العناصر والإعدادات بالبيانات المختارة من ملف النسخ الاحتياطي. سيتم حذف جميع البيانات الحالية للعناصر المختارة نهائياً.</string>
+    <string name="import_export_caution_footer">تقدم بحذر!</string>
+    <string name="import_export_caution_negative">إلغاء</string>
+    <string name="import_export_caution_positive">استعادة الآن</string>
+    <string name="import_export_error_parsing">خطأ في تحليل النسخة الاحتياطية: %s</string>
+    <string name="import_export_error_reading">خطأ في قراءة الملف: %s</string>
+    <string name="import_export_failed_import">فشل أثناء الاستيراد: %s</string>
+    <string name="import_export_failed_prepare">فشل تحضير النسخة الاحتياطية: %s</string>
+    <string name="import_export_failed_restore">فشلت استعادة النسخة الاحتياطية: %s</string>
+    <string name="import_export_failed_share">فشل تحضير المشاركة: %s</string>
+    <string name="import_export_include_librivox">مفضلات ليباريفوكس</string>
+    <string name="import_export_include_podcasts">بودكاست</string>
+    <string name="import_export_include_prefs">تفضيلات التطبيق</string>
+    <string name="import_export_include_radios">محطات الراديو</string>
+    <string name="import_export_invalid_data">بيانات نسخ احتياطي غير صالحة</string>
+    <string name="import_export_restore_complete">اكتملت الاستعادة. يرجى إعادة تشغيل التطبيق إذا لم يتم تطبيق الإعدادات على الفور.</string>
+    <string name="import_export_select_at_least_one_to_backup">يرجى اختيار عنصر واحد على الأقل للنسخ الاحتياطي</string>
+    <string name="import_export_select_at_least_one_to_restore">يرجى اختيار عنصر واحد على الأقل للاستعادة</string>
+    <string name="import_export_select_at_least_one_to_share">يرجى اختيار عنصر واحد على الأقل للمشاركة</string>
+    <string name="import_export_select_data">اختر البيانات المراد تضمينها:</string>
+    <string name="import_export_select_data_restore">اختر البيانات المراد استعادتها:</string>
+    <string name="stats_database_title">إحصائيات قاعدة البيانات</string>
+    <string name="utilities_backup_library">نسخ احتياطي</string>
+    <string name="utilities_backup_restore_desc">حفظ واستعادة بعض العناصر والتفضيلات من/إلى ملف أو عبر المشاركة السريعة.</string>
+    <string name="utilities_backup_restore_title">نسخ احتياطي / استعادة</string>
+    <string name="utilities_restore_library">استعادة</string>
 </resources>

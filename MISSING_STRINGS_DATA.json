@@ -1,0 +1,354 @@
+{
+  "import_export_restore_complete": {
+    "en": "Restoration complete. Please restart the app if settings don\\'t apply immediately.",
+    "fr": "Restauration terminée. Veuillez redémarrer l\\'app si les paramètres ne s\\'appliquent pas immédiatement."
+  },
+  "gutenberg_wait_elapsed_connected": {
+    "en": "%1$s\n%2$d sec elapsed - %3$s\n(read timeout: %4$d sec)",
+    "fr": "%1$s\n%2$d s écoulées - %3$s\n(délai de lecture : %4$d s)"
+  },
+  "import_export_share_file": {
+    "en": "Share Backup File",
+    "fr": null
+  },
+  "import_export_caution_desc": {
+    "en": "This action will replace items and settings with the selected data from the backup file. All current data for selected items will be PERMANENTLY DELETED.",
+    "fr": "Cette action va remplacer les éléments et paramètres par les données du fichier de sauvegarde. Toutes les données actuelles pour les éléments sélectionnés seront DÉFINITIVEMENT SUPPRIMÉES."
+  },
+  "import_export_invalid_data": {
+    "en": "Invalid backup data",
+    "fr": "Données de sauvegarde invalides"
+  },
+  "utilities_backup_library": {
+    "en": "Backup",
+    "fr": "Sauvegarde"
+  },
+  "rewind": {
+    "en": "<![CDATA[<<]]>",
+    "fr": null
+  },
+  "import_export_failed_share": {
+    "en": "Failed to prepare share: %s",
+    "fr": "Échec de la préparation du partage : %s"
+  },
+  "import_export_include_librivox": {
+    "en": "Librivox Favorites",
+    "fr": "Favoris Librivox"
+  },
+  "radio_browser_wait_elapsed": {
+    "en": "%1$d sec elapsed - (timeout is %2$d sec)",
+    "fr": "%1$d s écoulées - (délai d\\'attente %2$d s)"
+  },
+  "delete_cache": {
+    "en": "Delete cache",
+    "fr": null
+  },
+  "backup_share_looking": {
+    "en": "Looking for nearby devices…",
+    "fr": "Recherche d\\'appareils proches…"
+  },
+  "Gutenberg": {
+    "en": "Gutenberg",
+    "fr": null
+  },
+  "import_export_select_data_restore": {
+    "en": "Select data to restore:",
+    "fr": "Sélectionnez les données à restaurer :"
+  },
+  "radio_browser_contacting": {
+    "en": "Contacting radio-browser.info…",
+    "fr": "Contact de radio-browser.info…"
+  },
+  "import_export_include_podcasts": {
+    "en": "Podcasts",
+    "fr": "Podcasts"
+  },
+  "backup_share_receive_explain": {
+    "en": "Tap the button to look for nearby devices and restore your backup.\n\nOn the other device, go to Settings > Utilities > Backup and click \\'Send to Nearby Device (Live)\\'.",
+    "fr": "Appuyez sur le bouton pour rechercher des appareils proches et restaurer votre sauvegarde.\n\nSur l\\'autre appareil, allez dans Paramètres > Utilitaires > Sauvegarde et cliquez sur \\'Envoyer vers un appareil proche (Direct)\\'."
+  },
+  "AutoTest_b3_text": {
+    "en": "m4b (9MB)",
+    "fr": null
+  },
+  "utilities_backup_restore_desc": {
+    "en": "Save and restore some items and preferences to/from a file or via quick share.",
+    "fr": "Sauvegardez et restaurez certains éléments et préférences vers/depuis un fichier ou via le partage rapide."
+  },
+  "import_export_receive_live": {
+    "en": "1a. Receive from Nearby Device (Live)",
+    "fr": null
+  },
+  "import_export_share_live": {
+    "en": "Send to Nearby Device (Live)",
+    "fr": null
+  },
+  "emoji_clear": {
+    "en": "🗑️",
+    "fr": null
+  },
+  "gutenberg_wait_elapsed_connecting": {
+    "en": "%1$s\n%2$d sec elapsed - %3$s\n(connection timeout: %4$d sec)",
+    "fr": "%1$s\n%2$d s écoulées - %3$s\n(délai de connexion : %4$d s)"
+  },
+  "ModifyFolder_AskDeleteProgressFromThisZikFile_Title": {
+    "en": "\"Confirm Reset from this track till the end\"",
+    "fr": null
+  },
+  "play": {
+    "en": "<![CDATA[>]]>",
+    "fr": null
+  },
+  "option_tts_fullscreen_controls": {
+    "en": "Show playback controls",
+    "fr": null
+  },
+  "gutenberg_connected": {
+    "en": "Connected! Receiving data… \n\nGutenberg is a free volunteer project.\nIt can be quite slow…\n\n",
+    "fr": "Connecté ! Réception des données… \n\nGutenberg est un projet bénévole gratuit.\nCela peut être assez lent…\n\n"
+  },
+  "menu_seeLog": {
+    "en": "See Logs",
+    "fr": null
+  },
+  "import_export_backup_content_from": {
+    "en": "Backup Content from: %s",
+    "fr": "Contenu de la sauvegarde de : %s"
+  },
+  "option_gutenberg_use_cloudfare": {
+    "en": "Use caching (Cloudflare)",
+    "fr": null
+  },
+  "option_metadata_titles_text": {
+    "en": "Try to use metadata titles (tags) instead of filenames to create chapter names.",
+    "fr": null
+  },
+  "option_tts_overlay_timeout_explain": {
+    "en": "On recent devices and/or for often used voices, it may be so fast you won\\'t even see that loading message.",
+    "fr": null
+  },
+  "import_export_failed_restore": {
+    "en": "Failed to restore backup: %s",
+    "fr": "Échec de la restauration de la sauvegarde : %s"
+  },
+  "btnSleepSet": {
+    "en": "Sleep",
+    "fr": null
+  },
+  "import_export_include_prefs": {
+    "en": "App Preferences",
+    "fr": "Préférences de l\\'app"
+  },
+  "utilities_backup_restore_title": {
+    "en": "Backup / Restore",
+    "fr": "Sauvegarde / Restauration"
+  },
+  "option_metadata_titles": {
+    "en": "Metadata Chapter Titles",
+    "fr": null
+  },
+  "import_export_include_radios": {
+    "en": "Radio Stations",
+    "fr": "Stations de radio"
+  },
+  "import_export_select_data": {
+    "en": "Select data to include:",
+    "fr": "Sélectionnez les données à inclure :"
+  },
+  "utilities_restore_library": {
+    "en": "Restore",
+    "fr": "Restauration"
+  },
+  "import_export_caution_positive": {
+    "en": "RESTORE NOW",
+    "fr": "RESTAURER MAINTENANT"
+  },
+  "import_export_failed_prepare": {
+    "en": "Failed to prepare backup: %s",
+    "fr": "Échec de la préparation de la sauvegarde : %s"
+  },
+  "import_export_backup_note": {
+    "en": "Note: This backup excludes local audiobooks. To save them, use the share or export option on individual book info pages.",
+    "fr": null
+  },
+  "import_export_caution_negative": {
+    "en": "CANCEL",
+    "fr": "ANNULER"
+  },
+  "import_export_caution_footer": {
+    "en": "Proceed with caution!",
+    "fr": "Procédez avec prudence !"
+  },
+  "import_export_restore_footer": {
+    "en": "Note: Restoration will overwrite existing.",
+    "fr": null
+  },
+  "backup_share_waiting": {
+    "en": "Waiting for backup data…",
+    "fr": "En attente des données de sauvegarde…"
+  },
+  "backup_share_ready_as": {
+    "en": "Device is ready as: %s",
+    "fr": "Appareil prêt en tant que : %s"
+  },
+  "asset_statements": {
+    "en": "\n    [{\n      \\\"include\\\": \\\"https://bookplayer.driot.com/.well-known/assetlinks.json\\\"\n    }]\n    ",
+    "fr": null
+  },
+  "Internet_Archive": {
+    "en": "Internet Archive",
+    "fr": null
+  },
+  "permissions_ok_button": {
+    "en": "OK",
+    "fr": null
+  },
+  "AutoTest_b1_text": {
+    "en": "zip (700KB)",
+    "fr": null
+  },
+  "option_gutenberg_use_cloudfare_subtitle": {
+    "en": "Caching should improve speed dramatically for the first \\'most downloaded\\' pages.\\nThey are cached and updated every 9h for major languages.",
+    "fr": null
+  },
+  "import_export_error_reading": {
+    "en": "Error reading file: %s",
+    "fr": "Erreur lors de la lecture du fichier : %s"
+  },
+  "backup_share_receive_title": {
+    "en": "Receive from Nearby Device",
+    "fr": "Recevoir d\\'un appareil proche"
+  },
+  "stats_database_title": {
+    "en": "Database Statistics",
+    "fr": "Statistiques de la base de données"
+  },
+  "DeleteCache_AskConfirm": {
+    "en": "\"You are about to delete cached items.\n        This will save space but may affect performance.\n        Are you sure ?\"",
+    "fr": null
+  },
+  "backup_share_send_btn": {
+    "en": "Start Sending",
+    "fr": "Démarrer l\\'envoi"
+  },
+  "AutoTest_b2_text": {
+    "en": "multi lang zip (7MB)",
+    "fr": null
+  },
+  "backup_share_receive_btn": {
+    "en": "Start Receiving",
+    "fr": "Démarrer la réception"
+  },
+  "backup_share_send_explain": {
+    "en": "Tap the button to make this device visible and send your backup data.\n\nOn the other device, go to Settings > Utilities > Restore and click \\'Receive from Nearby Device (Live)\\'.",
+    "fr": "Appuyez sur le bouton pour rendre cet appareil visible et envoyer vos données de sauvegarde.\n\nSur l\\'autre appareil, allez dans Paramètres > Utilitaires > Restauration et cliquez sur \\'Recevoir d\\'un appareil proche (Direct)\\'."
+  },
+  "option_tts_use_theme_color_for_cursor": {
+    "en": "Use theme color for cursor",
+    "fr": null
+  },
+  "Usage": {
+    "en": "Usage",
+    "fr": "Utilisation"
+  },
+  "backup_share_connecting": {
+    "en": "Connecting to nearby devices…",
+    "fr": "Connexion aux appareils proches…"
+  },
+  "stats_audio_time": {
+    "en": "Total Playback Time",
+    "fr": "Temps d\\'écoute total"
+  },
+  "emoji_paste": {
+    "en": "📋",
+    "fr": null
+  },
+  "import_export_select_at_least_one_to_backup": {
+    "en": "Please select at least one item to backup",
+    "fr": "Veuillez sélectionner au moins un élément à sauvegarder"
+  },
+  "librivox": {
+    "en": "LibriVox",
+    "fr": null
+  },
+  "import_export_select_at_least_one_to_restore": {
+    "en": "Please select at least one item to restore",
+    "fr": "Veuillez sélectionner au moins un élément à restaurer"
+  },
+  "import_export_backup_saved": {
+    "en": "Backup saved successfully",
+    "fr": "Sauvegarde enregistrée avec succès"
+  },
+  "AutoTest_b4_text": {
+    "en": "zip (220MB)",
+    "fr": null
+  },
+  "pause": {
+    "en": "||",
+    "fr": null
+  },
+  "backup_share_connected_to": {
+    "en": "Connected to %s",
+    "fr": "Connecté à %s"
+  },
+  "import_export_pick_file": {
+    "en": "1b. Pick Backup File",
+    "fr": null
+  },
+  "ModifyFolder_AskDeleteProgressForThisZikFile_Text": {
+    "en": "\"You are about to reset progression for this track\\nAre you sure ?\"",
+    "fr": null
+  },
+  "import_export_error_parsing": {
+    "en": "Error parsing backup: %s",
+    "fr": "Erreur lors de l\\'analyse de la sauvegarde : %s"
+  },
+  "import_export_failed_import": {
+    "en": "Failed during import: %s",
+    "fr": "Échec lors de l\\'importation : %s"
+  },
+  "backup_share_connected": {
+    "en": "Connected",
+    "fr": "Connecté"
+  },
+  "Librivox": {
+    "en": "LibriVox",
+    "fr": null
+  },
+  "ModifyFolder_AskDeleteProgressForThisZikFile_Title": {
+    "en": "\"Confirm Reset for this track (only)\"",
+    "fr": null
+  },
+  "ModifyFolder_AskDeleteProgressFromThisZikFile_Text": {
+    "en": "\"You are about to reset progression for this track and all the next ones\\nAre you sure ?\"",
+    "fr": null
+  },
+  "option_ebook_remove_references": {
+    "en": "Remove reference markers (footnotes)",
+    "fr": null
+  },
+  "backup_share_permissions_required": {
+    "en": "Permissions required for Live Share",
+    "fr": "Autorisations requises pour le Partage en direct"
+  },
+  "forward": {
+    "en": "<![CDATA[>>]]>",
+    "fr": null
+  },
+  "option_tts_fullscreen_text_size": {
+    "en": "Text size",
+    "fr": null
+  },
+  "backup_share_send_title": {
+    "en": "Send to Nearby Device",
+    "fr": "Envoyer vers un appareil proche"
+  },
+  "import_export_select_at_least_one_to_share": {
+    "en": "Please select at least one item to share",
+    "fr": "Veuillez sélectionner au moins un élément à partager"
+  },
+  "three_dots": {
+    "en": "…",
+    "fr": null
+  }
+}

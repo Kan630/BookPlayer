@@ -1161,7 +1161,61 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="import_export_btn_backup">备份</string>
     <string name="import_export_btn_restore">继续恢复</string>
     <string name="import_export_caution_title">注意：覆盖库？</string>
-    <string name="import_export_desc">通过文件或快速共享备份或恢复项目</string>
+    <string name="import_export_desc">通过文件或快速共享来备份或恢复项目与首选项。</string>
     <string name="import_export_title">导入 / 导出</string>
     <string name="loading_categories">正在加载类别</string>
+
+    <string name="Usage">用法</string>
+    <string name="backup_share_connected">已连接</string>
+    <string name="backup_share_connected_to">已连接到 %s</string>
+    <string name="backup_share_connecting">正在连接到附近的设备…</string>
+    <string name="backup_share_looking">正在寻找附近的设备…</string>
+    <string name="backup_share_permissions_required">实时分享所需的权限</string>
+    <string name="backup_share_ready_as">设备已就绪，标识为：%s</string>
+    <string name="backup_share_receive_btn">开始接收</string>
+    <string name="backup_share_receive_explain">点击按钮寻找附近的设备并恢复备份。
+
+在另一台设备上，前往设置 > 工具 > 备份，然后点击“发送到附近的设备（实时）”。</string>
+    <string name="backup_share_receive_title">从附近的设备接收</string>
+    <string name="backup_share_send_btn">开始发送</string>
+    <string name="backup_share_send_explain">点击按钮使此设备可见并发送您的备份数据。
+
+在另一台设备上，前往设置 > 工具 > 恢复，然后点击“从附近的设备接收（实时）”。</string>
+    <string name="backup_share_send_title">发送到附近的设备</string>
+    <string name="backup_share_waiting">等待备份数据…</string>
+    <string name="gutenberg_connected">已连接！正在接收数据… 
+
+古腾堡是一个免费的志愿者项目。
+它可能非常缓慢…
+
+</string>
+    <string name="import_export_backup_content_from">备份内容来源：%s</string>
+    <string name="import_export_backup_saved">备份保存成功</string>
+    <string name="import_export_caution_desc">此操作将使用备份文件中的选定数据替换项和设置。选定项的所有当前数据将被永久删除。</string>
+    <string name="import_export_caution_footer">请谨慎操作！</string>
+    <string name="import_export_caution_negative">取消</string>
+    <string name="import_export_caution_positive">立即恢复</string>
+    <string name="import_export_error_parsing">解析备份错误：%s</string>
+    <string name="import_export_error_reading">读取文件错误：%s</string>
+    <string name="import_export_failed_import">导入期间失败：%s</string>
+    <string name="import_export_failed_prepare">准备备份失败：%s</string>
+    <string name="import_export_failed_restore">恢复备份失败：%s</string>
+    <string name="import_export_failed_share">准备共享失败：%s</string>
+    <string name="import_export_include_librivox">Librivox 收藏</string>
+    <string name="import_export_include_podcasts">播客</string>
+    <string name="import_export_include_prefs">应用首选项</string>
+    <string name="import_export_include_radios">无线电台</string>
+    <string name="import_export_invalid_data">备份数据无效</string>
+    <string name="import_export_restore_complete">恢复完成。如果设置未立即生效，请重启应用。</string>
+    <string name="import_export_select_at_least_one_to_backup">请至少选择一个项进行备份</string>
+    <string name="import_export_select_at_least_one_to_restore">请至少选择一个项进行恢复</string>
+    <string name="import_export_select_at_least_one_to_share">请至少选择一个项进行分享</string>
+    <string name="import_export_select_data">选择包含的数据：</string>
+    <string name="import_export_select_data_restore">选择要恢复的数据：</string>
+    <string name="stats_audio_time">总播放时间</string>
+    <string name="stats_database_title">数据库统计信息</string>
+    <string name="utilities_backup_library">备份</string>
+    <string name="utilities_backup_restore_desc">通过文件或快速共享来保存和恢复某些项与首选项。</string>
+    <string name="utilities_backup_restore_title">备份 / 恢复</string>
+    <string name="utilities_restore_library">恢复</string>
 </resources>

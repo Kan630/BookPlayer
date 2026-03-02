@@ -663,7 +663,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="MB_taken_by_databases">" MB ocupados por la base de datos"</string>
     
     <!-- Stats Activity Table -->
-    <string name="stats_audio_time">Tiempo de reproducción total</string>
+    <string name="stats_audio_time">Tiempo total de reproducción</string>
     <string name="stats_book_time">* Audiolibro</string>
     <string name="stats_tts_time">* Libro Electrónico</string>
     <string name="stats_radio_time">* Radio</string>
@@ -1162,8 +1162,61 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="import_export_btn_backup">Copia de seguridad</string>
     <string name="import_export_btn_restore">Continuar con la restauración</string>
     <string name="import_export_caution_title">Precaución: ¿Sobrescribir biblioteca?</string>
-    <string name="import_export_desc">Copia de seguridad o restauración de elementos…</string>
+    <string name="import_export_desc">Copia de seguridad o restauración de elementos y preferencias desde/hacia un archivo o mediante el uso compartido rápido.</string>
     <string name="import_export_title">Importar / Exportar</string>
     <string name="loading_categories">Cargando categorías</string>
+
+    <string name="Usage">Uso</string>
+    <string name="backup_share_connected">Conectado</string>
+    <string name="backup_share_connected_to">Conectado a %s</string>
+    <string name="backup_share_connecting">Conectando a dispositivos cercanos…</string>
+    <string name="backup_share_looking">Buscando dispositivos cercanos…</string>
+    <string name="backup_share_permissions_required">Permisos necesarios para compartir en vivo</string>
+    <string name="backup_share_ready_as">El dispositivo está listo como: %s</string>
+    <string name="backup_share_receive_btn">Iniciar recepción</string>
+    <string name="backup_share_receive_explain">Toque el botón para buscar dispositivos cercanos y restaurar su copia de seguridad.
+
+En el otro dispositivo, vaya a Configuración > Utilidades > Copia de seguridad y haga clic en \'Enviar a dispositivo cercano (en vivo)\'.</string>
+    <string name="backup_share_receive_title">Recibir de dispositivo cercano</string>
+    <string name="backup_share_send_btn">Iniciar envío</string>
+    <string name="backup_share_send_explain">Toque el botón para que este dispositivo sea visible y envíe sus datos de copia de seguridad.
+
+En el otro dispositivo, vaya a Configuración > Utilidades > Restaurar y haga clic en \'Recibir de dispositivo cercano (en vivo)\'.</string>
+    <string name="backup_share_send_title">Enviar a dispositivo cercano</string>
+    <string name="backup_share_waiting">Esperando datos de la copia de seguridad…</string>
+    <string name="gutenberg_connected">¡Conectado! Recibiendo datos… 
+
+Gutenberg es un proyecto de voluntarios gratuito.
+Puede ser bastante lento…
+
+</string>
+    <string name="import_export_backup_content_from">Contenido de la copia de seguridad de: %s</string>
+    <string name="import_export_backup_saved">Copia de seguridad guardada con éxito</string>
+    <string name="import_export_caution_desc">Esta acción reemplazará los elementos y la configuración con los datos seleccionados del archivo de copia de seguridad. Todos los datos actuales para los elementos seleccionados se ELIMINARÁN PERMANENTEMENTE.</string>
+    <string name="import_export_caution_footer">¡Proceda con precaución!</string>
+    <string name="import_export_caution_negative">CANCELAR</string>
+    <string name="import_export_caution_positive">RESTAURAR AHORA</string>
+    <string name="import_export_error_parsing">Error al analizar la copia de seguridad: %s</string>
+    <string name="import_export_error_reading">Error al leer el archivo: %s</string>
+    <string name="import_export_failed_import">Error durante la importación: %s</string>
+    <string name="import_export_failed_prepare">Error al preparar la copia de seguridad: %s</string>
+    <string name="import_export_failed_restore">Error al restaurar la copia de seguridad: %s</string>
+    <string name="import_export_failed_share">Error al preparar para compartir: %s</string>
+    <string name="import_export_include_librivox">Favoritos de Librivox</string>
+    <string name="import_export_include_podcasts">Podcasts</string>
+    <string name="import_export_include_prefs">Preferencias de la aplicación</string>
+    <string name="import_export_include_radios">Estaciones de radio</string>
+    <string name="import_export_invalid_data">Datos de copia de seguridad no válidos</string>
+    <string name="import_export_restore_complete">Restauración completada. Reinicie la aplicación si la configuración no se aplica de inmediato.</string>
+    <string name="import_export_select_at_least_one_to_backup">Seleccione al menos un elemento para realizar la copia de seguridad</string>
+    <string name="import_export_select_at_least_one_to_restore">Seleccione al menos un elemento para restaurar</string>
+    <string name="import_export_select_at_least_one_to_share">Seleccione al menos un elemento para compartir</string>
+    <string name="import_export_select_data">Seleccione los datos a incluir:</string>
+    <string name="import_export_select_data_restore">Seleccione los datos a restaurar:</string>
+    <string name="stats_database_title">Estadísticas de la base de datos</string>
+    <string name="utilities_backup_library">Copia de seguridad</string>
+    <string name="utilities_backup_restore_desc">Guarde y restaure algunos elementos y preferencias desde/hacia un archivo o mediante el uso compartido rápido.</string>
+    <string name="utilities_backup_restore_title">Copia de seguridad / Restauración</string>
+    <string name="utilities_restore_library">Restaurar</string>
 </resources>
 

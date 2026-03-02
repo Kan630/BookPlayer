@@ -1106,7 +1106,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="nearby_share_transfer_progress">किताब की प्रगति और सेटिंग्स भी भेजें</string>
     <string name="nearby_share_waiting_for_book">किताब का इंतजार है…</string>
     <string name="error_download_corrupted_try_again">डाउनलोड दूषित है। कृपया पुनः प्रयास करें।</string>
-    <string name="stats_audio_time">कुल सुनने का समय</string>
+    <string name="stats_audio_time">कुल प्लेबैक समय</string>
 
     <!-- Nearby Sharing Updates -->
     <string name="nearby_share_error_no_folder">त्रुटि: साझा करने के लिए कोई फ़ोल्डर नहीं है</string>
@@ -1162,7 +1162,60 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="import_export_btn_backup">बैकअप</string>
     <string name="import_export_btn_restore">पुनर्स्थापना के साथ आगे बढ़ें</string>
     <string name="import_export_caution_title">सावधानी: क्या लाइब्रेरी को बदल दें?</string>
-    <string name="import_export_desc">बैकअप या पुनर्स्थापना…</string>
+    <string name="import_export_desc">फ़ाइल के माध्यम से या त्वरित साझाकरण के माध्यम से आइटम और प्राथमिकताओं का बैकअप लें या पुनर्स्थापित करें।</string>
     <string name="import_export_title">आयात / निर्यात</string>
     <string name="loading_categories">श्रेणियाँ लोड हो रही हैं</string>
+
+    <string name="Usage">उपयोग</string>
+    <string name="backup_share_connected">जुड़ा हुआ</string>
+    <string name="backup_share_connected_to">%s से जुड़ा है</string>
+    <string name="backup_share_connecting">आस-पास के उपकरणों से जुड़ रहा है…</string>
+    <string name="backup_share_looking">आस-पास के उपकरणों की खोज की जा रही है…</string>
+    <string name="backup_share_permissions_required">लाइव शेयर के लिए आवश्यक अनुमतियां</string>
+    <string name="backup_share_ready_as">डिवाइस इस रूप में तैयार है: %s</string>
+    <string name="backup_share_receive_btn">प्राप्त करना शुरू करें</string>
+    <string name="backup_share_receive_explain">आस-पास के उपकरणों को खोजने और अपने बैकاف को पुनर्स्थापित करने के लिए बटन पर टैप करें।
+
+दूसरे डिवाइस पर, सेटिंग्स > उपयोगिताएँ > बैकअप पर जाएं और \'आस-पास के डिवाइस पर भेजें (लाइव)\' पर क्लिक करें।</string>
+    <string name="backup_share_receive_title">आस-पास के डिवाइस से प्राप्त करें</string>
+    <string name="backup_share_send_btn">भेजना शुरू करें</string>
+    <string name="backup_share_send_explain">इस डिवाइस को दृश्यमान बनाने और अपना बैकअप डेटा भेजने के लिए बटन पर टैप करें।
+
+दूसरे डिवाइस पर, सेटिंग्स > उपयोगिताएँ > पुनर्स्थापना पर जाएं और \'आस-पास के डिवाइस से प्राप्त करें (लाइव)\' पर क्लिक करें।</string>
+    <string name="backup_share_send_title">आस-पास के डिवाइस पर भेजें</string>
+    <string name="backup_share_waiting">बैकअप डेटा की प्रतीक्षा की जा रही है…</string>
+    <string name="gutenberg_connected">जुड़ा हुआ है! डेटा प्राप्त हो रहा है… 
+
+गटेनबर्ग एक स्वतंत्र स्वयंसेवक परियोजना है।
+यह काफी धीमा हो सकता है…
+
+</string>
+    <string name="import_export_backup_content_from">बैकअप सामग्री: %s</string>
+    <string name="import_export_backup_saved">बैकअप सफलतापूर्वक सहेजा गया</string>
+    <string name="import_export_caution_desc">यह क्रिया आइटम और सेटिंग्स को बैकअप फ़ाइल से चयनित डेटा के साथ बदल देगी। चयनित वस्तुओं का सारा वर्तमान डेटा स्थायी रूप से मिटा दिया जाएगा।</string>
+    <string name="import_export_caution_footer">सावधानी से आगे बढ़ें!</string>
+    <string name="import_export_caution_negative">रद्द करें</string>
+    <string name="import_export_caution_positive">अभी पुनर्स्थापित करें</string>
+    <string name="import_export_error_parsing">बैकअप पार्स करने में त्रुटي: %s</string>
+    <string name="import_export_error_reading">फ़ाइल पढ़ने में त्रुटि: %s</string>
+    <string name="import_export_failed_import">आयात के दौरान विफल: %s</string>
+    <string name="import_export_failed_prepare">बैकअप तैयार करने में विफल: %s</string>
+    <string name="import_export_failed_restore">बैकअप पुनर्स्थापित करने में विफल: %s</string>
+    <string name="import_export_failed_share">साझाकरण तैयार करने में विफल: %s</string>
+    <string name="import_export_include_librivox">लिब्रीवोक्स पसंदीदा</string>
+    <string name="import_export_include_podcasts">पॉडकास्ट</string>
+    <string name="import_export_include_prefs">ऐप प्राथमिकताएं</string>
+    <string name="import_export_include_radios">रेडियो स्टेशन</string>
+    <string name="import_export_invalid_data">अमान्य बैकअप डेटा</string>
+    <string name="import_export_restore_complete">पुनर्स्थापना पूर्ण हुई। यदि सेटिंग्स तुरंत लागू नहीं होती हैं तो कृपया ऐप को रीस्टार्ट करें।</string>
+    <string name="import_export_select_at_least_one_to_backup">कृपया बैकअप के लिए कम से कम एक आइटम चुनें</string>
+    <string name="import_export_select_at_least_one_to_restore">कृपया पुनर्स्थापित करने के लिए कम से कम एक आइटम चुनें</string>
+    <string name="import_export_select_at_least_one_to_share">कृपया साझा करने के लिए कम से कम एक आइटम चुनें</string>
+    <string name="import_export_select_data">शामिल करने के लिए डेटा चुनें:</string>
+    <string name="import_export_select_data_restore">पुनर्स्थापित करने के लिए डेटा चुनें:</string>
+    <string name="stats_database_title">डेटाबेस सांख्यिकी</string>
+    <string name="utilities_backup_library">बैकअप</string>
+    <string name="utilities_backup_restore_desc">फ़ाइल के माध्यम से या त्वरित साझाकरण के माध्यम से कुछ आइटम और प्राथमिकताओं को सहेजें और पुनर्स्थापित करें।</string>
+    <string name="utilities_backup_restore_title">बैकअप / पुनर्स्थापना</string>
+    <string name="utilities_restore_library">पुनर्स्थापना</string>
 </resources>

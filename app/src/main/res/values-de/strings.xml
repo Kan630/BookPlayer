@@ -1160,13 +1160,66 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="backup_share_ready">Bereit</string>
     <string name="backup_share_sending">Sende Backup-Daten…</string>
     <string name="backup_share_sent">Backup gesendet!</string>
-    <string name="backup_share_starting">Startet…</string>
+    <string name="backup_share_starting">Wird gestartet…</string>
     <string name="elapsed">abgelaufen</string>
     <string name="import_export_btn_backup">Backup</string>
     <string name="import_export_btn_restore">Wiederherstellung fortsetzen</string>
     <string name="import_export_caution_title">Achtung: Bibliothek überschreiben?</string>
-    <string name="import_export_desc">Sichern oder Wiederherstellen von Elementen und Einstellungen…</string>
+    <string name="import_export_desc">Sichern oder Wiederherstellen von Elementen und Einstellungen in/aus einer Datei oder über Quick Share.</string>
     <string name="import_export_title">Import / Export</string>
     <string name="loading_categories">Kategorien laden</string>
+
+    <string name="Usage">Verwendung</string>
+    <string name="backup_share_connected">Verbunden</string>
+    <string name="backup_share_connected_to">Verbunden mit %s</string>
+    <string name="backup_share_connecting">Verbindung zu Geräten in der Nähe wird hergestellt…</string>
+    <string name="backup_share_looking">Suche nach Geräten in der Nähe…</string>
+    <string name="backup_share_permissions_required">Berechtigungen für Live-Freigabe erforderlich</string>
+    <string name="backup_share_ready_as">Gerät ist bereit als: %s</string>
+    <string name="backup_share_receive_btn">Empfang starten</string>
+    <string name="backup_share_receive_explain">Tippen Sie auf die Schaltfläche, um nach Geräten in der Nähe zu suchen und Ihr Backup wiederherzustellen.
+
+Gehen Sie auf dem anderen Gerät zu Einstellungen > Dienstprogramme > Backup und klicken Sie auf \'An Gerät in der Nähe senden (Live)\'.</string>
+    <string name="backup_share_receive_title">Von Gerät in der Nähe empfangen</string>
+    <string name="backup_share_send_btn">Senden starten</string>
+    <string name="backup_share_send_explain">Tippen Sie auf die Schaltfläche, um dieses Gerät sichtbar zu machen und Ihre Backup-Daten zu senden.
+
+Gehen Sie auf dem anderen Gerät zu Einstellungen > Dienstprogramme > Wiederherstellung und klicken Sie auf \'Von Gerät in der Nähe empfangen (Live)\'.</string>
+    <string name="backup_share_send_title">An Gerät in der Nähe senden</string>
+    <string name="backup_share_waiting">Warten auf Backup-Daten…</string>
+    <string name="gutenberg_connected">Verbunden! Daten werden empfangen… 
+
+Gutenberg ist ein kostenloses Freiwilligenprojekt.
+Es kann ziemlich langsam sein…
+
+</string>
+    <string name="import_export_backup_content_from">Backup-Inhalt von: %s</string>
+    <string name="import_export_backup_saved">Backup erfolgreich gespeichert</string>
+    <string name="import_export_caution_desc">Diese Aktion ersetzt Elemente und Einstellungen durch die ausgewählten Daten aus der Backup-Datei. Alle aktuellen Daten der ausgewählten Elemente werden DAUERHAFT GELÖSCHT.</string>
+    <string name="import_export_caution_footer">Mit Vorsicht fortfahren!</string>
+    <string name="import_export_caution_negative">ABBRECHEN</string>
+    <string name="import_export_caution_positive">JETZT WIEDERHERSTELLEN</string>
+    <string name="import_export_error_parsing">Fehler beim Analysieren des Backups: %s</string>
+    <string name="import_export_error_reading">Fehler beim Lesen der Datei: %s</string>
+    <string name="import_export_failed_import">Beim Import fehlgeschlagen: %s</string>
+    <string name="import_export_failed_prepare">Vorbereitung des Backups fehlgeschlagen: %s</string>
+    <string name="import_export_failed_restore">Wiederherstellung des Backups fehlgeschlagen: %s</string>
+    <string name="import_export_failed_share">Vorbereitung der Freigabe fehlgeschlagen: %s</string>
+    <string name="import_export_include_librivox">Librivox Favoriten</string>
+    <string name="import_export_include_podcasts">Podcasts</string>
+    <string name="import_export_include_prefs">App-Einstellungen</string>
+    <string name="import_export_include_radios">Radiosender</string>
+    <string name="import_export_invalid_data">Ungültige Backup-Daten</string>
+    <string name="import_export_restore_complete">Wiederherstellung abgeschlossen. Bitte starten Sie die App neu, falls die Einstellungen nicht sofort übernommen werden.</string>
+    <string name="import_export_select_at_least_one_to_backup">Bitte wählen Sie mindestens ein Element für das Backup aus</string>
+    <string name="import_export_select_at_least_one_to_restore">Bitte wählen Sie mindestens ein Element für die Wiederherstellung aus</string>
+    <string name="import_export_select_at_least_one_to_share">Bitte wählen Sie mindestens ein Element zum Teilen aus</string>
+    <string name="import_export_select_data">Einzuschließende Daten auswählen:</string>
+    <string name="import_export_select_data_restore">Wiederherzustellende Daten auswählen:</string>
+    <string name="stats_database_title">Datenbank-Statistik</string>
+    <string name="utilities_backup_library">Backup</string>
+    <string name="utilities_backup_restore_desc">Sichern und Wiederherstellen einiger Elemente und Einstellungen in/aus einer Datei oder über Quick Share.</string>
+    <string name="utilities_backup_restore_title">Backup / Wiederherstellung</string>
+    <string name="utilities_restore_library">Wiederherstellung</string>
 </resources>
 

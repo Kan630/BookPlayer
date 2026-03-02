@@ -664,7 +664,7 @@
     <string name="MB_taken_by_databases">" MB usados pelo banco de dados"</string>
     
     <!-- Stats Activity Table -->
-    <string name="stats_audio_time">Tempo de reprodução total</string>
+    <string name="stats_audio_time">Tempo total de reprodução</string>
     <string name="stats_book_time">* Audiolivro</string>
     <string name="stats_tts_time">* E-book</string>
     <string name="stats_radio_time">* Rádio</string>
@@ -1163,7 +1163,60 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="import_export_btn_backup">Backup</string>
     <string name="import_export_btn_restore">Prosseguir com a restauração</string>
     <string name="import_export_caution_title">Atenção: Sobrescrever biblioteca?</string>
-    <string name="import_export_desc">Backup ou restauração de itens…</string>
+    <string name="import_export_desc">Backup ou restauração de itens e preferências de/para um arquivo ou via compartilhamento rápido.</string>
     <string name="import_export_title">Importar / Exportar</string>
     <string name="loading_categories">Carregando categorias</string>
+
+    <string name="Usage">Uso</string>
+    <string name="backup_share_connected">Conectado</string>
+    <string name="backup_share_connected_to">Conectado a %s</string>
+    <string name="backup_share_connecting">Conectando-se a dispositivos próximos…</string>
+    <string name="backup_share_looking">Procurando dispositivos próximos…</string>
+    <string name="backup_share_permissions_required">Permissões necessárias para o compartilhamento ao vivo</string>
+    <string name="backup_share_ready_as">O dispositivo está pronto como: %s</string>
+    <string name="backup_share_receive_btn">Iniciar recebimento</string>
+    <string name="backup_share_receive_explain">Toque no botão para procurar dispositivos próximos e restaurar seu backup.
+
+No outro dispositivo, vá para Configurações > Utilitários > Backup e clique em \'Enviar para dispositivo próximo (ao vivo)\'.</string>
+    <string name="backup_share_receive_title">Receber de dispositivo próximo</string>
+    <string name="backup_share_send_btn">Iniciar envio</string>
+    <string name="backup_share_send_explain">Toque no botão para tornar este dispositivo visível e enviar seus dados de backup.
+
+No outro dispositivo, vá para Configurações > Utilitários > Restaurar e clique em \'Receber de dispositivo próximo (ao vivo)\'.</string>
+    <string name="backup_share_send_title">Enviar para dispositivo próximo</string>
+    <string name="backup_share_waiting">Aguardando dados de backup…</string>
+    <string name="gutenberg_connected">Conectado! Recebendo dados… 
+
+Gutenberg é um projeto voluntário gratuito.
+Pode ser muito lento…
+
+</string>
+    <string name="import_export_backup_content_from">Conteúdo do backup de: %s</string>
+    <string name="import_export_backup_saved">Backup salvo com sucesso</string>
+    <string name="import_export_caution_desc">Esta ação substituirá itens e configurações pelos dados selecionados do arquivo de backup. Todos os dados atuais dos itens selecionados serão EXCLUÍDOS PERMANENTEMENTE.</string>
+    <string name="import_export_caution_footer">Proceda com cautela!</string>
+    <string name="import_export_caution_negative">CANCELAR</string>
+    <string name="import_export_caution_positive">RESTAURAR AGORA</string>
+    <string name="import_export_error_parsing">Erro ao analisar o backup: %s</string>
+    <string name="import_export_error_reading">Erro ao ler o arquivo: %s</string>
+    <string name="import_export_failed_import">Falha durante a importação: %s</string>
+    <string name="import_export_failed_prepare">Falha ao preparar o backup: %s</string>
+    <string name="import_export_failed_restore">Falha ao restaurar o backup: %s</string>
+    <string name="import_export_failed_share">Falha ao preparar o compartilhamento: %s</string>
+    <string name="import_export_include_librivox">Favoritos do Librivox</string>
+    <string name="import_export_include_podcasts">Podcasts</string>
+    <string name="import_export_include_prefs">Preferências do aplicativo</string>
+    <string name="import_export_include_radios">Estações de rádio</string>
+    <string name="import_export_invalid_data">Dados de backup inválidos</string>
+    <string name="import_export_restore_complete">Restauração concluída. Por favor, reinicie o aplicativo se as configurações não forem aplicadas imediatamente.</string>
+    <string name="import_export_select_at_least_one_to_backup">Selecione pelo menos um item para fazer backup</string>
+    <string name="import_export_select_at_least_one_to_restore">Selecione pelo menos um item para restaurar</string>
+    <string name="import_export_select_at_least_one_to_share">Selecione pelo menos um item para compartilhar</string>
+    <string name="import_export_select_data">Selecione os dados para incluir:</string>
+    <string name="import_export_select_data_restore">Selecione os dados para restaurar:</string>
+    <string name="stats_database_title">Estatísticas do banco de dados</string>
+    <string name="utilities_backup_library">Backup</string>
+    <string name="utilities_backup_restore_desc">Salve e restaure alguns itens e preferências de/para um arquivo ou via compartilhamento rápido.</string>
+    <string name="utilities_backup_restore_title">Backup / Restauração</string>
+    <string name="utilities_restore_library">Restaurar</string>
 </resources>
