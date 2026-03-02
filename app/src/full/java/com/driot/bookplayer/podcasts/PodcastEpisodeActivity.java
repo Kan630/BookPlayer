@@ -212,11 +212,10 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
-        Glide.with(ivCover.getContext())
-                .load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), podcastFeed.image)).into(ivCover);
-        Glide.with(ivMiniCover.getContext())
-                .load(StorageHelper.checkAndCleanImagePath(ivMiniCover.getContext(), podcastFeed.image))
-                .into(ivMiniCover);
+        //Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), podcastFeed.image)).into(ivCover);
+        Glide.with(ivCover.getContext()).load(podcastFeed.image).into(ivCover);
+        //Glide.with(ivMiniCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivMiniCover.getContext(), podcastFeed.image)).into(ivMiniCover);
+        Glide.with(ivMiniCover.getContext()).load(podcastFeed.image).into(ivMiniCover);
 
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");

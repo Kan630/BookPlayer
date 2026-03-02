@@ -159,8 +159,8 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             // desc.setText(podcast.language); // placeholder (you could fetch/show `feedId`
             // or something better)
             desc.setVisibility(View.GONE);
-            Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image))
-                    .into(image);
+            //Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image)).into(image);
+            Glide.with(image.getContext()).load(podcast.image).into(image);
 
             /// AUTO DOWNLOAD BUTTON
             autoDownload.setVisibility(View.VISIBLE);
