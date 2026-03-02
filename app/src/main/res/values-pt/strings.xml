@@ -1219,4 +1219,53 @@ Pode ser muito lento…
     <string name="utilities_backup_restore_desc">Salve e restaure alguns itens e preferências de/para um arquivo ou via compartilhamento rápido.</string>
     <string name="utilities_backup_restore_title">Backup / Restauração</string>
     <string name="utilities_restore_library">Restaurar</string>
+
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">Dormir</string>
+    <string name="menu_seeLog">Ver registos</string>
+    <string name="permissions_ok_button">OK</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">Utilizar cache (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">A memorização em cache deve melhorar drasticamente a velocidade para as primeiras páginas "mais descarregadas".\nSão memorizadas em cache e atualizadas a cada 9 horas para os principais idiomas.</string>
+    <string name="option_tts_overlay_timeout_explain">Em dispositivos recentes e/ou para vozes usadas com frequência, pode ser tão rápido que nem verá a mensagem de carregamento.</string>
+    <string name="option_tts_use_theme_color_for_cursor">Utilizar cor do tema para o cursor</string>
+    <string name="option_tts_fullscreen_text_size">Tamanho do texto</string>
+    <string name="option_tts_fullscreen_controls">Mostrar controlos de reprodução</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"Confirmar redefinição desta faixa até ao fim"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"Está prestes a redefinir a progressão desta faixa e de todas as seguintes.\nTem a certeza?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Confirmar redefinição desta faixa (apenas)"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Está prestes a redefinir a progressão desta faixa.\nTem a certeza?"</string>
+    <string name="delete_cache">Eliminar cache</string>
+    <string name="DeleteCache_AskConfirm">"Está prestes a eliminar os itens em cache.\nIsto poupará espaço, mas poderá afetar o desempenho.\nTem a certeza?"</string>
+    <string name="option_metadata_titles">Títulos de capítulos de metadatos</string>
+    <string name="option_metadata_titles_text">Tente utilizar títulos de metadatos (etiquetas) em vez de nomes de ficheiros para criar nomes de capítulos.</string>
+    <string name="import_export_backup_note">Nota: Esta cópia de segurança exclui audiolivros locais. Para os guardar, utilize a opção de partilha ou exportação nas páginas de informações individuais dos livros.</string>
+    <string name="import_export_restore_footer">Nota: A restauração substituirá o conteúdo existente.</string>
+    <string name="import_export_receive_live">1a. Receber de dispositivo próximo (Live)</string>
+    <string name="import_export_pick_file">1b. Escolher ficheiro de cópia de segurança</string>
+    <string name="import_export_share_live">Enviar para dispositivo próximo (Live)</string>
+    <string name="import_export_share_file">Partilhar ficheiro de cópia de segurança</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d seg decorridos - %3$s\n(timeout de ligação: %4$d seg)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d seg decorridos - %3$s\n(timeout de leitura: %4$d seg)</string>
+    <string name="radio_browser_contacting">A contactar radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">%1$d seg decorridos - (o timeout é %2$d seg)</string>
 </resources>

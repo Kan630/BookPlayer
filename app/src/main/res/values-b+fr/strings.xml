@@ -1236,4 +1236,50 @@ Cela peut être assez lent…
     <string name="utilities_backup_restore_desc">Sauvegardez et restaurez certains éléments et préférences vers/depuis un fichier ou via le partage rapide.</string>
     <string name="utilities_backup_restore_title">Sauvegarde / Restauration</string>
     <string name="utilities_restore_library">Restauration</string>
+
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">Sommeil</string>
+    <string name="menu_seeLog">Voir les journaux</string>
+    <string name="permissions_ok_button">OK</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">Utiliser le cache (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">Le cache devrait améliorer considérablement la vitesse pour les premières pages "les plus téléchargées".\nElles sont mises en cache et mises à jour toutes les 9 heures pour les langues majeures.</string>
+    <string name="option_ebook_remove_references">Supprimer les marqueurs de référence (notes de bas de page)</string>
+    <string name="option_tts_overlay_timeout_explain">Sur les appareils récents et/ou pour les voix souvent utilisées, cela peut être si rapide que vous ne verrez même pas ce message de chargement.</string>
+    <string name="option_tts_use_theme_color_for_cursor">Utiliser la couleur du thème pour le curseur</string>
+    <string name="option_tts_fullscreen_text_size">Taille du texte</string>
+    <string name="option_tts_fullscreen_controls">Afficher les commandes de lecture</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"Confirmer la réinitialisation de cette piste jusqu'à la fin"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"Vous êtes sur le point de réinitialiser la progression pour cette piste et toutes les suivantes.\nÊtes-vous sûr ?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Confirmer la réinitialisation de cette piste (uniquement)"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Vous êtes sur le point de réinitialiser la progression pour cette piste.\nÊtes-vous sûr ?"</string>
+    <string name="delete_cache">Supprimer le cache</string>
+    <string name="DeleteCache_AskConfirm">"Vous êtes sur le point de supprimer les éléments mis en cache.\nCela libérera de l'espace mais peut affecter les performances.\nÊtes-vous sûr ?"</string>
+    <string name="option_metadata_titles">Titres de chapitres issus des métadonnées</string>
+    <string name="option_metadata_titles_text">"Essayer d'utiliser les titres des métadonnées (étiquettes) au lieu des noms de fichiers pour créer les noms de chapitres."</string>
+    <string name="import_export_backup_note">"Remarque : Cette sauvegarde exclut les livres audio locaux. Pour les sauvegarder, utilisez l'option de partage ou d'exportation sur les pages d'informations de chaque livre."</string>
+    <string name="import_export_restore_footer">"Remarque : La restauration écrasera l'existant."</string>
+    <string name="import_export_receive_live">1a. Recevoir depuis un appareil à proximité (Direct)</string>
+    <string name="import_export_pick_file">1b. Choisir un fichier de sauvegarde</string>
+    <string name="import_export_share_live">Envoyer vers un appareil à proximité (Direct)</string>
+    <string name="import_export_share_file">Partager le fichier de sauvegarde</string>
 </resources>

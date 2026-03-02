@@ -1221,5 +1221,53 @@ Es kann ziemlich langsam sein…
     <string name="utilities_backup_restore_desc">Sichern und Wiederherstellen einiger Elemente und Einstellungen in/aus einer Datei oder über Quick Share.</string>
     <string name="utilities_backup_restore_title">Backup / Wiederherstellung</string>
     <string name="utilities_restore_library">Wiederherstellung</string>
-</resources>
 
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">Schlaf</string>
+    <string name="menu_seeLog">Logs ansehen</string>
+    <string name="permissions_ok_button">OK</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">Caching verwenden (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">Caching sollte die Geschwindigkeit für die am häufigsten heruntergeladenen Seiten drastisch verbessern.\nSie werden alle 9 Stunden für wichtige Sprachen zwischengespeichert und aktualisiert.</string>
+    <string name="option_tts_overlay_timeout_explain">Auf neueren Geräten und/oder bei häufig verwendeten Stimmen kann es so schnell gehen, dass Sie die Lade-Meldung gar nicht erst sehen.</string>
+    <string name="option_tts_use_theme_color_for_cursor">Themenfarbe für Cursor verwenden</string>
+    <string name="option_tts_fullscreen_text_size">Textgröße</string>
+    <string name="option_tts_fullscreen_controls">Wiedergabesteuerung anzeigen</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"Zurücksetzen von diesem Titel bis zum Ende bestätigen"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"Sie sind dabei, den Fortschritt für diesen Titel und alle folgenden zurückzusetzen.\nSind Sie sicher?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Zurücksetzen für diesen Titel (nur) bestätigen"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Sie sind dabei, den Fortschritt für diesen Titel zurückzusetzen.\nSind Sie sicher?"</string>
+    <string name="delete_cache">Cache löschen</string>
+    <string name="DeleteCache_AskConfirm">"Sie sind dabei, zwischengespeicherte Elemente zu löschen.\nDies spart Platz, kann aber die Leistung beeinträchtigen.\nSind Sie sicher?"</string>
+    <string name="option_metadata_titles">Metadaten Kapiteltitel</string>
+    <string name="option_metadata_titles_text">Versuchen Sie, Metadaten-Titel (Tags) anstelle von Dateinamen zu verwenden, um Kapitelnamen zu erstellen.</string>
+    <string name="import_export_backup_note">Hinweis: Dieses Backup schließt lokale Hörbücher aus. Um diese zu speichern, verwenden Sie die Freigabe- oder Exportoption auf den einzelnen Buchinfoseiten.</string>
+    <string name="import_export_restore_footer">Hinweis: Die Wiederherstellung wird Vorhandenes überschreiben.</string>
+    <string name="import_export_receive_live">1a. Von Gerät in der Nähe empfangen (Live)</string>
+    <string name="import_export_pick_file">1b. Backup-Datei auswählen</string>
+    <string name="import_export_share_live">An Gerät in der Nähe senden (Live)</string>
+    <string name="import_export_share_file">Backup-Datei teilen</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d Sek. vergangen - %3$s\n(Verbindungs-Timeout: %4$d Sek.)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d Sek. vergangen - %3$s\n(Lese-Timeout: %4$d Sek.)</string>
+    <string name="radio_browser_contacting">Kontaktiere radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">%1$d Sek. vergangen - (Timeout ist %2$d Sek.)</string>
+</resources>

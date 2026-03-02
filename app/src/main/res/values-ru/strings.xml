@@ -1222,5 +1222,53 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="utilities_backup_restore_desc">Сохраняйте и восстанавливайте некоторые элементы и настройки из/в файл или через быстрый обмен.</string>
     <string name="utilities_backup_restore_title">Резервное копирование / Восстановление</string>
     <string name="utilities_restore_library">Восстановление</string>
-</resources>
 
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">Сон</string>
+    <string name="menu_seeLog">Просмотр логов</string>
+    <string name="permissions_ok_button">OK</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">Использовать кэширование (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">Кэширование должно значительно повысить скорость загрузки первых «самых скачиваемых» страниц.\nОни кэшируются и обновляются каждые 9 часов для основных языков.</string>
+    <string name="option_tts_overlay_timeout_explain">На современных устройствах и/или для часто используемых голосов это может происходить настолько быстро, что вы даже не увидите сообщение о загрузке.</string>
+    <string name="option_tts_use_theme_color_for_cursor">Использовать цвет темы для курсора</string>
+    <string name="option_tts_fullscreen_text_size">Размер текста</string>
+    <string name="option_tts_fullscreen_controls">Показывать элементы управления воспроизведением</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"Подтвердите сброс от этого трека до конца"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"Вы собираетесь сбросить прогресс для этого трека и всех последующих.\nВы уверены?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Подтвердите сброс только для этого трека"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Вы собираетесь сбросить прогресс для этого трека.\nВы уверены?"</string>
+    <string name="delete_cache">Удалить кэш</string>
+    <string name="DeleteCache_AskConfirm">"Вы собираетесь удалить кэшированные элементы.\nЭто сэкономит место, но может повлиять на производительность.\nВы уверены?"</string>
+    <string name="option_metadata_titles">Заголовки глав из метаданных</string>
+    <string name="option_metadata_titles_text">Попробуйте использовать заголовки метаданных (теги) вместо имен файлов для создания названий глав.</string>
+    <string name="import_export_backup_note">Примечание: Эта резервная копия не включает локальные аудиокниги. Чтобы сохранить их, используйте функцию «Поделиться» или экспорта на страницах с информацией о книге.</string>
+    <string name="import_export_restore_footer">Примечание: Восстановление перезапишет существующие данные.</string>
+    <string name="import_export_receive_live">1a. Получить с ближайшего устройства (в прямом эфире)</string>
+    <string name="import_export_pick_file">1b. Выбрать файл резервной копии</string>
+    <string name="import_export_share_live">Отправить на ближайшее устройство (в прямом эфире)</string>
+    <string name="import_export_share_file">Поделиться файлом резервной копии</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\nПрошло %2$d сек - %3$s\n(тайм-аут соединения: %4$d сек)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\nПрошло %2$d сек - %3$s\n(тайм-аут чтения: %4$d сек)</string>
+    <string name="radio_browser_contacting">Подключение к radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">Прошло %1$d сек - (тайм-аут %2$d сек)</string>
+</resources>

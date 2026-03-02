@@ -1218,5 +1218,53 @@ Puede ser bastante lento…
     <string name="utilities_backup_restore_desc">Guarde y restaure algunos elementos y preferencias desde/hacia un archivo o mediante el uso compartido rápido.</string>
     <string name="utilities_backup_restore_title">Copia de seguridad / Restauración</string>
     <string name="utilities_restore_library">Restaurar</string>
-</resources>
 
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">Dormir</string>
+    <string name="menu_seeLog">Ver registros</string>
+    <string name="permissions_ok_button">Aceptar</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">Usar caché (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">El almacenamiento en caché debería mejorar drásticamente la velocidad de las primeras páginas "más descargadas".\nSe almacenan en caché y se actualizan cada 9 horas para los idiomas principales.</string>
+    <string name="option_tts_overlay_timeout_explain">En dispositivos recientes y/o para voces de uso frecuente, puede ser tan rápido que ni siquiera verá el mensaje de carga.</string>
+    <string name="option_tts_use_theme_color_for_cursor">Usar color del tema para el cursor</string>
+    <string name="option_tts_fullscreen_text_size">Tamaño del texto</string>
+    <string name="option_tts_fullscreen_controls">Mostrar controles de reproducción</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"Confirmar reinicio desde esta pista hasta el final"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"Está a punto de reiniciar la progresión de esta pista y de todas las siguientes.\n¿Está seguro?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"Confirmar reinicio para esta pista (solo)"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"Está a punto de reiniciar la progresión de esta pista.\n¿Está seguro?"</string>
+    <string name="delete_cache">Eliminar caché</string>
+    <string name="DeleteCache_AskConfirm">"Está a punto de eliminar los elementos almacenados en caché.\nEsto ahorrará espacio pero puede afectar el rendimiento.\n¿Está seguro?"</string>
+    <string name="option_metadata_titles">Títulos de capítulos de metadatos</string>
+    <string name="option_metadata_titles_text">Intente utilizar títulos de metadatos (etiquetas) en lugar de nombres de archivos para crear nombres de capítulos.</string>
+    <string name="import_export_backup_note">Nota: Esta copia de seguridad excluye los audiolibros locales. Para guardarlos, use la opción de compartir o exportar en las páginas de información de cada libro.</string>
+    <string name="import_export_restore_footer">Nota: La restauración sobrescribirá lo existente.</string>
+    <string name="import_export_receive_live">1a. Recibir de dispositivo cercano (En vivo)</string>
+    <string name="import_export_pick_file">1b. Seleccionar archivo de copia de seguridad</string>
+    <string name="import_export_share_live">Enviar a dispositivo cercano (En vivo)</string>
+    <string name="import_export_share_file">Compartir archivo de copia de seguridad</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d seg transcurridos - %3$s\n(tiempo de espera de conexión: %4$d seg)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d seg transcurridos - %3$s\n(tiempo de espera de lectura: %4$d seg)</string>
+    <string name="radio_browser_contacting">Contactando con radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">%1$d seg transcurridos - (el tiempo de espera es %2$d seg)</string>
+</resources>

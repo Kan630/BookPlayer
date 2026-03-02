@@ -1214,4 +1214,53 @@
     <string name="utilities_backup_restore_desc">حفظ واستعادة بعض العناصر والتفضيلات من/إلى ملف أو عبر المشاركة السريعة.</string>
     <string name="utilities_backup_restore_title">نسخ احتياطي / استعادة</string>
     <string name="utilities_restore_library">استعادة</string>
+
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">نوم</string>
+    <string name="menu_seeLog">مشاهدة السجلات</string>
+    <string name="permissions_ok_button">موافق</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">استخدام التخزين المؤقت (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">يجب أن يؤدي التخزين المؤقت إلى تحسين السرعة بشكل كبير للأجزاء الأولى "الأكثر تنزيلاً". يتم تخزينها وتحديثها كل 9 ساعات للغات الرئيسية.</string>
+    <string name="option_tts_overlay_timeout_explain">على الأجهزة الحديثة و/أو للأصوات المستخدمة كثيراً، قد يكون الأمر سريعاً جداً لدرجة أنك لن ترى رسالة التحميل تلك.</string>
+    <string name="option_tts_use_theme_color_for_cursor">استخدم لون السمة للمؤشر</string>
+    <string name="option_tts_fullscreen_text_size">حجم النص</string>
+    <string name="option_tts_fullscreen_controls">إظهار عناصر التحكم في التشغيل</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"تأكيد إعادة الضبط من هذا المسار حتى النهاية"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"أنت على وشك إعادة ضبط التقدم لهذا المسار وجميع المسارات التالية. هل أنت متأكد؟"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"تأكيد إعادة الضبط لهذا المسار (فقط)"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"أنت على وشك إعادة ضبط التقدم لهذا المسار. هل أنت متأكد؟"</string>
+    <string name="delete_cache">مسح التخزين المؤقت</string>
+    <string name="DeleteCache_AskConfirm">"أنت على وشك حذف العناصر المخزنة مؤقتاً. سيوفر هذا مساحة ولكنه قد يؤثر على الأداء. هل أنت متأكد؟"</string>
+    <string name="option_metadata_titles">عناوين الفصول من البيانات الوصفية</string>
+    <string name="option_metadata_titles_text">حاول استخدام عناوين البيانات الوصفية (الوسوم) بدلاً من أسماء الملفات لإنشاء أسماء الفصول.</string>
+    <string name="import_export_backup_note">ملاحظة: هذه النسخة الاحتياطية تستثني الكتب الصوتية المحلية. لحفظها، استخدم خيار المشاركة أو التصدير في صفحات معلومات الكتاب الفردية.</string>
+    <string name="import_export_restore_footer">ملاحظة: ستؤدي عملية الاستعادة إلى استبدال الموجود.</string>
+    <string name="import_export_receive_live">1أ. الاستلام من جهاز قريب (مباشر)</string>
+    <string name="import_export_pick_file">1ب. اختيار ملف نسخة احتياطية</string>
+    <string name="import_export_share_live">الإرسال إلى جهاز قريب (مباشر)</string>
+    <string name="import_export_share_file">مشاركة ملف نسخة احتياطية</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\nانقضى %2$d ثانية - %3$s\n(مهلة الاتصال: %4$d ثانية)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\nانقضى %2$d ثانية - %3$s\n(مهلة القراءة: %4$d ثانية)</string>
+    <string name="radio_browser_contacting">جارٍ الاتصال بـ radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">انقضى %1$d ثانية - (المهلة هي %2$d ثانية)</string>
 </resources>

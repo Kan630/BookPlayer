@@ -1218,4 +1218,53 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="utilities_backup_restore_desc">फ़ाइल के माध्यम से या त्वरित साझाकरण के माध्यम से कुछ आइटम और प्राथमिकताओं को सहेजें और पुनर्स्थापित करें।</string>
     <string name="utilities_backup_restore_title">बैकअप / पुनर्स्थापना</string>
     <string name="utilities_restore_library">पुनर्स्थापना</string>
+
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">नींद</string>
+    <string name="menu_seeLog">लॉग देखें</string>
+    <string name="permissions_ok_button">ठीक है</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">कैशिंग का उपयोग करें (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">"कैशिंग से 'सबसे अधिक डाउनलोड किए गए' पृष्ठों के लिए गति में नाटकीय रूप से सुधार होना चाहिए।\nवे प्रमुख भाषाओं के लिए हर 9 घंटे में कैश्ड और अपडेट किए जाते हैं।"</string>
+    <string name="option_tts_overlay_timeout_explain">हाल के उपकरणों और/या अक्सर उपयोग की जाने वाली आवाजों के लिए, यह इतना तेज़ हो सकता है कि आपको लोडिंग संदेश भी दिखाई नहीं देगा।</string>
+    <string name="option_tts_use_theme_color_for_cursor">कर्सर के लिए थीम रंग का उपयोग करें</string>
+    <string name="option_tts_fullscreen_text_size">पाठ का आकार</string>
+    <string name="option_tts_fullscreen_controls">प्लेबैक नियंत्रण दिखाएं</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"इस ट्रैक से अंत तक रीसेट की पुष्टि करें"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"आप इस ट्रैक और अगले सभी ट्रैक के लिए प्रगति को रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"इस ट्रैक के लिए रीसेट की पुष्टि करें (केवल)"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"आप इस ट्रैक के लिए प्रगति को रीसेट करने वाले हैं।\nक्या आप सुनिश्चित हैं?"</string>
+    <string name="delete_cache">कैश हटाएं</string>
+    <string name="DeleteCache_AskConfirm">"आप कैश्ड आइटम हटाने वाले हैं।\nइससे जगह बचेगी लेकिन प्रदर्शन प्रभावित हो सकता है।\nक्या आप सुनिश्चित हैं?"</string>
+    <string name="option_metadata_titles">मेटाडेटा अध्याय शीर्षक</string>
+    <string name="option_metadata_titles_text">अध्याय नाम बनाने के लिए फ़ाइल नामों के बजाय मेटाडेटा शीर्षक (टैग) का उपयोग करने का प्रयास करें।</string>
+    <string name="import_export_backup_note">नोट: इस बैकअप में स्थानीय ऑडियोबुक शामिल नहीं हैं। उन्हें सहेजने के लिए, व्यक्तिगत पुस्तक सूचना पृष्ठों पर शेयर या एक्सपोर्ट विकल्प का उपयोग करें।</string>
+    <string name="import_export_restore_footer">नोट: रिस्टोरेशन मौजूद डेटा को ओवरराइट कर देगा।</string>
+    <string name="import_export_receive_live">1a. नजदीकी डिवाइस से प्राप्त करें (लाइव)</string>
+    <string name="import_export_pick_file">1b. बैकअप फ़ाइल चुनें</string>
+    <string name="import_export_share_live">नजदीकी डिवाइस को भेजें (लाइव)</string>
+    <string name="import_export_share_file">बैकअप फ़ाइल साझा करें</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d सेकंड बीत गए - %3$s\n(कनेक्शन टाइमआउट: %4$d सेकंड)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d सेकंड बीत गए - %3$s\n(रीड टाइमआउट: %4$d सेकंड)</string>
+    <string name="radio_browser_contacting">radio-browser.info से संपर्क किया जा रहा है…</string>
+    <string name="radio_browser_wait_elapsed">%1$d सेकंड बीत गए - (टाइमआउट %2$d सेकंड है)</string>
 </resources>

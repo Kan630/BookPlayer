@@ -1218,4 +1218,53 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="utilities_backup_restore_desc">通过文件或快速共享来保存和恢复某些项与首选项。</string>
     <string name="utilities_backup_restore_title">备份 / 恢复</string>
     <string name="utilities_restore_library">恢复</string>
+
+    <!-- Auto-added missing translations -->
+    <string name="asset_statements">"
+    [{
+      \"include\": \"https://bookplayer.driot.com/.well-known/assetlinks.json\"
+    }]
+    "</string>
+    <string name="AutoTest_b1_text">zip (700KB)</string>
+    <string name="AutoTest_b2_text">multi lang zip (7MB)</string>
+    <string name="AutoTest_b3_text">m4b (9MB)</string>
+    <string name="Librivox">LibriVox</string>
+    <string name="three_dots">…</string>
+    <string name="play">&gt;</string>
+    <string name="rewind">&lt;&lt;</string>
+    <string name="forward">&gt;&gt;</string>
+    <string name="pause">||</string>
+    <string name="btnSleepSet">睡眠</string>
+    <string name="menu_seeLog">查看日志</string>
+    <string name="permissions_ok_button">确定</string>
+    <string name="AutoTest_b4_text">zip (220MB)</string>
+    <string name="emoji_paste">📋</string>
+    <string name="emoji_clear">🗑️</string>
+    <string name="librivox">LibriVox</string>
+    <string name="Internet_Archive">Internet Archive</string>
+    <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_cloudfare">使用缓存 (Cloudflare)</string>
+    <string name="option_gutenberg_use_cloudfare_subtitle">缓存应该显著提高“下载最多”页面的速度。\n主要语言的缓存每 9 小时更新一次。</string>
+    <string name="option_tts_overlay_timeout_explain">在较新的设备上和/开对于经常使用的语音，加载速度可能快到你看不到提示消息。</string>
+    <string name="option_tts_use_theme_color_for_cursor">光标使用主题颜色</string>
+    <string name="option_tts_fullscreen_text_size">文字大小</string>
+    <string name="option_tts_fullscreen_controls">显示播放控制</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Title">"确认从当前音轨重置到最后"</string>
+    <string name="ModifyFolder_AskDeleteProgressFromThisZikFile_Text">"你即将重置当前音轨及后续所有音轨的进度。\n确定吗？"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Title">"确认仅重置当前音轨"</string>
+    <string name="ModifyFolder_AskDeleteProgressForThisZikFile_Text">"你即将重置当前音轨的进度。\n确定吗？"</string>
+    <string name="delete_cache">删除缓存</string>
+    <string name="DeleteCache_AskConfirm">"你即将删除缓存项。\n这会节省空间，但可能会影响性能。\n确定吗？"</string>
+    <string name="option_metadata_titles">元数据章节标题</string>
+    <string name="option_metadata_titles_text">尝试使用元数据标题（标签）而非文件名来创建章节名称。</string>
+    <string name="import_export_backup_note">注意：此备份不包括本地有声读物。要保存它们，请使用单个书籍信息页面上的共享或导出选项。</string>
+    <string name="import_export_restore_footer">注意：恢复将覆盖现有内容。</string>
+    <string name="import_export_receive_live">1a. 从附近设备接收（实时）</string>
+    <string name="import_export_pick_file">1b. 选择备份文件</string>
+    <string name="import_export_share_live">发送到附近设备（实时）</string>
+    <string name="import_export_share_file">共享备份文件</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n已用 %2$d 秒 - %3$s\n(连接超时：%4$d 秒)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n已用 %2$d 秒 - %3$s\n(读取超时：%4$d 秒)</string>
+    <string name="radio_browser_contacting">正在联系 radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">已用 %1$d 秒 - (超时时间为 %2$d 秒)</string>
 </resources>
