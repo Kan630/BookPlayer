@@ -521,7 +521,7 @@ public class PodcastHelper {
                     .getPodcastByFolderId(folder.getId());
             if (podcast != null) {
                 myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
-                activity.startActivity(new Intent(activity, PodcastEpisodeActivity.class).putExtra("podcast", podcast).putExtra("folder", folder));
+                activity.startActivity(new Intent(activity, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
             } else {
                 myLogI("No podcast linked to folder " + folder.getId());
             }
@@ -650,6 +650,10 @@ public class PodcastHelper {
 
     public static boolean backupDataHasPodcasts(BackupManager.BackupData data) {
         return (data.podcasts != null && !data.podcasts.isEmpty());
+    }
+
+    public static void updateImage(int folderId, String imagePath, Context context) {
+        AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId, imagePath);
     }
 
 }

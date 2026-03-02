@@ -155,7 +155,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         podcastDao = AppDatabase.getDatabase(this).podcastDao();
 
         podcast = getIntent().getParcelableExtra("podcast");
-        Folder folder = getIntent().getParcelableExtra("folder");
 
         if (podcast == null) {
             myToastE("error loading podcast");
@@ -169,11 +168,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         podcastFeed = new PodcastFeed(
                 podcast.feedId, podcast.title, podcast.image, podcast.description);
-
-        //if the podcast has been saved as a book, the image may have changed.
-        if (folder != null && folder.image != null) {
-            podcastFeed.image = folder.image;
-        }
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {

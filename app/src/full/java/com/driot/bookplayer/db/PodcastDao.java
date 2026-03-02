@@ -70,4 +70,9 @@ public interface PodcastDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     void insertAll(List<Podcast> podcasts);
+
+    @Query("UPDATE Podcast SET image = :imagePath WHERE idFolder = :folderId")
+    void updateImageForFolderId(long folderId, String imagePath);
+
+
 }

@@ -69,4 +69,9 @@ public class PodcastHelper {
         return false;
     }
 
+    public static void updateImage(int folderId, String imagePath, Context context) {
+        myLog("stub!");
+    }
+
+
 }

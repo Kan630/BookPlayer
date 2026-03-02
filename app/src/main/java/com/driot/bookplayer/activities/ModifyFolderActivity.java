@@ -41,6 +41,7 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.player.ErrorUi;
 import com.driot.bookplayer.player.PlaybackUiBus;
+import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.quickshare.NearbyShareActivity;
 import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
@@ -382,7 +383,7 @@ public class ModifyFolderActivity extends BaseActivity {
                 if (originalPath != null) {
                     // Original cover exists - simple pointer swap
                     folder.image = originalPath;
-                    AppDatabase.getDatabase(this).folderDao().update(folder);
+                    saveImageInDB(folder.getId(), originalPath);
                     myToast("Original cover restored");
                     myLog("Cover reset to original: " + originalPath);
                 } else {
@@ -475,14 +476,16 @@ public class ModifyFolderActivity extends BaseActivity {
                             try {
                                 String newImagePath = ImageHelper.saveUserSelectedImageToBookCoverVersioned(this,
                                         folder.getId(), selectedImageUri.toString());
-                                if (newImagePath == null)
-                                    throw new RuntimeException("Image copy/compression failed");
-                                folder.image = newImagePath;
-                                AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
-                                runOnUiThread(() -> {
-                                    myLog("reset ivCoverPreview after activity result : " + newImagePath);
-                                    ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath)));
-                                });
+                                if (newImagePath == null) {
+                                    myToastEE(null, "error while changing image");
+                                } else {
+                                    folder.image = newImagePath;
+                                    saveImageInDB(folder.getId(), newImagePath);
+                                    runOnUiThread(() -> {
+                                        myLog("reset ivCoverPreview after activity result : " + newImagePath);
+                                        ivCoverPreview.setImageURI(Uri.fromFile(new File(newImagePath)));
+                                    });
+                                }
                             } catch (Exception e) {
                                 myLogEE(e, "Error processing selected image");
                                 runOnUiThread(() -> myToastE(getString(R.string.failed_to_change_image)));
@@ -519,7 +522,7 @@ public class ModifyFolderActivity extends BaseActivity {
                 }
 
                 folder.image = null;
-                AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), folder.image);
+                saveImageInDB(folder.getId(), folder.image);
                 runOnUiThread(() -> ivCoverPreview.setImageResource(R.drawable.no_image_icon));
             } catch (Exception e) {
                 myLogEE(e, "delete cover");
@@ -563,7 +566,7 @@ public class ModifyFolderActivity extends BaseActivity {
                         rootObj.put("cover", coverObj);
                         folder.jsonData = rootObj.toString();
 
-                        AppDatabase.getDatabase(this).folderDao().updateImage(folder.getId(), savedPath);
+                        saveImageInDB(folder.getId(), savedPath);
                         folder.image = savedPath;
                         AppDatabase.getDatabase(this).folderDao().update(folder); // to save JSON data
 
@@ -1055,4 +1058,11 @@ public class ModifyFolderActivity extends BaseActivity {
             }
         }
     }
+
+    private void saveImageInDB(int folderId, String imagePath) {
+        AppDatabase.getDatabase(this).folderDao().updateImage(folderId, imagePath);
+        PodcastHelper.updateImage(folderId, imagePath, this);
+    }
+
+
 }

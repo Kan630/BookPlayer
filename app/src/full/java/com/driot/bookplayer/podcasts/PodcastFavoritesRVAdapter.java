@@ -21,6 +21,7 @@ import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
@@ -160,6 +161,7 @@ public class PodcastFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.Vie
             // or something better)
             desc.setVisibility(View.GONE);
             //Glide.with(image.getContext()).load(StorageHelper.checkAndCleanImagePath(image.getContext(), podcast.image)).into(image);
+            KanLogger.myLog(podcast.image);
             Glide.with(image.getContext()).load(podcast.image).into(image);
 
             /// AUTO DOWNLOAD BUTTON
