@@ -37,6 +37,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private LibrivoxResultRVAdapter adapter;
     private LibrivoxResultsViewModel viewModel;
     private ProgressBar progressBar;
+    private ProgressBar progressBarLoadMore;
     private LoadingProgressHelper progressHelper;
     private TextView tvProgressMessage;
 
@@ -64,7 +65,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
-        //progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
+        progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         progressHelper = new LoadingProgressHelper();
 
@@ -265,14 +266,11 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 finish();
             }
         });
-/*
         viewModel.getIsLoadingMore().observe(this, isLoadingMore -> {
             if (progressBarLoadMore != null) {
                 progressBarLoadMore.setVisibility(Boolean.TRUE.equals(isLoadingMore) ? View.VISIBLE : View.GONE);
             }
         });
-
- */
     }
 
     /** Locale-aware number formatting (e.g. 60399 → "60,399" or "60 399"). */
