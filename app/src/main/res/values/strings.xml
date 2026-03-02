@@ -538,6 +538,7 @@
     <string name="loading_detail_failed">Failed to load details</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3 file available</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 file not found</string>
+    <string name="librivox_zip_mp3_checking">checking for ZIP-MP3 file</string>
 
     <string name="librivox_cover_desc">LibriVox cover</string>
 

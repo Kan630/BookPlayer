@@ -42,7 +42,7 @@
             android:gravity="center"
             android:layout_height="wrap_content"
             android:padding="12dp"
-            android:text="Checking download Link..."
+            android:text="@string/librivox_zip_mp3_checking"
             android:textSize="14sp"
             android:layout_marginTop="10dp"
             android:layout_marginStart="20dp"
