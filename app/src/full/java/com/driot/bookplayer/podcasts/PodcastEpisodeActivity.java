@@ -19,7 +19,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,11 +50,16 @@ import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
+import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -80,20 +87,18 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
     private boolean sortNewestFirst;
 
-    private boolean isPlaying = false;
     private List<DisplayableEpisode> allEpisodes = new ArrayList<>();
     private String currentSearchQuery = "";
     private boolean searchInDescription = false;
 
     private DisplayableEpisode currentEpisode;
 
-    private final java.util.Map<String, androidx.lifecycle.Observer<ZikFile>> pendingSwitchObservers = new java.util.HashMap<>();
-    private final java.util.Set<Long> enqueuedEpisodeIds = new java.util.HashSet<>();
+    private final Set<Long> enqueuedEpisodeIds = new HashSet<>();
 
     private boolean isExpanded;
 
-    private com.google.android.material.appbar.AppBarLayout appBar;
-    private androidx.appcompat.widget.Toolbar toolbar;
+    private AppBarLayout appBar;
+    private Toolbar toolbar;
 
     @Override
     protected int getNavId() {
@@ -155,7 +160,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         podcast = getIntent().getParcelableExtra("podcast");
 
         if (podcast == null) {
-            myLogEE(null, "podcast == null");
+            myToastE("error loading podcast");
+            myLogEE(null, "parcelable extra podcast is null");
+            finish();
             return;
         }
 
@@ -620,7 +627,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         }
         PodcastHelper.onPodcastClick(getApplicationContext(), ep, podcast, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
 
-        isPlaying = true;
         adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
     }
 
