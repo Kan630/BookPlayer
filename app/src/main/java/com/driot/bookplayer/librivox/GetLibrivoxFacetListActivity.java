@@ -3,7 +3,6 @@ package com.driot.bookplayer.librivox;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 
@@ -31,7 +30,6 @@ public class GetLibrivoxFacetListActivity extends BaseBottomNavActivity {
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";
 
     public static final int MODE_GENRE = 0;
-    public static final int MODE_AUTHOR = 1; // we’ll wire this later
 
     private RecyclerView rv;
     private LoadingProgressHelper progressHelper;

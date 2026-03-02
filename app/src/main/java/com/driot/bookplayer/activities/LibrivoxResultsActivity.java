@@ -330,10 +330,6 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 langLine = null;
                 break;
 
-            case "MODE_AUTHOR":
-                searchLine = getString(R.string.by_author) + " : " + (author == null ? "" : author);
-                break;
-
             case "MODE_SEARCH":
             default:
                 if (query.isEmpty()) {
@@ -371,17 +367,6 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 }
                 myLogD("GENRE mode → LibriVox API (genre=" + genre + ")");
                 viewModel.searchByGenre(genre, langItem.code3);
-                break;
-
-            case "MODE_AUTHOR":
-                if (author == null || author.trim().isEmpty()) {
-                    myLogEE(null, "MODE_AUTHOR with empty author");
-                    myToastE(getString(R.string.error_generic));
-                    viewModel.requestFinish();
-                    return;
-                }
-                myLogD("AUTHOR mode → mostDownloadedByAuthor(" + author + ")");
-                viewModel.searchByAuthor(author, langItem.code3);
                 break;
 
             case "MODE_SEARCH":
