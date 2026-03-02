@@ -18,7 +18,7 @@
         android:padding="24dp"
         android:gravity="center_horizontal"
         android:layout_gravity="center"
-        android:background="@drawable/bg_overlay_card">
+        android:background="@drawable/bg_overlay_card_theme">
 
         <ProgressBar
             style="?android:attr/progressBarStyleLarge"
@@ -28,7 +28,7 @@
 
         <TextView
             android:id="@+id/tv_progress_overlay_title"
-            android:textColor="?attr/colorOnSurface"
+            style="@style/simpleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
@@ -39,7 +39,7 @@
 
         <TextView
             android:id="@+id/tv_progress_overlay_message"
-            android:textColor="?attr/colorOnSurface"
+            style="@style/simpleText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="center"
