@@ -774,7 +774,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
     <string name="return_max">retour max</string>
     <string name="maximum_number_of_results_for_">Nombre maximum de résultats pour </string>
     <string name="minimum_number_of_results_for_">Nombre minimum de résultats pour </string>
-    <string name="repositories_settings">paramètres Librivox</string>
+    <string name="repositories_settings">Paramètres des Archives</string>
     <string name="error_no_space_left">Plus d\'espace disponible sur l\'appareil</string>
     <string name="solution_free_space">Veuillez libérer de l\'espace de stockage et réessayer.</string>
     <string name="invalid_resource">Ressource invalide.</string>
@@ -872,7 +872,9 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="massiveimport_title">Import de masse</string>
     <string name="scanning_folder">analyse du dossier</string>
     <string name="Nothing_to_re_import_among">Rien à réimporter parmi</string>
-    <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres &gt; Utilitaires &gt; Annuler l\'opération en cours] (tout en bas).</string>
+    <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.
+
+Sinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres > Utilitaires > Annuler l\'opération en cours] (tout en bas).</string>
     <string name="Podcast_source_error">Erreur de source du podcast</string>
     <string name="Streaming_Podcast">Podcast en streaming</string>
     <string name="librivox_search_edittext_title">Recherche par auteur ou titre…\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
@@ -1155,4 +1157,83 @@ avec la langue [%2$s]</string>
     <string name="nearby_share_error_connection_lost">Connexion perdue</string>
     <string name="nearby_share_error_payload_transfer_failed">Échec du transfert du payload : %s</string>
 
+
+    <string name="Full_Screen">Plein écran</string>
+    <string name="Gutenberg_Ebooks">Ebooks Gutenberg</string>
+    <string name="Librivox_Audiobooks">Livres audio Librivox</string>
+    <string name="Repositories">Archives Publiques</string>
+    <string name="backup_share_btn_cancel">Annuler</string>
+    <string name="backup_share_btn_stop">Arrêter</string>
+    <string name="backup_share_connected">Connecté</string>
+    <string name="backup_share_connected_to">Connecté à %s</string>
+    <string name="backup_share_connecting">Connexion aux appareils proches…</string>
+    <string name="backup_share_live_title">Partage en direct</string>
+    <string name="backup_share_looking">Recherche d\'appareils proches…</string>
+    <string name="backup_share_permissions_required">Autorisations requises pour le Partage en direct</string>
+    <string name="backup_share_ready">Prêt</string>
+    <string name="backup_share_ready_as">Appareil prêt en tant que : %s</string>
+    <string name="backup_share_receive_btn">Démarrer la réception</string>
+    <string name="backup_share_receive_explain">Appuyez sur le bouton pour rechercher des appareils proches et restaurer votre sauvegarde.
+
+Sur l\'autre appareil, allez dans Paramètres > Utilitaires > Sauvegarde et cliquez sur \'Envoyer vers un appareil proche (Direct)\'.</string>
+    <string name="backup_share_receive_title">Recevoir d\'un appareil proche</string>
+    <string name="backup_share_send_btn">Démarrer l\'envoi</string>
+    <string name="backup_share_send_explain">Appuyez sur le bouton pour rendre cet appareil visible et envoyer vos données de sauvegarde.
+
+Sur l\'autre appareil, allez dans Paramètres > Utilitaires > Restauration et cliquez sur \'Recevoir d\'un appareil proche (Direct)\'.</string>
+    <string name="backup_share_send_title">Envoyer vers un appareil proche</string>
+    <string name="backup_share_sending">Envoi des données de sauvegarde…</string>
+    <string name="backup_share_sent">Sauvegarde envoyée !</string>
+    <string name="backup_share_starting">Démarrage…</string>
+    <string name="backup_share_waiting">En attente des données de sauvegarde…</string>
+    <string name="elapsed">écoulées</string>
+    <string name="gutenberg_connected">Connecté ! Réception des données… 
+
+Gutenberg est un projet bénévole gratuit.
+Cela peut être assez lent…
+
+</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s
+%2$d s écoulées - %3$s
+(délai de lecture : %4$d s)</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s
+%2$d s écoulées - %3$s
+(délai de connexion : %4$d s)</string>
+    <string name="import_export_backup_content_from">Contenu de la sauvegarde de : %s</string>
+    <string name="import_export_backup_saved">Sauvegarde enregistrée avec succès</string>
+    <string name="import_export_btn_backup">Sauvegarde</string>
+    <string name="import_export_btn_restore">Procéder à la restauration</string>
+    <string name="import_export_caution_desc">Cette action va remplacer les éléments et paramètres par les données du fichier de sauvegarde. Toutes les données actuelles pour les éléments sélectionnés seront DÉFINITIVEMENT SUPPRIMÉES.</string>
+    <string name="import_export_caution_footer">Procédez avec prudence !</string>
+    <string name="import_export_caution_negative">ANNULER</string>
+    <string name="import_export_caution_positive">RESTAURER MAINTENANT</string>
+    <string name="import_export_caution_title">Attention : écraser la bibliothèque ?</string>
+    <string name="import_export_desc">Sauvegarder ou restaurer des éléments et préférences vers/depuis un fichier ou via le partage rapide.</string>
+    <string name="import_export_error_parsing">Erreur lors de l\'analyse de la sauvegarde : %s</string>
+    <string name="import_export_error_reading">Erreur lors de la lecture du fichier : %s</string>
+    <string name="import_export_failed_import">Échec lors de l\'importation : %s</string>
+    <string name="import_export_failed_prepare">Échec de la préparation de la sauvegarde : %s</string>
+    <string name="import_export_failed_restore">Échec de la restauration de la sauvegarde : %s</string>
+    <string name="import_export_failed_share">Échec de la préparation du partage : %s</string>
+    <string name="import_export_include_librivox">Favoris Librivox</string>
+    <string name="import_export_include_podcasts">Podcasts</string>
+    <string name="import_export_include_prefs">Préférences de l\'app</string>
+    <string name="import_export_include_radios">Stations de radio</string>
+    <string name="import_export_invalid_data">Données de sauvegarde invalides</string>
+    <string name="import_export_restore_complete">Restauration terminée. Veuillez redémarrer l\'app si les paramètres ne s\'appliquent pas immédiatement.</string>
+    <string name="import_export_select_at_least_one_to_backup">Veuillez sélectionner au moins un élément à sauvegarder</string>
+    <string name="import_export_select_at_least_one_to_restore">Veuillez sélectionner au moins un élément à restaurer</string>
+    <string name="import_export_select_at_least_one_to_share">Veuillez sélectionner au moins un élément à partager</string>
+    <string name="import_export_select_data">Sélectionnez les données à inclure :</string>
+    <string name="import_export_select_data_restore">Sélectionnez les données à restaurer :</string>
+    <string name="import_export_title">Import / Export</string>
+    <string name="loading_categories">Chargement des catégories</string>
+
+    <string name="radio_browser_contacting">Contact de radio-browser.info…</string>
+    <string name="radio_browser_wait_elapsed">%1$d s écoulées - (délai d\'attente %2$d s)</string>
+    <string name="stats_database_title">Statistiques de la base de données</string>
+    <string name="utilities_backup_library">Sauvegarde</string>
+    <string name="utilities_backup_restore_desc">Sauvegardez et restaurez certains éléments et préférences vers/depuis un fichier ou via le partage rapide.</string>
+    <string name="utilities_backup_restore_title">Sauvegarde / Restauration</string>
+    <string name="utilities_restore_library">Restauration</string>
 </resources>

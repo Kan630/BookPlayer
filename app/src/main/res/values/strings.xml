@@ -741,7 +741,7 @@
     <string name="stats_radio_time">* Radio</string>
     <string name="stats_podcast_time">* Podcast</string>
     <string name="stats_note">(These stats started in 2025 (oct-nov))</string>
-    <string name="stats_database_title">Database</string>
+    <string name="stats_database_title">Database Statistics</string>
     <string name="stats_install_date_label">Install Date:</string>
     
     <string name="bMassImport">📁 Mass Import</string>
@@ -768,15 +768,15 @@
     <string name="option_metadata_titles_text">Try to use metadata titles (tags) instead of filenames to create chapter names.</string>
 
     <!-- Import/Export & Backup/Share -->
-    <string name="import_export_title">Backup / Restore</string>
-    <string name="import_export_desc">Manage your library data.</string>
+    <string name="import_export_title">Import / Export</string>
+    <string name="import_export_desc">Backup or restore items and preferences to/from a file or via quick share.</string>
     <string name="import_export_backup_note">Note: This backup excludes local audiobooks. To save them, use the share or export option on individual book info pages.</string>
     <string name="import_export_restore_footer">Note: Restoration will overwrite existing.</string>
     <string name="import_export_receive_live">1a. Receive from Nearby Device (Live)</string>
     <string name="import_export_pick_file">1b. Pick Backup File</string>
     <string name="import_export_share_live">Send to Nearby Device (Live)</string>
     <string name="import_export_share_file">Share Backup File</string>
-    <string name="import_export_btn_backup">Save to Backup File</string>
+    <string name="import_export_btn_backup">Backup</string>
     <string name="import_export_btn_restore">Proceed with Restoration</string>
     <string name="import_export_select_data">Select data to include:</string>
     <string name="import_export_select_data_restore">Select data to restore:</string>
@@ -811,19 +811,23 @@
     <string name="backup_share_live_title">Live Share</string>
     <string name="backup_share_connecting">Connecting to nearby devices…</string>
     <string name="backup_share_send_title">Send to Nearby Device</string>
-    <string name="backup_share_send_explain">Tap the button to make this device visible and send your backup data.\n\nOn the other device, go to Settings > Utilities > Restore and click \'Receive from Nearby Device (Live)\'.</string>
+    <string name="backup_share_send_explain">Tap the button to make this device visible and send your backup data.
+
+On the other device, go to Settings > Utilities > Restore and click \'Receive from Nearby Device (Live)\'.</string>
     <string name="backup_share_send_btn">Start Sending</string>
     <string name="backup_share_receive_title">Receive from Nearby Device</string>
-    <string name="backup_share_receive_explain">Tap the button to look for nearby devices and restore your backup.\n\nOn the other device, go to Settings > Utilities > Backup and click \'Send to Nearby Device (Live)\'.</string>
+    <string name="backup_share_receive_explain">Tap the button to look for nearby devices and restore your backup.
+
+On the other device, go to Settings > Utilities > Backup and click \'Send to Nearby Device (Live)\'.</string>
     <string name="backup_share_receive_btn">Start Receiving</string>
     <string name="backup_share_permissions_required">Permissions required for Live Share</string>
-    <string name="backup_share_starting">Starting...</string>
+    <string name="backup_share_starting">Starting…</string>
     <string name="backup_share_ready_as">Device is ready as: %s</string>
     <string name="backup_share_connected_to">Connected to %s</string>
-    <string name="backup_share_sending">Sending backup data...</string>
-    <string name="backup_share_looking">Looking for nearby devices...</string>
+    <string name="backup_share_sending">Sending backup data…</string>
+    <string name="backup_share_looking">Looking for nearby devices…</string>
     <string name="backup_share_connected">Connected</string>
-    <string name="backup_share_waiting">Waiting for backup data...</string>
+    <string name="backup_share_waiting">Waiting for backup data…</string>
     <string name="backup_share_ready">Ready</string>
     <string name="backup_share_sent">Backup sent!</string>
     <string name="backup_share_btn_stop">Stop</string>
@@ -895,8 +899,8 @@
     <string name="return_max">return max</string>
     <string name="maximum_number_of_results_for_">Maximum number of results for </string>
     <string name="minimum_number_of_results_for_">Minimum number of results for </string>
-    <string name="Repositories">Repositories</string> //such as Librivox, Gutenberg, Pixabay, etc...
-    <string name="repositories_settings">Repositories Settings</string>
+    <string name="Repositories">Public Archives</string> //such as Librivox, Gutenberg, Pixabay, etc...
+    <string name="repositories_settings">Archives Settings</string>
     <string name="error_no_space_left">No space left on device</string>
     <string name="solution_free_space">Please free some storage and try again.</string>
     <string name="invalid_resource">Invalid resource.</string>
@@ -993,7 +997,9 @@
     <string name="massiveimport_title">Multiple books import</string>
     <string name="scanning_folder">scanning folder</string>
     <string name="Nothing_to_re_import_among">Nothing to re-import among</string>
-    <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.\n\nIf that is not the case, you can use the Reset App button in [Settings &gt; Utilities &gt; Cancel ongoing operation] (at the very bottom).</string>
+    <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.
+
+If that is not the case, you can use the Reset App button in [Settings > Utilities > Cancel ongoing operation] (at the very bottom).</string>
     <string name="Podcast_source_error">"Podcast source error"</string>
     <string name="Streaming_Podcast">Streaming Podcast</string>
     <string name="librivox_search_edittext_title">Search by author or title…\nTip: a single word often gives better results</string>
@@ -1155,11 +1161,20 @@
     <string name="no_ebooks_found_bookshelf">No ebooks found \nfor bookshelf [%1$s] \nwith language [%2$s]</string>
     <string name="gutenberg_contacting">Contacting gutenberg.org…</string>
     <string name="gutenberg_wait_elapsed">%1$d sec elapsed - %2$s - (timeout is %3$d sec)</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d sec elapsed - %3$s\n(connection timeout: %4$d sec)</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d sec elapsed - %3$s\n(read timeout: %4$d sec)</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s
+%2$d sec elapsed - %3$s
+(connection timeout: %4$d sec)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s
+%2$d sec elapsed - %3$s
+(read timeout: %4$d sec)</string>
     <string name="gutenberg_try_1st">1st try</string>
     <string name="gutenberg_try_2nd">2nd try</string>
-    <string name="gutenberg_connected">Connected! Receiving data… \n\nGutenberg is a free volunteer project.\nIt can be quite slow…\n\n</string>
+    <string name="gutenberg_connected">Connected! Receiving data… 
+
+Gutenberg is a free volunteer project.
+It can be quite slow…
+
+</string>
     <string name="radio_browser_contacting">Contacting radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d sec elapsed - (timeout is %2$d sec)</string>
     <string name="api_paging_size">Api paging size</string>
@@ -1265,7 +1280,7 @@
     <string name="nearby_share_error_connection_lost">Connection lost</string>
     <string name="nearby_share_error_payload_transfer_failed">Payload transfer failed: %s</string>
 
-    <string name="loading_categories">loading categories</string>
+    <string name="loading_categories">Loading categories</string>
     <string name="elapsed">elapsed</string> //for seconds count
     <string name="Librivox_Audiobooks">Librivox Audiobooks</string>
     <string name="Gutenberg_Ebooks">Gutenberg Ebooks</string>
