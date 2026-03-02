@@ -137,15 +137,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         this.lastLang = lastLang;
     }
 
-    public LiveData<List<ArchiveItem>> getFavoriteLibrivoxsLive() {
-        if (favoritesLive == null) {
-            AppDatabase db = AppDatabase.getDatabase(getApplication());
-            favoritesLive = db.bookSourceDao()
-                    .getFavoriteLibrivoxItems(Var.REPO_TYPE_AUDIOBOOK, Var.REPO_NAME_LIBRIVOX);
-        }
-        return favoritesLive;
-    }
-
     public LiveData<List<BookSource>> getFavoriteBookSourcesLive() {
         if (favoriteBookSourcesLive == null) {
             AppDatabase db = AppDatabase.getDatabase(getApplication());
@@ -272,17 +263,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         } else {
             repository.mostRecentlyAddedByLang(lastLangCode3, pageSize, pageToFetch, cb);
         }
-    }
-
-    public void searchByAuthor(String author, String langCode3) {
-        isLoading.setValue(true);
-        fetchStarted = false;
-
-        repository.mostDownloadedByAuthor(
-                langCode3,
-                author,
-                Option.getLibrivoxApiNbResults(),
-                createArchiveCallback("author", author));
     }
 
     public void searchByGenre(String genre, String langCode3) {
@@ -470,10 +450,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 requestFinish();
             }
         };
-    }
-
-    private void updateSimpleSearchHeader(List<ArchiveItem> items) {
-        updateSimpleSearchHeader(items, -1);
     }
 
     private void updateSimpleSearchHeader(List<ArchiveItem> items, long totalCount) {
