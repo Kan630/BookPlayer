@@ -83,8 +83,6 @@ public class PlayActivity extends BaseActivity {
     private long lastHeatMapDurationMs = 0;
     private long lastHeatMapLoadTime = 0;
 
-    private int lastTrackId = -1;
-    private boolean lastPlaying = false;
     /**
      * Match MediaService.DELAY_CHECK_TIMER_SLEEP (1s) so colored bar updates with
      * new PlayTicks.
@@ -364,9 +362,6 @@ public class PlayActivity extends BaseActivity {
                 myLogW("TTS is in PHASE_ERROR – keeping spinner and controls usable");
                 myToast(getString(R.string.tts_phase_error));
             }
-
-            lastTrackId = s.trackId;
-            lastPlaying = s.playing;
 
         });
 
