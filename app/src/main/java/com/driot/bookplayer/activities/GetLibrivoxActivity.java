@@ -78,19 +78,7 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
         etLibrivoxSearch.setCompletionThreshold(1); // suggestions after 1 char
         etLibrivoxSearch.setSuggestOnFocus(true); // show dropdown on focus if empty
 
-        LibrivoxLanguageStore store = new LibrivoxLanguageStore(this);
-        List<LibrivoxLanguageItem> librivox_languages = store.loadLanguages(R.raw.librivox_languages);
-        List<LibrivoxLanguageItem> spinnerItems = librivox_languages.stream()
-                .filter(l -> l.completed > 0)
-                .sorted((a, b) -> Integer.compare(b.completed, a.completed)) // DESC
-                .collect(Collectors.toList());
-
-        LibrivoxLanguageStore.setupLanguageSpinner(
-                this,
-                spinnerLibrivox,
-                Pref.get_Audio_Language_Librivox(this),
-                spinnerItems,
-                lli -> Pref.set_Audio_Language_Librivox(this, lli.name));
+        refreshLanguageSpinner();
 
         bLibrivoxTrending.setOnClickListener(v -> {
             myLogI("--- User clicks MOST DOWNLOADED ---");
@@ -222,6 +210,30 @@ public class GetLibrivoxActivity extends BaseBottomNavActivity {
         } else {
             return true;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshLanguageSpinner();
+    }
+
+    private void refreshLanguageSpinner() {
+        if (spinnerLibrivox == null)
+            return;
+        LibrivoxLanguageStore store = new LibrivoxLanguageStore(this);
+        List<LibrivoxLanguageItem> librivox_languages = store.loadLanguages(R.raw.librivox_languages);
+        List<LibrivoxLanguageItem> spinnerItems = librivox_languages.stream()
+                .filter(l -> l.completed > 0)
+                .sorted((a, b) -> Integer.compare(b.completed, a.completed)) // DESC
+                .collect(Collectors.toList());
+
+        LibrivoxLanguageStore.setupLanguageSpinner(
+                this,
+                spinnerLibrivox,
+                Pref.get_Audio_Language_Librivox(this),
+                spinnerItems,
+                lli -> Pref.set_Audio_Language_Librivox(this, lli.name));
     }
 
 }
