@@ -521,7 +521,7 @@ public class PodcastHelper {
                     .getPodcastByFolderId(folder.getId());
             if (podcast != null) {
                 myLogD("opening PodcastEpisodeActivity for podcast : " + podcast.title);
-                activity.startActivity(new Intent(activity, PodcastEpisodeActivity.class).putExtra("podcast", podcast));
+                activity.startActivity(new Intent(activity, PodcastEpisodeActivity.class).putExtra("podcast", podcast).putExtra("folder", folder));
             } else {
                 myLogI("No podcast linked to folder " + folder.getId());
             }

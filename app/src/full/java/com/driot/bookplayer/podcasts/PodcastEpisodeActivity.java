@@ -21,7 +21,6 @@ import android.widget.TextView;
 import androidx.appcompat.content.res.AppCompatResources;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.ContextCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -54,11 +53,9 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -158,6 +155,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         podcastDao = AppDatabase.getDatabase(this).podcastDao();
 
         podcast = getIntent().getParcelableExtra("podcast");
+        Folder folder = getIntent().getParcelableExtra("folder");
 
         if (podcast == null) {
             myToastE("error loading podcast");
@@ -171,7 +169,11 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         podcastFeed = new PodcastFeed(
                 podcast.feedId, podcast.title, podcast.image, podcast.description);
-        podcastFeed.image = StorageHelper.checkAndCleanImagePath(this, podcastFeed.image);
+
+        //if the podcast has been saved as a book, the image may have changed.
+        if (folder != null && folder.image != null) {
+            podcastFeed.image = folder.image;
+        }
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
