@@ -548,8 +548,8 @@
     <string name="podcast_new_episodes">new episodes</string>
 
 
-    <string name="Error_Import_IsNotFolder">This doesn\'t look like a folder</string>
-    <string name="Error_Import_IsNotFile">This doesn\'t look like a file</string>
+    <string name="Error_Import_IsNotFolder">This doesn’t look like a folder</string>
+    <string name="Error_Import_IsNotFile">This doesn’t look like a file</string>
     <string name="Error_Import_NoMediaInFolder">No media found in this folder</string>
     <string name="Error_Import_CannotReadFile">Error reading picked File</string>
     <string name="Error_Import_CannotReadFolder">Error reading picked Folder</string>
