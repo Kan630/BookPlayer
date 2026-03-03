@@ -56,8 +56,12 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_url);
         tv = findViewById(R.id.tv_help_text_url);
-        ll.setVisibility(LinearLayout.VISIBLE);
-        tv.setText(Html.fromHtml(getString(R.string.help_url_text), Html.FROM_HTML_MODE_LEGACY));
+        if (Tonio.isPure(this)) {
+            ll.setVisibility(LinearLayout.GONE);
+        } else {
+            ll.setVisibility(LinearLayout.VISIBLE);
+            tv.setText(Html.fromHtml(getString(R.string.help_url_text), Html.FROM_HTML_MODE_LEGACY));
+        }
 
         ll = findViewById(R.id.ll_help_text_quick_share);
         tv = findViewById(R.id.tv_help_text_quick_share);
