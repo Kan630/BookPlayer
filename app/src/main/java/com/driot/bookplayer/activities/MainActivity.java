@@ -59,6 +59,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class MainActivity extends BaseBottomNavActivity {
 
     private RecyclerView recyclerView;
+    private View emptyView;
     private FoldersRVAdapter adapter;
     private MainViewModel mainVm;
 
@@ -134,12 +135,19 @@ public class MainActivity extends BaseBottomNavActivity {
         try {
             setSupportActionBar(toolbar); // si ca plante, check le color theme saved ???
         } catch (Exception e) {
-            myLogEE(e, "Action bar error"); // on a Samsung S20 FE, android 13
+            myLogEE(e, "Action bar - setSupportActionBar - error"); // on a Samsung S20 FE, android 13
         }
-        toolbar.setLogo(R.mipmap.ic_launcher);
-        toolbar.setLogo(R.mipmap.ic_launcher);
+        try {
+            toolbar.setLogo(R.mipmap.ic_launcher);
+            toolbar.setLogo(R.mipmap.ic_launcher);
+        } catch (Exception e) {
+            myLogEE(e, "Action bar - setLogo - error");
+        }
+
+
 
         recyclerView = findViewById(R.id.recyclerview_folders);
+        emptyView = findViewById(R.id.emptyView);
         if (recyclerView != null) {
             int span = getResources().getInteger(R.integer.classic_grid_span);
             GridLayoutManager glm = new GridLayoutManager(this, span);
@@ -160,28 +168,10 @@ public class MainActivity extends BaseBottomNavActivity {
         mainVm.getFolders().observe(this, folders -> {
             if (folders == null)
                 return;
-            View emptyView = findViewById(R.id.emptyView);
             boolean isEmpty = folders.isEmpty();
-            if (isEmpty) {
-                recyclerView.setVisibility(View.VISIBLE);
-                Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
-                btnWelcomeAddBook.setOnClickListener(v -> {
-                    startActivity(new Intent(getApplicationContext(), GetActivity.class));
-                });
-                //emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-                LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);
-                if (Tonio.isPure(this)) {
-                    ll_welcome_item_podcasts_radio.setVisibility(View.GONE);
-                } else {
-                    ll_welcome_item_podcasts_radio.setVisibility(View.VISIBLE);
-                }
-            } else {
-                recyclerView.setVisibility(View.GONE);
-            }
-
-            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
             emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
-
+            recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
+            setUpWelcomeMessageView(isEmpty);
             adapter.submitList(folders);
         });
 
@@ -437,4 +427,26 @@ public class MainActivity extends BaseBottomNavActivity {
         myLogI("Sort changed → mode=" + newMode + " dir=" + newDir);
     }
 
+    private void setUpWelcomeMessageView(boolean isEmpty) {
+        myLog("no folders, setting up welcome message");
+        if (!isEmpty) {
+            return;
+        }
+        Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
+        btnWelcomeAddBook.setOnClickListener(v -> {
+            startActivity(new Intent(getApplicationContext(), GetActivity.class));
+        });
+
+        LinearLayout ll_welcome_item_podcasts_radio = findViewById(R.id.ll_welcome_item_podcasts_radio);
+        LinearLayout ll_welcome_item_browse = findViewById(R.id.ll_welcome_item_browse);
+        if (Tonio.isPure(this)) {
+            ll_welcome_item_podcasts_radio.setVisibility(View.GONE);
+            ll_welcome_item_browse.setVisibility(View.GONE);
+        } else {
+            ll_welcome_item_podcasts_radio.setVisibility(View.VISIBLE);
+            ll_welcome_item_browse.setVisibility(View.VISIBLE);
+        }
+
+    }
+    
 }

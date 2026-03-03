@@ -83,6 +83,7 @@
 
             <!-- Row 2: Browse free audiobooks -->
             <LinearLayout
+                android:id="@+id/ll_welcome_item_browse"
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
