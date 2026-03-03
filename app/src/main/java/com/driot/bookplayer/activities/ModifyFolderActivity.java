@@ -202,7 +202,11 @@ public class ModifyFolderActivity extends BaseActivity {
         bChangeCover.setOnClickListener(view -> clickChangeCover());
         bDeleteCover.setOnClickListener(view -> clickDeleteCover());
         bGenerateCover.setOnClickListener(view -> clickGenerateCover());
-        bWebSearch.setOnClickListener(view -> clickWebSearch());
+        if (Tonio.isPure(this)) {
+            bWebSearch.setVisibility(View.GONE);
+        } else {
+            bWebSearch.setOnClickListener(view -> clickWebSearch());
+        }
         bResetToOriginal.setOnClickListener(view -> clickResetToOriginal());
 
         // Hide Reset to Original for old books (imported before feature launch ~Jan 29
