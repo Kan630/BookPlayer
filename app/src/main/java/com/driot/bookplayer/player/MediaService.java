@@ -795,7 +795,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     @NonNull
                     @Override
                     public PendingIntent content() {
-                        return NavHelper.navigateToActivity(MediaService.this);
+                        return NavHelper.mediaServiceClickNavigateToActivity(MediaService.this);
                     }
                 });
         return startForegroundWithBuildCheck(n);

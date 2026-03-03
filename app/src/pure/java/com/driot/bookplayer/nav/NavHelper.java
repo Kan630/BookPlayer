@@ -9,9 +9,7 @@ import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.GetActivity;
-import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.activities.SettingsActivity;
-import com.driot.bookplayer.imports.ImportBookMultipleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
 import com.driot.bookplayer.db.AppDatabase;
@@ -37,7 +35,7 @@ public class NavHelper {
                 pendingFlags);
     }
 
-    public static PendingIntent navigateToActivity(Context context) {
+    public static PendingIntent mediaServiceClickNavigateToActivity(Context context) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
         TaskStackBuilder tsb = TaskStackBuilder.create(context);
@@ -65,67 +63,17 @@ public class NavHelper {
         return null;
     }
 
-    /**
-     * Handles clicks on the bottom navigation bar.
-     * Starts the requested activity with a full back-stack (Main -> Target).
-     */
     public static boolean handleBottomNavClick(Activity activity, int navId) {
-        myLogDD("NavHelper.handleBottomNavClick id=" + navId);
-        if (navId == R.id.nav_library) {
-            myLogD("NavLibrary clicked");
-            // Just go back to MainActivity (singleTop will handle it if we are already
-            // there,
-            // or clearTop if we are deep in stack)
-            Intent intent = new Intent(activity, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            activity.startActivity(intent);
-            return true;
-
-        } else if (navId == R.id.nav_radio) {
-            myLogD("NavRadio clicked");
-            navigateToRadioSection(activity, true);
-            return true;
-
-        } else if (navId == R.id.nav_podcast) {
-            myLogD("NavPodcast clicked");
-            navigateToPodcastSection(activity, true);
-            return true;
-
-        } else if (navId == R.id.nav_add) {
-            myLogD("NavAdd clicked");
-
-            com.driot.bookplayer.imports.MassImportRepository repo = com.driot.bookplayer.imports.MassImportRepository
-                    .getInstance();
-            if (repo != null) {
-                Boolean scanning = repo.getIsScanning().getValue();
-                Boolean finished = repo.getIsScanFinished().getValue();
-
-                if (Boolean.TRUE.equals(scanning) || Boolean.TRUE.equals(finished)) {
-                    Intent intent = new Intent(activity, ImportBookMultipleActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    activity.startActivity(intent);
-                    return true;
-                }
-            }
-
-            activity.startActivity(new Intent(activity, GetActivity.class));
-            return true;
-
-        } else if (navId == R.id.nav_settings) {
-            myLogD("NavSettings clicked");
-            activity.startActivity(new Intent(activity, SettingsActivity.class));
-            return true;
-        }
-
+        myLogE("handleBottomNavClick should not be called in pure");
         return false;
     }
 
     public static void navigateToRadioSection(Activity activity, boolean removeTransitions) {
-        myLogD("stub!");
+        myLogE("navigateToRadioSection should not be called in pure");
     }
 
     public static void navigateToPodcastSection(Activity activity, boolean removeTransitions) {
-        myLogD("stub!");
+        myLogE("navigateToPodcastSection should not be called in pure");
     }
 
     private static void myLogDD(String txt) {

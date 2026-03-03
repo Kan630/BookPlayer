@@ -308,7 +308,11 @@ public class MainActivity extends BaseBottomNavActivity {
             startActivity(browserIntent);
         } else if (itemId == R.id.menu_open) {
             myLogI("--- USER clicks MENU : OPEN ---");
-            startActivity(new Intent(getApplicationContext(), GetActivity.class));
+            if (Tonio.isPure(this)) {
+                startActivity(new Intent(getApplicationContext(), GetOtherActivity.class));
+            } else {
+                startActivity(new Intent(getApplicationContext(), GetActivity.class));
+            }
         } else if (itemId == R.id.menu_receive_book) {
             myLogI("--- USER clicks MENU : RECEIVE BOOK ---");
             Intent intent = new Intent(this, NearbyShareActivity.class);

@@ -43,7 +43,7 @@ public class NavHelper {
                 pendingFlags);
     }
 
-    public static PendingIntent navigateToActivity(Context context) {
+    public static PendingIntent mediaServiceClickNavigateToActivity(Context context) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
         TaskStackBuilder tsb = TaskStackBuilder.create(context);
