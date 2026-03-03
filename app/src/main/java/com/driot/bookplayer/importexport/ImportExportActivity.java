@@ -135,6 +135,7 @@ public class ImportExportActivity extends BaseActivity {
             if (Tonio.isPure(this)) {
                 findViewById(R.id.cb_include_radios).setVisibility(View.GONE);
                 findViewById(R.id.cb_include_podcasts).setVisibility(View.GONE);
+                findViewById(R.id.cb_include_librivox).setVisibility(View.GONE);
             }
         } else {
             tvTitle.setText(getString(R.string.import_export_btn_restore));
@@ -167,11 +168,12 @@ public class ImportExportActivity extends BaseActivity {
     }
 
     private void startLiveShare() {
-        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean pure = Tonio.isPure(this);
+
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
             myToast(getString(R.string.import_export_select_at_least_one_to_share));
@@ -297,15 +299,18 @@ public class ImportExportActivity extends BaseActivity {
             cbRadios.setChecked(false);
             cbPodcasts.setVisibility(View.GONE);
             cbPodcasts.setChecked(false);
+            cbLibrivox.setVisibility(View.GONE);
+            cbLibrivox.setChecked(false);
         }
     }
 
     private void startExportFlow() {
-        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean pure = Tonio.isPure(this);
+
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
             myToast(getString(R.string.import_export_select_at_least_one_to_backup));
@@ -323,11 +328,12 @@ public class ImportExportActivity extends BaseActivity {
     }
 
     private void startRestoreFlow() {
-        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean pure = Tonio.isPure(this);
+
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
             myToast(getString(R.string.import_export_select_at_least_one_to_restore));
@@ -344,11 +350,12 @@ public class ImportExportActivity extends BaseActivity {
     }
 
     private void executeRestore() {
-        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean pure = Tonio.isPure(this);
+
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean librivox = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (liveBackupJson != null) {
             executeRestoreFromJson(liveBackupJson, prefs, radios, podcasts, librivox);
@@ -402,11 +409,12 @@ public class ImportExportActivity extends BaseActivity {
     }
 
     private void startFileShare() {
-        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean pure = Tonio.isPure(this);
+
+        boolean prefs = ((MaterialCheckBox) findViewById(R.id.cb_include_preferences)).isChecked();
         boolean radios = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_radios)).isChecked();
         boolean podcasts = !pure && ((MaterialCheckBox) findViewById(R.id.cb_include_podcasts)).isChecked();
-        boolean librivox = ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
+        boolean librivox = !pure &&  ((MaterialCheckBox) findViewById(R.id.cb_include_librivox)).isChecked();
 
         if (!prefs && !radios && !podcasts && !librivox) {
             myToast(getString(R.string.import_export_select_at_least_one_to_share));

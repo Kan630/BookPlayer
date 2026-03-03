@@ -26,6 +26,8 @@ public class HelpActivity extends BaseActivity {
         TextView tv;
         LinearLayout ll;
 
+        boolean pure = Tonio.isPure(this);
+
         ll = findViewById(R.id.ll_help_text_general);
         tv = findViewById(R.id.tv_help_text_general);
         ll.setVisibility(LinearLayout.VISIBLE);
@@ -38,7 +40,7 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_librivox);
         tv = findViewById(R.id.tv_help_text_librivox);
-        if (Tonio.isPure(this)) {
+        if (pure) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);
@@ -47,7 +49,7 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_podcast);
         tv = findViewById(R.id.tv_help_text_podcast);
-        if (Tonio.isPure(this)) {
+        if (pure) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);
@@ -56,7 +58,7 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_url);
         tv = findViewById(R.id.tv_help_text_url);
-        if (Tonio.isPure(this)) {
+        if (pure) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);
@@ -70,7 +72,7 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_radio);
         tv = findViewById(R.id.tv_help_text_radio);
-        if (Tonio.isPure(this)) {
+        if (pure) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);
@@ -104,7 +106,7 @@ public class HelpActivity extends BaseActivity {
 
         ll = findViewById(R.id.ll_help_text_forum);
         tv = findViewById(R.id.tv_help_text_forum);
-        if (Tonio.isPure(this)) {
+        if (pure) {
             ll.setVisibility(LinearLayout.GONE);
         } else {
             ll.setVisibility(LinearLayout.VISIBLE);
