@@ -10,6 +10,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.views.SettingsSectionView;
 
 import com.driot.bookplayer.settings.ui.AutomotiveSettingsFragment;
@@ -76,84 +77,84 @@ public class SettingsActivity extends BaseBottomNavActivity {
                 sectionLanguage,
                 "expand_language",
                 LanguageSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionPlay = findViewById(R.id.section_play_behaviour);
         registerSection(
                 sectionPlay,
                 "expand_play_behaviour",
                 PlayBehaviourSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionDesign = findViewById(R.id.section_design);
         registerSection(
                 sectionDesign,
                 "expand_design",
                 DesignSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionImport = findViewById(R.id.section_import);
         registerSection(
                 sectionImport,
                 "expand_import",
                 ImportSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionLibrivox = findViewById(R.id.section_librivox);
         registerSection(
                 sectionLibrivox,
                 "expand_librivox",
                 RepositoriesSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, true);
 
         SettingsSectionView sectionRadio = findViewById(R.id.section_radio);
         registerSection(
                 sectionRadio,
                 "expand_radio",
                 RadioSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, true);
 
         SettingsSectionView sectionPodcast = findViewById(R.id.section_podcast);
         registerSection(
                 sectionPodcast,
                 "expand_podcast",
                 PodcastSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, true);
 
         SettingsSectionView sectionTts = findViewById(R.id.section_tts);
         registerSection(
                 sectionTts,
                 "expand_tts",
                 TtsSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionAutomotive = findViewById(R.id.section_automotive);
         registerSection(
                 sectionAutomotive,
                 "expand_automotive",
                 AutomotiveSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionNetwork = findViewById(R.id.section_network);
         registerSection(
                 sectionNetwork,
                 "expand_network",
                 NetworkSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, true);
 
         SettingsSectionView sectionUtilities = findViewById(R.id.section_utilities);
         registerSection(
                 sectionUtilities,
                 "expand_utilities",
                 UtilitiesSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
         SettingsSectionView sectionMassiveImport = findViewById(R.id.section_massive_import);
         registerSection(
                 sectionMassiveImport,
                 "expand_massive_import",
                 MassiveImportSettingsFragment::new,
-                savedInstanceState);
+                savedInstanceState, false);
 
     }
 
@@ -265,9 +266,14 @@ public class SettingsActivity extends BaseBottomNavActivity {
     private final List<SectionHost> sectionHosts = new ArrayList<>();
 
     private void registerSection(SettingsSectionView sectionView,
-            String stateKey,
-            FragmentFactory factory,
-            Bundle savedInstanceState) {
+                                 String stateKey,
+                                 FragmentFactory factory,
+                                 Bundle savedInstanceState, boolean onlyForFullFlavour) {
+
+        if (onlyForFullFlavour && Tonio.isPure(this)) {
+            sectionView.setVisibility(View.GONE);
+            return;
+        }
 
         SectionHost host = new SectionHost(sectionView, stateKey, factory);
 
