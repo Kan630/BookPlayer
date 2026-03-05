@@ -61,4 +61,8 @@ public interface EpisodeDao {
 
     @Query("SELECT MAX(datePublished) FROM Episode WHERE idPodcast = :podcastId")
     Long getMaxDatePublishedForPodcast(long podcastId);
+
+    @Query("UPDATE Episode SET timeListened = timeListened + 1 WHERE id = :id")
+    void addSecondToTimeListened(int id);
+
 }

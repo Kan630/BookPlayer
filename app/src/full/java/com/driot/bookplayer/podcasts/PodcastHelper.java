@@ -658,7 +658,7 @@ public class PodcastHelper {
 
     public static void addSecondToTimeListened(Context context, int trackId) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
-        db.podcastDao().addSecondToTimeListened(trackId);
+        db.episodeDao().addSecondToTimeListened(trackId);
     }
 
 }

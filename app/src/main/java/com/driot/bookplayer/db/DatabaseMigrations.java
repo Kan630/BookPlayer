@@ -516,6 +516,9 @@ public class DatabaseMigrations {
         public void migrate(@NonNull SupportSQLiteDatabase db) {
             myLogI("Migration -> executing step 30 => 31");
             db.execSQL("ALTER TABLE ZikFile ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            if (tableExists(db, "Episode")) {
+                db.execSQL("ALTER TABLE Episode ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+            }
         }
     };
 

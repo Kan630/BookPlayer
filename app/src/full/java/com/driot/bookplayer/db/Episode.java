@@ -65,6 +65,8 @@ public class Episode implements Parcelable {
 
     public long enclosureLength;
 
+    public long timeListened;
+
     // --- Constructors ---
 
     public Episode() {
@@ -103,6 +105,7 @@ public class Episode implements Parcelable {
         enclosureUrl = in.readString();
         datePublished = in.readString();
         enclosureLength = in.readLong();
+        timeListened = in.readLong();
 
     }
 
@@ -150,6 +153,7 @@ public class Episode implements Parcelable {
         parcel.writeString(enclosureUrl);
         parcel.writeString(datePublished);
         parcel.writeLong(enclosureLength);
+        parcel.writeLong(timeListened);
 
     }
 
