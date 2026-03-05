@@ -7,10 +7,13 @@ import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.player.heatmaps.PlayTick;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.db.Sql;
+import com.driot.bookplayer.podcasts.PodcastHelper;
+import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.text.DecimalFormat;
@@ -44,8 +47,11 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                     myLogEE(t, "Pref.addToTotalMsPlayed exception");
                 }
             }
-            if (zf == null)
+            if (zf == null) {
+                //TODO update if radio
                 return;
+            }
+
 
             // Legacy zikFile position
             try {
@@ -70,6 +76,8 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                     zf.setPosition(pos);
                     zf.setPercentdone(Math.round((10000.0 * pos / dur)) / 100.0); // like 47.56%
                 }
+
+                zf.timeListened = zf.timeListened + 1;
 
                 AppDatabase db = AppDatabase.getDatabase(app);
                 CommonZikFileDao dao = db.zikFileDao();
@@ -109,6 +117,26 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 myLogEE(t, "update exception");
             }
 
+        });
+    }
+
+    public void updateStream(String playMode, int trackId) {
+        if (System.currentTimeMillis() < suspendUntil) {
+            myLog("update() skipped (suspended)");
+            return;
+        }
+        io.submit(() -> {
+            try {
+                Pref.addToTotalMsPlayed(playMode, MediaService.DELAY_CHECK_TIMER_SLEEP);
+            } catch (Throwable t) {
+                myLogEE(t, "Pref.addToTotalMsPlayed exception");
+            }
+
+            if (Var.PLAY_MODE_RADIO.equals(playMode)) {
+                RadioHelper.addSecondToTimeListened(app, trackId);
+            } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
+                PodcastHelper.addSecondToTimeListened(app, trackId);
+            }
         });
     }
 

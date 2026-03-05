@@ -14,9 +14,8 @@ import com.driot.bookplayer.player.heatmaps.PlayTickDao;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-
 public abstract class BaseAppDatabase extends RoomDatabase {
-    public static final int APP_DATABASE_VERSION = 30;
+    public static final int APP_DATABASE_VERSION = 31;
 
     public abstract FolderDao folderDao();
 

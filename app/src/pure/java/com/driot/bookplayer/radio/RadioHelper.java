@@ -32,5 +32,9 @@ public class RadioHelper {
         return false;
     }
 
+    public static void addSecondToTimeListened(Context context, int trackId)  {
+        myLogE("should never happen");
+    }
+
 }
 

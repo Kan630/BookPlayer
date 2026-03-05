@@ -139,4 +139,10 @@ public class RadioHelper {
 		return data.radioStations != null && !data.radioStations.isEmpty();
 	}
 
+	public static void addSecondToTimeListened(Context context, int trackId) {
+		AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+		db.radioStationDao().addSecondToTimeListened(trackId);
+	}
+
+
 }

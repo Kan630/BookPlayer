@@ -14,8 +14,9 @@ import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.global.Pref;
+
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.Collections;
 import java.util.List;
@@ -48,7 +49,6 @@ public final class PlayList {
     private String url;
     private int trackId;
     private Folder folder;
-    private ZikFile zikFile;
     private List<ZikFile> zikFilesList = Collections.emptyList();
     private int index = -1;
 
@@ -85,20 +85,22 @@ public final class PlayList {
                 + pl);
     }
 
-    public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url) {
+    public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url, int trackId) {
         if (ctx == null)
-            throw new IllegalStateException("PlayList.createFromRadio(): no context");
+            throw new IllegalStateException("PlayList.createFromStream(): no context");
         if (playMode == null || playMode.isEmpty())
-            throw new IllegalStateException("PlayList.createFromRadio(): no playMode");
+            throw new IllegalStateException("PlayList.createFromStream(): no playMode");
         if (url == null || url.isEmpty())
-            throw new IllegalStateException("PlayList.createFromRadio(): no url");
+            throw new IllegalStateException("PlayList.createFromStream(): no url");
+        if (trackId <=0)
+            throw new IllegalStateException("PlayList.createFromStream(): bad trackId : " + trackId);
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
 
-        pl.replaceItemsForStream(playMode, url);
+        pl.replaceItemsForStream(playMode, url, trackId);
         instance = pl;
         pl.saveToStorage();
-        myLogD("Playlist [" + playMode + "] created for url = [" + url + "]" + " - toString: " + pl);
+        myLogD("Playlist [" + playMode + "] created for id/url = [" + trackId + "]/[" + url + "]" + " - toString: " + pl);
     }
 
     public static void createFromStorage(@NonNull Context ctx, boolean createFromLastListenedIfNothingToRestore,
@@ -190,10 +192,8 @@ public final class PlayList {
 
         // decide if we need DB
         String mode;
-        String urlSnapshot;
         synchronized (pl.lock) {
             mode = pl.playMode;
-            urlSnapshot = pl.url;
         }
 
         if (Var.PLAY_MODE_BOOK.equals(mode) || Var.PLAY_MODE_TTS.equals(mode)) {
@@ -259,6 +259,12 @@ public final class PlayList {
         }
     }
 
+    public int getTrackId() {
+        synchronized (lock) {
+            return trackId;
+        }
+    }
+
     public @Nullable ZikFile getZikFile() {
         synchronized (lock) {
             if (zikFilesList.isEmpty() || index < 0 || index >= zikFilesList.size()) {
@@ -304,7 +310,6 @@ public final class PlayList {
             int startIndex) {
         synchronized (lock) {
             this.playMode = playMode;
-            this.zikFile = zikFile;
             this.folder = folder;
             if (list != null) {
                 this.zikFilesList = Collections.unmodifiableList(list);
@@ -319,10 +324,10 @@ public final class PlayList {
         }
     }
 
-    private void replaceItemsForStream(String playMode, String url) {
+    private void replaceItemsForStream(String playMode, String url, int trackId) {
         synchronized (lock) {
             this.playMode = playMode;
-            this.trackId = -1;
+            this.trackId = trackId;
             this.zikFilesList = Collections.emptyList();
             this.index = -1;
             this.url = url;
@@ -411,7 +416,6 @@ public final class PlayList {
                     this.folder = folder;
                     this.zikFilesList = Collections.unmodifiableList(list);
                     this.index = idx;
-                    this.zikFile = (idx >= 0 && idx < list.size()) ? list.get(idx) : null;
                     version++; // consume this async result
                 }
 
@@ -446,27 +450,5 @@ public final class PlayList {
     // ==== Utils / logging ====
     private static int clamp(int v, int lo, int hi) {
         return Math.max(lo, Math.min(hi, v));
-    }
-
-    private static final String TAG = "PlayList";
-
-    private static void myLog(String s) {
-        KanLogger.myLog(TAG, s);
-    }
-
-    private static void myLogD(String s) {
-        KanLogger.myLogD(TAG, s);
-    }
-
-    private static void myLogW(String s) {
-        KanLogger.myLogW(TAG, s);
-    }
-
-    private static void myLogE(String s) {
-        KanLogger.myLogE(TAG, s);
-    }
-
-    private static void myLogEE(Throwable t, String s) {
-        KanLogger.myLogEE(t, TAG, s);
     }
 }

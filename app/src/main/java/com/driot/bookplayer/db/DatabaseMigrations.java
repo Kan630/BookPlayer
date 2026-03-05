@@ -511,4 +511,12 @@ public class DatabaseMigrations {
         }
     };
 
+    static final Migration MIGRATION_30_31 = new Migration(30, 31) { // 2026-03-05
+        @Override
+        public void migrate(@NonNull SupportSQLiteDatabase db) {
+            myLogI("Migration -> executing step 30 => 31");
+            db.execSQL("ALTER TABLE ZikFile ADD COLUMN timeListened INTEGER NOT NULL DEFAULT 0");
+        }
+    };
+
 }

@@ -656,4 +656,9 @@ public class PodcastHelper {
         AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId, imagePath);
     }
 
+    public static void addSecondToTimeListened(Context context, int trackId) {
+        AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
+        db.podcastDao().addSecondToTimeListened(trackId);
+    }
+
 }

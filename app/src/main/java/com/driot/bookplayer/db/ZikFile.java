@@ -19,8 +19,8 @@ import java.util.Objects;
 @Entity
 public class ZikFile implements Serializable {
 
-// TODO : best practice for intent passing .. to test
-//public class ZikFile implements Parcelable {
+    // TODO : best practice for intent passing .. to test
+    // public class ZikFile implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
     private int id;
@@ -67,12 +67,15 @@ public class ZikFile implements Serializable {
 
     public Long lLastAccess;
 
+    public long timeListened;
+
     @NonNull
     public String metadataJson = "{}";
 
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
@@ -80,6 +83,7 @@ public class ZikFile implements Serializable {
     public String getFolderName() {
         return folderName;
     }
+
     public void setFolderName(String folderName) {
         this.folderName = folderName;
     }
@@ -87,6 +91,7 @@ public class ZikFile implements Serializable {
     public String getDisplayName() {
         return displayName;
     }
+
     public void setDisplayName(String displayName) {
         this.displayName = displayName;
     }
@@ -94,6 +99,7 @@ public class ZikFile implements Serializable {
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -101,6 +107,7 @@ public class ZikFile implements Serializable {
     public String getPath() {
         return path;
     }
+
     public void setPath(String path) {
         this.path = path;
     }
@@ -108,6 +115,7 @@ public class ZikFile implements Serializable {
     public double getPosition() {
         return position;
     }
+
     public void setPosition(double position) {
         this.position = position;
     }
@@ -115,6 +123,7 @@ public class ZikFile implements Serializable {
     public double getDuration() {
         return duration;
     }
+
     public void setDuration(double duration) {
         this.duration = duration;
     }
@@ -122,6 +131,7 @@ public class ZikFile implements Serializable {
     public double getPercentdone() {
         return percentdone;
     }
+
     public void setPercentdone(double percentdone) {
         this.percentdone = percentdone;
     }
@@ -129,6 +139,7 @@ public class ZikFile implements Serializable {
     public boolean isFinished() {
         return finished;
     }
+
     public void setFinished(boolean finished) {
         this.finished = finished;
     }
@@ -136,6 +147,7 @@ public class ZikFile implements Serializable {
     public int getIdFolder() {
         return idFolder;
     }
+
     public void setIdFolder(int idFolder) {
         this.idFolder = idFolder;
     }
@@ -143,6 +155,7 @@ public class ZikFile implements Serializable {
     public double getSize() {
         return size;
     }
+
     public void setSize(double size) {
         this.size = size;
     }
@@ -150,6 +163,7 @@ public class ZikFile implements Serializable {
     public boolean isIszipfile() {
         return iszipfile;
     }
+
     public void setIszipfile(boolean iszipfile) {
         this.iszipfile = iszipfile;
     }
@@ -158,8 +172,10 @@ public class ZikFile implements Serializable {
         return getExtension(name).equals("m4b");
     }
 
+    public double getZeorder() {
+        return zeorder;
+    }
 
-    public double getZeorder() { return zeorder; }
     public void setZeorder(double zeorder) {
         this.zeorder = zeorder;
     }
@@ -180,20 +196,20 @@ public class ZikFile implements Serializable {
                 ", percentdone=" + percentdone +
                 ", lFirstAccess=" + lFirstAccess +
                 ", lLastAccess=" + lLastAccess +
+                ", timeListened=" + timeListened +
                 ", iszipfile=" + iszipfile +
                 ", finished=" + finished +
                 '}';
     }
 
     public boolean equalsVisual(ZikFile other) {
-        if (other == null) return false;
+        if (other == null)
+            return false;
         return Objects.equals(name, other.name)
                 && Objects.equals(duration, other.duration)
                 && Objects.equals(percentdone, other.percentdone)
                 && Objects.equals(lLastAccess, other.lLastAccess);
     }
-
-
 
     @Deprecated
     public Long firstaccess;
@@ -201,6 +217,5 @@ public class ZikFile implements Serializable {
     public Long lastaccess;
     @Deprecated
     public Long lastaccessTime;
-
 
 }
