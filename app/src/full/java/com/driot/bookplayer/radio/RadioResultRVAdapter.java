@@ -85,10 +85,20 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     // --- Favorite API (kept local so ApiStation POJO stays API-pure) ---
     public void setFavorites(Set<String> stationUuids) {
+        Set<String> newSet = stationUuids != null ? new HashSet<>(stationUuids) : new HashSet<>();
+
+        // Find differences and notify
+        for (int i = 0; i < items.size(); i++) {
+            String uuid = items.get(i).stationuuid;
+            boolean wasFav = favoriteUuids.contains(uuid);
+            boolean isFav = newSet.contains(uuid);
+            if (wasFav != isFav) {
+                notifyItemChanged(i + 1); // +1 for header
+            }
+        }
+
         favoriteUuids.clear();
-        if (stationUuids != null)
-            favoriteUuids.addAll(stationUuids);
-        notifyDataSetChanged();
+        favoriteUuids.addAll(newSet);
     }
 
     // --- Items API ---
@@ -250,24 +260,72 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         return sb.toString();
     }
 
+    private int findPositionByUuid(String uuid) {
+        if (uuid == null)
+            return RecyclerView.NO_POSITION;
+        for (int i = 0; i < items.size(); i++) {
+            if (uuid.equals(items.get(i).stationuuid)) {
+                return i + 1; // +1 for header
+            }
+        }
+        return RecyclerView.NO_POSITION;
+    }
+
     public void setPlayingRadioStation(int trackId, String playingRadioStationUuid) {
         if (trackId == this.trackId && TextUtils.equals(playingRadioStationUuid, this.playingRadioStationUuid)) {
             return;
         }
+
+        String oldPlayingUuid = this.playingRadioStationUuid;
+        String oldClickedUuid = this.clickedRadioStationUuid;
+
         this.trackId = trackId;
         this.playingRadioStationUuid = playingRadioStationUuid;
+
         // If it's playing, it's no longer just "clicked"
         if (playingRadioStationUuid != null && playingRadioStationUuid.equals(this.clickedRadioStationUuid)) {
             this.clickedRadioStationUuid = null;
         }
-        notifyDataSetChanged();
+
+        // Notify old playing item
+        int oldPlayingPos = findPositionByUuid(oldPlayingUuid);
+        if (oldPlayingPos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(oldPlayingPos);
+        }
+
+        // Notify new playing item
+        int newPlayingPos = findPositionByUuid(playingRadioStationUuid);
+        if (newPlayingPos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(newPlayingPos);
+        }
+
+        // If clicked uuid was cleared because it started playing, notify it too
+        if (oldClickedUuid != null && this.clickedRadioStationUuid == null) {
+            int clickedPos = findPositionByUuid(oldClickedUuid);
+            if (clickedPos != RecyclerView.NO_POSITION && clickedPos != newPlayingPos) {
+                notifyItemChanged(clickedPos);
+            }
+        }
     }
 
     public void setClickedRadioStation(String clickedRadioStationUuid) {
         if (TextUtils.equals(clickedRadioStationUuid, this.clickedRadioStationUuid)) {
             return;
         }
+
+        String oldClickedUuid = this.clickedRadioStationUuid;
         this.clickedRadioStationUuid = clickedRadioStationUuid;
-        notifyDataSetChanged();
+
+        // Notify old clicked item
+        int oldClickedPos = findPositionByUuid(oldClickedUuid);
+        if (oldClickedPos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(oldClickedPos);
+        }
+
+        // Notify new clicked item
+        int newClickedPos = findPositionByUuid(clickedRadioStationUuid);
+        if (newClickedPos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(newClickedPos);
+        }
     }
 }
