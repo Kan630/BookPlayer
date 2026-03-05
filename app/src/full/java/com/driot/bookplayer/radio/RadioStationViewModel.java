@@ -11,8 +11,6 @@ import com.driot.bookplayer.db.RadioStationDao;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
-import java.util.List;
-
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -36,33 +34,7 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
     }
 
     public void refreshStationFromApi(String stationUuid) {
-        RadioBrowserRepository repo = new RadioBrowserRepository(
-                getApplication(),
-                false,
-                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-        repo.searchByUuid(stationUuid, new Callback<List<ApiStation>>() {
-            @Override
-            public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> response) {
-                myLogD("refresh station from API - get details - success = " + response.code() + " / "
-                        + response.message() + " /");
-                if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    ApiStation apiStation = response.body().get(0);
-
-                    // myLog(apiStation.toString().replace(", ", "\n"));
-
-                    AppDatabase.databaseWriteExecutor.execute(() -> {
-                        RadioHelper.upsertFromApi(getApplication(), apiStation, apiStation.url_resolved);
-                    });
-                } else {
-                    myLogE("empty response body");
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<ApiStation>> call, Throwable t) {
-                myLogW("refreshStationFromApi station fetch failed: " + t);
-            }
-        });
+        RadioHelper.fetchAndUpsertStation(getApplication(), stationUuid);
     }
 
     public void toggleFavorite(@NonNull RadioStation station) {

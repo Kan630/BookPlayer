@@ -18,6 +18,10 @@ import com.driot.bookplayer.player.StartPlayHelper;
 
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class RadioHelper {
 
 	public static void handleRadioImages(Context context, long currentTime) {
@@ -83,7 +87,31 @@ public class RadioHelper {
 				dao.update(radioStation);
 			}
 			play(context, radioStation, streamUrl, caller);
-			// TODO call API to update (cover, etc...)
+			fetchAndUpsertStation(context, uuid);
+		});
+	}
+
+	public static void fetchAndUpsertStation(Context context, String stationUuid) {
+		RadioBrowserRepository repo = new RadioBrowserRepository(
+				context.getApplicationContext(),
+				false,
+				Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
+		repo.searchByUuid(stationUuid, new Callback<List<ApiStation>>() {
+			@Override
+			public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> response) {
+				myLogD("refresh station from API - get details - success = " + response.code());
+				if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+					ApiStation apiStation = response.body().get(0);
+					AppDatabase.databaseWriteExecutor.execute(() -> {
+						upsertFromApi(context.getApplicationContext(), apiStation, apiStation.url_resolved);
+					});
+				}
+			}
+
+			@Override
+			public void onFailure(Call<List<ApiStation>> call, Throwable t) {
+				myLogW("fetchAndUpsertStation failed: " + t);
+			}
 		});
 	}
 
