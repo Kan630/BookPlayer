@@ -24,7 +24,7 @@ public class Option {
     private static final String DEFAULT_SORT_DIRECTION = "desc";
 
     public static final int MIN_TIME_BEFORE_SLEEP = 1;
-    public static final int MAX_TIME_BEFORE_SLEEP = 60 * 24; // 1440
+    public static final int MAX_TIME_BEFORE_SLEEP = 526000; // 1 year
 
     public static final int DEFAULT_FORWARD_SECONDS = 10;
     public static final int DEFAULT_TIME_BEFORE_SLEEP = 120;

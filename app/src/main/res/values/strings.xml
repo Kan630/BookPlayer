@@ -1080,7 +1080,7 @@ If that is not the case, you can use the Reset App button in [Settings > Utiliti
     <string name="full_screen_mode">full screen mode</string>
     <string name="tts_voice_seems_incompatible">voice seems incompatible</string>
     <string name="Engine_buffer">Engine buffer</string>
-    <string name="option_radio_sleep_copy">copy general settings value</string>
+    <string name="option_radio_sleep_copy">Or copy general settings value</string>
     <string name="option_radio_use_cloudfare">Use caching (Cloudflare)</string>
     <string name="option_radio_use_cloudfare_subtitle">use caching could improve speed</string>
     <string name="by_genre">by genre</string>
