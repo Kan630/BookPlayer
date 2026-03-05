@@ -16,13 +16,18 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 public class RadioHelper {
+
+	private static final Set<String> activeFetches = Collections.synchronizedSet(new HashSet<>());
 
 	public static void handleRadioImages(Context context, long currentTime) {
 		if (NetworkHelper.hasInternet(context)) {
@@ -92,26 +97,47 @@ public class RadioHelper {
 	}
 
 	public static void fetchAndUpsertStation(Context context, String stationUuid) {
-		RadioBrowserRepository repo = new RadioBrowserRepository(
-				context.getApplicationContext(),
-				false,
-				Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-		repo.searchByUuid(stationUuid, new Callback<List<ApiStation>>() {
-			@Override
-			public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> response) {
-				myLogD("refresh station from API - get details - success = " + response.code());
-				if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-					ApiStation apiStation = response.body().get(0);
-					AppDatabase.databaseWriteExecutor.execute(() -> {
-						upsertFromApi(context.getApplicationContext(), apiStation, apiStation.url_resolved);
-					});
-				}
+		if (activeFetches.contains(stationUuid)) {
+			myLogD("fetchAndUpsertStation: fetch already in progress for " + stationUuid);
+			return;
+		}
+
+		AppDatabase.databaseWriteExecutor.execute(() -> {
+			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
+			RadioStation rs = dao.findByUuid(stationUuid);
+
+			// Freshness check: 5 minutes
+			if (rs != null && rs.date_maj > System.currentTimeMillis() - 300_000
+					&& !"Unknown Station".equals(rs.name)) {
+				myLogD("fetchAndUpsertStation: metadata is fresh for " + rs.name);
+				return;
 			}
 
-			@Override
-			public void onFailure(Call<List<ApiStation>> call, Throwable t) {
-				myLogW("fetchAndUpsertStation failed: " + t);
-			}
+			activeFetches.add(stationUuid);
+
+			RadioBrowserRepository repo = new RadioBrowserRepository(
+					context.getApplicationContext(),
+					false,
+					Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
+			repo.searchByUuid(stationUuid, new Callback<List<ApiStation>>() {
+				@Override
+				public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> response) {
+					activeFetches.remove(stationUuid);
+					myLogD("refresh station from API - get details - success = " + response.code());
+					if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
+						ApiStation apiStation = response.body().get(0);
+						AppDatabase.databaseWriteExecutor.execute(() -> {
+							upsertFromApi(context.getApplicationContext(), apiStation, apiStation.url_resolved);
+						});
+					}
+				}
+
+				@Override
+				public void onFailure(Call<List<ApiStation>> call, Throwable t) {
+					activeFetches.remove(stationUuid);
+					myLogW("fetchAndUpsertStation failed: " + t);
+				}
+			});
 		});
 	}
 
