@@ -186,7 +186,7 @@ public class GetRadioActivity extends BaseBottomNavActivity {
 
     private void clickFavorite() {
         myLogI("--- User clicks RADIO FAVORITES ---");
-        // Create this screen like your Librivox favorites (list of saved Station UUIDs)
+        // Create this screen like your Librivox favorites (list of saved ApiStation UUIDs)
         Intent intent = new Intent(this, RadioFavoritesActivity.class);
         startActivity(intent);
     }

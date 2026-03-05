@@ -27,7 +27,7 @@ public class RadioFavoriteItem implements Serializable {
     @SerializedName("clickcount")  public int clickcount;
     @SerializedName("lastcheckok") public int lastcheckok;      // 1 if last check OK
 
-    public static RadioFavoriteItem fromStation(@NonNull Station s) {
+    public static RadioFavoriteItem fromStation(@NonNull ApiStation s) {
         RadioFavoriteItem f = new RadioFavoriteItem();
         f.stationuuid = s.stationuuid;
         f.name        = s.name;

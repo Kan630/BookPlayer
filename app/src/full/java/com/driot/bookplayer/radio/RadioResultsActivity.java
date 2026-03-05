@@ -1,8 +1,6 @@
 package com.driot.bookplayer.radio;
 
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -23,13 +21,10 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.LiveCensorshipManager;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.KanLogger;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -106,7 +101,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
             @Override
-            public void onPlay(Station s) {
+            public void onPlay(ApiStation s) {
                 myLogI("-------- USER CLICK radio item -------- : " + s.name);
 
                 if (!hasInternet) {
@@ -235,7 +230,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             }
 
             @Override
-            public void onFavorite(Station s) {
+            public void onFavorite(ApiStation s) {
                 myLogI("--- user set favorite radio item --- : " + s.name);
                 viewModel.toggleFavorite(RadioResultsActivity.this, s);
             }
@@ -268,7 +263,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     adapter.setItems(stations);
                 } else {
                     // Pagination - only append new items
-                    List<Station> newItems = stations.subList(currentAdapterSize, stations.size());
+                    List<ApiStation> newItems = stations.subList(currentAdapterSize, stations.size());
                     adapter.appendItems(newItems);
                 }
             }
@@ -338,7 +333,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         viewModel.setLastSearchMode(station_search_mode);
 
         // Check if we already have results (orientation change scenario)
-        List<Station> existingResults = viewModel.getResults().getValue();
+        List<ApiStation> existingResults = viewModel.getResults().getValue();
         if (existingResults != null && !existingResults.isEmpty()) {
             // We have existing results, don't reload - observer will update adapter
             myLog("Using existing results from ViewModel (orientation change), count: " + existingResults.size());
@@ -519,19 +514,19 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         }
     }
 
-    private Callback<List<Station>> resultsCb(String source) {
+    private Callback<List<ApiStation>> resultsCb(String source) {
         return resultsCb(source, false);
     }
 
-    private Callback<List<Station>> resultsCb(String source, boolean isPagination) {
+    private Callback<List<ApiStation>> resultsCb(String source, boolean isPagination) {
         return new Callback<>() {
             @Override
-            public void onResponse(Call<List<Station>> call, Response<List<Station>> rsp) {
+            public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> rsp) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
                     progressHelper.stop();
                 }
-                List<Station> body = rsp.body();
+                List<ApiStation> body = rsp.body();
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
                     int rawSize = body.size();
                     boolean serverHasMorePages = rawSize >= Option.getRadioApiNbResults();
@@ -548,9 +543,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     Set<String> removedNamesDubious = new HashSet<>();
 
                     Map<String, Integer> countMap = new HashMap<>();
-                    Iterator<Station> iterator = body.iterator();
+                    Iterator<ApiStation> iterator = body.iterator();
                     while (iterator.hasNext()) {
-                        Station s = iterator.next();
+                        ApiStation s = iterator.next();
                         if (s.name == null)
                             continue;
                         String trimmedName = s.name.toLowerCase().replaceAll("[^a-z0-9]", "");
@@ -596,7 +591,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         viewModel.appendResults(body, rawSize);
                         viewModel.setHasMore(serverHasMorePages);
 
-                        List<Station> allResults = viewModel.getResults().getValue();
+                        List<ApiStation> allResults = viewModel.getResults().getValue();
                         if (allResults != null) {
                             viewModel.setHeaderCount(
                                     getString(R.string.Results_2pt) + allResults.size() + headerTxt);
@@ -622,7 +617,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             }
 
             @Override
-            public void onFailure(Call<List<Station>> call, Throwable t) {
+            public void onFailure(Call<List<ApiStation>> call, Throwable t) {
                 if (!isPagination) {
                     progressBar.setVisibility(View.GONE);
                     progressHelper.stop();

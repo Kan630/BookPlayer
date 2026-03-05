@@ -211,7 +211,7 @@ public class RadioBrowserServiceFactory {
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
             RadioBrowserApi api = r.create(RadioBrowserApi.class);
-            retrofit2.Response<List<Station>> resp = api.topVoted(1, null, false).execute();
+            retrofit2.Response<List<ApiStation>> resp = api.topVoted(1, null, false).execute();
             return resp.isSuccessful();
         } catch (javax.net.ssl.SSLHandshakeException e) {
             myLogW("probeMirror SSLHandshakeException for " + base + " : " + e);

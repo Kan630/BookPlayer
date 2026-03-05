@@ -28,7 +28,7 @@ public class Var {
         public static final int GUTENDEX_READ_TIMEOUT_SEC = 90;
 
         /**
-         * Station names to hide when "remove dubious" is enabled (e.g. added to every
+         * ApiStation names to hide when "remove dubious" is enabled (e.g. added to every
          * country/tag by mistake).
          */
         public static final Set<String> RADIO_STATION_BLACKLIST_LOWERCASE = new HashSet<>(Arrays.asList(

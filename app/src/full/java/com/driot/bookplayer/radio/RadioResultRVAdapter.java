@@ -14,11 +14,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.resource.bitmap.CenterCrop;
-import com.bumptech.glide.load.resource.bitmap.RoundedCorners;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.helpers.ViewHelper;
-import com.driot.bookplayer.radio.Station;
+import com.driot.bookplayer.radio.ApiStation;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
@@ -33,9 +30,9 @@ import java.util.Set;
 public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
 
     public interface OnActionListener {
-        void onPlay(Station station);
+        void onPlay(ApiStation apiStation);
 
-        void onFavorite(Station station);
+        void onFavorite(ApiStation apiStation);
     }
 
     private final OnActionListener listener;
@@ -43,7 +40,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM = 1;
 
-    private final List<Station> items = new ArrayList<>();
+    private final List<ApiStation> items = new ArrayList<>();
 
     // Header data
     private String headerSearch = "";
@@ -94,7 +91,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         notifyItemChanged(0);
     }
 
-    // --- Favorite API (kept local so Station POJO stays API-pure) ---
+    // --- Favorite API (kept local so ApiStation POJO stays API-pure) ---
     public void setFavorites(Set<String> stationUuids) {
         favoriteUuids.clear();
         if (stationUuids != null)
@@ -103,14 +100,14 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     }
 
     // --- Items API ---
-    public void setItems(List<Station> newItems) {
+    public void setItems(List<ApiStation> newItems) {
         items.clear();
         if (newItems != null)
             items.addAll(newItems);
         notifyDataSetChanged();
     }
 
-    public void appendItems(List<Station> newItems) {
+    public void appendItems(List<ApiStation> newItems) {
         if (newItems != null && !newItems.isEmpty()) {
             int startPosition = items.size() + 1; // +1 for header
             items.addAll(newItems);
@@ -184,7 +181,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             if (idx < 0 || idx >= items.size())
                 return;
 
-            Station s = items.get(idx);
+            ApiStation s = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
             boolean activated = playingRadioStationUuid != null && playingRadioStationUuid.equals(s.stationuuid);

@@ -19,7 +19,7 @@ import java.util.Set;
 
 public class RadioResultsViewModel extends LoggingViewModel {
 
-    private final MutableLiveData<List<Station>> results = new MutableLiveData<>();
+    private final MutableLiveData<List<ApiStation>> results = new MutableLiveData<>();
     private final MutableLiveData<Boolean> shouldFinish = new MutableLiveData<>(false);
     private final MutableLiveData<Boolean> isLoadingMore = new MutableLiveData<>(false);
     private final MutableLiveData<String> headerCount = new MutableLiveData<>("");
@@ -46,7 +46,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
     private boolean hasMore = true;
     private boolean isLoading = false;
 
-    public LiveData<List<Station>> getResults() {
+    public LiveData<List<ApiStation>> getResults() {
         return results;
     }
 
@@ -54,8 +54,8 @@ public class RadioResultsViewModel extends LoggingViewModel {
         return shouldFinish;
     }
 
-    public void setResults(List<Station> stations, int rawResponseSize) {
-        results.postValue(stations);
+    public void setResults(List<ApiStation> apiStations, int rawResponseSize) {
+        results.postValue(apiStations);
         // Reset pagination state when setting new results (first page)
         currentOffset = rawResponseSize;
         hasMore = rawResponseSize > 0;
@@ -71,29 +71,29 @@ public class RadioResultsViewModel extends LoggingViewModel {
         return headerCount;
     }
 
-    public void appendResults(List<Station> stations, int rawResponseSize) {
-        List<Station> current = results.getValue();
+    public void appendResults(List<ApiStation> apiStations, int rawResponseSize) {
+        List<ApiStation> current = results.getValue();
         if (current == null) {
             current = new ArrayList<>();
         }
-        if (stations != null && !stations.isEmpty()) {
-            // Deduplicate: remove stations already in 'current'
+        if (apiStations != null && !apiStations.isEmpty()) {
+            // Deduplicate: remove apiStations already in 'current'
             Set<String> existingUuids = new HashSet<>();
-            for (Station s : current) {
+            for (ApiStation s : current) {
                 if (s.stationuuid != null)
                     existingUuids.add(s.stationuuid);
             }
 
-            List<Station> uniqueStations = new ArrayList<>();
-            for (Station s : stations) {
+            List<ApiStation> uniqueApiStations = new ArrayList<>();
+            for (ApiStation s : apiStations) {
                 if (s.stationuuid != null && !existingUuids.contains(s.stationuuid)) {
-                    uniqueStations.add(s);
+                    uniqueApiStations.add(s);
                     existingUuids.add(s.stationuuid); // avoid dupes within the new batch too
                 }
             }
 
-            if (!uniqueStations.isEmpty()) {
-                current.addAll(uniqueStations);
+            if (!uniqueApiStations.isEmpty()) {
+                current.addAll(uniqueApiStations);
             }
         }
 
@@ -190,7 +190,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
         return AppDatabase.getInstance(ctx.getApplicationContext()).radioStationDao();
     }
 
-    private void copyFromStationToRadioStation(RadioStation r, Station s) {
+    private void copyFromStationToRadioStation(RadioStation r, ApiStation s) {
         r.stationuuid = s.stationuuid;
         r.name = s.name;
         r.url = s.url;
@@ -245,8 +245,8 @@ public class RadioResultsViewModel extends LoggingViewModel {
         refreshFromDb(ctx);
     }
 
-    // toggle favorite from a Station (used from search results)
-    public void toggleFavorite(Context ctx, Station s) {
+    // toggle favorite from a ApiStation (used from search results)
+    public void toggleFavorite(Context ctx, ApiStation s) {
         Context appCtx = ctx.getApplicationContext();
         new Thread(() -> {
             RadioStationDao dao = dao(appCtx);

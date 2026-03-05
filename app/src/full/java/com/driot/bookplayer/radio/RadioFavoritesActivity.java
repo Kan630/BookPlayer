@@ -263,7 +263,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             @Override
             public void onUnfavorite(RadioFavoriteItem f) {
                 myLogI("--- user Unfavorite radio item --- : " + f.name);
-                // Remove and refresh (reuse VM’s toggle which expects a Station)
+                // Remove and refresh (reuse VM’s toggle which expects a ApiStation)
                 viewModel.removeFavoriteUuid(RadioFavoritesActivity.this, f.stationuuid);
             }
 

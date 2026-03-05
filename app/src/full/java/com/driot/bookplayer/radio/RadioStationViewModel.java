@@ -40,13 +40,13 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
                 getApplication(),
                 false,
                 Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-        repo.searchByUuid(stationUuid, new Callback<List<Station>>() {
+        repo.searchByUuid(stationUuid, new Callback<List<ApiStation>>() {
             @Override
-            public void onResponse(Call<List<Station>> call, Response<List<Station>> response) {
+            public void onResponse(Call<List<ApiStation>> call, Response<List<ApiStation>> response) {
                 myLogD("refresh station from API - get details - success = " + response.code() + " / "
                         + response.message() + " /");
                 if (response.isSuccessful() && response.body() != null && !response.body().isEmpty()) {
-                    Station apiStation = response.body().get(0);
+                    ApiStation apiStation = response.body().get(0);
 
                     // myLog(apiStation.toString().replace(", ", "\n"));
 
@@ -140,7 +140,7 @@ public class RadioStationViewModel extends LoggingAndroidViewModel {
             }
 
             @Override
-            public void onFailure(Call<List<Station>> call, Throwable t) {
+            public void onFailure(Call<List<ApiStation>> call, Throwable t) {
                 myLogW("refreshStationFromApi station fetch failed: " + t);
             }
         });

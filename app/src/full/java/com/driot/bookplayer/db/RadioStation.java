@@ -6,7 +6,7 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import com.driot.bookplayer.radio.Station;
+import com.driot.bookplayer.radio.ApiStation;
 
 @Entity(tableName = "RadioStation")
 public class RadioStation {
@@ -82,7 +82,7 @@ public class RadioStation {
     @ColumnInfo(defaultValue = "0")
     public long timeListened;
 
-    public static RadioStation fromStation(@NonNull Station s,
+    public static RadioStation fromStation(@NonNull ApiStation s,
             @Nullable String streamUrl) {
         long now = System.currentTimeMillis();
 

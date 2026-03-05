@@ -64,11 +64,11 @@ public class RadioHelper {
 	}
 
 	public static void playRadioFromUuidAndUrl(Context context, String uuid, String streamUrl, String caller) {
-		Station station = new Station();
-		station.stationuuid = uuid;
-		station.url = streamUrl;
-		station.name = "shared station";
-		// Verify if we dont already have this station in DB
+		ApiStation apiStation = new ApiStation();
+		apiStation.stationuuid = uuid;
+		apiStation.url = streamUrl;
+		apiStation.name = "shared apiStation";
+		// Verify if we dont already have this apiStation in DB
 		AppDatabase.databaseWriteExecutor.execute(() -> {
 			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
 			RadioStation radioStation = dao.findByUuid(uuid);
@@ -88,7 +88,7 @@ public class RadioHelper {
 			if (radioStation == null) {
 				play(context, radioStation, streamUrl, caller);
 			} else {
-				myToastEE(null, "could not get radio station");
+				myToastEE(null, "could not get radio apiStation");
 			}
 		});
 	}
@@ -99,11 +99,9 @@ public class RadioHelper {
 				(int) rs.id, rs.stationuuid, rs.name, rs.favicon, caller);
 		updatePlayed(context, rs);
 	}
-	public static void play(Context context, Station s, String streamUrl, String caller) {
-		myLogI("play() id=" + rs.id + " name=" + rs.name);
-		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
-				(int) rs.id, rs.stationuuid, rs.name, rs.favicon, caller);
-		updatePlayed(context, rs);
+	public static void play(Context context, ApiStation s, String streamUrl, String caller) {
+		//TODO check if station exist, if not insert
+		// then just call play(Context context, RadioStation rs, String streamUrl, String caller)
 	}
 	public static void updatePlayed(Context context, RadioStation rs) {
 		AppDatabase.databaseWriteExecutor.execute(() -> {

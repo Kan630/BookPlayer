@@ -13,10 +13,10 @@ public interface RadioBrowserApi {
     @GET("json/servers")
     Call<List<ServerInfo>> getServers();  // mirror list
 
-    // ---- Station search ----
+    // ---- ApiStation search ----
     // https://<mirror>.api.radio-browser.info/json/stations/search?name=...&tag=...&countrycode=...&language=...&order=...&reverse=true&limit=...&hidebroken=true
     @GET("json/stations/search")
-    Call<List<Station>> searchStations(
+    Call<List<ApiStation>> searchStations(
             @Query("name") String name,
             @Query("tag") String tag,
             @Query("countrycode") String countryCode,
@@ -29,7 +29,7 @@ public interface RadioBrowserApi {
     );
 
     @GET("json/stations/byname/{name}")
-    Call<List<Station>> byName(
+    Call<List<ApiStation>> byName(
             @Path("name") String name,
             @Query("limit") int limit,
             @Query("offset") Integer offset,
@@ -38,7 +38,7 @@ public interface RadioBrowserApi {
     );
 
     @GET("json/stations/byuuid")
-    Call<List<Station>> searchByUuid(
+    Call<List<ApiStation>> searchByUuid(
             @Query("uuids") String stationUuid
     );
 
@@ -49,28 +49,28 @@ public interface RadioBrowserApi {
 
     // ---- Lists ----
     @GET("json/stations/topclick")
-    Call<List<Station>> topClicked(
+    Call<List<ApiStation>> topClicked(
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
     @GET("json/stations/topvote")
-    Call<List<Station>> topVoted(
+    Call<List<ApiStation>> topVoted(
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
     @GET("json/stations/lastclick")
-    Call<List<Station>> lastClicked(
+    Call<List<ApiStation>> lastClicked(
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
     );
 
     @GET("json/stations/lastchange")
-    Call<List<Station>> lastAddedChanged(
+    Call<List<ApiStation>> lastAddedChanged(
             @Query("limit") int limit,
             @Query("offset") Integer offset,
             @Query("hidebroken") boolean hideBroken
@@ -82,7 +82,7 @@ public interface RadioBrowserApi {
 
     // ---- Lists ----
     @GET("json/stations/bytag/{tag}")
-    Call<List<Station>> byTag(
+    Call<List<ApiStation>> byTag(
             @Path("tag") String tag,
             @Query("limit") int limit,
             @Query("offset") Integer offset,
@@ -90,7 +90,7 @@ public interface RadioBrowserApi {
             @Query("hidebroken") boolean hideBroken
     );
     @GET("json/stations/bycountry/{country}")
-    Call<List<Station>> byCountry(
+    Call<List<ApiStation>> byCountry(
             @Path("country") String country,
             @Query("limit") int limit,
             @Query("offset") Integer offset,
@@ -98,7 +98,7 @@ public interface RadioBrowserApi {
             @Query("hidebroken") boolean hideBroken
     );
     @GET("json/stations/bylanguage/{language}")
-    Call<List<Station>> byLanguage(
+    Call<List<ApiStation>> byLanguage(
             @Path("language") String language,
             @Query("limit") int limit,
             @Query("offset") Integer offset,

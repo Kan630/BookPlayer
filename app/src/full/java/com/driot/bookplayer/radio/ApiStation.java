@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName;
 // Raw live data returned by search/topvote/etc
 
 @Keep
-public class Station {
+public class ApiStation {
     @SerializedName("stationuuid") public String stationuuid;
     @SerializedName("name")        public String name;
     @SerializedName("url")         public String url;           // original (may redirect)
@@ -33,7 +33,7 @@ public class Station {
 
     @Override
     public String toString() {
-        return "Station{" +
+        return "ApiStation{" +
                 "stationuuid='" + stationuuid + '\'' +
                 ", name='" + name + '\'' +
                 ", url='" + url + '\'' +
