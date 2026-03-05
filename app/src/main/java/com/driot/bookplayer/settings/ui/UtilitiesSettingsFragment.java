@@ -21,9 +21,6 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 
 public class UtilitiesSettingsFragment extends LoggingFragment {
 
-    private MaterialCheckBox chkMailMethod;
-    private LinearLayout llMailMethod;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -39,12 +36,6 @@ public class UtilitiesSettingsFragment extends LoggingFragment {
         View titleContainer = root.findViewById(R.id.ll_title);
         if (titleContainer != null)
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
-
-        chkMailMethod = root.findViewById(R.id.chk_mail_method_default);
-        llMailMethod = root.findViewById(R.id.ll_mail_method_default);
-        chkMailMethod.setChecked(Option.getMailMethod());
-        llMailMethod.setOnClickListener(v -> chkMailMethod.toggle());
-        chkMailMethod.setOnCheckedChangeListener((b, checked) -> Option.setMailMethod(checked));
 
         root.findViewById(R.id.btn_reset_settings_values_to_default).setOnClickListener(v -> {
             myLogI("--- user clicks RESET SETTINGS to DEFAULT ---");

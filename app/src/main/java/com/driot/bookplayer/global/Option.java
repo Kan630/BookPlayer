@@ -340,14 +340,6 @@ public class Option {
     }
 
     /////////////////// SEND MAIL options ///////////////////
-    public static void setMailMethod(boolean bool) {
-        prefs.edit().putBoolean("SEND_MAIL_METHOD_DEFAULT", bool).apply();
-    }
-
-    public static boolean getMailMethod() {
-        return prefs.getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT);
-    }
-
     public static boolean getMailMethod(Context context) {
         return getSharedPrefs(context).getBoolean("SEND_MAIL_METHOD_DEFAULT", DEFAULT_SEND_MAIL_METHOD_DEFAULT);
     }
