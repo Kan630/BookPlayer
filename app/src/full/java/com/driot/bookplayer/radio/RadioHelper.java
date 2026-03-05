@@ -161,8 +161,7 @@ public class RadioHelper {
 
 		if (dbStation == null) {
 			dbStation = RadioStation.fromStation(apiStation, streamUrl);
-			long insertedId = dao.insert(dbStation);
-			dbStation.id = insertedId;
+			dao.insert(dbStation);
 		} else {
 			dbStation.url_resolved = streamUrl != null ? streamUrl : apiStation.url_resolved;
 			dbStation.name = apiStation.name;

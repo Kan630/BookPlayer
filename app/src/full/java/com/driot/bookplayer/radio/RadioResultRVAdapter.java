@@ -58,15 +58,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         this.listener = listener;
     }
 
-    // --- Header API ---
-    /** e.g. search="Jazz", lang="fr", countryTag="FR • chillout" */
-    public void setHeader(String search, String lang, String countryTag) {
-        this.headerSearch = search != null ? search : "";
-        this.headerLang = lang != null ? lang : "";
-        this.headerCountryTag = countryTag != null ? countryTag : "";
-        notifyItemChanged(0);
-    }
-
     public void setHeaderSearch(String search) {
         this.headerSearch = search != null ? search : "";
         notifyItemChanged(0);
@@ -184,7 +175,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             ApiStation s = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
-            boolean activated = playingRadioStationUuid.equals(s.stationuuid);
+            boolean activated = playingRadioStationUuid!=null && playingRadioStationUuid.equals(s.stationuuid);
             holder.itemView.setActivated(activated);
 
             Context context = holder.itemView.getContext();
@@ -234,10 +225,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         return s == null ? "" : s;
     }
 
-    private static String emptyIfNull(String s) {
-        return s == null ? "" : s.trim();
-    }
-
     private static String normalizeTags(String tagsCsv) {
         if (TextUtils.isEmpty(tagsCsv))
             return "";
@@ -259,24 +246,13 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         return sb.toString();
     }
 
-    private static String joinNonEmpty(String sep, String... xs) {
-        StringBuilder sb = new StringBuilder();
-        for (String x : xs) {
-            if (x == null || x.isEmpty())
-                continue;
-            if (sb.length() > 0)
-                sb.append(sep);
-            sb.append(x);
-        }
-        return sb.toString();
-    }
-
-    public void setPlayingRadioStation(int trackId) {
+    public void setPlayingRadioStation(int trackId, String playingRadioStationUuid) {
         if (trackId <= 0)
             return;
         if (trackId == this.trackId) {
             notifyDataSetChanged();
         }
         this.trackId = trackId;
+        this.playingRadioStationUuid = playingRadioStationUuid;
     }
 }
