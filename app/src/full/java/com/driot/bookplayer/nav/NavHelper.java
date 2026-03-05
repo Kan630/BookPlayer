@@ -69,18 +69,29 @@ public class NavHelper {
 
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, int trackId) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
+        Context appCtx = context.getApplicationContext();
 
         if (trackId>0) {
+            String uuid = null;
+            try {
+                uuid = AppDatabase.databaseReadExecutor
+                        .submit(() -> {
+                            RadioStationDao dao = AppDatabase.getInstance(appCtx).radioStationDao();
+                            return dao.findById(trackId).stationuuid;
+                        })
+                        .get(); // because off main thread
+            } catch (Exception e) {
+                myLogEE(e, "getNavToRadioActivityPendingIntent: UUID lookup failed for trackId=" + trackId);
+            }
             // Build back stack: Main -> GetRadio -> RadioStationActivity
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
             tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
             tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
-                    .putExtra(Intents.EXTRA_STREAM_TRACK_ID, trackId));
+                    .putExtra(Intents.EXTRA_STATION_UUID, uuid));
             return tsb.getPendingIntent(0, flags);
         }
 
-        Context appCtx = context.getApplicationContext();
         // ... rest of the logic for no stationUuid ...
         boolean hasFavOrHistory = false;
         try {
