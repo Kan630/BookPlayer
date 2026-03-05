@@ -8,8 +8,6 @@ import static com.driot.bookplayer.global.Var.PODCAST_DETAIL_ANIMATION_COUNT;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import androidx.annotation.Nullable;
-
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import com.driot.bookplayer.utils.Tonio;
 
@@ -116,17 +114,17 @@ public class Pref {
     }
 
     /////////////////// HAS BEEN PAUSED FOR ///////////////////
-    public static void setPauseTime(long value) {
-        prefs.edit().putLong("PAUSE_TIME", value).apply();
-    }
-
-    public static void setPauseTime() {
-        prefs.edit().putLong("PAUSE_TIME", System.currentTimeMillis()).apply();
-        myLog("pause time set");
+    public static void setPaused(String why, long timeStamp) {
+        prefs.edit().putLong("PAUSE_TIME", timeStamp).apply();
+        prefs.edit().putString("PAUSE_REASON", why).apply();
+        myLog("pause time set at " + "[" + timeStamp + "] because [" + why + "]");
     }
 
     public static long getPauseTime() {
         return prefs.getLong("PAUSE_TIME", 0);
+    }
+    public static String getPauseReason() {
+        return prefs.getString("PAUSE_REASON", "unknown");
     }
 
     /////////////////// LANGUAGE SPINNER ///////////////////

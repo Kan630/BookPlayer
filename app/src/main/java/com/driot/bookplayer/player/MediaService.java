@@ -302,12 +302,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             super.onPlay();
             var info = MediaCallerHelper.getCallerInfo(MediaService.this);
             String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
-            myLog("MediaSession.Callback.onPlay - from " + callerInfo);
+
+            String lastPauseReason = Pref.getPauseReason();
+            long lastPauseTime = Pref.getPauseTime();
+            myLog("has been paused for " + Tonio.formatTime(System.currentTimeMillis()-lastPauseTime) + " - because [" + lastPauseReason + "]");
 
             if ("AndroidAuto".equals(callerInfo)) {
+                myLog("MediaSessionCompat.Callback : onPlay => from android auto - [" + callerInfo + "]");
                 StartPlayHelper.carOnPlay(MediaService.this);
             } else {
-                playPauseAudio();
+                myLog("MediaSessionCompat.Callback : onPlay => from unknown - [" + callerInfo + "]");
+                playPauseAudio("MediaSessionCompat.Callback");
             }
         }
 
@@ -319,9 +324,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         @Override
         public void onPause() {
             var info = MediaCallerHelper.getCallerInfo(MediaService.this);
-            myLog("MediaSession.Callback.onPause - from " + MediaCallerHelper.describeCaller(MediaService.this, info));
+            String pauseReason = "MediaSession.Callback.onPause - from " + MediaCallerHelper.describeCaller(MediaService.this, info);
             super.onPause();
-            playPauseAudio();
+            playPauseAudio(pauseReason);
         }
 
         @Override
@@ -530,7 +535,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                             playBeep("2beeps");
                         LocalBroadcastManager.getInstance(MediaService.this)
                                 .sendBroadcast(new Intent(NOTIFICATION_PLAYBACK_MAXTIMEREACH));
-                        pauseAudio();
+                        pauseAudio("auto-sleep");
                     }
                 });
 
@@ -604,7 +609,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                         // normal behavior: pause if we were playing
                         pausedByFocusLoss = isPlaying();
-                        pauseAudio();
+                        pauseAudio("focus lost");
                     }
 
                     @Override
@@ -819,7 +824,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         setUiPhase(Intents.PHASE_ENGINE_STARTING, null);
 
         engine.start();
-        Pref.setPauseTime(0);
+        Pref.setPaused("NOT PAUSED, PLAYING", 0);
 
         updateSessionState(true);
         if (!(engine instanceof TtsEngine))
@@ -1067,7 +1072,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         myLogEE(null, "CMD_PAUSE: failed to show foreground notification");
                     }
                 }
-                pauseAudio();
+                pauseAudio("cmd-pause");
                 // If you prefer to drop foreground while paused:
                 // try { stopForeground(false); } catch (Throwable ignore) {}
                 return START_STICKY;
@@ -1696,9 +1701,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
-    public void pauseAudio() {
+    public void pauseAudio(String why) {
         if (engine != null && engine.isPlaying()) {
-            enginePause();
+            enginePause(why);
             // updateZikFileStateInDB(false);
             compactPlayTicks();
             focus.abandon();
@@ -1708,10 +1713,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
-    public void playPauseAudio() {
-        myLog("playPauseAudio()");
+    public void playPauseAudio(String why) {
+        myLog("playPauseAudio() - [" + why + "]");
         if (isPlaying()) {
-            pauseAudio();
+            pauseAudio(why);
         } else {
             playAudio();
             // Reset sleep timer on user resume
@@ -1845,8 +1850,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
      ********************************************************************************
      */
 
-    private void enginePause() {
-        myLogD("mediaPlayerPause()");
+    private void enginePause(String why) {
+        myLogD("mediaPlayerPause() - why = [" + why + "]");
         if (engine != null)
             engine.pause();
         // Track which track was paused for rewind-after-pause logic
@@ -1858,7 +1863,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
         }
         updateSessionState(false);
-        Pref.setPauseTime();
+        Pref.setPaused(why, System.currentTimeMillis());
     }
 
     @SuppressWarnings("IfCanBeSwitch")
