@@ -2585,14 +2585,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         int trackId = 0;
         ZikFile zf = null;
         if (pl != null) {
-            zf = pl.getZikFile();
             playlistPlayMode = pl.getPlayMode();
             if (!playlistPlayMode.equalsIgnoreCase(enginePlayMode)) {
                 myLogEE(null, "engine and playlist playMode differs !");
             }
-            trackId = pl.getTrackId();
         }
         if (isZikFile()) {
+            if (pl != null) {
+                zf = pl.getZikFile();
+            }
             if (zf == null) {
                 myLogEE(null, "updateZikFileState : ZikFile = null");
                 return;
@@ -2624,6 +2625,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 myLogEE(e, "updateZikFileStateInDB - progress");
             }
         } else {
+            if (pl != null) {
+                trackId = pl.getTrackId();
+            } else {
+                myLogEE(null, "updateStateInDB_notZikFile : no trackId");
+                return;
+            }
             try {
                 progress.updateStream(enginePlayMode, trackId);
             } catch (Exception e) {
