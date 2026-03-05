@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -102,6 +104,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
             @Override
             public void onPlay(ApiStation s) {
                 myLogI("-------- USER CLICK radio item -------- : " + s.name);
+                adapter.setClickedRadioStation(s.stationuuid);
 
                 if (!hasInternet) {
                     myToast(getString(R.string.no_internet_connection));
@@ -240,8 +243,17 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         // Highlight currently playing radio station
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         playbackVm.getState().observe(this, state -> {
-            if (state != null) {
-                adapter.setPlayingRadioStation(state.trackId);
+            if (state == null)
+                return;
+            if (Var.PLAY_MODE_RADIO.equals(state.playMode) && state.trackId > 0) {
+                AppDatabase.databaseWriteExecutor.execute(() -> {
+                    RadioStation rs = AppDatabase.getDatabase(getApplicationContext()).radioStationDao()
+                            .findById(state.trackId);
+                    String uuid = (rs != null) ? rs.stationuuid : null;
+                    runOnUiThread(() -> adapter.setPlayingRadioStation(state.trackId, uuid));
+                });
+            } else {
+                adapter.setPlayingRadioStation(-1, null);
             }
         });
 

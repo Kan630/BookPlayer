@@ -53,6 +53,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     private int trackId = 0;
     private String playingRadioStationUuid = null;
+    private String clickedRadioStationUuid = null;
 
     public RadioResultRVAdapter(@NonNull OnActionListener listener) {
         this.listener = listener;
@@ -175,8 +176,11 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             ApiStation s = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
-            boolean activated = playingRadioStationUuid!=null && playingRadioStationUuid.equals(s.stationuuid);
-            holder.itemView.setActivated(activated);
+            boolean isPlaying = playingRadioStationUuid != null && playingRadioStationUuid.equals(s.stationuuid);
+            boolean isClicked = clickedRadioStationUuid != null && clickedRadioStationUuid.equals(s.stationuuid);
+
+            holder.itemView.setActivated(isPlaying);
+            holder.itemView.setSelected(isClicked && !isPlaying);
 
             Context context = holder.itemView.getContext();
 
@@ -247,12 +251,23 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     }
 
     public void setPlayingRadioStation(int trackId, String playingRadioStationUuid) {
-        if (trackId <= 0)
+        if (trackId == this.trackId && TextUtils.equals(playingRadioStationUuid, this.playingRadioStationUuid)) {
             return;
-        if (trackId == this.trackId) {
-            notifyDataSetChanged();
         }
         this.trackId = trackId;
         this.playingRadioStationUuid = playingRadioStationUuid;
+        // If it's playing, it's no longer just "clicked"
+        if (playingRadioStationUuid != null && playingRadioStationUuid.equals(this.clickedRadioStationUuid)) {
+            this.clickedRadioStationUuid = null;
+        }
+        notifyDataSetChanged();
+    }
+
+    public void setClickedRadioStation(String clickedRadioStationUuid) {
+        if (TextUtils.equals(clickedRadioStationUuid, this.clickedRadioStationUuid)) {
+            return;
+        }
+        this.clickedRadioStationUuid = clickedRadioStationUuid;
+        notifyDataSetChanged();
     }
 }
