@@ -576,7 +576,7 @@ public class PodcastHelper {
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
         String cover = ep.image == null || ep.image.isEmpty() ? podcast.image : ep.image;
         int trackId = (ep.id != null) ? (int) (long) ep.id : -1;
-        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, trackId, null, ep.title,
+        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, trackId, ep.title,
                 cover, caller);
     }
 
@@ -596,7 +596,7 @@ public class PodcastHelper {
             // TODO => we need a position, or it will start the episode from the
             // beggining....
             StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, url,
-                    (int) episode.id, null, episode.title, episode.image, null);
+                    (int) episode.id, episode.title, episode.image, null);
             return true;
         } else {
             return false;

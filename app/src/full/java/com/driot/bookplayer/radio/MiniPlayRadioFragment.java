@@ -98,20 +98,14 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             myLogI("---- user press mini player ----");
             PlaybackCommands.resetLastUserAction(requireContext());
             if (vm.getState() != null && vm.getState().getValue() != null) {
-                String radioStationUuid = vm.getState().getValue().radioStationUuid;
-                if (radioStationUuid != null) {
-                    myLogD("radioStationUuid = " + radioStationUuid);
+                long trackId = vm.getState().getValue().trackId;
+                if (trackId > 0) {
                     Intent intent = new Intent(requireContext(), RadioStationActivity.class);
-                    intent.putExtra(Intents.EXTRA_STATION_UUID, radioStationUuid);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP); // dont open it
-                                                                                                       // multiple
-                                                                                                       // time... NOT
-                                                                                                       // SURE CLEAR TOP
-                                                                                                       // is really
-                                                                                                       // usefull...
+                    intent.putExtra(Intents.EXTRA_STREAM_TRACK_ID, trackId);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                     startActivity(intent);
                 } else {
-                    myLogE("radioStationUuid is NULL");
+                    myLogE("radioStation ID is NULL");
                     startActivity(new Intent(requireContext(), GetRadioActivity.class));
                 }
             } else {

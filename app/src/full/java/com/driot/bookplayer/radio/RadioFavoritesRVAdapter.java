@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.radio.RadioFavoriteItem;
+import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
@@ -24,24 +24,23 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         implements ItemTouchHelperAdapter {
 
     public interface OnActionListener {
-        void onPlay(RadioFavoriteItem f);
+        void onPlay(RadioStation f);
 
-        void onUnfavorite(RadioFavoriteItem f);
+        void onUnfavorite(RadioStation f);
 
-        void onPersistOrder(List<RadioFavoriteItem> newOrder);
+        void onPersistOrder(List<RadioStation> newOrder);
     }
 
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM = 1;
 
     private final OnActionListener listener;
-    private final List<RadioFavoriteItem> items = new ArrayList<>();
+    private final List<RadioStation> items = new ArrayList<>();
     private Context appContext;
 
     private boolean historyMode = false;
 
-    @Nullable
-    private String playingRadioStationUuid = null;
+    private int trackId = -1;
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView rv) {
@@ -53,7 +52,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         this.listener = l;
     }
 
-    public void setItems(List<RadioFavoriteItem> newItems) {
+    public void setItems(List<RadioStation> newItems) {
         items.clear();
         if (newItems != null)
             items.addAll(newItems);
@@ -90,10 +89,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             h.tvCount.setVisibility(View.VISIBLE);
         } else {
             int idx = position - 1;
-            RadioFavoriteItem f = items.get(idx);
+            RadioStation f = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
-            boolean activated = playingRadioStationUuid != null && playingRadioStationUuid.equals(f.stationuuid);
+            boolean activated = (trackId == f.id);
             holder.itemView.setActivated(activated); // to get bg_radio.xml in layout => activated
 
             holder.title.setText(nonNull(f.name));
@@ -173,7 +172,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         int b = toPos - 1;
         if (a < 0 || b < 0 || a >= items.size() || b >= items.size())
             return false;
-        RadioFavoriteItem moved = items.remove(a);
+        RadioStation moved = items.remove(a);
         items.add(b, moved);
         notifyItemMoved(fromPos, toPos);
         return true;
@@ -196,7 +195,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         int idx = adapterPosition - 1;
         if (idx < 0 || idx >= items.size())
             return;
-        RadioFavoriteItem victim = items.get(idx);
+        RadioStation victim = items.get(idx);
         if (listener != null)
             listener.onUnfavorite(victim);
     }
@@ -204,8 +203,8 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     @Override
     public void onDroppedInTrashUuid(@NonNull String uuid) {
         myLogI("onDroppedInTrash (uuid) : " + uuid);
-        RadioFavoriteItem victim = null;
-        for (RadioFavoriteItem it : items) {
+        RadioStation victim = null;
+        for (RadioStation it : items) {
             if (uuid.equals(it.stationuuid)) {
                 victim = it;
                 break;
@@ -258,13 +257,13 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
-    public void setPlayingRadioStationUuid(@Nullable String uuid) {
-        if ((uuid == null) && (this.playingRadioStationUuid == null))
+    public void setPlayingRadioStation(int trackId) {
+        if (trackId < 0)
             return;
-        if (uuid == null || !uuid.equals(this.playingRadioStationUuid)) {
+        if (trackId == this.trackId) {
             notifyDataSetChanged(); // small list, OK; can be optimized later, we would need to store the lastUuid
                                     // and newUuid...
         }
-        this.playingRadioStationUuid = uuid;
+        this.trackId = trackId;
     }
 }

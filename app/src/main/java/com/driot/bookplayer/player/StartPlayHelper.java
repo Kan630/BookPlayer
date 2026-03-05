@@ -539,8 +539,8 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    public static void playStream(Context context, String playMode, String streamUrl, int trackId,
-            String title, String cover, String caller) {
+    public static void playStream(Context context, String playMode, String streamUrl, int trackId
+            ,String title, String cover, String caller) {
         stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
         PlayList.createFromStream(context, playMode, streamUrl, trackId, title, cover);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);

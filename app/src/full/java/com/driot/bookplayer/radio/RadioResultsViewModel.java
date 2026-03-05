@@ -172,7 +172,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
     // ---- Favorites state exposed to UI ----
 
     private final MutableLiveData<Set<String>> favoriteUuids = new MutableLiveData<>(new HashSet<>());
-    private final MutableLiveData<List<RadioFavoriteItem>> favoriteItems = new MutableLiveData<>(
+    private final MutableLiveData<List<RadioStation>> favoriteItems = new MutableLiveData<>(
             Collections.emptyList());
     private final MutableLiveData<Boolean> hasFavorites = new MutableLiveData<>(false);
 
@@ -180,7 +180,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
         return favoriteUuids;
     }
 
-    public LiveData<List<RadioFavoriteItem>> getFavoriteItems() {
+    public LiveData<List<RadioStation>> getFavoriteItems() {
         return favoriteItems;
     }
 
@@ -284,12 +284,12 @@ public class RadioResultsViewModel extends LoggingViewModel {
         }).start();
     }
 
-    public void reorderFavorites(Context ctx, List<RadioFavoriteItem> newOrder) {
+    public void reorderFavorites(Context ctx, List<RadioStation> newOrder) {
         Context appCtx = ctx.getApplicationContext();
         new Thread(() -> {
             RadioStationDao dao = dao(appCtx);
             int idx = 0;
-            for (RadioFavoriteItem it : newOrder) {
+            for (RadioStation it : newOrder) {
                 dao.updateDisplayOrder(it.stationuuid, idx++);
             }
             refreshFromDb(appCtx);
@@ -323,11 +323,11 @@ public class RadioResultsViewModel extends LoggingViewModel {
                     : dao.getFavorites();
 
             Set<String> uuids = new HashSet<>();
-            List<RadioFavoriteItem> items = new ArrayList<>(rows.size());
+            List<RadioStation> items = new ArrayList<>(rows.size());
 
             for (RadioStation r : rows) {
                 uuids.add(r.stationuuid);
-                items.add(RadioFavoriteItem.fromRadioStation(r));
+                items.add(r);
             }
 
             favoriteUuids.postValue(uuids);

@@ -24,10 +24,10 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 
+import com.driot.bookplayer.db.RadioStation;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -102,7 +102,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         playbackVm.getState().observe(this, state -> {
             if (state != null)
-                adapter.setPlayingRadioStationUuid(state.radioStationUuid);
+                adapter.setPlayingRadioStation(state.trackId);
         });
 
         // Favorites vs History Toggle
@@ -129,7 +129,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override
-            public void onPlay(RadioFavoriteItem f) {
+            public void onPlay(RadioStation f) {
                 myLogI("--- user clicks 'favorite/history' radio item --- : " + f.name);
 
                 if (!hasInternet) {
@@ -138,24 +138,18 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 }
 
                 final boolean renewOnClick = Option.getRadioRenewUrl();
-                final boolean hasCachedUrl = f.last_url != null && !f.last_url.isEmpty();
+                final boolean hasCachedUrl = f.url_resolved != null && !f.url_resolved.isEmpty();
 
-                // -------------------------------------------------------------------------
-                // FAST PATH:
-                // - We already have a cached URL
-                // - AND user did NOT request "renew on click"
-                //
-                // → Play immediately (no spinner), then refresh URL in background.
-                // -------------------------------------------------------------------------
                 if (hasCachedUrl && !renewOnClick) {
-                    myLogD("Radio: using cached URL, scheduling background renew. last_url = [" + f.last_url + "]");
+                    myLogD("Radio: using cached URL, scheduling background renew. url_resolved = [" + f.url_resolved
+                            + "]");
 
                     // 1) Immediate playback with cached URL
-                    RadioHelper.onRadioFavoriteClick(
+                    RadioHelper.play(
                             getApplicationContext(),
                             f,
-                            f.last_url,
-                            "RadioFavoritesActivity - onPlay() - using cached last_url");
+                            f.url_resolved,
+                            "RadioFavoritesActivity - onPlay() - using cached url_resolved");
 
                     // 2) Background best-effort renew (no UI spinner/toasts)
                     repo.resolveUrl(f.stationuuid, new Callback<UrlResolve>() { // RadioBrowser wants us to ping for
@@ -168,15 +162,15 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                 return;
                             }
                             String newUrl = rsp.body().url;
-                            if (newUrl.equals(f.last_url)) {
+                            if (newUrl.equals(f.url_resolved)) {
                                 myLogD("background resolveUrl: url unchanged for " + f.name + " -> " + newUrl);
                                 return;
                             }
 
                             myLogI("background resolveUrl success for " + f.name + " -> " + newUrl);
-                            f.last_url = newUrl; // update in-memory item
+                            f.url_resolved = newUrl; // update in-memory item
 
-                            // Persist in Room (see section 2)
+                            // Persist in Room
                             viewModel.updateFavoriteLastUrl(
                                     getApplicationContext(),
                                     f.stationuuid,
@@ -200,7 +194,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 //
                 // → Show spinner, wait for resolveUrl, then play.
                 // -------------------------------------------------------------------------
-                myLog("Option renew Url = " + renewOnClick + ", lastUrl = [" + f.last_url + "]"
+                myLog("Option renew Url = " + renewOnClick + ", url_resolved = [" + f.url_resolved + "]"
                         + " => resolveUrl(" + f.stationuuid + ") - " + f.name);
                 setProgressVisible(true, getString(R.string.checking_for_best_mirror));
 
@@ -214,7 +208,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                 rsp.body().url != null && !rsp.body().url.isEmpty()) {
                             stream = rsp.body().url;
                             myLogI("resolveUrl success : " + stream);
-                            f.last_url = stream;
+                            f.url_resolved = stream;
 
                             // Persist in Room
                             viewModel.updateFavoriteLastUrl(
@@ -222,13 +216,13 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                     f.stationuuid,
                                     stream);
                         } else if (hasCachedUrl) {
-                            // fallback to previous last_url if we had it
-                            stream = f.last_url;
-                            myLogI("resolveUrl empty, fallback to last_url : " + stream);
+                            // fallback to previous url_resolved if we had it
+                            stream = f.url_resolved;
+                            myLogI("resolveUrl empty, fallback to url_resolved : " + stream);
                         }
 
                         if (stream != null) {
-                            RadioHelper.onRadioFavoriteClick(
+                            RadioHelper.play(
                                     getApplicationContext(),
                                     f,
                                     stream,
@@ -248,11 +242,11 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             myToastE(getString(R.string.error_radio_renew_url));
 
                             // Fallback to cached URL if any
-                            if (f.last_url != null && !f.last_url.isEmpty()) {
-                                RadioHelper.onRadioFavoriteClick(
+                            if (f.url_resolved != null && !f.url_resolved.isEmpty()) {
+                                RadioHelper.play(
                                         getApplicationContext(),
                                         f,
-                                        f.last_url,
+                                        f.url_resolved,
                                         "RadioFavoritesActivity - onPlay() - url NOT renewed (fallback)");
                             }
                         }
@@ -261,14 +255,14 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             }
 
             @Override
-            public void onUnfavorite(RadioFavoriteItem f) {
+            public void onUnfavorite(RadioStation f) {
                 myLogI("--- user Unfavorite radio item --- : " + f.name);
                 // Remove and refresh (reuse VM’s toggle which expects a ApiStation)
                 viewModel.removeFavoriteUuid(RadioFavoritesActivity.this, f.stationuuid);
             }
 
             @Override
-            public void onPersistOrder(List<RadioFavoriteItem> newOrder) {
+            public void onPersistOrder(List<RadioStation> newOrder) {
                 myLogI("--- user change favorite radio station order --- ");
                 viewModel.reorderFavorites(RadioFavoritesActivity.this, newOrder);
             }

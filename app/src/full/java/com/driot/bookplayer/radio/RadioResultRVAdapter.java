@@ -1,4 +1,4 @@
-package com.driot.bookplayer.adapter;
+package com.driot.bookplayer.radio;
 
 import android.content.Context;
 import android.text.TextUtils;
@@ -51,7 +51,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     // Favorite reflection (UUIDs from VM)
     private final Set<String> favoriteUuids = new HashSet<>();
 
-    @androidx.annotation.Nullable
+    private int trackId = 0;
     private String playingRadioStationUuid = null;
 
     public RadioResultRVAdapter(@NonNull OnActionListener listener) {
@@ -184,7 +184,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             ApiStation s = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
-            boolean activated = playingRadioStationUuid != null && playingRadioStationUuid.equals(s.stationuuid);
+            boolean activated = playingRadioStationUuid.equals(s.stationuuid);
             holder.itemView.setActivated(activated);
 
             Context context = holder.itemView.getContext();
@@ -271,12 +271,12 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         return sb.toString();
     }
 
-    public void setPlayingRadioStationUuid(@androidx.annotation.Nullable String uuid) {
-        if ((uuid == null) && (this.playingRadioStationUuid == null))
+    public void setPlayingRadioStation(int trackId) {
+        if (trackId <= 0)
             return;
-        if (uuid == null || !uuid.equals(this.playingRadioStationUuid)) {
+        if (trackId == this.trackId) {
             notifyDataSetChanged();
         }
-        this.playingRadioStationUuid = uuid;
+        this.trackId = trackId;
     }
 }

@@ -83,7 +83,7 @@ public class RadioHelper {
 				dao.update(radioStation);
 			}
 			play(context, radioStation, streamUrl, caller);
-			//TODO call API to update (cover, etc...)
+			// TODO call API to update (cover, etc...)
 		});
 	}
 
@@ -186,34 +186,11 @@ public class RadioHelper {
 		});
 	}
 
-	public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
-		if (f.stationuuid == null) {
-			myLogEE(null, "onRadioFavoriteClick() - null uuid - caller=" + caller);
-			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, null, f.name, f.favicon, caller);
-			return;
-		}
-		// Do DB lookup first to get the real PK
-		AppDatabase.databaseWriteExecutor.execute(() -> {
-			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
-			RadioStation radioStation = dao.findByUuid(f.stationuuid);
-			if (radioStation == null) {
-				myLogE("this should not happen, radio station should already be in Favorites");
-				StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name,
-						f.favicon, caller);
-				return;
-			}
-			radioStation.url_resolved = streamUrl;
-			radioStation.date_maj = System.currentTimeMillis();
-			dao.update(radioStation);
-			play(context, radioStation, streamUrl, caller);
-		});
-	}
-
 	public static boolean playStreamIfKnownRadio(Context context, String url) {
 		RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
 		if (rs != null) {
 			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url,
-					(int) rs.id, rs.stationuuid, rs.name, rs.favicon, null);
+					(int) rs.id, rs.name, rs.favicon, null);
 			return true;
 		} else {
 			return false;

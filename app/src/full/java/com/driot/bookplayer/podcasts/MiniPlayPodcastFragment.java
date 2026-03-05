@@ -138,11 +138,11 @@ public class MiniPlayPodcastFragment extends LoggingFragment {
             myLogI("---- user clicks on mini player root ----");
             PlaybackCommands.resetLastUserAction(requireContext());
             if (vm.getState() != null && vm.getState().getValue() != null) {
-                long idPodcast = vm.getState().getValue().podcastFeedId;
+                long idPodcast = vm.getState().getValue().trackId;
                 myLogD("idPodcast = " + idPodcast);
                 AppDatabase.databaseReadExecutor.execute(() -> {
                     Podcast podcast = AppDatabase.getDatabase(requireContext()).podcastDao()
-                            .getPodcastByFeedId(idPodcast);
+                            .getById(idPodcast);
                     startActivity(
                             new Intent(requireContext(), PodcastEpisodeActivity.class).putExtra("podcast", podcast));
                 });
