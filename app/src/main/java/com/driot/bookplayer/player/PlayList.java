@@ -88,7 +88,7 @@ public final class PlayList {
     }
 
     public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url,
-            int trackId, @Nullable String title, @Nullable String imageUrl, @Nullable String uuid) {
+            int trackId, @Nullable String title, @Nullable String imageUrl) {
         if (ctx == null)
             throw new IllegalStateException("PlayList.createFromStream(): no context");
         if (playMode == null || playMode.isEmpty())
@@ -100,7 +100,7 @@ public final class PlayList {
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
 
-        pl.replaceItemsForStream(playMode, url, trackId, title, imageUrl, uuid);
+        pl.replaceItemsForStream(playMode, url, trackId, title, imageUrl);
         instance = pl;
         pl.saveToStorage();
         myLogD("Playlist [" + playMode + "] created for id/url=[" + trackId + "]/[" + url + "] title=[" + title
@@ -341,7 +341,7 @@ public final class PlayList {
     }
 
     private void replaceItemsForStream(String playMode, String url, int trackId,
-            @Nullable String title, @Nullable String imageUrl, @Nullable String uuid) {
+            @Nullable String title, @Nullable String imageUrl) {
         synchronized (lock) {
             this.playMode = playMode;
             this.trackId = trackId;

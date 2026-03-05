@@ -73,7 +73,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                         s.loadPhase, s.playing, s.ready, s.playMode,
                         preview, s.durationMs, s.sleepLeftMS,
                         s.title, s.subTitle, s.cover,
-                        s.trackId, s.folderId, s.podcastFeedId, s.radioStationUuid,
+                        s.trackId, s.folderId,
                         s.calledFrom, s.callCounter, s.extras);
             }
         }
@@ -258,7 +258,7 @@ public class PlaybackViewModel extends LoggingAndroidViewModel {
                 phaseId, cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
-                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                cur.trackId, cur.folderId,
                 "PlayBackViewModel.setPhase", cur.callCounter + 1, cur.extras);
         PlaybackUiBus.get().emit(next);
     }

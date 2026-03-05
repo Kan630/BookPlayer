@@ -277,9 +277,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             extras.putString(Intents.EXTRA_TTS_VOICE_NAME, getCurrentTtsVoiceName());
             // extras.putInt(Intents.EXTRA_TTS_START_OFFSET, currentStartChars);
 
-            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, getSleepLeftMs(), title, subTitle,
-                    cover,
-                    trackId, folderId, 0, null, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
+            s = new PlaybackUiState(loadPhase, playing, ready, playMode
+                    , pos, dur, getSleepLeftMs()
+                    , title, subTitle, cover
+                    , trackId, folderId
+                    ,"MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
     }

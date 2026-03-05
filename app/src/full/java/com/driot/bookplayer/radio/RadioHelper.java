@@ -64,52 +64,127 @@ public class RadioHelper {
 	}
 
 	public static void playRadioFromUuidAndUrl(Context context, String uuid, String streamUrl, String caller) {
-		ApiStation apiStation = new ApiStation();
-		apiStation.stationuuid = uuid;
-		apiStation.url = streamUrl;
-		apiStation.name = "shared apiStation";
-		// Verify if we dont already have this apiStation in DB
 		AppDatabase.databaseWriteExecutor.execute(() -> {
 			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
 			RadioStation radioStation = dao.findByUuid(uuid);
 			if (radioStation == null) {
-				//TODO
-				// radioStation = .... api call
-				// radioStation.date_maj = System.currentTimeMillis();
-				// radioStation.date_last_played = System.currentTimeMillis();
-				// long insertedId = dao.insert(radioStation);
-				// radioStation.id = insertedId;
+				// Shell station if not in DB and no API data yet
+				radioStation = new RadioStation();
+				radioStation.stationuuid = uuid;
+				radioStation.name = "Unknown Station";
+				radioStation.url = streamUrl;
+				radioStation.url_resolved = streamUrl;
+				radioStation.date_added = System.currentTimeMillis();
+				radioStation.date_maj = radioStation.date_added;
+				radioStation.id = dao.insert(radioStation);
 			} else {
 				radioStation.url_resolved = streamUrl;
 				radioStation.date_maj = System.currentTimeMillis();
-				radioStation.date_last_played = System.currentTimeMillis();
 				dao.update(radioStation);
 			}
-			if (radioStation == null) {
-				play(context, radioStation, streamUrl, caller);
-			} else {
-				myToastEE(null, "could not get radio apiStation");
-			}
+			play(context, radioStation, streamUrl, caller);
+			//TODO call API to update (cover, etc...)
 		});
 	}
 
 	public static void play(Context context, RadioStation rs, String streamUrl, String caller) {
 		myLogI("play() id=" + rs.id + " name=" + rs.name);
 		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
-				(int) rs.id, rs.stationuuid, rs.name, rs.favicon, caller);
+				(int) rs.id, rs.name, rs.favicon, caller);
 		updatePlayed(context, rs);
 	}
+
 	public static void play(Context context, ApiStation s, String streamUrl, String caller) {
-		//TODO check if station exist, if not insert
-		// then just call play(Context context, RadioStation rs, String streamUrl, String caller)
+		AppDatabase.databaseWriteExecutor.execute(() -> {
+			RadioStation rs = upsertFromApi(context, s, streamUrl);
+			play(context, rs, streamUrl, caller);
+		});
 	}
+
+	public static RadioStation upsertFromApi(Context context, ApiStation apiStation, String streamUrl) {
+		RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
+		RadioStation dbStation = dao.findByUuid(apiStation.stationuuid);
+
+		if (dbStation == null) {
+			dbStation = RadioStation.fromStation(apiStation, streamUrl);
+			long insertedId = dao.insert(dbStation);
+			dbStation.id = insertedId;
+		} else {
+			dbStation.url_resolved = streamUrl != null ? streamUrl : apiStation.url_resolved;
+			dbStation.name = apiStation.name;
+			dbStation.url = apiStation.url;
+			dbStation.codec = apiStation.codec;
+			dbStation.bitrate = apiStation.bitrate;
+			dbStation.hls = apiStation.hls;
+
+			// Protect local favicon with deep comparison
+			boolean isLocalFavicon = dbStation.favicon != null && !dbStation.favicon.startsWith("http");
+			if (isLocalFavicon) {
+				if (apiStation.favicon != null && !apiStation.favicon.isEmpty()) {
+					byte[] remoteBytes = com.driot.bookplayer.helpers.NetworkHelper
+							.fetchBytesWithHttpsFallbackForImage(apiStation.favicon);
+					if (remoteBytes != null) {
+						byte[] localBytes = null;
+						try {
+							java.io.File localFile = new java.io.File(dbStation.favicon);
+							if (localFile.exists()) {
+								java.io.InputStream in = new java.io.FileInputStream(localFile);
+								java.io.ByteArrayOutputStream out = new java.io.ByteArrayOutputStream();
+								byte[] buf = new byte[8192];
+								int n;
+								while ((n = in.read(buf)) != -1) {
+									out.write(buf, 0, n);
+								}
+								in.close();
+								localBytes = out.toByteArray();
+							}
+						} catch (Exception e) {
+							myLogW("Failed to read local favicon for comparison: " + e);
+						}
+
+						if (localBytes != null) {
+							String remoteHash = com.driot.bookplayer.helpers.ImageHelper.shortHash(remoteBytes);
+							String localHash = com.driot.bookplayer.helpers.ImageHelper.shortHash(localBytes);
+							if (!remoteHash.equals(localHash)) {
+								myLogW("Favicon changed (content diff), updating to remote: " + apiStation.favicon);
+								dbStation.favicon = apiStation.favicon;
+							}
+						} else {
+							dbStation.favicon = apiStation.favicon;
+						}
+					}
+				}
+			} else {
+				dbStation.favicon = apiStation.favicon;
+			}
+
+			if (apiStation.favicon != null && apiStation.favicon.startsWith("http")) {
+				dbStation.imageOriginalUrl = apiStation.favicon;
+			}
+
+			dbStation.country = apiStation.country;
+			dbStation.countrycode = apiStation.countrycode;
+			dbStation.language = apiStation.language;
+			dbStation.tags = apiStation.tags;
+			dbStation.clickcount = apiStation.clickcount;
+			dbStation.lastcheckok = apiStation.lastcheckok;
+			dbStation.state = apiStation.state;
+			dbStation.iso_3166_2 = apiStation.iso_3166_2;
+			dbStation.votes = apiStation.votes;
+			dbStation.homepage = apiStation.homepage;
+			dbStation.date_maj = System.currentTimeMillis();
+
+			dao.update(dbStation);
+		}
+		return dbStation;
+	}
+
 	public static void updatePlayed(Context context, RadioStation rs) {
 		AppDatabase.databaseWriteExecutor.execute(() -> {
 			rs.date_last_played = System.currentTimeMillis();
 			AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(rs);
 		});
 	}
-
 
 	public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
 		if (f.stationuuid == null) {
@@ -129,10 +204,8 @@ public class RadioHelper {
 			}
 			radioStation.url_resolved = streamUrl;
 			radioStation.date_maj = System.currentTimeMillis();
-			radioStation.date_last_played = System.currentTimeMillis();
 			dao.update(radioStation);
-			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
-					(int) radioStation.id, f.stationuuid, f.name, f.favicon, caller);
+			play(context, radioStation, streamUrl, caller);
 		});
 	}
 

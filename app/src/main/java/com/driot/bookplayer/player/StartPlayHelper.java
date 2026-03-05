@@ -243,7 +243,7 @@ public class StartPlayHelper {
             String playMode = pl.getPlayMode();
             if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
                 myLog("Car onPlay, resuming... send play stream");
-                playStream(context, playMode, pl.getUrl(), pl.getTrackId(), pl.getUuid(), pl.getTitle(),
+                playStream(context, playMode, pl.getUrl(), pl.getTrackId(), pl.getTitle(),
                         pl.getImageUrl(), "carOnPlay()");
             } else {
                 ZikFile zikFile = pl.getZikFile();
@@ -539,10 +539,10 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    public static void playStream(Context context, String playMode, String streamUrl, int trackId, String uuid,
+    public static void playStream(Context context, String playMode, String streamUrl, int trackId,
             String title, String cover, String caller) {
         stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
-        PlayList.createFromStream(context, playMode, streamUrl, trackId, title, cover, uuid);
+        PlayList.createFromStream(context, playMode, streamUrl, trackId, title, cover);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
         androidx.core.content.ContextCompat.startForegroundService(
                 context,

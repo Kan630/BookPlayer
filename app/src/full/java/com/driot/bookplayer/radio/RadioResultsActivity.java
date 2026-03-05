@@ -117,7 +117,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             + s.url_resolved + "]");
                     final long startTime = System.currentTimeMillis();
 
-                    RadioHelper.play(getApplicationContext(), s, s.url_resolved
+                    RadioHelper.play(getApplicationContext(), s, s.url_resolved,
                             "RadioResultsActivity - onPlay() - using cached url_resolved");
 
                     repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {

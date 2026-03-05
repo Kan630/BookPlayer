@@ -71,7 +71,7 @@ public final class PlaybackUiBus extends LoggerHelper {
                         next.playing, next.ready, next.playMode,
                         next.positionMs, next.durationMs, next.sleepLeftMS,
                         next.title, next.subTitle, next.cover,
-                        next.trackId, next.folderId, next.podcastFeedId, next.radioStationUuid,
+                        next.trackId, next.folderId,
                         next.calledFrom + " (clean-up)", next.callCounter + 1, next.extras);
                 myLog("playMode not TTS => forcing phase OFF");
             }
@@ -95,7 +95,7 @@ public final class PlaybackUiBus extends LoggerHelper {
         emit(new PlaybackUiState(
                 Intents.PHASE_OFF, false, false, null,
                 0, 0, 0, "", "", "",
-                0, 0, 0, null,
+                0, 0,
                 "PlaybackUiBus.clear()", 0, null));
     }
 
@@ -111,7 +111,7 @@ public final class PlaybackUiBus extends LoggerHelper {
                 cur.playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
-                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                cur.trackId, cur.folderId,
                 cur.calledFrom, cur.callCounter + 1, cur.extras));
     }
 
@@ -124,7 +124,7 @@ public final class PlaybackUiBus extends LoggerHelper {
                 playing, cur.ready, cur.playMode,
                 cur.positionMs, cur.durationMs, cur.sleepLeftMS,
                 cur.title, cur.subTitle, cur.cover,
-                cur.trackId, cur.folderId, cur.podcastFeedId, cur.radioStationUuid,
+                cur.trackId, cur.folderId,
                 cur.calledFrom, cur.callCounter + 1, cur.extras));
     }
 
