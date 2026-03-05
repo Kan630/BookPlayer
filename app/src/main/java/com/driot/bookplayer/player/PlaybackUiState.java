@@ -23,8 +23,6 @@ public class PlaybackUiState extends LoggerHelper {
 
     public final int trackId;    // current ZikFile id (or 0 if unknown)
     public final int folderId;   // current Folder id (or 0 if unknown)
-    public final long podcastFeedId;
-    public final String radioStationUuid;
 
     public final String calledFrom;
     public final long callCounter;
@@ -35,7 +33,7 @@ public class PlaybackUiState extends LoggerHelper {
     public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
                            long pos, long dur, long sleepLeftMS,
                            String title, String subTitle, String cover,
-                           int trackId, int folderId, long podcastId, String radioStationUuid,
+                           int trackId, int folderId,
                            String calledFrom, long callCounter,
                            @Nullable Bundle extras) {
 
@@ -56,8 +54,6 @@ public class PlaybackUiState extends LoggerHelper {
 
         this.trackId = trackId;
         this.folderId = folderId;
-        this.podcastFeedId = podcastId;
-        this.radioStationUuid = radioStationUuid;
 
         this.calledFrom = calledFrom;
         this.callCounter = callCounter;
@@ -83,8 +79,6 @@ public class PlaybackUiState extends LoggerHelper {
                 ", cover='" + cover + '\'' +
                 ", trackId=" + trackId +
                 ", folderId=" + folderId +
-                ", podcastId=" + podcastFeedId +
-                ", radioStationId='" + radioStationUuid + '\'' +
                 ", extras=" + (extras == null ? "null" : extras.keySet()) +
                 '}';
     }

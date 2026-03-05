@@ -16,7 +16,6 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
 
-import java.io.File;
 import java.util.List;
 
 public class RadioHelper {
@@ -49,15 +48,15 @@ public class RadioHelper {
 		String uuid = data.getQueryParameter("uuid");
 		myLog("url=[" + url + "] - uuid=[" + uuid + "]");
 
-		if (uuid != null) {
-			Intent i = new Intent(context, RadioStationActivity.class);
-			i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
-			i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-			context.startActivity(i);
+		if (uuid == null || url == null) {
+			myLogEE(null, "handle deepLink radio, missing uuid or url");
+			return;
 		}
-		if (url != null) {
-			playRadioFromUuidAndUrl(context, uuid, url, "DeepLink");
-		}
+		Intent i = new Intent(context, RadioStationActivity.class);
+		i.putExtra(Intents.EXTRA_STATION_UUID, uuid);
+		i.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		context.startActivity(i);
+		playRadioFromUuidAndUrl(context, uuid, url, "DeepLink");
 	}
 
 	public static void initRadioBrowserServiceFactory(Context context) {
@@ -69,66 +68,81 @@ public class RadioHelper {
 		station.stationuuid = uuid;
 		station.url = streamUrl;
 		station.name = "shared station";
-		onRadioClick(context, station, streamUrl, caller);
-	}
-
-	public static void onRadioClick(Context context, Station s, String streamUrl, String caller) {
-		myLogI("onRadioClick()");
-		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, s.stationuuid, s.name, s.favicon,
-				caller);
-		// update DB
-		if (s.stationuuid == null) {
-			myLogEE(null, "onRadioClick() - null uuid - caller=" + caller);
-			return;
-		}
-		final Station station = s;
+		// Verify if we dont already have this station in DB
 		AppDatabase.databaseWriteExecutor.execute(() -> {
 			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
-			RadioStation radioStation = dao.findByUuid(station.stationuuid);
+			RadioStation radioStation = dao.findByUuid(uuid);
 			if (radioStation == null) {
-				radioStation = RadioStation.fromStation(station, streamUrl);
-				radioStation.date_last_played = System.currentTimeMillis();
-				dao.insert(radioStation);
+				//TODO
+				// radioStation = .... api call
+				// radioStation.date_maj = System.currentTimeMillis();
+				// radioStation.date_last_played = System.currentTimeMillis();
+				// long insertedId = dao.insert(radioStation);
+				// radioStation.id = insertedId;
 			} else {
 				radioStation.url_resolved = streamUrl;
 				radioStation.date_maj = System.currentTimeMillis();
 				radioStation.date_last_played = System.currentTimeMillis();
+				dao.update(radioStation);
 			}
-			AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(radioStation);
+			if (radioStation == null) {
+				play(context, radioStation, streamUrl, caller);
+			} else {
+				myToastEE(null, "could not get radio station");
+			}
 		});
 	}
 
+	public static void play(Context context, RadioStation rs, String streamUrl, String caller) {
+		myLogI("play() id=" + rs.id + " name=" + rs.name);
+		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
+				(int) rs.id, rs.stationuuid, rs.name, rs.favicon, caller);
+		updatePlayed(context, rs);
+	}
+	public static void play(Context context, Station s, String streamUrl, String caller) {
+		myLogI("play() id=" + rs.id + " name=" + rs.name);
+		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
+				(int) rs.id, rs.stationuuid, rs.name, rs.favicon, caller);
+		updatePlayed(context, rs);
+	}
+	public static void updatePlayed(Context context, RadioStation rs) {
+		AppDatabase.databaseWriteExecutor.execute(() -> {
+			rs.date_last_played = System.currentTimeMillis();
+			AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(rs);
+		});
+	}
+
+
 	public static void onRadioFavoriteClick(Context context, RadioFavoriteItem f, String streamUrl, String caller) {
-		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name, f.favicon,
-				caller);
-		// update DB
+		if (f.stationuuid == null) {
+			myLogEE(null, "onRadioFavoriteClick() - null uuid - caller=" + caller);
+			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, null, f.name, f.favicon, caller);
+			return;
+		}
+		// Do DB lookup first to get the real PK
 		AppDatabase.databaseWriteExecutor.execute(() -> {
 			RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
 			RadioStation radioStation = dao.findByUuid(f.stationuuid);
 			if (radioStation == null) {
-				myLogE("this should not happens, radio station should already been in Favorites");
-				// dao.insert(f)...
-			} else {
-				radioStation.url_resolved = streamUrl;
-				radioStation.date_maj = System.currentTimeMillis();
-				radioStation.date_last_played = System.currentTimeMillis();
+				myLogE("this should not happen, radio station should already be in Favorites");
+				StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl, -1, f.stationuuid, f.name,
+						f.favicon, caller);
+				return;
 			}
-			AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().update(radioStation);
+			radioStation.url_resolved = streamUrl;
+			radioStation.date_maj = System.currentTimeMillis();
+			radioStation.date_last_played = System.currentTimeMillis();
+			dao.update(radioStation);
+			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
+					(int) radioStation.id, f.stationuuid, f.name, f.favicon, caller);
 		});
 	}
 
 	public static boolean playStreamIfKnownRadio(Context context, String url) {
-
 		RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
 		if (rs != null) {
-			String title = rs.name;
-			String imageUrl = rs.favicon;
-			// broadcastUiState("loadAndPlay");
-			// main.post(() -> {
-			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
-			// if (!ok) { myLogEE(null, "loadAndPlayFromStorage(): playback failed -
-			// radio"); }
-			// });
+			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url,
+					(int) rs.id, rs.stationuuid, rs.name, rs.favicon, null);
 			return true;
 		} else {
 			return false;
@@ -143,6 +157,5 @@ public class RadioHelper {
 		AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 		db.radioStationDao().addSecondToTimeListened(trackId);
 	}
-
 
 }

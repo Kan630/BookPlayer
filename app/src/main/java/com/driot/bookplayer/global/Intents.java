@@ -6,7 +6,7 @@ public class Intents {
 
     public static final String EXTRA_ADD_TO_FOLDER = "EXTRA_ADD_TO_FOLDER";
 
-    public static final String EXTRA_STATION_UUID = "EXTRA_STATION_UUID";
+    public static final String EXTRA_STATION_UUID = "EXTRA_STATION_UUID"; //used in deeplink
 
     public static final String EXTRA_CALLER = "EXTRA_CALLER";
     public static final String EXTRA_FOREGROUND = "EXTRA_FOREGROUND";
@@ -49,8 +49,8 @@ public class Intents {
     public static final String EXTRA_PLAY_MODE = "EXTRA_PLAY_MODE";
     public static final String EXTRA_TITLE = "EXTRA_TITLE";
     public static final String EXTRA_IMAGE_URL = "EXTRA_IMAGE_URL";
-    public static final String EXTRA_PODCAST_FEED_ID = "EXTRA_PODCAST_ID";
-    public static final String EXTRA_RADIO_STATION_UUID = "EXTRA_RADIO_STATION_UUID";
+    public static final String EXTRA_STREAM_TRACK_ID = "EXTRA_STREAM_TRACK_ID"; // DB primary key of RadioStation or
+                                                                                // Episode
 
     public static final String EXTRA_AUDIO_SESSION_ID = "EXTRA_AUDIO_SESSION_ID";
 

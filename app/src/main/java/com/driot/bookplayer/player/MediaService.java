@@ -117,16 +117,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public static final int TRIM_AFTER_PAUSE_MS = 7 * 24 * 60 * 60 * 1000; // so basically never... 7 days
     private Handler pauseCheckHandler;
 
-    // --- RADIO MODE ---
-    @Nullable
-    private String streamTitle = null;
-    @Nullable
-    private String streamImageUrl = null; // you can display it in notif if you already support URL bitmaps
-    @Nullable
-    private Uri streamUri = null;
     private int lastCustomSleepMinutes = 0;
-    private long podcastFeedId = -2;
-    private String radioStationUuid = null;
 
     // cache for Android Auto Bitmaps
     public static final android.util.LruCache<String, android.graphics.Bitmap> artCache = new android.util.LruCache<>(
@@ -237,23 +228,25 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         extras.putInt(Intents.EXTRA_AUDIO_SESSION_ID, getAudioSessionId());
 
         if (Var.PLAY_MODE_RADIO.equals(playMode) || isRadio()) {
-            String title = (streamTitle != null) ? streamTitle : getString(R.string.live_radio);
+            PlayList pl = PlayList.getInstance();
+            String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_radio);
             String text = getString(R.string.live_radio);
-            String cover = (streamImageUrl != null) ? streamImageUrl : "";
+            String cover = (pl != null && pl.getImageUrl() != null) ? pl.getImageUrl() : "";
+            int trackId = (pl != null) ? pl.getTrackId() : 0;
 
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
                     0, 0, getSleepLeftMs(),
                     title, text, cover,
-                    /* trackId */ 0,
+                    trackId,
                     /* folderId */ 0,
-                    /* podcastFeedId */ 0,
-                    radioStationUuid,
                     "MediaService.broadcastUiState() - radio " + fromWhere, -10, null);
         } else if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
-            String title = (streamTitle != null) ? streamTitle : getString(R.string.live_podcast);
+            PlayList pl = PlayList.getInstance();
+            String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_podcast);
             String text = getString(R.string.live_podcast);
-            String cover = (streamImageUrl != null) ? streamImageUrl : "";
+            String cover = (pl != null && pl.getImageUrl() != null) ? pl.getImageUrl() : "";
+            int trackId = (pl != null) ? pl.getTrackId() : 0;
             long pos = (engine != null) ? engine.getCurrentPosition() : 0;
             long dur = (engine != null) ? engine.getDuration() : 0;
 
@@ -261,10 +254,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     loadPhase, playing, ready, playMode,
                     pos, dur, getSleepLeftMs(),
                     title, text, cover,
-                    /* trackId */ 0,
+                    trackId,
                     /* folderId */ 0,
-                    podcastFeedId,
-                    null,
                     "MediaService.broadcastUiState() - podcast " + fromWhere, -10, extras);
         } else {
 
@@ -305,7 +296,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
             String lastPauseReason = Pref.getPauseReason();
             long lastPauseTime = Pref.getPauseTime();
-            myLog("has been paused for " + Tonio.formatTime(System.currentTimeMillis()-lastPauseTime) + " - because [" + lastPauseReason + "]");
+            myLog("has been paused for " + Tonio.formatTime(System.currentTimeMillis() - lastPauseTime) + " - because ["
+                    + lastPauseReason + "]");
 
             if ("AndroidAuto".equals(callerInfo)) {
                 myLog("MediaSessionCompat.Callback : onPlay => from android auto - [" + callerInfo + "]");
@@ -324,7 +316,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         @Override
         public void onPause() {
             var info = MediaCallerHelper.getCallerInfo(MediaService.this);
-            String pauseReason = "MediaSession.Callback.onPause - from " + MediaCallerHelper.describeCaller(MediaService.this, info);
+            String pauseReason = "MediaSession.Callback.onPause - from "
+                    + MediaCallerHelper.describeCaller(MediaService.this, info);
             super.onPause();
             playPauseAudio(pauseReason);
         }
@@ -652,10 +645,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // 1) Limit session capabilities
             updateSessionState(playing);
 
+            PlayList pl = PlayList.getInstance();
+            int trackId = (pl != null && pl.getTrackId()>0) ? pl.getTrackId() : -1;
+            String streamTitle = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_radio);
+            String streamImageUrl = (pl != null) ? pl.getImageUrl() : null;
+
             // 2) (Async) fetch cover, then set metadata & update notif
-            // If you already have a cached Bitmap, set it now and skip Glide.
-            Bitmap currentArt = null; // your cache if any
-            media.setMetadataRadio(streamTitle != null ? streamTitle : getString(R.string.live_radio), "", "",
+            Bitmap currentArt = null;
+            media.setMetadataRadio(streamTitle, "", "",
                     currentArt);
 
             Notification n = notif.build(
@@ -693,7 +690,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                         @NonNull
                         @Override
                         public PendingIntent content() {
-                            return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, radioStationUuid);
+                            return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this, trackId);
                         }
                     });
             if (!startForegroundWithBuildCheck(n))
@@ -747,7 +744,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                                             @Override
                                             public PendingIntent content() {
                                                 return NavHelper.getNavToRadioActivityPendingIntent(MediaService.this,
-                                                        radioStationUuid);
+                                                        trackId);
                                             }
                                         });
                                 startForegroundWithBuildCheck(updated);
@@ -1125,10 +1122,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                 final String playMode = intent.getStringExtra(Intents.EXTRA_PLAY_MODE);
                 final String url = intent.getStringExtra(Intents.EXTRA_STREAM_URL);
-                final String title = intent.getStringExtra(Intents.EXTRA_TITLE);
-                final String img = intent.getStringExtra(Intents.EXTRA_IMAGE_URL);
-                this.podcastFeedId = intent.getLongExtra(Intents.EXTRA_PODCAST_FEED_ID, -1);
-                this.radioStationUuid = intent.getStringExtra(Intents.EXTRA_RADIO_STATION_UUID);
+                // Note: PlayList is already created by StartPlayHelper.playStream() before
+                // the intent is fired. We just need to re-play the engine.
 
                 if (url == null || url.isEmpty()) {
                     myLogE("ACTION_PLAY_STREAM without url");
@@ -1141,7 +1136,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                 if (engine != null)
                     engine.stop();
-                playStream(playMode, url, title, img);
+                playStream(playMode, url);
                 return START_STICKY;
             }
 
@@ -1360,9 +1355,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 pl.clear();
         } catch (Throwable ignored) {
         }
-        streamTitle = null;
-        streamImageUrl = null;
-        streamUri = null;
         isRunning = false;
 
         state.set(ServiceState.STOPPED);
@@ -2253,27 +2245,27 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
-    private boolean playStream(@NonNull String playMode, @NonNull String url, String title, String imageUrl) {
-        myLogI("playStream " + playMode + " - title = [" + title + "] - url = [" + url + "]");
+    private boolean playStream(@NonNull String playMode, @NonNull String url) {
+        PlayList pl = PlayList.getInstance();
+        String title = (pl != null) ? pl.getTitle() : null;
+        String imageUrl = (pl != null) ? pl.getImageUrl() : null;
+        myLogI("playStream " + playMode + " - title=[" + title + "] - url=[" + url + "]");
 
         if (playTimer != null) {
             // Always stop timer when starting a stream (Radio/Podcast) to pick up new sleep
             // settings
             playTimer.stop();
         }
-        streamTitle = title;
-        streamImageUrl = imageUrl;
-        streamUri = Uri.parse(url);
+
+        Uri streamUri = Uri.parse(url);
         if (streamUri == null) {
-            myLogEE(null, "playPodcastStream : radioUri==null for url=" + url);
+            myLogEE(null, "playStream: uri==null for url=" + url);
             return false;
         }
 
-        PlayList.createFromStream(this, playMode, url);
-
         broadcastUiState("playStream " + playMode, playMode); // first snapshot (BUFFERING)
 
-        // Swap engine to Exo for radio
+        // Swap engine to Exo for radio/podcast
         engineGen++;
         long gen = engineGen;
         PlayerEngine fresh = null;
@@ -2293,9 +2285,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         setEngine(fresh);
         ErrorLoadingFile = false;
 
-        // Update MediaSession to BUFFERING with radio meta
-        // media.updateState(PlaybackStateCompat.STATE_BUFFERING, 0, 0f,
-        // playbackStateCompatAction);
         PlaybackStateCompat s = new PlaybackStateCompat.Builder()
                 .setActions(ACTIONS_FILE)
                 .setState(PlaybackStateCompat.STATE_BUFFERING,
@@ -2310,7 +2299,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 /* artist */ playModeString,
                 /* album */ title,
                 /* artBmp */ null);
-        if (!showForegroundNotification(false)) { // shows paused/buffering style
+        if (!showForegroundNotification(false)) {
             myLogEE(null, "playStream: failed to show foreground notification, aborting.");
             return false;
         }
@@ -2320,13 +2309,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             engine.setDataSource(this, streamUri, title);
             engine.prepareAsync();
 
-            // Broadcast a first UI state (pos/dur 0)
-            broadcastUiState("playPodcastStream2");
-            // Auto-play when ready
+            broadcastUiState("playStream2");
             directPlay = true;
 
         } catch (Exception e) {
-            myLogEE(e, "playPodcastStream setDataSource/prepareAsync failed, radioUri=" + streamUri);
+            myLogEE(e, "playStream setDataSource/prepareAsync failed, uri=" + streamUri);
             alertError(null, null);
             return false;
         }

@@ -122,10 +122,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             + s.url_resolved + "]");
                     final long startTime = System.currentTimeMillis();
 
-                    RadioHelper.onRadioClick(
-                            getApplicationContext(),
-                            s,
-                            s.url_resolved,
+                    RadioHelper.play(getApplicationContext(), s, s.url_resolved
                             "RadioResultsActivity - onPlay() - using cached url_resolved");
 
                     repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
@@ -209,10 +206,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                         }
 
                         if (stream != null) {
-                            RadioHelper.onRadioClick(
-                                    getApplicationContext(),
-                                    s,
-                                    stream,
+                            RadioHelper.play(getApplicationContext(), s, stream,
                                     "RadioResultsActivity - onPlay() - after url renewed");
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
@@ -230,10 +224,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             myLogEE(t, "resolveUrl failed");
                             if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
                                 myLogI("fallback url_resolved (failure) : " + s.url_resolved);
-                                RadioHelper.onRadioClick(
-                                        getApplicationContext(),
-                                        s,
-                                        s.url_resolved,
+                                RadioHelper.play(getApplicationContext(), s, s.url_resolved,
                                         "RadioResultsActivity - onPlay() - fallback url_resolved after failure");
                             } else {
                                 myToastE(getString(R.string.an_error_occurred));
@@ -256,7 +247,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
         playbackVm.getState().observe(this, state -> {
             if (state != null) {
-                adapter.setPlayingRadioStationUuid(state.radioStationUuid);
+                adapter.setPlayingRadioStation(state.trackId);
             }
         });
 

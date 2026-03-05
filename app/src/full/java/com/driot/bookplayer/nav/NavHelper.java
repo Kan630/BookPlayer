@@ -67,16 +67,16 @@ public class NavHelper {
         return tsb.getPendingIntent(0, flags);
     }
 
-    public static PendingIntent getNavToRadioActivityPendingIntent(Context context, String stationUuid) {
+    public static PendingIntent getNavToRadioActivityPendingIntent(Context context, int trackId) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
 
-        if (stationUuid != null && !stationUuid.isEmpty()) {
+        if (trackId>0) {
             // Build back stack: Main -> GetRadio -> RadioStationActivity
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
             tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
             tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
-                    .putExtra(Intents.EXTRA_STATION_UUID, stationUuid));
+                    .putExtra(Intents.EXTRA_STREAM_TRACK_ID, trackId));
             return tsb.getPendingIntent(0, flags);
         }
 

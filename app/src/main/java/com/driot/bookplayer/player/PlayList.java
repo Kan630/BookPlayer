@@ -48,6 +48,8 @@ public final class PlayList {
     private String playMode;
     private String url;
     private int trackId;
+    private String title; // stream mode: station/episode name
+    private String imageUrl; // stream mode: cover/favicon URL
     private Folder folder;
     private List<ZikFile> zikFilesList = Collections.emptyList();
     private int index = -1;
@@ -85,22 +87,24 @@ public final class PlayList {
                 + pl);
     }
 
-    public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url, int trackId) {
+    public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url,
+            int trackId, @Nullable String title, @Nullable String imageUrl, @Nullable String uuid) {
         if (ctx == null)
             throw new IllegalStateException("PlayList.createFromStream(): no context");
         if (playMode == null || playMode.isEmpty())
             throw new IllegalStateException("PlayList.createFromStream(): no playMode");
         if (url == null || url.isEmpty())
             throw new IllegalStateException("PlayList.createFromStream(): no url");
-        if (trackId <=0)
-            throw new IllegalStateException("PlayList.createFromStream(): bad trackId : " + trackId);
+        if (trackId <= 0)
+            myLogW("PlayList.createFromStream(): trackId <= 0 (" + trackId + ") for playMode=" + playMode);
         Context app = ctx.getApplicationContext();
         PlayList pl = new PlayList(app);
 
-        pl.replaceItemsForStream(playMode, url, trackId);
+        pl.replaceItemsForStream(playMode, url, trackId, title, imageUrl, uuid);
         instance = pl;
         pl.saveToStorage();
-        myLogD("Playlist [" + playMode + "] created for id/url = [" + trackId + "]/[" + url + "]" + " - toString: " + pl);
+        myLogD("Playlist [" + playMode + "] created for id/url=[" + trackId + "]/[" + url + "] title=[" + title
+                + "] - toString: " + pl);
     }
 
     public static void createFromStorage(@NonNull Context ctx, boolean createFromLastListenedIfNothingToRestore,
@@ -265,6 +269,18 @@ public final class PlayList {
         }
     }
 
+    public @Nullable String getTitle() {
+        synchronized (lock) {
+            return title;
+        }
+    }
+
+    public @Nullable String getImageUrl() {
+        synchronized (lock) {
+            return imageUrl;
+        }
+    }
+
     public @Nullable ZikFile getZikFile() {
         synchronized (lock) {
             if (zikFilesList.isEmpty() || index < 0 || index >= zikFilesList.size()) {
@@ -324,13 +340,17 @@ public final class PlayList {
         }
     }
 
-    private void replaceItemsForStream(String playMode, String url, int trackId) {
+    private void replaceItemsForStream(String playMode, String url, int trackId,
+            @Nullable String title, @Nullable String imageUrl, @Nullable String uuid) {
         synchronized (lock) {
             this.playMode = playMode;
             this.trackId = trackId;
+            this.title = title;
+            this.imageUrl = imageUrl;
             this.zikFilesList = Collections.emptyList();
             this.index = -1;
             this.url = url;
+            this.folder = null;
             this.version++; // invalidate prior asyncs
         }
     }
@@ -340,6 +360,8 @@ public final class PlayList {
     private static final String KEY_PLAY_MODE = "KEY_PLAY_MODE";
     private static final String KEY_TRACK_ID = "KEY_TRACK_ID";
     private static final String KEY_URL = "KEY_URL";
+    private static final String KEY_TITLE = "KEY_TITLE";
+    private static final String KEY_IMAGE_URL = "KEY_IMAGE_URL";
 
     private void saveToStorage() {
         SharedPreferences prefs = Pref.getPlaylistPrefs();
@@ -348,6 +370,8 @@ public final class PlayList {
             e.putInt(KEY_TRACK_ID, trackId);
             e.putString(KEY_PLAY_MODE, playMode);
             e.putString(KEY_URL, url);
+            e.putString(KEY_TITLE, title);
+            e.putString(KEY_IMAGE_URL, imageUrl);
         }
         e.apply();
     }
@@ -358,8 +382,8 @@ public final class PlayList {
             this.playMode = prefs.getString(KEY_PLAY_MODE, null);
             this.trackId = prefs.getInt(KEY_TRACK_ID, -1);
             this.url = prefs.getString(KEY_URL, null);
-            // myLogD("getFromStorage(): folderId=" + folderId + " index=" + index + "
-            // playMode=" + playMode + " url=" + url);
+            this.title = prefs.getString(KEY_TITLE, null);
+            this.imageUrl = prefs.getString(KEY_IMAGE_URL, null);
         }
     }
 

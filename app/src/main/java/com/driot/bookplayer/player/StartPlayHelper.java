@@ -44,7 +44,6 @@ public class StartPlayHelper {
     private static final int ART_MAX_PX = 512; // big artwork
     private static final int ICON_MAX_PX = 158; // was 128 158=hints fron AndroidAuto // list thumbnails
 
-
     public static void onFolderClick(Context context, Folder clickedFolder, String caller) {
         // DB work off main; UI nav back on main
         AppDatabase.databaseReadExecutor.execute(() ->
@@ -244,7 +243,8 @@ public class StartPlayHelper {
             String playMode = pl.getPlayMode();
             if (Var.PLAY_MODE_RADIO.equals(playMode) || Var.PLAY_MODE_PODCAST.equals(playMode)) {
                 myLog("Car onPlay, resuming... send play stream");
-                playStream(context, playMode, pl.getUrl(), -1, null, null, null, "carOnPlay()");
+                playStream(context, playMode, pl.getUrl(), pl.getTrackId(), pl.getUuid(), pl.getTitle(),
+                        pl.getImageUrl(), "carOnPlay()");
             } else {
                 ZikFile zikFile = pl.getZikFile();
                 myLog("Car onPlay, resuming... send CMD play");
@@ -539,10 +539,10 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    public static void playStream(Context context, String playMode, String streamUrl, long id, String uuid,
+    public static void playStream(Context context, String playMode, String streamUrl, int trackId, String uuid,
             String title, String cover, String caller) {
         stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
-        PlayList.createFromStream(context, playMode, streamUrl);
+        PlayList.createFromStream(context, playMode, streamUrl, trackId, title, cover, uuid);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
         androidx.core.content.ContextCompat.startForegroundService(
                 context,
@@ -550,17 +550,20 @@ public class StartPlayHelper {
                         .setAction(Intents.ACTION_PLAY_STREAM)
                         .putExtra(Intents.EXTRA_PLAY_MODE, playMode)
                         .putExtra(Intents.EXTRA_STREAM_URL, streamUrl)
-                        .putExtra(Intents.EXTRA_PODCAST_FEED_ID, id)
-                        .putExtra(Intents.EXTRA_RADIO_STATION_UUID, uuid)
+                        .putExtra(Intents.EXTRA_STREAM_TRACK_ID, trackId)
+                        //.putExtra(Intents.EXTRA_RADIO_STATION_UUID, uuid)
                         .putExtra(Intents.EXTRA_TITLE, title)
                         .putExtra(Intents.EXTRA_IMAGE_URL, cover)
                         .putExtra(Intents.EXTRA_CALLER, caller)
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
+
     public static void playUndefinedStream(Context context, String url) {
         AppDatabase.databaseReadExecutor.execute(() -> {
             boolean playStreamIfKnownRadio = RadioHelper.playStreamIfKnownRadio(context, url);
-            if (playStreamIfKnownRadio) { return; }
+            if (playStreamIfKnownRadio) {
+                return;
+            }
             boolean playStreamIfKnownPodcast = PodcastHelper.playStreamIfKnownPodcast(context, url);
             if (playStreamIfKnownPodcast) {
                 myLogEE(null, "could not play undefined stream : [" + url + "]");

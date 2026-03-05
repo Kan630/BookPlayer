@@ -575,7 +575,8 @@ public class PodcastHelper {
 
     public static void onPodcastClick(Context context, DisplayableEpisode ep, Podcast podcast, String caller) {
         String cover = ep.image == null || ep.image.isEmpty() ? podcast.image : ep.image;
-        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, podcast.feedId, null, ep.title,
+        int trackId = (ep.id != null) ? (int) (long) ep.id : -1;
+        StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, ep.enclosureUrl, trackId, null, ep.title,
                 cover, caller);
     }
 
@@ -592,22 +593,10 @@ public class PodcastHelper {
     public static boolean playStreamIfKnownPodcast(Context context, String url) {
         Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getFromUrl(url);
         if (episode != null) {
-            String title = episode.title;
-            String imageUrl = episode.image;
             // TODO => we need a position, or it will start the episode from the
             // beggining....
-            // broadcastUiState("loadAndPlay");
-            // main.post(() -> {
-            StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url, -1, null, title, imageUrl, null);
-            /*
-             * boolean ok = playStream(Var.PLAY_MODE_PODCAST, url, title, imageUrl);
-             * if (!ok) {
-             * myLogEE(null, "loadAndPlayFromStorage(): playback failed - podcast");
-             * }
-             * 
-             */
-            // });
-
+            StartPlayHelper.playStream(context, Var.PLAY_MODE_PODCAST, url,
+                    (int) episode.id, null, episode.title, episode.image, null);
             return true;
         } else {
             return false;
@@ -653,7 +642,8 @@ public class PodcastHelper {
     }
 
     public static void updateImage(int folderId, String imagePath, Context context) {
-        AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId, imagePath);
+        AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId,
+                imagePath);
     }
 
     public static void addSecondToTimeListened(Context context, int trackId) {
