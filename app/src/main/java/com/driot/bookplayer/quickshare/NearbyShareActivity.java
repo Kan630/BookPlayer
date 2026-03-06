@@ -15,6 +15,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.ColorHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
@@ -260,13 +261,13 @@ public class NearbyShareActivity extends BaseBottomNavActivity {
         if (isActive) {
             btnStartSharing.setText(
                     isSendMode ? R.string.nearby_share_stop_advertising : R.string.nearby_share_stop_discovering);
-            btnStartSharing.setBackgroundTintList(getColorStateList(R.color.colorError));
+            //TODO set background color RED
             progressBarTotal.setVisibility(android.view.View.VISIBLE);
             progressBarCurrent.setVisibility(android.view.View.VISIBLE);
         } else {
             btnStartSharing.setText(
                     isSendMode ? R.string.nearby_share_start_advertising : R.string.nearby_share_start_discovering);
-            btnStartSharing.setBackgroundTintList(null);
+            //TODO set background color back to Primary
 
             if (isFinished) {
                 // Keep progress bars visible if finished successfully

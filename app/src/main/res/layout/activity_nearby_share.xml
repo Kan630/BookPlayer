@@ -116,12 +116,11 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnStartSharing"
-            style="@style/GetResourceButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="20dp"
             android:text="@string/nearby_share_start_advertising"
-            android:backgroundTint="?attr/colorPrimary"
             />
 
         <ProgressBar
