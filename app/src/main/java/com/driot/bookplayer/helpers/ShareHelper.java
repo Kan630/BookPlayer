@@ -121,13 +121,19 @@ public class ShareHelper {
             myLogI("DeepLink: host=[" + host + "] - path=[" + path + "] - data=[" + data.toString() + "]");
 
             if (host != null) {
+                // Handle App Links (HTTPS) with specific paths
+                if (path != null) {
+                    switch (path) {
+                        case "/share/radio":
+                            RadioHelper.handleDeepLink(context, data);
+                            return;
+                    }
+                }
 
-                switch (path) {
-
-                    case "/share/radio":
-                        RadioHelper.handleDeepLink(context, data);
-                        break;
-
+                // Handle Custom URI schemes (e.g., bookplayerfull://radio)
+                if (host.equals("radio")) {
+                    RadioHelper.handleDeepLink(context, data);
+                    return;
                 }
             }
         }

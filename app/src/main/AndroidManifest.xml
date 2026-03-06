@@ -72,7 +72,22 @@
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data
                     android:scheme="https"
-                    android:host="bookplayer.driot.com" />
+                    android:host="bookplayer.driot.com"
+                    android:pathPrefix="/share/radio" />
+            </intent-filter>
+
+            <!-- Custom URI schemes for deep links -->
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bookplayerfull" android:host="radio" />
+            </intent-filter>
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bookplayer" android:host="radio" />
             </intent-filter>
 
         </activity>
