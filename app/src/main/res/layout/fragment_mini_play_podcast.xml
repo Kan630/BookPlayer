@@ -9,7 +9,7 @@
     android:paddingStart="12dp"
     android:paddingEnd="12dp"
     android:paddingTop="4dp"
-    android:paddingBottom="4dp"
+    android:paddingBottom="0dp"
     android:gravity="center_vertical"
     android:elevation="8dp"
     android:clickable="true"
@@ -37,7 +37,7 @@
             android:contentDescription="@string/cover_preview"
             android:src="@drawable/ic_podcast_24"
             android:clickable="false"
-            android:layout_marginEnd="30dp"
+            android:layout_marginEnd="8dp"
             />
 
         <ImageButton
@@ -70,8 +70,6 @@
             android:id="@+id/bMiniPlayPause"
             android:src="@drawable/ic_media_play_24"
             style="@style/miniPlayerButton"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
             android:layout_marginHorizontal="8dp"
             />
 
@@ -94,7 +92,8 @@
             android:layout_height="wrap_content"
             android:textColor="?attr/colorOnSecondary"
             android:textSize="12sp"
-            android:layout_marginStart="30dp"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="8dp"
             android:layout_marginEnd="5dp"
             android:text="--:--/123:22"
             />
