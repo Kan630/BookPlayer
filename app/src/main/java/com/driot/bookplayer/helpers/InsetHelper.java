@@ -28,16 +28,17 @@ import com.driot.bookplayer.utils.log.KanLogger;
  */
 public final class InsetHelper {
 
-    private InsetHelper() {}
+    private InsetHelper() {
+    }
 
     // ===== Configs (immutable) =====
     private static final class WindowConfig {
         final boolean edgeToEdge;
-        final int statusBarColor;        // -1 => theme
+        final int statusBarColor; // -1 => theme
         final int navigationBarColor;
         final boolean softInputAdjustResize;
         final Boolean lightStatusBarIcons; // null => auto
-        final Boolean lightNavBarIcons;    // null => auto
+        final Boolean lightNavBarIcons; // null => auto
         final boolean allowShortEdgeCutout; // true => layout may extend into cutout on short edges
 
         private WindowConfig(Builder b) {
@@ -59,15 +60,49 @@ public final class InsetHelper {
             Boolean lightNavBarIcons = null;
             boolean allowShortEdgeCutout = false; // default: avoid cutout overlap via padding
 
-            Builder edgeToEdge(boolean v){ this.edgeToEdge = v; return this; }
-            Builder statusBarColor(int v){ this.statusBarColor = v; return this; }
-            Builder useThemeStatusBarColor(){ this.statusBarColor = -1; return this; }
-            Builder navigationBarColor(int v){ this.navigationBarColor = v; return this; }
-            Builder softInputAdjustResize(boolean v){ this.softInputAdjustResize = v; return this; }
-            Builder lightStatusBarIcons(Boolean v){ this.lightStatusBarIcons = v; return this; }
-            Builder lightNavBarIcons(Boolean v){ this.lightNavBarIcons = v; return this; }
-            Builder allowShortEdgeCutout(boolean v){ this.allowShortEdgeCutout = v; return this; }
-            WindowConfig build(){ return new WindowConfig(this); }
+            Builder edgeToEdge(boolean v) {
+                this.edgeToEdge = v;
+                return this;
+            }
+
+            Builder statusBarColor(int v) {
+                this.statusBarColor = v;
+                return this;
+            }
+
+            Builder useThemeStatusBarColor() {
+                this.statusBarColor = -1;
+                return this;
+            }
+
+            Builder navigationBarColor(int v) {
+                this.navigationBarColor = v;
+                return this;
+            }
+
+            Builder softInputAdjustResize(boolean v) {
+                this.softInputAdjustResize = v;
+                return this;
+            }
+
+            Builder lightStatusBarIcons(Boolean v) {
+                this.lightStatusBarIcons = v;
+                return this;
+            }
+
+            Builder lightNavBarIcons(Boolean v) {
+                this.lightNavBarIcons = v;
+                return this;
+            }
+
+            Builder allowShortEdgeCutout(boolean v) {
+                this.allowShortEdgeCutout = v;
+                return this;
+            }
+
+            WindowConfig build() {
+                return new WindowConfig(this);
+            }
         }
     }
 
@@ -99,17 +134,56 @@ public final class InsetHelper {
             boolean addToPadding = false;
             boolean handleCutout = true; // default ON to protect against camera hole
 
-            Builder top(boolean v){ this.top = v; return this; }
-            Builder bottom(boolean v){ this.bottom = v; return this; }
-            Builder sides(boolean v){ this.left = v; this.right = v; return this; }
-            Builder handleIME(boolean v){ this.handleIME = v; return this; }
-            Builder addToPadding(boolean v){ this.addToPadding = v; return this; }
-            Builder handleCutout(boolean v){ this.handleCutout = v; return this; }
+            Builder top(boolean v) {
+                this.top = v;
+                return this;
+            }
 
-            Builder onlyTop(){ this.top = true; this.bottom = false; this.left = false; this.right = false; return this; }
-            Builder topAndBottom(){ this.top = true; this.bottom = true; this.left = false; this.right = false; return this; }
+            Builder bottom(boolean v) {
+                this.bottom = v;
+                return this;
+            }
 
-            PaddingConfig build(){ return new PaddingConfig(this); }
+            Builder sides(boolean v) {
+                this.left = v;
+                this.right = v;
+                return this;
+            }
+
+            Builder handleIME(boolean v) {
+                this.handleIME = v;
+                return this;
+            }
+
+            Builder addToPadding(boolean v) {
+                this.addToPadding = v;
+                return this;
+            }
+
+            Builder handleCutout(boolean v) {
+                this.handleCutout = v;
+                return this;
+            }
+
+            Builder onlyTop() {
+                this.top = true;
+                this.bottom = false;
+                this.left = false;
+                this.right = false;
+                return this;
+            }
+
+            Builder topAndBottom() {
+                this.top = true;
+                this.bottom = true;
+                this.left = false;
+                this.right = false;
+                return this;
+            }
+
+            PaddingConfig build() {
+                return new PaddingConfig(this);
+            }
         }
     }
 
@@ -119,10 +193,11 @@ public final class InsetHelper {
     public static void apply(@NonNull Activity activity) {
         View root = activity.findViewById(android.R.id.content);
         if (root == null) {
-            myLogEE(null,"apply(): root content view is NULL, aborting insets setup.");
+            myLogEE(null, "apply(): root content view is NULL, aborting insets setup.");
             return;
         }
-        if (KanLogger.LOG_INSETS) myLogD("apply() on root");
+        if (KanLogger.LOG_INSETS)
+            myLogD("apply() on root");
         applyInsets(activity, root,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -134,17 +209,20 @@ public final class InsetHelper {
                         .handleCutout(true)
                         .sides(true)
                         .build(),
-                /*consume*/ true);
+                /* consume */ true);
     }
 
     /** Scrollable view draws behind nav bar with proper bottom padding. */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity, @NonNull View scrollableView) {
-        if (KanLogger.LOG_INSETS) myLogD("applyInsetsForScrollableBehindNavBar()");
-        if (scrollableView == null) { //can be null at runtime, just a compiler check
-            myLogE("applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root. for " + (activity!=null ? activity.getLocalClassName() : "null activity"));
+        if (KanLogger.LOG_INSETS)
+            myLogD("applyInsetsForScrollableBehindNavBar()");
+        if (scrollableView == null) { // can be null at runtime, just a compiler check
+            myLogE("applyInsetsForScrollableBehindNavBar(): scrollableView is NULL; falling back to root. for "
+                    + (activity != null ? activity.getLocalClassName() : "null activity"));
             View root = activity.findViewById(android.R.id.content);
             if (root == null) {
-                myLogEE(null,"applyInsetsForScrollableBehindNavBar(): root also NULL; aborting insets setup. for " + (activity!=null ? activity.getLocalClassName() : "null activity"));
+                myLogEE(null, "applyInsetsForScrollableBehindNavBar(): root also NULL; aborting insets setup. for "
+                        + (activity != null ? activity.getLocalClassName() : "null activity"));
                 return;
             }
             scrollableView = root; // fallback
@@ -155,19 +233,20 @@ public final class InsetHelper {
                         .allowShortEdgeCutout(true)
                         .build(),
                 new PaddingConfig.Builder()
-                        .topAndBottom()   //maybe change to bottom only...
+                        .topAndBottom() // maybe change to bottom only...
                         .handleIME(true)
                         .handleCutout(true)
                         .sides(true)
                         .build(),
-                /*consume*/ true);
+                /* consume */ true);
     }
 
-
     // 1) Ensure a view starts *below* the status bar / cutout.
-//    Keeps edge-to-edge on, but adds only TOP padding (and left/right if you wish).
+    // Keeps edge-to-edge on, but adds only TOP padding (and left/right if you
+    // wish).
     public static void applyTopInsetsTo(@NonNull Activity activity, @NonNull View targetView) {
-        if (KanLogger.LOG_INSETS) myLogD("applyTopInsetsTo()");
+        if (KanLogger.LOG_INSETS)
+            myLogD("applyTopInsetsTo()");
         applyInsets(activity, targetView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -176,15 +255,19 @@ public final class InsetHelper {
                 new PaddingConfig.Builder()
                         .onlyTop()
                         .handleCutout(true)
-                        .sides(true)          // set to false if you don’t want side padding
-                        .addToPadding(true)   // preserve existing margins/padding
+                        .sides(true) // set to false if you don’t want side padding
+                        .addToPadding(true) // preserve existing margins/padding
                         .build(),
-                /*consume*/ false);
+                /* consume */ false);
     }
 
-    /** Top insets only (no left/right) — uses status bar height only, no cutout padding, to avoid huge empty space. */
+    /**
+     * Top insets only (no left/right) — uses status bar height only, no cutout
+     * padding, to avoid huge empty space.
+     */
     public static void applyTopInsetsOnlyTo(@NonNull Activity activity, @NonNull View targetView) {
-        if (KanLogger.LOG_INSETS) myLogD("applyTopInsetsOnlyTo()");
+        if (KanLogger.LOG_INSETS)
+            myLogD("applyTopInsetsOnlyTo()");
         applyInsets(activity, targetView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
@@ -196,36 +279,37 @@ public final class InsetHelper {
                         .sides(false)
                         .addToPadding(true)
                         .build(),
-                /*consume*/ false);
+                /* consume */ false);
     }
 
     // 2) Scrollable list behind nav bar, with IME lift.
-//    Only bottom padding + optional side padding. No top padding here.
+    // Only bottom padding + optional side padding. No top padding here.
     public static void applyBottomInsetsForScrollable(@NonNull Activity activity, @NonNull View scrollableView) {
-        if (KanLogger.LOG_INSETS) myLogD("applyBottomInsetsForScrollable()");
+        if (KanLogger.LOG_INSETS)
+            myLogD("applyBottomInsetsForScrollable()");
         applyInsets(activity, scrollableView,
                 new WindowConfig.Builder()
                         .softInputAdjustResize(true)
                         .allowShortEdgeCutout(true)
                         .build(),
                 new PaddingConfig.Builder()
-                        .top(false)          // <-- important: no top padding here
+                        .top(false) // <-- important: no top padding here
                         .bottom(true)
                         .sides(true)
                         .handleIME(true)
                         .handleCutout(true)
                         .addToPadding(false) // replace padding; your RV already has clipToPadding="false"
                         .build(),
-                /*consume*/ false);
+                /* consume */ false);
     }
 
     // ===== Core =====
 
     private static void applyInsets(@NonNull Activity activity,
-                                    @NonNull View targetView,
-                                    @NonNull WindowConfig windowCfg,
-                                    @NonNull PaddingConfig padCfg,
-                                    boolean consume) {
+            @NonNull View targetView,
+            @NonNull WindowConfig windowCfg,
+            @NonNull PaddingConfig padCfg,
+            boolean consume) {
         try {
             final Window window = activity.getWindow();
 
@@ -249,19 +333,26 @@ public final class InsetHelper {
                 window.setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
             }
 
-            if (KanLogger.LOG_INSETS) myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
-                    + ", statusBarColor=" + colorHex(actualStatus)
-                    + " (requested=" + colorHex(windowCfg.statusBarColor) + ")"
-                    + ", navBarColor=" + colorHex(windowCfg.navigationBarColor)
-                    + ", adjustResize=" + windowCfg.softInputAdjustResize
-                    + ", allowShortEdgeCutout=" + windowCfg.allowShortEdgeCutout
-                    + ", orientation=" + orientationString(activity));
+            if (KanLogger.LOG_INSETS)
+                myLogD("applyInsets(): edgeToEdge=" + windowCfg.edgeToEdge
+                        + ", statusBarColor=" + colorHex(actualStatus)
+                        + " (requested=" + colorHex(windowCfg.statusBarColor) + ")"
+                        + ", navBarColor=" + colorHex(windowCfg.navigationBarColor)
+                        + ", adjustResize=" + windowCfg.softInputAdjustResize
+                        + ", allowShortEdgeCutout=" + windowCfg.allowShortEdgeCutout
+                        + ", orientation=" + orientationString(activity));
 
             configureBars(activity, window, windowCfg, actualStatus);
 
+            final int initialLeft = targetView.getPaddingLeft();
+            final int initialTop = targetView.getPaddingTop();
+            final int initialRight = targetView.getPaddingRight();
+            final int initialBottom = targetView.getPaddingBottom();
+
             ViewCompat.setOnApplyWindowInsetsListener(targetView, (v, insets) -> {
                 final Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-                final Insets cut = padCfg.handleCutout ? insets.getInsets(WindowInsetsCompat.Type.displayCutout()) : Insets.NONE;
+                final Insets cut = padCfg.handleCutout ? insets.getInsets(WindowInsetsCompat.Type.displayCutout())
+                        : Insets.NONE;
                 final Insets ime = padCfg.handleIME ? insets.getInsets(WindowInsetsCompat.Type.ime()) : Insets.NONE;
 
                 int left = padCfg.left ? Math.max(sys.left, cut.left) : 0;
@@ -269,23 +360,25 @@ public final class InsetHelper {
                 int right = padCfg.right ? Math.max(sys.right, cut.right) : 0;
                 int bottom = padCfg.bottom ? Math.max(sys.bottom, cut.bottom) : 0;
 
-                if (padCfg.handleIME) bottom = Math.max(bottom, ime.bottom);
+                if (padCfg.handleIME)
+                    bottom = Math.max(bottom, ime.bottom);
 
                 if (padCfg.addToPadding) {
-                    v.setPadding(v.getPaddingLeft() + left,
-                            v.getPaddingTop() + top,
-                            v.getPaddingRight() + right,
-                            v.getPaddingBottom() + bottom);
+                    v.setPadding(initialLeft + left,
+                            initialTop + top,
+                            initialRight + right,
+                            initialBottom + bottom);
                 } else {
                     v.setPadding(left, top, right, bottom);
                 }
 
-                if (KanLogger.LOG_INSETS) myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
-                        + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
-                        + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
-                        + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom
-                        + ", addToPadding=" + padCfg.addToPadding
-                        + ", consume=" + consume);
+                if (KanLogger.LOG_INSETS)
+                    myLogD("onApplyWindowInsets -> sys=" + insetsToString(sys)
+                            + (padCfg.handleCutout ? (", cut=" + insetsToString(cut)) : "")
+                            + (padCfg.handleIME ? (", ime=" + insetsToString(ime)) : "")
+                            + ", applied(L/T/R/B)=" + left + "/" + top + "/" + right + "/" + bottom
+                            + ", addToPadding=" + padCfg.addToPadding
+                            + ", consume=" + consume);
 
                 return consume ? WindowInsetsCompat.CONSUMED : insets;
             });
@@ -297,9 +390,9 @@ public final class InsetHelper {
     }
 
     private static void configureBars(@NonNull Activity activity,
-                                      @NonNull Window window,
-                                      @NonNull WindowConfig cfg,
-                                      @ColorInt int actualStatusColor) {
+            @NonNull Window window,
+            @NonNull WindowConfig cfg,
+            @ColorInt int actualStatusColor) {
         WindowInsetsControllerCompat c = WindowCompat.getInsetsController(window, window.getDecorView());
         if (c == null) {
             myLogW("No WindowInsetsControllerCompat available.");
@@ -321,12 +414,12 @@ public final class InsetHelper {
 
         c.setAppearanceLightStatusBars(statusLight);
         c.setAppearanceLightNavigationBars(navLight);
-/*
-        myLogD("configureBars(): lightStatus=" + statusLight
-                + ", lightNav=" + navLight
-                + ", statusBarColor(actual)=" + colorHex(actualStatusColor));
-
- */
+        /*
+         * myLogD("configureBars(): lightStatus=" + statusLight
+         * + ", lightNav=" + navLight
+         * + ", statusBarColor(actual)=" + colorHex(actualStatusColor));
+         * 
+         */
     }
 
     // ===== Helpers =====
@@ -360,11 +453,11 @@ public final class InsetHelper {
 
         boolean result = explicitLight || isColorLight(bg);
         /*
-        myLogD("isLightSurface(): bg=" + colorHex(bg)
-                + ", explicitLight=" + explicitLight
-                + ", computedLight=" + isColorLight(bg)
-                + " -> " + result);
-
+         * myLogD("isLightSurface(): bg=" + colorHex(bg)
+         * + ", explicitLight=" + explicitLight
+         * + ", computedLight=" + isColorLight(bg)
+         * + " -> " + result);
+         * 
          */
         return result;
     }
@@ -381,7 +474,8 @@ public final class InsetHelper {
     private static void requestApplyInsetsSafely(@NonNull View v) {
         try {
             ViewCompat.requestApplyInsets(v);
-            //myLogD("requestApplyInsetsSafely() posted for view=" + v.getClass().getSimpleName());
+            // myLogD("requestApplyInsetsSafely() posted for view=" +
+            // v.getClass().getSimpleName());
         } catch (Throwable t) {
             myLogEE(t, "requestApplyInsetsSafely() failed");
         }
@@ -392,7 +486,8 @@ public final class InsetHelper {
     }
 
     private static String colorHex(int c) {
-        if (c == -1) return "THEME";
+        if (c == -1)
+            return "THEME";
         return String.format("#%08X", (c));
     }
 
