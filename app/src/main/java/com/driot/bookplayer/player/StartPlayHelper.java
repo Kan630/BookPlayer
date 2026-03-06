@@ -188,7 +188,7 @@ public class StartPlayHelper {
         });
     }
 
-    private static void playZikFile(Context context, int zikFileId, String caller, boolean isPodcast,
+    private static void playZikFile(Context context, long zikFileId, String caller, boolean isPodcast,
             boolean sortNewestFirst) {
         ContextCompat.startForegroundService(
                 context.getApplicationContext(),

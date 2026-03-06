@@ -474,7 +474,7 @@ public class PodcastHelper {
         });
     }
 
-    public static void deleteEpisode(int id, Context context) {
+    public static void deleteEpisode(long id, Context context) {
         Episode episode = AppDatabase.getDatabase(context.getApplicationContext()).episodeDao().getByZikFileId(id);
         if (episode != null) {
             episode.date_delete = System.currentTimeMillis();

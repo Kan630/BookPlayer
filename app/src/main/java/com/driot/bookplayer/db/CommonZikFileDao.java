@@ -75,13 +75,13 @@ public interface CommonZikFileDao {
     void deleteAllZikFilesInFolder(int idFolder);
 
     @Query("DELETE FROM ZikFile WHERE id = :idZikFile")
-    void deleteZikFile(int idZikFile);
+    void deleteZikFile(long idZikFile);
 
     @Update
     int update(ZikFile zikFile);
 
     @Query("UPDATE ZikFile SET FolderName=:folderName WHERE id = :id")
-    void updateFolderName(String folderName, int id);
+    void updateFolderName(String folderName, long id);
 
     /*
      * 
@@ -92,7 +92,7 @@ public interface CommonZikFileDao {
      */
 
     @Query("UPDATE ZikFile SET lFirstAccess=:firstAccess WHERE id = :id")
-    void updateFirstAccess(long firstAccess, int id);
+    void updateFirstAccess(long firstAccess, long id);
 
     @Query("SELECT uri FROM Folder WHERE id = :id")
     String getFolderUri(int id);
@@ -101,16 +101,16 @@ public interface CommonZikFileDao {
     String getFolderPath(int id);
 
     @Query("SELECT path FROM ZikFile WHERE id = :id")
-    String getZikFilePath(int id);
+    String getZikFilePath(long id);
 
     @Query("UPDATE ZikFile SET displayname = :newDisplayName WHERE id =:id")
-    void setDisplayName(int id, String newDisplayName);
+    void setDisplayName(long id, String newDisplayName);
 
     @Query("SELECT displayName FROM ZikFile WHERE id = :id")
-    String getDisplayName(int id);
+    String getDisplayName(long id);
 
     @Query("UPDATE ZikFile SET zeorder = :zeorder WHERE id =:id")
-    void changePosition(int id, Double zeorder);
+    void changePosition(long id, Double zeorder);
 
     @Query("SELECT count(*) FROM ZikFile WHERE idFolder = :idFolder ")
     int getCountOfZikFiles(int idFolder);
@@ -124,20 +124,11 @@ public interface CommonZikFileDao {
     @Query("SELECT id FROM ZikFile WHERE idFolder = :idFolder AND name = :name")
     int getId(long idFolder, String name);
 
-    @Query("SELECT EXISTS(SELECT 1 FROM ZikFile WHERE path = :folderPath AND name = :episodeName LIMIT 1)")
-    boolean existsForEpisode(String folderPath, String episodeName);
-
-    @Query("SELECT * FROM ZikFile WHERE path = :folderPath AND name = :episodeName")
-    ZikFile getZikFileFromFullPath(String folderPath, String episodeName);
-
     @Query("SELECT * FROM ZikFile " +
             "WHERE percentDone > :minPercent " +
             "AND lLastAccess IS NOT NULL AND lLastAccess < :thresholdTime " +
             "AND idFolder IN (SELECT id FROM Folder WHERE sourceLocation = 'podcast')")
     List<ZikFile> getListenedPodcastEpisodesToDelete(int minPercent, long thresholdTime);
-
-    @Query("DELETE FROM ZikFile WHERE id IN (:ids)")
-    int deleteByIds(List<Long> ids);
 
     @Query("DELETE FROM ZikFile WHERE id = :id")
     int deleteById(long id);
@@ -152,14 +143,8 @@ public interface CommonZikFileDao {
     // @Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
     // List<User> findUsersBornBetweenDates(Date from, Date to);
 
-    @Query("SELECT metadataJson FROM ZikFile WHERE id = :id")
-    String getMetadataJson(long id);
-
-    @Query("UPDATE ZikFile SET metadataJson = :json WHERE id = :id")
-    void updateMetadataJson(long id, String json);
-
     @Query("UPDATE ZikFile SET zeorder = :order WHERE id = :id")
-    void updateZeorderById(int id, int order);
+    void updateZeorderById(long id, int order);
 
     @Transaction
     default void persistOrder(List<ZikFile> inOrder) {
@@ -231,13 +216,13 @@ public interface CommonZikFileDao {
     void resetFolderProgression(int idFolder);
 
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE id =:id")
-    void resetProgression(int id);
+    void resetProgression(long id);
 
     @Query("DELETE FROM PlayTick WHERE zikFileId = :id")
-    void deletePlayTicks(int id);
+    void deletePlayTicks(long id);
 
     @Query("DELETE FROM PlaySession WHERE zikFileId = :id")
-    void deletePlaySessions(int id);
+    void deletePlaySessions(long id);
 
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder AND zeorder >= :zeorder")
     void resetProgressionFromThisZikFile(int idFolder, double zeorder);
@@ -263,7 +248,7 @@ public interface CommonZikFileDao {
     void deletePlaySessionsFromZikFileOrder(int idFolder, double zeorder);
 
     @Transaction
-    default void resetProgressionFully(int id) {
+    default void resetProgressionFully(long id) {
         deletePlayTicks(id);
         deletePlaySessions(id);
         resetProgression(id);

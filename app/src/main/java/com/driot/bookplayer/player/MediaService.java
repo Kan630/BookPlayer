@@ -456,7 +456,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private double speed = 1.0;
     private boolean ErrorLoadingFile = false;
-    private int lastPausedTrackId = -1; // Track ID that was last paused, to detect track changes
+    private long lastPausedTrackId = -1; // Track ID that was last paused, to detect track changes
     DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
@@ -1641,7 +1641,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return false;
 
         ZikFile zikFile = (pl != null) ? pl.getZikFile() : null;
-        int wantId = (zikFile != null) ? zikFile.getId() : 0;
+        long wantId = (zikFile != null) ? zikFile.getId() : 0;
 
         // If we have no last snapshot or ids differ, we need to load.
         if (PlaybackUiBus.get().state().getValue() == null) {

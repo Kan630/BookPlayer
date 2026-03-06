@@ -148,7 +148,7 @@ public class Sql {
                     int byOrder = Double.compare(a.getZeorder(), b.getZeorder());
                     if (byOrder != 0)
                         return byOrder;
-                    return Integer.compare(a.getId(), b.getId());
+                    return Long.compare(a.getId(), b.getId());
                 });
             } catch (Exception ignore) {
                 /* non-fatal */ }

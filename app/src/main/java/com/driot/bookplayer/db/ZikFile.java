@@ -23,7 +23,7 @@ public class ZikFile implements Serializable {
     // public class ZikFile implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private long id;
 
     @ColumnInfo(name = "idFolder")
     private int idFolder;
@@ -72,11 +72,11 @@ public class ZikFile implements Serializable {
     @NonNull
     public String metadataJson = "{}";
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 
