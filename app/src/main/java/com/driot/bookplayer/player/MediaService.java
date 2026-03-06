@@ -518,7 +518,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                     @Override
                     public void onEveryMinute(@NonNull String elapsedCategory) {
-                        FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory, getPlayMode(), getExtension());
+                        FirebaseAnalyticsHelper.tellPlayFor1min(elapsedCategory, getPlayMode());
                     }
 
                     @Override
@@ -2068,14 +2068,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return (engine != null) && Var.PLAY_MODE_RADIO.equals(getPlayMode());
     }
 
-    public String getExtension() {
-        PlayList pl = PlayList.getInstance();
-        if (pl != null && pl.isZikFile() && pl.getZikFile() != null) {
-            return Tonio.getExtension(pl.getZikFile().getPath());
-        }
-        return null;
-    }
-
     public String getCurrentTtsVoiceName() {
         if ("tts".equals(getPlayMode())) {
             return ((TtsEngine) engine).getVoiceName();
@@ -2088,13 +2080,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return ((TtsEngine) engine).getText();
         }
         return null;
-    }
-
-    public void setTtsStartOffsetChars(int start) {
-        if (!(engine instanceof TtsEngine))
-            return;
-        myLogD("setTtsStartOffsetChars : " + start);
-        ((TtsEngine) engine).setStartOffsetChars(start);
     }
 
     private void updatePlaybackStateForPosition() {

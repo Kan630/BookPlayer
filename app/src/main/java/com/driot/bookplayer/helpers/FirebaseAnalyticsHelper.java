@@ -8,8 +8,10 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.BuildConfig;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.imports.ImportBookTaskState;
 import com.driot.bookplayer.imports.ImportJob;
+import com.driot.bookplayer.player.PlayList;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.firebase.analytics.FirebaseAnalytics;
 import com.google.firebase.crashlytics.FirebaseCrashlytics;
@@ -77,10 +79,11 @@ public final class FirebaseAnalyticsHelper {
 
     // PLAY 1min
 
-    public static void tellPlayFor1min(String elapsed_category, String playMode, String extension) {
+    public static void tellPlayFor1min(String elapsed_category, String playMode) {
         Bundle bundle = new Bundle();
         bundle.putString("elapsed_category", trimFA(elapsed_category));
-        bundle.putString("extension", trimFA(extension));
+        bundle.putString("extension", trimFA(getExtension()));
+        bundle.putString("source_location", trimFA(getSourceLocation()));
         logBundleEvent( playMode + "_for_1min", bundle);
         bundle.putString("play_mode", trimFA(playMode));
         logBundleEvent("play_for_1min", bundle);
@@ -367,4 +370,29 @@ public final class FirebaseAnalyticsHelper {
         if (s.length() <= MAX_FA_PARAM) return s;
         return s.substring(0, MAX_FA_PARAM - 1) + "…";
     }
+
+    private static String getSourceLocation() {
+        PlayList pl = PlayList.getInstance();
+        if (pl != null) {
+            if (pl.isZikFile() && pl.getFolder() != null) {
+                return pl.getFolder().getSourceLocation();
+            } else if (Var.PLAY_MODE_RADIO.equals(pl.getPlayMode())) {
+                return "stream radio";
+            } else if (Var.PLAY_MODE_PODCAST.equals(pl.getPlayMode())) {
+                return "stream podcast";
+            } else {
+                return "error playlist";
+            }
+        } else {
+            return "null playlist";
+        }
+    }
+    private static String getExtension() {
+        PlayList pl = PlayList.getInstance();
+        if (pl != null && pl.isZikFile() && pl.getZikFile() != null) {
+            return Tonio.getExtension(pl.getZikFile().getPath());
+        }
+        return null;
+    }
+
 }
