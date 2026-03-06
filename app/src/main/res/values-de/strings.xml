@@ -1178,22 +1178,13 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="backup_share_permissions_required">Berechtigungen für Live-Freigabe erforderlich</string>
     <string name="backup_share_ready_as">Gerät ist bereit als: %s</string>
     <string name="backup_share_receive_btn">Empfang starten</string>
-    <string name="backup_share_receive_explain">Tippen Sie auf die Schaltfläche, um nach Geräten in der Nähe zu suchen und Ihr Backup wiederherzustellen.
-
-Gehen Sie auf dem anderen Gerät zu Einstellungen > Dienstprogramme > Backup und klicken Sie auf \'An Gerät in der Nähe senden (Live)\'.</string>
+    <string name="backup_share_receive_explain">Tippen Sie auf die Schaltfläche, um nach Geräten in der Nähe zu suchen und Ihr Backup wiederherzustellen.\n\nGehen Sie auf dem anderen Gerät zu Einstellungen > Dienstprogramme > Backup und klicken Sie auf \'An Gerät in der Nähe senden (Live)\'.</string>
     <string name="backup_share_receive_title">Von Gerät in der Nähe empfangen</string>
     <string name="backup_share_send_btn">Senden starten</string>
-    <string name="backup_share_send_explain">Tippen Sie auf die Schaltfläche, um dieses Gerät sichtbar zu machen und Ihre Backup-Daten zu senden.
-
-Gehen Sie auf dem anderen Gerät zu Einstellungen > Dienstprogramme > Wiederherstellung und klicken Sie auf \'Von Gerät in der Nähe empfangen (Live)\'.</string>
+    <string name="backup_share_send_explain">Tippen Sie auf die Schaltfläche, um dieses Gerät sichtbar zu machen und Ihre Backup-Daten zu senden.\n\nGehen Sie auf dem anderen Gerät zu Einstellungen > Dienstprogramme > Wiederherstellung und klicken Sie auf \'Von Gerät in der Nähe empfangen (Live)\'.</string>
     <string name="backup_share_send_title">An Gerät in der Nähe senden</string>
     <string name="backup_share_waiting">Warten auf Backup-Daten…</string>
-    <string name="gutenberg_connected">Verbunden! Daten werden empfangen… 
-
-Gutenberg ist ein kostenloses Freiwilligenprojekt.
-Es kann ziemlich langsam sein…
-
-</string>
+    <string name="gutenberg_connected">Verbunden! Daten werden empfangen… \n\nGutenberg ist ein kostenloses Freiwilligenprojekt.\nEs kann ziemlich langsam sein…\n\n</string>
     <string name="import_export_backup_content_from">Backup-Inhalt von: %s</string>
     <string name="import_export_backup_saved">Backup erfolgreich gespeichert</string>
     <string name="import_export_caution_desc">Diese Aktion ersetzt Elemente und Einstellungen durch die ausgewählten Daten aus der Backup-Datei. Alle aktuellen Daten der ausgewählten Elemente werden DAUERHAFT GELÖSCHT.</string>

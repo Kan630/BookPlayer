@@ -1171,22 +1171,13 @@
     <string name="backup_share_permissions_required">الأذونات المطلوبة للمشاركة المباشرة</string>
     <string name="backup_share_ready_as">الجهاز جاهز كـ: %s</string>
     <string name="backup_share_receive_btn">بدء الاستلام</string>
-    <string name="backup_share_receive_explain">اضغط على الزر للبحث عن أجهزة قريبة واستعادة النسخة الاحتياطية الخاصة بك.
-
-على الجهاز الآخر، انتقل إلى الإعدادات > الأدوات > النسخ الاحتياطي وانقر على \'إرسال إلى جهاز قريب (مباشر)\'.</string>
+    <string name="backup_share_receive_explain">اضغط على الزر للبحث عن أجهزة قريبة واستعادة النسخة الاحتياطية الخاصة بك.\n\nعلى الجهاز الآخر، انتقل إلى الإعدادات > الأدوات > النسخ الاحتياطي وانقر على \'إرسال إلى جهاز قريب (مباشر)\'.</string>
     <string name="backup_share_receive_title">استلام من جهاز قريب</string>
     <string name="backup_share_send_btn">بدء الإرسال</string>
-    <string name="backup_share_send_explain">اضغط على الزر لجعل هذا الجهاز مرئياً وإرسال بيانات النسخ الاحتياطي الخاصة بك.
-
-على الجهاز الآخر، انتقل إلى الإعدادات > الأدوات > الاستعادة وانقر على \'الاستلام من جهاز قريب (مباشر)\'.</string>
+    <string name="backup_share_send_explain">اضغط على الزر لجعل هذا الجهاز مرئياً وإرسال بيانات النسخ الاحتياطي الخاصة بك.\n\nعلى الجهاز الآخر، انتقل إلى الإعدادات > الأدوات > الاستعادة وانقر على \'الاستلام من جهاز قريب (مباشر)\'.</string>
     <string name="backup_share_send_title">إرسال إلى جهاز قريب</string>
     <string name="backup_share_waiting">في انتظار بيانات النسخ الاحتياطية…</string>
-    <string name="gutenberg_connected">متصل! جاري استلام البيانات… 
-
-غوتنبرغ هو مشروع تطوعي مجاني.
-يمكن أن يكون بطيئاً جداً…
-
-</string>
+    <string name="gutenberg_connected">متصل! جاري استلام البيانات… \n\nغوتنبرغ هو مشروع تطوعي مجاني.\nيمكن أن يكون بطيئاً جداً…\n\n</string>
     <string name="import_export_backup_content_from">محتوى النسخ الاحتياطي من: %s</string>
     <string name="import_export_backup_saved">تم حفظ النسخة الاحتياطية بنجاح</string>
     <string name="import_export_caution_desc">سيؤدي هذا الإجراء إلى استبدال العناصر والإعدادات بالبيانات المختارة من ملف النسخ الاحتياطي. سيتم حذف جميع البيانات الحالية للعناصر المختارة نهائياً.</string>

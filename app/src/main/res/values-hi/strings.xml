@@ -1175,22 +1175,13 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="backup_share_permissions_required">लाइव शेयर के लिए आवश्यक अनुमतियां</string>
     <string name="backup_share_ready_as">डिवाइस इस रूप में तैयार है: %s</string>
     <string name="backup_share_receive_btn">प्राप्त करना शुरू करें</string>
-    <string name="backup_share_receive_explain">आस-पास के उपकरणों को खोजने और अपने बैकاف को पुनर्स्थापित करने के लिए बटन पर टैप करें।
-
-दूसरे डिवाइस पर, सेटिंग्स > उपयोगिताएँ > बैकअप पर जाएं और \'आस-पास के डिवाइस पर भेजें (लाइव)\' पर क्लिक करें।</string>
+    <string name="backup_share_receive_explain">आस-पास के उपकरणों को खोजने और अपने बैकअफ को पुनर्स्थापित करने के लिए बटन पर टैप करें।\n\nदूसरे डिवाइस पर, सेटिंग्स > उपयोगिताएँ > बैकअप पर जाएं और \'आस-पास के डिवाइस पर भेजें (लाइव)\' पर क्लिक करें।</string>
     <string name="backup_share_receive_title">आस-पास के डिवाइस से प्राप्त करें</string>
     <string name="backup_share_send_btn">भेजना शुरू करें</string>
-    <string name="backup_share_send_explain">इस डिवाइस को दृश्यमान बनाने और अपना बैकअप डेटा भेजने के लिए बटन पर टैप करें।
-
-दूसरे डिवाइस पर, सेटिंग्स > उपयोगिताएँ > पुनर्स्थापना पर जाएं और \'आस-पास के डिवाइस से प्राप्त करें (लाइव)\' पर क्लिक करें।</string>
+    <string name="backup_share_send_explain">इस डिवाइस को दृश्यमान बनाने और अपना बैकअप डेटा भेजने के लिए बटन पर टैप करें।\n\nदूसरे डिवाइस पर, सेटिंग्स > उपयोगिताएँ > पुनर्स्थापना पर जाएं और \'आस-पास के डिवाइस से प्राप्त करें (लाइव)\' पर क्लिक करें।</string>
     <string name="backup_share_send_title">आस-पास के डिवाइस पर भेजें</string>
     <string name="backup_share_waiting">बैकअप डेटा की प्रतीक्षा की जा रही है…</string>
-    <string name="gutenberg_connected">जुड़ा हुआ है! डेटा प्राप्त हो रहा है… 
-
-गटेनबर्ग एक स्वतंत्र स्वयंसेवक परियोजना है।
-यह काफी धीमा हो सकता है…
-
-</string>
+    <string name="gutenberg_connected">जुड़ा हुआ है! डेटा प्राप्त हो रहा है… \n\nगटेनबर्ग एक स्वतंत्र स्वयंसेवक परियोजना है।\nयह काफी धीमा हो सकता है…\n\n</string>
     <string name="import_export_backup_content_from">बैकअप सामग्री: %s</string>
     <string name="import_export_backup_saved">बैकअप सफलतापूर्वक सहेजा गया</string>
     <string name="import_export_caution_desc">यह क्रिया आइटम और सेटिंग्स को बैकअप फ़ाइल से चयनित डेटा के साथ बदल देगी। चयनित वस्तुओं का सारा वर्तमान डेटा स्थायी रूप से मिटा दिया जाएगा।</string>

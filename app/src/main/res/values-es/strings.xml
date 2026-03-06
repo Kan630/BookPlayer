@@ -1175,22 +1175,13 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="backup_share_permissions_required">Permisos necesarios para compartir en vivo</string>
     <string name="backup_share_ready_as">El dispositivo está listo como: %s</string>
     <string name="backup_share_receive_btn">Iniciar recepción</string>
-    <string name="backup_share_receive_explain">Toque el botón para buscar dispositivos cercanos y restaurar su copia de seguridad.
-
-En el otro dispositivo, vaya a Configuración > Utilidades > Copia de seguridad y haga clic en \'Enviar a dispositivo cercano (en vivo)\'.</string>
+    <string name="backup_share_receive_explain">Toque el botón para buscar dispositivos cercanos y restaurar su copia de seguridad.\n\nEn el otro dispositivo, vaya a Configuración > Utilidades > Copia de seguridad y haga clic en \'Enviar a dispositivo cercano (en vivo)\'.</string>
     <string name="backup_share_receive_title">Recibir de dispositivo cercano</string>
     <string name="backup_share_send_btn">Iniciar envío</string>
-    <string name="backup_share_send_explain">Toque el botón para que este dispositivo sea visible y envíe sus datos de copia de seguridad.
-
-En el otro dispositivo, vaya a Configuración > Utilidades > Restaurar y haga clic en \'Recibir de dispositivo cercano (en vivo)\'.</string>
+    <string name="backup_share_send_explain">Toque el botón para que este dispositivo sea visible y envíe sus datos de copia de seguridad.\n\nEn el otro dispositivo, vaya a Configuración > Utilidades > Restaurar y haga clic en \'Recibir de dispositivo cercano (en vivo)\'.</string>
     <string name="backup_share_send_title">Enviar a dispositivo cercano</string>
     <string name="backup_share_waiting">Esperando datos de la copia de seguridad…</string>
-    <string name="gutenberg_connected">¡Conectado! Recibiendo datos… 
-
-Gutenberg es un proyecto de voluntarios gratuito.
-Puede ser bastante lento…
-
-</string>
+    <string name="gutenberg_connected">¡Conectado! Recibiendo datos… \n\nGutenberg es un proyecto de voluntarios gratuito.\nPuede ser bastante lento…\n\n</string>
     <string name="import_export_backup_content_from">Contenido de la copia de seguridad de: %s</string>
     <string name="import_export_backup_saved">Copia de seguridad guardada con éxito</string>
     <string name="import_export_caution_desc">Esta acción reemplazará los elementos y la configuración con los datos seleccionados del archivo de copia de seguridad. Todos los datos actuales para los elementos seleccionados se ELIMINARÁN PERMANENTEMENTE.</string>

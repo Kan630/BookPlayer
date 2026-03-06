@@ -1172,14 +1172,10 @@ avec la langue [%2$s]</string>
     <string name="backup_share_ready">Prêt</string>
     <string name="backup_share_ready_as">Appareil prêt en tant que : %s</string>
     <string name="backup_share_receive_btn">Démarrer la réception</string>
-    <string name="backup_share_receive_explain">Appuyez sur le bouton pour rechercher des appareils proches et restaurer votre sauvegarde.
-
-Sur l\'autre appareil, allez dans Paramètres > Utilitaires > Sauvegarde et cliquez sur \'Envoyer vers un appareil proche (Direct)\'.</string>
+    <string name="backup_share_receive_explain">Appuyez sur le bouton pour rechercher des appareils proches et restaurer votre sauvegarde.\n\nSur l\'autre appareil, allez dans Paramètres > Utilitaires > Sauvegarde et cliquez sur \'Envoyer vers un appareil proche (Direct)\'.</string>
     <string name="backup_share_receive_title">Recevoir d\'un appareil proche</string>
     <string name="backup_share_send_btn">Démarrer l\'envoi</string>
-    <string name="backup_share_send_explain">Appuyez sur le bouton pour rendre cet appareil visible et envoyer vos données de sauvegarde.
-
-Sur l\'autre appareil, allez dans Paramètres > Utilitaires > Restauration et cliquez sur \'Recevoir d\'un appareil proche (Direct)\'.</string>
+    <string name="backup_share_send_explain">Appuyez sur le bouton pour rendre cet appareil visible et envoyer vos données de sauvegarde.\n\nSur l\'autre appareil, allez dans Paramètres > Utilitaires > Restauration et cliquez sur \'Recevoir d\'un appareil proche (Direct)\'.</string>
     <string name="backup_share_send_title">Envoyer vers un appareil proche</string>
     <string name="backup_share_sending">Envoi des données de sauvegarde…</string>
     <string name="backup_share_sent">Sauvegarde envoyée !</string>
