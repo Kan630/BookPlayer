@@ -23,7 +23,7 @@ public class PodcastHelper {
         myLog("stub!");
     }
 
-    public static void deleteEpisode(int id, Context context) {
+    public static void deleteEpisode(long id, Context context) {
         myLog("stub!");
     }
 

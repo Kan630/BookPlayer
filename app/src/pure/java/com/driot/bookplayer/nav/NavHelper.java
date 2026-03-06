@@ -62,6 +62,9 @@ public class NavHelper {
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, String stationUuid) {
         return null;
     }
+    public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long id) {
+        return null;
+    }
 
     public static boolean handleBottomNavClick(Activity activity, int navId) {
         myLogE("handleBottomNavClick should not be called in pure");

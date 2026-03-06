@@ -6,6 +6,9 @@ import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import androidx.core.content.FileProvider;
+
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BackupManager;
 import com.driot.bookplayer.db.RadioStation;
@@ -14,8 +17,10 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
+import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.player.StartPlayHelper;
 
+import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -260,5 +265,60 @@ public class RadioHelper {
 		AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 		db.radioStationDao().addSecondToTimeListened(trackId);
 	}
+
+	public static void shareRadioStation(Context context, String uuid) {
+		Context appCtx = context.getApplicationContext();
+		AppDatabase.databaseReadExecutor.execute(() -> {
+			RadioStation rs = AppDatabase.getInstance(appCtx).radioStationDao().findByUuid(uuid);
+			if (rs == null) {
+				myLogE("ShareHelper.shareRadioStation: station not found in DB");
+				return;
+			}
+
+			String radioLink = "https://bookplayer.driot.com/share/radio?url=" + Uri.encode(rs.url_resolved)
+					+ "&uuid=" + Uri.encode(uuid);
+
+			String sharedMessageBody = appCtx.getString(R.string.share_radio_body) + ": \n\n" + rs.name + "\n\n"
+					+ radioLink;
+			String sharedMessageHead = appCtx.getString(R.string.share_radio_head);
+
+			// Optional image sharing
+			Uri imageUri = null;
+			if (rs.favicon != null && !rs.favicon.isEmpty()) {
+				if (rs.favicon.startsWith("http")) {
+					// Download if it's a URL
+					String fileName = "share_radio_" + rs.stationuuid + ".jpg";
+					String localPath = ImageHelper.downloadAndVerifyImage(appCtx, rs.favicon, fileName, true);
+					if (localPath != null) {
+						try {
+							imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider",
+									new File(localPath));
+						} catch (Exception e) {
+							myLogEE(e, "shareRadioStation: FileProvider failed for downloaded " + localPath);
+						}
+					}
+				} else if (rs.favicon.startsWith("content://")) {
+					// Already a content URI
+					imageUri = Uri.parse(rs.favicon);
+				} else {
+					// Assume it's a local absolute path
+					File file = new File(rs.favicon);
+					if (file.exists()) {
+						try {
+							imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider",
+									file);
+						} catch (Exception e) {
+							myLogEE(e, "shareRadioStation: FileProvider failed for local file " + rs.favicon);
+						}
+					} else {
+						myLogW("shareRadioStation: local image file not found: " + rs.favicon);
+					}
+				}
+			}
+
+			ShareHelper.shareContent(context, sharedMessageBody, sharedMessageHead, imageUri);
+		});
+	}
+
 
 }

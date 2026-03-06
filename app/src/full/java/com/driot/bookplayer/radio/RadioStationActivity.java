@@ -93,7 +93,7 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         ImageButton ibShare = findViewById(R.id.ibShare);
         ibShare.setOnClickListener(v -> {
             myLogI("--- user clicks share ----  ");
-            ShareHelper.shareRadioStation(RadioStationActivity.this, stationUuid);
+            RadioHelper.shareRadioStation(RadioStationActivity.this, stationUuid);
         });
 
     }
