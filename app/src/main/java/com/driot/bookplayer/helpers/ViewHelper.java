@@ -32,7 +32,12 @@ public class ViewHelper {
 
         @Override
         public void getItemOffsets(Rect outRect, View v, RecyclerView parent, RecyclerView.State s) {
-            outRect.set(space, space, space, space);
+            int position = parent.getChildAdapterPosition(v);
+            if (position == 0) {
+                outRect.set(space, 0, space, space);
+            } else {
+                outRect.set(space, space, space, space);
+            }
         }
     }
 
