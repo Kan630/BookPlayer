@@ -396,6 +396,16 @@
     <br><br>
     <a href="https://bookplayer.flarum.cloud/">https://bookplayer.flarum.cloud/</a>
     ]]></string>
+    <string name="help_tts_title">Text-To-Speech :</string>
+    <string name="help_tts_text"><![CDATA[
+    <font color="#BA68C8"><b>Listen to Text with Synthetic Voices</b></font>
+    <br><br>
+    Ebooks or <font color="#90D8E8">text documents</font> can also be loaded as <font color="#BA68C8">audiobooks</font>.
+    <br><br>
+    BookPlayer will use the device’s <font color="#81C784">built-in voices</font> to read the text aloud.
+    <br><br>
+    This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
+]]></string>
 
 
     <string name="option_timeBeforeSleep">Automatic Pause</string>
@@ -426,9 +436,7 @@
     <string name="option_positioning_title">Playback position</string>
     <string name="option_if_app_close_title">When app is closed</string>
     <string name="frequency_visualizer">Frequency Visualizer</string>
-    <string name="option_tech_log_subtitle"><i>
-        should the app create technical debug log files.
-    </i></string>
+    <string name="option_tech_log_subtitle"><i>should the app create technical debug log files.</i></string>
     <string name="option_tech_log_text">Technical logging.</string>
     <string name="option_mail_method">Sending mail</string>
     <string name="option_mail_method_default">Use default email app.\n<i>Uncheck to be asked which app to use.</i></string>
@@ -441,7 +449,6 @@
     <string name="option_gutenberg_use_cloudfare">Use caching (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">Caching should improve speed dramatically for the first \'most downloaded\' pages.\nThey are cached and updated every 9h for major languages.</string>
 
-
     <string name="option_split_m4b">.m4b splitting</string>
     <string name="option_split_m4b_text">Extract chapters from M4B.</string>
     <string name="option_copy_file_special_zip">zip and split m4b are always copied</string>
@@ -451,11 +458,8 @@
     <string name="option_on_load_split_m4b">"Split M4B into chapters"</string>
     <string name="option_on_load_delete_source">"Delete source file after import"</string>
     <string name="option_sdcard_title">SD card</string>
-
     <string name="option_sdcard_text">When copying audio to reserved space, use SD card instead of internal storage</string>
-
     <string name="option_sdcard_text_caution">Please note: If you remove or erase the SD card, you will lose your audio files.</string>
-
 
     <string name="option_copy_file_subtitle">Pros:
         \n* [Read Audio] permission is not needed.
@@ -483,10 +487,7 @@
 
     <string name="option_start_next_track_at_zero_title_text">When a track finishes, start the next track from the beginning, even if it was partly listened to before.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
-    <string name="option_network_preference_subtext">
-"An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
-\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
-</string>
+    <string name="option_network_preference_subtext">An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming.</string>
     <string name="option_automotive_let_car_autoplay">Allow Auto-Play.</string>
     <string name="option_open_play_activity">Open Play View when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
@@ -812,14 +813,10 @@
     <string name="backup_share_live_title">Live Share</string>
     <string name="backup_share_connecting">Connecting to nearby devices…</string>
     <string name="backup_share_send_title">Send to Nearby Device</string>
-    <string name="backup_share_send_explain">Tap the button to make this device visible and send your backup data.
-
-On the other device, go to Settings > Utilities > Restore and click \'Receive from Nearby Device (Live)\'.</string>
+    <string name="backup_share_send_explain">Tap the button to make this device visible and send your backup data.\n\nOn the other device, go to Settings > Utilities > Restore and click \'Receive from Nearby Device (Live)\'.</string>
     <string name="backup_share_send_btn">Start Sending</string>
     <string name="backup_share_receive_title">Receive from Nearby Device</string>
-    <string name="backup_share_receive_explain">Tap the button to look for nearby devices and restore your backup.
-
-On the other device, go to Settings > Utilities > Backup and click \'Send to Nearby Device (Live)\'.</string>
+    <string name="backup_share_receive_explain">Tap the button to look for nearby devices and restore your backup.\n\nOn the other device, go to Settings > Utilities > Backup and click \'Send to Nearby Device (Live)\'.</string>
     <string name="backup_share_receive_btn">Start Receiving</string>
     <string name="backup_share_permissions_required">Permissions required for Live Share</string>
     <string name="backup_share_starting">Starting…</string>
@@ -865,16 +862,6 @@ On the other device, go to Settings > Utilities > Backup and click \'Send to Nea
     <string name="automotive_resume_play">Resume play</string>
     <string name="nb_of_audios_found">Audio files found</string>
     <string name="average_rating">average rating</string>
-    <string name="help_tts_title">Text-To-Speech :</string>
-    <string name="help_tts_text"><![CDATA[
-    <font color="#BA68C8"><b>Listen to Text with Synthetic Voices</b></font>
-    <br><br>
-    Ebooks or <font color="#90D8E8">text documents</font> can also be loaded as <font color="#BA68C8">audiobooks</font>.
-    <br><br>
-    BookPlayer will use the device’s <font color="#81C784">built-in voices</font> to read the text aloud.
-    <br><br>
-    This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
-]]></string>
     <string name="failed_to_create_destination_folder">Failed to create destination folder</string>
     <string name="server_returned_http">Server returned HTTP</string>
     <string name="http_code_400">Bad Request</string>
@@ -934,8 +921,6 @@ On the other device, go to Settings > Utilities > Backup and click \'Send to Nea
     <string name="voice_name">voice name</string>
     <string name="Clipboard_is_empty">Clipboard is empty</string>
     <string name="option_tts_highlight_delay_outOfBounds">Highlight delay</string>
-
-
     <string name="option_tts_chunk_size_text">Chunk size (in chars) :</string>
     <string name="tts_chunk_size">Chunk size</string>
     <string name="changeTracksOrder">change tracks order</string>
@@ -975,25 +960,12 @@ On the other device, go to Settings > Utilities > Backup and click \'Send to Nea
         \n* [Open favorites first] for Radio and Podcast
     </string>
     <string name="cancel_ongoing_operation">Cancel ongoing operations</string>
-    <string name="option_reset_app_explain_text">
-    If the app ever get stuck, for example after a crash during a book import, tap this button to reset all processes.
-    \nNo data will be lost, it\'s just a system reset.
-    </string>
-    <string name="option_tts_chunk_size_explain_text">
-    The chunk size determines how much text is sent to the TTS engine at once. Increasing it may result in smoother, more natural speech.
-</string>
-    <string name="option_tts_highlight_delay_explain_text">
-    You may adjust the highlight delay to better synchronize the spoken audio with the highlighted words.
-</string>
-    <string name="option_automotive_on_explain_text">
-    Allow Android Auto to connect with BookPlayer, display its catalog, and control playback.
-</string>
-    <string name="option_automotive_auto_resume_on_car_connect_explain_text">
-    Allow Android Auto to resume playback automatically when connected to the car, if audio was already playing in the app.
-</string>
-    <string name="option_automotive_let_car_autoplay_explain_text">
-    Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.
-</string>
+    <string name="option_reset_app_explain_text">If the app ever get stuck, for example after a crash during a book import, tap this button to reset all processes.\nNo data will be lost, it\'s just a system reset.</string>
+    <string name="option_tts_chunk_size_explain_text">The chunk size determines how much text is sent to the TTS engine at once. Increasing it may result in smoother, more natural speech.</string>
+    <string name="option_tts_highlight_delay_explain_text">You may adjust the highlight delay to better synchronize the spoken audio with the highlighted words.</string>
+    <string name="option_automotive_on_explain_text">Allow Android Auto to connect with BookPlayer, display its catalog, and control playback.</string>
+    <string name="option_automotive_auto_resume_on_car_connect_explain_text">Allow Android Auto to resume playback automatically when connected to the car, if audio was already playing in the app.</string>
+    <string name="option_automotive_let_car_autoplay_explain_text">Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.</string>
     <string name="Mass_Import">Massive Import</string>
     <string name="massiveimport_title">Multiple books import</string>
     <string name="scanning_folder">scanning folder</string>
@@ -1016,8 +988,7 @@ On the other device, go to Settings > Utilities > Backup and click \'Send to Nea
 
     <string name="option_play_view_explain">The play view is the detailed playback screen — the one with the large cover image in the middle, big buttons at the bottom, and controls like Speed and Sleep Timer.</string>
     <string name="ChangeTrackOrder_Title">Instructions for the next screen</string>
-    <string name="ChangeTrackOrder_Text">Drag and drop the boxes.
-\n\nLong-press one of the boxes on the left to select it, then drag and drop it to the desired position.</string>
+    <string name="ChangeTrackOrder_Text">Drag and drop the boxes.\n\nLong-press one of the boxes on the left to select it, then drag and drop it to the desired position.</string>
     <string name="Quit_the_player_to_move_playing_tracks">You may need to close the player to move the tracks.</string>
     <string name="welcome_title">Welcome to BookPlayer</string>
     <string name="welcome_subtitle">Your offline-friendly multi-purpose audio player.</string>
