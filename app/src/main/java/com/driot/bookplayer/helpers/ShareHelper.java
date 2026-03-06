@@ -35,14 +35,33 @@ public class ShareHelper {
             // Optional image sharing
             Uri imageUri = null;
             if (rs.favicon != null && !rs.favicon.isEmpty()) {
-                String fileName = "share_radio_" + rs.stationuuid + ".jpg";
-                String localPath = ImageHelper.downloadAndVerifyImage(appCtx, rs.favicon, fileName, true);
-                if (localPath != null) {
-                    File file = new File(localPath);
-                    try {
-                        imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider", file);
-                    } catch (Exception e) {
-                        myLogEE(e, "shareRadioStation: FileProvider failed");
+                if (rs.favicon.startsWith("http")) {
+                    // Download if it's a URL
+                    String fileName = "share_radio_" + rs.stationuuid + ".jpg";
+                    String localPath = ImageHelper.downloadAndVerifyImage(appCtx, rs.favicon, fileName, true);
+                    if (localPath != null) {
+                        try {
+                            imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider",
+                                    new File(localPath));
+                        } catch (Exception e) {
+                            myLogEE(e, "shareRadioStation: FileProvider failed for downloaded " + localPath);
+                        }
+                    }
+                } else if (rs.favicon.startsWith("content://")) {
+                    // Already a content URI
+                    imageUri = Uri.parse(rs.favicon);
+                } else {
+                    // Assume it's a local absolute path
+                    File file = new File(rs.favicon);
+                    if (file.exists()) {
+                        try {
+                            imageUri = FileProvider.getUriForFile(appCtx, appCtx.getPackageName() + ".FileProvider",
+                                    file);
+                        } catch (Exception e) {
+                            myLogEE(e, "shareRadioStation: FileProvider failed for local file " + rs.favicon);
+                        }
+                    } else {
+                        myLogW("shareRadioStation: local image file not found: " + rs.favicon);
                     }
                 }
             }
@@ -58,6 +77,9 @@ public class ShareHelper {
                 shareIntent.setType("image/*");
                 shareIntent.putExtra(Intent.EXTRA_STREAM, imageUri);
                 shareIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+                // ClipData is required for reliable permission granting on newer Android
+                // versions
+                shareIntent.setClipData(android.content.ClipData.newRawUri(null, imageUri));
                 // Attach text as well
                 shareIntent.putExtra(Intent.EXTRA_TEXT, messageBody);
             } else {
