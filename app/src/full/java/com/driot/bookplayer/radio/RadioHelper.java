@@ -143,7 +143,8 @@ public class RadioHelper {
 
 	public static void play(Context context, RadioStation rs, String streamUrl, String caller) {
 		myLog("play() id=" + rs.id + " name=" + rs.name);
-		if (rs.id <= 0) myLogE("null radio ID");
+		if (rs.id <= 0)
+			myLogE("null radio ID");
 		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
 				rs.id, rs.name, rs.favicon, caller);
 		updatePlayed(context, rs);
@@ -162,7 +163,7 @@ public class RadioHelper {
 
 		if (dbStation == null) {
 			dbStation = RadioStation.fromStation(apiStation, streamUrl);
-			dao.insert(dbStation);
+			dbStation.id = dao.insert(dbStation);
 		} else {
 			dbStation.url_resolved = streamUrl != null ? streamUrl : apiStation.url_resolved;
 			dbStation.name = apiStation.name;
