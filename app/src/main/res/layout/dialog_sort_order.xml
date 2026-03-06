@@ -31,7 +31,7 @@
             android:layout_height="wrap_content"
             android:insetTop="0dp"
             android:insetBottom="0dp"
-            android:text="@string/sort_last_played"
+            android:text="@string/Last_played"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="12dp" />
 

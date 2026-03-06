@@ -1126,7 +1126,7 @@ If that is not the case, you can use the Reset App button in [Settings > Utiliti
     <string name="already_downloaded">Already downloaded</string>
     <string name="open_audiobook">Open Audiobook</string>
     <string name="sort_by">Sort by</string>
-    <string name="sort_last_played">Last played</string>
+    <string name="Last_played">Last played</string>
     <string name="sort_last_added">Last added</string>
     <string name="share_title">Share via</string>
     <string name="share_radio_body">Check out this live web radio on BookPlayer</string>
@@ -1286,6 +1286,9 @@ It can be quite slow…
     <string name="Librivox_Audiobooks">Librivox Audiobooks</string>
     <string name="Gutenberg_Ebooks">Gutenberg Ebooks</string>
     <string name="Full_Screen">Full Screen</string>
+    <string name="Added_in_app">Added in app</string>
+    <string name="never">never</string>
+
 
 
 </resources>

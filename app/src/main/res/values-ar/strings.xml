@@ -989,7 +989,7 @@
     <string name="already_downloaded">تم التنزيل بالفعل</string>
     <string name="open_audiobook">فتح الكتاب الصوتي</string>
     <string name="sort_by">فرز حسب</string>
-    <string name="sort_last_played">آخر تشغيل</string>
+    <string name="Last_played">آخر تشغيل</string>
     <string name="sort_last_added">آخر إضافة</string>
     <string name="share_title">مشاركة عبر</string>
     <string name="share_radio_body">تحقق من راديو الويب المباشر هذا على BookPlayer</string>

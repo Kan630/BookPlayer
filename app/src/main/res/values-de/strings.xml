@@ -996,7 +996,7 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="already_downloaded">Bereits heruntergeladen</string>
     <string name="open_audiobook">Das Hörbuch öffnen</string>
     <string name="sort_by">Sortieren nach</string>
-    <string name="sort_last_played">Zuletzt gespielt</string>
+    <string name="Last_played">Zuletzt gespielt</string>
     <string name="sort_last_added">Zuletzt hinzugefügt</string>
     <string name="share_title">Teilen via</string>
     <string name="share_radio_body">Schau dir dieses Live-Web-Radio auf BookPlayer an</string>

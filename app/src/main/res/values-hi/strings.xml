@@ -991,7 +991,7 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="already_downloaded">पहले से डाउनलोड किया गया</string>
     <string name="open_audiobook">ऑडियोबुक खोलें</string>
     <string name="sort_by">क्रमबद्ध करें</string>
-    <string name="sort_last_played">अंतिम बार चलाया गया</string>
+    <string name="Last_played">अंतिम बार चलाया गया</string>
     <string name="sort_last_added">अंतिम जोड़ा गया</string>
     <string name="share_title">शेयर करें</string>
     <string name="share_radio_body">BookPlayer पर इस लाइव वेब रेडियो को देखें</string>

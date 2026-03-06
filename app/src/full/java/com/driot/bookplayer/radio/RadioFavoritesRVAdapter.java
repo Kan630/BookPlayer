@@ -10,15 +10,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder>
         implements ItemTouchHelperAdapter {
@@ -50,13 +53,30 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     public RadioFavoritesRVAdapter(@NonNull OnActionListener l) {
         this.listener = l;
+        setHasStableIds(true);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        if (getItemViewType(position) == VT_HEADER) {
+            return -1;
+        }
+        int idx = position - 1;
+        if (idx >= 0 && idx < items.size()) {
+            return items.get(idx).id;
+        }
+        return RecyclerView.NO_ID;
     }
 
     public void setItems(List<RadioStation> newItems) {
-        items.clear();
-        if (newItems != null)
-            items.addAll(newItems);
-        notifyDataSetChanged();
+        RadioStationDiffCallback diffCallback = new RadioStationDiffCallback(this.items, newItems);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
+
+        this.items.clear();
+        if (newItems != null) {
+            this.items.addAll(newItems);
+        }
+        diffResult.dispatchUpdatesTo(this);
     }
 
     @Override
@@ -109,7 +129,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 holder.favicon.setImageDrawable(null);
             } else {
                 holder.ivDefaultIcon.setVisibility(View.GONE);
-                Glide.with(holder.favicon).load(f.favicon)
+                Glide.with(holder.favicon)
+                        .load(f.favicon)
+                        .placeholder(R.drawable.bg_radio) // Use a subtle placeholder
+                        .transition(DrawableTransitionOptions.withCrossFade())
                         .into(holder.favicon);
             }
 
@@ -258,23 +281,80 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     public void setPlayingRadioStation(long trackId) {
-        if (trackId < 0)
+        if (trackId == this.trackId)
             return;
-        if (trackId == this.trackId) {
-            notifyDataSetChanged(); // small list, OK; can be optimized later, we would need to store the lastUuid
-                                    // and newUuid...
-        }
+
+        long oldTrackId = this.trackId;
         this.trackId = trackId;
+
+        // Notify old playing item
+        int oldPos = getPositionForTrackId(oldTrackId);
+        if (oldPos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(oldPos);
+        }
+
+        // Notify new playing item
+        int newPos = getPositionForTrackId(trackId);
+        if (newPos != RecyclerView.NO_POSITION) {
+            notifyItemChanged(newPos);
+        }
     }
 
     public int getPositionForTrackId(long trackId) {
-        //myLog("looking for id " + trackId + " - size = " + items.size());
+        if (trackId <= 0)
+            return RecyclerView.NO_POSITION;
         for (int i = 0; i < items.size(); i++) {
-            //myLog("item " + i + " : " + items.get(i).name + " - id=" + items.get(i).id + "");
             if (items.get(i).id == trackId) {
                 return i + 1; // +1 for header
             }
         }
         return RecyclerView.NO_POSITION;
+    }
+
+    private static class RadioStationDiffCallback extends DiffUtil.Callback {
+        private final List<RadioStation> oldList;
+        private final List<RadioStation> newList;
+
+        RadioStationDiffCallback(List<RadioStation> oldList, List<RadioStation> newList) {
+            this.oldList = oldList != null ? oldList : new ArrayList<>();
+            this.newList = newList != null ? newList : new ArrayList<>();
+        }
+
+        @Override
+        public int getOldListSize() {
+            return oldList.size() > 0 ? oldList.size() + 1 : 0; // +1 for header if not empty
+        }
+
+        @Override
+        public int getNewListSize() {
+            return newList.size() > 0 ? newList.size() + 1 : 0; // +1 for header if not empty
+        }
+
+        @Override
+        public boolean areItemsTheSame(int oldItemPosition, int newItemPosition) {
+            if (oldItemPosition == 0 && newItemPosition == 0)
+                return true;
+            if (oldItemPosition == 0 || newItemPosition == 0)
+                return false;
+
+            return oldList.get(oldItemPosition - 1).id == newList.get(newItemPosition - 1).id;
+        }
+
+        @Override
+        public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
+            if (oldItemPosition == 0 && newItemPosition == 0)
+                return true;
+            if (oldItemPosition == 0 || newItemPosition == 0)
+                return false;
+
+            RadioStation oldItem = oldList.get(oldItemPosition - 1);
+            RadioStation newItem = newList.get(newItemPosition - 1);
+
+            return Objects.equals(oldItem.name, newItem.name) &&
+                    Objects.equals(oldItem.favicon, newItem.favicon) &&
+                    Objects.equals(oldItem.url, newItem.url) &&
+                    Objects.equals(oldItem.isFavorite, newItem.isFavorite) &&
+                    Objects.equals(oldItem.display_order, newItem.display_order);
+        }
     }
 }

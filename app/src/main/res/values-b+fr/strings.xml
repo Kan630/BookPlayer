@@ -1002,7 +1002,7 @@ Sinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres > Util
     <string name="already_downloaded">Déjà téléchargé</string>
     <string name="open_audiobook">Ouvrir le livre audio</string>
     <string name="sort_by">Trier par</string>
-    <string name="sort_last_played">Dernières écoutes</string>
+    <string name="Last_played">Dernières écoutes</string>
     <string name="sort_last_added">Derniers ajouts</string>
     <string name="share_title">Partager via</string>
     <string name="share_radio_body">Découvrez cette radio web en direct sur BookPlayer</string>

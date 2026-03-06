@@ -993,7 +993,7 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="already_downloaded">Ya descargado</string>
     <string name="open_audiobook">Abrir el audiolibro</string>
     <string name="sort_by">Ordenar por</string>
-    <string name="sort_last_played">Últimos reproducidos</string>
+    <string name="Last_played">Últimos reproducidos</string>
     <string name="sort_last_added">Últimos añadidos</string>
     <string name="share_title">Compartir vía</string>
     <string name="share_radio_body">Echa un vistazo a esta radio web en vivo en BookPlayer</string>

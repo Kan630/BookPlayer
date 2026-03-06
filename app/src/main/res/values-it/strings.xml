@@ -995,7 +995,7 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="already_downloaded">Già scaricato</string>
     <string name="open_audiobook">Apri l\'audiolibro</string>
     <string name="sort_by">Ordina per</string>
-    <string name="sort_last_played">Ultimi riprodotti</string>
+    <string name="Last_played">Ultimi riprodotti</string>
     <string name="sort_last_added">Ultimi aggiunti</string>
     <string name="share_title">Condividi con</string>
     <string name="share_radio_body">Dai un\'occhiata a questa web radio live su BookPlayer</string>

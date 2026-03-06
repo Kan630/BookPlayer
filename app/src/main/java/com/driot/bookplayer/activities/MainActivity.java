@@ -14,7 +14,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.activity.OnBackPressedCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -362,7 +361,7 @@ public class MainActivity extends BaseBottomNavActivity {
 
         if ("last_played".equals(currentMode)) {
             checkedId0 = R.id.btn_last_played;
-            btnLastPlayed.setText(getString(R.string.sort_last_played) + suffix0);
+            btnLastPlayed.setText(getString(R.string.Last_played) + suffix0);
         } else if ("alpha".equals(currentMode) || "alphabetical".equals(currentMode)) {
             checkedId0 = R.id.btn_alpha;
             btnAlpha.setText(getString(R.string.Alphabetically) + suffixAlpha);

@@ -209,8 +209,10 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         stats.append("\nbitrate : " + (radioStation.bitrate == 0 ? "unknown" : radioStation.bitrate + " kbps"));
 
         stats.append("\n");
-        stats.append("\nadded in app : " + Tonio.formatDateForDisplay(radioStation.date_added));
-        stats.append("\nlast played : " + (radioStation.date_last_played == null ? "never"
+        stats.append("\n"  + getString(R.string.listened) + " : " + Tonio.formatTime(radioStation.timeListened*1000));
+        stats.append("\n");
+        stats.append("\n" + getString(R.string.Added_in_app) + " : " + Tonio.formatDateForDisplay(radioStation.date_added));
+        stats.append("\n" + getString(R.string.Last_played) + " : " + (radioStation.date_last_played == null ? getString(R.string.never)
                 : Tonio.formatDateForDisplay(radioStation.date_last_played)));
 
         if (!TextUtils.isEmpty(stats.toString())) {
