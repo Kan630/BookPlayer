@@ -63,10 +63,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MediaService extends LoggingMediaBrowserServiceCompat {
 
-    // ---- Load phase tracking ----
-    private @NonNull String currentUiPhase = Intents.PHASE_OFF;
-    private @Nullable String currentUiPhaseMsg = null;
-
     private int ttsErrorCountForGen = 0;
     private long lastTtsErrorGen = -1;
 
@@ -192,12 +188,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private PlayerEngine engine;
 
     public boolean directPlay;
-
-    private void broadcastUiCleared() {
-        currentUiPhase = Intents.PHASE_OFF;
-        currentUiPhaseMsg = null;
-        PlaybackUiBus.get().clear();
-    }
 
     private void broadcastUiState(String fromWhere) {
         String playMode = (engine != null) ? getPlayMode() : null;
@@ -1304,10 +1294,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         final boolean first = beginShutdown();
         myLogI("shutdown(" + fromDestroy + ") first=" + first + " state=" + state.get());
 
-        // Quiesce repeating sources no matter who called us
         stopAsyncWork();
-
-        broadcastUiCleared();
+        PlaybackUiBus.get().clear();
 
         // Tell controllers we’re stopping (prevents AA/BT from poking)
         try {
@@ -2201,8 +2189,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     // Convenience for setting phase + optional message
     private void setUiPhase(@NonNull String phase, @Nullable String msg) {
-        currentUiPhase = phase;
-        currentUiPhaseMsg = msg;
         PlaybackUiBus.get().setLoadPhase(phase);
     }
 
