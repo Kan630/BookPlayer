@@ -425,7 +425,6 @@ public class ZikFileActivity extends BaseBottomNavActivity {
             // because persistOrder updates the DB, and getZikFilesLive(folderId) is
             // observed.
         });
-        myToast(getString(R.string.reorder) + " " + getString(R.string.done));
     }
 
     private void goUserClickHeader() {

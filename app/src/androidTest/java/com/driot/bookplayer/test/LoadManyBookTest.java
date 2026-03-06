@@ -259,7 +259,7 @@ public class LoadManyBookTest implements LogSupport {
 
     // ---------- Helpers ----------
 
-    private int runImport(Uri uri_content, String uri_type) throws InterruptedException {
+    private long runImport(Uri uri_content, String uri_type) throws InterruptedException {
         long lastTimestamp;
         lastImport = uri_content.getLastPathSegment();
         myLogD("++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");

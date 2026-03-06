@@ -119,7 +119,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
 
     /** When playback changes, ask the grid to scroll the current folder to top (one-shot). */
     public void requestScrollToTopForFolder(long folderId) {
-        Integer last = state.get(K_LAST_SCROLLED_FOLDER_ID);
+        Long last = state.get(K_LAST_SCROLLED_FOLDER_ID);
         if (last != null && last == folderId) {
             // same folder still playing → no auto scroll
             pendingScrollToTop = false;

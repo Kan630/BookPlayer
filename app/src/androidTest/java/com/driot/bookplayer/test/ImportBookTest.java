@@ -376,7 +376,7 @@ public class ImportBookTest implements LogSupport {
         TestNavUtils.pressBackTo(MainActivity.class, 3, 1_000);
     }
 
-    private double refreshZikFileFromDb(int zikFileId) {
+    private double refreshZikFileFromDb(long zikFileId) {
         final double[] result = { 0.0 };
         CountDownLatch done = new CountDownLatch(1);
         AppDatabase.databaseReadExecutor.execute(() -> {
