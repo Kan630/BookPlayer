@@ -47,7 +47,7 @@ public final class PlayList {
     // primary data
     private String playMode;
     private String url;
-    private int trackId;
+    private long trackId;
     private String title; // stream mode: station/episode name
     private String imageUrl; // stream mode: cover/favicon URL
     private Folder folder;
@@ -88,7 +88,7 @@ public final class PlayList {
     }
 
     public static void createFromStream(@NonNull Context ctx, @NonNull String playMode, @NonNull String url,
-            int trackId, @Nullable String title, @Nullable String imageUrl) {
+            long trackId, @Nullable String title, @Nullable String imageUrl) {
         if (ctx == null)
             throw new IllegalStateException("PlayList.createFromStream(): no context");
         if (playMode == null || playMode.isEmpty())
@@ -263,7 +263,7 @@ public final class PlayList {
         }
     }
 
-    public int getTrackId() {
+    public long getTrackId() {
         synchronized (lock) {
             return trackId;
         }
@@ -340,7 +340,7 @@ public final class PlayList {
         }
     }
 
-    private void replaceItemsForStream(String playMode, String url, int trackId,
+    private void replaceItemsForStream(String playMode, String url, long trackId,
             @Nullable String title, @Nullable String imageUrl) {
         synchronized (lock) {
             this.playMode = playMode;
@@ -367,7 +367,7 @@ public final class PlayList {
         SharedPreferences prefs = Pref.getPlaylistPrefs();
         SharedPreferences.Editor e = prefs.edit();
         synchronized (lock) {
-            e.putInt(KEY_TRACK_ID, trackId);
+            e.putLong(KEY_TRACK_ID, trackId);
             e.putString(KEY_PLAY_MODE, playMode);
             e.putString(KEY_URL, url);
             e.putString(KEY_TITLE, title);
@@ -380,7 +380,7 @@ public final class PlayList {
         SharedPreferences prefs = Pref.getPlaylistPrefs();
         synchronized (lock) {
             this.playMode = prefs.getString(KEY_PLAY_MODE, null);
-            this.trackId = prefs.getInt(KEY_TRACK_ID, -1);
+            this.trackId = prefs.getLong(KEY_TRACK_ID, -1);
             this.url = prefs.getString(KEY_URL, null);
             this.title = prefs.getString(KEY_TITLE, null);
             this.imageUrl = prefs.getString(KEY_IMAGE_URL, null);
@@ -395,7 +395,7 @@ public final class PlayList {
 
     private void restoreFromDbAsync(@NonNull OnRestoredListener listener) {
         final long startVersion;
-        final int savedTrackId;
+        final long savedTrackId;
 
         synchronized (lock) {
             startVersion = version;

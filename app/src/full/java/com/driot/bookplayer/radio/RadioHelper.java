@@ -254,7 +254,7 @@ public class RadioHelper {
 		return data.radioStations != null && !data.radioStations.isEmpty();
 	}
 
-	public static void addSecondToTimeListened(Context context, int trackId) {
+	public static void addSecondToTimeListened(Context context, long trackId) {
 		AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
 		db.radioStationDao().addSecondToTimeListened(trackId);
 	}

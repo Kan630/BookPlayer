@@ -261,7 +261,7 @@ public class StartPlayHelper {
             return;
 
         if (mediaId.startsWith(PREFIX_TRACK)) {
-            int trackId = safeParseInt(mediaId.substring(PREFIX_TRACK.length()), -1);
+            long trackId = safeParseInt(mediaId.substring(PREFIX_TRACK.length()), -1);
             if (trackId > 0) {
                 ContextCompat.startForegroundService(
                         context,
@@ -539,7 +539,7 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    public static void playStream(Context context, String playMode, String streamUrl, int trackId
+    public static void playStream(Context context, String playMode, String streamUrl, long trackId
             ,String title, String cover, String caller) {
         stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
         PlayList.createFromStream(context, playMode, streamUrl, trackId, title, cover);

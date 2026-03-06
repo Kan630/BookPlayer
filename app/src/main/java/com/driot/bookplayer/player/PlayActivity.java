@@ -79,7 +79,7 @@ public class PlayActivity extends BaseActivity {
     private PlayHeatMapView heatMapSeek;
     private UiHelper.SliderBinding sliderBinding;
     private boolean useHeatMapSeek;
-    private int lastHeatMapTrackId = -1;
+    private long lastHeatMapTrackId = -1;
     private long lastHeatMapDurationMs = 0;
     private long lastHeatMapLoadTime = 0;
 

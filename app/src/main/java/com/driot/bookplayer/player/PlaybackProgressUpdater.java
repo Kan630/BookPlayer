@@ -120,7 +120,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
         });
     }
 
-    public void updateStream(String playMode, int trackId) {
+    public void updateStream(String playMode, long trackId) {
         if (System.currentTimeMillis() < suspendUntil) {
             myLog("update() skipped (suspended)");
             return;

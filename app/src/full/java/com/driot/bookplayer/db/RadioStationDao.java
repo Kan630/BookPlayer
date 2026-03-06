@@ -80,5 +80,5 @@ public interface RadioStationDao {
     void updateLastUrl(@NonNull String uuid, @NonNull String newUrl);
 
     @Query("UPDATE RadioStation SET timeListened = timeListened + 1 WHERE id = :id")
-    void addSecondToTimeListened(int id);
+    void addSecondToTimeListened(long id);
 }

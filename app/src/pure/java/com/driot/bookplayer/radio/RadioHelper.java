@@ -32,7 +32,7 @@ public class RadioHelper {
         return false;
     }
 
-    public static void addSecondToTimeListened(Context context, int trackId)  {
+    public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
     }
 

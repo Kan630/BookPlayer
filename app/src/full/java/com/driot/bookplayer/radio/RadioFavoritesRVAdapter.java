@@ -40,7 +40,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     private boolean historyMode = false;
 
-    private int trackId = -1;
+    private long trackId = -1;
 
     @Override
     public void onAttachedToRecyclerView(@NonNull RecyclerView rv) {
@@ -257,7 +257,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         notifyDataSetChanged();
     }
 
-    public void setPlayingRadioStation(int trackId) {
+    public void setPlayingRadioStation(long trackId) {
         if (trackId < 0)
             return;
         if (trackId == this.trackId) {
@@ -265,5 +265,14 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                                     // and newUuid...
         }
         this.trackId = trackId;
+    }
+
+    public int getPositionForTrackId(long trackId) {
+        for (int i = 0; i < items.size(); i++) {
+            if (items.get(i).id == trackId) {
+                return i + 1; // +1 for header
+            }
+        }
+        return RecyclerView.NO_POSITION;
     }
 }

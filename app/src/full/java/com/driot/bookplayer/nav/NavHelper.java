@@ -67,7 +67,7 @@ public class NavHelper {
         return tsb.getPendingIntent(0, flags);
     }
 
-    public static void openRadioStationActivity(Context context, int trackId) {
+    public static void openRadioStationActivity(Context context, long trackId) {
         if (trackId <= 0) {
             context.startActivity(new Intent(context, GetRadioActivity.class));
             return;
@@ -91,40 +91,11 @@ public class NavHelper {
             context.startActivity(new Intent(context, GetRadioActivity.class));
             return;
         }
-        context.startActivity(new Intent(context, RadioStationActivity.class).putExtra(Intents.EXTRA_STATION_UUID, uuid));
-        /*
-        final String finalUuid = uuid;
-        if (context instanceof Activity) {
-            ((Activity) context).runOnUiThread(() -> {
-                Intent[] intents = buildRadioBackStack(context, finalUuid);
-                context.startActivities(intents);
-            });
-        } else {
-            // If context is not an activity, we might need FLAG_ACTIVITY_NEW_TASK or handle
-            // it differently
-            // but usually this is called from Fragments/Activities.
-            Intent[] intents = buildRadioBackStack(context, finalUuid);
-            context.startActivities(intents);
-        }
-       */
+        context.startActivity(
+                new Intent(context, RadioStationActivity.class).putExtra(Intents.EXTRA_STATION_UUID, uuid));
     }
 
-    private static Intent[] buildRadioBackStack(Context context, String uuid) {
-        Intent mainIntent = new Intent(context, MainActivity.class);
-        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-
-        Intent getRadioIntent = new Intent(context, GetRadioActivity.class);
-
-        if (uuid != null) {
-            Intent stationIntent = new Intent(context, RadioStationActivity.class)
-                    .putExtra(Intents.EXTRA_STATION_UUID, uuid);
-            return new Intent[] { mainIntent, getRadioIntent, stationIntent };
-        } else {
-            return new Intent[] { mainIntent, getRadioIntent };
-        }
-    }
-
-    public static PendingIntent getNavToRadioActivityPendingIntent(Context context, int trackId) {
+    public static PendingIntent getNavToRadioActivityPendingIntent(Context context, long trackId) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         Context appCtx = context.getApplicationContext();
 
@@ -143,8 +114,9 @@ public class NavHelper {
 
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
-            //tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
-            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class));
+            // tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
+            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
+                    .putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
             tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
                     .putExtra(Intents.EXTRA_STATION_UUID, uuid));
             return tsb.getPendingIntent(0, flags);
@@ -167,7 +139,8 @@ public class NavHelper {
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
             tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
-            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class));
+            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class)
+                    .putExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, trackId));
             return tsb.getPendingIntent(0, flags);
         } else {
             return PendingIntent.getActivity(

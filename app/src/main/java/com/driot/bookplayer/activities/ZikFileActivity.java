@@ -41,7 +41,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
     private ZikFilesViewModel listVm;
     private PlaybackViewModel playbackVm;
     private ZikFilesRVAdapter adapter;
-    private int lastObservedTrackId = -1;
+    private long lastObservedTrackId = -1;
 
     private Folder folder;
     private Folder lastFolder;

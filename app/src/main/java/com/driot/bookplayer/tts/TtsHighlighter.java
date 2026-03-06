@@ -49,7 +49,7 @@ public class TtsHighlighter {
     // State tracking
     @Nullable
     private String lastTtsTextString = null;
-    private int lastTtsTrackId = -1;
+    private long lastTtsTrackId = -1;
     private boolean lastTtsPlaying = false;
     private String lastTtsPhase = null;
     private long lastTtsPositionMs = -1;
@@ -345,7 +345,7 @@ public class TtsHighlighter {
         }
     }
 
-    public int getLastTtsTrackId() {
+    public long getLastTtsTrackId() {
         return lastTtsTrackId;
     }
 

@@ -73,7 +73,7 @@ public class PodcastHelper {
         myLog("stub!");
     }
 
-    public static void addSecondToTimeListened(Context context, int trackId)  {
+    public static void addSecondToTimeListened(Context context, long trackId)  {
         myLogE("should never happen");
     }
 

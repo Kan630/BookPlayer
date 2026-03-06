@@ -6,7 +6,8 @@ public class Intents {
 
     public static final String EXTRA_ADD_TO_FOLDER = "EXTRA_ADD_TO_FOLDER";
 
-    public static final String EXTRA_STATION_UUID = "EXTRA_STATION_UUID"; //used in deeplink
+    public static final String EXTRA_STATION_UUID = "EXTRA_STATION_UUID"; // used in deeplink
+    public static final String EXTRA_OPEN_FROM_TRACK_ID = "EXTRA_OPEN_FROM_TRACK_ID";
 
     public static final String EXTRA_CALLER = "EXTRA_CALLER";
     public static final String EXTRA_FOREGROUND = "EXTRA_FOREGROUND";

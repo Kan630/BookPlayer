@@ -51,7 +51,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     // Favorite reflection (UUIDs from VM)
     private final Set<String> favoriteUuids = new HashSet<>();
 
-    private int trackId = 0;
+    private long trackId = 0;
     private String playingRadioStationUuid = null;
     private String clickedRadioStationUuid = null;
 
@@ -275,7 +275,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         return playingRadioStationUuid;
     }
 
-    public void setPlayingRadioStation(int trackId, String playingRadioStationUuid) {
+    public void setPlayingRadioStation(long trackId, String playingRadioStationUuid) {
         if (trackId == this.trackId && TextUtils.equals(playingRadioStationUuid, this.playingRadioStationUuid)) {
             return;
         }

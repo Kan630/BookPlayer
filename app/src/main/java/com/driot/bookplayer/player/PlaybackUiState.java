@@ -10,7 +10,7 @@ public class PlaybackUiState extends LoggerHelper {
 
     public final String loadPhase;
     public final boolean playing;
-    public final boolean ready;  // engine.isReady()
+    public final boolean ready; // engine.isReady()
     public final String playMode;// = "book", "tts", "radio", "podcast", "book"
 
     public final long positionMs;
@@ -21,8 +21,8 @@ public class PlaybackUiState extends LoggerHelper {
     public final String subTitle;
     public final String cover;
 
-    public final int trackId;    // current ZikFile id (or 0 if unknown)
-    public final int folderId;   // current Folder id (or 0 if unknown)
+    public final long trackId; // current ZikFile id (or 0 if unknown)
+    public final long folderId; // current Folder id (or 0 if unknown)
 
     public final String calledFrom;
     public final long callCounter;
@@ -31,11 +31,11 @@ public class PlaybackUiState extends LoggerHelper {
     public final Bundle extras;
 
     public PlaybackUiState(String loadPhase, boolean playing, boolean ready, String playMode,
-                           long pos, long dur, long sleepLeftMS,
-                           String title, String subTitle, String cover,
-                           int trackId, int folderId,
-                           String calledFrom, long callCounter,
-                           @Nullable Bundle extras) {
+            long pos, long dur, long sleepLeftMS,
+            String title, String subTitle, String cover,
+            long trackId, long folderId,
+            String calledFrom, long callCounter,
+            @Nullable Bundle extras) {
 
         super(PlaybackUiState.class);
 
@@ -60,10 +60,11 @@ public class PlaybackUiState extends LoggerHelper {
 
         this.extras = extras;
 
-        //myLog(toString());
+        // myLog(toString());
     }
 
-    @Override public String toString() {
+    @Override
+    public String toString() {
         return "PlaybackUiState{" +
                 "  loadPhase=" + loadPhase +
                 ", playMode=" + playMode +

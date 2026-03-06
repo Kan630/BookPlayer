@@ -232,7 +232,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_radio);
             String text = getString(R.string.live_radio);
             String cover = (pl != null && pl.getImageUrl() != null) ? pl.getImageUrl() : "";
-            int trackId = (pl != null) ? pl.getTrackId() : 0;
+            long trackId = (pl != null) ? pl.getTrackId() : 0;
 
             s = new PlaybackUiState(
                     loadPhase, playing, ready, playMode,
@@ -246,7 +246,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String title = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_podcast);
             String text = getString(R.string.live_podcast);
             String cover = (pl != null && pl.getImageUrl() != null) ? pl.getImageUrl() : "";
-            int trackId = (pl != null) ? pl.getTrackId() : 0;
+            long trackId = (pl != null) ? pl.getTrackId() : 0;
             long pos = (engine != null) ? engine.getCurrentPosition() : 0;
             long dur = (engine != null) ? engine.getDuration() : 0;
 
@@ -271,17 +271,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             String cover = (f != null) ? f.image : "";
 
             // Be defensive around engine readiness to avoid 0/0 churn if you want
-            int trackId = (z != null) ? z.getId() : 0;
-            int folderId = (f != null) ? f.getId() : 0;
+            long trackId = (z != null) ? z.getId() : 0;
+            long folderId = (f != null) ? f.getId() : 0;
 
             extras.putString(Intents.EXTRA_TTS_VOICE_NAME, getCurrentTtsVoiceName());
             // extras.putInt(Intents.EXTRA_TTS_START_OFFSET, currentStartChars);
 
-            s = new PlaybackUiState(loadPhase, playing, ready, playMode
-                    , pos, dur, getSleepLeftMs()
-                    , title, subTitle, cover
-                    , trackId, folderId
-                    ,"MediaService.broadcastUiState() " + fromWhere, -10, extras);
+            s = new PlaybackUiState(loadPhase, playing, ready, playMode, pos, dur, getSleepLeftMs(), title, subTitle,
+                    cover, trackId, folderId, "MediaService.broadcastUiState() " + fromWhere, -10, extras);
         }
         PlaybackUiBus.get().emit(s);
     }
@@ -648,7 +645,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             updateSessionState(playing);
 
             PlayList pl = PlayList.getInstance();
-            int trackId = (pl != null && pl.getTrackId()>0) ? pl.getTrackId() : -1;
+            long trackId = (pl != null && pl.getTrackId() > 0) ? pl.getTrackId() : -1;
             String streamTitle = (pl != null && pl.getTitle() != null) ? pl.getTitle() : getString(R.string.live_radio);
             String streamImageUrl = (pl != null) ? pl.getImageUrl() : null;
 
@@ -1005,7 +1002,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
 
-                final int trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
+                final long trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
                 final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
                 myLog("ACTION_PLAY_FROM_TRACK => trackId : [" + trackId + "] - isPodcast : [" + isPodcast
@@ -2582,7 +2579,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         PlayList pl = PlayList.getInstance();
         String playlistPlayMode;
-        int trackId = 0;
+        long trackId = 0;
         ZikFile zf = null;
         if (pl != null) {
             playlistPlayMode = pl.getPlayMode();

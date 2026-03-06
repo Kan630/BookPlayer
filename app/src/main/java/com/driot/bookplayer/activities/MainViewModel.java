@@ -34,7 +34,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
     private static final String K_LAST_SCROLLED_FOLDER_ID = "last_scrolled_folder_id";
 
     private boolean pendingScrollToTop = false;
-    private int pendingFolderIdForScroll = -1;
+    private long pendingFolderIdForScroll = -1;
 
     public MainViewModel(@NonNull Application app, @NonNull SavedStateHandle handle) {
         super(app);
@@ -118,7 +118,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
     }
 
     /** When playback changes, ask the grid to scroll the current folder to top (one-shot). */
-    public void requestScrollToTopForFolder(int folderId) {
+    public void requestScrollToTopForFolder(long folderId) {
         Integer last = state.get(K_LAST_SCROLLED_FOLDER_ID);
         if (last != null && last == folderId) {
             // same folder still playing → no auto scroll
