@@ -1174,22 +1174,13 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="backup_share_permissions_required">实时分享所需的权限</string>
     <string name="backup_share_ready_as">设备已就绪，标识为：%s</string>
     <string name="backup_share_receive_btn">开始接收</string>
-    <string name="backup_share_receive_explain">点击按钮寻找附近的设备并恢复备份。
-
-在另一台设备上，前往设置 > 工具 > 备份，然后点击“发送到附近的设备（实时）”。</string>
+    <string name="backup_share_receive_explain">点击按钮寻找附近的设备并恢复备份。\n\n在另一台设备上，前往设置 > 工具 > 备份，然后点击“发送到附近的设备（实时）”。</string>
     <string name="backup_share_receive_title">从附近的设备接收</string>
     <string name="backup_share_send_btn">开始发送</string>
-    <string name="backup_share_send_explain">点击按钮使此设备可见并发送您的备份数据。
-
-在另一台设备上，前往设置 > 工具 > 恢复，然后点击“从附近的设备接收（实时）”。</string>
+    <string name="backup_share_send_explain">点击按钮使此设备可见并发送您的备份数据。\n\n在另一台设备上，前往设置 > 工具 > 恢复，然后点击“从附近的设备接收（实时）”。</string>
     <string name="backup_share_send_title">发送到附近的设备</string>
     <string name="backup_share_waiting">等待备份数据…</string>
-    <string name="gutenberg_connected">已连接！正在接收数据… 
-
-古腾堡是一个免费的志愿者项目。
-它可能非常缓慢…
-
-</string>
+    <string name="gutenberg_connected">已连接！正在接收数据… \n\n古腾堡是一个免费的志愿者项目。\n它可能非常缓慢…\n\n</string>
     <string name="import_export_backup_content_from">备份内容来源：%s</string>
     <string name="import_export_backup_saved">备份保存成功</string>
     <string name="import_export_caution_desc">此操作将使用备份文件中的选定数据替换项和设置。选定项的所有当前数据将被永久删除。</string>

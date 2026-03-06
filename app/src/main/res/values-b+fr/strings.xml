@@ -873,9 +873,7 @@ Autoriser Android Auto à démarrer automatiquement la lecture lors de la connex
     <string name="massiveimport_title">Import de masse</string>
     <string name="scanning_folder">analyse du dossier</string>
     <string name="Nothing_to_re_import_among">Rien à réimporter parmi</string>
-    <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.
-
-Sinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres > Utilitaires > Annuler l\'opération en cours] (tout en bas).</string>
+    <string name="please_wait_another_book">Veuillez patienter — un autre livre est encore en cours de téléchargement ou de chargement.\n\nSinon, utilisez le bouton Réinitialiser l\'application dans [Paramètres > Utilitaires > Annuler l\'opération en cours] (tout en bas).</string>
     <string name="Podcast_source_error">Erreur de source du podcast</string>
     <string name="Streaming_Podcast">Podcast en streaming</string>
     <string name="librivox_search_edittext_title">Recherche par auteur ou titre…\nAstuce : un seul mot donne souvent de meilleurs résultats</string>
@@ -1188,18 +1186,9 @@ Sur l\'autre appareil, allez dans Paramètres > Utilitaires > Restauration et cl
     <string name="backup_share_starting">Démarrage…</string>
     <string name="backup_share_waiting">En attente des données de sauvegarde…</string>
     <string name="elapsed">écoulées</string>
-    <string name="gutenberg_connected">Connecté ! Réception des données… 
-
-Gutenberg est un projet bénévole gratuit.
-Cela peut être assez lent…
-
-</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s
-%2$d s écoulées - %3$s
-(délai de lecture : %4$d s)</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s
-%2$d s écoulées - %3$s
-(délai de connexion : %4$d s)</string>
+    <string name="gutenberg_connected">Connecté ! Réception des données…\n\nGutenberg est un projet bénévole gratuit.\nCela peut être assez lent…\n\n</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d s écoulées - %3$s\n(délai de lecture : %4$d s)</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d s écoulées - %3$s\n(délai de connexion : %4$d s)</string>
     <string name="import_export_backup_content_from">Contenu de la sauvegarde de : %s</string>
     <string name="import_export_backup_saved">Sauvegarde enregistrée avec succès</string>
     <string name="import_export_btn_backup">Sauvegarde</string>

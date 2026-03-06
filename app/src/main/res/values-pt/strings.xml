@@ -1176,22 +1176,13 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="backup_share_permissions_required">Permissões necessárias para o compartilhamento ao vivo</string>
     <string name="backup_share_ready_as">O dispositivo está pronto como: %s</string>
     <string name="backup_share_receive_btn">Iniciar recebimento</string>
-    <string name="backup_share_receive_explain">Toque no botão para procurar dispositivos próximos e restaurar seu backup.
-
-No outro dispositivo, vá para Configurações > Utilitários > Backup e clique em \'Enviar para dispositivo próximo (ao vivo)\'.</string>
+    <string name="backup_share_receive_explain">Toque no botão para procurar dispositivos próximos e restaurar seu backup.\n\nNo outro dispositivo, vá para Configurações > Utilitários > Backup e clique em \'Enviar para dispositivo próximo (ao vivo)\'.</string>
     <string name="backup_share_receive_title">Receber de dispositivo próximo</string>
     <string name="backup_share_send_btn">Iniciar envio</string>
-    <string name="backup_share_send_explain">Toque no botão para tornar este dispositivo visível e enviar seus dados de backup.
-
-No outro dispositivo, vá para Configurações > Utilitários > Restaurar e clique em \'Receber de dispositivo próximo (ao vivo)\'.</string>
+    <string name="backup_share_send_explain">Toque no botão para tornar este dispositivo visível e enviar seus dados de backup.\n\nNo outro dispositivo, vá para Configurações > Utilitários > Restaurar e clique em \'Receber de dispositivo próximo (ao vivo)\'.</string>
     <string name="backup_share_send_title">Enviar para dispositivo próximo</string>
     <string name="backup_share_waiting">Aguardando dados de backup…</string>
-    <string name="gutenberg_connected">Conectado! Recebendo dados… 
-
-Gutenberg é um projeto voluntário gratuito.
-Pode ser muito lento…
-
-</string>
+    <string name="gutenberg_connected">Conectado! Recebendo dados… \n\nGutenberg é um projeto voluntário gratuito.\nPode ser muito lento…\n\n</string>
     <string name="import_export_backup_content_from">Conteúdo do backup de: %s</string>
     <string name="import_export_backup_saved">Backup salvo com sucesso</string>
     <string name="import_export_caution_desc">Esta ação substituirá itens e configurações pelos dados selecionados do arquivo de backup. Todos os dados atuais dos itens selecionados serão EXCLUÍDOS PERMANENTEMENTE.</string>
