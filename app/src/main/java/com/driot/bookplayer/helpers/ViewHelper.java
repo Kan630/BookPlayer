@@ -34,7 +34,8 @@ public class ViewHelper {
         public void getItemOffsets(Rect outRect, View v, RecyclerView parent, RecyclerView.State s) {
             int position = parent.getChildAdapterPosition(v);
             if (position == 0) {
-                outRect.set(space, 0, space, space);
+                //outRect.set(space, 0, space, space);
+                outRect.set(space, space, space, space);
             } else {
                 outRect.set(space, space, space, space);
             }

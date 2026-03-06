@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
-    android:paddingTop="0dp"
+    android:paddingTop="4dp"
     android:paddingBottom="8dp">
 
     <TextView
@@ -14,7 +14,7 @@
         style="@style/OptionMiniText"
         android:textStyle="bold"
         android:textSize="16sp"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="4dp"
         android:maxLines="1"
         android:ellipsize="end"
         android:textAlignment="viewStart"
@@ -53,6 +53,7 @@
         android:id="@+id/tvResultsCount"
         style="@style/OptionMiniText"
         android:textColor="@android:color/darker_gray"
+        android:layout_marginTop="2dp"
         android:maxLines="1"
         android:ellipsize="end"
         android:textAlignment="viewStart"
