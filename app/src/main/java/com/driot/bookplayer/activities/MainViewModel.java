@@ -150,7 +150,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
     }
 
     /** Call when returning from ModifyFolderActivity after a rename/edit so folder list LiveData re-emits. */
-    public void notifyFolderChanged(int folderId) {
+    public void notifyFolderChanged(long folderId) {
         AppDatabase.databaseWriteExecutor.execute(() -> repo.invalidateFolder(folderId));
     }
 

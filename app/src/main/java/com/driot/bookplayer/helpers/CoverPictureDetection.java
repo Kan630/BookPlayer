@@ -195,7 +195,7 @@ public class CoverPictureDetection {
      * @param context  Android context
      * @param folderId Database ID of the folder
      */
-    public static void finalizeCover(Context context, int folderId) {
+    public static void finalizeCover(Context context, long folderId) {
         try {
             ImageHelper.finalizeTempFolderImage(context, folderId);
         } catch (Exception e) {

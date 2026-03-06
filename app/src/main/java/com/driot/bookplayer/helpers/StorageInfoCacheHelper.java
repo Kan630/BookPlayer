@@ -473,7 +473,7 @@ public class StorageInfoCacheHelper {
     /**
      * Calculate total size of all ZikFile tracks for a folder
      */
-    private static long calculateFolderLinkedSize(Application app, int folderId) {
+    private static long calculateFolderLinkedSize(Application app, long folderId) {
         try {
             List<ZikFile> zikFiles = AppDatabase.getDatabase(app).zikFileDao().getZikFiles(folderId);
             long totalSize = 0;

@@ -12,8 +12,6 @@ import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
 import java.io.Serializable;
-import java.sql.Date;
-import java.sql.Time;
 import java.util.Objects;
 
 @Entity
@@ -26,7 +24,7 @@ public class ZikFile implements Serializable {
     private long id;
 
     @ColumnInfo(name = "idFolder")
-    private int idFolder;
+    private long idFolder;
 
     @ColumnInfo(name = "displayName")
     private String displayName;
@@ -144,11 +142,11 @@ public class ZikFile implements Serializable {
         this.finished = finished;
     }
 
-    public int getIdFolder() {
+    public long getIdFolder() {
         return idFolder;
     }
 
-    public void setIdFolder(int idFolder) {
+    public void setIdFolder(long idFolder) {
         this.idFolder = idFolder;
     }
 

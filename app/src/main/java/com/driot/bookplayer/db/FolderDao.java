@@ -34,7 +34,7 @@ public interface FolderDao {
     long folderAlreadyExist_checkFolderPath(String sFolderPath);
 
     @Query("SELECT path FROM Folder WHERE id =:folderId")
-    long getFolderPath(int folderId);
+    long getFolderPath(long folderId);
 
     @RawQuery
     int runRawSql(SupportSQLiteQuery query);
@@ -46,18 +46,18 @@ public interface FolderDao {
     void delete(Folder Folder);
 
     @Query("DELETE FROM Folder WHERE id =:id")
-    void delete(int id);
+    void delete(long id);
 
     @Query("UPDATE Folder SET name = :newName WHERE id =:id")
-    void changeName(int id, String newName);
+    void changeName(long id, String newName);
 
     @Query("UPDATE ZikFile SET folderName = :newFolderName WHERE idFolder = :folderId")
-    void updateFolderNameInZikFile(int folderId, String newFolderName);
+    void updateFolderNameInZikFile(long folderId, String newFolderName);
 
     @Query("UPDATE Folder SET position = 0, percentdone = 0, " +
             "llastaccess = strftime('%s','now')*1000, " +
             "finished = 0 WHERE id = :id")
-    void resetProgression(int id);
+    void resetProgression(long id);
 
     @Update
     void update(Folder Folder);
@@ -66,7 +66,7 @@ public interface FolderDao {
     void updateHashForPath(String path, String hash);
 
     @Query("UPDATE Folder SET hash = :hash WHERE id = :folderId")
-    void updateHash(int folderId, String hash);
+    void updateHash(long folderId, String hash);
 
     @Query("SELECT name FROM Folder WHERE originalHash LIKE :originalHash")
     String originalHashAlreadyExist_getBookName(String originalHash);
@@ -87,13 +87,13 @@ public interface FolderDao {
     boolean doesImageExist(String imageName);
 
     @Query("UPDATE Folder SET lLastAccess = :timestamp WHERE id = :folderId")
-    void updateLastAccess(int folderId, long timestamp);
+    void updateLastAccess(long folderId, long timestamp);
 
     @Query("SELECT * FROM Folder WHERE image IS NOT NULL AND image LIKE 'http%' AND :now - date_maj > 24*60*60*1000")
     List<Folder> getAllWithExternalImagesUnchangedSince24h(long now);
 
     @Query("UPDATE Folder SET image = :imagePath WHERE id = :id")
-    void updateImage(int id, String imagePath);
+    void updateImage(long id, String imagePath);
 
     @Query("SELECT COUNT(*) FROM Folder WHERE hash = :hash")
     boolean hashExists(String hash);

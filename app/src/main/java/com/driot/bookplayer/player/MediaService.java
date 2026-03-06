@@ -1026,7 +1026,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             case Intents.ACTION_PLAY_FROM_FOLDER: {
                 goForegroundPreparing("Preparing…", "Loading folder");
 
-                final int folderId = intent.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
+                final long folderId = intent.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
                 if (folderId > 0) {
                     AppDatabase.databaseReadExecutor.execute(() -> {
                         Folder folder = AppDatabase.getDatabase(this).folderDao().getById(folderId);

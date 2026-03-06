@@ -47,7 +47,7 @@ public class ImportBookTaskState implements Parcelable {
     public String playType;
     public String downloadWorkId;
     public String uniqueChainName;
-    public int addToExistingFolderId;
+    public long addToExistingFolderId;
 
     // --- Batch tracking (for MassImport) ---
     public int batchIndex = -1; // 1-based position in batch, -1 if not part of a batch
@@ -95,7 +95,7 @@ public class ImportBookTaskState implements Parcelable {
         playType = in.readString();
         downloadWorkId = in.readString();
         uniqueChainName = in.readString();
-        addToExistingFolderId = in.readInt();
+        addToExistingFolderId = in.readLong();
         batchIndex = in.readInt();
         batchTotal = in.readInt();
     }
@@ -151,7 +151,7 @@ public class ImportBookTaskState implements Parcelable {
         dest.writeString(playType);
         dest.writeString(downloadWorkId);
         dest.writeString(uniqueChainName);
-        dest.writeInt(addToExistingFolderId);
+        dest.writeLong(addToExistingFolderId);
         dest.writeInt(batchIndex);
         dest.writeInt(batchTotal);
     }

@@ -19,7 +19,7 @@ import java.util.List;
 
 public class PodcastHelper {
 
-    public static void cancelAutoDownload(Context c, int folderId) {
+    public static void cancelAutoDownload(Context c, long folderId) {
         myLog("stub!");
     }
 
@@ -28,12 +28,12 @@ public class PodcastHelper {
     }
 
     @androidx.annotation.Nullable
-    public static String getPodcastOriginalCoverPath(Context context, int folderId) {
+    public static String getPodcastOriginalCoverPath(Context context, long folderId) {
         return null;
     }
 
     @androidx.annotation.Nullable
-    public static String getPodcastOriginalCoverUrl(Context context, int folderId) {
+    public static String getPodcastOriginalCoverUrl(Context context, long folderId) {
         return null;
     }
 
@@ -53,7 +53,7 @@ public class PodcastHelper {
         return false;
     }
 
-    public static void deletePodcastFolder(int folderId, Context context) {
+    public static void deletePodcastFolder(long folderId, Context context) {
         myLog("stub!");
     }
 
@@ -69,7 +69,7 @@ public class PodcastHelper {
         return false;
     }
 
-    public static void updateImage(int folderId, String imagePath, Context context) {
+    public static void updateImage(long folderId, String imagePath, Context context) {
         myLog("stub!");
     }
 

@@ -69,7 +69,7 @@ public class ImportJob {
         public String downloadWorkId;
         public String uniqueChainName;
 
-        public int addToExistingFolderId;
+        public long addToExistingFolderId;
 
         // --- Batch tracking (for MassImport) ---
         public int batchIndex = -1; // 1-based position in batch, -1 if not part of a batch

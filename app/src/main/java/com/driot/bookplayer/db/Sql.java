@@ -20,7 +20,7 @@ import java.util.Locale;
  */
 public class Sql {
 
-    public static void updateFolderTable(Context c, int mFolderId) {
+    public static void updateFolderTable(Context c, long mFolderId) {
         String strSQL = "UPDATE Folder " +
                 "SET " +
                 "  duration = (SELECT IFNULL(SUM(duration), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
@@ -55,7 +55,7 @@ public class Sql {
         }
     }
 
-    public static void calculateFolderProgress(Context c, int idFolder) {
+    public static void calculateFolderProgress(Context c, long idFolder) {
         // SQLiteDatabase db = this.getWritableDatabase();
         // String selectQuery = "select sum(odometer) as odometer from tripmileagetable
         // where date like '2012-07%'";
@@ -142,7 +142,7 @@ public class Sql {
             // Optional: sort for readability (by idFolder then zeorder then id)
             try {
                 zikFiles.sort((a, b) -> {
-                    int byFolder = Integer.compare(a.getIdFolder(), b.getIdFolder());
+                    int byFolder = Long.compare(a.getIdFolder(), b.getIdFolder());
                     if (byFolder != 0)
                         return byFolder;
                     int byOrder = Double.compare(a.getZeorder(), b.getZeorder());

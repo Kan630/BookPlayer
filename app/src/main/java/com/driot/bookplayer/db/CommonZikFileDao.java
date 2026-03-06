@@ -29,7 +29,7 @@ public interface CommonZikFileDao {
     List<ZikFile> getAll();
 
     @Query("SELECT * FROM ZikFile WHERE idFolder = :folderId ORDER BY zeorder, name")
-    LiveData<List<ZikFile>> getZikFilesLive(int folderId);
+    LiveData<List<ZikFile>> getZikFilesLive(long folderId);
 
     // @Query("SELECT * FROM ZikFile WHERE folderName = :folderName AND
     // REPLACE(name, '_', 'h') = REPLACE(:fileName, '_', 'h') LIMIT 1")
@@ -40,7 +40,7 @@ public interface CommonZikFileDao {
     List<ZikFile> getZikFiles(long idFolder);
 
     // Alias for clarity in sharing context
-    default List<ZikFile> getZikFilesForFolder(int folderId) {
+    default List<ZikFile> getZikFilesForFolder(long folderId) {
         return getZikFiles(folderId);
     }
 
@@ -72,7 +72,7 @@ public interface CommonZikFileDao {
     void delete(ZikFile zikFile);
 
     @Query("DELETE FROM ZikFile WHERE idFolder = :idFolder")
-    void deleteAllZikFilesInFolder(int idFolder);
+    void deleteAllZikFilesInFolder(long idFolder);
 
     @Query("DELETE FROM ZikFile WHERE id = :idZikFile")
     void deleteZikFile(long idZikFile);
@@ -109,15 +109,6 @@ public interface CommonZikFileDao {
     @Query("SELECT displayName FROM ZikFile WHERE id = :id")
     String getDisplayName(long id);
 
-    @Query("UPDATE ZikFile SET zeorder = :zeorder WHERE id =:id")
-    void changePosition(long id, Double zeorder);
-
-    @Query("SELECT count(*) FROM ZikFile WHERE idFolder = :idFolder ")
-    int getCountOfZikFiles(int idFolder);
-
-    @Query("SELECT * FROM ZikFile WHERE idFolder = :idFolder")
-    ZikFile getSingleZikFile(long idFolder);
-
     @Query("SELECT MAX(zeorder) FROM ZikFile WHERE idFolder = :idFolder")
     double getMaxOrder(long idFolder);
 
@@ -134,10 +125,10 @@ public interface CommonZikFileDao {
     int deleteById(long id);
 
     @Query("SELECT COUNT(*) FROM ZikFile WHERE idFolder=:folderId")
-    int countTracks(int folderId);
+    int countTracks(long folderId);
 
     @Query("SELECT * FROM ZikFile WHERE idFolder=:folderId ORDER BY zeorder, name, id LIMIT 1")
-    ZikFile getFirstInFolder(int folderId);
+    ZikFile getFirstInFolder(long folderId);
 
     // Exemple avec dates :
     // @Query("SELECT * FROM user WHERE birthday BETWEEN :from AND :to")
@@ -156,7 +147,7 @@ public interface CommonZikFileDao {
 
     // NEW: reset order of one folder using the same SMART_CHAPTER comparator
     @Transaction
-    default void resetSmartChapterOrderForFolder(int folderId) {
+    default void resetSmartChapterOrderForFolder(long folderId) {
         // Load current tracks
         List<ZikFile> files = getZikFiles(folderId);
         if (files == null || files.size() <= 1)
@@ -213,7 +204,7 @@ public interface CommonZikFileDao {
     // -----------------------------------------------------
 
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder")
-    void resetFolderProgression(int idFolder);
+    void resetFolderProgression(long idFolder);
 
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE id =:id")
     void resetProgression(long id);
@@ -225,7 +216,7 @@ public interface CommonZikFileDao {
     void deletePlaySessions(long id);
 
     @Query("UPDATE ZikFile SET position = 0, percentdone = 0, lFirstAccess = null, lLastAccess=null, finished=0 WHERE idFolder =:idFolder AND zeorder >= :zeorder")
-    void resetProgressionFromThisZikFile(int idFolder, double zeorder);
+    void resetProgressionFromThisZikFile(long idFolder, double zeorder);
 
     @Query("""
                 DELETE FROM PlayTick
@@ -235,7 +226,7 @@ public interface CommonZikFileDao {
                       AND zeorder >= :zeorder
                 )
             """)
-    void deletePlayTicksFromZikFileOrder(int idFolder, double zeorder);
+    void deletePlayTicksFromZikFileOrder(long idFolder, double zeorder);
 
     @Query("""
                 DELETE FROM PlaySession
@@ -245,7 +236,7 @@ public interface CommonZikFileDao {
                       AND zeorder >= :zeorder
                 )
             """)
-    void deletePlaySessionsFromZikFileOrder(int idFolder, double zeorder);
+    void deletePlaySessionsFromZikFileOrder(long idFolder, double zeorder);
 
     @Transaction
     default void resetProgressionFully(long id) {
@@ -255,7 +246,7 @@ public interface CommonZikFileDao {
     }
 
     @Transaction
-    default void resetProgressionFromThisZikFileFully(int idFolder, double zeorder) {
+    default void resetProgressionFromThisZikFileFully(long idFolder, double zeorder) {
         deletePlayTicksFromZikFileOrder(idFolder, zeorder);
         deletePlaySessionsFromZikFileOrder(idFolder, zeorder);
         resetProgressionFromThisZikFile(idFolder, zeorder);

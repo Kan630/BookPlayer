@@ -400,7 +400,7 @@ public class PodcastHelper {
         });
     }
 
-    public static void cancelAutoDownload(Context c, int folderId) {
+    public static void cancelAutoDownload(Context c, long folderId) {
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase.getDatabase(c).podcastDao().updateAutoDownloadStatus_fromFolderId(folderId, false);
         });
@@ -491,7 +491,7 @@ public class PodcastHelper {
      * @return Absolute path to original cover, or null if not found
      */
     @androidx.annotation.Nullable
-    public static String getPodcastOriginalCoverPath(Context context, int folderId) {
+    public static String getPodcastOriginalCoverPath(Context context, long folderId) {
         // LEGACY
         Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
                 .getPodcastByFolderId(folderId);
@@ -529,7 +529,7 @@ public class PodcastHelper {
     }
 
     @androidx.annotation.Nullable
-    public static String getPodcastOriginalCoverUrl(Context context, int folderId) {
+    public static String getPodcastOriginalCoverUrl(Context context, long folderId) {
         Podcast podcast = AppDatabase.getDatabase(context.getApplicationContext()).podcastDao()
                 .getPodcastByFolderId(folderId);
         if (podcast != null) {
@@ -603,7 +603,7 @@ public class PodcastHelper {
         }
     }
 
-    public static void deletePodcastFolder(int folderId, Context context) {
+    public static void deletePodcastFolder(long folderId, Context context) {
         AppDatabase db = AppDatabase.getDatabase(context.getApplicationContext());
         Podcast podcast = db.podcastDao().getPodcastByFolderId(folderId);
         if (podcast == null) {
@@ -641,7 +641,7 @@ public class PodcastHelper {
         return (data.podcasts != null && !data.podcasts.isEmpty());
     }
 
-    public static void updateImage(int folderId, String imagePath, Context context) {
+    public static void updateImage(long folderId, String imagePath, Context context) {
         AppDatabase.getDatabase(context.getApplicationContext()).podcastDao().updateImageForFolderId(folderId,
                 imagePath);
     }

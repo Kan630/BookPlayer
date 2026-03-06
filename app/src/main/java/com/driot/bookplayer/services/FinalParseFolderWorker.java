@@ -591,7 +591,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         }
     }
 
-    private void saveFiles(int insertedFolderId) {
+    private void saveFiles(long insertedFolderId) {
         myLogD("--------------------- saving files...");
         if (audioFileInfoArrayList == null) {
             failNow(TASK_NAME, "saveFiles - audioFileArrayList is null",
@@ -693,7 +693,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         emitSuccess();
     }
 
-    private SaveResultEnum saveSingleFile(AudioFileInfo info, int folderId, int zeOrder) {
+    private SaveResultEnum saveSingleFile(AudioFileInfo info, long folderId, int zeOrder) {
         ZikFile file = new ZikFile();
         file.setName(info.getDisplayPath());
 

@@ -332,15 +332,15 @@ public class ImageHelper {
         }
     }
 
-    public static void finalizeTempFolderImage(Context context, int folderId) {
+    public static void finalizeTempFolderImage(Context context, long folderId) {
         finalizeTempFolderImage(context, folderId, "");
     }
 
-    private static File getOriginalImageSavedCopy(Context context, int folderId) {
+    private static File getOriginalImageSavedCopy(Context context, long folderId) {
         return new File(StorageHelper.getImageFolder(context, false), IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER + folderId + ".jpg");
     }
 
-    public static void finalizeTempFolderImage(Context context, int folderId, String suffix) {
+    public static void finalizeTempFolderImage(Context context, long folderId, String suffix) {
         String safeSuffix = (suffix == null) ? "" : suffix;
         File tmpFile = new File(StorageHelper.getImageFolder(context, true),
                 IMAGE_PREFIX_FOR_TEMP_FILE + safeSuffix + ".jpg");
@@ -650,7 +650,7 @@ public class ImageHelper {
         return Color.HSVToColor(new float[] { hue, 0.35f, 0.92f });
     }
 
-    public static String saveGeneratedInitialsCover(Context context, int folderId, Bitmap bmp) throws IOException {
+    public static String saveGeneratedInitialsCover(Context context, long folderId, Bitmap bmp) throws IOException {
         // Reuse your JPEG + size cap pipeline
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 92, out);
@@ -1079,7 +1079,7 @@ public class ImageHelper {
      * @return Absolute path to original cover, or null if not found
      */
     @Nullable
-    public static String getOriginalCoverPath(Context context, int folderId) {
+    public static String getOriginalCoverPath(Context context, long folderId) {
         // 1) Check for preserved original image (saved_XX.jpg)
         File dir = StorageHelper.getImageFolder(context, false);
         File originalSavedCopyFile = getOriginalImageSavedCopy(context, folderId);
@@ -1199,7 +1199,7 @@ public class ImageHelper {
      * @return Absolute path to saved modified cover, or null on error
      */
     @Nullable
-    public static String saveModifiedCover(Context context, int folderId, Bitmap bitmap) {
+    public static String saveModifiedCover(Context context, long folderId, Bitmap bitmap) {
         try {
             // Generate versioned filename with timestamp
             long timestamp = System.currentTimeMillis();
@@ -1237,7 +1237,7 @@ public class ImageHelper {
      * @param folderId        Database ID of the folder
      * @param currentFileName Current modified cover filename to keep
      */
-    private static void cleanupOldModifiedCovers(Context context, int folderId, String currentFileName) {
+    private static void cleanupOldModifiedCovers(Context context, long folderId, String currentFileName) {
         try {
             File dir = StorageHelper.getImageFolder(context, false);
             String prefix = IMAGE_PREFIX_FOR_SAVED_BOOK + folderId + "_";

@@ -278,7 +278,7 @@ public class StartPlayHelper {
         }
 
         if (mediaId.startsWith(PREFIX_FOLDER)) {
-            int folderId = safeParseInt(mediaId.substring(PREFIX_FOLDER.length()), -1);
+            long folderId = safeParseInt(mediaId.substring(PREFIX_FOLDER.length()), -1);
             if (folderId > 0) {
                 // If you want to play index 0 immediately (single-track or your UX choice):
                 ContextCompat.startForegroundService(
@@ -366,7 +366,7 @@ public class StartPlayHelper {
             }
 
             if (parentId.startsWith(PREFIX_FOLDER)) {
-                int folderId = safeParseInt(parentId.substring(PREFIX_FOLDER.length()), -1);
+                long folderId = safeParseInt(parentId.substring(PREFIX_FOLDER.length()), -1);
                 if (folderId > 0) {
                     List<ZikFile> tracks = AppDatabase.getDatabase(context.getApplicationContext())
                             .zikFileDao().getZikFiles(folderId);

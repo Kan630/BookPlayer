@@ -5,7 +5,7 @@ import android.app.Application;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.FolderDao;
 import com.driot.bookplayer.db.CommonZikFileDao;
-import com.driot.bookplayer.utils.log.KanLogger;
+import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -13,20 +13,21 @@ import java.util.concurrent.Executors;
 /**
  * 2024-05-27
  */
-public class CleanMemoryRepository {
+public class CleanMemoryRepository extends LoggerHelper {
 
     private final CommonZikFileDao zikFileDao;
     private final FolderDao folderDao;
     private final ExecutorService executorService;
 
     public CleanMemoryRepository(Application application) {
+        super(CleanMemoryRepository.class);
         AppDatabase db = AppDatabase.getDatabase(application);
         zikFileDao = db.zikFileDao();
         folderDao = db.folderDao();
         executorService = Executors.newSingleThreadExecutor();
     }
 
-    public void deleteBookFromDB(int idFolder, DeletionCallback callback) {
+    public void deleteBookFromDB(long idFolder, DeletionCallback callback) {
         myLog("deleteBookFromDB => executorService.execute()");
         executorService.execute(() -> {
             try {
@@ -46,15 +47,4 @@ public class CleanMemoryRepository {
     public interface DeletionCallback {
         void onDeletionComplete(boolean success);
     }
-
-    //--- LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
 }

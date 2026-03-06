@@ -200,7 +200,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
 
     public void deleteAudio(File file) {
         myLog("deleting file : [" + file.getPath() + "]");
-        int idFolder = getBookFolderId(file);
+        long idFolder = getBookFolderId(file);
         if (deleteBookFromDisk(file.getPath())) {
             Long sizeBytes = folderSizeCache.remove(file.getPath());
             if (sizeBytes != null && totalAudioSizeMB.getValue() != null) {
@@ -247,7 +247,7 @@ public class CleanMemoryViewModel extends LoggingAndroidViewModel {
     }
 
 
-    private void deleteBookFromDB(int idFolder) {
+    private void deleteBookFromDB(long idFolder) {
         cacheFilesRepository.deleteBookFromDB(idFolder, success -> {
             if (success) {
                 myLog("Deleted from DB");

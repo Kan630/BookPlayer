@@ -206,7 +206,7 @@ public class LoadManyBookTest implements LogSupport {
                 for (String assetDir : subdirs) {
                     current_subTEST += 1;
                     Uri dirUri = stageAssetDirectoryAsFileUri(appContext, testContext, assetDir);
-                    int idFolder = runImport(dirUri, tc.uri_type);
+                    long idFolder = runImport(dirUri, tc.uri_type);
                     if (idFolder != -1) {
                         goPlay(idFolder);
                     } else {
@@ -221,7 +221,7 @@ public class LoadManyBookTest implements LogSupport {
                 for (String assetPath : assetFiles) {
                     current_subTEST += 1;
                     Uri contentUri = stageAssetAsContentUri(appContext, testContext, assetPath);
-                    int idFolder = runImport(contentUri, tc.uri_type);
+                    long idFolder = runImport(contentUri, tc.uri_type);
                     if (idFolder != -1) {
                         goPlay(idFolder);
                     } else {
@@ -246,7 +246,7 @@ public class LoadManyBookTest implements LogSupport {
         TestNavUtils.sleep(TIMEOUT_TEST_END, "TEST END");
     }
 
-    private void goPlay(int idFolder) throws InterruptedException {
+    private void goPlay(long idFolder) throws InterruptedException {
         TestNavUtils.logCurrentActivity();
         TestNavUtils.maybePressBackTo(MainActivity.class, 3, 1_000);
         TestNavUtils.logCurrentActivity();
@@ -378,7 +378,7 @@ public class LoadManyBookTest implements LogSupport {
                             "Folder not found in DB for path: " + job.futureFolderPath + " or title: " + job.title);
                 }
             }
-            int idFolder = folder.getId();
+            long idFolder = folder.getId();
             myLogI("DB Reality Check: Folder found with id=" + idFolder + ", name=" + folder.getName());
 
             // --- Duration log (robust name from URI) ---
@@ -532,7 +532,7 @@ public class LoadManyBookTest implements LogSupport {
     }
 
     /** Call this right after an import when you're back on MainActivity. */
-    private void openTargetedItemThenPlay(int idFolder, long playTime) throws InterruptedException {
+    private void openTargetedItemThenPlay(long idFolder, long playTime) throws InterruptedException {
         // 1) ensure window focused before Espresso checks
         if (!TestNavUtils.waitForWindowFocus(2_000)) {
             throw new AssertionError("Window never gained focus before click.");

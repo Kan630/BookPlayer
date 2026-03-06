@@ -95,11 +95,11 @@ public class MainActivity extends BaseBottomNavActivity {
                 if (result.getResultCode() != Activity.RESULT_OK || result.getData() == null || mainVm == null)
                     return;
                 Intent data = result.getData();
-                if (data.getIntExtra("deletedFolderId", -1) != -1
-                        || data.getIntExtra("deleteInProgressFolderId", -1) != -1) {
+                if (data.getLongExtra("deletedFolderId", -1) != -1
+                        || data.getLongExtra("deleteInProgressFolderId", -1) != -1) {
                     mainVm.notifyFoldersListChanged();
                 } else {
-                    int folderId = data.getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
+                    long folderId = data.getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
                     if (folderId != -1) {
                         mainVm.notifyFolderChanged(folderId);
                     }

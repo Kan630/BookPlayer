@@ -53,7 +53,7 @@ public class NavHelper {
         // 2) If multiple tracks, insert the track list screen before PlayActivity
         PlayList pl = PlayList.getInstance();
         ZikFile z = (pl != null) ? pl.getZikFile() : null;
-        int folderId = (z != null) ? z.getIdFolder() : -1;
+        long folderId = (z != null) ? z.getIdFolder() : -1;
         if (folderId > 0 && pl.getSize() > 1) {
             Intent trackList = new Intent(context, ZikFileActivity.class)
                     .putExtra(Intents.EXTRA_FOLDER_ID, folderId);

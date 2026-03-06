@@ -21,7 +21,7 @@ import com.driot.bookplayer.helpers.StorageHelper;
 public class Folder implements Parcelable {
 
     @PrimaryKey(autoGenerate = true)
-    private int id;
+    private long id;
 
     @ColumnInfo(name = "name")
     private String name;
@@ -113,7 +113,7 @@ public class Folder implements Parcelable {
 
     @Ignore
     protected Folder(Parcel in) {
-        id = in.readInt();
+        id = in.readLong();
         name = in.readString();
         path = in.readString();
         uri = in.readString();
@@ -147,7 +147,7 @@ public class Folder implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
-        dest.writeInt(id);
+        dest.writeLong(id);
         dest.writeString(name);
         dest.writeString(path);
         dest.writeString(uri);
@@ -222,11 +222,11 @@ public class Folder implements Parcelable {
         this.hash = hash;
     }
 
-    public int getId() {
+    public long getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(long id) {
         this.id = id;
     }
 

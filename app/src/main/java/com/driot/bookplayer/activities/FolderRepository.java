@@ -25,7 +25,7 @@ public class FolderRepository {
      * Triggers Room LiveData invalidation for the Folder table so observers
      * (e.g. MainActivity folder list) get fresh data. Call from a background thread.
      */
-    public void invalidateFolder(int folderId) {
+    public void invalidateFolder(long folderId) {
         Folder f = dao.getById(folderId);
         if (f != null) {
             dao.updateLastAccess(folderId, f.lLastAccess);

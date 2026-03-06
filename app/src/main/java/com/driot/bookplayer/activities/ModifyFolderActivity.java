@@ -334,7 +334,7 @@ public class ModifyFolderActivity extends BaseActivity {
         if (newName.length() < 2) {
             myToast(getString(R.string.Error_FolderNameTooShort));
         } else {
-            final int folderId = folder.getId();
+            final long folderId = folder.getId();
             AppDatabase.databaseWriteExecutor.execute(() -> {
                 AppDatabase.getDatabase(this).folderDao().changeName(folderId, newName);
                 AppDatabase.getDatabase(this).folderDao().updateFolderNameInZikFile(folderId, newName);
@@ -1063,7 +1063,7 @@ public class ModifyFolderActivity extends BaseActivity {
         }
     }
 
-    private void saveImageInDB(int folderId, String imagePath) {
+    private void saveImageInDB(long folderId, String imagePath) {
         AppDatabase.getDatabase(this).folderDao().updateImage(folderId, imagePath);
         PodcastHelper.updateImage(folderId, imagePath, this);
     }

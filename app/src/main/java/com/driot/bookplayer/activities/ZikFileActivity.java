@@ -50,7 +50,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
 
     private Folder folder;
     private Folder lastFolder;
-    private int folderId;
+    private long folderId;
     private boolean activateChangeTrackOrder;
 
     private ImageButton ib_settings;
@@ -91,7 +91,7 @@ public class ZikFileActivity extends BaseBottomNavActivity {
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         // Read initial folder once; keep only the id and always re-read from DB
-        folderId = getIntent().getIntExtra(Intents.EXTRA_FOLDER_ID, -1);
+        folderId = getIntent().getLongExtra(Intents.EXTRA_FOLDER_ID, -1);
         if (!(folderId > 0)) {
             Folder initial = getIntent().getParcelableExtra(Intents.EXTRA_FOLDER);
             if (initial == null) {

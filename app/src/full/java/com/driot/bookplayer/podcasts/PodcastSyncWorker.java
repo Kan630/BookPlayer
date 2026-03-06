@@ -57,7 +57,7 @@ public class PodcastSyncWorker extends LoggingWorker {
 
         // 1. Ensure folder is registered
         Folder folderDb = folderDao.getByName(name);
-        int idFolder = -1;
+        long idFolder = -1;
         if (folderDb != null) {
             idFolder = folderDb.getId();
         } else {

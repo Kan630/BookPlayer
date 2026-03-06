@@ -21,11 +21,11 @@ public class ZikFilesViewModel extends AndroidViewModel {
         db = AppDatabase.getDatabase(app);
     }
 
-    public LiveData<Folder> getFolderLive(int folderId) {
+    public LiveData<Folder> getFolderLive(long folderId) {
         return db.folderDao().observeById(folderId);
     }
 
-    public LiveData<List<ZikFile>> getZikFilesLive(int folderId) {
+    public LiveData<List<ZikFile>> getZikFilesLive(long folderId) {
         if (liveList == null) {
             liveList = db.zikFileDao().getZikFilesLive(folderId);
         }
