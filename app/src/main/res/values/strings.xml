@@ -998,9 +998,7 @@ On the other device, go to Settings > Utilities > Backup and click \'Send to Nea
     <string name="massiveimport_title">Multiple books import</string>
     <string name="scanning_folder">scanning folder</string>
     <string name="Nothing_to_re_import_among">Nothing to re-import among</string>
-    <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.
-
-If that is not the case, you can use the Reset App button in [Settings > Utilities > Cancel ongoing operation] (at the very bottom).</string>
+    <string name="please_wait_another_book">Please wait — another book is still being downloaded or loaded.\n\nIf that is not the case, you can use the Reset App button in [Settings > Utilities > Cancel ongoing operation] (at the very bottom).</string>
     <string name="Podcast_source_error">"Podcast source error"</string>
     <string name="Streaming_Podcast">Streaming Podcast</string>
     <string name="librivox_search_edittext_title">Search by author or title…\nTip: a single word often gives better results</string>
@@ -1162,20 +1160,11 @@ If that is not the case, you can use the Reset App button in [Settings > Utiliti
     <string name="no_ebooks_found_bookshelf">No ebooks found \nfor bookshelf [%1$s] \nwith language [%2$s]</string>
     <string name="gutenberg_contacting">Contacting gutenberg.org…</string>
     <string name="gutenberg_wait_elapsed">%1$d sec elapsed - %2$s - (timeout is %3$d sec)</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s
-%2$d sec elapsed - %3$s
-(connection timeout: %4$d sec)</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s
-%2$d sec elapsed - %3$s
-(read timeout: %4$d sec)</string>
+    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d sec elapsed - %3$s\n(connection timeout: %4$d sec)</string>
+    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d sec elapsed - %3$s\n(read timeout: %4$d sec)</string>
     <string name="gutenberg_try_1st">1st try</string>
     <string name="gutenberg_try_2nd">2nd try</string>
-    <string name="gutenberg_connected">Connected! Receiving data… 
-
-Gutenberg is a free volunteer project.
-It can be quite slow…
-
-</string>
+    <string name="gutenberg_connected">Connected! Receiving data…\n\nGutenberg is a free volunteer project.\nIt can be quite slow…\n\n</string>
     <string name="radio_browser_contacting">Contacting radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d sec elapsed - (timeout is %2$d sec)</string>
     <string name="api_paging_size">Api paging size</string>
