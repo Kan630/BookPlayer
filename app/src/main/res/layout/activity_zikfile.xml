@@ -30,7 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/coverImage"
-            android:layout_toStartOf="@id/ib_settings"
+            android:layout_toStartOf="@id/ib_sort"
             android:layout_centerVertical="true"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
@@ -38,6 +38,15 @@
             android:text="@string/title_FolderContent"
             android:textAlignment="center"
             android:textSize="18sp" />
+
+        <ImageButton
+            android:id="@+id/ib_sort"
+            style="@style/PodcastHeaderImageButton"
+            android:layout_toStartOf="@id/ib_settings"
+            android:layout_centerVertical="true"
+            android:contentDescription="@string/sort"
+            android:src="@drawable/ic_sort_24"
+            />
 
         <ImageButton
             android:id="@+id/ib_settings"

@@ -208,6 +208,23 @@ public class Option {
         prefs.edit().putString("sort_direction", direction).apply();
     }
 
+    /////////////////// SORT ZIKFILE LIST ///////////////////
+    public static String getZikFileSortMode() {
+        return prefs.getString("zikfile_sort_mode", "alpha");
+    }
+
+    public static void setZikFileSortMode(String mode) {
+        prefs.edit().putString("zikfile_sort_mode", mode).apply();
+    }
+
+    public static String getZikFileSortDirection() {
+        return prefs.getString("zikfile_sort_direction", "asc");
+    }
+
+    public static void setZikFileSortDirection(String direction) {
+        prefs.edit().putString("zikfile_sort_direction", direction).apply();
+    }
+
     /////////////////// RADIO ///////////////////
     public static void setRadioUseCloudflare(boolean bool) {
         prefs.edit().putBoolean("RADIO_USE_CLOUDFARE", bool).apply();
