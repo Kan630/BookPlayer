@@ -368,7 +368,9 @@ public class ZikFileActivity extends BaseBottomNavActivity {
 
         java.util.List<ZikFile> sorted = new java.util.ArrayList<>(list);
         java.util.Collections.sort(sorted, (z1, z2) -> {
-            int res = Long.compare(z1.lLastAccess, z2.lLastAccess);
+            long t1 = z1.lLastAccess != null ? z1.lLastAccess : 0L;
+            long t2 = z2.lLastAccess != null ? z2.lLastAccess : 0L;
+            int res = Long.compare(t1, t2);
             return "asc".equals(dir) ? res : -res;
         });
 
