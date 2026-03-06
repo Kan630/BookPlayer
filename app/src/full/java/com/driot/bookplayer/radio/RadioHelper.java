@@ -142,7 +142,8 @@ public class RadioHelper {
 	}
 
 	public static void play(Context context, RadioStation rs, String streamUrl, String caller) {
-		myLogI("play() id=" + rs.id + " name=" + rs.name);
+		myLog("play() id=" + rs.id + " name=" + rs.name);
+		if (rs.id <= 0) myLogE("null radio ID");
 		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
 				rs.id, rs.name, rs.favicon, caller);
 		updatePlayed(context, rs);

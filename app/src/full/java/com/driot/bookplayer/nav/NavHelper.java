@@ -69,6 +69,7 @@ public class NavHelper {
 
     public static void openRadioStationActivity(Context context, long trackId) {
         if (trackId <= 0) {
+            myLogE("openRadioStationActivity => no trackId");
             context.startActivity(new Intent(context, GetRadioActivity.class));
             return;
         }
