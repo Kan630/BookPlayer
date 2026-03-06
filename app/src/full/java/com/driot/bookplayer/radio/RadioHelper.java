@@ -144,7 +144,7 @@ public class RadioHelper {
 	public static void play(Context context, RadioStation rs, String streamUrl, String caller) {
 		myLogI("play() id=" + rs.id + " name=" + rs.name);
 		StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, streamUrl,
-				(int) rs.id, rs.name, rs.favicon, caller);
+				rs.id, rs.name, rs.favicon, caller);
 		updatePlayed(context, rs);
 	}
 
@@ -243,7 +243,7 @@ public class RadioHelper {
 		RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().getFromUrl(url);
 		if (rs != null) {
 			StartPlayHelper.playStream(context, Var.PLAY_MODE_RADIO, url,
-					(int) rs.id, rs.name, rs.favicon, null);
+					rs.id, rs.name, rs.favicon, null);
 			return true;
 		} else {
 			return false;

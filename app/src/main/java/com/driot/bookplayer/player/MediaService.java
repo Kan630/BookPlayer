@@ -1002,7 +1002,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 // Enter foreground *before* async work to satisfy the 5s rule
                 goForegroundPreparing("Preparing…", "Loading selected track");
 
-                final long trackId = intent.getIntExtra(Intents.EXTRA_TRACK_ID, -1);
+                final long trackId = intent.getLongExtra(Intents.EXTRA_TRACK_ID, -1);
                 final boolean isPodcast = intent.getBooleanExtra(Intents.EXTRA_IS_PODCAST, false);
                 final boolean newestFirst = intent.getBooleanExtra(Intents.EXTRA_TRACK_ORDER_NEWEST_FIRST, true);
                 myLog("ACTION_PLAY_FROM_TRACK => trackId : [" + trackId + "] - isPodcast : [" + isPodcast

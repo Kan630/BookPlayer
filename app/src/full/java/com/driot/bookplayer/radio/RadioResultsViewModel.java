@@ -172,8 +172,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
     // ---- Favorites state exposed to UI ----
 
     private final MutableLiveData<Set<String>> favoriteUuids = new MutableLiveData<>(new HashSet<>());
-    private final MutableLiveData<List<RadioStation>> favoriteItems = new MutableLiveData<>(
-            Collections.emptyList());
+    private final MutableLiveData<List<RadioStation>> favoriteItems = new MutableLiveData<>();
     private final MutableLiveData<Boolean> hasFavorites = new MutableLiveData<>(false);
 
     public LiveData<Set<String>> getFavoriteUuids() {
@@ -214,7 +213,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
 
     public void initMode(Context ctx) {
         Context appCtx = ctx.getApplicationContext();
-        new Thread(() -> {
+        AppDatabase.databaseReadExecutor.execute(() -> {
             RadioStationDao d = dao(appCtx);
 
             int favCount = d.countFavorites();
@@ -228,7 +227,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
             } else {
                 loadFavorites(appCtx);
             }
-        }).start();
+        });
     }
 
     // ---- Load favorites from Room ----
@@ -236,19 +235,19 @@ public class RadioResultsViewModel extends LoggingViewModel {
     public void loadFavorites(Context ctx) {
         historyMode = false; // <--- update field
         showingHistory.postValue(false); // notify UI
-        refreshFromDb(ctx);
+        refreshFromDb(ctx, false);
     }
 
     public void loadHistory(Context ctx) {
         historyMode = true; // <--- update field
         showingHistory.postValue(true); // notify UI
-        refreshFromDb(ctx);
+        refreshFromDb(ctx, true);
     }
 
     // toggle favorite from a ApiStation (used from search results)
     public void toggleFavorite(Context ctx, ApiStation s) {
         Context appCtx = ctx.getApplicationContext();
-        new Thread(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = dao(appCtx);
             long now = System.currentTimeMillis();
 
@@ -280,25 +279,25 @@ public class RadioResultsViewModel extends LoggingViewModel {
                 dao.insert(r);
             }
 
-            refreshFromDb(appCtx);
-        }).start();
+            refreshFromDb(appCtx, historyMode);
+        });
     }
 
     public void reorderFavorites(Context ctx, List<RadioStation> newOrder) {
         Context appCtx = ctx.getApplicationContext();
-        new Thread(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = dao(appCtx);
             int idx = 0;
             for (RadioStation it : newOrder) {
                 dao.updateDisplayOrder(it.stationuuid, idx++);
             }
-            refreshFromDb(appCtx);
-        }).start();
+            refreshFromDb(appCtx, historyMode);
+        });
     }
 
     public void removeFavoriteUuid(Context ctx, String uuid) {
         Context appCtx = ctx.getApplicationContext();
-        new Thread(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = dao(appCtx);
             RadioStation existing = dao.findByUuid(uuid);
             if (existing != null && existing.isFavorite) {
@@ -306,16 +305,15 @@ public class RadioResultsViewModel extends LoggingViewModel {
                 existing.date_maj = System.currentTimeMillis();
                 dao.update(existing);
             }
-            refreshFromDb(appCtx);
-        }).start();
+            refreshFromDb(appCtx, historyMode);
+        });
     }
 
-    private void refreshFromDb(Context ctx) {
+    private void refreshFromDb(Context ctx, boolean history) {
         Context appCtx = ctx.getApplicationContext();
-        new Thread(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             RadioStationDao dao = dao(appCtx);
 
-            boolean history = historyMode;
             myLogD("refresh from DB, history mode=" + history);
 
             List<RadioStation> rows = history
@@ -333,7 +331,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
             favoriteUuids.postValue(uuids);
             favoriteItems.postValue(items);
             hasFavorites.postValue(!items.isEmpty());
-        }).start();
+        });
     }
 
     public void updateFavoriteLastUrl(@NonNull Context ctx,

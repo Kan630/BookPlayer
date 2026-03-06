@@ -268,7 +268,9 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     public int getPositionForTrackId(long trackId) {
+        //myLog("looking for id " + trackId + " - size = " + items.size());
         for (int i = 0; i < items.size(); i++) {
+            //myLog("item " + i + " : " + items.get(i).name + " - id=" + items.get(i).id + "");
             if (items.get(i).id == trackId) {
                 return i + 1; // +1 for header
             }

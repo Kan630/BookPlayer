@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
 import com.driot.bookplayer.adapter.RadioFavoritesRVAdapter;
@@ -101,34 +102,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
 
-        PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
-        playbackVm.getState().observe(this, state -> {
-            if (state != null)
-                adapter.setPlayingRadioStation(state.trackId);
-        });
-
-        // Favorites vs History Toggle
-        MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);
-        group.addOnButtonCheckedListener((g, checkedId, isChecked) -> {
-            if (!isChecked)
-                return; // ignore un-check events
-
-            // IGNORE changes coming from VM/UI syncing
-            if (updatingToggleFromVm) {
-                myLogD("Toggle change from ViewModel sync, ignoring as user click.");
-                return;
-            }
-
-            if (checkedId == R.id.btnRadioFavorites) {
-                myLogI("--- user clicks favorites ---");
-                viewModel.loadFavorites(RadioFavoritesActivity.this);
-            } else if (checkedId == R.id.btnRadioHistory) {
-                myLogI("--- user clicks history ---");
-                viewModel.loadHistory(RadioFavoritesActivity.this);
-            }
-        });
-        viewModel.initMode(this);
-
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override
             public void onPlay(RadioStation radioStation) {
@@ -156,7 +129,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 final boolean hasCachedUrl = radioStation.url_resolved != null && !radioStation.url_resolved.isEmpty();
 
                 if (hasCachedUrl && !renewOnClick) {
-                    myLogD("Radio: using cached URL, scheduling background renew. url_resolved = [" + radioStation.url_resolved
+                    myLogD("Radio: using cached URL, scheduling background renew. url_resolved = ["
+                            + radioStation.url_resolved
                             + "]");
 
                     // 1) Immediate playback with cached URL
@@ -167,8 +141,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             "RadioFavoritesActivity - onPlay() - using cached url_resolved");
 
                     // 2) Background best-effort renew (no UI spinner/toasts)
-                    repo.resolveUrl(radioStation.stationuuid, new Callback<UrlResolve>() { // RadioBrowser wants us to ping for
-                                                                                // their STATS
+                    repo.resolveUrl(radioStation.stationuuid, new Callback<UrlResolve>() {
                         @Override
                         public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                             if (!rsp.isSuccessful() || rsp.body() == null ||
@@ -178,7 +151,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             }
                             String newUrl = rsp.body().url;
                             if (newUrl.equals(radioStation.url_resolved)) {
-                                myLogD("background resolveUrl: url unchanged for " + radioStation.name + " -> " + newUrl);
+                                myLogD("background resolveUrl: url unchanged for " + radioStation.name + " -> "
+                                        + newUrl);
                                 return;
                             }
 
@@ -195,26 +169,17 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                         @Override
                         public void onFailure(Call<UrlResolve> call, Throwable t) {
                             myLogW("background resolveUrl failed for " + radioStation.name + " : " + t);
-                            // no UI feedback, cached url still works
                         }
                     });
 
                     return;
                 }
 
-                // -------------------------------------------------------------------------
-                // SLOW / STRICT PATH:
-                // - No cached URL (first time or old data)
-                // - OR user option = "always renew URL before play"
-                //
-                // → Show spinner, wait for resolveUrl, then play.
-                // -------------------------------------------------------------------------
                 myLog("Option renew Url = " + renewOnClick + ", url_resolved = [" + radioStation.url_resolved + "]"
                         + " => resolveUrl(" + radioStation.stationuuid + ") - " + radioStation.name);
                 setProgressVisible(true, getString(R.string.checking_for_best_mirror));
 
-                repo.resolveUrl(radioStation.stationuuid, new Callback<UrlResolve>() { // RadioBrowser wants us to ping for their
-                                                                            // STATS
+                repo.resolveUrl(radioStation.stationuuid, new Callback<UrlResolve>() {
                     @Override
                     public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         setProgressVisible(false, null);
@@ -231,7 +196,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                                     radioStation.stationuuid,
                                     stream);
                         } else if (hasCachedUrl) {
-                            // fallback to previous url_resolved if we had it
                             stream = radioStation.url_resolved;
                             myLogI("resolveUrl empty, fallback to url_resolved : " + stream);
                         }
@@ -256,7 +220,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                             myLogEE(t, "resolveUrl failed");
                             myToastE(getString(R.string.error_radio_renew_url));
 
-                            // Fallback to cached URL if any
                             if (radioStation.url_resolved != null && !radioStation.url_resolved.isEmpty()) {
                                 RadioHelper.play(
                                         getApplicationContext(),
@@ -272,7 +235,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             @Override
             public void onUnfavorite(RadioStation f) {
                 myLogI("--- user Unfavorite radio item --- : " + f.name);
-                // Remove and refresh (reuse VM’s toggle which expects a ApiStation)
                 viewModel.removeFavoriteUuid(RadioFavoritesActivity.this, f.stationuuid);
             }
 
@@ -283,6 +245,34 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             }
         });
         recyclerView.setAdapter(adapter);
+
+        PlaybackViewModel playbackVm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+        playbackVm.getState().observe(this, state -> {
+            if (state != null)
+                adapter.setPlayingRadioStation(state.trackId);
+        });
+
+        // Favorites vs History Toggle
+        MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);
+        group.addOnButtonCheckedListener((g, checkedId, isChecked) -> {
+            if (!isChecked)
+                return; // ignore un-check events
+
+            // IGNORE changes coming from VM/UI syncing
+            if (updatingToggleFromVm) {
+                myLogD("Toggle change from ViewModel sync, ignoring as user click.");
+                return;
+            }
+
+            if (checkedId == R.id.btnRadioFavorites) {
+                myLogI("--- user clicks favorites ---");
+                viewModel.loadFavorites(RadioFavoritesActivity.this);
+            } else if (checkedId == R.id.btnRadioHistory) {
+                myLogI("--- user clicks history ---");
+                viewModel.loadHistory(RadioFavoritesActivity.this);
+            }
+        });
+        viewModel.initMode(this);
 
         // Enable dragging
         FavoritesTouchHelperCallback cb = new FavoritesTouchHelperCallback(recyclerView, dropZone, adapter);
@@ -325,10 +315,33 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
             adapter.setHistoryMode(history);
         });
 
+        long autoScrollTrackIdFromIntent = getIntent().getLongExtra(Intents.EXTRA_OPEN_FROM_TRACK_ID, -1);
+        final long[] autoScrollTrackId = { autoScrollTrackIdFromIntent };
+
         setProgressVisible(true, getString(R.string.loading));
         viewModel.getFavoriteItems().observe(this, favorites -> {
             setProgressVisible(false, null);
             adapter.setItems(favorites);
+
+            if (autoScrollTrackId[0] > 0) {
+                int pos = adapter.getPositionForTrackId(autoScrollTrackId[0]);
+                if (pos != RecyclerView.NO_POSITION) {
+                    myLogD("Auto-scrolling to Id=" + autoScrollTrackId[0] + " at pos=" + pos);
+                    final int scrollPos = pos;
+                    recyclerView.postDelayed(() -> {
+                        if (!isFinishing()) {
+                            recyclerView.smoothScrollToPosition(scrollPos);
+                        }
+                    }, 300);
+                    autoScrollTrackId[0] = -1; // Done
+                } else if (!isHistoryMode) {
+                    myLogD("Id=" + autoScrollTrackId[0] + " not in favorites, trying history");
+                    viewModel.loadHistory(RadioFavoritesActivity.this);
+                } else {
+                    myLogE("Id=" + autoScrollTrackId[0] + " not found in favorites nor history");
+                    autoScrollTrackId[0] = -1; // Not found anywhere
+                }
+            }
         });
 
     }
