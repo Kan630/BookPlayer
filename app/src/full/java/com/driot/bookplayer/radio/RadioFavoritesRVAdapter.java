@@ -68,10 +68,12 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         return RecyclerView.NO_ID;
     }
 
-    public void setItems(List<RadioStation> newItems) {
-        RadioStationDiffCallback diffCallback = new RadioStationDiffCallback(this.items, newItems);
+    public void setItems(List<RadioStation> newItems, boolean isHistoryMode) {
+        RadioStationDiffCallback diffCallback = new RadioStationDiffCallback(this.items, newItems, this.historyMode,
+                isHistoryMode);
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(diffCallback);
 
+        this.historyMode = isHistoryMode;
         this.items.clear();
         if (newItems != null) {
             this.items.addAll(newItems);
@@ -277,7 +279,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     public void setHistoryMode(boolean history) {
         this.historyMode = history;
-        notifyDataSetChanged();
     }
 
     public void setPlayingRadioStation(long trackId) {
@@ -314,20 +315,25 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     private static class RadioStationDiffCallback extends DiffUtil.Callback {
         private final List<RadioStation> oldList;
         private final List<RadioStation> newList;
+        private final boolean oldHistoryMode;
+        private final boolean newHistoryMode;
 
-        RadioStationDiffCallback(List<RadioStation> oldList, List<RadioStation> newList) {
+        RadioStationDiffCallback(List<RadioStation> oldList, List<RadioStation> newList, boolean oldHistoryMode,
+                boolean newHistoryMode) {
             this.oldList = oldList != null ? oldList : new ArrayList<>();
             this.newList = newList != null ? newList : new ArrayList<>();
+            this.oldHistoryMode = oldHistoryMode;
+            this.newHistoryMode = newHistoryMode;
         }
 
         @Override
         public int getOldListSize() {
-            return oldList.size() > 0 ? oldList.size() + 1 : 0; // +1 for header if not empty
+            return oldList.size() + 1; // +1 for header
         }
 
         @Override
         public int getNewListSize() {
-            return newList.size() > 0 ? newList.size() + 1 : 0; // +1 for header if not empty
+            return newList.size() + 1; // +1 for header
         }
 
         @Override
@@ -342,8 +348,11 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
         @Override
         public boolean areContentsTheSame(int oldItemPosition, int newItemPosition) {
-            if (oldItemPosition == 0 && newItemPosition == 0)
-                return true;
+            if (oldItemPosition == 0 && newItemPosition == 0) {
+                // Return false if history mode changed OR if the list size changed (so count in
+                // header updates)
+                return oldHistoryMode == newHistoryMode && oldList.size() == newList.size();
+            }
             if (oldItemPosition == 0 || newItemPosition == 0)
                 return false;
 

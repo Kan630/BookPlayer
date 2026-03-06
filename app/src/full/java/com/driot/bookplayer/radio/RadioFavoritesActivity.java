@@ -321,7 +321,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         setProgressVisible(true, getString(R.string.loading));
         viewModel.getFavoriteItems().observe(this, favorites -> {
             setProgressVisible(false, null);
-            adapter.setItems(favorites);
+            adapter.setItems(favorites, isHistoryMode);
 
             if (autoScrollTrackId[0] > 0) {
                 int pos = adapter.getPositionForTrackId(autoScrollTrackId[0]);
