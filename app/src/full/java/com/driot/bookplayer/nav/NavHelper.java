@@ -67,11 +67,68 @@ public class NavHelper {
         return tsb.getPendingIntent(0, flags);
     }
 
+    public static void openRadioStationActivity(Context context, int trackId) {
+        if (trackId <= 0) {
+            context.startActivity(new Intent(context, GetRadioActivity.class));
+            return;
+        }
+
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            String uuid = null;
+            try {
+                RadioStationDao dao = AppDatabase.getDatabase(context).radioStationDao();
+                uuid = dao.findById(trackId).stationuuid;
+            } catch (Exception e) {
+                myLogEE(e, "openRadioStationActivity: UUID lookup failed for trackId=" + trackId);
+            }
+
+            openRadioStationActivityFromUuid(context, uuid);
+        });
+    }
+
+    public static void openRadioStationActivityFromUuid(Context context, String uuid) {
+        if (uuid == null || uuid.isEmpty()) {
+            context.startActivity(new Intent(context, GetRadioActivity.class));
+            return;
+        }
+        context.startActivity(new Intent(context, RadioStationActivity.class).putExtra(Intents.EXTRA_STATION_UUID, uuid));
+        /*
+        final String finalUuid = uuid;
+        if (context instanceof Activity) {
+            ((Activity) context).runOnUiThread(() -> {
+                Intent[] intents = buildRadioBackStack(context, finalUuid);
+                context.startActivities(intents);
+            });
+        } else {
+            // If context is not an activity, we might need FLAG_ACTIVITY_NEW_TASK or handle
+            // it differently
+            // but usually this is called from Fragments/Activities.
+            Intent[] intents = buildRadioBackStack(context, finalUuid);
+            context.startActivities(intents);
+        }
+       */
+    }
+
+    private static Intent[] buildRadioBackStack(Context context, String uuid) {
+        Intent mainIntent = new Intent(context, MainActivity.class);
+        mainIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+
+        Intent getRadioIntent = new Intent(context, GetRadioActivity.class);
+
+        if (uuid != null) {
+            Intent stationIntent = new Intent(context, RadioStationActivity.class)
+                    .putExtra(Intents.EXTRA_STATION_UUID, uuid);
+            return new Intent[] { mainIntent, getRadioIntent, stationIntent };
+        } else {
+            return new Intent[] { mainIntent, getRadioIntent };
+        }
+    }
+
     public static PendingIntent getNavToRadioActivityPendingIntent(Context context, int trackId) {
         final int flags = PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE;
         Context appCtx = context.getApplicationContext();
 
-        if (trackId>0) {
+        if (trackId > 0) {
             String uuid = null;
             try {
                 uuid = AppDatabase.databaseReadExecutor
@@ -83,10 +140,11 @@ public class NavHelper {
             } catch (Exception e) {
                 myLogEE(e, "getNavToRadioActivityPendingIntent: UUID lookup failed for trackId=" + trackId);
             }
-            // Build back stack: Main -> GetRadio -> RadioStationActivity
+
             TaskStackBuilder tsb = TaskStackBuilder.create(context);
             tsb.addNextIntent(new Intent(context, MainActivity.class));
-            tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
+            //tsb.addNextIntent(new Intent(context, GetRadioActivity.class));
+            tsb.addNextIntent(new Intent(context, RadioFavoritesActivity.class));
             tsb.addNextIntent(new Intent(context, RadioStationActivity.class)
                     .putExtra(Intents.EXTRA_STATION_UUID, uuid));
             return tsb.getPendingIntent(0, flags);

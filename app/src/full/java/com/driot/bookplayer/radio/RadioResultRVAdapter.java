@@ -271,6 +271,10 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         return RecyclerView.NO_POSITION;
     }
 
+    public String getPlayingRadioStationUuid() {
+        return playingRadioStationUuid;
+    }
+
     public void setPlayingRadioStation(int trackId, String playingRadioStationUuid) {
         if (trackId == this.trackId && TextUtils.equals(playingRadioStationUuid, this.playingRadioStationUuid)) {
             return;

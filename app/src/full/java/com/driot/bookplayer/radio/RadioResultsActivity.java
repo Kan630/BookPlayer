@@ -21,6 +21,8 @@ import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.driot.bookplayer.nav.NavHelper;
+import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.LiveCensorshipManager;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
@@ -102,9 +104,23 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         adapter = new RadioResultRVAdapter(new RadioResultRVAdapter.OnActionListener() {
             @Override
-            public void onPlay(ApiStation s) {
-                myLogI("-------- USER CLICK radio item -------- : " + s.name);
-                adapter.setClickedRadioStation(s.stationuuid);
+            public void onPlay(ApiStation apiStation) {
+                myLogI("-------- USER CLICK radio item -------- : " + apiStation.name);
+                adapter.setClickedRadioStation(apiStation.stationuuid);
+
+                // check if already playing ---
+                PlaybackViewModel playbackVm = new ViewModelProvider(RadioResultsActivity.this)
+                        .get(PlaybackViewModel.class);
+                PlaybackUiState state = playbackVm.getState().getValue();
+                if (state != null && Var.PLAY_MODE_RADIO.equals(state.playMode)) {
+                    String playingUuid = adapter.getPlayingRadioStationUuid();
+                    if (apiStation.stationuuid.equals(playingUuid)) {
+                        myLog("already playing => opening detail activity");
+                        NavHelper.openRadioStationActivityFromUuid(RadioResultsActivity.this,
+                                playingUuid);
+                        return;
+                    }
+                }
 
                 if (!hasInternet) {
                     myToast(getString(R.string.no_internet_connection));
@@ -112,44 +128,48 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
 
                 final boolean renewOnClick = Option.getRadioRenewUrl();
-                final boolean hasCachedUrl = s.url_resolved != null && !s.url_resolved.isEmpty();
+                final boolean hasCachedUrl = apiStation.url_resolved != null && !apiStation.url_resolved.isEmpty();
 
                 if (hasCachedUrl && !renewOnClick) {
                     myLogD("RadioResults: using cached url_resolved, scheduling background renew. url_resolved = ["
-                            + s.url_resolved + "]");
+                            + apiStation.url_resolved + "]");
                     final long startTime = System.currentTimeMillis();
 
-                    RadioHelper.play(getApplicationContext(), s, s.url_resolved,
+                    RadioHelper.play(getApplicationContext(), apiStation, apiStation.url_resolved,
                             "RadioResultsActivity - onPlay() - using cached url_resolved");
 
-                    repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
+                    repo.resolveUrl(apiStation.stationuuid, new Callback<UrlResolve>() {
                         @Override
                         public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                             if (!rsp.isSuccessful() ||
                                     rsp.body() == null ||
                                     rsp.body().url == null ||
                                     rsp.body().url.isEmpty()) {
-                                myLogW("RadioResults background resolveUrl: no usable url for [" + s.name + "] in "
+                                myLogW("RadioResults background resolveUrl: no usable url for [" + apiStation.name
+                                        + "] in "
                                         + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                                 return;
                             }
 
                             String newUrl = rsp.body().url;
-                            if (newUrl.equals(s.url_resolved)) {
-                                myLogD("RadioResults background resolveUrl: url unchanged for [" + s.name + "] -> ["
+                            if (newUrl.equals(apiStation.url_resolved)) {
+                                myLogD("RadioResults background resolveUrl: url unchanged for [" + apiStation.name
+                                        + "] -> ["
                                         + newUrl + "] in "
                                         + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                                 return;
                             }
 
-                            myLogI("RadioResults background resolveUrl success for [" + s.name + "] -> [" + newUrl
+                            myLogI("RadioResults background resolveUrl success for [" + apiStation.name + "] -> ["
+                                    + newUrl
                                     + "] in " + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
-                            s.url_resolved = newUrl;
+                            apiStation.url_resolved = newUrl;
                         }
 
                         @Override
                         public void onFailure(Call<UrlResolve> call, Throwable t) {
-                            myLogW("RadioResults background resolveUrl failed for [" + s.name + "] : [" + t + "] in "
+                            myLogW("RadioResults background resolveUrl failed for [" + apiStation.name + "] : [" + t
+                                    + "] in "
                                     + Tonio.formatHhMmSsMs(System.currentTimeMillis() - startTime));
                         }
                     });
@@ -158,8 +178,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
 
                 myLog("RadioResults: Option renew Url = " + renewOnClick
-                        + ", url_resolved = [" + s.url_resolved + "]"
-                        + " => repo.resolveUrl(" + s.stationuuid + ") - " + s.name);
+                        + ", url_resolved = [" + apiStation.url_resolved + "]"
+                        + " => repo.resolveUrl(" + apiStation.stationuuid + ") - " + apiStation.name);
 
                 progressBar.setVisibility(View.VISIBLE);
                 if (tvProgressMessage != null) {
@@ -180,7 +200,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 }
                 final long topStart = System.currentTimeMillis();
 
-                repo.resolveUrl(s.stationuuid, new Callback<UrlResolve>() {
+                repo.resolveUrl(apiStation.stationuuid, new Callback<UrlResolve>() {
                     @Override
                     public void onResponse(Call<UrlResolve> call, Response<UrlResolve> rsp) {
                         progressBar.setVisibility(View.GONE);
@@ -195,15 +215,15 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
                             stream = rsp.body().url;
                             myLogI("resolveUrl success : " + stream);
-                            s.url_resolved = stream;
+                            apiStation.url_resolved = stream;
 
-                        } else if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
-                            myLogI("fallback url_resolved : " + s.url_resolved);
-                            stream = s.url_resolved;
+                        } else if (apiStation.url_resolved != null && !apiStation.url_resolved.isEmpty()) {
+                            myLogI("fallback url_resolved : " + apiStation.url_resolved);
+                            stream = apiStation.url_resolved;
                         }
 
                         if (stream != null) {
-                            RadioHelper.play(getApplicationContext(), s, stream,
+                            RadioHelper.play(getApplicationContext(), apiStation, stream,
                                     "RadioResultsActivity - onPlay() - after url renewed");
                         } else {
                             myToastE(getString(R.string.an_error_occurred));
@@ -219,9 +239,9 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                             myToastE(getString(R.string.no_internet_connection));
                         } else {
                             myLogEE(t, "resolveUrl failed");
-                            if (s.url_resolved != null && !s.url_resolved.isEmpty()) {
-                                myLogI("fallback url_resolved (failure) : " + s.url_resolved);
-                                RadioHelper.play(getApplicationContext(), s, s.url_resolved,
+                            if (apiStation.url_resolved != null && !apiStation.url_resolved.isEmpty()) {
+                                myLogI("fallback url_resolved (failure) : " + apiStation.url_resolved);
+                                RadioHelper.play(getApplicationContext(), apiStation, apiStation.url_resolved,
                                         "RadioResultsActivity - onPlay() - fallback url_resolved after failure");
                             } else {
                                 myToastE(getString(R.string.an_error_occurred));

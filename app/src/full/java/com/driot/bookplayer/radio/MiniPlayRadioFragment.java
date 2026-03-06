@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.MediaControllerHolder;
 import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.player.PlaybackUiState;
@@ -99,15 +100,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
             PlaybackCommands.resetLastUserAction(requireContext());
             if (vm.getState() != null && vm.getState().getValue() != null) {
                 long trackId = vm.getState().getValue().trackId;
-                if (trackId > 0) {
-                    Intent intent = new Intent(requireContext(), RadioStationActivity.class);
-                    intent.putExtra(Intents.EXTRA_STREAM_TRACK_ID, trackId);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                    startActivity(intent);
-                } else {
-                    myLogE("radioStation ID is NULL");
-                    startActivity(new Intent(requireContext(), GetRadioActivity.class));
-                }
+                NavHelper.openRadioStationActivity(requireContext(), (int) trackId);
             } else {
                 myLog("no VM state");
                 startActivity(new Intent(requireContext(), GetRadioActivity.class));
