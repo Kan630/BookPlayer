@@ -20,7 +20,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
-
 public class MainViewModel extends LoggingAndroidViewModel {
 
     private final FolderRepository repo;
@@ -42,7 +41,8 @@ public class MainViewModel extends LoggingAndroidViewModel {
         this.repo = new FolderRepository(app);
 
         // Defaults
-        if (!state.contains(K_LAST_SCROLLED_FOLDER_ID)) state.set(K_LAST_SCROLLED_FOLDER_ID, -1);
+        if (!state.contains(K_LAST_SCROLLED_FOLDER_ID))
+            state.set(K_LAST_SCROLLED_FOLDER_ID, -1L);
 
         LiveData<List<Folder>> source = repo.observeAll();
         folders.addSource(source, rawList -> {
@@ -70,7 +70,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
         List<Folder> list = new ArrayList<>(folders);
 
         String mode = Option.getSortMode();
-        String dir  = Option.getSortDirection();
+        String dir = Option.getSortDirection();
         boolean descending = "desc".equals(dir);
 
         Comparator<Folder> comparator;
@@ -79,22 +79,19 @@ public class MainViewModel extends LoggingAndroidViewModel {
             case "alpha":
             case "alphabetical":
                 comparator = Comparator.comparing(
-                        f -> f.getName() != null ? f.getName().trim().toLowerCase(Locale.getDefault()) : ""
-                );
+                        f -> f.getName() != null ? f.getName().trim().toLowerCase(Locale.getDefault()) : "");
                 break;
 
             case "added":
             case "last_added":
                 comparator = Comparator.comparingLong(
-                        f -> f.date_added
-                );
+                        f -> f.date_added);
                 break;
 
             case "last_played":
             default:
                 comparator = Comparator.comparingLong(
-                        f -> f.lLastAccess
-                );
+                        f -> f.lLastAccess);
                 break;
         }
 
@@ -106,18 +103,24 @@ public class MainViewModel extends LoggingAndroidViewModel {
         return list;
     }
 
-
-
     // region Public API for Activity
 
-    public LiveData<List<Folder>> getFolders()            { return folders; }
-    public LiveData<Event<NoContent>> getScrollToTopEvent() { return scrollToTop; }
+    public LiveData<List<Folder>> getFolders() {
+        return folders;
+    }
+
+    public LiveData<Event<NoContent>> getScrollToTopEvent() {
+        return scrollToTop;
+    }
 
     public void requestScrollToTopNow() {
         scrollToTop.setValue(new Event<>(NoContent.INSTANCE));
     }
 
-    /** When playback changes, ask the grid to scroll the current folder to top (one-shot). */
+    /**
+     * When playback changes, ask the grid to scroll the current folder to top
+     * (one-shot).
+     */
     public void requestScrollToTopForFolder(long folderId) {
         Long last = state.get(K_LAST_SCROLLED_FOLDER_ID);
         if (last != null && last == folderId) {
@@ -128,7 +131,8 @@ public class MainViewModel extends LoggingAndroidViewModel {
         pendingFolderIdForScroll = folderId;
         pendingScrollToTop = true;
 
-        // If data is already loaded, emit immediately; otherwise the observer above will emit.
+        // If data is already loaded, emit immediately; otherwise the observer above
+        // will emit.
         List<Folder> current = folders.getValue();
         if (current != null && !current.isEmpty()) {
             pendingScrollToTop = false;
@@ -137,9 +141,11 @@ public class MainViewModel extends LoggingAndroidViewModel {
         }
     }
 
-    /** Optional: reset the “last scrolled” marker (e.g., when leaving the screen). */
+    /**
+     * Optional: reset the “last scrolled” marker (e.g., when leaving the screen).
+     */
     public void resetLastScrolledFolder() {
-        state.set(K_LAST_SCROLLED_FOLDER_ID, -1);
+        state.set(K_LAST_SCROLLED_FOLDER_ID, -1L);
     }
 
     public void forceRefresh() {
@@ -149,7 +155,10 @@ public class MainViewModel extends LoggingAndroidViewModel {
         }
     }
 
-    /** Call when returning from ModifyFolderActivity after a rename/edit so folder list LiveData re-emits. */
+    /**
+     * Call when returning from ModifyFolderActivity after a rename/edit so folder
+     * list LiveData re-emits.
+     */
     public void notifyFolderChanged(long folderId) {
         AppDatabase.databaseWriteExecutor.execute(() -> repo.invalidateFolder(folderId));
     }
