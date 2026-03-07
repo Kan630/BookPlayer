@@ -17,6 +17,7 @@ import com.google.android.material.checkbox.MaterialCheckBox;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
@@ -24,6 +25,10 @@ import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
+import org.w3c.dom.Text;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 
 import javax.inject.Inject;
@@ -36,6 +41,8 @@ public class TtsSettingsFragment extends LoggingFragment {
     protected AppTtsManager ttsManager;
 
     private String lastSavedTtsVoice;
+    private Spinner ttsEngineSpinner;
+    private TextView ttsEngineTextView;
     private MaterialCheckBox chkTtsSnapToSentence, chkTtsShowLoadingOverlay;
     private EditText etTtsHighlightDelay, etTtsChunkSize, etTtsOverlayTimeout;
     private Spinner spinnerEpubSplitMode;
@@ -67,8 +74,9 @@ public class TtsSettingsFragment extends LoggingFragment {
         }
 
         // TTS engine Spinner
-        Spinner ttsEngineSpinner = root.findViewById(R.id.spinner_tts_engine);
-
+        ttsEngineSpinner = root.findViewById(R.id.spinner_tts_engine);
+        ttsEngineTextView = root.findViewById(R.id.tv_spinner_tts_engine);
+        setupTtsEngineSpinner();
 
         // Voice spinner
         Spinner ttsVoiceSpinner = root.findViewById(R.id.spinner_voice_item);
@@ -188,6 +196,71 @@ public class TtsSettingsFragment extends LoggingFragment {
         }
 
         return root;
+    }
+
+    private void setupTtsEngineSpinner() {
+        if (ttsEngineSpinner == null)
+            return;
+
+        List<TextToSpeech.EngineInfo> engines = ttsManager.getEngines();
+        if (engines == null || engines.isEmpty()) {
+            myLogE("No TTS engines found");
+            ttsEngineSpinner.setVisibility(View.GONE);
+            ttsEngineTextView.setText(getString(R.string.no_tts_engine));
+            ttsEngineTextView.setTextColor(ContextCompat.getColor(requireContext(), R.color.red_500));
+            return;
+        }
+
+        if (engines.size()==1) {
+            ttsEngineSpinner.setVisibility(View.GONE);
+            String displayedText = getString(R.string.option_tts_engine_only_one)  + "\n.  [" + engines.get(0).name + "]" + "\n.  (" + engines.get(0).label + ")";
+            ttsEngineTextView.setText(displayedText);
+            return;
+        }
+
+        ttsEngineSpinner.setVisibility(View.VISIBLE);
+        ttsEngineTextView.setText(getString(R.string.TTS_Engine));
+        List<String> labels = new ArrayList<>();
+        labels.add("System Default"); // First option
+        for (TextToSpeech.EngineInfo ei : engines) {
+            labels.add(ei.label);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(), R.layout.spinner_item, labels);
+        adapter.setDropDownViewResource(R.layout.spinner_item);
+        ttsEngineSpinner.setAdapter(adapter);
+
+        // Set current selection
+        String currentEngine = Option.getTtsEngine();
+        int selection = 0; // Default to "System Default"
+        if (currentEngine != null && !currentEngine.isEmpty()) {
+            for (int i = 0; i < engines.size(); i++) {
+                if (engines.get(i).name.equals(currentEngine)) {
+                    selection = i + 1;
+                    break;
+                }
+            }
+        }
+        ttsEngineSpinner.setSelection(selection, false);
+
+        ttsEngineSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                String newEngine = (position == 0) ? null : engines.get(position - 1).name;
+                String oldEngine = Option.getTtsEngine();
+
+                // Only react if changed
+                if ((newEngine == null && oldEngine != null) || (newEngine != null && !newEngine.equals(oldEngine))) {
+                    Option.setTtsEngine(newEngine);
+                    myLogI("TTS engine changed to: " + (newEngine == null ? "System Default" : newEngine));
+                    ttsManager.reinitialize(requireContext().getApplicationContext(), newEngine);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
     }
 
     private void setupEpubSplitModeSpinner() {

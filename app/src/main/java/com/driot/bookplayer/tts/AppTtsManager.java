@@ -21,6 +21,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -76,8 +77,13 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
     @Inject
     public AppTtsManager(@ApplicationContext Context app) {
         myLogD("AppTtsManager: constructor - new TextToSpeech");
+        String engine = Option.getTtsEngine();
         main.post(() -> {
-            tts = new TextToSpeech(app, this);
+            if (engine == null || engine.isEmpty()) {
+                tts = new TextToSpeech(app, this);
+            } else {
+                tts = new TextToSpeech(app, this, engine);
+            }
             describeTts(tts);
         }); // main thread
     }
@@ -367,6 +373,36 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         myLog("max input (limited by device, not specific tts engine) = [" + TextToSpeech.getMaxSpeechInputLength()
                 + "]");
 
+    }
+
+    public void reinitialize(@ApplicationContext Context app, @Nullable String enginePackageName) {
+        myLogD("AppTtsManager: reinitialize with engine: " + enginePackageName);
+        ready = false;
+        currentUtteranceId = null;
+        TextToSpeech old = tts;
+        if (old != null) {
+            try {
+                old.stop();
+                old.shutdown();
+            } catch (Exception e) {
+                myLogEE(e, "Error shutting down old TTS during reinitialization");
+            }
+        }
+
+        main.post(() -> {
+            if (enginePackageName == null || enginePackageName.isEmpty()) {
+                tts = new TextToSpeech(app, this);
+            } else {
+                tts = new TextToSpeech(app, this, enginePackageName);
+            }
+            describeTts(tts);
+        });
+    }
+
+    public List<TextToSpeech.EngineInfo> getEngines() {
+        if (tts == null)
+            return Collections.emptyList();
+        return tts.getEngines();
     }
 
 }

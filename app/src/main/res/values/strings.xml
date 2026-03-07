@@ -1248,8 +1248,9 @@
     <string name="Full_Screen">Full Screen</string>
     <string name="Added_in_app">Added in app</string>
     <string name="never">never</string>
-    <string name="option_tts_engine">TTS Engine</string>
-
+    <string name="TTS_Engine">TTS Engine</string>
+    <string name="option_tts_engine_only_one">Built-in TTS Engine found :</string>
+    <string name="no_tts_engine">No TTS engines found</string>
 
 
 </resources>

@@ -67,14 +67,14 @@
               <option name="preferredColumnWidths">
                 <map>
                   <entry key="Automotive_1408p_landscape" value="120" />
-                  <entry key="Duration" value="90" />
+                  <entry key="Duration" value="98" />
                   <entry key="HUAWEI LLD-L31" value="120" />
                   <entry key="Medium_Tablet" value="120" />
                   <entry key="Pixel_9" value="120" />
-                  <entry key="Status" value="80" />
-                  <entry key="Tests" value="360" />
-                  <entry key="samsung SM-A165F" value="120" />
-                  <entry key="samsung SM-J530F" value="120" />
+                  <entry key="Status" value="88" />
+                  <entry key="Tests" value="368" />
+                  <entry key="samsung SM-A165F" value="127" />
+                  <entry key="samsung SM-J530F" value="128" />
                   <entry key="samsung SM-X200" value="120" />
                 </map>
               </option>
@@ -89,6 +89,19 @@
                   <entry key="Duration" value="90" />
                   <entry key="Tests" value="360" />
                   <entry key="samsung SM-A165F" value="120" />
+                </map>
+              </option>
+            </AndroidTestResultsTableState>
+          </value>
+        </entry>
+        <entry key="-106304619">
+          <value>
+            <AndroidTestResultsTableState>
+              <option name="preferredColumnWidths">
+                <map>
+                  <entry key="Duration" value="90" />
+                  <entry key="Tests" value="360" />
+                  <entry key="samsung SM-J530F" value="120" />
                 </map>
               </option>
             </AndroidTestResultsTableState>

@@ -111,6 +111,7 @@ public class Option {
     private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
     private static final boolean DEFAULT_TTS_FULLSCREEN_CONTROLS = false;
     private static final boolean DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS = false;
+    public static final String DEFAULT_TTS_ENGINE = null;
 
     private static Context appContext;
     private static android.content.SharedPreferences prefs;
@@ -914,6 +915,14 @@ public class Option {
 
     public static boolean getTtsSnapToSentence() {
         return prefs.getBoolean("TTS_SNAP_TO_SENTENCE", DEFAULT_TTS_SNAP_TO_SENTENCE);
+    }
+
+    public static void setTtsEngine(String engine) {
+        prefs.edit().putString("TTS_ENGINE", engine).apply();
+    }
+
+    public static String getTtsEngine() {
+        return prefs.getString("TTS_ENGINE", DEFAULT_TTS_ENGINE);
     }
 
     /////////////////// AUTOMOTIVE ///////////////////
