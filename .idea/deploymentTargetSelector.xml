@@ -3,7 +3,7 @@
   <component name="deploymentTargetSelector">
     <selectionStates>
       <SelectionState runConfigName="app">
-        <option name="selectionMode" value="DROPDOWN" />
+        <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2026-02-27T20:46:08.892716200Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -15,7 +15,7 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=52003931eec16435" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
@@ -76,11 +76,11 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="orderedTests">
-        <option name="selectionMode" value="DIALOG" />
-        <DropdownSelection timestamp="2025-10-17T11:53:43.067649800Z">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-03-07T07:15:10.122371500Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -88,12 +88,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=52003931eec16435" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=FPMPH18C17900002" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
               </handle>
             </Target>
           </targets>
@@ -126,6 +126,9 @@
             </Target>
           </targets>
         </DialogSelection>
+      </SelectionState>
+      <SelectionState runConfigName="JustOpenAndWait">
+        <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
     </selectionStates>
   </component>

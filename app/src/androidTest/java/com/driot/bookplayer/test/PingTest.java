@@ -16,6 +16,7 @@ public class PingTest {
   @Test
   public void ping() {
     Context ctx = ApplicationProvider.getApplicationContext();
-    assertThat(ctx.getPackageName(), is("com.driot.bookplayer.debug"));
+    String expectedPackage = BuildConfig.APPLICATION_ID;
+    assertThat(ctx.getPackageName(), is(expectedPackage));
   }
 }
