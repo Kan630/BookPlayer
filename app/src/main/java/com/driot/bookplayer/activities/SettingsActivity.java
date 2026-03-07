@@ -231,7 +231,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
             // Apply after layout and after any scroll-to-top (e.g. initGoToTop); post twice
             // so we run last
             scrollView.post(() -> scrollView.post(() -> {
-                if (Math.abs(scrollView.getScrollY() - position) <= 4) {   // tolerance of ~4px
+                if (Math.abs(scrollView.getScrollY() - position) <= 4) { // tolerance of ~4px
                     myLogD("scroll already around position " + position + " - skip restore");
                     return;
                 }
@@ -266,9 +266,9 @@ public class SettingsActivity extends BaseBottomNavActivity {
     private final List<SectionHost> sectionHosts = new ArrayList<>();
 
     private void registerSection(SettingsSectionView sectionView,
-                                 String stateKey,
-                                 FragmentFactory factory,
-                                 Bundle savedInstanceState, boolean onlyForFullFlavour) {
+            String stateKey,
+            FragmentFactory factory,
+            Bundle savedInstanceState, boolean onlyForFullFlavour) {
 
         if (onlyForFullFlavour && Tonio.isPure(this)) {
             sectionView.setVisibility(View.GONE);
@@ -277,7 +277,8 @@ public class SettingsActivity extends BaseBottomNavActivity {
 
         SectionHost host = new SectionHost(sectionView, stateKey, factory);
 
-        onHeaderClicked(host);
+        // onHeaderClicked(host); // removed: caused every section to toggle during
+        // onCreate
 
         if (savedInstanceState != null) {
             host.expanded = savedInstanceState.getBoolean(stateKey, false);

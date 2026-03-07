@@ -34,9 +34,9 @@ public class SettingsSectionView extends LinearLayout {
         setOrientation(VERTICAL);
         LayoutInflater.from(context).inflate(R.layout.view_settings_section, this, true);
 
-        headerClickable   = findViewById(R.id.headerCard);
-        tvTitle           = findViewById(R.id.tvTitle);
-        ivIcon            = findViewById(R.id.ivIcon);
+        headerClickable = findViewById(R.id.headerCard);
+        tvTitle = findViewById(R.id.tvTitle);
+        ivIcon = findViewById(R.id.ivIcon);
         fragmentContainer = findViewById(R.id.fragmentContainer);
 
         headerClickable.setId(View.generateViewId());
@@ -48,22 +48,40 @@ public class SettingsSectionView extends LinearLayout {
             int iconRes = a.getResourceId(R.styleable.SettingsSectionView_sectionIcon, 0);
             a.recycle();
 
-            if (title != null) tvTitle.setText(title);
-            if (iconRes != 0) ivIcon.setImageResource(iconRes);
-            else ivIcon.setVisibility(GONE);
+            if (title != null)
+                tvTitle.setText(title);
+            if (iconRes != 0)
+                ivIcon.setImageResource(iconRes);
+            else
+                ivIcon.setVisibility(GONE);
         }
     }
 
-    public View getHeaderView() { return headerClickable; }
-    public int getContainerId() { return fragmentContainer.getId(); }
+    public View getHeaderView() {
+        return headerClickable;
+    }
+
+    public int getContainerId() {
+        return fragmentContainer.getId();
+    }
+
     public void showContainer(boolean show) {
         fragmentContainer.setVisibility(show ? VISIBLE : GONE);
     }
-    public boolean isContainerVisible() { return fragmentContainer.getVisibility() == VISIBLE; }
 
-    public void setTitle(CharSequence title) { tvTitle.setText(title); }
+    public boolean isContainerVisible() {
+        return fragmentContainer.getVisibility() == VISIBLE;
+    }
+
+    public void setTitle(CharSequence title) {
+        tvTitle.setText(title);
+    }
+
     public void setIcon(int resId) {
-        if (resId != 0) { ivIcon.setVisibility(VISIBLE); ivIcon.setImageResource(resId); }
-        else ivIcon.setVisibility(GONE);
+        if (resId != 0) {
+            ivIcon.setVisibility(VISIBLE);
+            ivIcon.setImageResource(resId);
+        } else
+            ivIcon.setVisibility(GONE);
     }
 }

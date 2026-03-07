@@ -88,16 +88,27 @@ public class DesignSettingsFragment extends LoggingFragment {
         spFontFamily.setSelection(savedIndex, false);
 
         spFontFamily.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-                String key = fontChoices.get(pos).key;
-                Option.setFontFamilyKey(key);
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
 
-                Executors.directExecutor().execute(() -> {
-                    // Flag main to refresh + recreate current host activity so theme/typography applies
-                    signalAndRecreate();
-                        });
+                String key = fontChoices.get(pos).key;
+                String current = Option.getFontFamilyKey();
+
+                if (!key.equalsIgnoreCase(current)) {
+                    myLog("Font changed from " + current + " to " + key + " - recreating");
+                    Option.setFontFamilyKey(key);
+
+                    Executors.directExecutor().execute(() -> {
+                        signalAndRecreate();
+                    });
+                } else {
+                    myLogD("Font already " + key + " - skip recreate");
+                }
             }
-            @Override public void onNothingSelected(AdapterView<?> parent) {}
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
         });
 
         // theme key → style map (same naming you already use)
