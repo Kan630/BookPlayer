@@ -79,6 +79,7 @@ public class Option {
     public static final boolean DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT = true;
     public static final boolean DEFAULT_AUTOMOTIVE_LET_CAR_AUTOPLAY = false;
     public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
+    public static final boolean DEFAULT_AUTOMOTIVE_SHOW_RADIOS = true;
     public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
     public static final int DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS = 200;
     public static final int DEFAULT_RADIO_API_NB_RESULTS = 200;
@@ -958,6 +959,14 @@ public class Option {
     public static boolean getAutomotiveKeepPhonePlaybackOnCarConnect() {
         return prefs.getBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT",
                 DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT);
+    }
+
+    public static void setAutomotiveShowRadios(boolean bool) {
+        prefs.edit().putBoolean("AUTOMOTIVE_SHOW_RADIOS", bool).apply();
+    }
+
+    public static boolean getAutomotiveShowRadios() {
+        return prefs.getBoolean("AUTOMOTIVE_SHOW_RADIOS", DEFAULT_AUTOMOTIVE_SHOW_RADIOS);
     }
 
     public static void setLibrivoxApiNbResults(int i) {

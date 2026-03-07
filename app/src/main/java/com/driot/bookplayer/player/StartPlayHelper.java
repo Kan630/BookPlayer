@@ -324,7 +324,7 @@ public class StartPlayHelper {
             if (ROOT_ID.equals(parentId)) {
 
                 // 1) Radios ?
-                if (RadioHelper.hasFavorites(context)) {
+                if (Option.getAutomotiveShowRadios() && RadioHelper.hasFavorites(context)) {
                     out.add(browsable(ROOT_RADIO_ID, context.getString(R.string.radio)));
                 }
 
