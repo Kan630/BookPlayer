@@ -190,19 +190,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public boolean directPlay;
 
     private void broadcastUiState(String fromWhere) {
-        String playMode = (engine != null) ? getPlayMode() : null;
-        // TODO check if that "get playMode from Playlist" is really usefull/wanetd
-        if (playMode == null) {
-            PlayList pl = PlayList.getInstance();
-            if (pl != null)
-                playMode = pl.getPlayMode();
-        }
-        broadcastUiState(fromWhere, playMode);
-    }
-
-    private void broadcastUiState(String fromWhere, String playMode) {
         final boolean ready = isReadyToPlay();
         final boolean playing = isPlaying();
+        final String playMode = getPlayMode();
 
         PlaybackUiState s;
 
@@ -2215,10 +2205,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
     }
 
-    private boolean playStream(@NonNull String playMode, @NonNull String url) {
+    private void playStream(@NonNull String playMode, @NonNull String url) {
         PlayList pl = PlayList.getInstance();
         String title = (pl != null) ? pl.getTitle() : null;
-        String imageUrl = (pl != null) ? pl.getImageUrl() : null;
         myLogI("playStream " + playMode + " - title=[" + title + "] - url=[" + url + "]");
 
         if (playTimer != null) {
@@ -2230,10 +2219,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         Uri streamUri = Uri.parse(url);
         if (streamUri == null) {
             myLogEE(null, "playStream: uri==null for url=" + url);
-            return false;
+            return;
         }
 
-        broadcastUiState("playStream " + playMode, playMode); // first snapshot (BUFFERING)
+        broadcastUiState("playStream " + playMode);
 
         // Swap engine to Exo for radio/podcast
         engineGen++;
@@ -2249,8 +2238,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
         } else {
             myToastEE(null, "unknown playMode " + playMode);
-            return false;
+            return;
         }
+        broadcastUiState("playStream " + playMode + " - engine started");
 
         setEngine(fresh);
         ErrorLoadingFile = false;
@@ -2271,7 +2261,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 /* artBmp */ null);
         if (!showForegroundNotification(false)) {
             myLogEE(null, "playStream: failed to show foreground notification, aborting.");
-            return false;
+            return;
         }
 
         try {
@@ -2285,9 +2275,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Exception e) {
             myLogEE(e, "playStream setDataSource/prepareAsync failed, uri=" + streamUri);
             alertError(null, null);
-            return false;
         }
-        return true;
     }
 
     private void updateSessionState(boolean playing) {
