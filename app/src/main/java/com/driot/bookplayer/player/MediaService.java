@@ -2222,28 +2222,27 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return;
         }
 
-        broadcastUiState("playStream " + playMode);
-
         // Swap engine to Exo for radio/podcast
         engineGen++;
         long gen = engineGen;
         PlayerEngine fresh = null;
         String playModeString;
 
-        if ("podcast".equals(playMode)) {
+        if (Var.PLAY_MODE_PODCAST.equals(playMode)) {
             fresh = new ExoStreamPlayerEngine(getApplicationContext(), engineCb, gen);
             playModeString = getString(R.string.podcasts);
-        } else if ("radio".equals(playMode)) {
+        } else if (Var.PLAY_MODE_RADIO.equals(playMode)) {
             playModeString = getString(R.string.radio);
             fresh = new ExoRadioPlayerEngine(getApplicationContext(), engineCb, gen);
         } else {
             myToastEE(null, "unknown playMode " + playMode);
             return;
         }
-        broadcastUiState("playStream " + playMode + " - engine started");
 
         setEngine(fresh);
         ErrorLoadingFile = false;
+
+        broadcastUiState("playStream " + playMode + " - engine set");
 
         PlaybackStateCompat s = new PlaybackStateCompat.Builder()
                 .setActions(ACTIONS_FILE)
