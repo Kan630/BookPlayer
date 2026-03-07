@@ -27,6 +27,7 @@ import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -219,7 +220,7 @@ public class StartPlayHelper {
         boolean wasFocusLost = Var.PAUSE_AUDIO_REASON_FOCUS_LOST.equals(lastPauseReason);
 
         myLog("carOnPlay - autoPlayAuth=" + autoPlayAuth + ", autoResumeAuth=" + autoResumeAuth);
-        myLog("carOnPlay - wasPlayingVeryRecently=" + wasPlayingVeryRecently + " (" + (diffMs / 1000)
+        myLog("carOnPlay - wasPlayingVeryRecently=" + wasPlayingVeryRecently + " (" + (Tonio.formatMS(diffMs))
                 + "s ago), reason="
                 + lastPauseReason);
 
@@ -509,7 +510,17 @@ public class StartPlayHelper {
         if ("com.google.android.projection.gearhead".equals(clientPackageName)
                 || "com.google.android.apps.automotive.inputmethod".equals(clientPackageName)
                 || "AndroidAuto".equals(callerInfo)) {
+
             CarSignals.markCarConnected();
+
+            long lastPauseTime = Pref.getPauseTime();
+            String lastPauseReason = Pref.getPauseReason();
+            long diffMs = System.currentTimeMillis() - lastPauseTime;
+            if (lastPauseTime != 0 && diffMs < 10_000L && Var.PAUSE_AUDIO_REASON_FOCUS_LOST.equals(lastPauseReason)) {
+                myLog("AA connected after stealing focus from ongoing playback (" + (diffMs / 1000)
+                        + "s ago).");
+            }
+
             FirebaseAnalyticsHelper.tellCarOnRoot();
         }
 

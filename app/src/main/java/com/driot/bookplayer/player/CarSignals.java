@@ -8,7 +8,7 @@ public final class CarSignals {
 
     public static void markCarConnected() {
         lastCarConnectElapsed = android.os.SystemClock.elapsedRealtime();
-        myLog("car connect");
+        myLogI("car connected");
     }
 
     public static boolean withinCarConnectGrace(long ms) {

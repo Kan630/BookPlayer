@@ -78,7 +78,6 @@ public class Option {
     public static final boolean DEFAULT_AUTOMOTIVE_ON = true;
     public static final boolean DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT = true;
     public static final boolean DEFAULT_AUTOMOTIVE_LET_CAR_AUTOPLAY = false;
-    public static final boolean DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT = false;
     public static final boolean DEFAULT_AUTOMOTIVE_SHOW_RADIOS = true;
     public static final int DEFAULT_LIBRIVOX_API_NB_RESULTS = 200;
     public static final int DEFAULT_PODCAST_INDEX_ORG_API_NB_RESULTS = 200;
@@ -137,7 +136,6 @@ public class Option {
         return prefs;
     }
 
-    // in Option.java
     public static void resetToDefaults(@NonNull Context ctx) {
         Context app = ctx.getApplicationContext();
         app.deleteSharedPreferences(SHARED_PREFERENCES_OPTIONS);
@@ -949,16 +947,9 @@ public class Option {
     }
 
     public static boolean getAutomotiveAutoResumeOnCarConnect() {
+        if (getAutomotiveLetCarAutoplay())
+            return true;
         return prefs.getBoolean("AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT", DEFAULT_AUTOMOTIVE_AUTO_RESUME_ON_CAR_CONNECT);
-    }
-
-    public static void setAutomotiveKeepPhonePlaybackOnCarConnect(boolean bool) {
-        prefs.edit().putBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT", bool).apply();
-    }
-
-    public static boolean getAutomotiveKeepPhonePlaybackOnCarConnect() {
-        return prefs.getBoolean("AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT",
-                DEFAULT_AUTOMOTIVE_KEEP_PHONE_PLAYBACK_ON_CAR_CONNECT);
     }
 
     public static void setAutomotiveShowRadios(boolean bool) {

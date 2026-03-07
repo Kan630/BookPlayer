@@ -29,9 +29,6 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
     private LinearLayout llShowRadios;
     private MaterialCheckBox chkShowRadios;
 
-    private LinearLayout llKeepPhonePlayback;
-    private MaterialCheckBox chkKeepPhonePlayback;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -61,32 +58,27 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         llShowRadios = root.findViewById(R.id.ll_automotive_show_radios);
         chkShowRadios = root.findViewById(R.id.chk_automotive_show_radios);
 
-        llKeepPhonePlayback = root.findViewById(R.id.ll_automotive_keep_phone_playback_on_car_connect);
-        chkKeepPhonePlayback = root.findViewById(R.id.chk_automotive_keep_phone_playback_on_car_connect);
-
         // Initial states
         chkAutomotiveOn.setChecked(Option.getAutomotiveOn());
         chkLetCarAutoplay.setChecked(Option.getAutomotiveLetCarAutoplay());
         chkAutoResumeOnConnect.setChecked(Option.getAutomotiveAutoResumeOnCarConnect());
         chkShowRadios.setChecked(Option.getAutomotiveShowRadios());
-        chkKeepPhonePlayback.setChecked(Option.getAutomotiveKeepPhonePlaybackOnCarConnect());
 
         // Click-to-toggle rows
         llAutomotiveOn.setOnClickListener(v -> chkAutomotiveOn.toggle());
         llLetCarAutoplay.setOnClickListener(v -> chkLetCarAutoplay.toggle());
         llAutoResumeOnConnect.setOnClickListener(v -> chkAutoResumeOnConnect.toggle());
         llShowRadios.setOnClickListener(v -> chkShowRadios.toggle());
-        llKeepPhonePlayback.setOnClickListener(v -> chkKeepPhonePlayback.toggle());
 
         // Listeners
         chkAutomotiveOn.setOnCheckedChangeListener((button, checked) -> {
             Option.setAutomotiveOn(checked);
-            // applyEnableState(); // overall enable/disable of suboptions
+            applyEnableState();
         });
 
         chkLetCarAutoplay.setOnCheckedChangeListener((button, checked) -> {
             Option.setAutomotiveLetCarAutoplay(checked);
-            // applyChildEnableState(); // enable/disable the child based on this
+            applyChildEnableState();
         });
 
         chkAutoResumeOnConnect.setOnCheckedChangeListener((button, checked) -> {
@@ -97,38 +89,39 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
             Option.setAutomotiveShowRadios(checked);
         });
 
-        chkKeepPhonePlayback.setOnCheckedChangeListener((button, checked) -> {
-            Option.setAutomotiveKeepPhonePlaybackOnCarConnect(checked);
-        });
-
         // Apply enable/disable rules once
-        // applyEnableState();
-        // applyChildEnableState();
+        applyEnableState();
+        applyChildEnableState();
 
         return root;
     }
-    /*
-     * // Enable/disable the two lower rows when Automotive is ON/OFF
-     * private void applyEnableState() {
-     * boolean automotiveOn = chkAutomotiveOn.isChecked();
-     * setRowEnabled(llLetCarAutoplay, chkLetCarAutoplay, automotiveOn);
-     * setRowEnabled(llAutoResumeOnConnect, chkAutoResumeOnConnect, automotiveOn &&
-     * chkLetCarAutoplay.isChecked());
-     * }
-     * 
-     * // Enable/disable the child row based on parent “let car autoplay”
-     * private void applyChildEnableState() {
-     * boolean automotiveOn = chkAutomotiveOn.isChecked();
-     * boolean parentOn = chkLetCarAutoplay.isChecked();
-     * setRowEnabled(llAutoResumeOnConnect, chkAutoResumeOnConnect, automotiveOn &&
-     * parentOn);
-     * }
-     * 
-     * private void setRowEnabled(View row, View control, boolean enabled) {
-     * row.setEnabled(enabled);
-     * control.setEnabled(enabled);
-     * row.setAlpha(enabled ? 1f : 0.5f);
-     * }
-     */
+
+    // Enable/disable the lower rows when Automotive is ON/OFF
+    private void applyEnableState() {
+        boolean automotiveOn = chkAutomotiveOn.isChecked();
+        setRowEnabled(llLetCarAutoplay, chkLetCarAutoplay, automotiveOn);
+        applyChildEnableState();
+    }
+
+    // Enable/disable the child row based on parent “let car autoplay”
+    private void applyChildEnableState() {
+        boolean automotiveOn = chkAutomotiveOn.isChecked();
+        boolean parentOn = chkLetCarAutoplay.isChecked();
+
+        if (parentOn && automotiveOn) {
+            // Force checked and disable interaction
+            chkAutoResumeOnConnect.setChecked(true);
+            setRowEnabled(llAutoResumeOnConnect, chkAutoResumeOnConnect, false);
+        } else {
+            // Re-enable for user control
+            setRowEnabled(llAutoResumeOnConnect, chkAutoResumeOnConnect, automotiveOn);
+        }
+    }
+
+    private void setRowEnabled(View row, View control, boolean enabled) {
+        row.setEnabled(enabled);
+        control.setEnabled(enabled);
+        row.setAlpha(enabled ? 1f : 0.5f);
+    }
 
 }

@@ -170,7 +170,8 @@ public class MainActivity extends BaseBottomNavActivity {
             boolean isEmpty = folders.isEmpty();
             emptyView.setVisibility(isEmpty ? View.VISIBLE : View.GONE);
             recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
-            setUpWelcomeMessageView(isEmpty);
+            if (isEmpty)
+                setUpWelcomeMessageView();
             adapter.submitList(folders);
         });
 
@@ -426,11 +427,8 @@ public class MainActivity extends BaseBottomNavActivity {
         myLogI("Sort changed → mode=" + newMode + " dir=" + newDir);
     }
 
-    private void setUpWelcomeMessageView(boolean isEmpty) {
+    private void setUpWelcomeMessageView() {
         myLog("no folders, setting up welcome message");
-        if (!isEmpty) {
-            return;
-        }
         Button btnWelcomeAddBook = emptyView.findViewById(R.id.btnWelcomeAddBook);
         btnWelcomeAddBook.setOnClickListener(v -> {
             startActivity(new Intent(getApplicationContext(), GetActivity.class));

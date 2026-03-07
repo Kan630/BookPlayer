@@ -64,6 +64,21 @@
                 />
 
             <LinearLayout
+                android:id="@+id/ll_automotive_let_car_autoplay"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_automotive_let_car_autoplay"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_automotive_let_car_autoplay" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_automotive_let_car_autoplay_explain_text"
+                />
+
+            <LinearLayout
                 android:id="@+id/ll_automotive_auto_resume_on_car_connect"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
                 >
@@ -77,21 +92,6 @@
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_auto_resume_on_car_connect_explain_text"
-                />
-
-            <LinearLayout
-                android:id="@+id/ll_automotive_let_car_autoplay"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_automotive_let_car_autoplay"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_automotive_let_car_autoplay" />
-            </LinearLayout>
-            <TextView
-                style="@style/OptionExplainText"
-                android:text="@string/option_automotive_let_car_autoplay_explain_text"
                 />
 
 

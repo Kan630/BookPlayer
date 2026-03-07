@@ -558,20 +558,22 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                     @Override
                     public void onFocusLost(int change) {
-                        myLog("onFocusLost - change: " + change);
                         logFocusChange(change);
+                        /* Useless Shit, removed on 2026-03-07, kept because you never know...
 
-                        boolean keepOnPhone = Option.getAutomotiveKeepPhonePlaybackOnCarConnect();
+                        - first :  focus lost is before onGetRoot, so we're never in grace
+                        - second :  we cant steal back ausio focus from AA, thats AA standard behaviour for security with cars and audio
+
                         boolean inGrace = CarSignals.withinCarConnectGrace(2500);
-                        myLog("keepOnPhone = " + keepOnPhone + ", inGrace = " + inGrace);
 
-                        if (keepOnPhone && inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+                        if (inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
                                 || change == AudioManager.AUDIOFOCUS_LOSS)) {
                             myLogW("AA connection focus steal - fighting back (ducking instead of pause)");
                             // treat transient like duck during grace window (don’t pause)
                             startDuck();
                             return;
                         }
+                         */
 
                         // normal behavior: pause if we were playing
                         pausedByFocusLoss = isPlaying();
@@ -1425,17 +1427,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         var info = MediaCallerHelper.getCallerInfo(MediaService.this);
         String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
         myLog("callerInfo: " + callerInfo);
-
-        if ("AndroidAuto".equals(callerInfo)) {
-            long lastPauseTime = Pref.getPauseTime();
-            String lastPauseReason = Pref.getPauseReason();
-            long diffMs = System.currentTimeMillis() - lastPauseTime;
-
-            if (lastPauseTime != 0 && diffMs < 10_000L && Var.PAUSE_AUDIO_REASON_FOCUS_LOST.equals(lastPauseReason)) {
-                myLogW("AA connected after stealing focus (" + (diffMs / 1000)
-                        + "s ago). could maybe fighting back...");
-            }
-        }
 
         return StartPlayHelper.onGetRoot(clientPackageName, callerInfo);
     }
