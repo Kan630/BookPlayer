@@ -2,7 +2,10 @@ package com.driot.bookplayer.radio;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.support.v4.media.MediaBrowserCompat;
+import android.support.v4.media.MediaDescriptionCompat;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -18,6 +21,7 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
+import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.StartPlayHelper;
 
 import java.io.File;
@@ -320,5 +324,53 @@ public class RadioHelper {
 		});
 	}
 
+	// ---- Android Auto Helpers ----
+
+	public static boolean hasFavorites(Context context) {
+		return AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao().countFavorites() > 0;
+	}
+
+	public static List<MediaBrowserCompat.MediaItem> getFavoriteRadios(Context context) {
+		List<RadioStation> favorites = AppDatabase.getDatabase(context.getApplicationContext())
+				.radioStationDao().getFavoritesByLastPlayed();
+		List<MediaBrowserCompat.MediaItem> items = new java.util.ArrayList<>();
+
+		for (RadioStation rs : favorites) {
+			MediaDescriptionCompat.Builder b = new MediaDescriptionCompat.Builder()
+					.setMediaId("radio:" + rs.stationuuid)
+					.setTitle(rs.name)
+					.setSubtitle(rs.tags);
+
+			// Icon
+			if (rs.favicon != null) {
+				Bitmap icon = MediaService.iconCache.get(rs.favicon);
+				if (icon == null) {
+					icon = ImageHelper.decodeBitmapFromStringUri(context.getApplicationContext(), rs.favicon, 158);
+					if (icon != null)
+						MediaService.iconCache.put(rs.favicon, icon);
+				}
+				if (icon != null)
+					b.setIconBitmap(icon);
+			}
+
+			items.add(new MediaBrowserCompat.MediaItem(b.build(), MediaBrowserCompat.MediaItem.FLAG_PLAYABLE));
+		}
+		return items;
+	}
+
+	public static void playRadioByUuid(Context context, String uuid, String caller) {
+		AppDatabase.databaseReadExecutor.execute(() -> {
+			RadioStation rs = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao()
+					.findByUuid(uuid);
+			if (rs != null) {
+				String streamUrl = (rs.url_resolved != null && !rs.url_resolved.isEmpty()) ? rs.url_resolved : rs.url;
+				if (streamUrl != null) {
+					new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+						play(context, rs, streamUrl, caller);
+					});
+				}
+			}
+		});
+	}
 
 }

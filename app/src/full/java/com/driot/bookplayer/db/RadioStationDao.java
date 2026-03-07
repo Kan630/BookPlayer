@@ -48,11 +48,14 @@ public interface RadioStationDao {
     @Query("SELECT * FROM RadioStation WHERE isFavorite = 1 ORDER BY display_order ASC")
     List<RadioStation> getFavorites();
 
+    @Query("SELECT * FROM RadioStation WHERE isFavorite = 1 ORDER BY date_last_played DESC, name COLLATE NOCASE ASC")
+    List<RadioStation> getFavoritesByLastPlayed();
+
     // Play History only
     @Query("SELECT * FROM RadioStation WHERE date_last_played is not null ORDER BY date_last_played DESC")
     List<RadioStation> getAlreadyPlayed();
 
-        @Query("UPDATE RadioStation SET isFavorite = :favorite WHERE stationuuid = :uuid")
+    @Query("UPDATE RadioStation SET isFavorite = :favorite WHERE stationuuid = :uuid")
     void setFavoriteByUuid(String uuid, boolean favorite);
 
     @Query("UPDATE RadioStation SET date_last_played = :timestamp WHERE stationuuid = :uuid")

@@ -38,8 +38,10 @@ import java.util.Objects;
 public class StartPlayHelper {
 
     private static final String ROOT_ID = "root";
+    private static final String ROOT_RADIO_ID = "radio_root";
     private static final String PREFIX_FOLDER = "folder:";
     private static final String PREFIX_TRACK = "track:";
+    private static final String PREFIX_RADIO = "radio:";
 
     private static final int ART_MAX_PX = 512; // big artwork
     private static final int ICON_MAX_PX = 158; // was 128 158=hints fron AndroidAuto // list thumbnails
@@ -277,6 +279,12 @@ public class StartPlayHelper {
             return;
         }
 
+        if (mediaId.startsWith(PREFIX_RADIO)) {
+            String uuid = mediaId.substring(PREFIX_RADIO.length());
+            RadioHelper.playRadioByUuid(context, uuid, "carOnPlayFromMediaId()");
+            return;
+        }
+
         if (mediaId.startsWith(PREFIX_FOLDER)) {
             long folderId = safeParseInt(mediaId.substring(PREFIX_FOLDER.length()), -1);
             if (folderId > 0) {
@@ -314,6 +322,13 @@ public class StartPlayHelper {
             List<MediaBrowserCompat.MediaItem> out = new ArrayList<>();
 
             if (ROOT_ID.equals(parentId)) {
+
+                // 1) Radios ?
+                if (RadioHelper.hasFavorites(context)) {
+                    out.add(browsable(ROOT_RADIO_ID, context.getString(R.string.radio)));
+                }
+
+                // 2) Books
                 List<Folder> folders = AppDatabase.getDatabase(context.getApplicationContext())
                         .folderDao().getAll();
 
@@ -362,6 +377,14 @@ public class StartPlayHelper {
                 result.sendResult(out);
                 myLog("onChildren() : " + out.size() + " results sent in " + (System.currentTimeMillis() - startTime)
                         + "ms. for ROOT (parentId=" + parentId + ")");
+                return;
+            }
+
+            if (ROOT_RADIO_ID.equals(parentId)) {
+                out.addAll(RadioHelper.getFavoriteRadios(context));
+                myLogD("onChildren(" + parentId + ") " + out.size() + " results sent in "
+                        + (System.currentTimeMillis() - startTime) + "ms.");
+                result.sendResult(out);
                 return;
             }
 
@@ -539,8 +562,8 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_FOREGROUND, true));
     }
 
-    public static void playStream(Context context, String playMode, String streamUrl, long trackId
-            ,String title, String cover, String caller) {
+    public static void playStream(Context context, String playMode, String streamUrl, long trackId, String title,
+            String cover, String caller) {
         stopTtsIfPlaying(context, PlaybackUiBus.get().state().getValue());
         PlayList.createFromStream(context, playMode, streamUrl, trackId, title, cover);
         FirebaseAnalyticsHelper.tellAnalyticsStartStreaming(title, streamUrl, playMode);
@@ -551,7 +574,7 @@ public class StartPlayHelper {
                         .putExtra(Intents.EXTRA_PLAY_MODE, playMode)
                         .putExtra(Intents.EXTRA_STREAM_URL, streamUrl)
                         .putExtra(Intents.EXTRA_STREAM_TRACK_ID, trackId)
-                        //.putExtra(Intents.EXTRA_RADIO_STATION_UUID, uuid)
+                        // .putExtra(Intents.EXTRA_RADIO_STATION_UUID, uuid)
                         .putExtra(Intents.EXTRA_TITLE, title)
                         .putExtra(Intents.EXTRA_IMAGE_URL, cover)
                         .putExtra(Intents.EXTRA_CALLER, caller)

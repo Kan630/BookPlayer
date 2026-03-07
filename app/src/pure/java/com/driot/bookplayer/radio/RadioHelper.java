@@ -11,8 +11,8 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.player.StartPlayHelper;
 
 public class RadioHelper {
-	
-	public static void handleRadioImages(Context context, long currentTime) {
+
+    public static void handleRadioImages(Context context, long currentTime) {
         myLog("stub!");
     }
 
@@ -32,9 +32,23 @@ public class RadioHelper {
         return false;
     }
 
-    public static void addSecondToTimeListened(Context context, long trackId)  {
+    public static void addSecondToTimeListened(Context context, long trackId) {
+        myLogE("should never happen");
+    }
+
+    // ---- Android Auto Helpers Stubs ----
+
+    public static boolean hasFavorites(Context context) {
+        return false;
+    }
+
+    public static List<MediaBrowserCompat.MediaItem> getFavoriteRadios(
+            Context context) {
+        return Collections.emptyList();
+    }
+
+    public static void playRadioByUuid(Context context, String uuid, String caller) {
         myLogE("should never happen");
     }
 
 }
-
