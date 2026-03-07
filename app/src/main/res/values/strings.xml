@@ -515,6 +515,7 @@
     <string name="option_automotive_on">Display in Android Auto.</string>
     <string name="option_automotive_show_radios">Display Radios.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
+    <string name="option_automotive_keep_phone_playback">Keep phone playback on connect.</string>
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum
@@ -968,6 +969,7 @@
     <string name="option_automotive_show_radios_explain_text">Show your favorite radio stations in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect_explain_text">Allow Android Auto to resume playback automatically when connected to the car, if audio was already playing in the app.</string>
     <string name="option_automotive_let_car_autoplay_explain_text">Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.</string>
+    <string name="option_automotive_keep_phone_playback_explain_text">If you are already playing audio on your phone, keep playing on the phone speaker/earphones instead of yielding to Android Auto when you connect to the car.</string>
     <string name="Mass_Import">Massive Import</string>
     <string name="massiveimport_title">Multiple books import</string>
     <string name="scanning_folder">scanning folder</string>

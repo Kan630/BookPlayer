@@ -21,6 +21,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -208,14 +209,37 @@ public class StartPlayHelper {
     }
 
     public static void carOnPlay(Context context) {
-        if (!Option.getAutomotiveLetCarAutoplay()) {
-            myLogW("Android Auto not authorized to start audio on its own (from Bookplayer settings)");
-            return;
-        }
+        boolean autoPlayAuth = Option.getAutomotiveLetCarAutoplay();
+        boolean autoResumeAuth = Option.getAutomotiveAutoResumeOnCarConnect();
 
-        // TODO if (Option.getAutomotiveAutoResumeOnCarConnect()) {
-        // myLogW("Android Auto not authorized to resume playback (from Bookplayer
-        // settings)");
+        long lastPauseTime = Pref.getPauseTime();
+        String lastPauseReason = Pref.getPauseReason();
+        long diffMs = System.currentTimeMillis() - lastPauseTime;
+        boolean wasPlayingVeryRecently = lastPauseTime != 0 && diffMs < 60_000L; // 1 minute
+        boolean wasFocusLost = "focus lost".equals(lastPauseReason);
+
+        myLog("carOnPlay - autoPlayAuth=" + autoPlayAuth + ", autoResumeAuth=" + autoResumeAuth);
+        myLog("carOnPlay - wasPlayingVeryRecently=" + wasPlayingVeryRecently + " (" + (diffMs / 1000)
+                + "s ago), reason="
+                + lastPauseReason);
+
+        // If autoplay is off, we only allow it if it's an "Auto-Resume" of something
+        // that just paused due to focus loss (car connecting)
+        if (!autoPlayAuth) {
+            if (autoResumeAuth && wasPlayingVeryRecently && wasFocusLost) {
+                myLogW("Autoplay is OFF, but Auto-Resume is ON and we just paused for focus loss. Allowing resume.");
+            } else {
+                myLogW("Android Auto not authorized to start audio on its own (from Bookplayer settings)");
+                return;
+            }
+        } else {
+            // Autoplay is ON, but we still might want to respect Auto-Resume toggle for the
+            // restart case
+            if (!autoResumeAuth && !wasPlayingVeryRecently) {
+                myLogW("Autoplay is ON, but Auto-Resume is OFF and too much time passed. Not starting.");
+                return;
+            }
+        }
 
         PlayList pl = PlayList.getInstance();
         if (pl == null) {

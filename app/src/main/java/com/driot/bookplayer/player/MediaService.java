@@ -558,26 +558,20 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                     @Override
                     public void onFocusLost(int change) {
-                        myLog("onFocusLost");
+                        myLog("onFocusLost - change: " + change);
                         logFocusChange(change);
-                        /*
-                         * //TODO cree un timer sur le focus lost, et voir dans les 3sec si c'etait pas
-                         * AA qui se connectait, si c'est le cas, remettre le play?
-                         * boolean keepOnPhone = Option.getAutomotiveKeepPhonePlaybackOnCarConnect(); //
-                         * new toggle (default false)
-                         * boolean inGrace = CarSignals.withinCarConnectGrace(2500);
-                         * myLog("keepOnPhone = " + keepOnPhone);
-                         * myLog("inGrace = " + inGrace);
-                         * 
-                         * if (keepOnPhone && inGrace && (change ==
-                         * AudioManager.AUDIOFOCUS_LOSS_TRANSIENT || change ==
-                         * AudioManager.AUDIOFOCUS_LOSS)) {
-                         * myLog("AUDIOFOCUS_LOSS_TRANSIENT");
-                         * // treat transient like duck during grace window (don’t pause)
-                         * startDuck();
-                         * return;
-                         * }
-                         */
+
+                        boolean keepOnPhone = Option.getAutomotiveKeepPhonePlaybackOnCarConnect();
+                        boolean inGrace = CarSignals.withinCarConnectGrace(2500);
+                        myLog("keepOnPhone = " + keepOnPhone + ", inGrace = " + inGrace);
+
+                        if (keepOnPhone && inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+                                || change == AudioManager.AUDIOFOCUS_LOSS)) {
+                            myLogW("AA connection focus steal - fighting back (ducking instead of pause)");
+                            // treat transient like duck during grace window (don’t pause)
+                            startDuck();
+                            return;
+                        }
 
                         // normal behavior: pause if we were playing
                         pausedByFocusLoss = isPlaying();

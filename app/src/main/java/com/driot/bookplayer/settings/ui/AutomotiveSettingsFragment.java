@@ -29,6 +29,9 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
     private LinearLayout llShowRadios;
     private MaterialCheckBox chkShowRadios;
 
+    private LinearLayout llKeepPhonePlayback;
+    private MaterialCheckBox chkKeepPhonePlayback;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -58,17 +61,22 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         llShowRadios = root.findViewById(R.id.ll_automotive_show_radios);
         chkShowRadios = root.findViewById(R.id.chk_automotive_show_radios);
 
+        llKeepPhonePlayback = root.findViewById(R.id.ll_automotive_keep_phone_playback_on_car_connect);
+        chkKeepPhonePlayback = root.findViewById(R.id.chk_automotive_keep_phone_playback_on_car_connect);
+
         // Initial states
         chkAutomotiveOn.setChecked(Option.getAutomotiveOn());
         chkLetCarAutoplay.setChecked(Option.getAutomotiveLetCarAutoplay());
         chkAutoResumeOnConnect.setChecked(Option.getAutomotiveAutoResumeOnCarConnect());
         chkShowRadios.setChecked(Option.getAutomotiveShowRadios());
+        chkKeepPhonePlayback.setChecked(Option.getAutomotiveKeepPhonePlaybackOnCarConnect());
 
         // Click-to-toggle rows
         llAutomotiveOn.setOnClickListener(v -> chkAutomotiveOn.toggle());
         llLetCarAutoplay.setOnClickListener(v -> chkLetCarAutoplay.toggle());
         llAutoResumeOnConnect.setOnClickListener(v -> chkAutoResumeOnConnect.toggle());
         llShowRadios.setOnClickListener(v -> chkShowRadios.toggle());
+        llKeepPhonePlayback.setOnClickListener(v -> chkKeepPhonePlayback.toggle());
 
         // Listeners
         chkAutomotiveOn.setOnCheckedChangeListener((button, checked) -> {
@@ -87,6 +95,10 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
 
         chkShowRadios.setOnCheckedChangeListener((button, checked) -> {
             Option.setAutomotiveShowRadios(checked);
+        });
+
+        chkKeepPhonePlayback.setOnCheckedChangeListener((button, checked) -> {
+            Option.setAutomotiveKeepPhonePlaybackOnCarConnect(checked);
         });
 
         // Apply enable/disable rules once
