@@ -379,6 +379,7 @@ public final class AppTtsManager implements TextToSpeech.OnInitListener {
         myLogD("AppTtsManager: reinitialize with engine: " + enginePackageName);
         ready = false;
         currentUtteranceId = null;
+        voicesLiveData.postValue(null); // Clear voices so UI reloads
         TextToSpeech old = tts;
         if (old != null) {
             try {

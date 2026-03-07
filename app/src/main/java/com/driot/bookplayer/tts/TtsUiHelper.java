@@ -58,6 +58,7 @@ public final class TtsUiHelper {
                 ui_context, android.R.layout.simple_spinner_item,
                 Collections.singletonList("Loading voices…"));
         loadingAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setOnItemSelectedListener(null);
         spinner.setAdapter(loadingAdapter);
         spinner.setEnabled(false);
 
@@ -70,6 +71,7 @@ public final class TtsUiHelper {
                         ui_context, android.R.layout.simple_spinner_item,
                         Collections.singletonList("No voices"));
                 empty.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                spinner.setOnItemSelectedListener(null);
                 spinner.setAdapter(empty);
                 spinner.setEnabled(false);
                 callback.onSelected(null);
@@ -108,6 +110,7 @@ public final class TtsUiHelper {
         }
 
         final VoiceSpinnerAdapter adapter = new VoiceSpinnerAdapter(ui, all);
+        spinner.setOnItemSelectedListener(null);
         spinner.setAdapter(adapter);
         if (currentSelected >= 0) {
             spinner.setSelection(currentSelected);

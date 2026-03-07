@@ -25,8 +25,6 @@ import com.driot.bookplayer.tts.TtsUiHelper;
 import com.driot.bookplayer.tts.AppTtsManager;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 
-import org.w3c.dom.Text;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -211,9 +209,10 @@ public class TtsSettingsFragment extends LoggingFragment {
             return;
         }
 
-        if (engines.size()==1) {
+        if (engines.size() == 1) {
             ttsEngineSpinner.setVisibility(View.GONE);
-            String displayedText = getString(R.string.option_tts_engine_only_one)  + "\n.  [" + engines.get(0).name + "]" + "\n.  (" + engines.get(0).label + ")";
+            String displayedText = getString(R.string.option_tts_engine_only_one) + "\n.  [" + engines.get(0).name + "]"
+                    + "\n.  (" + engines.get(0).label + ")";
             ttsEngineTextView.setText(displayedText);
             return;
         }
