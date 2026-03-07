@@ -63,22 +63,6 @@
                 android:text="@string/option_automotive_show_radios_explain_text"
                 />
 
-
-            <LinearLayout
-                android:id="@+id/ll_automotive_keep_phone_playback_on_car_connect"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal">
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_automotive_keep_phone_playback_on_car_connect"
-                    style="@style/OptionCheckBox" />
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:text="@string/option_automotive_keep_phone_playback" />
-            </LinearLayout>
-            <TextView
-                style="@style/OptionExplainText"
-                android:text="@string/option_automotive_keep_phone_playback_explain_text"
-                />
-
             <LinearLayout
                 android:id="@+id/ll_automotive_auto_resume_on_car_connect"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
