@@ -183,6 +183,18 @@
             android:layout_marginTop="10dp"
             android:layout_marginBottom="15dp" />
 
+        <TextView
+            style="@style/OptionSubTitle"
+            android:text="@string/option_tts_engine" />
+        <Spinner
+            android:id="@+id/spinner_tts_engine"
+            style="@style/Spinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="15dp" />
+
         <View style="@style/myStyleViewSimpleHorizontalBar" />
         <TextView
             style="@style/OptionSubTitle"

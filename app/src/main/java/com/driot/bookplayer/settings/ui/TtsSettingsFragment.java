@@ -47,7 +47,6 @@ public class TtsSettingsFragment extends LoggingFragment {
     private TextView tvTtsFullscreenTextSizeValue;
     private LinearLayout llEbookRemoveReferences;
     private LinearLayout llDocxSplitIntoChapters;
-    private boolean hasBeenInitialized = false;
 
     @Nullable
     @Override
@@ -66,6 +65,10 @@ public class TtsSettingsFragment extends LoggingFragment {
         if (titleContainer != null) {
             titleContainer.setVisibility(showLocalTitle ? View.VISIBLE : View.GONE);
         }
+
+        // TTS engine Spinner
+        Spinner ttsEngineSpinner = root.findViewById(R.id.spinner_tts_engine);
+
 
         // Voice spinner
         Spinner ttsVoiceSpinner = root.findViewById(R.id.spinner_voice_item);
