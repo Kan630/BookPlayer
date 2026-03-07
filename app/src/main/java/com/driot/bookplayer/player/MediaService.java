@@ -575,7 +575,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                         // normal behavior: pause if we were playing
                         pausedByFocusLoss = isPlaying();
-                        pauseAudio("focus lost");
+                        pauseAudio(Var.PAUSE_AUDIO_REASON_FOCUS_LOST);
                     }
 
                     @Override
@@ -1425,6 +1425,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         var info = MediaCallerHelper.getCallerInfo(MediaService.this);
         String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
         myLog("callerInfo: " + callerInfo);
+
+        if ("AndroidAuto".equals(callerInfo)) {
+            long lastPauseTime = Pref.getPauseTime();
+            String lastPauseReason = Pref.getPauseReason();
+            long diffMs = System.currentTimeMillis() - lastPauseTime;
+
+            if (lastPauseTime != 0 && diffMs < 10_000L && Var.PAUSE_AUDIO_REASON_FOCUS_LOST.equals(lastPauseReason)) {
+                myLogW("AA connected after stealing focus (" + (diffMs / 1000)
+                        + "s ago). could maybe fighting back...");
+            }
+        }
 
         return StartPlayHelper.onGetRoot(clientPackageName, callerInfo);
     }

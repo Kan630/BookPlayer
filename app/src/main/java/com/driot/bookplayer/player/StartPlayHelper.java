@@ -216,7 +216,7 @@ public class StartPlayHelper {
         String lastPauseReason = Pref.getPauseReason();
         long diffMs = System.currentTimeMillis() - lastPauseTime;
         boolean wasPlayingVeryRecently = lastPauseTime != 0 && diffMs < 60_000L; // 1 minute
-        boolean wasFocusLost = "focus lost".equals(lastPauseReason);
+        boolean wasFocusLost = Var.PAUSE_AUDIO_REASON_FOCUS_LOST.equals(lastPauseReason);
 
         myLog("carOnPlay - autoPlayAuth=" + autoPlayAuth + ", autoResumeAuth=" + autoResumeAuth);
         myLog("carOnPlay - wasPlayingVeryRecently=" + wasPlayingVeryRecently + " (" + (diffMs / 1000)

@@ -146,6 +146,8 @@ public class Var {
         public static final String VISUALIZER_TYPE_RADIAL = "RADIAL";
         public static final String VISUALIZER_TYPE_WAVE = "WAVE";
 
+        public static final String PAUSE_AUDIO_REASON_FOCUS_LOST = "focus lost";
+
         public static final String WEBSITE_URL = "https://bookplayer.driot.com/";
 
         public static final int[] SLEEP_PRESET_VALUES = { 10, 20, 30, 45, 90, 180 };
