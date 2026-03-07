@@ -16,7 +16,6 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
-
         <TextView
             style="@style/warningText"
             android:layout_width="wrap_content"
@@ -36,7 +35,6 @@
             android:layout_marginStart="40dp"
             android:layout_marginTop="10dp"
             />
-
 
         <View style="@style/myStyleViewSimpleHorizontalBar"
             android:layout_marginTop="40dp"/>
