@@ -31,7 +31,6 @@ public class MiniPlayHostFragment extends LoggingFragment {
 
     @Nullable @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
-        // Simple container for the child fragment
         return inf.inflate(R.layout.fragment_mini_play_host_container, c, false);
     }
 

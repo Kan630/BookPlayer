@@ -24,8 +24,6 @@ public class MiniPlayBookFragment extends LoggingFragment {
     private Slider sbMiniSeek;
     private ImageButton ibPrev, ibPlayPause, ibNext, ibClose;
 
-    private UiHelper.SliderBinding sliderBinding;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inf, @Nullable ViewGroup c, @Nullable Bundle b) {
@@ -50,7 +48,7 @@ public class MiniPlayBookFragment extends LoggingFragment {
 
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
 
-        sliderBinding = UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
+        UiHelper.bindSeekBar(sbMiniSeek, tvMiniTime, vm);
 
         vm.getState().observe(getViewLifecycleOwner(), s -> {
             if (s == null)
@@ -93,7 +91,6 @@ public class MiniPlayBookFragment extends LoggingFragment {
         if (sbMiniSeek != null) {
             UiHelper.unbindSeekBar(sbMiniSeek);
         }
-        sliderBinding = null;
     }
 
     @Override
