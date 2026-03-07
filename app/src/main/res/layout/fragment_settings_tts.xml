@@ -126,10 +126,20 @@
 
         <View style="@style/myStyleViewSimpleHorizontalBar"
             android:layout_marginTop="40dp"/>
-        <TextView
-            style="@style/OptionTitle"
-            android:layout_marginTop="10dp"
-            android:text="@string/Full_Screen"/>
+        <LinearLayout
+            style="@style/wideLinearLayout_Horizontal">
+            <TextView
+                style="@style/OptionTitle"
+                android:layout_marginTop="10dp"
+                android:text="@string/Full_Screen"/>
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginStart="20dp"
+                android:layout_marginTop="5dp"
+                android:src="@drawable/ic_content_expand_24"/>
+        </LinearLayout>
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
         <!-- Display playback controls in full screen -->
