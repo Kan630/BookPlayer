@@ -12,8 +12,8 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 public class CoverSearchRepository {
     private final List<CoverSearchProvider> providers = new ArrayList<>();
-    private static final int MIN_PER_PROVIDER = 2;     // guarantee at least N from each provider
-    private static final int TIMEOUT_MS       = 6000;  // per-provider hard cap
+    private static final int MIN_PER_PROVIDER = 2; // guarantee at least N from each provider
+    private static final int TIMEOUT_MS = 6000; // per-provider hard cap
 
     // lightweight in-memory cache (optional)
     private static final long CACHE_TTL_MS = 5 * 60_000L;
@@ -21,16 +21,16 @@ public class CoverSearchRepository {
 
     // shared pool for the whole app (avoid spinning threads every time)
     private static final ExecutorService POOL = Executors.newFixedThreadPool(
-            Math.max(3, Runtime.getRuntime().availableProcessors() / 2)
-    );
+            Math.max(3, Runtime.getRuntime().availableProcessors() / 2));
 
     public CoverSearchRepository(Context ctx) {
+        providers.add(new GoogleImageProvider());
         providers.add(new OpenLibraryProvider());
         providers.add(new GoogleBooksProvider());
 
         // Cloudflare Worker
-        String base = BuildConfig.PIXABAY_BASE_URL;    // e.g., https://steep-hat-11ff.adriot.workers.dev
-        String tok  = BuildConfig.APP_TOKEN;         // optional, can be ""
+        String base = BuildConfig.PIXABAY_BASE_URL; // e.g., https://steep-hat-11ff.adriot.workers.dev
+        String tok = BuildConfig.APP_TOKEN; // optional, can be ""
         if (base != null && !base.isEmpty()) {
             providers.add(new PixabayProxyProvider(base + "/pixabay", tok));
         }
@@ -65,14 +65,16 @@ public class CoverSearchRepository {
         Map<String, List<CoverResult>> byProv = new LinkedHashMap<>();
         try {
             List<Future<ProvResult>> futures = new ArrayList<>(tasks.size());
-            for (Callable<ProvResult> c : tasks) futures.add(POOL.submit(c));
+            for (Callable<ProvResult> c : tasks)
+                futures.add(POOL.submit(c));
 
             // bounded waits so slow providers don’t block UX
             for (Future<ProvResult> f : futures) {
                 try {
                     ProvResult r = f.get(TIMEOUT_MS, TimeUnit.MILLISECONDS);
                     byProv.put(r.name, r.list != null ? r.list : Collections.emptyList());
-                    myLogD("Provider " + r.name + " returned " + (r.list == null ? 0 : r.list.size()) + " in " + r.elapsed + "ms");
+                    myLogD("Provider " + r.name + " returned " + (r.list == null ? 0 : r.list.size()) + " in "
+                            + r.elapsed + "ms");
                 } catch (TimeoutException te) {
                     myLogW("Provider timed out after " + TIMEOUT_MS + "ms");
                     f.cancel(true);
@@ -88,7 +90,8 @@ public class CoverSearchRepository {
         ArrayList<CoverResult> out = new ArrayList<>(max);
         HashSet<String> seen = new HashSet<>(max * 2);
 
-// 1) first pass: take up to MIN_PER_PROVIDER from each provider and remember how many we took
+        // 1) first pass: take up to MIN_PER_PROVIDER from each provider and remember
+        // how many we took
         Map<String, Integer> offsets = new LinkedHashMap<>(); // providerName -> next index to try
         for (Map.Entry<String, List<CoverResult>> e : byProv.entrySet()) {
             List<CoverResult> list = e.getValue();
@@ -96,7 +99,8 @@ public class CoverSearchRepository {
             if (list != null) {
                 for (int i = 0; i < list.size() && took < MIN_PER_PROVIDER && out.size() < max; i++) {
                     CoverResult r = list.get(i);
-                    if (r == null || r.imageUrl == null) continue;
+                    if (r == null || r.imageUrl == null)
+                        continue;
                     if (seen.add(r.imageUrl)) {
                         out.add(r);
                         took++;
@@ -105,21 +109,28 @@ public class CoverSearchRepository {
             }
             // next index to try for this provider in the round-robin:
             offsets.put(e.getKey(), Math.min(took, (list == null ? 0 : list.size())));
-            if (out.size() >= max) break;
+            if (out.size() >= max)
+                break;
         }
 
-// 2) round-robin the remainder starting from each provider’s offset
+        // 2) round-robin the remainder starting from each provider’s offset
         boolean progressed = true;
         while (out.size() < max && progressed) {
             progressed = false;
             int iProv = 0;
             for (Map.Entry<String, List<CoverResult>> e : byProv.entrySet()) {
                 List<CoverResult> list = e.getValue();
-                if (list == null || list.isEmpty()) { iProv++; continue; }
+                if (list == null || list.isEmpty()) {
+                    iProv++;
+                    continue;
+                }
 
                 Integer idxBoxed = offsets.get(e.getKey());
                 int idx = (idxBoxed != null) ? idxBoxed : 0;
-                if (idx >= list.size()) { iProv++; continue; }
+                if (idx >= list.size()) {
+                    iProv++;
+                    continue;
+                }
 
                 CoverResult r = list.get(idx);
                 // advance cursor regardless so we don’t retry same slot next cycle
@@ -128,7 +139,8 @@ public class CoverSearchRepository {
                 if (r != null && r.imageUrl != null && seen.add(r.imageUrl)) {
                     out.add(r);
                     progressed = true;
-                    if (out.size() >= max) break;
+                    if (out.size() >= max)
+                        break;
                 }
                 iProv++;
             }
@@ -136,32 +148,30 @@ public class CoverSearchRepository {
         // cache & log
         out.trimToSize();
         cache.put(key, new CacheEntry(System.currentTimeMillis(), out));
-        myLogD("CoverSearchRepository: returned " + out.size() + " in " + (System.currentTimeMillis() - t0) + "ms for '" + query + "'");
+        myLogD("CoverSearchRepository: returned " + out.size() + " in " + (System.currentTimeMillis() - t0) + "ms for '"
+                + query + "'");
         return out;
-    }
-
-    private void takeUnique(List<CoverResult> out, Set<String> seen, List<CoverResult> in, int want) {
-        if (want <= 0 || in == null) return;
-        for (int i = 0; i < in.size() && want > 0; i++) {
-            CoverResult r = in.get(i);
-            if (r == null || r.imageUrl == null) continue;
-            if (seen.add(r.imageUrl)) {
-                out.add(r);
-                want--;
-            }
-        }
     }
 
     private static final class ProvResult {
         final String name;
         final List<CoverResult> list;
         final long elapsed;
-        ProvResult(String n, List<CoverResult> l, long e) { name = n; list = l; elapsed = e; }
+
+        ProvResult(String n, List<CoverResult> l, long e) {
+            name = n;
+            list = l;
+            elapsed = e;
+        }
     }
 
     private static final class CacheEntry {
         final long when;
         final List<CoverResult> results;
-        CacheEntry(long w, List<CoverResult> r) { when = w; results = r; }
+
+        CacheEntry(long w, List<CoverResult> r) {
+            when = w;
+            results = r;
+        }
     }
 }
