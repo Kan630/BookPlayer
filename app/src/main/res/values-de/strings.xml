@@ -530,7 +530,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="AskReset_popupTitle">Zurücksetzen bestätigen</string>
     <string name="You_are_about_to_delete_this_audio_book">"Sie sind dabei, dieses Hörbuch zu löschen"</string>
     <string name="Last_access">"Letzter Zugriff"</string>
-    <string name="AudioLocation">"Audio-Speicherort"</string>
+    <string name="Audio_location">"Audio-Speicherort"</string>
     <string name="Change_cover_image">"Coverbild ändern"</string>
     <string name="AskRename_Track">Diesen Titel umbenennen in</string>
     <string name="IntroCut">"Intro kürzen"</string>

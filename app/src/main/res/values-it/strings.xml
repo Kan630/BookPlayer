@@ -529,7 +529,7 @@
     <string name="AskReset_popupTitle">Conferma azzeramento</string>
     <string name="You_are_about_to_delete_this_audio_book">"Stai per eliminare questo audiolibro"</string>
     <string name="Last_access">"Ultimo accesso"</string>
-    <string name="AudioLocation">"Posizione audio"</string>
+    <string name="Audio_location">"Posizione audio"</string>
     <string name="Change_cover_image">"Cambia immagine di copertina"</string>
     <string name="AskRename_Track">Rinomina questa traccia in</string>
     <string name="IntroCut">"Taglia intro"</string>

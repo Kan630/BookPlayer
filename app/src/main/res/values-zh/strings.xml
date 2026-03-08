@@ -528,7 +528,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="AskReset_popupTitle">确认重置</string>
     <string name="You_are_about_to_delete_this_audio_book">"您即将删除此有声书"</string>
     <string name="Last_access">"上次访问"</string>
-    <string name="AudioLocation">"音频位置"</string>
+    <string name="Audio_location">"音频位置"</string>
     <string name="Change_cover_image">"更换封面图像"</string>
     <string name="AskRename_Track">将此音轨重命名为</string>
     <string name="IntroCut">"剪辑开头"</string>

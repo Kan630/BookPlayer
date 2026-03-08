@@ -597,7 +597,7 @@
     <string name="AskReset_popupTitle">Confirm Reset</string>
     <string name="You_are_about_to_delete_this_audio_book">"You are about to delete this audio book"</string>
     <string name="Last_access">"Last access"</string>
-    <string name="AudioLocation">location</string>
+    <string name="Audio_location">Audio location</string>
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="AskRename_Track">Rename this track to</string>
     <string name="IntroCut">"Cut Intro"</string>

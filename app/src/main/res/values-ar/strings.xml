@@ -523,7 +523,7 @@
     <string name="AskReset_popupTitle">تأكيد إعادة التعيين</string>
     <string name="You_are_about_to_delete_this_audio_book">"أنت على وشك حذف هذا الكتاب الصوتي"</string>
     <string name="Last_access">"آخر وصول"</string>
-    <string name="AudioLocation">"موقع الملف الصوتي"</string>
+    <string name="Audio_location">"موقع الملف الصوتي"</string>
     <string name="Change_cover_image">"تغيير صورة الغلاف"</string>
     <string name="AskRename_Track">إعادة تسمية هذا المقطع إلى</string>
     <string name="IntroCut">"قص المقدمة"</string>

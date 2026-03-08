@@ -89,17 +89,15 @@
                     <TextView
                         android:id="@+id/textViewStorageIcon"
                         style="@style/myStyleInfo"
-                        android:layout_width="wrap_content"
+                        android:layout_width="100dp"
                         android:layout_height="wrap_content"
                         android:includeFontPadding="false"
-                        android:text="Audio Location : xxxxxx" />
+                        android:text="Audio Location :\nxxxxxx" />
 
                     <ImageView
                         android:id="@+id/imageViewStorageIcon"
                         android:layout_width="48dp"
                         android:layout_height="48dp"
-                        android:layout_gravity="center"
-                        android:layout_marginStart="5dp"
                         android:src="@drawable/no_image_icon" />
                 </LinearLayout>
 

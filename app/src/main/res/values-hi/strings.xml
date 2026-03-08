@@ -526,7 +526,7 @@
     <string name="AskReset_popupTitle">रीसेट की पुष्टि</string>
     <string name="You_are_about_to_delete_this_audio_book">"आप इस ऑडियोबुक को हटाने वाले हैं"</string>
     <string name="Last_access">"अंतिम पहुंच"</string>
-    <string name="AudioLocation">"ऑडियो स्थान"</string>
+    <string name="Audio_location">"ऑडियो स्थान"</string>
     <string name="Change_cover_image">"कवर छवि बदलें"</string>
     <string name="AskRename_Track">इस ट्रैक का नाम बदलें</string>
     <string name="IntroCut">"इंट्रो काटें"</string>

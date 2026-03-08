@@ -527,7 +527,7 @@
     <string name="AskReset_popupTitle">Подтвердите сброс</string>
     <string name="You_are_about_to_delete_this_audio_book">"Вы собираетесь удалить эту аудиокнигу"</string>
     <string name="Last_access">"Последний доступ"</string>
-    <string name="AudioLocation">"Расположение аудиофайла"</string>
+    <string name="Audio_location">"Расположение аудиофайла"</string>
     <string name="Change_cover_image">"Изменить обложку"</string>
     <string name="AskRename_Track">Переименовать эту дорожку в</string>
     <string name="IntroCut">"Обрезать вступление"</string>

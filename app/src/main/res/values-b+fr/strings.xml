@@ -541,7 +541,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="AskReset_popupTitle">Confirmer la réinitialisation</string>
     <string name="You_are_about_to_delete_this_audio_book">Vous êtes sur le point de supprimer ce livre audio</string>
     <string name="Last_access">Dernier accès</string>
-    <string name="AudioLocation">Emplacement de l\'audio</string>
+    <string name="Audio_location">Emplacement de l\'audio</string>
     <string name="Change_cover_image">Changer l\'image de couverture</string>
     <string name="AskRename_Track">Renommer cette piste en</string>
     <string name="IntroCut">Couper l\'intro</string>

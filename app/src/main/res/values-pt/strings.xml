@@ -528,7 +528,7 @@
     <string name="AskReset_popupTitle">Confirmar redefinição</string>
     <string name="You_are_about_to_delete_this_audio_book">"Você está prestes a excluir este audiolivro"</string>
     <string name="Last_access">"Último acesso"</string>
-    <string name="AudioLocation">"Local do áudio"</string>
+    <string name="Audio_location">"Local do áudio"</string>
     <string name="Change_cover_image">"Alterar imagem de capa"</string>
     <string name="AskRename_Track">Renomear esta faixa para</string>
     <string name="IntroCut">"Cortar introdução"</string>
