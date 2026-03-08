@@ -8,6 +8,10 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
+import android.graphics.drawable.GradientDrawable;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.TypedValue;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -138,7 +142,7 @@ public class ModifyFolderActivity extends BaseActivity {
                     .putExtra(Intents.EXTRA_FOLDER, folder)
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true));
             String warning = null;
-            if (Pref.getShowMsgBox_ChangeTrackOrder()>0) {
+            if (Pref.getShowMsgBox_ChangeTrackOrder() > 0) {
                 if (PlaybackUiBus.get().state().getValue() != null) {
                     warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
                 }
@@ -159,16 +163,16 @@ public class ModifyFolderActivity extends BaseActivity {
         checkZikFilesReadable();
 
         String info = "";
-        info = info + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " " + getString(R.string.audio_tracks);
+        info = info + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " "
+                + getString(R.string.audio_tracks);
         info = info + "\n" + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
         info = info + "\n";
         info = info + "\n" + getString(R.string.Last_access) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess)
                 + " (" + Tonio.formatLastAccess(folder.lLastAccess, this) + ")";
         info = info + "\n" + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.completed);
-        if (folder.timeListened>0) {
-            info = info + "\n" + getString(R.string.listened) + " : " + Tonio.formatTime(folder.timeListened*1000);
+        if (folder.timeListened > 0) {
+            info = info + "\n" + getString(R.string.listened) + " : " + Tonio.formatTime(folder.timeListened * 1000);
         }
-
 
         tvInfo.setText(info);
 
@@ -248,6 +252,47 @@ public class ModifyFolderActivity extends BaseActivity {
                         // ivCoverPreview.setImageURI(Uri.parse(fresh.image));
                     }
                 });
+
+        etRename.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                updateTitleBorder(s.toString().trim());
+            }
+        });
+    }
+
+    private void updateTitleBorder(String currentName) {
+        TextView tvTitle = findViewById(R.id.title);
+        if (tvTitle == null || tvTitle.getBackground() == null)
+            return;
+
+        if (!(tvTitle.getBackground() instanceof GradientDrawable)) {
+            // It might not be a GradientDrawable if it's something else, but bg_chip is a
+            // shape.
+            // If it's a RippleDrawable (which many Material themes use), we might need to
+            // get the content.
+            return;
+        }
+
+        GradientDrawable bg = (GradientDrawable) tvTitle.getBackground().mutate();
+        int strokeColor;
+        if (!currentName.equals(folder.getName().trim())) {
+            strokeColor = getResources().getColor(R.color.red_500, getTheme());
+        } else {
+            // Restore original outline color from theme
+            TypedValue typedValue = new TypedValue();
+            getTheme().resolveAttribute(com.google.android.material.R.attr.colorOutline, typedValue, true);
+            strokeColor = typedValue.data;
+        }
+        bg.setStroke((int) Tonio.dpToPx(1, this), strokeColor);
     }
 
     private void bDeleteClick() {
@@ -1073,6 +1118,5 @@ public class ModifyFolderActivity extends BaseActivity {
         AppDatabase.getDatabase(this).folderDao().updateImage(folderId, imagePath);
         PodcastHelper.updateImage(folderId, imagePath, this);
     }
-
 
 }
