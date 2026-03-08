@@ -33,6 +33,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.FoldersRVAdapter;
 import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
@@ -249,6 +250,10 @@ public class MainActivity extends BaseBottomNavActivity {
         if (s != null && s.folderId > 0) {
             mainVm.requestScrollToTopForFolder(s.folderId);
         }
+        if (Pref.getNeedsRecreate()) {
+            recreate();
+            Pref.setNeedsRecreate(false);
+        }
     }
 
     @Override
@@ -274,11 +279,6 @@ public class MainActivity extends BaseBottomNavActivity {
             showSortOrderDialog();
         } else if (itemId == R.id.menu_settings) {
             myLogI("--- USER clicks MENU : SETTINGS ---");
-            Option.getSharedPrefs(this).edit()
-                    .putBoolean("ACTIVITY_OPTION_HAS_RESULT", false).apply(); // trick to reload MainActivity if color
-                                                                              // changed in OptionActivity, by allowing
-                                                                              // to set Result=OK only if color is
-                                                                              // changed
             startActivityForResult(new Intent(this, SettingsActivity.class), REQUEST_CODE_OPTION);
         } else if (itemId == R.id.menu_manual) {
             myLogI("--- USER clicks MENU : MANUAL ---");

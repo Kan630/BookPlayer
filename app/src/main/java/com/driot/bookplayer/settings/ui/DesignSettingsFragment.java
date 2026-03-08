@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import com.bumptech.glide.util.Executors;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -304,9 +305,7 @@ public class DesignSettingsFragment extends LoggingFragment {
     }
 
     private void signalAndRecreate() {
-        requireContext()
-                .getSharedPreferences(Option.SHARED_PREFERENCES_OPTIONS, Context.MODE_PRIVATE)
-                .edit().putBoolean("ACTIVITY_OPTION_HAS_RESULT", true).apply();
+        Pref.setNeedsRecreate(true);
         requireActivity().recreate();
     }
 

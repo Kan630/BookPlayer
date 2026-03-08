@@ -7,6 +7,7 @@ import android.widget.ScrollView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.settings.ui.RepositoriesSettingsFragment;
@@ -196,8 +197,7 @@ public class SettingsActivity extends BaseBottomNavActivity {
 
     @Override
     public void finish() { // needed because of recreate()
-        if (Option.getSharedPrefs(this)
-                .getBoolean("ACTIVITY_OPTION_HAS_RESULT", false)) { // trick to reload MainActivity
+        if (Pref.getNeedsRecreate()) { // trick to reload MainActivity
             setResult(Activity.RESULT_OK);
         }
         super.finish();

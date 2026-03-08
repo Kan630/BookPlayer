@@ -113,6 +113,14 @@ public class Pref {
         deviceSpecific.edit().putLong("DB_CLEAN_TIMESTAMP", System.currentTimeMillis()).apply();
     }
 
+    public static boolean getNeedsRecreate() {
+        return admin.getBoolean("NEEDS_RECREATE", false);
+    }
+
+    public static void setNeedsRecreate(boolean value) {
+        admin.edit().putBoolean("NEEDS_RECREATE", value).apply();
+    }
+
     public static String get_radio_mirror() {
         return prefs.getString("RADIO_MIRROR", Var.DEFAULT_RADIO_MIRROR);
     }
