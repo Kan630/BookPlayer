@@ -73,36 +73,46 @@
                     />
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="20dp"
-                android:layout_marginTop="10dp"
-                android:layout_gravity="end"
-                android:orientation="vertical">
-                <TextView
-                    android:id="@+id/textViewStorageIcon"
-                    style="@style/myStyleInfo"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:includeFontPadding="false"
-                    android:text="Audio Location : xxxxxx" />
-                <ImageView
-                    android:id="@+id/imageViewStorageIcon"
-                    android:src="@drawable/no_image_icon"
-                    android:layout_gravity="center"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_marginStart="5dp"/>
-            </LinearLayout>
-
-            <TextView
-                android:id="@+id/tvModifyFolderInfo"
-                style="@style/myStyleInfo"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingHorizontal="20dp"
-                android:text="info ..." />
+                android:layout_marginTop="10dp">
+
+                <LinearLayout
+                    android:id="@+id/llStorageInfo"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_marginEnd="20dp"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textViewStorageIcon"
+                        style="@style/myStyleInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        android:text="Audio Location : xxxxxx" />
+
+                    <ImageView
+                        android:id="@+id/imageViewStorageIcon"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:layout_gravity="center"
+                        android:layout_marginStart="5dp"
+                        android:src="@drawable/no_image_icon" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvModifyFolderInfo"
+                    style="@style/myStyleInfo"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_toStartOf="@id/llStorageInfo"
+                    android:paddingHorizontal="20dp"
+                    android:text="info ..." />
+
+            </RelativeLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
