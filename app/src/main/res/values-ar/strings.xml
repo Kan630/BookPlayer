@@ -1264,4 +1264,8 @@
     <string name="TTS_Engine">محرك TTS</string>
     <string name="option_tts_engine_only_one">تم العثور على محرك TTS مدمج :</string>
     <string name="no_tts_engine">لم يتم العثور على محركات TTS</string>
+    <string name="completed">مكتمل</string>
+    <string name="cover_search_repositories">الأغلفة: بحث الويب</string>
+    <string name="cover_search_repositories_explain">عند النقر على \'Web Search\' من قسم \'Change cover image\' في صفحة إعدادات الكتاب، اختر المصادر التي سيتم استخدامها.</string>
+    <string name="api_paging_size_explain">عدد النتائج المطلوب إرجاعها لكل صفحة عند النقر على \'Most Downloaded\' أو \'Last added\'.</string>
 </resources>

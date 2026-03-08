@@ -1268,4 +1268,8 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="TTS_Engine">TTS 引擎</string>
     <string name="option_tts_engine_only_one">找到内置 TTS 引擎：</string>
     <string name="no_tts_engine">未找到 TTS 引擎</string>
+    <string name="completed">已完成</string>
+    <string name="cover_search_repositories">封面：网路搜索</string>
+    <string name="cover_search_repositories_explain">在书籍设置页面的“更换封面图像”部分点击“网路搜索”时，选择要使用的来源。</string>
+    <string name="api_paging_size_explain">点击“下载最多”或“最近添加”时，每页返回的结果数量。</string>
 </resources>
