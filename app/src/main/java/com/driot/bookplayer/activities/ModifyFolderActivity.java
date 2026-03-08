@@ -34,6 +34,7 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
@@ -137,11 +138,13 @@ public class ModifyFolderActivity extends BaseActivity {
                     .putExtra(Intents.EXTRA_FOLDER, folder)
                     .putExtra(Intents.EXTRA_ACTIVATE_CHANGE_TRACK_ORDER, true));
             String warning = null;
-            if (PlaybackUiBus.get().state().getValue() != null) {
-                warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
+            if (Pref.getShowMsgBox_ChangeTrackOrder()>0) {
+                if (PlaybackUiBus.get().state().getValue() != null) {
+                    warning = getString(R.string.Quit_the_player_to_move_playing_tracks);
+                }
+                MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text),
+                        warning);
             }
-            MsgBox.info(this, getString(R.string.ChangeTrackOrder_Title), getString(R.string.ChangeTrackOrder_Text),
-                    warning);
         });
 
         String memoryLocationText = getString(R.string.AudioLocation) + " : " + folder.getMemoryLocationText(this);
@@ -155,15 +158,16 @@ public class ModifyFolderActivity extends BaseActivity {
 
         checkZikFilesReadable();
 
-        String percentDone = folder.getPercentdone() > 0
-                ? "  .  " + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.listened)
-                : "";
         String info = "";
         info = info + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
-        info = info + "\n" + getString(R.string.LastAccess) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess)
+        info = info + "\n" + getString(R.string.Last_access) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess)
                 + " (" + Tonio.formatLastAccess(folder.lLastAccess, this) + ")";
         info = info + "\n" + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " "
-                + getString(R.string.audio_tracks) + percentDone;
+                + getString(R.string.audio_tracks);
+        info = info + "\n";
+        info = info + "\n" + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.completed);
+        info = info + "\n" + getString(R.string.listened) + " : " + Tonio.formatTime(folder.timeListened*1000);
+
         tvInfo.setText(info);
 
         restoreDeletionIfActive();

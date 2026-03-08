@@ -527,7 +527,7 @@
     <string name="AskDelete_popupTitle">Confirmar exclusão</string>
     <string name="AskReset_popupTitle">Confirmar redefinição</string>
     <string name="You_are_about_to_delete_this_audio_book">"Você está prestes a excluir este audiolivro"</string>
-    <string name="LastAccess">"Último acesso"</string>
+    <string name="Last_access">"Último acesso"</string>
     <string name="AudioLocation">"Local do áudio"</string>
     <string name="Change_cover_image">"Alterar imagem de capa"</string>
     <string name="AskRename_Track">Renomear esta faixa para</string>
@@ -541,7 +541,7 @@
     <string name="Export_display_no_valid_audiobook">"Erro ao obter os áudios do audiolivro."</string>
     <string name="Export_error">"Erro na exportação"</string>
     <string name="export_title_label">Exportar livro como ZIP:</string>
-    <string name="export_audiobook_name_placeholder">nome do audiolivro</string>
+    <string name="deprecated_export_audiobook_name_placeholder">nome do audiolivro</string>
     <string name="export_base_destination_folder_label">pasta de destino base :</string>
     <string name="export_click_to_change_label">clique para alterar</string>
     <string name="export_download_folder_button">Pasta Downloads</string>
@@ -797,7 +797,7 @@
 
     <string name="option_tts_chunk_size_text">Tamanho do bloco :</string>
     <string name="tts_chunk_size">Tamanho do bloco</string>
-    <string name="changeTracksOrder">mudar a ordem das faixas</string>
+    <string name="change_tracks_order">mudar a ordem das faixas</string>
     <string name="Failed_to_create_the_destionation_file">Falha ao criar o arquivo de destino.</string>
     <string name="Cannot_write_to_the_chosen_folder">Não é possível gravar na pasta escolhida.</string>
     <string name="Export_done_Excl">"Exportação concluída!"</string>
@@ -1260,4 +1260,13 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d seg decorridos - %3$s\n(timeout de leitura: %4$d seg)</string>
     <string name="radio_browser_contacting">A contactar radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d seg decorridos - (o timeout é %2$d seg)</string>
+
+    <string name="option_automotive_show_radios">Mostrar Rádios</string>
+    <string name="option_automotive_show_radios_explain_text">Exibir suas estações de rádio favoritas no Android Auto.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">Se você já estiver reproduzindo áudio no telefone, continue a reprodução pelo alto-falante/fones de ouvido do telefone em vez de dar prioridade ao Android Auto ao se conectar ao carro.</string>
+    <string name="Added_in_app">Adicionado no app</string>
+    <string name="never">nunca</string>
+    <string name="TTS_Engine">Motor TTS</string>
+    <string name="option_tts_engine_only_one">Motor TTS integrado encontrado :</string>
+    <string name="no_tts_engine">Nenhum motor TTS encontrado</string>
 </resources>

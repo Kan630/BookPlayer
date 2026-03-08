@@ -35,7 +35,7 @@
                 style="@style/simpleText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/export_audiobook_name_placeholder"
+                android:text="@string/audio_book_name"
                 android:gravity="center"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -73,6 +73,7 @@
                 />
             <CheckBox
                 android:id="@+id/cbCreateSubfolder"
+                style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/export_inside_subfolder_label"

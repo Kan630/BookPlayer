@@ -526,7 +526,7 @@
     <string name="AskDelete_popupTitle">Подтвердите удаление</string>
     <string name="AskReset_popupTitle">Подтвердите сброс</string>
     <string name="You_are_about_to_delete_this_audio_book">"Вы собираетесь удалить эту аудиокнигу"</string>
-    <string name="LastAccess">"Последний доступ"</string>
+    <string name="Last_access">"Последний доступ"</string>
     <string name="AudioLocation">"Расположение аудиофайла"</string>
     <string name="Change_cover_image">"Изменить обложку"</string>
     <string name="AskRename_Track">Переименовать эту дорожку в</string>
@@ -540,7 +540,7 @@
     <string name="Export_display_no_valid_audiobook">"Ошибка при получении аудиокниги."</string>
     <string name="Export_error">"Ошибка экспорта"</string>
     <string name="export_title_label">Экспорт книги в ZIP:</string>
-    <string name="export_audiobook_name_placeholder">имя аудиокниги</string>
+    <string name="deprecated_export_audiobook_name_placeholder">имя аудиокниги</string>
     <string name="export_base_destination_folder_label">базовая папка назначения :</string>
     <string name="export_click_to_change_label">нажмите, чтобы изменить</string>
     <string name="export_download_folder_button">Папка Загрузки</string>
@@ -796,7 +796,7 @@ BookPlayer будет использовать <font color="#81C784">встро�
 
     <string name="option_tts_chunk_size_text">Размер блока :</string>
     <string name="tts_chunk_size">Размер блока</string>
-    <string name="changeTracksOrder">изменить порядок треков</string>
+    <string name="change_tracks_order">изменить порядок треков</string>
     <string name="Failed_to_create_the_destionation_file">Не удалось создать файл назначения.</string>
     <string name="Cannot_write_to_the_chosen_folder">Невозможно записать в выбранную папку.</string>
     <string name="Export_done_Excl">"Экспорт завершён!"</string>
@@ -1263,4 +1263,13 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="gutenberg_wait_elapsed_connected">%1$s\nПрошло %2$d сек - %3$s\n(тайм-аут чтения: %4$d сек)</string>
     <string name="radio_browser_contacting">Подключение к radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">Прошло %1$d сек - (тайм-аут %2$d сек)</string>
+
+    <string name="option_automotive_show_radios">Показать радиостанции</string>
+    <string name="option_automotive_show_radios_explain_text">Показывать ваши любимые радиостанции в Android Auto.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">Если вы уже воспроизводите аудио на телефоне, продолжите воспроизведение через динамик/наушники телефона, вместо того чтобы отдавать предпочтение Android Auto при подключении к автомобилю.</string>
+    <string name="Added_in_app">Добавлено в приложение</string>
+    <string name="never">никогда</string>
+    <string name="TTS_Engine">Движок TTS</string>
+    <string name="option_tts_engine_only_one">Найден встроенный движок TTS :</string>
+    <string name="no_tts_engine">Движки TTS не найдены</string>
 </resources>

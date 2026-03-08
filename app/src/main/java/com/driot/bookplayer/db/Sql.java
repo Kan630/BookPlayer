@@ -24,6 +24,7 @@ public class Sql {
         String strSQL = "UPDATE Folder " +
                 "SET " +
                 "  duration = (SELECT IFNULL(SUM(duration), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  timeListened = (SELECT IFNULL(SUM(timeListened), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
                 "  nbZikFile = (SELECT COUNT(*) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
                 "  percentdone = (" +
                 "    SELECT CASE WHEN SUM(duration) > 0 THEN SUM(percentdone * duration) / SUM(duration) ELSE 0 END " +
@@ -62,6 +63,9 @@ public class Sql {
         // Cursor cursor = db.rawQuery(selectQuery, null);
         String strSQL = "UPDATE Folder " +
                 " SET percentdone = (SELECT SUM(percentdone*duration)/SUM(duration) " +
+                "                   FROM ZikFile " +
+                "                   WHERE Folder.id = ZikFile.idFolder )" +
+                "   , timeListened = (SELECT SUM(timeListened) " +
                 "                   FROM ZikFile " +
                 "                   WHERE Folder.id = ZikFile.idFolder )" +
                 "   , lLastAccess = strftime('%s','now') * 1000 " +

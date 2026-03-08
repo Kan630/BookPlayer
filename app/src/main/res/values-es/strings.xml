@@ -525,7 +525,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="AskDelete_popupTitle">Confirmar eliminación</string>
     <string name="AskReset_popupTitle">Confirmar reinicio</string>
     <string name="You_are_about_to_delete_this_audio_book">"Estás a punto de eliminar este audiolibro"</string>
-    <string name="LastAccess">"Último acceso"</string>
+    <string name="Last_access">"Último acceso"</string>
     <string name="AudioLocation">"Ubicación del audio"</string>
     <string name="Change_cover_image">"Cambiar imagen de portada"</string>
     <string name="AskRename_Track">Renombrar esta pista como</string>
@@ -539,7 +539,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="Export_display_no_valid_audiobook">"Error al obtener los audios del audiolibro."</string>
     <string name="Export_error">"Error de exportación"</string>
     <string name="export_title_label">Exportar libro como ZIP:</string>
-    <string name="export_audiobook_name_placeholder">nombre del audiolibro</string>
+    <string name="deprecated_export_audiobook_name_placeholder">nombre del audiolibro</string>
     <string name="export_base_destination_folder_label">carpeta de destino base :</string>
     <string name="export_click_to_change_label">clic para cambiar</string>
     <string name="export_download_folder_button">Carpeta Descargas</string>
@@ -796,7 +796,7 @@ Esta es una <font color="#FFCC80">función relativamente nueva</font> — por fa
 
     <string name="option_tts_chunk_size_text">Tamaño del fragmento :</string>
     <string name="tts_chunk_size">Tamaño del fragmento</string>
-    <string name="changeTracksOrder">cambiar el orden de las pistas</string>
+    <string name="change_tracks_order">cambiar el orden de las pistas</string>
     <string name="Failed_to_create_the_destionation_file">Error al crear el archivo de destino.</string>
     <string name="Cannot_write_to_the_chosen_folder">No se puede escribir en la carpeta seleccionada.</string>
     <string name="Export_done_Excl">"¡Exportación completa!"</string>
@@ -1259,4 +1259,13 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d seg transcurridos - %3$s\n(tiempo de espera de lectura: %4$d seg)</string>
     <string name="radio_browser_contacting">Contactando con radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d seg transcurridos - (el tiempo de espera es %2$d seg)</string>
+
+    <string name="option_automotive_show_radios">Mostrar Radios</string>
+    <string name="option_automotive_show_radios_explain_text">Muestra tus emisoras de radio favoritas en Android Auto.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">Si ya estás reproduciendo audio en tu teléfono, mantén la reproducción en el altavoz/auriculares del teléfono en lugar de ceder el paso a Android Auto cuando te conectes al coche.</string>
+    <string name="Added_in_app">Añadido en la aplicación</string>
+    <string name="never">nunca</string>
+    <string name="TTS_Engine">Motor TTS</string>
+    <string name="option_tts_engine_only_one">Motor TTS integrado encontrado :</string>
+    <string name="no_tts_engine">No se encontraron motores TTS</string>
 </resources>

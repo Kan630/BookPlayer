@@ -527,7 +527,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="AskDelete_popupTitle">确认删除</string>
     <string name="AskReset_popupTitle">确认重置</string>
     <string name="You_are_about_to_delete_this_audio_book">"您即将删除此有声书"</string>
-    <string name="LastAccess">"上次访问"</string>
+    <string name="Last_access">"上次访问"</string>
     <string name="AudioLocation">"音频位置"</string>
     <string name="Change_cover_image">"更换封面图像"</string>
     <string name="AskRename_Track">将此音轨重命名为</string>
@@ -541,7 +541,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="Export_display_no_valid_audiobook">"获取有声书音频时出错"</string>
     <string name="Export_error">"导出错误"</string>
     <string name="export_title_label">导出书本为 ZIP：</string>
-    <string name="export_audiobook_name_placeholder">有声书名称</string>
+    <string name="deprecated_export_audiobook_name_placeholder">有声书名称</string>
     <string name="export_base_destination_folder_label">基本目标文件夹：</string>
     <string name="export_click_to_change_label">点击更改</string>
     <string name="export_download_folder_button">下载文件夹</string>
@@ -796,7 +796,7 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
 
     <string name="option_tts_chunk_size_text">块大小：</string>
     <string name="tts_chunk_size">块大小</string>
-    <string name="changeTracksOrder">更改曲目顺序</string>
+    <string name="change_tracks_order">更改曲目顺序</string>
     <string name="Failed_to_create_the_destionation_file">无法创建目标文件。</string>
     <string name="Cannot_write_to_the_chosen_folder">无法写入所选文件夹。</string>
     <string name="Export_done_Excl">"导出完成！"</string>
@@ -1259,4 +1259,13 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="gutenberg_wait_elapsed_connected">%1$s\n已用 %2$d 秒 - %3$s\n(读取超时：%4$d 秒)</string>
     <string name="radio_browser_contacting">正在联系 radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">已用 %1$d 秒 - (超时时间为 %2$d 秒)</string>
+
+    <string name="option_automotive_show_radios">显示电台</string>
+    <string name="option_automotive_show_radios_explain_text">在 Android Auto 中展示您最喜爱的电台。</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">如果您已在手机上播放音频，连接汽车时继续通过手机扬声器/耳机播放，而不是优先切换到 Android Auto。</string>
+    <string name="Added_in_app">在应用中添加</string>
+    <string name="never">从不</string>
+    <string name="TTS_Engine">TTS 引擎</string>
+    <string name="option_tts_engine_only_one">找到内置 TTS 引擎：</string>
+    <string name="no_tts_engine">未找到 TTS 引擎</string>
 </resources>

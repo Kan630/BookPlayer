@@ -319,7 +319,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_vertical"
-                    android:text="@string/changeTracksOrder" />
+                    android:text="@string/change_tracks_order" />
             </LinearLayout>
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
@@ -346,18 +346,10 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/beta_test"
-                android:textColor="@color/orange"
-                android:layout_gravity="end"
-                android:layout_marginEnd="100dp"
-                android:layout_marginTop="10dp"
-                />
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
+                android:layout_marginTop="20dp"
                 android:layout_marginBottom="20dp"
                 >
                 <ImageView
@@ -424,12 +416,11 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
-            <TextView style="@style/betatest"/>
             <LinearLayout style="@style/simpleLinearLayout_Horizontal"
                 android:layout_gravity="start"
                 android:paddingStart="10dp"
                 android:layout_marginBottom="20dp"
-                android:layout_marginTop="00dp"
+                android:layout_marginTop="20dp"
                 >
                 <ImageView
                     android:layout_width="wrap_content"

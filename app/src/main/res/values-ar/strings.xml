@@ -522,7 +522,7 @@
     <string name="AskDelete_popupTitle">تأكيد الحذف</string>
     <string name="AskReset_popupTitle">تأكيد إعادة التعيين</string>
     <string name="You_are_about_to_delete_this_audio_book">"أنت على وشك حذف هذا الكتاب الصوتي"</string>
-    <string name="LastAccess">"آخر وصول"</string>
+    <string name="Last_access">"آخر وصول"</string>
     <string name="AudioLocation">"موقع الملف الصوتي"</string>
     <string name="Change_cover_image">"تغيير صورة الغلاف"</string>
     <string name="AskRename_Track">إعادة تسمية هذا المقطع إلى</string>
@@ -536,7 +536,7 @@
     <string name="Export_display_no_valid_audiobook">"حدث خطأ في تحميل ملفات الكتاب الصوتي."</string>
     <string name="Export_error">"خطأ في التصدير"</string>
     <string name="export_title_label">تصدير الكتاب كـ ZIP:</string>
-    <string name="export_audiobook_name_placeholder">اسم الكتاب الصوتي</string>
+    <string name="deprecated_export_audiobook_name_placeholder">اسم الكتاب الصوتي</string>
     <string name="export_base_destination_folder_label">مجلد الوجهة الأساسي :</string>
     <string name="export_click_to_change_label">انقر للتغيير</string>
     <string name="export_download_folder_button">مجلد التنزيلات</string>
@@ -792,7 +792,7 @@
 
     <string name="option_tts_chunk_size_text">حجم المقطع:</string>
     <string name="tts_chunk_size">حجم المقطع</string>
-    <string name="changeTracksOrder">تغيير ترتيب المقاطع</string>
+    <string name="change_tracks_order">تغيير ترتيب المقاطع</string>
     <string name="Failed_to_create_the_destionation_file">فشل في إنشاء ملف الوجهة.</string>
     <string name="Cannot_write_to_the_chosen_folder">لا يمكن الكتابة إلى المجلد المختار.</string>
     <string name="Export_done_Excl">"تم التصدير !"</string>
@@ -1255,4 +1255,13 @@
     <string name="gutenberg_wait_elapsed_connected">%1$s\nانقضى %2$d ثانية - %3$s\n(مهلة القراءة: %4$d ثانية)</string>
     <string name="radio_browser_contacting">جارٍ الاتصال بـ radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">انقضى %1$d ثانية - (المهلة هي %2$d ثانية)</string>
+
+    <string name="option_automotive_show_radios">إظهار الراديو</string>
+    <string name="option_automotive_show_radios_explain_text">عرض محطات الراديو المفضلة لديك في Android Auto.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">إذا كنت تقوم بالفعل بتشغيل الصوت على الهاتف، فاستمر في التشغيل عبر مكبر صوت/سماعات الهاتف بدلاً من إعطاء الأولوية لـ Android Auto عند الاتصال بالسيارة.</string>
+    <string name="Added_in_app">تمت الإضافة في التطبيق</string>
+    <string name="never">أبداً</string>
+    <string name="TTS_Engine">محرك TTS</string>
+    <string name="option_tts_engine_only_one">تم العثور على محرك TTS مدمج :</string>
+    <string name="no_tts_engine">لم يتم العثور على محركات TTS</string>
 </resources>

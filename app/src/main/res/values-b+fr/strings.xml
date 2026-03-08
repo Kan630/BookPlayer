@@ -540,7 +540,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="AskDelete_popupTitle">Confirmer la suppression</string>
     <string name="AskReset_popupTitle">Confirmer la réinitialisation</string>
     <string name="You_are_about_to_delete_this_audio_book">Vous êtes sur le point de supprimer ce livre audio</string>
-    <string name="LastAccess">Dernier accès</string>
+    <string name="Last_access">Dernier accès</string>
     <string name="AudioLocation">Emplacement de l\'audio</string>
     <string name="Change_cover_image">Changer l\'image de couverture</string>
     <string name="AskRename_Track">Renommer cette piste en</string>
@@ -556,7 +556,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="Export_display_no_valid_audiobook">Erreur lors de la récupération des fichiers audio.</string>
     <string name="Export_error">Erreur d\'export</string>
     <string name="export_title_label">Exporter le livre en ZIP :</string>
-    <string name="export_audiobook_name_placeholder">nom du livre audio</string>
+    <string name="deprecated_export_audiobook_name_placeholder">nom du livre audio</string>
     <string name="export_base_destination_folder_label">dossier de destination de base :</string>
     <string name="export_click_to_change_label">cliquer pour changer</string>
     <string name="export_download_folder_button">Dossier Téléchargements</string>
@@ -813,7 +813,7 @@ C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> �
 
     <string name="option_tts_chunk_size_text">Taille des segments :</string>
     <string name="tts_chunk_size">Taille des segments</string>
-    <string name="changeTracksOrder">changer l\'ordre des pistes</string>
+    <string name="change_tracks_order">changer l\'ordre des pistes</string>
     <string name="Failed_to_create_the_destionation_file">Échec de création du fichier de destination.</string>
     <string name="Cannot_write_to_the_chosen_folder">Impossible d\'écrire dans le dossier choisi.</string>
     <string name="Export_done_Excl">"Export terminé !"</string>
@@ -1268,4 +1268,13 @@ avec la langue [%2$s]</string>
     <string name="import_export_pick_file">1b. Choisir un fichier de sauvegarde</string>
     <string name="import_export_share_live">Envoyer vers un appareil à proximité (Direct)</string>
     <string name="import_export_share_file">Partager le fichier de sauvegarde</string>
+
+    <string name="option_automotive_show_radios">Afficher les Radios</string>
+    <string name="option_automotive_show_radios_explain_text">Afficher vos stations de radio préférées dans Android Auto.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">Si vous écoutez déjà de l’audio sur votre téléphone, continuez la lecture sur le haut-parleur/écouteurs du téléphone au lieu de céder la place à Android Auto lorsque vous vous connectez à la voiture.</string>
+    <string name="Added_in_app">Ajouté dans l\'application</string>
+    <string name="never">jamais</string>
+    <string name="TTS_Engine">Moteur TTS</string>
+    <string name="option_tts_engine_only_one">Moteur TTS intégré trouvé :</string>
+    <string name="no_tts_engine">Aucun moteur TTS trouvé</string>
 </resources>

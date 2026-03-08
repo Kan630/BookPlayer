@@ -529,7 +529,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="AskDelete_popupTitle">Löschen bestätigen</string>
     <string name="AskReset_popupTitle">Zurücksetzen bestätigen</string>
     <string name="You_are_about_to_delete_this_audio_book">"Sie sind dabei, dieses Hörbuch zu löschen"</string>
-    <string name="LastAccess">"Letzter Zugriff"</string>
+    <string name="Last_access">"Letzter Zugriff"</string>
     <string name="AudioLocation">"Audio-Speicherort"</string>
     <string name="Change_cover_image">"Coverbild ändern"</string>
     <string name="AskRename_Track">Diesen Titel umbenennen in</string>
@@ -543,7 +543,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="Export_display_no_valid_audiobook">"Fehler beim Ermitteln der Hörbuch-Audios."</string>
     <string name="Export_error">"Exportfehler"</string>
     <string name="export_title_label">Buch als ZIP exportieren:</string>
-    <string name="export_audiobook_name_placeholder">Hörbuchname</string>
+    <string name="deprecated_export_audiobook_name_placeholder">Hörbuchname</string>
     <string name="export_base_destination_folder_label">Basis-Zielordner :</string>
     <string name="export_click_to_change_label">klicken zum Ändern</string>
     <string name="export_download_folder_button">Download-Ordner</string>
@@ -799,7 +799,7 @@ Dies ist eine relativ <font color="#FFCC80">neue Funktion</font> — bitte haben
 
     <string name="option_tts_chunk_size_text">Segmentgröße :</string>
     <string name="tts_chunk_size">Segmentgröße</string>
-    <string name="changeTracksOrder">Titelreihenfolge ändern</string>
+    <string name="change_tracks_order">Titelreihenfolge ändern</string>
     <string name="Failed_to_create_the_destionation_file">Fehler beim Erstellen der Zieldatei.</string>
     <string name="Cannot_write_to_the_chosen_folder">In den ausgewählten Ordner kann nicht geschrieben werden.</string>
     <string name="Export_done_Excl">"Export abgeschlossen !"</string>
@@ -1262,4 +1262,13 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d Sek. vergangen - %3$s\n(Lese-Timeout: %4$d Sek.)</string>
     <string name="radio_browser_contacting">Kontaktiere radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d Sek. vergangen - (Timeout ist %2$d Sek.)</string>
+
+    <string name="option_automotive_show_radios">Radios anzeigen</string>
+    <string name="option_automotive_show_radios_explain_text">Ihre Lieblingsradiosender in Android Auto anzeigen.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">Wenn Sie bereits Audio auf Ihrem Telefon abspielen, setzen Sie die Wiedergabe über den Telefonlautsprecher/Kopfhörer fort, anstatt Android Auto den Vorrang zu geben, wenn Sie sich mit dem Auto verbinden.</string>
+    <string name="Added_in_app">In der App hinzugefügt</string>
+    <string name="never">nie</string>
+    <string name="TTS_Engine">TTS-Engine</string>
+    <string name="option_tts_engine_only_one">Integrierte TTS-Engine gefunden :</string>
+    <string name="no_tts_engine">Keine TTS-Engines gefunden</string>
 </resources>

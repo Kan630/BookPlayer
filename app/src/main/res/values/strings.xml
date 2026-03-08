@@ -512,8 +512,8 @@
     <string name="option_tts_use_theme_color_for_cursor">Use theme color for cursor</string>
     <string name="option_tts_fullscreen_text_size">Text size</string>
     <string name="option_tts_fullscreen_controls">Show playback controls</string>
-    <string name="option_automotive_on">Display in Android Auto.</string>
-    <string name="option_automotive_show_radios">Display Radios.</string>
+    <string name="option_automotive_on">Display in Android Auto</string>
+    <string name="option_automotive_show_radios">Display Radios</string>
     <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
@@ -591,7 +591,7 @@
     <string name="AskDelete_popupTitle">Confirm Delete</string>
     <string name="AskReset_popupTitle">Confirm Reset</string>
     <string name="You_are_about_to_delete_this_audio_book">"You are about to delete this audio book"</string>
-    <string name="LastAccess">"Last access"</string>
+    <string name="Last_access">"Last access"</string>
     <string name="AudioLocation">"Audio location"</string>
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="AskRename_Track">Rename this track to</string>
@@ -606,13 +606,13 @@
     <string name="Export_display_text_preparing_export">"Preparing export…"</string>
     <string name="Export_display_no_valid_audiobook">"Error getting audiobook tracks."</string>
     <string name="Export_error">"Export Error"</string>
-    <string name="export_title_label">"Export book as ZIP:"</string>
-    <string name="export_audiobook_name_placeholder">"audiobook name"</string>
-    <string name="export_base_destination_folder_label">"base destination folder :"</string>
-    <string name="export_click_to_change_label">"click to change"</string>
+    <string name="export_title_label">"Export book as ZIP file"</string>
+    <string name="deprecated_export_audiobook_name_placeholder">"audiobook name"</string>
+    <string name="export_base_destination_folder_label">Destination folder :</string>
+    <string name="export_click_to_change_label">click to change</string>
     <string name="export_download_folder_button">"Download folder"</string>
-    <string name="export_destination_filename_label">"destination file name :"</string>
-    <string name="export_edit_name_hint">"you can edit that name"</string>
+    <string name="export_destination_filename_label">Destination file name :</string>
+    <string name="export_edit_name_hint">you can edit that name</string>
     <string name="export_progress_info_placeholder">"Progress info…"</string>
     <string name="export_start_button">"Start Export"</string>
     <string name="export_inside_subfolder_label">"and inside a \'BookPlayer\' subfolder"</string>
@@ -924,7 +924,7 @@
     <string name="option_tts_highlight_delay_outOfBounds">Highlight delay</string>
     <string name="option_tts_chunk_size_text">Chunk size (in chars) :</string>
     <string name="tts_chunk_size">Chunk size</string>
-    <string name="changeTracksOrder">change tracks order</string>
+    <string name="change_tracks_order">change tracks order</string>
     <string name="Failed_to_create_the_destionation_file">Failed to create the destination file.</string>
     <string name="Cannot_write_to_the_chosen_folder">Cannot write to the chosen folder.</string>
     <string name="Export_done_Excl">"Export done !"</string>
@@ -968,7 +968,7 @@
     <string name="option_automotive_show_radios_explain_text">Show your favorite radio stations in Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect_explain_text">Allow Android Auto to resume playback automatically when connected to the car, if audio was already playing in the app.</string>
     <string name="option_automotive_let_car_autoplay_explain_text">Allow Android Auto to start playback automatically when connected to the car, even if nothing was playing.</string>
-    <string name="option_automotive_keep_phone_playback_explain_text">If you are already playing audio on your phone, keep playing on the phone speaker/earphones instead of yielding to Android Auto when you connect to the car.</string>
+    <string name="deprecated_option_automotive_keep_phone_playback_explain_text">If you are already playing audio on your phone, keep playing on the phone speaker/earphones instead of yielding to Android Auto when you connect to the car.</string>
     <string name="Mass_Import">Massive Import</string>
     <string name="massiveimport_title">Multiple books import</string>
     <string name="scanning_folder">scanning folder</string>
@@ -1254,6 +1254,9 @@
     <string name="TTS_Engine">TTS Engine</string>
     <string name="option_tts_engine_only_one">Built-in TTS Engine found :</string>
     <string name="no_tts_engine">No TTS engines found</string>
+
+    <string name="completed">completed</string> //for percent book listened/completed
+
 
 
 </resources>

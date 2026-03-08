@@ -26,6 +26,8 @@ public class Pref {
     private static final boolean DEFAULT_SHOW_LIVE_LOGS = false; // percentage
     private static final int DEFAULT_LIVE_LOG_HEIGHT = 10; // percentage
 
+    private static final int COUNT_START_SHOW_MSGBOX_CHANGE_TRACK_ORDER = 5;
+
     private static Context appContext;
     private static SharedPreferences prefs;
     private static SharedPreferences stats;
@@ -79,6 +81,12 @@ public class Pref {
         if (prefs == null)
             init(context);
         return prefs;
+    }
+
+    public static int getShowMsgBox_ChangeTrackOrder() {
+        int curValue = prefs.getInt("SHOW_MSGBOX_CHANGE_TRACK_ORDER", COUNT_START_SHOW_MSGBOX_CHANGE_TRACK_ORDER);
+        prefs.edit().putInt("SHOW_MSGBOX_CHANGE_TRACK_ORDER", curValue - 1).apply();
+        return curValue;
     }
 
     public static boolean getShowLiveLogs() {
