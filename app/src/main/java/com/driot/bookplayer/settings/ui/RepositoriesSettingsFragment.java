@@ -49,6 +49,35 @@ public class RepositoriesSettingsFragment extends LoggingFragment {
         chk_gutenberg_use_cloudfare
                 .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setGutenbergUseCloudflare(isChecked));
 
+        // Pixabay
+        CheckBox chk_use_pixabay = root.findViewById(R.id.chk_option_use_pixabay);
+        LinearLayout ll_use_pixabay = root.findViewById(R.id.ll_option_use_pixabay);
+        chk_use_pixabay.setChecked(Option.getUsePixabay());
+        ll_use_pixabay.setOnClickListener(v -> chk_use_pixabay.toggle());
+        chk_use_pixabay.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUsePixabay(isChecked));
+
+        // Google Books
+        CheckBox chk_use_google_books = root.findViewById(R.id.chk_option_use_google_books);
+        LinearLayout ll_use_google_books = root.findViewById(R.id.ll_option_use_google_books);
+        chk_use_google_books.setChecked(Option.getUseGoogleBooks());
+        ll_use_google_books.setOnClickListener(v -> chk_use_google_books.toggle());
+        chk_use_google_books.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseGoogleBooks(isChecked));
+
+        // Open Library
+        CheckBox chk_use_open_library = root.findViewById(R.id.chk_option_use_open_library);
+        LinearLayout ll_use_open_library = root.findViewById(R.id.ll_option_use_open_library);
+        chk_use_open_library.setChecked(Option.getUseOpenLibrary());
+        ll_use_open_library.setOnClickListener(v -> chk_use_open_library.toggle());
+        chk_use_open_library.setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseOpenLibrary(isChecked));
+
+        // Google Images
+        CheckBox chk_use_google_images = root.findViewById(R.id.chk_option_use_google_images);
+        LinearLayout ll_use_google_images = root.findViewById(R.id.ll_option_use_google_images);
+        chk_use_google_images.setChecked(Option.getUseGoogleImages());
+        ll_use_google_images.setOnClickListener(v -> chk_use_google_images.toggle());
+        chk_use_google_images
+                .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseGoogleImages(isChecked));
+
         return root;
     }
 

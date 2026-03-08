@@ -75,7 +75,7 @@ public class GoogleImageProvider implements CoverSearchProvider {
                 // Note: user requested minimum size to filter them out.
                 String widthStr = img.attr("width");
                 String heightStr = img.attr("height");
-                myLog(src + " width=" + widthStr + " height=" + heightStr + " alt=" + alt + " size=" + src.length());
+                //myLog(src + " width=" + widthStr + " height=" + heightStr + " alt=" + alt + " size=" + src.length());
                 try {
                     if (!widthStr.isEmpty() && !heightStr.isEmpty()) {
                         int w = Integer.parseInt(widthStr);

@@ -111,6 +111,10 @@ public class Option {
     private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
     private static final boolean DEFAULT_TTS_FULLSCREEN_CONTROLS = false;
     private static final boolean DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS = false;
+    public static final boolean DEFAULT_USE_PIXABAY = true;
+    public static final boolean DEFAULT_USE_GOOGLE_BOOKS = true;
+    public static final boolean DEFAULT_USE_OPEN_LIBRARY = true;
+    public static final boolean DEFAULT_USE_GOOGLE_IMAGES = true;
     public static final String DEFAULT_TTS_ENGINE = null;
 
     private static Context appContext;
@@ -1091,6 +1095,38 @@ public class Option {
 
     public static void setTtsFullscreenControls(boolean bool) {
         prefs.edit().putBoolean("TTS_FULLSCREEN_CONTROLS", bool).apply();
+    }
+
+    public static boolean getUsePixabay() {
+        return prefs.getBoolean("USE_PIXABAY", DEFAULT_USE_PIXABAY);
+    }
+
+    public static void setUsePixabay(boolean bool) {
+        prefs.edit().putBoolean("USE_PIXABAY", bool).apply();
+    }
+
+    public static boolean getUseGoogleBooks() {
+        return prefs.getBoolean("USE_GOOGLE_BOOKS", DEFAULT_USE_GOOGLE_BOOKS);
+    }
+
+    public static void setUseGoogleBooks(boolean bool) {
+        prefs.edit().putBoolean("USE_GOOGLE_BOOKS", bool).apply();
+    }
+
+    public static boolean getUseOpenLibrary() {
+        return prefs.getBoolean("USE_OPEN_LIBRARY", DEFAULT_USE_OPEN_LIBRARY);
+    }
+
+    public static void setUseOpenLibrary(boolean bool) {
+        prefs.edit().putBoolean("USE_OPEN_LIBRARY", bool).apply();
+    }
+
+    public static boolean getUseGoogleImages() {
+        return prefs.getBoolean("USE_GOOGLE_IMAGES", DEFAULT_USE_GOOGLE_IMAGES);
+    }
+
+    public static void setUseGoogleImages(boolean bool) {
+        prefs.edit().putBoolean("USE_GOOGLE_IMAGES", bool).apply();
     }
 
 }

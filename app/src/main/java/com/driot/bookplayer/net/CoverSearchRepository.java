@@ -9,6 +9,7 @@ import java.util.*;
 import java.util.concurrent.*;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+import com.driot.bookplayer.global.Option;
 
 public class CoverSearchRepository {
     private final List<CoverSearchProvider> providers = new ArrayList<>();
@@ -24,15 +25,23 @@ public class CoverSearchRepository {
             Math.max(3, Runtime.getRuntime().availableProcessors() / 2));
 
     public CoverSearchRepository(Context ctx) {
-        providers.add(new GoogleImageProvider());
-        providers.add(new OpenLibraryProvider());
-        providers.add(new GoogleBooksProvider());
+        if (Option.getUseGoogleImages()) {
+            providers.add(new GoogleImageProvider());
+        }
+        if (Option.getUseOpenLibrary()) {
+            providers.add(new OpenLibraryProvider());
+        }
+        if (Option.getUseGoogleBooks()) {
+            providers.add(new GoogleBooksProvider());
+        }
 
         // Cloudflare Worker
-        String base = BuildConfig.PIXABAY_BASE_URL; // e.g., https://steep-hat-11ff.adriot.workers.dev
-        String tok = BuildConfig.APP_TOKEN; // optional, can be ""
-        if (base != null && !base.isEmpty()) {
-            providers.add(new PixabayProxyProvider(base + "/pixabay", tok));
+        if (Option.getUsePixabay()) {
+            String base = BuildConfig.PIXABAY_BASE_URL; // e.g., https://steep-hat-11ff.adriot.workers.dev
+            String tok = BuildConfig.APP_TOKEN; // optional, can be ""
+            if (base != null && !base.isEmpty()) {
+                providers.add(new PixabayProxyProvider(base + "/pixabay", tok));
+            }
         }
     }
 

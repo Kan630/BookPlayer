@@ -1259,4 +1259,11 @@
 
 
 
+    <string name="cover_search_repositories">Covers: Web Search</string>
+    <string name="use_pixabay">use Pixabay</string>
+    <string name="use_google_books">use Google Books</string>
+    <string name="use_open_library">use Open Library</string>
+    <string name="use_google_images">use Google Images</string>
+    <string name="cover_search_repositories_explain">When you tap \'Web Search\' from the \'Change cover image\' section in the book settings page, choose which repositories to use.</string>
+    <string name="api_paging_size_explain">How many results to return per page when you tap \'Most Downloaded\' or \'Last added\'.</string>
 </resources>
