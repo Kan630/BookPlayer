@@ -25,14 +25,14 @@ public class CoverSearchRepository {
             Math.max(3, Runtime.getRuntime().availableProcessors() / 2));
 
     public CoverSearchRepository(Context ctx) {
-        if (Option.getUseGoogleImages()) {
-            providers.add(new GoogleImageProvider());
-        }
         if (Option.getUseOpenLibrary()) {
             providers.add(new OpenLibraryProvider());
         }
         if (Option.getUseGoogleBooks()) {
             providers.add(new GoogleBooksProvider());
+        }
+        if (Option.getUseGoogleImages()) {
+            providers.add(new GoogleImageProvider());
         }
 
         // Cloudflare Worker
