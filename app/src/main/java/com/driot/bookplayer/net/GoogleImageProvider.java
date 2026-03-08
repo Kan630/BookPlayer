@@ -47,20 +47,37 @@ public class GoogleImageProvider implements CoverSearchProvider {
                 if (src.isEmpty())
                     continue;
 
-                // Skip common Google UI/tracking images
-                if (src.contains("googlelogo") || src.contains("clear.png") || src.contains("/images/branding/")
-                        || src.contains("/productlogos/") || src.contains("google.com/logos/")) {
+                // Skip common Google UI/tracking images and social media icons
+                String srcLower = src.toLowerCase();
+                String altLower = img.attr("alt").toLowerCase();
+
+                if (srcLower.contains("googlelogo") || srcLower.contains("clear.png")
+                        || srcLower.contains("/images/branding/")
+                        || srcLower.contains("/productlogos/") || srcLower.contains("google.com/logos/")
+                        || srcLower.contains("facebook") || srcLower.contains("whatsapp")
+                        || srcLower.contains("twitter")
+                        || srcLower.contains("instagram") || srcLower.contains("linkedin") || srcLower.contains("email")
+                        || srcLower.contains("share_icon") || srcLower.contains("profile_icon")) {
+                    continue;
+                }
+
+                if (altLower.contains("facebook") || altLower.contains("whatsapp") || altLower.contains("twitter")
+                        || altLower.contains("instagram") || altLower.contains("linkedin") || altLower.contains("email")
+                        || altLower.contains("partager") || altLower.contains("share")) {
                     continue;
                 }
 
                 // Skip small icons/trackers (often 1x1 or very small)
+                // Note: user requested minimum size to filter them out.
                 String widthStr = img.attr("width");
                 String heightStr = img.attr("height");
+                myLog(src + " width=" + widthStr + " height=" + heightStr + " alt=" + img.attr("alt") + " size=" + src.length()
+                        );
                 try {
                     if (!widthStr.isEmpty() && !heightStr.isEmpty()) {
                         int w = Integer.parseInt(widthStr);
                         int h = Integer.parseInt(heightStr);
-                        if (w < 40 || h < 40)
+                        if (w < 100 || h < 100)
                             continue;
                     }
                 } catch (NumberFormatException ignored) {
