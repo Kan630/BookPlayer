@@ -1268,8 +1268,8 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="TTS_Engine">TTS इंजन</string>
     <string name="option_tts_engine_only_one">अंतर्नि निर्मित TTS इंजन मिला :</string>
     <string name="no_tts_engine">कोई TTS इंजन नहीं मिला</string>
-    <string name="completed">पूर्ण</string>
+    <string name="completed">पूरा हुआ</string>
     <string name="cover_search_repositories">कवर: वेब खोज</string>
-    <string name="cover_search_repositories_explain">जब आप पुस्तक सेटिंग पृष्ठ के \'Change cover image\' अनुभाग से \'Web Search\' टैप करते हैं, तो चुनें कि किन स्रोतों का उपयोग करना है।</string>
-    <string name="api_paging_size_explain">जब आप \'Most Downloaded\' या \'Last added\' टैप करें तो प्रति पृष्ठ कितने परिणाम लौटाने हैं।</string>
+    <string name="cover_search_repositories_explain">जब आप पुस्तक सेटिंग पृष्ठ में "अनुकूलित करें" अनुभाग से "वेब खोज" पर टैप करते हैं, तो चुनें कि किन स्रोतों का उपयोग करना है।</string>
+    <string name="api_paging_size_explain">जब आप "सबसे अधिक डाउनलोड किए गए" या "अंतिम जोड़े गए" पर टैप करते हैं तो प्रति पृष्ठ कितने परिणाम वापस आते हैं।</string>
 </resources>

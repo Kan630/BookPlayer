@@ -1270,4 +1270,8 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="TTS_Engine">Motore TTS</string>
     <string name="option_tts_engine_only_one">Motore TTS integrato trovato :</string>
     <string name="no_tts_engine">Nessun motore TTS trovato</string>
+    <string name="completed">completato</string>
+    <string name="cover_search_repositories">Copertine: Ricerca Web</string>
+    <string name="cover_search_repositories_explain">Quando tocchi \'Ricerca Web\' dalla sezione \'Cambia immagine di copertina\' nella pagina delle impostazioni del libro, scegli quali fonti utilizzare.</string>
+    <string name="api_paging_size_explain">Quanti risultati restituire per pagina quando tocchi \'Più scaricati\' o \'Aggiunti di recente\'.</string>
 </resources>

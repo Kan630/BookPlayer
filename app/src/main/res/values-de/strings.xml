@@ -1271,4 +1271,8 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="TTS_Engine">TTS-Engine</string>
     <string name="option_tts_engine_only_one">Integrierte TTS-Engine gefunden :</string>
     <string name="no_tts_engine">Keine TTS-Engines gefunden</string>
+    <string name="completed">abgeschlossen</string>
+    <string name="cover_search_repositories">Cover: Web-Suche</string>
+    <string name="cover_search_repositories_explain">Wenn Sie im Bereich \'Titelbild ändern\' auf der Bucheinstellungsseite auf \'Websuche\' tippen, wählen Sie aus, welche Quellen verwendet werden sollen.</string>
+    <string name="api_paging_size_explain">Wie viele Ergebnisse pro Seite zurückgegeben werden sollen, wenn Sie auf \'Am häufigsten heruntergeladen\' oder \'Zuletzt hinzugefügt\' tippen.</string>
 </resources>

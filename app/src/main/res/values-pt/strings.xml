@@ -1269,4 +1269,8 @@ Permitir que o Android Auto inicie automaticamente a reprodução ao conectar-se
     <string name="TTS_Engine">Motor TTS</string>
     <string name="option_tts_engine_only_one">Motor TTS integrado encontrado :</string>
     <string name="no_tts_engine">Nenhum motor TTS encontrado</string>
+    <string name="completed">concluído</string>
+    <string name="cover_search_repositories">Capas: Pesquisa Web</string>
+    <string name="cover_search_repositories_explain">Ao tocar em \'Pesquisa na Web\' na seção \'Alterar imagem da capa\' na página de configurações do livro, escolha quais fontes usar.</string>
+    <string name="api_paging_size_explain">Quantos resultados retornar por página ao tocar em \'Mais baixados\' ou \'Adicionados recentemente\'.</string>
 </resources>

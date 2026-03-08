@@ -1277,4 +1277,8 @@ avec la langue [%2$s]</string>
     <string name="TTS_Engine">Moteur TTS</string>
     <string name="option_tts_engine_only_one">Moteur TTS intégré trouvé :</string>
     <string name="no_tts_engine">Aucun moteur TTS trouvé</string>
+    <string name="completed">terminé</string>
+    <string name="cover_search_repositories">Couvertures : Recherche Web</string>
+    <string name="cover_search_repositories_explain">Lorsque vous appuyez sur \'Recherche Web\' dans la section \'Modifier l\'image de couverture\' de la page des paramètres du livre, choisissez les sources à utiliser.</string>
+    <string name="api_paging_size_explain">Nombre de résultats à renvoyer par page lorsque vous appuyez sur \'Le plus téléchargé\' ou \'Dernier ajouté\'.</string>
 </resources>

@@ -1272,4 +1272,8 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="TTS_Engine">Движок TTS</string>
     <string name="option_tts_engine_only_one">Найден встроенный движок TTS :</string>
     <string name="no_tts_engine">Движки TTS не найдены</string>
+    <string name="completed">завершено</string>
+    <string name="cover_search_repositories">Обложки: Веб-поиск</string>
+    <string name="cover_search_repositories_explain">Когда вы нажимаете «Веб-поиск» в разделе «Изменить обложку» на странице настроек книги, выберите источники, которые следует использовать.</string>
+    <string name="api_paging_size_explain">Сколько результатов возвращать на страницу при нажатии «Самые скачиваемые» или «Последние добавленные».</string>
 </resources>
