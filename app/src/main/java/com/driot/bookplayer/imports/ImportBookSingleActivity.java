@@ -63,9 +63,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
-    private final Handler mainHandler = new Handler(Looper.getMainLooper());
-    private volatile boolean cancelScan = false;
-    private boolean warningTooManyFilesHasBeenShown = false;
     private boolean initialHashCheckTriggered = false;
 
     private boolean hashJobRunning = false;
@@ -345,7 +342,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             btnCancel.setOnClickListener(v -> {
                 myLogI("------ USER CLICKS btn CANCEL....   ");
-                cancelScan = true;
                 finish();
             });
 
@@ -357,6 +353,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                         calculateCheckboxState(bc);
                 }
             });
+
             cbCopy.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 myLog("USER CHECKS -COPY- : " + isChecked);
                 if (!isChecked) {
@@ -371,6 +368,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                         calculateCheckboxState(bc);
                 }
             });
+
             cbUseSdCard.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 myLog("USER CHECKS -SD CARD- : " + isChecked);
                 if (!internalCheckBoxStateCalculationInProgress) {
@@ -379,6 +377,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                         calculateCheckboxState(bc);
                 }
             });
+
             cbDelete.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 myLog("USER CHECKS -DELETE- " + isChecked);
                 if (!internalCheckBoxStateCalculationInProgress) {
@@ -405,8 +404,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
                 // Disable immediately to prevent double taps
                 btnConfirm.setEnabled(false);
-
-                // Cancel any ongoing heavy initialization
 
                 // Observe Real-time tracks
                 viewModel.cancelInitialization();
@@ -704,17 +701,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
-    public void openAppInfo() {
-        try {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-            Uri uri = Uri.fromParts("package", getPackageName(), null);
-            intent.setData(uri);
-            startActivity(intent);
-        } catch (Exception e) {
-            myLogEE(e, "openAppSettingsOnPhone()");
-        }
-    }
-
     private void showWarning(String warningTxt) {
         String previousTxt = warningTextView.getText().toString();
         String newTxt = previousTxt.isEmpty() ? warningTxt : previousTxt + "\n" + warningTxt;
@@ -937,69 +923,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             });
         });
 
-    }
-
-    private void startCounting(Uri folderTreeUri, int depth, TextView tvCountFolder, String prefix, String playType) {
-        cancelScan = false;
-        countJobRunning = true;
-        updateLoadingUi();
-
-        boolean countTextFiles = Var.PLAY_TYPE_TEXT.equals(playType);
-        int filesPluralResId = countTextFiles ? R.plurals.text_files_count : R.plurals.audio_files_count;
-
-        Executors.newSingleThreadExecutor().execute(() -> {
-            FileCounterHelper.countFilesFromTreeUriRealtime(
-                    this,
-                    folderTreeUri,
-                    depth,
-                    countTextFiles,
-                    new CountCallback() {
-                        @Override
-                        public void onCountUpdated(int fileCount, String currentPath, int subFolderCount) {
-                            mainHandler.post(() -> {
-                                Resources res = getResources();
-                                String filesPart = res.getQuantityString(filesPluralResId, fileCount, fileCount);
-                                String txt;
-                                if (subFolderCount > 0) {
-                                    String foldersPart = res.getQuantityString(R.plurals.subfolders_count,
-                                            subFolderCount, subFolderCount);
-                                    txt = prefix + " : " + getString(
-                                            R.string.count_status,
-                                            filesPart,
-                                            foldersPart);
-                                } else {
-                                    txt = prefix + " " + filesPart;
-                                }
-                                tvCountFolder.setText(txt);
-                                waitTextView.setText(getString(R.string.scanning_tracks) + " " + currentPath);
-
-                                if (subFolderCount > 10 || fileCount > 100) {
-                                    if (!warningTooManyFilesHasBeenShown) {
-                                        showWarning(getString(R.string.import_warning_lot_of_file_and_subfolders));
-                                    }
-                                    warningTooManyFilesHasBeenShown = true;
-                                }
-                            });
-                        }
-
-                        @Override
-                        public boolean isCancelled() {
-                            return cancelScan;
-                        }
-
-                        @Override
-                        public void onFinished(int fileCount, int folderCount) {
-                            mainHandler.post(() -> {
-                                myLog("FINISHED COUNT: files=" + fileCount + " folders=" + folderCount);
-                                // tvCountFolder.setText(getString(R.string.done) + ": " +
-                                // tvCountFolder.getText());
-
-                                countJobRunning = false;
-                                updateLoadingUi();
-                            });
-                        }
-                    });
-        });
     }
 
     private void updateLoadingUi() {
