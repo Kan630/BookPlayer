@@ -894,37 +894,42 @@ public class BookCandidate implements Parcelable {
     }
 
     private String checkHashExists(Context context, String hash) {
-        if (hash == null || hash.isEmpty()) {
-            return null;
-        }
-        try {
-            return AppDatabase.getDatabase(context).folderDao().originalHashAlreadyExist_getBookName(hash);
-        } catch (Exception e) {
-            return null;
-        }
+        return ImportValidator.checkHashExists(context, hash);
     }
 
     private String checkFolderAlreadyImported(Context context, String folderPath, String hash) {
         if (folderPath == null || folderPath.isEmpty())
             return checkHashExists(context, hash);
 
-        try {
-            AppDatabase db = AppDatabase.getDatabase(context);
-            String existingByPath = db.folderDao().folderAlreadyExist_checkFolderPath_getBookName(folderPath);
-            if (existingByPath != null && !existingByPath.isEmpty()) {
-                return existingByPath;
-            }
-
-            if (hash != null && !hash.isEmpty()) {
-                String existingByHash = db.folderDao().originalHashAlreadyExist_getBookName(hash);
-                if (existingByHash != null && !existingByHash.isEmpty()) {
-                    return existingByHash;
-                }
-            }
-            return null;
-        } catch (Exception e) {
-            return checkHashExists(context, hash);
+        String existingByPath = ImportValidator.checkPathExists(context, folderPath);
+        if (existingByPath != null && !existingByPath.isEmpty()) {
+            return existingByPath;
         }
+
+        if (hash != null && !hash.isEmpty()) {
+            String existingByHash = ImportValidator.checkHashExists(context, hash);
+            if (existingByHash != null && !existingByHash.isEmpty()) {
+                return existingByHash;
+            }
+        }
+        return null;
+    }
+
+    // --- Media Capabilities ---
+
+    public boolean requiresForcedCopy() {
+        return playType != null && !playType.isEmpty() && (SupportedFilesHelper.isBundleSpecial(specialType) ||
+                SupportedFilesHelper.isEbookSpecial(specialType) ||
+                "cloud".equals(sourceLocation) ||
+                "web".equals(sourceLocation));
+    }
+
+    public boolean supportsSplit() {
+        return SupportedFilesHelper.isM4bSpecial(specialType);
+    }
+
+    public boolean requiresForcedSplitCopy(boolean isSplitChecked) {
+        return supportsSplit() && isSplitChecked;
     }
 
     private String detectCoverForArchive(Context context, DocumentFile file) {

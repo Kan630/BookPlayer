@@ -97,7 +97,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private TextView tvProgressStatusStep1, tvProgressStatusStep2;
 
     private boolean internalCheckBoxStateCalculationInProgress;
-    private boolean isKO = false;
     private boolean boolAlso = false;
 
     Folder folderToAddTo = null;
@@ -120,6 +119,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     protected boolean enableOngoingTaskOverlay() {
         return false;
     }
+    protected boolean displayBottomNavBar() { return false; }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -273,26 +273,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             myLogI("Using passed BookCandidate: " + passedCandidate.name);
             viewModel.setBookCandidate(passedCandidate);
-
-            findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
-            findViewById(R.id.vSeparator1).setVisibility(View.GONE);
-            findViewById(R.id.llOptions).setVisibility(View.GONE);
-            findViewById(R.id.vSeparator2).setVisibility(View.GONE);
-            findViewById(R.id.llButtons).setVisibility(View.GONE);
-            btnConfirm.setVisibility(View.GONE);
-            btnCancel.setText(R.string.Close); // Change Cancel to Close
-            // Hide other editing/importing options if needed
-            llSplit.setVisibility(View.GONE);
-            llCopy.setVisibility(View.GONE);
-            llUseSdCard.setVisibility(View.GONE);
-            llDelete.setVisibility(View.GONE);
-            tvAppendMode.setVisibility(View.GONE);
-            destinationFolderSpinner.setVisibility(View.GONE);
-            waitTextView.setVisibility(View.GONE);
-            progressBarStep1.setVisibility(View.GONE);
-            tvProgressStatusStep1.setVisibility(View.GONE);
-            progressBarStep2.setVisibility(View.GONE);
-            tvProgressStatusStep2.setVisibility(View.GONE);
+            hideAndDisabledEverything();
 
         } else {
             // SINGLE IMPORT MODE
@@ -374,26 +355,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 cancelScan = true;
                 finish();
             });
-
-            // ----------------------------------------------------------------------------------------------------------------------------------
-            /// CHECKBOXES
-            // ----------------------------------------------------------------------------------------------------------------------------------
-
-            llSplit.setOnClickListener(v -> cbSplit.toggle());
-            llCopy.setOnClickListener(v -> cbCopy.toggle());
-            llUseSdCard.setOnClickListener(v -> cbUseSdCard.toggle());
-            llDelete.setOnClickListener(v -> cbDelete.toggle());
-
-            cbSplit.setChecked(Option.getSplitM4b());
-            if (forceCopy) {
-                cbCopy.setChecked(true);
-            } else {
-                cbCopy.setChecked(Option.getCopyFile());
-            }
-            cbUseSdCard.setChecked(Option.getUseSdCard());
-            cbDelete.setChecked(Option.getDeleteSourceFile());
-
-            // calculateCheckboxState(); -> Moved to async callback
 
             cbSplit.setOnCheckedChangeListener((buttonView, isChecked) -> {
                 myLogI("USER CHECKS -SPLIT- : " + isChecked);
@@ -480,8 +441,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                     + audioBookTitle;
                             myLogD("Checking Folder Path doesn't already exist in DB (internal copy case) : ["
                                     + futureFolderPath + "]");
-                            lCheck = AppDatabase.getDatabase(this).folderDao()
-                                    .folderAlreadyExist_checkFolderPath(futureFolderPath);
+                            String existingPath = ImportValidator.checkPathExists(ImportBookSingleActivity.this,
+                                    futureFolderPath);
+                            lCheck = existingPath != null ? 1 : 0;
                         }
                         finalFutureFolderPath = futureFolderPath;
                         // btnConfirm.setEnabled(true);
@@ -609,9 +571,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         internalCheckBoxStateCalculationInProgress = true;
         myLogD("calculateCheckboxState");
 
-        if (SupportedFilesHelper.isM4bSpecial(bookCandidate.specialType)) {
+        if (bookCandidate.supportsSplit()) {
             llSplit.setVisibility(View.VISIBLE);
-            if (cbSplit.isChecked()) {
+            if (bookCandidate.requiresForcedSplitCopy(cbSplit.isChecked())) {
                 cbCopy.setChecked(true);
                 cbCopy.setEnabled(false);
                 llCopy.setEnabled(false);
@@ -625,23 +587,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             llSplit.setVisibility(View.GONE);
         }
 
-        if (SupportedFilesHelper.isBundleSpecial(bookCandidate.specialType)) {
-            cbCopy.setChecked(true);
-            cbCopy.setEnabled(false);
-            llCopy.setEnabled(false);
-            llCopy.setAlpha(0.4f);
-        }
-
-        if (SupportedFilesHelper.isEbookSpecial(bookCandidate.specialType)) {
-            cbCopy.setChecked(true);
-            cbCopy.setEnabled(false);
-            llCopy.setEnabled(false);
-            llCopy.setAlpha(0.4f);
-        }
-
-        if (bookCandidate.sourceLocation.equals("cloud")
-                || bookCandidate.sourceLocation.equals("web")
-                || forceCopy) {
+        if (bookCandidate.requiresForcedCopy() || forceCopy) {
             cbCopy.setChecked(true);
             cbCopy.setEnabled(false);
             llCopy.setEnabled(false);
@@ -836,8 +782,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     } else {
                         btnConfirm.setEnabled(false);
                         new Thread(() -> {
-                            String existingBook = AppDatabase.getDatabase(getApplicationContext()).folderDao()
-                                    .originalHashAlreadyExist_getBookName(hash);
+                            String existingBook = ImportValidator.checkHashExists(ImportBookSingleActivity.this, hash);
                             runOnUiThread(() -> {
                                 if (existingBook != null) {
                                     if (uri.toString().startsWith("http")) {
@@ -854,9 +799,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                         myLog("-----------------------------------------------------------------------------------");
                                         showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
                                                 + "\n" + existingBook);
-                                        isKO = true;
-                                        hashJobRunning = false;
-                                        updateLoadingUi();
+                                        stopAndDisabledEverything();
+                                        return;
                                     }
                                 } else {
                                     myLogD("Hash OK: not found in DB.");
@@ -883,9 +827,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private void okContinue(BookCandidate bookCandidate) {
         if ("Folder".equals(bookCandidate.sourceType) && bookCandidate.hasMultipleBooksInFolder()) {
             showError(getString(R.string.error_folder_multiple_books));
-            isKO = true;
-            hashJobRunning = false;
-            updateLoadingUi();
+            stopAndDisabledEverything();
             return;
         }
         checkPathDoesNotAlreadyExist();
@@ -908,9 +850,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     if (audioBookAlreadyThere != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
                         showError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
-                        isKO = true;
-                        hashJobRunning = false;
-                        updateLoadingUi();
+                        stopAndDisabledEverything();
                     } else {
                         myLogD("OK, folder path doesn't already exist in DB");
                         checkNameDoesNotAlreadyExist();
@@ -925,11 +865,11 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private void checkNameDoesNotAlreadyExist() {
         myLog("Checking Folder Name doesn't already exist in DB : [" + audioBookTitle + "]");
         new Thread(() -> {
-            long lCheck = AppDatabase.getDatabase(this).folderDao().folderAlreadyExist_checkFolderName(audioBookTitle);
+            boolean nameExists = ImportValidator.checkNameExists(ImportBookSingleActivity.this, audioBookTitle);
             runOnUiThread(() -> {
                 hashJobRunning = false;
                 updateLoadingUi();
-                if (lCheck > 0) {
+                if (nameExists) {
                     myLogW("KO, folder name does already exist in DB : [" + audioBookTitle + "]");
                     audioBookTitle = audioBookTitle + " " + getCurrentDateTimeString();
                     String strText;
@@ -1080,10 +1020,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             // desactivateInteractive();
         } else {
             waitTextView.setVisibility(View.GONE);
-            if (!isKO) {
-                // only enable controls if we are not in an error state
-                activateInteractive();
-            }
+            activateInteractive();
         }
     }
 
@@ -1101,4 +1038,38 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
         }
     }
+
+    private void stopAndDisabledEverything() {
+        disableEveryThing();
+        btnConfirm.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.VISIBLE); // Change Cancel to Close
+        btnCancel.setText(R.string.Close); // Change Cancel to Close
+    }
+    private void hideAndDisabledEverything() {
+        disableEveryThing();
+        findViewById(R.id.llButtons).setVisibility(View.GONE);
+    }
+    private void disableEveryThing() {
+        findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
+        findViewById(R.id.vSeparator1).setVisibility(View.GONE);
+        findViewById(R.id.llOptions).setVisibility(View.GONE);
+        findViewById(R.id.vSeparator2).setVisibility(View.GONE);
+        btnConfirm.setVisibility(View.GONE);
+        btnCancel.setVisibility(View.VISIBLE); // Change Cancel to Close
+        btnCancel.setText(R.string.Close); // Change Cancel to Close
+        // Hide other editing/importing options if needed
+        llSplit.setVisibility(View.GONE);
+        llCopy.setVisibility(View.GONE);
+        llUseSdCard.setVisibility(View.GONE);
+        llDelete.setVisibility(View.GONE);
+        tvAppendMode.setVisibility(View.GONE);
+        destinationFolderSpinner.setVisibility(View.GONE);
+        waitTextView.setVisibility(View.GONE);
+        progressBarStep1.setVisibility(View.GONE);
+        tvProgressStatusStep1.setVisibility(View.GONE);
+        progressBarStep2.setVisibility(View.GONE);
+        tvProgressStatusStep2.setVisibility(View.GONE);
+    }
+
+
 }
