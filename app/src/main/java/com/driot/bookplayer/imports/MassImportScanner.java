@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
+import com.driot.bookplayer.helpers.SupportedFilesHelper;
 
 public class MassImportScanner extends LoggerHelper {
 
@@ -126,10 +127,10 @@ public class MassImportScanner extends LoggerHelper {
                     collectCandidatesRecursive(file, candidates, count, level + 1, childPath);
                 }
             } else {
-                String type = detectBookType(file);
-                if (type != null) {
+                String type = SupportedFilesHelper.getType(file);
+                if (type != null && SupportedFilesHelper.isBookSupported(file)) {
                     // If it's an archive, we treat it as a container/candidate similarly
-                    myLog(Tonio.lpad(level, (level + 1) * 3) + " | Registered " + type + " Candidate: " + childPath);
+                    myLog(Tonio.lpad(level, (level + 1) * 3) + " | Registered Candidate: " + childPath);
                     BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type, file.length());
                     candidate.path = childPath;
                     addCandidate(candidate, candidates);
@@ -167,11 +168,10 @@ public class MassImportScanner extends LoggerHelper {
                     addCandidate(candidate, candidates);
                 }
             } else {
-                String type = detectBookType(file);
-                if (type != null) {
-                    myLog("Registered " + type + " Candidate: " + fileName);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type,
-                            file.length());
+                String type = SupportedFilesHelper.getType(file);
+                if (type != null && SupportedFilesHelper.isBookSupported(file)) {
+                    myLog("Registered Candidate: " + fileName);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type, file.length());
                     candidate.path = fileName;
                     addCandidate(candidate, candidates);
                 }
@@ -218,45 +218,15 @@ public class MassImportScanner extends LoggerHelper {
                     addCandidate(candidate, candidates);
                 }
             } else {
-                String type = detectBookType(file);
-                if (type != null) {
-                    myLog("L0 | Registered " + type + " Candidate: " + fileName);
-                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type,
-                            file.length());
+                String type = SupportedFilesHelper.getType(file);
+                if (type != null && SupportedFilesHelper.isBookSupported(file)) {
+                    myLog("L0 | Registered Candidate: " + fileName);
+                    BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type, file.length());
                     candidate.path = fileName;
                     addCandidate(candidate, candidates);
                 }
             }
         }
-    }
-
-    private String detectBookType(DocumentFile file) {
-        String name = safeName(file);
-        String ext = getExt(name);
-        String mime = Objects.toString(file.getType(), "");
-
-        // 1. Archives
-        if (Var.SUPPORTED_COMPRESSED_FILE_EXTENSIONS.contains(ext)) {
-            return "Archive";
-        }
-
-        // 2. Audio Files (M4B, etc - single file audiobooks)
-        if (Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
-            // We might want to be specific about M4B or long audio, but user said "m4b,
-            // etc".
-            // Since it's a "Book" import, we treat any supported audio file as a candidate
-            // here.
-            if ("m4b".equals(ext))
-                return "M4B";
-            return "Audio File";
-        }
-
-        // 3. Ebooks
-        if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(ext)) {
-            return "Ebook";
-        }
-
-        return null;
     }
 
     private boolean hasAnyAudioRecursive(DocumentFile dir) {
@@ -266,25 +236,11 @@ public class MassImportScanner extends LoggerHelper {
                 if (hasAnyAudioRecursive(f))
                     return true;
             } else {
-                if (isAudio(f))
+                if (SupportedFilesHelper.isAudio(f))
                     return true;
             }
         }
         return false;
-    }
-
-    private boolean isAudio(DocumentFile f) {
-        String name = safeName(f);
-        String ext = getExt(name);
-        String mime = Objects.toString(f.getType(), "");
-        if (mime != null && mime.startsWith(Var.ONLY_MIME_AUDIO))
-            return true;
-        return Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext);
-    }
-
-    private String getExt(String name) {
-        int dot = name.lastIndexOf('.');
-        return dot < 0 ? "" : name.substring(dot + 1).toLowerCase(Locale.ROOT);
     }
 
     private String safeName(DocumentFile f) {

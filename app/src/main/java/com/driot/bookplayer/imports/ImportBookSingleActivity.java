@@ -29,6 +29,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.work.Data;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkInfo;
@@ -80,7 +81,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
     private Uri uri;
     boolean forceCopy;
-    // bookCandidate is now accessed via viewModel.getBookCandidate()
 
     private String audioBookTitle; // name can be changed... so keep as separate var
 
@@ -125,8 +125,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        // Initialize ViewModel
-        viewModel = new androidx.lifecycle.ViewModelProvider(this).get(ImportBookSingleViewModel.class);
+        viewModel = new ViewModelProvider(this).get(ImportBookSingleViewModel.class);
 
         BookCandidate passedCandidate = getIntent().getParcelableExtra(EXTRA_BOOK_CANDIDATE);
         boolean detailMode = getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false);
