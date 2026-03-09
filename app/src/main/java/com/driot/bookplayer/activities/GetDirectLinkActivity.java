@@ -123,7 +123,6 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
             } else {
                 Intent intent = new Intent(this, ImportBookSingleActivity.class);
                 intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(justGetItUrl));
-                intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                 loadBookActivityResultLauncher.launch(intent);
                 FirebaseAnalyticsHelper.tellAnalyticsManualDownload(justGetItUrl, "no_se");
             }
@@ -190,7 +189,6 @@ public class GetDirectLinkActivity extends BaseBottomNavActivity {
                 String urlToGet = pendingDownloadUrl;
                 Intent intent = new Intent(this, ImportBookSingleActivity.class);
                 intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(urlToGet));
-                intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                 loadBookActivityResultLauncher.launch(intent);
                 FirebaseAnalyticsHelper.tellAnalyticsManualDownload(urlToGet, "no_se");
             } else {

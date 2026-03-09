@@ -47,7 +47,6 @@ public class OpenWithProxyActivityAll extends BaseActivity {
 
         Intent nextIntent = new Intent(this, ImportBookSingleActivity.class);
         nextIntent.putExtra(ImportBookSingleActivity.EXTRA_URI, uri);
-        nextIntent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
         nextIntent.putExtra(ImportBookSingleActivity.EXTRA_FORCE_COPY, !persistPermission);
         startActivityForResult(nextIntent, REQUEST_LOAD_OPTIONS);
 

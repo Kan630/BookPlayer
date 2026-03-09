@@ -84,7 +84,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                     } else {
                         Intent intent = new Intent(this, ImportBookSingleActivity.class);
                         intent.putExtra(ImportBookSingleActivity.EXTRA_URI, uri);
-                        intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, type);
                         if (folderToAddTo != null)
                             intent.putExtra(Intents.EXTRA_ADD_TO_FOLDER, folderToAddTo);
                         loadBookActivityResultLauncher.launch(intent);
@@ -324,7 +323,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 if (canReach) {
                     Intent intent = new Intent(this, ImportBookSingleActivity.class);
                     intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_01));
-                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });
@@ -335,7 +333,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 if (canReach) {
                     Intent intent = new Intent(this, ImportBookSingleActivity.class);
                     intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_02));
-                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });
@@ -346,7 +343,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 if (canReach) {
                     Intent intent = new Intent(this, ImportBookSingleActivity.class);
                     intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_03));
-                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });
@@ -357,7 +353,6 @@ public class GetOtherActivity extends BaseBottomNavActivity {
                 if (canReach) {
                     Intent intent = new Intent(this, ImportBookSingleActivity.class);
                     intent.putExtra(ImportBookSingleActivity.EXTRA_URI, Uri.parse(Var.AUTOTEST_FILE_04));
-                    intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, "File");
                     loadBookActivityResultLauncher.launch(intent);
                 }
             });

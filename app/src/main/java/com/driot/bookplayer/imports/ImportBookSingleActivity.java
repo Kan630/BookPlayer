@@ -72,7 +72,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private boolean countJobRunning = false;
 
     public static final String EXTRA_URI = "EXTRA_URI";
-    public static final String EXTRA_TYPE = "EXTRA_TYPE"; // File or Folder
     public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
     public static final String EXTRA_BOOK_CANDIDATE = "EXTRA_BOOK_CANDIDATE";
 
@@ -136,17 +135,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             myLog("detail mode. candidate: " + passedCandidate.name);
         } else {
             uri = getIntent().getParcelableExtra(EXTRA_URI);
-            String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
             forceCopy = getIntent().getBooleanExtra(EXTRA_FORCE_COPY, false);
             folderToAddTo = getIntent().getParcelableExtra(Intents.EXTRA_ADD_TO_FOLDER);
 
-            if (!(gotten_type.equals("File")
-                    || gotten_type.equals("Folder")
-                    || gotten_type.equals("Podcast"))) {
-                myToastEE(null, "Error picking audio - unsupported type : [" + gotten_type + "]");
-                finish();
-                return;
-            }
             if (Objects.isNull(uri)) {
                 myToastEE(null, "Error picking audio : [uri is null]");
                 finish();
