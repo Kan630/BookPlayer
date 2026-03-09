@@ -141,7 +141,7 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
         } else if ("M4B".equals(item.sourceType)) {
             iconRes = R.drawable.ic_file_m4b;
         } else if ("Ebook".equals(item.sourceType)) {
-            iconRes = R.drawable.ic_docs_24px;
+            iconRes = R.drawable.ic_tts_24;
         } else {
             iconRes = R.drawable.ic_audio_file_24px;
         }
