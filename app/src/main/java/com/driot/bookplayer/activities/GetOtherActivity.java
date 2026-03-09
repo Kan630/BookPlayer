@@ -62,12 +62,14 @@ public class GetOtherActivity extends BaseBottomNavActivity {
             bMassImportActivityResultLauncher;
 
     private void launchAddResource(ActivityResult result, String type) {
-        myLog("launchAddResource()-----------------------------------------------------------------------------------------------------");
+        myLog("launchAddResource()");
         try {
             if (result.getResultCode() == RESULT_OK) {
                 if (UriHelper.isReturnedUriOk(result.getData())) {
                     Uri uri = result.getData().getData();
+                    myLog("-------------------------------------------------------------------------------------------------");
                     myLog("picked data : " + uri.getPath());
+                    myLog("-------------------------------------------------------------------------------------------------");
 
                     getContentResolver().takePersistableUriPermission(
                             uri,

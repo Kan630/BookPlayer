@@ -34,7 +34,6 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class BookCandidate implements Parcelable {
-    private boolean LOG_DEBUG = true;
     private boolean VERBOSE_DEBUG = false;
 
     public Uri uri;
@@ -1199,11 +1198,6 @@ public class BookCandidate implements Parcelable {
     @Override
     public String toString() {
         return "[" + sourceType + "] " + name;
-    }
-
-    private void myLogD(String txt) {
-        if (LOG_DEBUG)
-            KanLogger.myLogD(txt);
     }
 
     private void myLogDD(String txt) {
