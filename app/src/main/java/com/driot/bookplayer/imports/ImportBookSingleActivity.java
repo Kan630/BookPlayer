@@ -46,7 +46,6 @@ import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CountCallback;
 import com.driot.bookplayer.helpers.FileCounterHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
-import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.MsgBox;
@@ -192,6 +191,13 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         tvFileName.setText("...");
 
+        //init checkbox by loading default from general settings
+        //then, it will be controlled and maybe changed by dynamic checks
+        cbSplit.setChecked(Option.getSplitM4b());
+        cbUseSdCard.setChecked(Option.getUseSdCard());
+        cbDelete.setChecked(Option.getDeleteSourceFile());
+        cbCopy.setChecked(Option.getCopyFile());
+
         // Observe BookCandidate from ViewModel
         viewModel.getBookCandidate().observe(this, bookCandidate -> {
             if (bookCandidate == null)
@@ -273,7 +279,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
             myLogI("Using passed BookCandidate: " + passedCandidate.name);
             viewModel.setBookCandidate(passedCandidate);
-            hideAndDisabledEverything();
+            hideAndDisableEverything();
 
         } else {
             // SINGLE IMPORT MODE
@@ -799,7 +805,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                                         myLog("-----------------------------------------------------------------------------------");
                                         showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
                                                 + "\n" + existingBook);
-                                        stopAndDisabledEverything();
+                                        stopAndDisableEverything();
                                         return;
                                     }
                                 } else {
@@ -827,7 +833,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     private void okContinue(BookCandidate bookCandidate) {
         if ("Folder".equals(bookCandidate.sourceType) && bookCandidate.hasMultipleBooksInFolder()) {
             showError(getString(R.string.error_folder_multiple_books));
-            stopAndDisabledEverything();
+            stopAndDisableEverything();
             return;
         }
         checkPathDoesNotAlreadyExist();
@@ -850,7 +856,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     if (audioBookAlreadyThere != null) {
                         myLogW("KO, folder path does already exist in DB : [" + strPath + "]");
                         showError(getString(R.string.error_media_already_loaded_samePath) + audioBookAlreadyThere);
-                        stopAndDisabledEverything();
+                        stopAndDisableEverything();
                     } else {
                         myLogD("OK, folder path doesn't already exist in DB");
                         checkNameDoesNotAlreadyExist();
@@ -1039,13 +1045,15 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         }
     }
 
-    private void stopAndDisabledEverything() {
+    private void stopAndDisableEverything() {
+        myLog("stop And Disable Everything()");
         disableEveryThing();
         btnConfirm.setVisibility(View.GONE);
         btnCancel.setVisibility(View.VISIBLE); // Change Cancel to Close
         btnCancel.setText(R.string.Close); // Change Cancel to Close
+        warningTextView.setVisibility(View.GONE);
     }
-    private void hideAndDisabledEverything() {
+    private void hideAndDisableEverything() {
         disableEveryThing();
         findViewById(R.id.llButtons).setVisibility(View.GONE);
     }

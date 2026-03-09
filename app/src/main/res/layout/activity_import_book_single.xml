@@ -87,6 +87,7 @@
             style="@style/OptionAfterPickedInfo"
             android:textColor="@color/red_500"
             android:text="@string/error_generic"
+            android:layout_marginVertical="20dp"
             />
         <TextView
             android:id="@+id/warningTextView"
