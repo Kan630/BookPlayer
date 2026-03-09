@@ -66,6 +66,8 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         return false;
     }
 
+    protected boolean displayBottomNavBar() { return false; }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
