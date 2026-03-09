@@ -600,8 +600,8 @@
     <string name="Audio_location">Audio location</string>
     <string name="Change_cover_image">"Change Cover Image"</string>
     <string name="AskRename_Track">Rename this track to</string>
-    <string name="IntroCut">"Cut Intro"</string>
-    <string name="EndCut">"Cut End"</string>
+    <string name="IntroCut">"Cut Intros"</string>
+    <string name="EndCut">"Cut Ends"</string>
     <string name="Rename_book">"Rename book"</string>
     <string name="AskRename_Book">"Do you really want to rename the book as"</string>
     <string name="AskRename_popupTitle">Confirm Rename</string>
