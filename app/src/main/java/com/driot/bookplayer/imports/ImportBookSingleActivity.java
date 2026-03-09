@@ -74,7 +74,6 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     public static final String EXTRA_URI = "EXTRA_URI";
     public static final String EXTRA_TYPE = "EXTRA_TYPE"; // File or Folder
     public static final String EXTRA_FORCE_COPY = "EXTRA_FORCE_COPY"; // from OpenWithProxy...
-    public static final String EXTRA_DETAIL_MODE = "EXTRA_DETAIL_MODE";
     public static final String EXTRA_BOOK_CANDIDATE = "EXTRA_BOOK_CANDIDATE";
 
     private ImportBookSingleViewModel viewModel;
@@ -118,7 +117,10 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     protected boolean enableOngoingTaskOverlay() {
         return false;
     }
-    protected boolean displayBottomNavBar() { return false; }
+
+    protected boolean displayBottomNavBar() {
+        return false;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -128,15 +130,10 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         viewModel = new ViewModelProvider(this).get(ImportBookSingleViewModel.class);
 
         BookCandidate passedCandidate = getIntent().getParcelableExtra(EXTRA_BOOK_CANDIDATE);
-        boolean detailMode = getIntent().getBooleanExtra(EXTRA_DETAIL_MODE, false);
-        if (detailMode) {
-            if (passedCandidate == null) {
-                myToastE("no candidate passed in detail mode");
-                return;
-            } else {
-                myLog("detail mode");
-            }
+        boolean detailMode = (passedCandidate != null);
 
+        if (detailMode) {
+            myLog("detail mode. candidate: " + passedCandidate.name);
         } else {
             uri = getIntent().getParcelableExtra(EXTRA_URI);
             String gotten_type = Objects.toString(getIntent().getStringExtra(EXTRA_TYPE), "");
@@ -190,8 +187,8 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
 
         tvFileName.setText("...");
 
-        //init checkbox by loading default from general settings
-        //then, it will be controlled and maybe changed by dynamic checks
+        // init checkbox by loading default from general settings
+        // then, it will be controlled and maybe changed by dynamic checks
         cbSplit.setChecked(Option.getSplitM4b());
         cbUseSdCard.setChecked(Option.getUseSdCard());
         cbDelete.setChecked(Option.getDeleteSourceFile());
@@ -1052,10 +1049,12 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         btnCancel.setText(R.string.Close); // Change Cancel to Close
         warningTextView.setVisibility(View.GONE);
     }
+
     private void hideAndDisableEverything() {
         disableEveryThing();
         findViewById(R.id.llButtons).setVisibility(View.GONE);
     }
+
     private void disableEveryThing() {
         findViewById(R.id.llAppendAndDest).setVisibility(View.GONE);
         findViewById(R.id.vSeparator1).setVisibility(View.GONE);
@@ -1077,6 +1076,5 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         progressBarStep2.setVisibility(View.GONE);
         tvProgressStatusStep2.setVisibility(View.GONE);
     }
-
 
 }

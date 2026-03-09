@@ -1,5 +1,6 @@
 package com.driot.bookplayer.imports;
 
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.Gravity;
@@ -66,7 +67,9 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         return false;
     }
 
-    protected boolean displayBottomNavBar() { return false; }
+    protected boolean displayBottomNavBar() {
+        return false;
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -175,7 +178,6 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         tvMassImportProgressText = findViewById(R.id.tvMassImportProgressText);
         tvMassImportProgressText.setText(R.string.loading_step_1);
 
-
         // Storage section visible only when "Display Storage Bar" is enabled in
         // Settings > Massive Import
         boolean showStorageBar = Option.getMassImportDisplayStorageBar();
@@ -273,11 +275,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
             recalculateStorageBar();
         });
         adapter.setOnItemClickListener(candidate -> {
-            android.content.Intent intent = new android.content.Intent(this, ImportBookSingleActivity.class);
-            intent.putExtra(ImportBookSingleActivity.EXTRA_URI, candidate.uri);
-            String typeToPass = "Folder".equals(candidate.sourceType) ? "Folder" : "File";
-            intent.putExtra(ImportBookSingleActivity.EXTRA_TYPE, typeToPass);
-            intent.putExtra(ImportBookSingleActivity.EXTRA_DETAIL_MODE, true);
+            Intent intent = new Intent(this, ImportBookSingleActivity.class);
             intent.putExtra(ImportBookSingleActivity.EXTRA_BOOK_CANDIDATE, candidate);
             startActivity(intent);
         });
@@ -311,7 +309,6 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                 massImportprogressBar.getIndeterminateDrawable().setColorFilter(
                         getResources().getColor(R.color.yellow, null),
                         android.graphics.PorterDuff.Mode.SRC_IN);
-
 
             } else if (status == 1) {
                 llScanning.setVisibility(View.VISIBLE);
