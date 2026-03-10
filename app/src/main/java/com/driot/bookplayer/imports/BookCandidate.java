@@ -472,14 +472,22 @@ public class BookCandidate implements Parcelable {
                     }
                     if (chapterTrack != null) {
                         List<Sample> samples = chapterTrack.getSamples();
+                        long[] sampleDurations = chapterTrack.getSampleDurations();
+                        long timescale = chapterTrack.getTrackMetaData().getTimescale();
+
                         int chapterCount = samples.size();
                         this.tracksCount = chapterCount > 0 ? chapterCount : 1;
 
                         for (int i = 0; i < chapterCount; i++) {
+                            long durationMs = 0;
+                            if (sampleDurations != null && i < sampleDurations.length && timescale != 0) {
+                                durationMs = (sampleDurations[i] * 1000) / timescale;
+                            }
+
                             String title = extractCleanChapterTitle(samples.get(i));
                             String tName = (i + 1) + ". " + title;
                             // trackList.add(tName);
-                            AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, file.getUri().toString(), null);
+                            AudioFileInfo afi = new AudioFileInfo(tName, durationMs, 0, file.getUri().toString(), null);
                             audioFileInfoArrayList.add(afi);
                             if (listener != null) {
                                 listener.onTrackFound(afi);
