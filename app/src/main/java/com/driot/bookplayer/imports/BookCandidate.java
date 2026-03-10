@@ -27,6 +27,8 @@ import com.googlecode.mp4parser.authoring.Movie;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -41,21 +43,30 @@ public class BookCandidate implements Parcelable {
     public String sourceType; // Folder, Archive, M4B, EPUB, Audio File
     public String path; // For display
     public long size;
-    public int tracksCount;
+    public String originalFile;
+    public String fileExtension;
+    public String playType;
+    public String specialType;
+
+    public int multipleBooksCount = 0;
+    public boolean hasOnlyZipFilesInFolder = false;
     public String originalHash; // Computed during scanning
     public String existingBookName; // Name of book if hash already exists in DB (null if not imported)
-    public String coverImagePath; // Path to detected cover image (null if none)
-    private boolean selected; // User selection for mass import (false if already imported)
 
-    // New fields from BookToAdd
+    public String audioBookName = "init..."; // formatted for display
+    public int tracksCount;
+    public final List<String> trackList = new ArrayList<>();
+    public String coverImagePath; // Path to detected cover image (null if none)
+
     public String sourceLocation = "sourceLocation...";
-    public String playType;
+    public String mimeType;
     public String infoMimeExtension = "init...";
     public String infoMimeExtensionSmall = "init...";
     public String infoSourceLocation = "infoSourceLocation...";
     public String infoLine1 = "init...";
 
-    // New fields from BookToAdd (Phase 2)
+    private boolean selected; // User selection for mass import (false if already imported)
+
     public boolean isBroken = false;
     public boolean isMimeSupported = true;
     public boolean isHeavyLoaded = false;
@@ -63,15 +74,8 @@ public class BookCandidate implements Parcelable {
     public boolean isEasyLoaded = false;
     public boolean isSizeCalculated = false;
     public boolean isEasyCalculating = false; // UI state for easy load progress
-    public String audioBookName = "init..."; // formatted for display
-    public int multipleBooksCount = 0;
-    public boolean hasOnlyZipFilesInFolder = false;
-    public String originalFile;
-    public String fileExtension;
-    public String mimeType;
-    public String specialType;
 
-    public final java.util.List<String> trackList = new java.util.ArrayList<>();
+
 
     public interface OnMetadataListener {
         void onTrackFound(String name);
