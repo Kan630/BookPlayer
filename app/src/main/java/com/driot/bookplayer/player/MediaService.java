@@ -134,7 +134,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private com.driot.bookplayer.player.MediaSessionController media;
     private com.driot.bookplayer.player.AudioFocusHelper focus;
     private com.driot.bookplayer.player.PlayTimer playTimer;
-    private com.driot.bookplayer.player.PauseTrimWatcher pauseWatcher;
     private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
 
     @Inject
@@ -480,7 +479,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         media.setSessionActivity(contentPi);
 
         // Notification helper
-        notif = new com.driot.bookplayer.player.PlaybackNotificationManager(
+        notif = new PlaybackNotificationManager(
                 this, ID_NOTIFICATION_PLAY_AUDIO_CHANNEL, R.mipmap.ic_launcher);
         notif.ensureChannel("Music Playback", "Bookplayer Music Playback Controls");
 
@@ -511,33 +510,10 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     }
                 });
 
-        // Pause/trim watcher (kills service if paused too long)
-        pauseCheckHandler = new Handler();
-        pauseWatcher = new com.driot.bookplayer.player.PauseTrimWatcher(
-                pauseCheckHandler, DELAY_CHECK_TIMER_PAUSE,
-                new com.driot.bookplayer.player.PauseTrimWatcher.Killer() {
-                    @Override
-                    public void kill() {
-                        shutdown(false);
-                    }
-
-                    @Override
-                    public void onLog(String msg) {
-                        String newMsg = msg;
-                        if (PlayList.getInstance() == null)
-                            newMsg += " [null playlist]";
-                        myLogD(newMsg);
-                    }
-                },
-                System::currentTimeMillis,
-                Pref::getPauseTime,
-                TRIM_AFTER_PAUSE_MS);
-        pauseWatcher.start();
-
         // Audio focus
-        focus = new com.driot.bookplayer.player.AudioFocusHelper(
+        focus = new AudioFocusHelper(
                 this,
-                new com.driot.bookplayer.player.AudioFocusHelper.Listener() {
+                new AudioFocusHelper.Listener() {
                     @Override
                     public void onFocusGain() {
                         myLogI("onFocusGain");
@@ -740,7 +716,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 playing,
                 title,
                 text,
-                new com.driot.bookplayer.player.PlaybackNotificationManager.ActionProvider() {
+                new PlaybackNotificationManager.ActionProvider() {
                     @NonNull
                     @Override
                     public PendingIntent rewind() {
@@ -1351,11 +1327,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Throwable ignored) {
         }
         try {
-            if (pauseWatcher != null)
-                pauseWatcher.stop();
-        } catch (Throwable ignored) {
-        }
-        try {
             main.removeCallbacksAndMessages(null);
         } catch (Throwable ignored) {
         }
@@ -1396,11 +1367,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         try {
             if (playTimer != null)
                 playTimer.stop();
-        } catch (Throwable ignored) {
-        }
-        try {
-            if (pauseWatcher != null)
-                pauseWatcher.stop();
         } catch (Throwable ignored) {
         }
         try {
