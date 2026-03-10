@@ -49,6 +49,8 @@ import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
 
 import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.utils.Tonio;
+
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -239,10 +241,22 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 llTrackList.removeAllViews();
                 for (AudioFileInfo track : tracks) {
                     TextView tv = new TextView(this);
-                    String durationStr = (track.getDuration() > 0)
-                            ? " (" + com.driot.bookplayer.utils.Tonio.formatTime(track.getDuration()) + ")"
-                            : "";
-                    tv.setText(track.getDisplayPath() + durationStr);
+                    String moreInfo = "";
+                    String toDisplay = "";
+                    if (track.getDuration() > 0) {
+                        moreInfo = "   .   [" + Tonio.formatTime(track.getDuration()) + "]";
+                    } else if (track.getSize() > 0) {
+                        moreInfo = "   .   [" + Tonio.getReadableSize(track.getSize()) + "]";
+                    }
+                    String path = track.getDisplayPath();
+                    if (moreInfo.isEmpty()) {
+                        toDisplay = path;
+                    } else {
+                        toDisplay = (path.length() > 40)
+                                ? "…" + path.substring(path.length() - 40)
+                                : path;
+                    }
+                    tv.setText(toDisplay);
                     tv.setTextSize(12);
                     tv.setMaxLines(1);
                     tv.setEllipsize(android.text.TextUtils.TruncateAt.END);

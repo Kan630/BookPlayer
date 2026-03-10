@@ -5,14 +5,12 @@ import android.net.Uri;
 
 import androidx.documentfile.provider.DocumentFile;
 
-import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
-import java.util.Objects;
 import com.driot.bookplayer.helpers.SupportedFilesHelper;
 
 public class MassImportScanner extends LoggerHelper {
@@ -51,11 +49,12 @@ public class MassImportScanner extends LoggerHelper {
         List<BookCandidate> candidates = new ArrayList<>();
         List<DocumentFile> deferredArchives = new ArrayList<>();
 
-        DocumentFile root = DocumentFile.fromTreeUri(context, rootUri);
+        DocumentFile root = UriHelper.getDocumentFileFromAnyUri(context, rootUri);
         if (root == null || !root.isDirectory()) {
             myLogE("Root is not a directory or null: " + rootUri);
             return candidates;
         }
+        myLogD("starting scan for [" + rootUri + "] - (includeSubfolders=" + includeSubfolders + ") - root=" + root.getName());
 
         if (includeSubfolders) {
             scanRecursive(root, candidates, deferredArchives);
@@ -85,8 +84,8 @@ public class MassImportScanner extends LoggerHelper {
         }
 
         collectCandidatesRecursive(root, foundCandidates, new int[] { 0 }, 0, "");
-
         candidates.addAll(foundCandidates);
+        myLogD(foundCandidates.size() + " candidates found.");
     }
 
     /**
@@ -134,6 +133,8 @@ public class MassImportScanner extends LoggerHelper {
                     BookCandidate candidate = new BookCandidate(context, file.getUri(), fileName, type, file.length());
                     candidate.path = childPath;
                     addCandidate(candidate, candidates);
+                } else {
+                    myLog(Tonio.lpad(level, (level + 1) * 3) + " | not supported: [" + childPath + "] - type=" + type);
                 }
             }
         }

@@ -2,7 +2,7 @@ package com.driot.bookplayer.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
+
 import androidx.annotation.Nullable;
 
 import java.util.Comparator;
@@ -12,6 +12,7 @@ import java.util.Map;
 public class AudioFileInfo implements Parcelable {
     private final String displayPath;
     private final long duration;
+    private final long size;
     private final String contentUri;
     private final Map<String, String> meta;
 
@@ -41,11 +42,12 @@ public class AudioFileInfo implements Parcelable {
     }
 
     public AudioFileInfo(String displayPath,
-            long duration,
-            String contentUri,
-            @Nullable Map<String, String> meta) {
+                         long duration,
+                         long size, String contentUri,
+                         @Nullable Map<String, String> meta) {
         this.displayPath = displayPath;
         this.duration = duration;
+        this.size = size;
         this.contentUri = contentUri;
         // defensive copy to avoid external mutation
         this.meta = (meta == null) ? new HashMap<>() : new HashMap<>(meta);
@@ -59,6 +61,11 @@ public class AudioFileInfo implements Parcelable {
         return duration;
     }
 
+    public long getSize() {
+        return size;
+    }
+
+
     public String getContentUri() {
         return contentUri;
     }
@@ -70,10 +77,11 @@ public class AudioFileInfo implements Parcelable {
     protected AudioFileInfo(Parcel in) {
         displayPath = in.readString();
         duration = in.readLong();
+        size = in.readLong();
         contentUri = in.readString();
-        int size = in.readInt();
-        meta = new HashMap<>(size);
-        for (int i = 0; i < size; i++) {
+        int sizeMeta = in.readInt();
+        meta = new HashMap<>(sizeMeta);
+        for (int i = 0; i < sizeMeta; i++) {
             meta.put(in.readString(), in.readString());
         }
     }
@@ -82,6 +90,7 @@ public class AudioFileInfo implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(displayPath);
         dest.writeLong(duration);
+        dest.writeLong(size);
         dest.writeString(contentUri);
         dest.writeInt(meta.size());
         for (Map.Entry<String, String> entry : meta.entrySet()) {
@@ -119,6 +128,7 @@ public class AudioFileInfo implements Parcelable {
         return new AudioFileInfo(
                 shown,
                 ai.durationMs,
+                0,
                 ai.uri.toString(),
                 m);
     }

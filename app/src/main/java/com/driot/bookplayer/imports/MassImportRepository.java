@@ -9,6 +9,9 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.helpers.ImageHelper;
+import com.driot.bookplayer.objects.AudioFileInfo;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.util.ArrayList;
@@ -74,18 +77,6 @@ public class MassImportRepository {
 
     public LiveData<Integer> getLoadingStatus() {
         return loadingStatus;
-    }
-
-    public boolean hasResults() {
-        return candidates.getValue() != null && !candidates.getValue().isEmpty();
-    }
-
-    public LiveData<Integer> getProgressCurrent() {
-        return progressCurrent;
-    }
-
-    public LiveData<Integer> getProgressTotal() {
-        return progressTotal;
     }
 
     public void startScan(Uri rootUri) {
@@ -249,7 +240,7 @@ public class MassImportRepository {
                             long lastUpdate = 0;
 
                             @Override
-                            public void onTrackFound(com.driot.bookplayer.objects.AudioFileInfo info) {
+                            public void onTrackFound(AudioFileInfo info) {
                                 long now = System.currentTimeMillis();
                                 if (now - lastUpdate > 500) { // Update every 500ms
                                     lastUpdate = now;
@@ -317,7 +308,7 @@ public class MassImportRepository {
 
         // Clean up temp images
         executor.execute(() -> {
-            com.driot.bookplayer.helpers.ImageHelper.deleteAllTempImages(context);
+            ImageHelper.deleteAllTempImages(context);
         });
     }
 

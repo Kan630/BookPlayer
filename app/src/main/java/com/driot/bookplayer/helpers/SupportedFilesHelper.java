@@ -42,11 +42,6 @@ public class SupportedFilesHelper {
         return FILE_TYPE_AUDIO.equals(type);
     }
 
-    public static boolean isAudio(String fileName) {
-        String type = getType(fileName);
-        return FILE_TYPE_AUDIO.equals(type);
-    }
-
     public static boolean isVideo(DocumentFile docFile) {
         String type = getType(docFile);
         return FILE_TYPE_VIDEO.equals(type);
@@ -164,10 +159,6 @@ public class SupportedFilesHelper {
         return name;
     }
 
-    public static String getFileExtension(@NonNull Context ctx, @NonNull Uri uri) {
-        return extractExtension(getFileName(ctx, uri));
-    }
-
     /**
      * Best-effort robust MIME from Context+Uri (includes m4b fallback and multiple
      * strategies).
@@ -233,39 +224,11 @@ public class SupportedFilesHelper {
         return mime == null ? "" : mime;
     }
 
-    /** Filename-only getters */
-    public static String getFileName(String fileName) {
-        return fileName == null ? "" : fileName;
-    }
 
     public static String getFileExtension(String fileName) {
         return extractExtension(fileName);
     }
 
-    /** Try to resolve a MIME type from just a filename (best-effort). */
-    public static String getMimeType(String fileName) {
-        if (fileName == null)
-            return "";
-        String ext = extractExtension(fileName);
-        if (ext.isEmpty())
-            return "";
-        try {
-            String map = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
-            if (map != null)
-                return map;
-        } catch (Exception ignored) {
-        }
-        try {
-            String guess = URLConnection.guessContentTypeFromName(fileName);
-            if (guess != null)
-                return guess;
-        } catch (Exception ignored) {
-        }
-        // m4b fallback from filename
-        if ("m4b".equals(ext))
-            return "audio/m4b";
-        return "";
-    }
 
     // ----------------------- TYPE RESOLUTION -----------------------
     /** Hybrid: check supported MIME sets, then prefix fallback for robustness. */
@@ -352,6 +315,37 @@ public class SupportedFilesHelper {
     }
 
     // ----------------------- SPECIAL TYPE -----------------------
+
+    public static String getSpecialTypeFromExt(String ext) {
+        switch (ext) {
+            case "zip":
+                return SPECIAL_TYPE_ZIP;
+            case "7z":
+                return SPECIAL_TYPE_7Z;
+            case "tar":
+            case "tgz":
+            case "tbz2":
+            case "txz":
+            case "tar.bz2":
+            case "tar.xz":
+                return SPECIAL_TYPE_TAR;
+            case "m4b":
+                return SPECIAL_TYPE_M4B;
+            case "odt":
+                return SPECIAL_TYPE_ODT;
+            case "docx":
+                return SPECIAL_TYPE_DOCX;
+            case "fb2":
+                return SPECIAL_TYPE_FB2;
+            case "epub":
+                return SPECIAL_TYPE_EPUB;
+            case "txt":
+                return SPECIAL_TYPE_TXT;
+            default:
+                return null;
+        }
+    }
+
     public static String getSpecialType(DocumentFile docFile) {
         if (docFile == null)
             return null;
@@ -363,161 +357,27 @@ public class SupportedFilesHelper {
         if ((mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext))
             return SPECIAL_TYPE_TXT;
 
-        switch (ext) {
-            case "zip":
-                return SPECIAL_TYPE_ZIP;
-            case "7z":
-                return SPECIAL_TYPE_7Z;
-            case "tar":
-            case "tgz":
-            case "tbz2":
-            case "txz":
-            case "tar.bz2":
-            case "tar.xz":
-                return SPECIAL_TYPE_TAR;
-            case "m4b":
-                return SPECIAL_TYPE_M4B;
-            case "odt":
-                return SPECIAL_TYPE_ODT;
-            case "docx":
-                return SPECIAL_TYPE_DOCX;
-            case "fb2":
-                return SPECIAL_TYPE_FB2;
-            case "epub":
-                return SPECIAL_TYPE_EPUB;
-            case "txt":
-                return SPECIAL_TYPE_TXT;
-            default:
-                return null;
-        }
-    }
-
-    public static String getSpecialType(@NonNull Context ctx, @NonNull Uri uri) {
-        String name = getFileName(ctx, uri);
-        String ext = extractExtension(name);
-        String mime = getMimeType(ctx, uri);
-
-        if ((mime.startsWith("text/")) || "txt".equalsIgnoreCase(ext))
-            return SPECIAL_TYPE_TXT;
-
-        switch (ext) {
-            case "zip":
-                return SPECIAL_TYPE_ZIP;
-            case "7z":
-                return SPECIAL_TYPE_7Z;
-            case "tar":
-            case "tgz":
-            case "tbz2":
-            case "txz":
-            case "tar.bz2":
-            case "tar.xz":
-                return SPECIAL_TYPE_TAR;
-            case "m4b":
-                return SPECIAL_TYPE_M4B;
-            case "odt":
-                return SPECIAL_TYPE_ODT;
-            case "docx":
-                return SPECIAL_TYPE_DOCX;
-            case "fb2":
-                return SPECIAL_TYPE_FB2;
-            case "epub":
-                return SPECIAL_TYPE_EPUB;
-            case "txt":
-                return SPECIAL_TYPE_TXT;
-            default:
-                return null;
-        }
+        return getSpecialTypeFromExt(ext);
     }
 
     public static String getSpecialType(String fileName) {
         if (fileName == null)
             return null;
         String ext = extractExtension(fileName).toLowerCase(Locale.ROOT);
-        switch (ext) {
-            case "zip":
-                return SPECIAL_TYPE_ZIP;
-            case "7z":
-                return SPECIAL_TYPE_7Z;
-            case "tar":
-            case "tgz":
-            case "tbz2":
-            case "txz":
-            case "tar.bz2":
-            case "tar.xz":
-                return SPECIAL_TYPE_TAR;
-            case "m4b":
-                return SPECIAL_TYPE_M4B;
-            case "odt":
-                return SPECIAL_TYPE_ODT;
-            case "docx":
-                return SPECIAL_TYPE_DOCX;
-            case "fb2":
-                return SPECIAL_TYPE_FB2;
-            case "epub":
-                return SPECIAL_TYPE_EPUB;
-            case "txt":
-                return SPECIAL_TYPE_TXT;
-            default:
-                return null;
-        }
+        return getSpecialTypeFromExt(ext);
     }
 
     // ----------------------- SUPPORT CHECKS -----------------------
-    public static boolean isSupported(DocumentFile docFile) {
-        return getType(docFile) != null;
-    }
-
-    public static boolean isSupported(@NonNull Context ctx, @NonNull Uri uri) {
-        return getType(ctx, uri) != null;
+    private static boolean isBookSupportedFromType(String type) {
+        return FILE_TYPE_AUDIO.equals(type) || FILE_TYPE_VIDEO.equals(type) || FILE_TYPE_EBOOK.equals(type) || FILE_TYPE_BUNDLE.equals(type);
     }
 
     public static boolean isBookSupported(DocumentFile docFile) {
-        String type = getType(docFile);
-        return FILE_TYPE_AUDIO.equals(type) || FILE_TYPE_VIDEO.equals(type) || FILE_TYPE_EBOOK.equals(type);
-    }
-
-    public static boolean isBookSupported(@NonNull Context ctx, @NonNull Uri uri) {
-        String type = getType(ctx, uri);
-        return FILE_TYPE_AUDIO.equals(type) || FILE_TYPE_VIDEO.equals(type) || FILE_TYPE_EBOOK.equals(type);
+        return isBookSupportedFromType(getType(docFile));
     }
 
     public static boolean isBookSupported(String fileName) {
-        String type = getType(fileName);
-        return FILE_TYPE_AUDIO.equals(type)
-                || FILE_TYPE_VIDEO.equals(type)
-                || FILE_TYPE_EBOOK.equals(type)
-                || FILE_TYPE_BUNDLE.equals(type);
-    }
-
-    // ----------------------- PLAY TYPE -----------------------
-    public static String getPlayType(DocumentFile docFile) {
-        String type = getType(docFile);
-        if (type == null)
-            return null;
-        switch (type) {
-            case FILE_TYPE_EBOOK:
-                return Var.PLAY_TYPE_TEXT;
-            case FILE_TYPE_AUDIO:
-            case FILE_TYPE_VIDEO:
-                return Var.PLAY_TYPE_AUDIO;
-            default:
-                return null;
-        }
-    }
-
-    public static String getPlayType(@NonNull Context ctx, @NonNull Uri uri) {
-        String type = getType(ctx, uri);
-        if (type == null)
-            return null;
-        switch (type) {
-            case FILE_TYPE_EBOOK:
-                return Var.PLAY_TYPE_TEXT;
-            case FILE_TYPE_AUDIO:
-            case FILE_TYPE_VIDEO:
-                return Var.PLAY_TYPE_AUDIO;
-            default:
-                return null;
-        }
+        return isBookSupportedFromType(getType(fileName));
     }
 
     public static String getPlayType(String fileName) {
@@ -536,135 +396,6 @@ public class SupportedFilesHelper {
         }
     }
 
-    // ----------------------- DESCRIBE (string) -----------------------
-    /**
-     * Returns "(WARNING Mismatch) [ext] . [name] - mime = [mime]" (warning only if
-     * types disagree).
-     */
-    public static String describeFile(DocumentFile docFile) {
-        if (docFile == null)
-            return "(null DocumentFile)";
-        String name = getFileName(docFile);
-        String ext = extractExtension(name);
-        String mime = getMimeType(docFile);
-
-        String extType = typeFromExtension(ext);
-        String mimeType = typeFromMime(mime);
-
-        boolean mismatch = (extType != null && mimeType != null && !extType.equals(mimeType));
-
-        return (mismatch ? "(WARNING Mismatch) " : "")
-                + "[" + (ext.isEmpty() ? "no-ext" : ext) + "] . ["
-                + name + "] - mime = [" + mime + "]";
-    }
-
-    public static String describeFile(@NonNull Context ctx, @NonNull Uri uri) {
-        String name = getFileName(ctx, uri);
-        String ext = extractExtension(name);
-        String mime = getMimeType(ctx, uri);
-
-        String extType = typeFromExtension(ext);
-        String mimeType = typeFromMime(mime);
-
-        boolean mismatch = (extType != null && mimeType != null && !extType.equals(mimeType));
-
-        return (mismatch ? "(WARNING Mismatch) " : "")
-                + "[" + (ext.isEmpty() ? "no-ext" : ext) + "] . ["
-                + name + "] - mime = [" + mime + "]";
-    }
-
-    /** Describe a file just from its name (and guessed MIME). */
-    public static String describeFile(String fileName) {
-        if (fileName == null)
-            return "(null filename)";
-        String ext = extractExtension(fileName);
-        String mime = getMimeType(fileName);
-
-        String extType = typeFromExtension(ext);
-        String mimeType = typeFromMime(mime);
-
-        boolean mismatch = (extType != null && mimeType != null && !extType.equals(mimeType));
-
-        return (mismatch ? "(WARNING Mismatch) " : "")
-                + "[" + (ext.isEmpty() ? "no-ext" : ext) + "] . ["
-                + fileName + "] - mime = [" + mime + "]";
-    }
-
-    // ----------------------- Legacy-style helpers you pasted (adapted)
-    // -----------------------
-    /** Equivalent of your old getFileNameFromUri (with MediaStore fallback). */
-    public static String getFileNameFromUri(@NonNull Context c, @NonNull Uri uri) {
-        String name = null;
-        if ("content".equals(uri.getScheme())) {
-            try (Cursor cursor = c.getContentResolver().query(uri, null, null, null, null)) {
-                if (cursor != null && cursor.moveToFirst()) {
-                    int index = cursor.getColumnIndex(OpenableColumns.DISPLAY_NAME);
-                    if (index != -1) {
-                        name = cursor.getString(index);
-                    }
-                }
-            } catch (Exception e) {
-                myLogEE(e, "getFileNameFromUri - OpenableColumns failed");
-            }
-        }
-        if (name == null) {
-            name = getFileNameFromMediaUri(c, uri);
-        }
-        return name;
-    }
-
-    /** Your MediaStore-based fallback. */
-    public static String getFileNameFromMediaUri(Context c, @NonNull Uri uri) {
-        try {
-            String[] projection = { MediaStore.MediaColumns.DATA };
-            Cursor cursor = c.getContentResolver().query(uri, projection, null, null, null);
-            if (cursor != null) {
-                try {
-                    int index = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA);
-                    if (cursor.moveToFirst()) {
-                        String filePath = cursor.getString(index);
-                        return filePath == null ? uri.getLastPathSegment() : new File(filePath).getName();
-                    }
-                } catch (Exception e) {
-                    myLogEE(e, "getFileNameFromMediaUri failed");
-                } finally {
-                    cursor.close();
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "getFileNameFromMediaUri failed");
-        }
-        return uri.getLastPathSegment();
-    }
-
-    /** Robust MIME from File (best-effort). */
-    public static String getMimeType(@NonNull File f) {
-        // Try via DocumentFile first
-        try {
-            String m = DocumentFile.fromFile(f).getType();
-            if (m != null)
-                return m;
-        } catch (Exception e) {
-            myLogEE(e, "getMimeType(File) - DocumentFile");
-        }
-        // Fallback by extension
-        String ext = extractExtension(f.getName());
-        if (!ext.isEmpty()) {
-            String map = MimeTypeMap.getSingleton().getMimeTypeFromExtension(ext);
-            if (map != null)
-                return map;
-            if ("m4b".equals(ext))
-                return "audio/m4b";
-        }
-        // Last resort: guess by name
-        try {
-            String guess = URLConnection.guessContentTypeFromName(f.getName());
-            if (guess != null)
-                return guess;
-        } catch (Exception ignored) {
-        }
-        return "*/*";
-    }
 
     // Group helpers for special types
     public static boolean isBundleSpecial(String specialType) {

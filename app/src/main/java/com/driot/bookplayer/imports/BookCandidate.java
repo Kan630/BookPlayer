@@ -474,7 +474,7 @@ public class BookCandidate implements Parcelable {
                             String title = extractCleanChapterTitle(samples.get(i));
                             String tName = (i + 1) + ". " + title;
                             // trackList.add(tName);
-                            AudioFileInfo afi = new AudioFileInfo(tName, 0, file.getUri().toString(), null);
+                            AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, file.getUri().toString(), null);
                             audioFileInfoArrayList.add(afi);
                             if (listener != null) {
                                 listener.onTrackFound(afi);
@@ -516,7 +516,6 @@ public class BookCandidate implements Parcelable {
                 || fileName.endsWith(".txz") || fileName.endsWith(".tar.xz")) {
             scanTarCombined(context, archiveFile, listener);
         } else {
-            // Real Zip Optimization (already combined)
             scanZipCombined(context, archiveFile, listener);
         }
 
@@ -553,7 +552,7 @@ public class BookCandidate implements Parcelable {
                                             .formatNameForDisplay(fileNameOnly);
                                     String tName = count + ". " + displayName;
                                     // trackList.add(tName);
-                                    AudioFileInfo afi = new AudioFileInfo(tName, 0, archiveFile.getUri().toString(),
+                                    AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, archiveFile.getUri().toString(),
                                             null);
                                     audioFileInfoArrayList.add(afi);
                                     if (listener != null) {
@@ -630,7 +629,7 @@ public class BookCandidate implements Parcelable {
                             String displayName = Tonio.formatNameForDisplay(fileNameOnly);
                             String tName = count + ". " + displayName;
                             // trackList.add(tName);
-                            AudioFileInfo afi = new AudioFileInfo(tName, 0, archiveFile.getUri().toString(), null);
+                            AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, archiveFile.getUri().toString(), null);
                             audioFileInfoArrayList.add(afi);
                             if (listener != null) {
                                 listener.onTrackFound(afi);
@@ -699,11 +698,12 @@ public class BookCandidate implements Parcelable {
                             if (isAudioFileName(entry.getName())) { // isAudioFileName uses getExt
                                 trackCount++;
                                 String entryNameFull = entry.getName();
+                                long size = entry.getSize();
                                 String fileName = new java.io.File(entryNameFull).getName();
                                 String displayName = Tonio.formatNameForDisplay(fileName);
                                 String tName = trackCount + ". " + displayName;
                                 // trackList.add(tName);
-                                AudioFileInfo afi = new AudioFileInfo(tName, 0, file.getUri().toString(), null);
+                                AudioFileInfo afi = new AudioFileInfo(tName, 0, size, file.getUri().toString(), null);
                                 audioFileInfoArrayList.add(afi);
                                 if (listener != null)
                                     listener.onTrackFound(afi);
@@ -833,7 +833,7 @@ public class BookCandidate implements Parcelable {
                             listener.onTrackFound(afi);
                         }
                     } else {
-                        AudioFileInfo afi = new AudioFileInfo(tName, 0, child.getUri().toString(), null);
+                        AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, child.getUri().toString(), null);
                         audioFileInfoArrayList.add(afi);
                         if (listener != null) {
                             listener.onTrackFound(afi);
