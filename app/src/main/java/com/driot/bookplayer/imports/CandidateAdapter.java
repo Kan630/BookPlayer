@@ -84,8 +84,8 @@ public class CandidateAdapter extends RecyclerView.Adapter<CandidateAdapter.View
             }
         } else {
             // Not loaded yet, check if we have partial results (Archive scanning)
-            if ("Archive".equals(item.sourceType) && !item.trackList.isEmpty()) {
-                int count = item.trackList.size();
+            if ("Archive".equals(item.sourceType) && !item.getAudioFileInfoArrayList().isEmpty()) {
+                int count = item.getAudioFileInfoArrayList().size();
                 tracksPart = " - counting... " + count + " tracks";
             }
         }

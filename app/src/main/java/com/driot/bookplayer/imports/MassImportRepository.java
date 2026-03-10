@@ -249,7 +249,7 @@ public class MassImportRepository {
                             long lastUpdate = 0;
 
                             @Override
-                            public void onTrackFound(String name) {
+                            public void onTrackFound(com.driot.bookplayer.objects.AudioFileInfo info) {
                                 long now = System.currentTimeMillis();
                                 if (now - lastUpdate > 500) { // Update every 500ms
                                     lastUpdate = now;

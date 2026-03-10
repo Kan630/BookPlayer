@@ -9,7 +9,6 @@ import androidx.annotation.NonNull;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.ebooks.EpubCommonHelper;
 import com.driot.bookplayer.ebooks.EpubLowLevelHelper;
 import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
@@ -20,20 +19,33 @@ import com.driot.bookplayer.helpers.SupportedFilesHelper;
 import com.driot.bookplayer.helpers.UriHelper;
 import com.driot.bookplayer.utils.HashWorker;
 import com.driot.bookplayer.utils.Tonio;
-import com.driot.bookplayer.utils.log.KanLogger;
 import com.googlecode.mp4parser.DataSource;
+import com.googlecode.mp4parser.FileDataSourceImpl;
 import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
 import com.googlecode.mp4parser.authoring.Movie;
+import com.googlecode.mp4parser.authoring.Sample;
 import com.googlecode.mp4parser.authoring.Track;
 import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 
+import com.driot.bookplayer.objects.AudioFileInfo;
+import com.driot.bookplayer.objects.AudioInfo;
+import com.driot.bookplayer.objects.AudioProber;
+
+import java.io.FileInputStream;
+import java.nio.channels.FileChannel;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;
+
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 
 public class BookCandidate implements Parcelable {
     private boolean VERBOSE_DEBUG = false;
@@ -55,7 +67,8 @@ public class BookCandidate implements Parcelable {
 
     public String audioBookName = "init..."; // formatted for display
     public int tracksCount;
-    public final List<String> trackList = new ArrayList<>();
+    // public final List<String> trackList = new ArrayList<>();
+    private ArrayList<AudioFileInfo> audioFileInfoArrayList = new ArrayList<>();
     public String coverImagePath; // Path to detected cover image (null if none)
 
     public String sourceLocation = "sourceLocation...";
@@ -75,10 +88,8 @@ public class BookCandidate implements Parcelable {
     public boolean isSizeCalculated = false;
     public boolean isEasyCalculating = false; // UI state for easy load progress
 
-
-
     public interface OnMetadataListener {
-        void onTrackFound(String name);
+        void onTrackFound(AudioFileInfo info);
 
         void onCoverFound(String imagePath);
     }
@@ -113,7 +124,8 @@ public class BookCandidate implements Parcelable {
         fileExtension = in.readString();
         mimeType = in.readString();
         specialType = in.readString();
-        in.readStringList(trackList);
+        // in.readStringList(trackList);
+        audioFileInfoArrayList = in.createTypedArrayList(AudioFileInfo.CREATOR);
     }
 
     @Override
@@ -147,7 +159,8 @@ public class BookCandidate implements Parcelable {
         dest.writeString(fileExtension);
         dest.writeString(mimeType);
         dest.writeString(specialType);
-        dest.writeStringList(trackList);
+        // dest.writeStringList(trackList);
+        dest.writeTypedList(audioFileInfoArrayList);
     }
 
     @Override
@@ -166,6 +179,10 @@ public class BookCandidate implements Parcelable {
             return new BookCandidate[size];
         }
     };
+
+    public ArrayList<AudioFileInfo> getAudioFileInfoArrayList() {
+        return audioFileInfoArrayList;
+    }
 
     public BookCandidate(Context context, Uri uri) {
         this.uri = uri;
@@ -402,7 +419,7 @@ public class BookCandidate implements Parcelable {
                 android.media.MediaMetadataRetriever mmr = new android.media.MediaMetadataRetriever();
                 try {
                     mmr.setDataSource(fd, offset, length);
-                    com.driot.bookplayer.helpers.CoverPictureDetection.CoverDetectionResult result = com.driot.bookplayer.helpers.CoverPictureDetection
+                    CoverPictureDetection.CoverDetectionResult result = CoverPictureDetection
                             .extractEmbeddedCover(mmr);
 
                     if (result != null && result.bitmap != null) {
@@ -433,10 +450,10 @@ public class BookCandidate implements Parcelable {
                     // working before
                     String directPath = UriHelper.getPathFromUri(context, file.getUri());
                     if (directPath != null && new java.io.File(directPath).exists()) {
-                        dataSource = new com.googlecode.mp4parser.FileDataSourceViaHeapImpl(directPath);
+                        dataSource = new FileDataSourceViaHeapImpl(directPath);
                     } else {
                         // Fallback to channel based datasource (with offset 0)
-                        dataSource = new com.googlecode.mp4parser.FileDataSourceImpl(channel);
+                        dataSource = new FileDataSourceImpl(channel);
                     }
 
                     Movie movie = MovieCreator.build(dataSource);
@@ -449,16 +466,18 @@ public class BookCandidate implements Parcelable {
                         }
                     }
                     if (chapterTrack != null) {
-                        java.util.List<com.googlecode.mp4parser.authoring.Sample> samples = chapterTrack.getSamples();
+                        List<Sample> samples = chapterTrack.getSamples();
                         int chapterCount = samples.size();
                         this.tracksCount = chapterCount > 0 ? chapterCount : 1;
 
                         for (int i = 0; i < chapterCount; i++) {
                             String title = extractCleanChapterTitle(samples.get(i));
                             String tName = (i + 1) + ". " + title;
-                            trackList.add(tName);
+                            // trackList.add(tName);
+                            AudioFileInfo afi = new AudioFileInfo(tName, 0, file.getUri().toString(), null);
+                            audioFileInfoArrayList.add(afi);
                             if (listener != null) {
-                                listener.onTrackFound(tName);
+                                listener.onTrackFound(afi);
                             }
                         }
                     } else {
@@ -481,7 +500,7 @@ public class BookCandidate implements Parcelable {
         myLogD("scanM4BCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. tracks=" + tracksCount);
     }
 
-    private com.googlecode.mp4parser.DataSource dataSource; // Temporary helper for scanM4BCombined
+    private DataSource dataSource; // Temporary helper for scanM4BCombined
 
     private void scanArchiveCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
         long startTime = System.currentTimeMillis();
@@ -514,11 +533,11 @@ public class BookCandidate implements Parcelable {
             try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
                     .openFileDescriptor(archiveFile.getUri(), "r")) {
                 if (pfd != null) {
-                    try (java.nio.channels.FileChannel channel = new java.io.FileInputStream(
+                    try (FileChannel channel = new FileInputStream(
                             pfd.getFileDescriptor()).getChannel()) {
-                        try (org.apache.commons.compress.archivers.sevenz.SevenZFile sevenZFile = new org.apache.commons.compress.archivers.sevenz.SevenZFile(
+                        try (SevenZFile sevenZFile = new SevenZFile(
                                 channel)) {
-                            org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry entry;
+                            SevenZArchiveEntry entry;
                             while ((entry = sevenZFile.getNextEntry()) != null) {
                                 if (Thread.currentThread().isInterrupted())
                                     return;
@@ -530,12 +549,15 @@ public class BookCandidate implements Parcelable {
                                 if (isAudioFileName(entryName)) {
                                     count++;
                                     String fileNameOnly = new java.io.File(entryName).getName();
-                                    String displayName = com.driot.bookplayer.utils.Tonio
+                                    String displayName = Tonio
                                             .formatNameForDisplay(fileNameOnly);
                                     String tName = count + ". " + displayName;
-                                    trackList.add(tName);
+                                    // trackList.add(tName);
+                                    AudioFileInfo afi = new AudioFileInfo(tName, 0, archiveFile.getUri().toString(),
+                                            null);
+                                    audioFileInfoArrayList.add(afi);
                                     if (listener != null) {
-                                        listener.onTrackFound(tName);
+                                        listener.onTrackFound(afi);
                                     }
                                 }
 
@@ -591,9 +613,9 @@ public class BookCandidate implements Parcelable {
             if (inputStream != null) {
                 try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
                         java.io.InputStream cis = maybeWrapCompressor(bis);
-                        org.apache.commons.compress.archivers.tar.TarArchiveInputStream tis = new org.apache.commons.compress.archivers.tar.TarArchiveInputStream(
+                        TarArchiveInputStream tis = new TarArchiveInputStream(
                                 cis)) {
-                    org.apache.commons.compress.archivers.tar.TarArchiveEntry entry;
+                    TarArchiveEntry entry;
                     while ((entry = tis.getNextTarEntry()) != null) {
                         if (Thread.currentThread().isInterrupted())
                             return;
@@ -605,11 +627,13 @@ public class BookCandidate implements Parcelable {
                         if (isAudioFileName(entryName)) {
                             count++;
                             String fileNameOnly = new java.io.File(entryName).getName();
-                            String displayName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(fileNameOnly);
+                            String displayName = Tonio.formatNameForDisplay(fileNameOnly);
                             String tName = count + ". " + displayName;
-                            trackList.add(tName);
+                            // trackList.add(tName);
+                            AudioFileInfo afi = new AudioFileInfo(tName, 0, archiveFile.getUri().toString(), null);
+                            audioFileInfoArrayList.add(afi);
                             if (listener != null) {
-                                listener.onTrackFound(tName);
+                                listener.onTrackFound(afi);
                             }
                         }
 
@@ -676,11 +700,13 @@ public class BookCandidate implements Parcelable {
                                 trackCount++;
                                 String entryNameFull = entry.getName();
                                 String fileName = new java.io.File(entryNameFull).getName();
-                                String displayName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(fileName);
+                                String displayName = Tonio.formatNameForDisplay(fileName);
                                 String tName = trackCount + ". " + displayName;
-                                trackList.add(tName);
+                                // trackList.add(tName);
+                                AudioFileInfo afi = new AudioFileInfo(tName, 0, file.getUri().toString(), null);
+                                audioFileInfoArrayList.add(afi);
                                 if (listener != null)
-                                    listener.onTrackFound(tName);
+                                    listener.onTrackFound(afi);
                             }
 
                             // 2. Cover Detection
@@ -736,7 +762,7 @@ public class BookCandidate implements Parcelable {
         myLogD("cover done for: " + name);
 
         // 2. Recursive Scan
-        trackList.clear();
+        audioFileInfoArrayList.clear();
         FolderScanState state = new FolderScanState();
         scanFolderRecursive(context, rootDir, listener, state, 0, "");
 
@@ -795,11 +821,24 @@ public class BookCandidate implements Parcelable {
                     state.audioCount++;
 
                     // Track List for display
-                    String displayName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(safeName(child));
+                    String displayName = Tonio.formatNameForDisplay(safeName(child));
                     String tName = state.audioCount + ". " + displayName;
-                    trackList.add(tName);
-                    if (listener != null)
-                        listener.onTrackFound(tName);
+                    // trackList.add(tName);
+
+                    AudioInfo audioInfo = AudioProber.probe(context, child.getUri(), false);
+                    if (audioInfo != null && audioInfo.durationMs > 0) {
+                        AudioFileInfo afi = AudioFileInfo.fromProbe(audioInfo, tName);
+                        audioFileInfoArrayList.add(afi);
+                        if (listener != null) {
+                            listener.onTrackFound(afi);
+                        }
+                    } else {
+                        AudioFileInfo afi = new AudioFileInfo(tName, 0, child.getUri().toString(), null);
+                        audioFileInfoArrayList.add(afi);
+                        if (listener != null) {
+                            listener.onTrackFound(afi);
+                        }
+                    }
 
                     // Embedded Cover Detection (if not found yet)
                     if (this.coverImagePath == null && state.embeddedCoverPath == null) {
@@ -1209,13 +1248,13 @@ public class BookCandidate implements Parcelable {
             myLogD(txt);
     }
 
-    private String extractCleanChapterTitle(com.googlecode.mp4parser.authoring.Sample sample) {
+    private String extractCleanChapterTitle(Sample sample) {
         java.nio.ByteBuffer buffer = sample.asByteBuffer();
         byte[] data = new byte[buffer.remaining()];
         buffer.get(data);
         if (data.length < 2)
             return "chapter";
-        String raw = new String(java.util.Arrays.copyOfRange(data, 2, data.length),
+        String raw = new String(Arrays.copyOfRange(data, 2, data.length),
                 java.nio.charset.StandardCharsets.UTF_8);
         raw = raw.replaceAll("encd.*$", "")
                 .replaceAll("[\\p{Cntrl}&&[^\r\n\t]]", "")

@@ -48,6 +48,7 @@ import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.PermissionRequest;
 import com.driot.bookplayer.helpers.StorageHelper;
 
+import com.driot.bookplayer.objects.AudioFileInfo;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
@@ -207,7 +208,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     doChecks_step1_hashNotExist();
                     initialHashCheckTriggered = true;
                 }
-                //calculateCheckboxState();
+                // calculateCheckboxState();
             }
 
             // Check for ebook warning
@@ -218,7 +219,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             }
 
         });
-        
+
         // Observe real-time tracks
         LinearLayout llTrackListContainer = findViewById(R.id.llTrackListContainer);
         LinearLayout llTrackList = findViewById(R.id.llTrackList);
@@ -236,9 +237,12 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 tvTrackListTitle.setText(txtTitle);
 
                 llTrackList.removeAllViews();
-                for (String track : tracks) {
+                for (AudioFileInfo track : tracks) {
                     TextView tv = new TextView(this);
-                    tv.setText(track);
+                    String durationStr = (track.getDuration() > 0)
+                            ? " (" + com.driot.bookplayer.utils.Tonio.formatTime(track.getDuration()) + ")"
+                            : "";
+                    tv.setText(track.getDisplayPath() + durationStr);
                     tv.setTextSize(12);
                     tv.setMaxLines(1);
                     tv.setEllipsize(android.text.TextUtils.TruncateAt.END);
@@ -656,7 +660,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     }
 
     private void showError(String txt) {
-        String previousTxt = errorTextView.getText().toString().replace(getString(R.string.error_generic),"");
+        String previousTxt = errorTextView.getText().toString().replace(getString(R.string.error_generic), "");
         String newTxt = previousTxt.isEmpty() ? txt : previousTxt + "\n" + txt;
         errorTextView.setText(newTxt);
         errorTextView.setVisibility(View.VISIBLE);
@@ -915,6 +919,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
         progressBarStep2.setVisibility(View.GONE);
         tvProgressStatusStep2.setVisibility(View.GONE);
     }
+
     private void activateInteractive(boolean activate) {
         myLog("Activate Interactive : " + activate);
 

@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
+import com.driot.bookplayer.objects.AudioFileInfo;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -54,7 +55,7 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
      * Initialize BookCandidate from URI in background thread.
      * Result will be posted to bookCandidate LiveData.
      */
-    private final MutableLiveData<java.util.List<String>> realTimeTracks = new MutableLiveData<>();
+    private final MutableLiveData<java.util.List<AudioFileInfo>> realTimeTracks = new MutableLiveData<>();
 
     // ...
 
@@ -69,9 +70,9 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
         loadingStatus.setValue(2); // Done
         bookCandidate.setValue(candidate); // This will trigger UI updates in Activity
 
-        // If trackList is already populated, update realTimeTracks
-        if (candidate.trackList != null && !candidate.trackList.isEmpty()) {
-            realTimeTracks.setValue(new java.util.ArrayList<>(candidate.trackList));
+        // If audioFileInfoArrayList is already populated, update realTimeTracks
+        if (candidate.getAudioFileInfoArrayList() != null && !candidate.getAudioFileInfoArrayList().isEmpty()) {
+            realTimeTracks.setValue(new java.util.ArrayList<>(candidate.getAudioFileInfoArrayList()));
         }
     }
 
@@ -100,10 +101,10 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
                 // Phase 2: Heavy Init
                 candidate.loadHeavyMetadata(getApplication(), new BookCandidate.OnMetadataListener() {
                     @Override
-                    public void onTrackFound(String trackName) {
-                        java.util.List<String> copy;
-                        synchronized (candidate.trackList) {
-                            copy = new java.util.ArrayList<>(candidate.trackList);
+                    public void onTrackFound(AudioFileInfo info) {
+                        java.util.List<AudioFileInfo> copy;
+                        synchronized (candidate.getAudioFileInfoArrayList()) {
+                            copy = new java.util.ArrayList<>(candidate.getAudioFileInfoArrayList());
                         }
                         realTimeTracks.postValue(copy);
                     }
@@ -175,7 +176,7 @@ public class ImportBookSingleViewModel extends LoggingAndroidViewModel {
         return isLoading;
     }
 
-    public LiveData<java.util.List<String>> getRealTimeTracks() {
+    public LiveData<java.util.List<AudioFileInfo>> getRealTimeTracks() {
         return realTimeTracks;
     }
 
