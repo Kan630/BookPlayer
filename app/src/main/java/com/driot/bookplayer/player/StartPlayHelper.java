@@ -95,7 +95,6 @@ public class StartPlayHelper {
                         if (!isTTS) {
                             stopTtsIfPlaying(context, lastUiState);
                         }
-                        PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TRACK_CLICK);
 
                         new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
                             // open play screen ?
@@ -110,8 +109,8 @@ public class StartPlayHelper {
                             if (lastUiState == null
                                     || !lastUiState.playing
                                     || !sameTrack
-                            // || isTTS //TODO remove : TTS not perfect yet, so we force reload...
                             ) {
+                                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TRACK_CLICK);
                                 ContextCompat.startForegroundService(
                                         context.getApplicationContext(),
                                         new Intent(context.getApplicationContext(), MediaService.class)
@@ -142,7 +141,6 @@ public class StartPlayHelper {
             if (!isTTS) {
                 stopTtsIfPlaying(context, lastUiState);
             }
-            PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TRACK_CLICK);
 
             // is same track clicked ?
             PlayList pl = PlayList.getInstance();
@@ -160,6 +158,7 @@ public class StartPlayHelper {
                         || !lastUiState.playing
                         || !sameTrack) {
                     playZikFile(context, clickedZikFile.getId(), caller, false, false);
+                    PlaybackUiBus.get().setLoadPhase(Intents.PHASE_TRACK_CLICK);
                 }
 
                 // open PlayActivity
