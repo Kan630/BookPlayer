@@ -46,6 +46,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
 import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
 
 public class BookCandidate implements Parcelable {
     private boolean VERBOSE_DEBUG = false;
@@ -401,10 +402,9 @@ public class BookCandidate implements Parcelable {
 
         myLog("loadHeavyMetadata() DONE: " + (System.currentTimeMillis() - startTime) + "ms for: "
                 + name);
-        myLog("--------------------");
+        myLogDD("--------------------");
         for (AudioFileInfo afi : audioFileInfoArrayList) {
-            myLogD(afi.toString());
-            // or: myLogD(afi.toString());
+            myLogDD(afi.toString());
         }
         myLog("--------------------");
     }
@@ -690,52 +690,63 @@ public class BookCandidate implements Parcelable {
         long largestSize = 0;
 
         try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(file.getUri());
-            if (inputStream != null) {
-                try (java.util.zip.ZipInputStream zis = new java.util.zip.ZipInputStream(inputStream)) {
-                    java.util.zip.ZipEntry entry;
-                    while ((entry = zis.getNextEntry()) != null) {
-                        if (Thread.currentThread().isInterrupted()) {
-                            myLogD("scanZipCombined interrupted");
-                            return;
-                        }
-                        if (!entry.isDirectory()) {
-                            String entryName = entry.getName();
-                            String lowName = entryName.toLowerCase();
-
-                            // 1. Track Count
-                            if (isAudioFileName(entry.getName())) { // isAudioFileName uses getExt
-                                trackCount++;
-                                String entryNameFull = entry.getName();
-                                long size = entry.getSize();
-                                String fileName = new java.io.File(entryNameFull).getName();
-                                String displayName = Tonio.formatNameForDisplay(fileName);
-                                String tName = trackCount + ". " + displayName;
-                                // trackList.add(tName);
-                                AudioFileInfo afi = new AudioFileInfo(tName, 0, size, file.getUri().toString(), null);
-                                audioFileInfoArrayList.add(afi);
-                                if (listener != null)
-                                    listener.onTrackFound(afi);
-                            }
-
-                            // 2. Cover Detection
-                            if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
-                                    lowName.endsWith(".png") || lowName.endsWith(".webp")) {
-
-                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                byte[] buffer = new byte[8192];
-                                int len;
-                                while ((len = zis.read(buffer)) > 0) {
-                                    baos.write(buffer, 0, len);
+            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
+                    .openFileDescriptor(file.getUri(), "r")) {
+                if (pfd != null) {
+                    try (FileChannel channel = new FileInputStream(
+                            pfd.getFileDescriptor()).getChannel()) {
+                        try (org.apache.commons.compress.archivers.zip.ZipFile zipFile = new org.apache.commons.compress.archivers.zip.ZipFile(
+                                channel)) {
+                            java.util.Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+                            while (entries.hasMoreElements()) {
+                                if (Thread.currentThread().isInterrupted()) {
+                                    myLogD("scanZipCombined interrupted");
+                                    return;
                                 }
-                                byte[] imageBytes = baos.toByteArray();
-                                if (imageBytes.length > largestSize) {
-                                    largestImage = imageBytes;
-                                    largestSize = imageBytes.length;
+                                ZipArchiveEntry entry = entries.nextElement();
+                                if (entry.isDirectory())
+                                    continue;
+
+                                String entryName = entry.getName();
+                                String lowName = entryName.toLowerCase();
+
+                                // 1. Track Count
+                                if (isAudioFileName(entryName)) {
+                                    trackCount++;
+                                    long size = entry.getSize();
+                                    String fileName = new java.io.File(entryName).getName();
+                                    String displayName = Tonio.formatNameForDisplay(fileName);
+                                    String tName = trackCount + ". " + displayName;
+                                    AudioFileInfo afi = new AudioFileInfo(tName, 0, size, file.getUri().toString(),
+                                            null);
+                                    audioFileInfoArrayList.add(afi);
+                                    if (listener != null)
+                                        listener.onTrackFound(afi);
+                                }
+
+                                // 2. Cover Detection
+                                if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
+                                        lowName.endsWith(".png") || lowName.endsWith(".webp")) {
+
+                                    long size = entry.getSize();
+                                    if (size > largestSize || (size == -1 && largestImage == null)) {
+                                        try (java.io.InputStream eis = zipFile.getInputStream(entry)) {
+                                            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                            byte[] buffer = new byte[8192];
+                                            int len;
+                                            while ((len = eis.read(buffer)) > 0) {
+                                                baos.write(buffer, 0, len);
+                                            }
+                                            byte[] imageBytes = baos.toByteArray();
+                                            if (imageBytes.length > largestSize) {
+                                                largestImage = imageBytes;
+                                                largestSize = imageBytes.length;
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
-                        zis.closeEntry();
                     }
                 }
             }
