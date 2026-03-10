@@ -41,29 +41,30 @@ public final class AudioProber {
 
         final String display = bestDisplayName(context, uri);
         final String shown = (display != null ? display : safeLastSegment(uri));
+        final long size = getFileSize(context, uri);
 
         // 0) Quick hint
         final String hint = hintFromUri(uri);
 
         // 1) MMR: context+uri
-        AudioInfo info = tryWithRetriever(context, uri, hint, doExtractCover);
+        AudioInfo info = tryWithRetriever(context, uri, size, hint, doExtractCover);
         if (isValid(info))
             return info;
 
         // 2) file:// → MMR with plain path (OEMs sometimes only accept String path)
         if ("file".equalsIgnoreCase(uri.getScheme())) {
-            AudioInfo byPath = tryWithPath(uri, doExtractCover);
+            AudioInfo byPath = tryWithPath(uri, size, doExtractCover);
             if (isValid(byPath))
                 return byPath;
         }
 
         // 3) MMR: FD
-        info = tryWithFd(context, uri, doExtractCover);
+        info = tryWithFd(context, uri, size, doExtractCover);
         if (isValid(info))
             return info;
 
         // 4) MediaExtractor fallback (dur only; no tags/cover)
-        info = tryWithMediaExtractor(context, uri, shown, hint + "+ex");
+        info = tryWithMediaExtractor(context, uri, shown, size, hint + "+ex");
         if (isValid(info))
             return info;
 
@@ -73,6 +74,7 @@ public final class AudioProber {
                 uri,
                 (shown != null ? shown : ""),
                 0L,
+                size,
                 null,
                 "unreadable",
                 /* metadata */ new HashMap<>());
@@ -85,11 +87,12 @@ public final class AudioProber {
     // --------------------- MMR strategies ---------------------
 
     @Nullable
-    private static AudioInfo tryWithRetriever(Context context, Uri uri, String sourceHint, boolean doExtractCover) {
+    private static AudioInfo tryWithRetriever(Context context, Uri uri, long size, String sourceHint,
+            boolean doExtractCover) {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try {
             mmr.setDataSource(context, uri);
-            return buildInfoFromRetriever(context, uri, mmr, sourceHint, doExtractCover);
+            return buildInfoFromRetriever(context, uri, size, mmr, sourceHint, doExtractCover);
         } catch (Exception e) {
             myLogD("tryWithRetriever failed for " + uri + " : " + e.getMessage());
             return null;
@@ -102,14 +105,14 @@ public final class AudioProber {
     }
 
     @Nullable
-    private static AudioInfo tryWithFd(Context context, Uri uri, boolean doExtractCover) {
+    private static AudioInfo tryWithFd(Context context, Uri uri, long size, boolean doExtractCover) {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         // AssetFileDescriptor is often more robust for passing to native media code.
         try (AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
             if (afd == null)
                 return null;
             mmr.setDataSource(afd.getFileDescriptor(), afd.getStartOffset(), afd.getLength());
-            return buildInfoFromRetriever(context, uri, mmr, hintFromUri(uri) + "+afd", doExtractCover);
+            return buildInfoFromRetriever(context, uri, size, mmr, hintFromUri(uri) + "+afd", doExtractCover);
         } catch (Exception e) {
             myLogD("tryWithFd failed for " + uri + " : " + e.getMessage());
             return null;
@@ -123,7 +126,7 @@ public final class AudioProber {
 
     // For file:// only — some OEMs accept only String paths.
     @Nullable
-    private static AudioInfo tryWithPath(Uri fileUri, boolean doExtractCover) {
+    private static AudioInfo tryWithPath(Uri fileUri, long size, boolean doExtractCover) {
         if (!"file".equalsIgnoreCase(fileUri.getScheme()))
             return null;
         String path = fileUri.getPath();
@@ -136,7 +139,7 @@ public final class AudioProber {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try {
             mmr.setDataSource(path); // String path variant
-            return buildInfoFromRetriever(null, fileUri, mmr, "file-path", doExtractCover);
+            return buildInfoFromRetriever(null, fileUri, size, mmr, "file-path", doExtractCover);
         } catch (Exception e) {
             myLogD("tryWithPath failed for " + path + " : " + e.getMessage());
             return null;
@@ -155,7 +158,7 @@ public final class AudioProber {
         MediaMetadataRetriever mmr = new MediaMetadataRetriever();
         try (FileInputStream fis = new FileInputStream(file)) {
             mmr.setDataSource(fis.getFD());
-            return buildInfoFromRetriever(null, originalUri, mmr, sourceHint, doExtractCover);
+            return buildInfoFromRetriever(null, originalUri, file.length(), mmr, sourceHint, doExtractCover);
         } catch (Exception e) {
             myLogD("tryWithFile failed for " + file + " : " + e.getMessage());
             return null;
@@ -170,7 +173,8 @@ public final class AudioProber {
     // --------------------- MediaExtractor strategies ---------------------
 
     @Nullable
-    private static AudioInfo tryWithMediaExtractor(Context context, Uri uri, String display, String sourceHint) {
+    private static AudioInfo tryWithMediaExtractor(Context context, Uri uri, String display, long size,
+            String sourceHint) {
         MediaExtractor ex = new MediaExtractor();
         try (AssetFileDescriptor afd = context.getContentResolver().openAssetFileDescriptor(uri, "r")) {
             if (afd == null)
@@ -186,6 +190,7 @@ public final class AudioProber {
                     uri,
                     (display != null ? display : ""),
                     durMs,
+                    size,
                     null,
                     sourceHint,
                     /* metadata */ new HashMap<>());
@@ -217,6 +222,7 @@ public final class AudioProber {
                     originalUri,
                     (display != null ? display : ""),
                     durMs,
+                    file.length(),
                     null,
                     sourceHint,
                     /* metadata */ new HashMap<>());
@@ -253,6 +259,7 @@ public final class AudioProber {
     @Nullable
     private static AudioInfo buildInfoFromRetriever(@Nullable Context context,
             Uri uri,
+            long size,
             MediaMetadataRetriever mmr,
             String sourceHint,
             boolean doExtractCover) {
@@ -328,6 +335,7 @@ public final class AudioProber {
                 uri,
                 (display != null ? display : ""),
                 duration,
+                size,
                 cover,
                 sourceHint,
                 meta);
@@ -426,5 +434,29 @@ public final class AudioProber {
         String scheme = uri.getScheme();
         String auth = uri.getAuthority();
         return (scheme == null ? "raw" : scheme) + "://" + (auth == null ? "" : auth);
+    }
+
+    public static long getFileSize(Context context, Uri uri) {
+        if (uri == null)
+            return 0;
+        if ("file".equalsIgnoreCase(uri.getScheme())) {
+            String path = uri.getPath();
+            if (path != null) {
+                return new File(path).length();
+            }
+        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
+            try (Cursor cursor = context.getContentResolver().query(uri, new String[] { OpenableColumns.SIZE }, null,
+                    null, null)) {
+                if (cursor != null && cursor.moveToFirst()) {
+                    int sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE);
+                    if (sizeIndex != -1) {
+                        return cursor.getLong(sizeIndex);
+                    }
+                }
+            } catch (Exception e) {
+                myLogD("getFileSize failed for " + uri + " : " + e.getMessage());
+            }
+        }
+        return 0;
     }
 }

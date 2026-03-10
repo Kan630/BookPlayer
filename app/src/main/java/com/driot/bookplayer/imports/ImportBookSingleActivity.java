@@ -252,9 +252,10 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     if (moreInfo.isEmpty()) {
                         toDisplay = path;
                     } else {
-                        toDisplay = (path.length() > 40)
+                        String shortPath = (path.length() > 40)
                                 ? "…" + path.substring(path.length() - 40)
                                 : path;
+                        toDisplay = shortPath + moreInfo;
                     }
                     tv.setText(toDisplay);
                     tv.setTextSize(12);

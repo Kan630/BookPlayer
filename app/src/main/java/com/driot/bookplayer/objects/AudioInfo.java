@@ -26,6 +26,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
     public final Uri uri;
     public final String displayName; // best-effort name shown to the user (file name or MediaStore DISPLAY_NAME)
     public final long durationMs; // 0 if unknown
+    public final long size; // in bytes
     @Nullable
     public final Bitmap cover; // may be null
     public Map<String, String> metadata;
@@ -34,6 +35,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
     public AudioInfo(Uri uri,
             String displayName,
             long durationMs,
+            long size,
             @Nullable Bitmap cover,
             String sourceHint,
             @Nullable Map<String, String> metadata) {
@@ -41,6 +43,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
         this.uri = uri;
         this.displayName = displayName;
         this.durationMs = durationMs;
+        this.size = size;
         this.cover = cover;
         this.sourceHint = sourceHint;
         this.metadata = (metadata == null) ? new HashMap<>() : new HashMap<>(metadata);
@@ -52,6 +55,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
         uri = in.readParcelable(Uri.class.getClassLoader());
         displayName = in.readString();
         durationMs = in.readLong();
+        size = in.readLong();
         cover = in.readParcelable(Bitmap.class.getClassLoader());
         sourceHint = in.readString();
         metadata = new HashMap<>();
@@ -80,6 +84,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
         dest.writeParcelable(uri, flags);
         dest.writeString(displayName);
         dest.writeLong(durationMs);
+        dest.writeLong(size);
         dest.writeParcelable(cover, flags);
         dest.writeString(sourceHint);
         dest.writeMap(metadata);
@@ -92,6 +97,7 @@ public class AudioInfo extends LoggerHelper implements Parcelable {
                 "uri=" + uri +
                 ", displayName='" + displayName + '\'' +
                 ", durationMs=" + durationMs +
+                ", size=" + size +
                 ", cover=" + (cover != null ? ("bitmap@" + cover.getWidth() + "x" + cover.getHeight()) : "null") +
                 ", sourceHint='" + sourceHint + '\'' +
                 ", metadata=" + metadata +

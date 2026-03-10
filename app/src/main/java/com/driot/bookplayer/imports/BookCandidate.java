@@ -402,6 +402,11 @@ public class BookCandidate implements Parcelable {
         myLog("loadHeavyMetadata() DONE: " + (System.currentTimeMillis() - startTime) + "ms for: "
                 + name);
         myLog("--------------------");
+        for (AudioFileInfo afi : audioFileInfoArrayList) {
+            myLogD(afi.toString());
+            // or: myLogD(afi.toString());
+        }
+        myLog("--------------------");
     }
 
     private void scanM4BCombined(Context context, DocumentFile file, OnMetadataListener listener) {
@@ -552,7 +557,9 @@ public class BookCandidate implements Parcelable {
                                             .formatNameForDisplay(fileNameOnly);
                                     String tName = count + ". " + displayName;
                                     // trackList.add(tName);
-                                    AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, archiveFile.getUri().toString(),
+                                    long entrySize = entry.getSize();
+                                    AudioFileInfo afi = new AudioFileInfo(tName, 0, entrySize,
+                                            archiveFile.getUri().toString(),
                                             null);
                                     audioFileInfoArrayList.add(afi);
                                     if (listener != null) {
@@ -629,7 +636,9 @@ public class BookCandidate implements Parcelable {
                             String displayName = Tonio.formatNameForDisplay(fileNameOnly);
                             String tName = count + ". " + displayName;
                             // trackList.add(tName);
-                            AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, archiveFile.getUri().toString(), null);
+                            long entrySize = entry.getSize();
+                            AudioFileInfo afi = new AudioFileInfo(tName, 0, entrySize, archiveFile.getUri().toString(),
+                                    null);
                             audioFileInfoArrayList.add(afi);
                             if (listener != null) {
                                 listener.onTrackFound(afi);
@@ -833,7 +842,8 @@ public class BookCandidate implements Parcelable {
                             listener.onTrackFound(afi);
                         }
                     } else {
-                        AudioFileInfo afi = new AudioFileInfo(tName, 0, 0, child.getUri().toString(), null);
+                        AudioFileInfo afi = new AudioFileInfo(tName, 0, child.length(), child.getUri().toString(),
+                                null);
                         audioFileInfoArrayList.add(afi);
                         if (listener != null) {
                             listener.onTrackFound(afi);

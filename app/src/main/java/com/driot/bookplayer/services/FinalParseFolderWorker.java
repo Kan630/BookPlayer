@@ -454,7 +454,7 @@ public class FinalParseFolderWorker extends ImportWorker {
         long duration = estimateTtsDurationMsFromUri(context, df.getUri(), name, mime);
         myLogD("* TTS Duration (est.): [" + formatTime(duration) + ']');
 
-        audioFileInfoArrayList.add(new AudioFileInfo(name, duration, 0, df.getUri().toString(), null));
+        audioFileInfoArrayList.add(new AudioFileInfo(name, duration, df.length(), df.getUri().toString(), null));
     }
 
     private void addTextFileRecursive(DocumentFile root) {
@@ -488,7 +488,8 @@ public class FinalParseFolderWorker extends ImportWorker {
 
                     long duration = estimateTtsDurationMsFromUri(context, f1.getUri(), fileName, mimeType);
                     myLogD("text file duration :" + Tonio.formatTime(duration));
-                    audioFileInfoArrayList.add(new AudioFileInfo(displayPath, duration, 0, f1.getUri().toString(), null));
+                    audioFileInfoArrayList
+                            .add(new AudioFileInfo(displayPath, duration, size, f1.getUri().toString(), null));
                     fullFolderSize += size;
 
                     nbAudioScanned++;

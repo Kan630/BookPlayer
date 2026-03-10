@@ -42,9 +42,9 @@ public class AudioFileInfo implements Parcelable {
     }
 
     public AudioFileInfo(String displayPath,
-                         long duration,
-                         long size, String contentUri,
-                         @Nullable Map<String, String> meta) {
+            long duration,
+            long size, String contentUri,
+            @Nullable Map<String, String> meta) {
         this.displayPath = displayPath;
         this.duration = duration;
         this.size = size;
@@ -64,7 +64,6 @@ public class AudioFileInfo implements Parcelable {
     public long getSize() {
         return size;
     }
-
 
     public String getContentUri() {
         return contentUri;
@@ -128,7 +127,7 @@ public class AudioFileInfo implements Parcelable {
         return new AudioFileInfo(
                 shown,
                 ai.durationMs,
-                0,
+                ai.size,
                 ai.uri.toString(),
                 m);
     }
@@ -939,4 +938,14 @@ public class AudioFileInfo implements Parcelable {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "AudioFileInfo{" +
+                "displayPath='" + displayPath + '\'' +
+                ", duration=" + duration +
+                ", size=" + size +
+                ", contentUri='" + contentUri + '\'' +
+                ", meta=" + meta +
+                '}';
+    }
 }
