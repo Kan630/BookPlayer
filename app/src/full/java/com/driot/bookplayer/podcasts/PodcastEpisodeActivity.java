@@ -97,13 +97,28 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     private android.widget.CheckBox cbSearchInDescription;
     private ImageButton btnClearSearch;
 
+    private int backPressCount = 0;
+    private long lastBackPressTime = 0;
+
     private AppBarLayout appBar;
     private Toolbar toolbar;
 
     @Override
     public void onBackPressed() {
         if (layoutSearch != null && layoutSearch.getVisibility() == View.VISIBLE) {
-            toggleSearch();
+            long currentTime = System.currentTimeMillis();
+            if (currentTime - lastBackPressTime < 5000) {
+                backPressCount++;
+            } else {
+                backPressCount = 1;
+            }
+            lastBackPressTime = currentTime;
+
+            if (backPressCount >= 3) {
+                super.onBackPressed();
+            } else {
+                toggleSearch();
+            }
         } else {
             super.onBackPressed();
         }
@@ -138,6 +153,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         tvStats = findViewById(R.id.tvPodcastStat);
         tvToolbarStats = findViewById(R.id.tvToolbarStats);
         tvSearchStat = findViewById(R.id.tvSearchStat);
+
+        layoutSearch.setVisibility(View.GONE);
 
         ivCover = findViewById(R.id.ivPodcastCover);
         ivMiniCover = findViewById(R.id.ivMiniCover);
@@ -331,6 +348,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             etSearch.setText("");
             ViewHelper.hideKeyboard(this, etSearch);
             filterAndUpdateList();
+
+            backPressCount = 0;
+            lastBackPressTime = 0;
         } else {
             layoutSearch.setVisibility(View.VISIBLE);
             if (bottomNav != null)

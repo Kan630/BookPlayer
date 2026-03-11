@@ -7,8 +7,7 @@
     android:orientation="vertical"
     android:paddingHorizontal="16dp"
     android:paddingVertical="8dp"
-    android:background="?attr/colorSurface"
-    android:visibility="gone">
+    android:background="?attr/colorSurface">
 
     <LinearLayout
         android:layout_width="match_parent"
