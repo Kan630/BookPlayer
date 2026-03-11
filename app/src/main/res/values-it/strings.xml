@@ -1275,4 +1275,18 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="cover_search_repositories">Copertine: Ricerca Web</string>
     <string name="cover_search_repositories_explain">Quando tocchi \'Ricerca Web\' dalla sezione \'Cambia immagine di copertina\' nella pagina delle impostazioni del libro, scegli quali fonti utilizzare.</string>
     <string name="api_paging_size_explain">Quanti risultati restituire per pagina quando tocchi \'Più scaricati\' o \'Aggiunti di recente\'.</string>
+    <string name="never_accessed">Mai visitato</string>
+    <string name="invalid_date">Data non valida</string>
+    <plurals name="years_ago">
+        <item quantity="one">%d anno fa</item>
+        <item quantity="other">%d anni fa</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d mese fa</item>
+        <item quantity="other">%d mesi fa</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d giorno fa</item>
+        <item quantity="other">%d giorni fa</item>
+    </plurals>
 </resources>

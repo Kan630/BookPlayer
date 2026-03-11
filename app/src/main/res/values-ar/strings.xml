@@ -1269,4 +1269,18 @@
     <string name="cover_search_repositories">الأغلفة: البحث عبر الويب</string>
     <string name="cover_search_repositories_explain">عند النقر على "بحث الويب" من قسم "تغيير صورة الغلاف" في صفحة إعدادات الكتاب، اختر المصادر التي تريد استخدامها.</string>
     <string name="api_paging_size_explain">عدد النتائج التي سيتم إرجاعها لكل صفحة عند النقر فوق "الأكثر تنزيلًا" أو "تمت إضافته مؤخرًا".</string>
+    <string name="never_accessed">لم يتم الوصول إليه أبدًا</string>
+    <string name="invalid_date">تاريخ غير صالح</string>
+    <plurals name="years_ago">
+        <item quantity="one">منذ سنة واحدة</item>
+        <item quantity="other">منذ %d سنوات</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">منذ شهر واحد</item>
+        <item quantity="other">منذ %d أشهر</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">منذ يوم واحد</item>
+        <item quantity="other">منذ %d أيام</item>
+    </plurals>
 </resources>

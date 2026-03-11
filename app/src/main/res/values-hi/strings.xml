@@ -1273,4 +1273,18 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="cover_search_repositories">कवर: वेब खोज</string>
     <string name="cover_search_repositories_explain">जब आप पुस्तक सेटिंग पृष्ठ में "अनुकूलित करें" अनुभाग से "वेब खोज" पर टैप करते हैं, तो चुनें कि किन स्रोतों का उपयोग करना है।</string>
     <string name="api_paging_size_explain">जब आप "सबसे अधिक डाउनलोड किए गए" या "अंतिम जोड़े गए" पर टैप करते हैं तो प्रति पृष्ठ कितने परिणाम वापस आते हैं।</string>
+    <string name="never_accessed">कभी एक्सेस नहीं किया गया</string>
+    <string name="invalid_date">अमान्य तिथि</string>
+    <plurals name="years_ago">
+        <item quantity="one">%d साल पहले</item>
+        <item quantity="other">%d साल पहले</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d महीने पहले</item>
+        <item quantity="other">%d महीने पहले</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d दिन पहले</item>
+        <item quantity="other">%d दिन पहले</item>
+    </plurals>
 </resources>

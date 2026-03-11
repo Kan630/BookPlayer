@@ -1273,4 +1273,18 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="cover_search_repositories">Portadas: Búsqueda Web</string>
     <string name="cover_search_repositories_explain">Al tocar \'Búsqueda web\' en la sección \'Cambiar imagen de portada\' en la página de configuración del libro, elija qué fuentes usar.</string>
     <string name="api_paging_size_explain">Cuántos resultados devolver por página al tocar \'Más descargados\' o \'Últimos agregados\'.</string>
+    <string name="never_accessed">Nunca accedido</string>
+    <string name="invalid_date">Fecha no válida</string>
+    <plurals name="years_ago">
+        <item quantity="one">hace %d año</item>
+        <item quantity="other">hace %d años</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">hace %d mes</item>
+        <item quantity="other">hace %d meses</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">hace %d día</item>
+        <item quantity="other">hace %d días</item>
+    </plurals>
 </resources>

@@ -1273,4 +1273,15 @@ BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗�
     <string name="cover_search_repositories">封面：网路搜索</string>
     <string name="cover_search_repositories_explain">在书籍设置页面的“更换封面图像”部分点击“网路搜索”时，选择要使用的来源。</string>
     <string name="api_paging_size_explain">点击“下载最多”或“最近添加”时，每页返回的结果数量。</string>
+    <string name="never_accessed">从未访问</string>
+    <string name="invalid_date">无效日期</string>
+    <plurals name="years_ago">
+        <item quantity="other">%d 年前</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="other">%d 个月前</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="other">%d 天前</item>
+    </plurals>
 </resources>

@@ -1277,4 +1277,24 @@ BookPlayer будет использовать <font color="#81C784">встро�
     <string name="cover_search_repositories">Обложки: Веб-поиск</string>
     <string name="cover_search_repositories_explain">Когда вы нажимаете «Веб-поиск» в разделе «Изменить обложку» на странице настроек книги, выберите источники, которые следует использовать.</string>
     <string name="api_paging_size_explain">Сколько результатов возвращать на страницу при нажатии «Самые скачиваемые» или «Последние добавленные».</string>
+    <string name="never_accessed">Никогда не открывалось</string>
+    <string name="invalid_date">Неверная дата</string>
+    <plurals name="years_ago">
+        <item quantity="one">%d год назад</item>
+        <item quantity="few">%d года назад</item>
+        <item quantity="many">%d лет назад</item>
+        <item quantity="other">%d лет назад</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d месяц назад</item>
+        <item quantity="few">%d месяца назад</item>
+        <item quantity="many">%d месяцев назад</item>
+        <item quantity="other">%d месяцев назад</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d день назад</item>
+        <item quantity="few">%d дня назад</item>
+        <item quantity="many">%d дней назад</item>
+        <item quantity="other">%d дней назад</item>
+    </plurals>
 </resources>
