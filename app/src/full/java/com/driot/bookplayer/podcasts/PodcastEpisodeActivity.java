@@ -63,7 +63,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class PodcastEpisodeActivity extends BaseBottomNavActivity
         implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
-    private TextView tvTitle, tvDescription, tvStats, tvToolbarStats;
+    private TextView tvTitle, tvDescription, tvStats, tvToolbarStats, tvSearchStat;
     private ImageView ivCover, ivMiniCover;
     private RecyclerView recyclerEpisodes;
     private PodcastEpisodeRVAdapter adapter;
@@ -137,6 +137,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         tvDescription = findViewById(R.id.tvPodcastDescription);
         tvStats = findViewById(R.id.tvPodcastStat);
         tvToolbarStats = findViewById(R.id.tvToolbarStats);
+        tvSearchStat = findViewById(R.id.tvSearchStat);
 
         ivCover = findViewById(R.id.ivPodcastCover);
         ivMiniCover = findViewById(R.id.ivMiniCover);
@@ -621,6 +622,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         String tvStatsText = filtered.size() + "." + getString(R.string.ep);
         tvStats.setText(tvStatsText);
         tvToolbarStats.setText(tvStatsText);
+        if (tvSearchStat != null)
+            tvSearchStat.setText(tvStatsText);
     }
 
     // ROW CLICK CALLBACK
