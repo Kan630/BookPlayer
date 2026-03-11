@@ -95,7 +95,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     private LinearLayout layoutSearch;
     private android.widget.EditText etSearch;
     private android.widget.CheckBox cbSearchInDescription;
-    private ImageButton btnClearSearch;
+    private ImageButton btnClearSearch, btnBackSearch;
 
     private AppBarLayout appBar;
     private Toolbar toolbar;
@@ -154,6 +154,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         etSearch = findViewById(R.id.etSearch);
         cbSearchInDescription = findViewById(R.id.cbSearchInDescription);
         btnClearSearch = findViewById(R.id.btnClearSearch);
+        btnBackSearch = findViewById(R.id.btnBackSearch);
 
         appBar = findViewById(R.id.appBar);
         toolbar = findViewById(R.id.toolbar);
@@ -277,6 +278,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     }
 
     private void setupSearchListeners() {
+        btnBackSearch.setOnClickListener(v -> toggleSearch());
         etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -306,14 +308,32 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     }
 
     private void toggleSearch() {
+        View bottomNav = findViewById(R.id.bottomNav);
+        View miniNowPlaying = findViewById(R.id.miniNowPlaying);
+        View collapsingHeader = findViewById(R.id.collapsing);
+
         if (layoutSearch.getVisibility() == View.VISIBLE) {
             layoutSearch.setVisibility(View.GONE);
+            if (bottomNav != null)
+                bottomNav.setVisibility(View.VISIBLE);
+            if (miniNowPlaying != null)
+                miniNowPlaying.setVisibility(View.VISIBLE);
+            if (collapsingHeader != null)
+                collapsingHeader.setVisibility(View.VISIBLE);
+
             currentSearchQuery = "";
             etSearch.setText("");
             ViewHelper.hideKeyboard(this, etSearch);
             filterAndUpdateList();
         } else {
             layoutSearch.setVisibility(View.VISIBLE);
+            if (bottomNav != null)
+                bottomNav.setVisibility(View.GONE);
+            if (miniNowPlaying != null)
+                miniNowPlaying.setVisibility(View.GONE);
+            if (collapsingHeader != null)
+                collapsingHeader.setVisibility(View.GONE);
+
             etSearch.setText(currentSearchQuery);
             cbSearchInDescription.setChecked(searchInDescription);
             etSearch.requestFocus();
