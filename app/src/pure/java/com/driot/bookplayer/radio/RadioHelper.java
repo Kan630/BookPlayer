@@ -1,14 +1,14 @@
 package com.driot.bookplayer.radio;
 
 import android.content.Context;
-import android.content.Intent;
 import android.net.Uri;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import com.driot.bookplayer.db.BackupManager;
-import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.player.StartPlayHelper;
+
+import java.util.Collections;
+import java.util.List;
 
 public class RadioHelper {
 
@@ -25,10 +25,12 @@ public class RadioHelper {
     }
 
     public static boolean playStreamIfKnownRadio(Context context, String url) {
+        myLogE("should never happen");
         return false;
     }
 
     public static boolean backupDataHasRadios(BackupManager.BackupData data) {
+        myLog("stub!");
         return false;
     }
 
@@ -36,14 +38,13 @@ public class RadioHelper {
         myLogE("should never happen");
     }
 
-    // ---- Android Auto Helpers Stubs ----
-
     public static boolean hasFavorites(Context context) {
+        myLog("stub!");
         return false;
     }
 
-    public static List<MediaBrowserCompat.MediaItem> getFavoriteRadios(
-            Context context) {
+    public static List getFavoriteRadios(Context context) {
+        myLog("stub!");
         return Collections.emptyList();
     }
 
