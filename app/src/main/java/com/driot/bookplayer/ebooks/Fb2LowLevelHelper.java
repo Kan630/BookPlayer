@@ -15,6 +15,8 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
  * FB2 low-level extractor:
@@ -44,6 +47,7 @@ public final class Fb2LowLevelHelper {
         public final java.io.File outDir;
         public final List<java.io.File> chapterFiles;
         public final Bitmap coverBitmap;
+        public final Map<String, String> trackTitles = new LinkedHashMap<>();
 
         ExtractResult(String t, java.io.File d, List<java.io.File> f, Bitmap c) {
             bookTitle = t;
@@ -129,12 +133,13 @@ public final class Fb2LowLevelHelper {
         myLog("Chapters found (top-level sections): " + chapters.size());
 
         // Write out
-        java.io.File outDir = new java.io.File(ctx.getExternalFilesDir(null),
+        File outDir = new File(ctx.getExternalFilesDir(null),
                 "fb2_" + FileHelper.sanitizeFilename(bookTitle));
         if (!outDir.exists() && !outDir.mkdirs())
             throw new IllegalStateException("Cannot create " + outDir);
 
-        List<java.io.File> outFiles = new ArrayList<>();
+        List<File> outFiles = new ArrayList<>();
+        ExtractResult result = new ExtractResult(bookTitle, outDir, outFiles, cover);
         int idx = 0;
         for (Chapter ch : chapters) {
             if (ch == null)
@@ -142,17 +147,18 @@ public final class Fb2LowLevelHelper {
             String title = (ch.title != null && !ch.title.trim().isEmpty())
                     ? ch.title.trim()
                     : deriveTitleFromText(ch.text);
-            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeSlug(title));
-            java.io.File f = new java.io.File(outDir, fname);
-            try (java.io.FileOutputStream fos = new java.io.FileOutputStream(f)) {
+            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeFilename(title));
+            File f = new File(outDir, fname);
+            try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(clean(ch.text).getBytes(StandardCharsets.UTF_8));
             }
             outFiles.add(f);
+            result.trackTitles.put(f.getName(), title);
             myLogD(String.format(Locale.US, "WROTE [%s] len=%d", f.getName(), ch.text.length()));
         }
 
         myLog("=== FB2 extractAll: done; chapters=" + outFiles.size() + " ===");
-        return new ExtractResult(bookTitle, outDir, outFiles, cover);
+        return result;
     }
 
     // ---------------- Parsing: meta + binaries ----------------

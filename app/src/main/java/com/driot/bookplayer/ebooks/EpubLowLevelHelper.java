@@ -17,6 +17,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -99,6 +100,7 @@ public final class EpubLowLevelHelper {
         public final File outDir;
         public final List<File> chapterFiles;
         public final Bitmap coverBitmap;
+        public final Map<String, String> trackTitles = new LinkedHashMap<>();
 
         public ExtractResult(String t, File d, List<File> f, Bitmap c) {
             bookTitle = t;
@@ -267,23 +269,25 @@ public final class EpubLowLevelHelper {
         // Write: 1 file per usable item (keep running index; name after chosen chapter
         // title)
         List<File> outFiles = new ArrayList<>();
+        ExtractResult result = new ExtractResult(bookTitle, outDir, outFiles, cover);
         int idx = 0;
         for (SpineItem it : body) {
             ++idx;
             String chosenTitle = chooseTitle(it, bookTitleNorm);
-            String fname = String.format(Locale.US, "%03d_%s.txt", idx, FileHelper.sanitizeSlug(chosenTitle));
+            String fname = String.format(Locale.US, "%03d_%s.txt", idx, FileHelper.sanitizeFilename(chosenTitle));
             File f = new File(outDir, fname);
             try (FileOutputStream fos = new FileOutputStream(f)) {
-                fos.write(it.text.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                fos.write(it.text.getBytes(StandardCharsets.UTF_8));
             }
             outFiles.add(f);
+            result.trackTitles.put(f.getName(), chosenTitle);
             myLogD(String.format(Locale.US, "WROTE [%s] len=%d", f.getName(), it.textLen));
         }
 
         myLog("========================================================================================");
         myLog("=== extractAll: done; files=" + outFiles.size() + " ===");
         myLog("========================================================================================");
-        return new ExtractResult(bookTitle, outDir, outFiles, cover);
+        return result;
     }
 
     // ===== Title choosing (per item) =====

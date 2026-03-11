@@ -27,8 +27,11 @@ public class Var {
         public static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 10;
         public static final int GUTENDEX_READ_TIMEOUT_SEC = 90;
 
+        public static final int FILE_NAME_MAX_NB_CHARS = 60;
+
         /**
-         * ApiStation names to hide when "remove dubious" is enabled (e.g. added to every
+         * ApiStation names to hide when "remove dubious" is enabled (e.g. added to
+         * every
          * country/tag by mistake).
          */
         public static final Set<String> RADIO_STATION_BLACKLIST_LOWERCASE = new HashSet<>(Arrays.asList(
@@ -245,6 +248,7 @@ public class Var {
         // book)
         public static final Set<String> SPLITTABLE_EBOOK_EXTENSIONS = new HashSet<>(
                         Arrays.asList(
+                                        "txt", // enable splitting for large text files
                                         "epub", // Kobo kepub is still .epub
                                         "fb2", // FictionBook 2
                                         "odt", // OpenDocument Text – must be split to .txt before TTS

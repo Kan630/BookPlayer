@@ -20,6 +20,7 @@ import com.driot.bookplayer.imports.ImportJob;
 import com.driot.bookplayer.imports.ImportWorker;
 import com.driot.bookplayer.ebooks.EpubLowLevelHelper;
 import com.driot.bookplayer.ebooks.Fb2LowLevelHelper;
+import com.driot.bookplayer.ebooks.TextLowLevelHelper;
 import com.driot.bookplayer.utils.log.KanLogger;
 
 import java.io.BufferedWriter;
@@ -28,9 +29,11 @@ import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
+import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 
 public class EbookSplitWorker extends ImportWorker {
@@ -102,12 +105,14 @@ public class EbookSplitWorker extends ImportWorker {
             // Extract (cover + chapter files) using the appropriate helper
             Bitmap cover;
             List<File> chapters;
+            Map<String, String> extractedTitles = new LinkedHashMap<>();
 
             if ("fb2".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing FB2…");
                 Fb2LowLevelHelper.ExtractResult result = Fb2LowLevelHelper.extractAll(ctx, uri);
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
+                extractedTitles = result.trackTitles;
             } else if ("epub".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
 
@@ -131,22 +136,32 @@ public class EbookSplitWorker extends ImportWorker {
                     EpubGutenbergHelper.ExtractResult result = EpubGutenbergHelper.extractAll(ctx, uri);
                     cover = result.coverBitmap;
                     chapters = result.chapterFiles;
+                    extractedTitles = result.trackTitles;
                 } else {
                     EpubLowLevelHelper.ExtractResult result = EpubLowLevelHelper.extractAll(ctx, uri);
                     cover = result.coverBitmap;
                     chapters = result.chapterFiles;
+                    extractedTitles = result.trackTitles;
                 }
             } else if ("odt".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing ODT…");
                 OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
+                extractedTitles = result.trackTitles;
             } else if ("docx".equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing DOCX…");
                 DocxLowLevelHelper.ExtractResult result = DocxLowLevelHelper.extractAll(ctx, uri,
                         Option.getDocxSplitIntoChapters());
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
+                extractedTitles = result.trackTitles;
+            } else if ("txt".equals(ebookType)) {
+                emitStepProgress(TASK_NAME, 1, "Splitting Text file…");
+                TextLowLevelHelper.ExtractResult result = TextLowLevelHelper.extractAll(ctx, uri);
+                cover = result.coverBitmap;
+                chapters = result.chapterFiles;
+                extractedTitles = result.trackTitles;
             } else {
                 emitFailed(TASK_NAME, "unsupported_ebook_type: [" + ebookType + "]",
                         ctx.getString(R.string.Unsupported_ebook_type) + ". (" + ebookType + ")");
@@ -172,6 +187,7 @@ public class EbookSplitWorker extends ImportWorker {
 
             // Prepare output names (keep indices, use chapter filename as title)
             Set<String> usedNames = new HashSet<>();
+            Map<String, String> finalTrackTitles = new LinkedHashMap<>();
             DecimalFormat numFmt = new DecimalFormat("000");
             final int total = chapters.size();
 
@@ -208,11 +224,26 @@ public class EbookSplitWorker extends ImportWorker {
                 File out = new File(outFolder, outBase + ".txt");
                 writeUtf8(out, cleanTextKeepParagraphs(text));
 
+                // Save final title mapping for ImportJob metadata
+                String originalTitle = extractedTitles.get(chapterFile.getName());
+                if (originalTitle != null) {
+                    finalTrackTitles.put(out.getName(), originalTitle);
+                } else {
+                    finalTrackTitles.put(out.getName(), title);
+                }
+
                 int progress = (int) Math.round(((i + 1) * 100.0) / total);
                 String progressText = "Splitting " + ebookType.toUpperCase(Locale.ROOT) + ": "
                         + (i + 1) + "/" + total + "\n\n" + title;
                 emitStepProgress(TASK_NAME, progress, progressText);
                 myLogD(progress + "% - " + progressText.replace("\n", " - "));
+            }
+
+            // Save final chapter titles to ImportJob metadata
+            ImportJob job = jobOrFail();
+            if (!finalTrackTitles.isEmpty()) {
+                job.setTrackTitles(finalTrackTitles);
+                this.repo.updateMetadataJson(job.importId, job.metadataJson);
             }
 
             // Reuse existing completion hook for EPUB (keeps app logic unchanged)
@@ -405,6 +436,8 @@ public class EbookSplitWorker extends ImportWorker {
                 return "odt";
             case "docx":
                 return "docx";
+            case "txt":
+                return "txt";
             // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add
             // unzip
             default:

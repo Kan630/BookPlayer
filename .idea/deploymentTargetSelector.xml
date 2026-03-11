@@ -76,7 +76,7 @@
         <DialogSelection />
       </SelectionState>
       <SelectionState runConfigName="orderedTests">
-        <option name="selectionMode" value="DROPDOWN" />
+        <option name="selectionMode" value="DIALOG" />
         <DropdownSelection timestamp="2026-03-07T10:45:06.332055100Z">
           <Target type="DEFAULT_BOOT">
             <handle>
@@ -88,12 +88,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=52003931eec16435" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=52003931eec16435" />
               </handle>
             </Target>
           </targets>

@@ -19,9 +19,13 @@ public class ImportJobRepository extends LoggerHelper {
         context = ctx.getApplicationContext();
     }
 
-    public void upsert(ImportJob job) { dao.upsert(job); }
+    public void upsert(ImportJob job) {
+        dao.upsert(job);
+    }
 
-    public ImportJob get(String id) { return dao.get(id); }
+    public ImportJob get(String id) {
+        return dao.get(id);
+    }
 
     public void setProgress(String id, String text, int pct) {
         dao.updateProgress(id, text, pct, System.currentTimeMillis());
@@ -39,7 +43,8 @@ public class ImportJobRepository extends LoggerHelper {
         dao.taskStart(id, taskName, progressText, System.currentTimeMillis());
     }
 
-    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType, String progressText) {
+    public void taskCompleted(String id, String taskName, String destinationFolderPath, String playType,
+            String progressText) {
         dao.taskComplete(id, taskName, destinationFolderPath, playType, progressText, System.currentTimeMillis());
     }
 
@@ -48,7 +53,7 @@ public class ImportJobRepository extends LoggerHelper {
     }
 
     public void downloadResuming(String id, String progressText) {
-        dao.downloadResuming(id, progressText,  System.currentTimeMillis());
+        dao.downloadResuming(id, progressText, System.currentTimeMillis());
     }
 
     public void downloadCompleted(String id, String taskName, String downloadedFileFullPath, String progressText) {
@@ -59,13 +64,15 @@ public class ImportJobRepository extends LoggerHelper {
         dao.fail(id, devErrorMsg, usrErrorMsg, System.currentTimeMillis());
         myToast(context.getString(R.string.Import_failed));
         ImportJob j = dao.get(id);
-        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookFailed(j);
+        if (j != null)
+            FirebaseAnalyticsHelper.tellLoadBookFailed(j);
     }
 
     public void cancel(String id) {
         dao.cancel(id, System.currentTimeMillis());
         ImportJob j = dao.get(id);
-        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookCancelled(j);
+        if (j != null)
+            FirebaseAnalyticsHelper.tellLoadBookCancelled(j);
     }
 
     public void success(String id) {
@@ -77,11 +84,16 @@ public class ImportJobRepository extends LoggerHelper {
         dao.success(id, text, System.currentTimeMillis());
         myToast(text);
         ImportJob j = dao.get(id);
-        if (j!=null) FirebaseAnalyticsHelper.tellLoadBookSuccess(j);
+        if (j != null)
+            FirebaseAnalyticsHelper.tellLoadBookSuccess(j);
     }
 
     public void silentSuccess(String id, String endOfProgressText) {
         dao.success(id, endOfProgressText, System.currentTimeMillis());
+    }
+
+    public void updateMetadataJson(String id, String json) {
+        dao.updateMetadataJson(id, json, System.currentTimeMillis());
     }
 
 }

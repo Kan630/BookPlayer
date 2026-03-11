@@ -7,6 +7,13 @@ import androidx.room.PrimaryKey;
 
 import com.driot.bookplayer.global.Var;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Objects;
 
 @Entity(tableName = "ImportJob", indices = {
@@ -150,5 +157,48 @@ public class ImportJob {
                                 ", errorTextDev='" + errorTextDev + '\'' +
                                 ", errorTextUser='" + errorTextUser + '\'' +
                                 '}';
+        }
+
+        // --- Metadata helpers ---
+
+        public Map<String, Object> getMetadataMap() {
+                if (metadataJson == null || metadataJson.isEmpty()) {
+                        return new HashMap<>();
+                }
+                try {
+                        Type type = new TypeToken<Map<String, Object>>() {
+                        }.getType();
+                        return new Gson().fromJson(metadataJson, type);
+                } catch (Exception e) {
+                        return new HashMap<>();
+                }
+        }
+
+        public void setMetadataMap(Map<String, Object> map) {
+                if (map == null) {
+                        metadataJson = null;
+                        return;
+                }
+                try {
+                        metadataJson = new Gson().toJson(map);
+                } catch (Exception e) {
+                        metadataJson = null;
+                }
+        }
+
+        @SuppressWarnings("unchecked")
+        public Map<String, String> getTrackTitles() {
+                Map<String, Object> meta = getMetadataMap();
+                Object titles = meta.get("track_titles");
+                if (titles instanceof Map) {
+                        return (Map<String, String>) titles;
+                }
+                return new LinkedHashMap<>();
+        }
+
+        public void setTrackTitles(Map<String, String> titles) {
+                Map<String, Object> meta = getMetadataMap();
+                meta.put("track_titles", titles);
+                setMetadataMap(meta);
         }
 }

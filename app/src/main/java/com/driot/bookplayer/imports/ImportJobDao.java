@@ -221,4 +221,7 @@ public interface ImportJobDao {
         // Get all jobs (for batch position calculation)
         @Query("SELECT * FROM ImportJob ORDER BY createdAt ASC")
         List<ImportJob> getAll();
+
+        @Query("UPDATE ImportJob SET metadataJson = :json, updatedAt = :ts WHERE importId = :id")
+        void updateMetadataJson(String id, String json, long ts);
 }

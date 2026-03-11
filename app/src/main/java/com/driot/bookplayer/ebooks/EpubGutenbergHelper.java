@@ -65,16 +65,24 @@ public final class EpubGutenbergHelper {
         public final List<String> spine = new ArrayList<>();
 
         @Override
-        public String getOpfPath() { return opfPath; }
+        public String getOpfPath() {
+            return opfPath;
+        }
 
         @Override
-        public String getCoverId() { return coverId; }
+        public String getCoverId() {
+            return coverId;
+        }
 
         @Override
-        public Map<String, String> getManifestHref() { return manifestHref; }
+        public Map<String, String> getManifestHref() {
+            return manifestHref;
+        }
 
         @Override
-        public Map<String, String> getManifestType() { return manifestType; }
+        public Map<String, String> getManifestType() {
+            return manifestType;
+        }
     }
 
     public static final class ExtractResult {
@@ -83,6 +91,7 @@ public final class EpubGutenbergHelper {
         public final List<File> chapterFiles;
         @Nullable
         public final Bitmap coverBitmap;
+        public final Map<String, String> trackTitles = new LinkedHashMap<>();
 
         public ExtractResult(String t, File d, List<File> f, @Nullable Bitmap c) {
             this.bookTitle = t;
@@ -195,6 +204,7 @@ public final class EpubGutenbergHelper {
         int padWidth = Math.max(3, String.valueOf(expectedChapters).length());
 
         List<File> outFiles = new ArrayList<>();
+        ExtractResult result = new ExtractResult(bookTitle, outDir, outFiles, cover);
         Set<String> usedFilePaths = new LinkedHashSet<>();
         int globalChapterIndex = 0; // Global counter for all chapters
 
@@ -220,14 +230,15 @@ public final class EpubGutenbergHelper {
 
             String html = EpubCommonHelper.bytesToStringWithXmlGuess(xhtmlBytes);
             globalChapterIndex = buildChaptersFromSingleFile(html, filePath, entries, outDir, outFiles,
-                    globalChapterIndex, padWidth);
+                    globalChapterIndex, padWidth, result.trackTitles);
         }
 
         // Any extra XHTML files not referenced in TOC -> zz_* chapter
-        addNonTocHtmlAsZzChapters(zip, opf, usedFilePaths, basePath, outDir, outFiles, globalChapterIndex, padWidth);
+        addNonTocHtmlAsZzChapters(zip, opf, usedFilePaths, basePath, outDir, outFiles, globalChapterIndex, padWidth,
+                result.trackTitles);
 
         myLog("=== EpubGutenbergHelper.extractAll: done; chapters=" + outFiles.size() + " ===");
-        return new ExtractResult(bookTitle, outDir, outFiles, cover);
+        return result;
     }
 
     // ---------- Core helpers ----------
@@ -243,7 +254,8 @@ public final class EpubGutenbergHelper {
             File outDir,
             List<File> outFiles,
             int globalChapterIndex,
-            int padWidth) throws Exception {
+            int padWidth,
+            Map<String, String> trackTitles) throws Exception {
         if (entries == null || entries.isEmpty())
             return globalChapterIndex;
 
@@ -283,7 +295,7 @@ public final class EpubGutenbergHelper {
         // Process entries in TOC order (not HTML position order)
         for (Bound b : bounds) {
             int start = b.start;
-            
+
             // Find the next position in the document (sorted order) to determine slice end
             int end = html.length();
             for (int pos : sortedPositions) {
@@ -311,6 +323,7 @@ public final class EpubGutenbergHelper {
             }
 
             outFiles.add(f);
+            trackTitles.put(f.getName(), b.entry.title);
 
             myLogD("WROTE (Gutenberg) " + f.getName()
                     + " len=" + plain.length()
@@ -334,7 +347,8 @@ public final class EpubGutenbergHelper {
             File outDir,
             List<File> outFiles,
             int globalChapterIndex,
-            int padWidth) throws Exception {
+            int padWidth,
+            Map<String, String> trackTitles) throws Exception {
         Set<String> alreadyDone = new LinkedHashSet<>(usedFilePaths);
         for (Map.Entry<String, String> e : opf.manifestHref.entrySet()) {
             String id = e.getKey();
@@ -380,6 +394,7 @@ public final class EpubGutenbergHelper {
                 fos.write(plain.getBytes(java.nio.charset.StandardCharsets.UTF_8));
             }
             outFiles.add(f);
+            trackTitles.put(f.getName(), baseTitle);
 
             myLogD("WROTE (Gutenberg extra) " + f.getName()
                     + " len=" + plain.length());
@@ -496,7 +511,6 @@ public final class EpubGutenbergHelper {
 
     // ---------- OPF / ZIP helpers ----------
 
-
     private static OpfInfo parseOpf(byte[] opfXml) throws Exception {
         OpfInfo o = new OpfInfo();
         XmlPullParser x = EpubCommonHelper.newPull(opfXml);
@@ -541,7 +555,6 @@ public final class EpubGutenbergHelper {
         }
         return o;
     }
-
 
     // ---------- HTML → text ----------
 

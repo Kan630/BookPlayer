@@ -22,8 +22,10 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -48,6 +50,7 @@ public final class DocxLowLevelHelper {
         public final File outDir;
         public final List<File> chapterFiles;
         public final Bitmap coverBitmap;
+        public final Map<String, String> trackTitles = new LinkedHashMap<>();
 
         ExtractResult(String t, File d, List<File> f, Bitmap c) {
             bookTitle = t;
@@ -131,6 +134,7 @@ public final class DocxLowLevelHelper {
             throw new IllegalStateException("Cannot create " + outDir);
 
         List<File> outFiles = new ArrayList<>();
+        ExtractResult extResult = new ExtractResult(bookTitle, outDir, outFiles, cover);
         int idx = 0;
         for (Chapter ch : chapters) {
             String text = EbookTextCleaner.removeReferencesIfEnabled(clean(ch.buf.toString()));
@@ -140,12 +144,13 @@ public final class DocxLowLevelHelper {
             String title = (ch.title != null && !ch.title.trim().isEmpty())
                     ? ch.title.trim()
                     : deriveTitleFromText(text);
-            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeSlug(title));
+            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeFilename(title));
             File f = new File(outDir, fname);
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(text.getBytes(StandardCharsets.UTF_8));
             }
             outFiles.add(f);
+            extResult.trackTitles.put(f.getName(), title);
             myLogD("Wrote chapter: " + f.getName() + " (len=" + text.length() + ")");
         }
 
@@ -161,12 +166,13 @@ public final class DocxLowLevelHelper {
                     fos.write(fullText.getBytes(StandardCharsets.UTF_8));
                 }
                 outFiles.add(f);
+                extResult.trackTitles.put(f.getName(), "Full Document");
                 myLogW("No chapters extracted; fallback to single document (len=" + fullText.length() + ")");
             }
         }
 
         myLog("=== DOCX extractAll: done; chapters=" + outFiles.size() + " ===");
-        return new ExtractResult(bookTitle, outDir, outFiles, cover);
+        return extResult;
     }
 
     // ---------------- HTML Parsing ----------------

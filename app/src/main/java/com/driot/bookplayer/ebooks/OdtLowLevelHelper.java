@@ -19,8 +19,10 @@ import java.io.InputStream;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -45,6 +47,7 @@ public final class OdtLowLevelHelper {
         public final java.io.File outDir;
         public final List<java.io.File> chapterFiles;
         public final Bitmap coverBitmap;
+        public final Map<String, String> trackTitles = new LinkedHashMap<>();
 
         ExtractResult(String t, java.io.File d, List<java.io.File> f, Bitmap c) {
             bookTitle = t;
@@ -118,26 +121,27 @@ public final class OdtLowLevelHelper {
         if (!outDir.exists() && !outDir.mkdirs())
             throw new IllegalStateException("Cannot create " + outDir);
 
-        List<java.io.File> outFiles = new ArrayList<>();
+        ExtractResult result = new ExtractResult(bookTitle, outDir, new ArrayList<>(), cover);
         int idx = 0;
         for (Chapter ch : chapters) {
             if (ch == null)
                 continue;
-            String text = (ch.text == null) ? "" : EbookTextCleaner.removeReferencesIfEnabled(clean(ch.text));
+            String text = (ch.text == null) ? "" : EbookTextCleaner.removeReferencesIfEnabled(ch.text);
             String title = (ch.title != null && !ch.title.trim().isEmpty())
                     ? ch.title.trim()
                     : deriveTitleFromText(text);
-            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeSlug(title));
+            String fname = String.format(Locale.US, "%03d_%s.txt", ++idx, FileHelper.sanitizeFilename(title));
             java.io.File f = new java.io.File(outDir, fname);
             try (FileOutputStream fos = new FileOutputStream(f)) {
                 fos.write(text.getBytes(StandardCharsets.UTF_8));
             }
-            outFiles.add(f);
+            result.chapterFiles.add(f);
+            result.trackTitles.put(f.getName(), title);
             myLogD("Wrote chapter: " + f.getName() + " (len=" + text.length() + ")");
         }
 
-        myLog("=== ODT extractAll: done; chapters=" + outFiles.size() + " ===");
-        return new ExtractResult(bookTitle, outDir, outFiles, cover);
+        myLog("=== ODT extractAll: done; chapters=" + result.chapterFiles.size() + " ===");
+        return result;
     }
 
     // ---------------- Parse content.xml ----------------

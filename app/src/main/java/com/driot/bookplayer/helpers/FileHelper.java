@@ -13,6 +13,8 @@ import android.provider.MediaStore;
 import android.text.TextUtils;
 
 import com.driot.bookplayer.db.AppDatabase;
+import com.driot.bookplayer.global.Var;
+
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.File;
@@ -267,19 +269,11 @@ public class FileHelper {
         String out = input.replaceAll("[\\\\/:*?\"<>|]", "_").trim();
         if (out.isEmpty())
             out = "untitled";
-        return out.length() > 60 ? out.substring(0, 60) : out;
-    }
-
-    public static String sanitizeSlug(String input) {
-        if (input == null)
-            return "chapter";
-        String out = input.toLowerCase(Locale.US)
-                .replaceAll("[\\\\/:*?\"<>|' ]", "-")
-                .replaceAll("-+", "-")
-                .replaceAll("^-+|-+$", "");
-        if (out.isEmpty())
-            out = "chapter";
-        return out.length() > 60 ? out.substring(0, 60) : out;
+        if (out.length() > Var.FILE_NAME_MAX_NB_CHARS) {
+            myLogW("file name too long (" + out.length() + "), cutting to " + Var.FILE_NAME_MAX_NB_CHARS);
+            out = out.substring(0, Var.FILE_NAME_MAX_NB_CHARS);
+        }
+        return out;
     }
 
     public static boolean deleteFolderRecursive(String strPath) {

@@ -107,10 +107,10 @@ public class DocxChapterParsingTest {
 
     @Test
     public void testSafeSlugSanitization() {
-        assertEquals("l-été-à-paris", FileHelper.sanitizeSlug("L'été à Paris"));
-        assertEquals("chapitre-1-introduction", FileHelper.sanitizeSlug("Chapitre 1: Introduction"));
-        assertEquals("mémoire-de-recherche", FileHelper.sanitizeSlug("Mémoire de recherche"));
-        assertEquals("chapter", FileHelper.sanitizeSlug("   "));
-        assertEquals("a".repeat(60), FileHelper.sanitizeSlug("a".repeat(70)));
+        assertEquals("l-été-à-paris", FileHelper.sanitizeFilename("L'été à Paris"));
+        assertEquals("chapitre-1-introduction", FileHelper.sanitizeFilename("Chapitre 1: Introduction"));
+        assertEquals("mémoire-de-recherche", FileHelper.sanitizeFilename("Mémoire de recherche"));
+        assertEquals("chapter", FileHelper.sanitizeFilename("   "));
+        assertEquals("a".repeat(60), FileHelper.sanitizeFilename("a".repeat(70)));
     }
 }
