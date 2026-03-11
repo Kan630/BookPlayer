@@ -110,8 +110,8 @@ public class ImageHelper {
         return imageFile.getAbsolutePath();
     }
 
-    public static void processPendingImages(Context context, long currentTime) {
-        // myLogD("processPendingImages");
+    public static void processPendingImages(Context context, long currentTime, String from) {
+         myLogD("processPendingImages - from " + from);
         AppDatabase.databaseWriteExecutor.execute(() -> {
             AppDatabase db = AppDatabase.getDatabase(context);
 
