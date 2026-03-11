@@ -8,6 +8,7 @@ import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.imports.ImportHelper;
 import com.driot.bookplayer.imports.ImportJob;
@@ -23,6 +24,7 @@ import com.googlecode.mp4parser.authoring.container.mp4.MovieCreator;
 import com.googlecode.mp4parser.boxes.mp4.ESDescriptorBox;
 import com.googlecode.mp4parser.boxes.mp4.objectdescriptors.AudioSpecificConfig;
 import com.googlecode.mp4parser.FileDataSourceViaHeapImpl;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -95,19 +97,20 @@ public class M4bSplitWorker extends ImportWorker {
         DataSource dataSource = null;
 
         // NEW: track created chapter files and whether the folder existed before
-        File outputFolder = null;                          // NEW
-        boolean outputFolderExistedBefore = false;         // NEW
+        File outputFolder = null; // NEW
+        boolean outputFolderExistedBefore = false; // NEW
         List<File> createdChapterFiles = new ArrayList<>();// NEW
 
         try {
-            outputFolder = new File(destinationFolderPath);           // NEW (moved out of inner scope)
-            outputFolderExistedBefore = outputFolder.exists();        // NEW
+            outputFolder = new File(destinationFolderPath); // NEW (moved out of inner scope)
+            outputFolderExistedBefore = outputFolder.exists(); // NEW
 
             // pas grave si false, on tente quand même
-            //noinspection ResultOfMethodCallIgnored
+            // noinspection ResultOfMethodCallIgnored
             outputFolder.mkdirs();
 
-            // IMPORTANT : éviter FileDataSourceImpl (mmap) → utiliser FileDataSourceViaHeapImpl
+            // IMPORTANT : éviter FileDataSourceImpl (mmap) → utiliser
+            // FileDataSourceViaHeapImpl
             dataSource = new FileDataSourceViaHeapImpl(m4bFilePath);
             Movie movie = MovieCreator.build(dataSource);
 
@@ -153,6 +156,8 @@ public class M4bSplitWorker extends ImportWorker {
             long chapterTime = 0;
             byte[] frameBuffer = null; // on réutilise ce buffer pour limiter les allocations
 
+            JSONObject trackTitlesJson = new JSONObject();
+
             for (int c = 0; c < chapterSamples.size(); c++) {
                 if (isStopped()) {
                     emitCancelled(TASK_NAME);
@@ -160,11 +165,13 @@ public class M4bSplitWorker extends ImportWorker {
                 }
 
                 String title = extractCleanChapterTitle(chapterSamples.get(c));
-                if (usedNames.contains(title) || title.isEmpty()) {
-                    title = "chapter" + chapterFormat.format(c + 1);
+                String sanitizedTitle = FileHelper.sanitizeFilename(title);
+                if (usedNames.contains(sanitizedTitle) || sanitizedTitle.isEmpty()) {
+                    sanitizedTitle = "chapter" + chapterFormat.format(c + 1);
                 }
-                usedNames.add(title);
-                String filename = title + ".aac";
+                usedNames.add(sanitizedTitle);
+                String filename = sanitizedTitle + ".aac";
+                trackTitlesJson.put(filename, title);
 
                 long startTime = chapterTime;
                 long duration = chapterDurations[c];
@@ -178,12 +185,13 @@ public class M4bSplitWorker extends ImportWorker {
 
                 double progress = (double) (c + 1) / chapterSamples.size() * 100;
                 String text = context.getString(R.string.Import_Progress_splitting_m4b_file)
-                        + (c + 1) + "/" + chapterSamples.size() + "\n\n" + context.getString(R.string.Import_Progress_chapter_title) + " : " + title;
+                        + (c + 1) + "/" + chapterSamples.size() + "\n\n"
+                        + context.getString(R.string.Import_Progress_chapter_title) + " : " + title;
                 emitStepProgress(TASK_NAME, (int) progress, text);
                 myLogD((int) progress + "% - " + text.replace("\n", " - "));
 
-                File outFile = new File(outputFolder, filename);   // NEW: explicit variable
-                createdChapterFiles.add(outFile);                  // NEW: remember we created this chapter
+                File outFile = new File(outputFolder, filename); // NEW: explicit variable
+                createdChapterFiles.add(outFile); // NEW: remember we created this chapter
 
                 FileOutputStream fos = new FileOutputStream(outFile);
                 try {
@@ -212,7 +220,19 @@ public class M4bSplitWorker extends ImportWorker {
             // SUCCESS → now it is safe to delete the source M4B
             if (!m4bFile.delete()) {
                 myLogE("Error Deleting source M4B file after split.");
-                emitWarning("Error Deleting source M4B file after split.");
+                emitWarning("Error Deleting source M4b file after split.");
+            }
+
+            // Persist track titles mapping for FinalParseFolderWorker
+            try {
+                ImportJob job = jobOrFail();
+                JSONObject meta = new JSONObject(
+                        job.metadataJson != null && !job.metadataJson.isEmpty() ? job.metadataJson : "{}");
+                meta.put("track_titles", trackTitlesJson);
+                job.metadataJson = meta.toString();
+                repo.upsert(job);
+            } catch (Exception e) {
+                myLogEE(e, "Error saving track_titles to metadataJson");
             }
 
             emitTaskCompleted(TASK_NAME, outputFolder.getAbsolutePath(),
@@ -243,18 +263,17 @@ public class M4bSplitWorker extends ImportWorker {
                 return false; // hard failure
             }
 
-            boolean tooLarge =
-                    msg.contains("map failed")
-                            || msg.contains("mmap")
-                            || msg.contains("filechannelimpl.map")
-                            || msg.contains("cannot allocate")
-                            || msg.contains("outofmemory")
-                            || msg.contains("enomem")
-                            || msg.contains("scudo")
-                            || msg.contains("markcompact")
-                            || msg.contains("kernelpreparerange")
-                            || msg.contains("size >")
-                            || msg.contains("too large");
+            boolean tooLarge = msg.contains("map failed")
+                    || msg.contains("mmap")
+                    || msg.contains("filechannelimpl.map")
+                    || msg.contains("cannot allocate")
+                    || msg.contains("outofmemory")
+                    || msg.contains("enomem")
+                    || msg.contains("scudo")
+                    || msg.contains("markcompact")
+                    || msg.contains("kernelpreparerange")
+                    || msg.contains("size >")
+                    || msg.contains("too large");
 
             if (tooLarge) {
                 String userMsg = context.getString(R.string.m4b_error_too_large_or_incompatible_structure);
@@ -268,12 +287,11 @@ public class M4bSplitWorker extends ImportWorker {
                         "splitM4bLocal - file too large or mmap/memory issue");
             }
 
-            boolean structure =
-                    msg.contains("no suitable")
-                            || msg.contains("required audio or chapter")
-                            || msg.contains("parse")
-                            || msg.contains("box")
-                            || msg.contains("corrupt");
+            boolean structure = msg.contains("no suitable")
+                    || msg.contains("required audio or chapter")
+                    || msg.contains("parse")
+                    || msg.contains("box")
+                    || msg.contains("corrupt");
 
             if (structure) {
                 String userMsg = context.getString(R.string.m4b_error_non_standard_chapter_format);
@@ -313,12 +331,12 @@ public class M4bSplitWorker extends ImportWorker {
         }
     }
 
-
     private static int findSampleIndexForTime(long[] durations, long timescale, double timeInSec) {
         long target = (long) (timeInSec * timescale);
         long sum = 0;
         for (int i = 0; i < durations.length; i++) {
-            if (sum >= target) return i;
+            if (sum >= target)
+                return i;
             sum += durations[i];
         }
         return durations.length - 1;
@@ -359,11 +377,10 @@ public class M4bSplitWorker extends ImportWorker {
         }
     }
 
-
     // NEW: remove partial chapter files if something went wrong
     private void cleanupPartialOutputs(List<File> createdFiles,
-                                       File outputFolder,
-                                       boolean folderExistedBefore) {
+            File outputFolder,
+            boolean folderExistedBefore) {
         if (createdFiles != null) {
             for (File f : createdFiles) {
                 if (f != null && f.exists() && f.isFile() && f.getName().endsWith(".aac")) {
@@ -374,23 +391,25 @@ public class M4bSplitWorker extends ImportWorker {
             }
         }
 
-        // If we created the folder just for this import and it is now empty, try to remove it
+        // If we created the folder just for this import and it is now empty, try to
+        // remove it
         if (!folderExistedBefore && outputFolder != null && outputFolder.isDirectory()) {
             File[] remaining = outputFolder.listFiles();
             if (remaining == null || remaining.length == 0) {
-                //noinspection ResultOfMethodCallIgnored
+                // noinspection ResultOfMethodCallIgnored
                 outputFolder.delete();
             }
         }
     }
+
     // Fallback: keep single M4B, remove partial .aac, still mark task as completed
     private boolean fallbackToSingleM4b(Context context,
-                                        File m4bFile,
-                                        File outputFolder,
-                                        boolean outputFolderExistedBefore,
-                                        List<File> createdChapterFiles,
-                                        String warningMessageForUser,
-                                        String logTag) {
+            File m4bFile,
+            File outputFolder,
+            boolean outputFolderExistedBefore,
+            List<File> createdChapterFiles,
+            String warningMessageForUser,
+            String logTag) {
 
         FirebaseAnalyticsHelper.logEvent("m4b_fallback");
 
@@ -431,13 +450,10 @@ public class M4bSplitWorker extends ImportWorker {
             // will just see it where it is.
         }
 
-
         // 4) Mark task as "completed with fallback" so the pipeline continues
-        String completedMsg =
-                context.getString(R.string.import_task_m4b_split) + " - "
-                        + context.getString(R.string.Import_Experimental_M4B_iferror);
-        String pathForNextStep =
-                (outputFolder != null ? outputFolder.getAbsolutePath() : m4bFile.getParent());
+        String completedMsg = context.getString(R.string.import_task_m4b_split) + " - "
+                + context.getString(R.string.Import_Experimental_M4B_iferror);
+        String pathForNextStep = (outputFolder != null ? outputFolder.getAbsolutePath() : m4bFile.getParent());
 
         emitTaskCompleted(TASK_NAME, pathForNextStep, completedMsg);
 

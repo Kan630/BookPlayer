@@ -59,6 +59,7 @@ public class FinalParseFolderWorker extends ImportWorker {
 
     ImportJob importJob;
     private org.json.JSONArray nearbyProgressArray;
+    private org.json.JSONObject trackTitles;
 
     private final Context context;
 
@@ -82,8 +83,9 @@ public class FinalParseFolderWorker extends ImportWorker {
                 try {
                     org.json.JSONObject meta = new org.json.JSONObject(importJob.metadataJson);
                     nearbyProgressArray = meta.optJSONArray("nearby_progress");
+                    trackTitles = meta.optJSONObject("track_titles");
                 } catch (Exception e) {
-                    myLogE("Failed to parse nearby_progress from metadataJson: " + e.getMessage());
+                    myLogE("Failed to parse metadataJson: " + e.getMessage());
                 }
             }
 
@@ -701,10 +703,16 @@ public class FinalParseFolderWorker extends ImportWorker {
         String filenameDisplay = formatNameForDisplay(info.getDisplayPath());
         String metaTitle = (info.getMeta() != null) ? info.getMeta().get(AudioInfo.K_TITLE) : null;
 
+        String filename = getFileNameFromPath(info.getDisplayPath());
+        String originalTitle = (trackTitles != null) ? trackTitles.optString(filename, null) : null;
+
         boolean isLibrivox = Var.SOURCE_LOCATION_LIBRIVOX.equals(importJob.sourceLocation);
         boolean useMetadata = isLibrivox || Option.getUseMetadataTitles();
 
-        if (useMetadata && Tonio.isBetterTitle(metaTitle, filenameDisplay, isLibrivox)) {
+        if (originalTitle != null) {
+            myLogD("Using track_titles mapping for displayName: [" + originalTitle + "]");
+            file.setDisplayName(originalTitle.trim());
+        } else if (useMetadata && Tonio.isBetterTitle(metaTitle, filenameDisplay, isLibrivox)) {
             myLogD("Using metadata title: [" + metaTitle + "] instead of [" + filenameDisplay + "]");
             file.setDisplayName(metaTitle.trim());
         } else {
