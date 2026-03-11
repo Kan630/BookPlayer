@@ -5,7 +5,6 @@ import android.app.Application;
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-import androidx.lifecycle.Observer;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
@@ -13,10 +12,10 @@ import com.driot.bookplayer.db.EpisodeDao;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
 import com.driot.bookplayer.db.ZikFile;
-import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.List;
@@ -170,13 +169,15 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
         return enqueuedEpisodeIds;
     }
 
-    public void fetchEpisodes(android.content.Context context, Podcast podcast, boolean isRefresh) {
-        myLogD("fetchEpisodes " + (isRefresh ? "refresh" : "no refresh"));
-        if (Boolean.TRUE.equals(isFetchingLive.getValue()))
+    public void fetchEpisodes(android.content.Context context, Podcast podcast, boolean forceRefresh) {
+        myLogD("fetchEpisodes, forceRefresh=" + forceRefresh);
+        if (Boolean.TRUE.equals(isFetchingLive.getValue())) {
+            myLogD("already fetching, exit");
             return;
+        }
 
         isFetchingLive.setValue(true);
-        apiErrorLive.setValue(null); // Clear previous error
+        apiErrorLive.setValue(null);
 
         // 1) Load from DB immediately
         new Thread(() -> {
@@ -185,16 +186,18 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
             List<DisplayableEpisode> initial = DisplayableEpisode.fromEpisodeList(dbEpisodes);
             episodesLive.postValue(initial);
 
-            if (!isRefresh && podcast.lastCheck > System.currentTimeMillis()
-                    - 1000 * 60 * Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
+            long lastCheckAgoMs = System.currentTimeMillis() - podcast.lastCheck;
+            myLogD("last refresh was " + Tonio.formatTime(lastCheckAgoMs) + " ago...  Const time between checks = " + Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN + " min");
+            if (!forceRefresh && lastCheckAgoMs < 1000 * 60 * Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
                 isFetchingLive.postValue(false);
+                myLogD("last fetch too recent, exit");
                 return;
             }
 
             // 2) Compute "since" from DB and then hit API
             long since;
             int maxEpisode;
-            if (isRefresh) {
+            if (forceRefresh) {
                 since = 0;
                 maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE;
             } else {
@@ -228,7 +231,7 @@ public class PodcastEpisodeViewModel extends LoggingAndroidViewModel {
                                 int nbEpisodeFull = fullList.size();
                                 myLog("Displayed episodes count: " + nbEpisodeFull);
 
-                                if (isRefresh) {
+                                if (forceRefresh) {
                                     String msg = nbEpisodeFull + " "
                                             + getApplication().getString(com.driot.bookplayer.R.string.episodes);
                                     toastMessageLive.postValue(msg);

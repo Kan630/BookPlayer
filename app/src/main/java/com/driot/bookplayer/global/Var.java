@@ -110,7 +110,7 @@ public class Var {
         public static final int PODCAST_INDEX_ORG_API_MAX_DAYS_FOR_EPISODES_NORMAL_MODE = 30;
         public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE = 100;
         public static final int PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE = 1000;
-        public static final int PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 2;
+        public static final int PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN = 15;
 
         public static final String PODCAST_SOURCE = "podcastindex.org";
         public static final String DEFAULT_RADIO_MIRROR = "https://de1.api.radio-browser.info/"; // https://fi1.api.radio-browser.info";

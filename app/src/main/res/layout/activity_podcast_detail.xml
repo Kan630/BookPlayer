@@ -125,6 +125,14 @@
 
                 <!-- Title / description (collapse away with the header) -->
                 <TextView
+                    android:id="@+id/tvApiWarning"
+                    style="@style/warningText"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="4dp"
+                    android:text="@string/Warning" />
+
+                <TextView
                     android:id="@+id/tvPodcastTitle"
                     style="@style/simpleText"
                     android:textColor="?colorPrimary"
@@ -144,7 +152,6 @@
                     android:textSize="14sp"
                     android:padding="4dp"
                     android:text="Podcast Description"
-                    android:visibility="gone"
                     />
             </LinearLayout>
 

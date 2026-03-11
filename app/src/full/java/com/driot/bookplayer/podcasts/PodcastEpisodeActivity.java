@@ -61,7 +61,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 public class PodcastEpisodeActivity extends BaseBottomNavActivity
         implements PodcastEpisodeRVAdapter.EpisodeClickHandler {
 
-    private TextView tvTitle, tvDescription, tvStats, tvToolbarStats, tvSearchStat;
+    private TextView tvTitle, tvDescription, tvApiWarning, tvStats, tvToolbarStats, tvSearchStat;
     private ImageView ivCover, ivMiniCover;
     private RecyclerView recyclerEpisodes;
     private PodcastEpisodeRVAdapter adapter;
@@ -150,6 +150,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         tvTitle = findViewById(R.id.tvPodcastTitle);
         tvDescription = findViewById(R.id.tvPodcastDescription);
+        tvApiWarning = findViewById(R.id.tvApiWarning);
+        tvApiWarning.setVisibility(View.GONE);
         tvStats = findViewById(R.id.tvPodcastStat);
         tvToolbarStats = findViewById(R.id.tvToolbarStats);
         tvSearchStat = findViewById(R.id.tvSearchStat);
@@ -263,12 +265,10 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         podcastEpisodeViewModel.getApiErrorLive().observe(this, error -> {
             if (error != null) {
-                tvDescription.setTextColor(getColor(R.color.orange_500));
-                tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
+                tvApiWarning.setText(getString(R.string.podcast_api_unavailable_fallback));
+                tvApiWarning.setVisibility(View.VISIBLE);
             } else {
-                // Restore default color/text if no error
-                tvDescription.setTextColor(getColor(R.color.gray_500)); // Assuming default color
-                tvDescription.setText(parseMaybeHtml(podcastFeed.description));
+                tvApiWarning.setVisibility(View.GONE);
             }
         });
 
