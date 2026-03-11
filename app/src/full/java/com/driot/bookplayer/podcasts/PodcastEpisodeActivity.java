@@ -95,10 +95,19 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     private LinearLayout layoutSearch;
     private android.widget.EditText etSearch;
     private android.widget.CheckBox cbSearchInDescription;
-    private ImageButton btnClearSearch, btnBackSearch;
+    private ImageButton btnClearSearch;
 
     private AppBarLayout appBar;
     private Toolbar toolbar;
+
+    @Override
+    public void onBackPressed() {
+        if (layoutSearch != null && layoutSearch.getVisibility() == View.VISIBLE) {
+            toggleSearch();
+        } else {
+            super.onBackPressed();
+        }
+    }
 
     @Override
     protected int getNavId() {
@@ -154,7 +163,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         etSearch = findViewById(R.id.etSearch);
         cbSearchInDescription = findViewById(R.id.cbSearchInDescription);
         btnClearSearch = findViewById(R.id.btnClearSearch);
-        btnBackSearch = findViewById(R.id.btnBackSearch);
 
         appBar = findViewById(R.id.appBar);
         toolbar = findViewById(R.id.toolbar);
@@ -278,7 +286,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     }
 
     private void setupSearchListeners() {
-        btnBackSearch.setOnClickListener(v -> toggleSearch());
         etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -301,9 +308,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         });
 
         btnClearSearch.setOnClickListener(v -> {
-            etSearch.setText("");
-            currentSearchQuery = "";
-            filterAndUpdateList();
+            toggleSearch();
         });
     }
 

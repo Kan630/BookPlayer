@@ -243,14 +243,6 @@
                 android:orientation="horizontal"
                 android:gravity="center_vertical">
 
-                <ImageButton
-                    android:id="@+id/btnBackSearch"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:src="@drawable/ic_arrow_back_24"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="@string/Close"
-                    app:tint="?attr/colorOnSurface" />
 
                 <EditText
                     android:id="@+id/etSearch"
