@@ -154,8 +154,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         tvToolbarStats = findViewById(R.id.tvToolbarStats);
         tvSearchStat = findViewById(R.id.tvSearchStat);
 
-        layoutSearch.setVisibility(View.GONE);
-
         ivCover = findViewById(R.id.ivPodcastCover);
         ivMiniCover = findViewById(R.id.ivMiniCover);
 
@@ -178,6 +176,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         btnCollapseOverlay = findViewById(R.id.btnCollapseOverlay);
 
         layoutSearch = findViewById(R.id.layoutSearch);
+        layoutSearch.setVisibility(View.GONE);
         etSearch = findViewById(R.id.etSearch);
         cbSearchInDescription = findViewById(R.id.cbSearchInDescription);
         btnClearSearch = findViewById(R.id.btnClearSearch);
