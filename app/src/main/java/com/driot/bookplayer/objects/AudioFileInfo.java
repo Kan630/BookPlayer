@@ -310,7 +310,7 @@ public class AudioFileInfo implements Parcelable {
         if (m.find()) {
             try {
                 long n = Long.parseLong(m.group(1));
-                if (n > 0 && n <= Integer.MAX_VALUE)
+                if (n >= 0 && n <= Integer.MAX_VALUE)
                     return (int) n;
             } catch (NumberFormatException ignored) {
             }

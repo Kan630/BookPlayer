@@ -955,12 +955,12 @@ public class FinalParseFolderWorker extends ImportWorker {
      * "003_", "0004_", etc.
      * Pattern: starts with 1-4 digits followed by underscore.
      */
-    private static boolean hasNumericPrefix(String fileName) {
+    static boolean hasNumericPrefix(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return false;
         }
-        // Pattern: 1-4 digits followed by underscore at the start
-        return fileName.matches("^\\d{1,4}_.*");
+        // Pattern: 1-4 digits followed by underscore, space, or hyphen at the start
+        return fileName.matches("^\\d{1,4}[_\\s-].*");
     }
 
     /**
@@ -1006,11 +1006,11 @@ public class FinalParseFolderWorker extends ImportWorker {
      * Returns null if no prefix found.
      * Supports 1-4 digit prefixes.
      */
-    private static Integer extractNumericPrefix(String fileName) {
+    static Integer extractNumericPrefix(String fileName) {
         if (fileName == null || fileName.isEmpty()) {
             return null;
         }
-        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d{1,4})_").matcher(fileName);
+        java.util.regex.Matcher m = java.util.regex.Pattern.compile("^(\\d{1,4})[_\\s-]").matcher(fileName);
         if (m.find()) {
             try {
                 return Integer.parseInt(m.group(1));
