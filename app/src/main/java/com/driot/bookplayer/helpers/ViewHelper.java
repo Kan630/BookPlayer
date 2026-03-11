@@ -34,7 +34,7 @@ public class ViewHelper {
         public void getItemOffsets(Rect outRect, View v, RecyclerView parent, RecyclerView.State s) {
             int position = parent.getChildAdapterPosition(v);
             if (position == 0) {
-                //outRect.set(space, 0, space, space);
+                // outRect.set(space, 0, space, space);
                 outRect.set(space, space, space, space);
             } else {
                 outRect.set(space, space, space, space);
@@ -67,4 +67,27 @@ public class ViewHelper {
         }
     }
 
+    public static void hideKeyboard(Context context, View view) {
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) context
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+            }
+        }
+    }
+
+    public static void showKeyboard(Context context, View view) {
+        if (view != null) {
+            android.view.inputmethod.InputMethodManager imm = (android.view.inputmethod.InputMethodManager) context
+                    .getSystemService(Context.INPUT_METHOD_SERVICE);
+            if (imm != null) {
+                if (view.isAttachedToWindow()) {
+                    imm.showSoftInput(view, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT);
+                } else {
+                    view.post(() -> imm.showSoftInput(view, android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT));
+                }
+            }
+        }
+    }
 }

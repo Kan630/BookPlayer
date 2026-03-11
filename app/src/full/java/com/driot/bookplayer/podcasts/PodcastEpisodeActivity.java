@@ -272,6 +272,53 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         adapter.setShowDescriptions(isExpanded);
         animateDescriptionHeight(tvDescription, isExpanded);
         updateCollapseIcon();
+
+        setupSearchListeners();
+    }
+
+    private void setupSearchListeners() {
+        etSearch.addTextChangedListener(new android.text.TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                currentSearchQuery = s.toString();
+                filterAndUpdateList();
+            }
+
+            @Override
+            public void afterTextChanged(android.text.Editable s) {
+            }
+        });
+
+        cbSearchInDescription.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            searchInDescription = isChecked;
+            filterAndUpdateList();
+        });
+
+        btnClearSearch.setOnClickListener(v -> {
+            etSearch.setText("");
+            currentSearchQuery = "";
+            filterAndUpdateList();
+        });
+    }
+
+    private void toggleSearch() {
+        if (layoutSearch.getVisibility() == View.VISIBLE) {
+            layoutSearch.setVisibility(View.GONE);
+            currentSearchQuery = "";
+            etSearch.setText("");
+            ViewHelper.hideKeyboard(this, etSearch);
+            filterAndUpdateList();
+        } else {
+            layoutSearch.setVisibility(View.VISIBLE);
+            etSearch.setText(currentSearchQuery);
+            cbSearchInDescription.setChecked(searchInDescription);
+            etSearch.requestFocus();
+            ViewHelper.showKeyboard(this, etSearch);
+        }
     }
 
     private void toggleFavorite() {
@@ -363,49 +410,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             btnAutoDownloadToolbar.setColorFilter(color, PorterDuff.Mode.SRC_IN);
         if (btnAutoDownloadOverlay != null)
             btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
-    }
-
-    private void toggleSearch() {
-        if (layoutSearch.getVisibility() == View.VISIBLE) {
-            layoutSearch.setVisibility(View.GONE);
-            currentSearchQuery = "";
-            etSearch.setText("");
-            ViewHelper.hideKeyboard(this, etSearch);
-            filterAndUpdateList();
-        } else {
-            layoutSearch.setVisibility(View.VISIBLE);
-            etSearch.setText(currentSearchQuery);
-            cbSearchInDescription.setChecked(searchInDescription);
-            etSearch.requestFocus();
-            ViewHelper.showKeyboard(this, etSearch);
-        }
-
-        etSearch.addTextChangedListener(new android.text.TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchQuery = s.toString();
-                filterAndUpdateList();
-            }
-
-            @Override
-            public void afterTextChanged(android.text.Editable s) {
-            }
-        });
-
-        cbSearchInDescription.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            searchInDescription = isChecked;
-            filterAndUpdateList();
-        });
-
-        btnClearSearch.setOnClickListener(v -> {
-            etSearch.setText("");
-            currentSearchQuery = "";
-            filterAndUpdateList();
-        });
     }
 
     private void showSearchDialog() {
