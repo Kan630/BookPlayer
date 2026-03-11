@@ -612,7 +612,8 @@
         \n\n<i>È necessario se vuoi riprodurre direttamente dalla memoria generale dello smartphone (opzione copia disattivata).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">Permesso [Musica e audio] necessario per riprodurre dalla memoria generale dello smartphone.</string>
-    <string name="search_also_in_episode_description">Descrizione episodio</string>
+    <string name="Search_also_in_episode_description">Cerca anche nella descrizione</string>
+    <string name="Filter_episodes">Filtra episodi</string>
     <string name="max_number_of_results_reached">numero massimo di risultati raggiunto</string>
     <string name="librivox_books_loaded">%1$s libri caricati</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s libri</string>

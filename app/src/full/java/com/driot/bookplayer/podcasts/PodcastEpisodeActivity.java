@@ -90,8 +90,12 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     private DisplayableEpisode currentEpisode;
 
     private final Set<Long> enqueuedEpisodeIds = new HashSet<>();
-
     private boolean isExpanded;
+
+    private LinearLayout layoutSearch;
+    private android.widget.EditText etSearch;
+    private android.widget.CheckBox cbSearchInDescription;
+    private ImageButton btnClearSearch;
 
     private AppBarLayout appBar;
     private Toolbar toolbar;
@@ -145,6 +149,11 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         btnRefreshOverlay = findViewById(R.id.btnRefreshOverlay);
         btnSortOverlay = findViewById(R.id.btnSortOverlay);
         btnCollapseOverlay = findViewById(R.id.btnCollapseOverlay);
+
+        layoutSearch = findViewById(R.id.layoutSearch);
+        etSearch = findViewById(R.id.etSearch);
+        cbSearchInDescription = findViewById(R.id.cbSearchInDescription);
+        btnClearSearch = findViewById(R.id.btnClearSearch);
 
         appBar = findViewById(R.id.appBar);
         toolbar = findViewById(R.id.toolbar);
@@ -205,9 +214,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         tvTitle.setText(podcastFeed.title);
         tvDescription.setText(parseMaybeHtml(podcastFeed.description));
-        //Glide.with(ivCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivCover.getContext(), podcastFeed.image)).into(ivCover);
         Glide.with(ivCover.getContext()).load(podcastFeed.image).into(ivCover);
-        //Glide.with(ivMiniCover.getContext()).load(StorageHelper.checkAndCleanImagePath(ivMiniCover.getContext(), podcastFeed.image)).into(ivMiniCover);
         Glide.with(ivMiniCover.getContext()).load(podcastFeed.image).into(ivMiniCover);
 
         if (podcastFeed.id == -1) {
@@ -218,7 +225,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
         View.OnClickListener favoriteClick = v -> toggleFavorite();
         View.OnClickListener autoDownloadClick = v -> toggleAutoDownload();
-        View.OnClickListener searchClick = v -> showSearchDialog();
+        View.OnClickListener searchClick = v -> toggleSearch();
         View.OnClickListener refreshClick = v -> {
             FirebaseAnalyticsHelper.tellAnalyticsPodcastRefresh(podcastFeed.title);
             myLogI("-------- USER CLICKS REFRESH -----");
@@ -358,40 +365,22 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
-    // NEW SEARCH DIALOG
-    private void showSearchDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.Filter_episodes);
+    private void toggleSearch() {
+        if (layoutSearch.getVisibility() == View.VISIBLE) {
+            layoutSearch.setVisibility(View.GONE);
+            currentSearchQuery = "";
+            etSearch.setText("");
+            ViewHelper.hideKeyboard(this, etSearch);
+            filterAndUpdateList();
+        } else {
+            layoutSearch.setVisibility(View.VISIBLE);
+            etSearch.setText(currentSearchQuery);
+            cbSearchInDescription.setChecked(searchInDescription);
+            etSearch.requestFocus();
+            ViewHelper.showKeyboard(this, etSearch);
+        }
 
-        LinearLayout layout = new LinearLayout(this);
-        layout.setOrientation(LinearLayout.VERTICAL);
-        int padding = ViewHelper.dp(this, 16);
-        layout.setPadding(padding, padding / 2, padding, 0);
-
-        final android.widget.EditText input = new android.widget.EditText(this);
-        input.setHint(R.string.type_here_);
-        input.setText(currentSearchQuery);
-        input.setSingleLine(true);
-        layout.addView(input);
-
-        final android.widget.CheckBox cbDesc = new android.widget.CheckBox(this);
-        cbDesc.setText(R.string.search_also_in_episode_description);
-        cbDesc.setChecked(searchInDescription);
-        layout.addView(cbDesc);
-
-        builder.setView(layout);
-
-        builder.setPositiveButton(getString(R.string.Close), (dialog, which) -> {
-            // just close, search is live
-        });
-
-        builder.setNeutralButton(getString(R.string.clear), (dialog, which) -> {
-            input.setText("");
-        });
-
-        AlertDialog dialog = builder.create();
-
-        input.addTextChangedListener(new android.text.TextWatcher() {
+        etSearch.addTextChangedListener(new android.text.TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
             }
@@ -407,14 +396,20 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             }
         });
 
-        cbDesc.setOnCheckedChangeListener((buttonView, isChecked) -> {
+        cbSearchInDescription.setOnCheckedChangeListener((buttonView, isChecked) -> {
             searchInDescription = isChecked;
             filterAndUpdateList();
         });
 
-        dialog.show();
-        // focus input
-        input.requestFocus();
+        btnClearSearch.setOnClickListener(v -> {
+            etSearch.setText("");
+            currentSearchQuery = "";
+            filterAndUpdateList();
+        });
+    }
+
+    private void showSearchDialog() {
+        // Deprecated, using toggleSearch()
     }
 
     private void fetchEpisodes(boolean isRefresh) {
@@ -619,7 +614,8 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             myToast(getString(R.string.no_internet_connection));
             return;
         }
-        PodcastHelper.onPodcastClick(getApplicationContext(), ep, podcast, "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
+        PodcastHelper.onPodcastClick(getApplicationContext(), ep, podcast,
+                "PodcastEpisodesActivity - adapter callback: .onPlayEpisode()");
 
         adapter.setCurrentlyPlayingEpisodeId(ep.idEpisode);
     }

@@ -611,7 +611,8 @@
         \n\n<i>É necessária se você quiser reproduzir diretamente do armazenamento geral do smartphone (opção de cópia desativada).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">Permissão [Música e Áudio] necessária para reproduzir do armazenamento geral do smartphone.</string>
-    <string name="search_also_in_episode_description">Descrição do episódio</string>
+    <string name="Search_also_in_episode_description">Pesquisar também na descrição</string>
+    <string name="Filter_episodes">Filtrar episódios</string>
     <string name="max_number_of_results_reached">número máximo de resultados atingido</string>
     <string name="librivox_books_loaded">%1$s livros carregados</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s livros</string>

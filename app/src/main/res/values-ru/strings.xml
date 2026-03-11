@@ -610,7 +610,8 @@
         \n\n<i>Оно требуется, если вы хотите воспроизводить аудио напрямую из общей памяти смартфона (опция копирования отключена).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">Разрешение [Музыка и аудио] необходимо для воспроизведения из общей памяти смартфона.</string>
-    <string name="search_also_in_episode_description">Описание эпизода</string>
+    <string name="Search_also_in_episode_description">Искать также в описании</string>
+    <string name="Filter_episodes">Фильтровать эпизоды</string>
     <string name="max_number_of_results_reached">достигнуто максимальное количество результатов</string>
     <string name="librivox_books_loaded">%1$s книг загружено</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s книг</string>

@@ -606,7 +606,8 @@
             \n\n<i>هذا ضروري إذا كنت تريد تشغيل الملفات الصوتية من ذاكرة الهاتف العامة (خيار النسخ معطل).</i>
     </string>
     <string name="permission_read_write_rationale_short_text_on_load">إذن [الموسيقى والصوت] مطلوب لتشغيل الملفات من الذاكرة العامة للهاتف.</string>
-    <string name="search_also_in_episode_description">وصف الحلقة</string>
+    <string name="Search_also_in_episode_description">البحث أيضاً في الوصف</string>
+    <string name="Filter_episodes">تصفية الحلقات</string>
     <string name="max_number_of_results_reached">تم الوصول إلى الحد الأقصى للنتائج</string>
     <string name="librivox_books_loaded">تم تحميل %1$s كتب</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s كتب</string>
