@@ -494,11 +494,12 @@
 
             <TextView
                 android:id="@+id/tvBlockingText"
+                style="@style/simpleText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:text="@string/Deleting"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
+                />
         </LinearLayout>
     </FrameLayout>
 
