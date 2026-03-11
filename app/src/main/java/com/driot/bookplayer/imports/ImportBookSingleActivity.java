@@ -802,6 +802,9 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                     waitTextView.setVisibility(View.GONE);
                 });
             }).start();
+        } else {
+            activateInteractive(true);
+            waitTextView.setVisibility(View.GONE);
         }
     }
 
