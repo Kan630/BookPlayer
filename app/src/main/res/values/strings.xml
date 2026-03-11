@@ -1265,4 +1265,18 @@
     <string name="cover_search_repositories">Covers: Web Search</string>
     <string name="cover_search_repositories_explain">When you tap \'Web Search\' from the \'Change cover image\' section in the book settings page, choose which sources to use.</string>
     <string name="api_paging_size_explain">How many results to return per page when you tap \'Most Downloaded\' or \'Last added\'.</string>
+    <string name="never_accessed">Never accessed</string>
+    <string name="invalid_date">Invalid date</string>
+    <plurals name="years_ago">
+        <item quantity="one">%d year ago</item>
+        <item quantity="other">%d years ago</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">%d month ago</item>
+        <item quantity="other">%d months ago</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">%d day ago</item>
+        <item quantity="other">%d days ago</item>
+    </plurals>
 </resources>

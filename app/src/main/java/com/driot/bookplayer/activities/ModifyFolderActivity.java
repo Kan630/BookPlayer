@@ -165,13 +165,19 @@ public class ModifyFolderActivity extends BaseActivity {
         String info = "";
         info = info + Tonio.formatTime(folder.getDuration()) + "  .  " + folder.nbZikFile + " "
                 + getString(R.string.audio_tracks);
-        info = info + "\n" + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added);
+
+        info = info + "\n" + getString(R.string.Added) + " : " + Tonio.formatLastAccessAsDate(folder.date_added, this);
         info = info + "\n";
-        info = info + "\n" + getString(R.string.Last_access) + " : " + Tonio.formatLastAccessInDays(folder.lLastAccess)
-                + " (" + Tonio.formatLastAccess(folder.lLastAccess, this) + ")";
-        info = info + "\n" + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.completed);
+
         if (folder.timeListened > 0) {
+            info = info + "\n" + Tonio.formatPercentString(folder.getPercentdone()) + " " + getString(R.string.completed);
+
             info = info + "\n" + getString(R.string.listened) + " : " + Tonio.formatTime(folder.timeListened * 1000);
+
+            info = info + "\n" + getString(R.string.Last_access) + " : "
+                    + Tonio.formatLastAccessInDays(folder.lLastAccess, this)
+                    + " (" + Tonio.formatLastAccess(folder.lLastAccess, this) + ")";
+
         }
 
         tvInfo.setText(info);

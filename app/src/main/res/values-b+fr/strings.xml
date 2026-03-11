@@ -1282,4 +1282,18 @@ avec la langue [%2$s]</string>
     <string name="cover_search_repositories">Couvertures : Recherche Web</string>
     <string name="cover_search_repositories_explain">Lorsque vous appuyez sur \'Recherche Web\' dans la section \'Modifier l\'image de couverture\' de la page des paramètres du livre, choisissez les sources à utiliser.</string>
     <string name="api_paging_size_explain">Nombre de résultats à renvoyer par page lorsque vous appuyez sur \'Le plus téléchargé\' ou \'Dernier ajouté\'.</string>
+    <string name="never_accessed">Jamais</string>
+    <string name="invalid_date">Date invalide</string>
+    <plurals name="years_ago">
+        <item quantity="one">il y a %d an</item>
+        <item quantity="other">il y a %d ans</item>
+    </plurals>
+    <plurals name="months_ago">
+        <item quantity="one">il y a %d mois</item>
+        <item quantity="other">il y a %d mois</item>
+    </plurals>
+    <plurals name="days_ago">
+        <item quantity="one">il y a %d jour</item>
+        <item quantity="other">il y a %d jours</item>
+    </plurals>
 </resources>

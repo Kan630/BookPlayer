@@ -200,8 +200,8 @@ public class Tonio {
         return s;
     }
 
-    public static String formatLastAccessInDays(Long lastAccess) {
-        String zeReturn = "Never accessed";
+    public static String formatLastAccessInDays(Long lastAccess, Context context) {
+        String zeReturn = context.getString(R.string.never_accessed);
         try {
             if (lastAccess != null && lastAccess <= 0)
                 return zeReturn;
@@ -212,12 +212,13 @@ public class Tonio {
 
             if (diffInDays > 400) {
                 int years = (int) (diffInDays / 365);
-                zeReturn = years + (years == 1 ? " year ago" : " years ago");
+                zeReturn = context.getResources().getQuantityString(R.plurals.years_ago, years, years);
             } else if (diffInDays > 50) {
                 int months = (int) (diffInDays / 30);
-                zeReturn = months + (months == 1 ? " month ago" : " months ago");
+                zeReturn = context.getResources().getQuantityString(R.plurals.months_ago, months, months);
             } else {
-                zeReturn = diffInDays + (diffInDays == 1 ? " day ago" : " days ago");
+                zeReturn = context.getResources().getQuantityString(R.plurals.days_ago, (int) diffInDays,
+                        (int) diffInDays);
             }
         } catch (Exception e) {
             myLogEE(e, "formatLastAccessInDays");
@@ -225,17 +226,17 @@ public class Tonio {
         return zeReturn;
     }
 
-    public static String formatLastAccessAsDate(Long lastAccess) {
+    public static String formatLastAccessAsDate(Long lastAccess, Context context) {
         if (lastAccess == null || lastAccess <= 0) {
-            return "Never accessed";
+            return context.getString(R.string.never_accessed);
         }
 
         try {
             Date date = new Date(lastAccess);
-            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, Locale.getDefault());
+            DateFormat dateFormat = DateFormat.getDateInstance(DateFormat.MEDIUM, LocaleHelper.getLocale(context));
             return dateFormat.format(date);
         } catch (Exception e) {
-            return "Invalid date";
+            return context.getString(R.string.invalid_date);
         }
     }
 
@@ -671,7 +672,7 @@ public class Tonio {
     }
 
     public static boolean isPure(Context context) {
-        //pure does not have podcasts, radios, and bottomNavigation Bar
+        // pure does not have podcasts, radios, and bottomNavigation Bar
         return context.getPackageName().contains("com.driot.bookplayerpure");
     }
 }

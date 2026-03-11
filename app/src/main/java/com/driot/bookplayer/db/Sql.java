@@ -24,7 +24,8 @@ public class Sql {
         String strSQL = "UPDATE Folder " +
                 "SET " +
                 "  duration = (SELECT IFNULL(SUM(duration), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
-                "  timeListened = (SELECT IFNULL(SUM(timeListened), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
+                "  timeListened = (SELECT IFNULL(SUM(timeListened), 0) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), "
+                +
                 "  nbZikFile = (SELECT COUNT(*) FROM ZikFile WHERE ZikFile.idFolder = Folder.id), " +
                 "  percentdone = (" +
                 "    SELECT CASE WHEN SUM(duration) > 0 THEN SUM(percentdone * duration) / SUM(duration) ELSE 0 END " +
@@ -114,7 +115,7 @@ public class Sql {
                         "%d | %s | %s | %s | %s | %s | %s | %s", folder.getId(), folder.getName(), folder.getPath(),
                         Tonio.formatTime(folder.getDuration()), folder.getOriginalHash(), folder.getHash(),
                         Tonio.formatLastAccess(folder.lLastAccess, c),
-                        Tonio.formatLastAccessInDays(folder.lLastAccess));
+                        Tonio.formatLastAccessInDays(folder.lLastAccess, c));
                 myLog(logEntry);
 
                 // Or simply: myLogD(folder.toString());
@@ -178,7 +179,7 @@ public class Sql {
                         sizePretty, Tonio.formatTime(z.getDuration()), Tonio.formatTime(z.getPosition()),
                         z.getPercentdone(), z.isFinished() ? "✓" : " ", z.isIszipfile() ? "zip" : "-",
                         z.isM4b() ? "m4b" : "-", Tonio.formatLastAccess(z.lLastAccess, c),
-                        z.lLastAccess == null ? "" : Tonio.formatLastAccessInDays(z.lLastAccess));
+                        z.lLastAccess == null ? "" : Tonio.formatLastAccessInDays(z.lLastAccess, c));
                 myLog(logEntry);
                 // Or: myLogD(z.toString());
             }

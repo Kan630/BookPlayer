@@ -14,6 +14,7 @@ import com.driot.bookplayer.activities.SettingsHostActivity;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
+import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.objects.LanguageItem;
 import com.driot.bookplayer.helpers.LanguageHelper;
@@ -89,6 +90,10 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
 
         buttonTrending.setOnClickListener(v -> {
             myLogI("--- User clicks TRENDING ---");
+            if (!NetworkHelper.isConnected(this)) {
+                myToastE(getString(R.string.no_internet_connection));
+                return;
+            }
             query = "";
             LanguageItem selectedLang = (LanguageItem) spinnerLang.getSelectedItem();
             lang = selectedLang.getTwoLetterCode().toLowerCase();
@@ -130,6 +135,10 @@ public class GetPodcastActivity extends BaseBottomNavActivity {
     }
 
     private void doSearch() {
+        if (!NetworkHelper.isConnected(this)) {
+            myToastE(getString(R.string.no_internet_connection));
+            return;
+        }
         query = Tonio.cleanSearchString(editTextPodcast.getText());
         lang = spinnerLang.getSelectedItem().toString().toLowerCase();
 
