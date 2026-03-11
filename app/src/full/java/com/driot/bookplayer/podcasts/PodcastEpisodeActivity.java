@@ -52,10 +52,8 @@ import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
-import java.util.Set;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -81,16 +79,12 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
     private PodcastEpisodeViewModel podcastEpisodeViewModel;
 
-    private boolean sortNewestFirst;
-
     private List<DisplayableEpisode> allEpisodes = new ArrayList<>();
-    private String currentSearchQuery = "";
-    private boolean searchInDescription = false;
 
-    private DisplayableEpisode currentEpisode;
-
-    private final Set<Long> enqueuedEpisodeIds = new HashSet<>();
     private boolean isExpanded;
+    private boolean sortNewestFirst;
+    private DisplayableEpisode currentEpisode;
+    private java.util.Set<Long> enqueuedEpisodeIds;
 
     private LinearLayout layoutSearch;
     private android.widget.EditText etSearch;
@@ -137,6 +131,12 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     @Override
     protected boolean enableOngoingTaskOverlay() {
         return true;
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean("search_visible", layoutSearch.getVisibility() == View.VISIBLE);
     }
 
     @Override
@@ -204,10 +204,71 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
                 podcast.feedId, podcast.title, podcast.image, podcast.description);
 
         podcastEpisodeViewModel = new ViewModelProvider(this).get(PodcastEpisodeViewModel.class);
+
+        // Sync initial state to ViewModel if not already set
+        if (podcastEpisodeViewModel.getSortNewestFirstLive().getValue() == null) {
+            podcastEpisodeViewModel.getSortNewestFirstLive().setValue(sortNewestFirst);
+        }
+        if (podcastEpisodeViewModel.getIsExpandedLive().getValue() == null) {
+            podcastEpisodeViewModel.getIsExpandedLive().setValue(Option.getPodcastEpisodesDescriptionExpand());
+        }
+        enqueuedEpisodeIds = podcastEpisodeViewModel.getEnqueuedEpisodeIds();
         podcastEpisodeViewModel.getPodcastLiveByFeedId(podcastFeed.id).observe(this, updatedPodcast -> {
             if (updatedPodcast != null) {
                 this.podcast = updatedPodcast;
                 // update UI here if needed
+            }
+        });
+
+        podcastEpisodeViewModel.getEpisodesLive().observe(this, episodes -> {
+            if (episodes != null) {
+                updateAdapter(episodes);
+            }
+        });
+
+        podcastEpisodeViewModel.getSearchQueryLive().observe(this, q -> {
+            if (!etSearch.getText().toString().equals(q)) {
+                etSearch.setText(q);
+            }
+        });
+
+        podcastEpisodeViewModel.getSearchInDescriptionLive().observe(this, inDesc -> {
+            if (cbSearchInDescription.isChecked() != inDesc) {
+                cbSearchInDescription.setChecked(inDesc);
+            }
+        });
+
+        podcastEpisodeViewModel.getSortNewestFirstLive().observe(this, sort -> {
+            this.sortNewestFirst = sort;
+        });
+
+        podcastEpisodeViewModel.getIsExpandedLive().observe(this, expanded -> {
+            if (this.isExpanded != expanded) {
+                this.isExpanded = expanded;
+                animateDescriptionHeight(tvDescription, expanded);
+                adapter.setShowDescriptions(expanded);
+                updateCollapseIcon();
+            }
+        });
+
+        podcastEpisodeViewModel.getCurrentEpisodeLive().observe(this, ep -> {
+            this.currentEpisode = ep;
+        });
+
+        podcastEpisodeViewModel.getToastMessageLive().observe(this, msg -> {
+            if (msg != null) {
+                myToast(msg);
+            }
+        });
+
+        podcastEpisodeViewModel.getApiErrorLive().observe(this, error -> {
+            if (error != null) {
+                tvDescription.setTextColor(getColor(R.color.orange_500));
+                tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
+            } else {
+                // Restore default color/text if no error
+                tvDescription.setTextColor(getColor(R.color.gray_500)); // Assuming default color
+                tvDescription.setText(parseMaybeHtml(podcastFeed.description));
             }
         });
 
@@ -246,7 +307,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         if (podcastFeed.id == -1) {
             myToastE("Error loading episodes. ID=-1");
         } else {
-            fetchEpisodes(false);
+            if (podcastEpisodeViewModel.getEpisodesLive().getValue() == null) {
+                podcastEpisodeViewModel.fetchEpisodes(this, podcast, false);
+            }
         }
 
         View.OnClickListener favoriteClick = v -> toggleFavorite();
@@ -255,7 +318,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         View.OnClickListener refreshClick = v -> {
             FirebaseAnalyticsHelper.tellAnalyticsPodcastRefresh(podcastFeed.title);
             myLogI("-------- USER CLICKS REFRESH -----");
-            fetchEpisodes(true);
+            podcastEpisodeViewModel.fetchEpisodes(this, podcast, true);
         };
         View.OnClickListener sortClick = v -> toggleSort();
         View.OnClickListener collapseClick = v -> toggleCollapse();
@@ -294,12 +357,21 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             }
         });
 
-        isExpanded = Option.getPodcastEpisodesDescriptionExpand();
+        isExpanded = podcastEpisodeViewModel.getIsExpandedLive().getValue();
         adapter.setShowDescriptions(isExpanded);
-        animateDescriptionHeight(tvDescription, isExpanded);
+        // animateDescriptionHeight(tvDescription, isExpanded); // Initial state set
+        // without animation
+        tvDescription.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         updateCollapseIcon();
 
         setupSearchListeners();
+
+        if (savedInstanceState != null) {
+            boolean searchVisible = savedInstanceState.getBoolean("search_visible", false);
+            if (searchVisible) {
+                toggleSearch();
+            }
+        }
     }
 
     private void setupSearchListeners() {
@@ -310,7 +382,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                currentSearchQuery = s.toString();
+                podcastEpisodeViewModel.getSearchQueryLive().setValue(s.toString());
                 filterAndUpdateList();
             }
 
@@ -320,7 +392,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         });
 
         cbSearchInDescription.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            searchInDescription = isChecked;
+            podcastEpisodeViewModel.getSearchInDescriptionLive().setValue(isChecked);
             filterAndUpdateList();
         });
 
@@ -343,7 +415,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             if (collapsingHeader != null)
                 collapsingHeader.setVisibility(View.VISIBLE);
 
-            currentSearchQuery = "";
+            podcastEpisodeViewModel.getSearchQueryLive().setValue("");
             etSearch.setText("");
             ViewHelper.hideKeyboard(this, etSearch);
             filterAndUpdateList();
@@ -359,8 +431,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             if (collapsingHeader != null)
                 collapsingHeader.setVisibility(View.GONE);
 
-            etSearch.setText(currentSearchQuery);
-            cbSearchInDescription.setChecked(searchInDescription);
+            etSearch.setText(podcastEpisodeViewModel.getSearchQueryLive().getValue());
+            cbSearchInDescription
+                    .setChecked(Boolean.TRUE.equals(podcastEpisodeViewModel.getSearchInDescriptionLive().getValue()));
             etSearch.requestFocus();
             ViewHelper.showKeyboard(this, etSearch);
         }
@@ -394,7 +467,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
                 btnAutoDownloadOverlay.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
                 btnAutoDownloadToolbar.setVisibility(favoriteState ? View.VISIBLE : View.GONE);
             });
-            ImageHelper.processPendingImages(this, System.currentTimeMillis());
+            ImageHelper.processPendingImages(this, System.currentTimeMillis(), "podcast episode activity toggle favorites");
             FirebaseAnalyticsHelper.tellAnalyticsPodcastFavorite(podcast.title, podcast.language);
         });
     }
@@ -419,8 +492,9 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     }
 
     private void toggleSort() {
-        sortNewestFirst = !sortNewestFirst;
-        myLogI("-------- USER CLICKS SORT --  sortNewestFirst= " + sortNewestFirst);
+        boolean newSort = !sortNewestFirst;
+        myLogI("-------- USER CLICKS SORT --  sortNewestFirst= " + newSort);
+        podcastEpisodeViewModel.getSortNewestFirstLive().setValue(newSort);
         AppDatabase.databaseReadExecutor.execute(() -> {
             List<Episode> dbEpisodes = podcastEpisodeViewModel.toggleSortAndGetEpisodesFromDB(podcast.getId());
             List<DisplayableEpisode> sortedList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
@@ -431,12 +505,10 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     }
 
     private void toggleCollapse() {
-        isExpanded = !isExpanded;
-        myLogI("-------- USER CLICKS COLLAPSE --  isExpanded= " + isExpanded);
-        Option.setPodcastEpisodesDescriptionExpand(isExpanded);
-        animateDescriptionHeight(tvDescription, isExpanded);
-        adapter.setShowDescriptions(isExpanded); // show/hide item descriptions
-        updateCollapseIcon();
+        boolean newExpanded = !isExpanded;
+        myLogI("-------- USER CLICKS COLLAPSE --  isExpanded= " + newExpanded);
+        Option.setPodcastEpisodesDescriptionExpand(newExpanded);
+        podcastEpisodeViewModel.getIsExpandedLive().setValue(newExpanded);
     }
 
     private void updateFavoriteIconColor(boolean isOn) {
@@ -459,86 +531,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
     private void showSearchDialog() {
         // Deprecated, using toggleSearch()
-    }
-
-    private void fetchEpisodes(boolean isRefresh) {
-        myLogD("fetchEpisodes " + (isRefresh ? "refresh" : "no refresh"));
-        long nbEpisodeFull = 0;
-
-        // 1) Load DB immediately → optimistic UI
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
-            myLogD("DB episodes count: " + dbEpisodes.size());
-            List<DisplayableEpisode> initial = DisplayableEpisode.fromEpisodeList(dbEpisodes);
-            runOnUiThread(() -> {
-                updateAdapter(initial);
-            });
-        });
-        if (!isRefresh && podcast.lastCheck > System.currentTimeMillis()
-                - 1000 * 60 * Var.PODCAST_INDEX_ORG_API_TIME_BETWEEN_PODCAST_CHECK_IN_MIN) {
-            return;
-        }
-
-        // 2) Compute "since" from DB and then hit API
-        AppDatabase.databaseReadExecutor.execute(() -> {
-            long since;
-            int maxEpisode;
-            if (isRefresh) {
-                since = 0;
-                maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_REFRESH_MODE;
-            } else {
-                maxEpisode = Var.PODCAST_INDEX_ORG_API_MAX_RESULTS_FOR_EPISODES_NORMAL_MODE;
-                Long lastPublished = podcastEpisodeViewModel.getLastPublishedForPodcastSync(podcast.getId()); // epoch
-                                                                                                              // seconds
-                since = (lastPublished == null) ? 0L : Math.max(0L, lastPublished - 60); // 30j : -(60*60*24*30)
-            }
-            PodcastHelper.getEpisodesByFeedId(
-                    this,
-                    podcast.feedId,
-                    since,
-                    maxEpisode,
-                    true,
-                    new PodcastHelper.EpisodeCallback() {
-                        @Override
-                        public void onSuccess(List<PodcastEpisode> apiEpisodes) {
-                            myLogI("API CALL - returned episodes list size: " + apiEpisodes.size());
-                            // 3) Persist new/updated from API
-                            podcastEpisodeViewModel.insertEpisodesInDB(apiEpisodes, podcast.feedId);
-
-                            // 4) Refresh DB and merge for display
-                            AppDatabase.databaseReadExecutor.execute(() -> {
-                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
-                                List<DisplayableEpisode> fullList = DisplayableEpisode
-                                        .mergeDisplayableEpisodes(apiEpisodes, dbEpisodes);
-                                int nbEpisodeFull = fullList.size();
-                                myLog("Displayed episodes count: " + nbEpisodeFull);
-                                runOnUiThread(() -> {
-                                    if (isRefresh) {
-                                        myToast(nbEpisodeFull + " " + getString(R.string.episodes));
-                                    }
-                                    updateAdapter(fullList);
-                                });
-                            });
-                        }
-
-                        @Override
-                        public void onError(Exception e) {
-                            // Fallback: DB-only (you already showed initial DB result; here we just end the
-                            // spinner and warn)
-                            myLogE("API CALL ERROR - " + e.getMessage());
-                            AppDatabase.databaseReadExecutor.execute(() -> {
-                                List<Episode> dbEpisodes = podcastEpisodeViewModel.getEpisodesFromDB(podcast.getId());
-                                List<DisplayableEpisode> fallbackList = DisplayableEpisode.fromEpisodeList(dbEpisodes);
-
-                                runOnUiThread(() -> {
-                                    updateAdapter(fallbackList);
-                                    tvDescription.setTextColor(getColor(R.color.orange_500));
-                                    tvDescription.setText(getString(R.string.podcast_api_unavailable_fallback));
-                                });
-                            });
-                        }
-                    });
-        });
     }
 
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
@@ -620,16 +612,19 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
 
     private void filterAndUpdateList() {
         List<DisplayableEpisode> filtered = new ArrayList<>();
-        if (currentSearchQuery == null || currentSearchQuery.trim().isEmpty()) {
+        String query = podcastEpisodeViewModel.getSearchQueryLive().getValue();
+        boolean inDesc = Boolean.TRUE.equals(podcastEpisodeViewModel.getSearchInDescriptionLive().getValue());
+
+        if (query == null || query.trim().isEmpty()) {
             filtered.addAll(allEpisodes);
         } else {
-            String q = currentSearchQuery.toLowerCase(Locale.getDefault());
+            String q = query.toLowerCase(Locale.getDefault());
             for (DisplayableEpisode ep : allEpisodes) {
                 if (ep.title != null && ep.title.toLowerCase(Locale.getDefault()).contains(q)) {
                     filtered.add(ep);
                     continue;
                 }
-                if (searchInDescription && ep.description != null
+                if (inDesc && ep.description != null
                         && ep.description.toLowerCase(Locale.getDefault()).contains(q)) {
                     filtered.add(ep);
                 }
@@ -654,7 +649,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         } else {
             playEpisode(ep);
         }
-        currentEpisode = ep;
+        podcastEpisodeViewModel.getCurrentEpisodeLive().setValue(ep);
     }
 
     private void playEpisode(DisplayableEpisode ep) {
