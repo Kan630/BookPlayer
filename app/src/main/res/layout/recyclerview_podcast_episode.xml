@@ -96,5 +96,14 @@
             android:visibility="gone"/>
 
 
+        <ProgressBar
+            android:id="@+id/pbDownload"
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:visibility="gone"
+            android:max="100"
+            android:layout_marginTop="4dp" />
+
     </LinearLayout>
 </LinearLayout>

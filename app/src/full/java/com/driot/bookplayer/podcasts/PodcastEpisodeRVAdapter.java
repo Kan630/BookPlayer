@@ -11,7 +11,12 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import android.widget.ProgressBar;
+
 import androidx.annotation.NonNull;
+import androidx.work.WorkInfo;
+import androidx.work.WorkManager;
+
 import androidx.core.content.ContextCompat;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.lifecycle.LiveData;
@@ -38,19 +43,27 @@ import java.util.Locale;
 public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAdapter.ViewHolder> {
 
     private List<DisplayableEpisode> items = new ArrayList<>();
+
     public DisplayableEpisode getItem(int position) {
         return (items != null && position >= 0 && position < items.size()) ? items.get(position) : null;
     }
+
     public int indexOfEpisodeId(long idEpisode) {
-        if (items == null) return -1;
+        if (items == null)
+            return -1;
         for (int i = 0; i < items.size(); i++) {
-            if (items.get(i).idEpisode == idEpisode) return i;
+            if (items.get(i).idEpisode == idEpisode)
+                return i;
         }
         return -1;
     }
-    public int getCount() { return items != null ? items.size() : 0; }
+
+    public int getCount() {
+        return items != null ? items.size() : 0;
+    }
 
     private boolean showDescriptions = false;
+
     public void setShowDescriptions(boolean show) {
         if (this.showDescriptions != show) {
             this.showDescriptions = show;
@@ -68,28 +81,33 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
 
     public interface EpisodeClickHandler {
         void onPlayEpisode(DisplayableEpisode episode);
+
         void onOpenLocalEpisode(ZikFile zikFile);
+
         void onDownloadEpisode(DisplayableEpisode episode);
     }
 
     private final EpisodeClickHandler handler;
 
     private int indexOfZikFileId(Long idZikFile) {
-        if (idZikFile == null || items == null) return -1;
+        if (idZikFile == null || items == null)
+            return -1;
         for (int i = 0; i < items.size(); i++) {
             Long z = items.get(i).idZikFile; // DisplayableEpisode has idZikFile in your code
-            if (z != null && z.equals(idZikFile)) return i;
+            if (z != null && z.equals(idZikFile))
+                return i;
         }
         return -1;
     }
 
-    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel, EpisodeClickHandler handler) {
+    public PodcastEpisodeRVAdapter(Context context, PodcastFeed podcastFeed, PodcastEpisodeViewModel viewModel,
+            EpisodeClickHandler handler) {
         this.context = context;
         this.podcastFeed = podcastFeed;
         this.viewModel = viewModel;
         this.lifecycleOwner = (LifecycleOwner) context; // Assumes context is a LifecycleOwner (e.g., Activity)
         this.handler = handler;
-        if (podcastFeed==null) {
+        if (podcastFeed == null) {
             myLogEE(null, "podcastFeed == null");
         }
 
@@ -108,8 +126,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     android.os.Bundle p = new android.os.Bundle();
                     p.putBoolean("LAST_LISTENED_CHANGED", true);
 
-                    if (oldPos >= 0) notifyItemChanged(oldPos, p);
-                    if (newPos >= 0) notifyItemChanged(newPos, p);
+                    if (oldPos >= 0)
+                        notifyItemChanged(oldPos, p);
+                    if (newPos >= 0)
+                        notifyItemChanged(newPos, p);
                 });
     }
 
@@ -128,10 +148,11 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
     @Override
     public void onBindViewHolder(@NonNull PodcastEpisodeRVAdapter.ViewHolder holder, int position) {
         DisplayableEpisode episode = items.get(position);
-        //myLog(episode.toString().replace(",","\n"));
+        // myLog(episode.toString().replace(",","\n"));
         holder.tvTitle.setText(episode.title);
         holder.tvDate.setText(episode.datePublishedPretty != null ? episode.datePublishedPretty : "");
-        String stats = Tonio.formatTime(episode.duration*1000) + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
+        String stats = Tonio.formatTime(episode.duration * 1000)
+                + (episode.enclosureLength != 0 ? " (" + Tonio.getReadableSize(episode.enclosureLength) + ")" : "");
         holder.tvEpisodeStats.setText(stats);
         holder.zikFile = null;
 
@@ -144,11 +165,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             }
         }
 
-
         String episodeFileName = PodcastHelper.buildPodcastEpisodeFileName(episode);
         String episodeName = PodcastHelper.buildPodcastEpisodeName(episode);
 
-        //default color = surface
+        // default color = surface
         TypedValue typedValue = new TypedValue();
         context.getTheme().resolveAttribute(com.google.android.material.R.attr.colorSurface, typedValue, true);
         int colorSurface = typedValue.data;
@@ -165,25 +185,28 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         }
 
         holder.itemView.setOnClickListener(v -> {
-            myLogI("------------ USER CLICKS EPISODE --------------  [" + episodeName + "] - [" + episodeFileName + "]");
+            myLogI("------------ USER CLICKS EPISODE --------------  [" + episodeName + "] - [" + episodeFileName
+                    + "]");
             myLogD(episode.toString());
             clickOnEpisode(holder, episode);
         });
 
-// Check if in physical folder : reserved sd card or reserved smartphone storage
+        // Check if in physical folder : reserved sd card or reserved smartphone storage
         File downloadedFile = PodcastHelper.findPodcastEpisodeFileIfExists(context, podcastFeed.title, episodeFileName);
         boolean isDownloaded = (downloadedFile != null);
         boolean isDeleted = episode.date_delete != null;
         boolean isOnlyFromDb = episode.comesFromDb && !episode.comesFromApi;
 
-        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title), episodeFileName);
+        LiveData<ZikFile> liveZikFile = viewModel.getZikFileLive(FileHelper.sanitizeFilename(podcastFeed.title),
+                episodeFileName);
         liveZikFile.removeObservers(lifecycleOwner);
 
         holder.icon_download.setTag(episodeFileName);
         holder.icon_download.setVisibility(View.GONE);
 
         liveZikFile.observe(lifecycleOwner, zikFile -> {
-            if (!holder.icon_download.getTag().equals(episodeFileName)) return; // ---- avoid stop flickers on another completion --
+            if (!holder.icon_download.getTag().equals(episodeFileName))
+                return; // ---- avoid stop flickers on another completion --
 
             if (zikFile != null) {
                 if (holder.flickerRunning && holder.flickerAnim != null) {
@@ -197,34 +220,42 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                 holder.zikFile = zikFile;
                 String percentDone = String.format(Locale.US, "%.0f", zikFile.getPercentdone());
                 String lastAdded = "" + android.text.format.DateFormat.format("yyyy-MM-dd HH:mm", zikFile.date_added);
-                String stats2 = lastAdded + "\n" + percentDone + "% " + ContextCompat.getString(context, R.string.listened);
+                String stats2 = lastAdded + "\n" + percentDone + "% "
+                        + ContextCompat.getString(context, R.string.listened);
                 holder.tvEpisodeDBStats.setText(stats2);
                 holder.icon_download.setVisibility(View.VISIBLE);
-                holder.icon_download.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));
+                holder.icon_download
+                        .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));
                 holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.green_300));
                 holder.icon_download.setOnClickListener(null);
             } else if (isDownloaded) {
                 holder.tvEpisodeDBStats.setText("");
                 holder.icon_download.setVisibility(View.VISIBLE);
-                holder.icon_download.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));
+                holder.icon_download
+                        .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_done_24));
                 holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.orange_500));
                 holder.icon_download.setOnClickListener(null);
             } else {
-                holder.icon_download.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_action_24));
+                holder.icon_download
+                        .setImageDrawable(ContextCompat.getDrawable(context, R.drawable.ic_download_action_24));
                 holder.icon_download.setVisibility(View.VISIBLE);
                 if (isDeleted) {
                     holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.pink_500));
-                    String strDelete = context.getString(R.string.added_on) + " " + android.text.format.DateFormat.format("yyyy-MM-dd", episode.date_import)
-                        + "\n" + context.getString(R.string.deleted_on) + " " + android.text.format.DateFormat.format("yyyy-MM-dd", episode.date_delete);
+                    String strDelete = context.getString(R.string.added_on) + " "
+                            + android.text.format.DateFormat.format("yyyy-MM-dd", episode.date_import)
+                            + "\n" + context.getString(R.string.deleted_on) + " "
+                            + android.text.format.DateFormat.format("yyyy-MM-dd", episode.date_delete);
                     holder.tvEpisodeDBStats.setText(strDelete);
                     if (isOnlyFromDb) {
                         holder.icon_download.setColorFilter(ContextCompat.getColor(context, R.color.brown_500));
                     }
                 } else if (isOnlyFromDb) {
-                    holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_dark));
+                    holder.icon_download
+                            .setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_dark));
                     holder.tvEpisodeDBStats.setText("");
                 } else {
-                    holder.icon_download.setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
+                    holder.icon_download
+                            .setColorFilter(ContextCompat.getColor(context, android.R.color.holo_blue_bright));
                     holder.tvEpisodeDBStats.setText("");
                 }
                 holder.icon_download.setOnClickListener(v -> {
@@ -241,10 +272,34 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
                     handler.onDownloadEpisode(episode);
                     if (holder.flickerAnim == null) {
                         holder.flickerRunning = true;
-                        holder.flickerAnim = createFlickerAnimation(holder.icon_download,holder);
+                        holder.flickerAnim = createFlickerAnimation(holder.icon_download, holder);
                         holder.flickerAnim.start();
                     }
                 });
+            }
+        });
+
+        // --- Progress Bar Observation ---
+        holder.pbDownload.setVisibility(View.GONE);
+        String workTag = "DOWNLOAD_EPISODE_" + episode.idEpisode;
+        WorkManager.getInstance(context).getWorkInfosByTagLiveData(workTag).observe(lifecycleOwner, workInfos -> {
+            boolean isRunning = false;
+            int progress = 0;
+            if (workInfos != null && !workInfos.isEmpty()) {
+                WorkInfo workInfo = workInfos.get(0);
+                WorkInfo.State state = workInfo.getState();
+                if (state == WorkInfo.State.RUNNING || state == WorkInfo.State.ENQUEUED) {
+                    isRunning = true;
+                    progress = workInfo.getProgress().getInt("progress", 0);
+                }
+            }
+
+            if (isRunning) {
+                holder.pbDownload.setVisibility(View.VISIBLE);
+                holder.pbDownload.setProgress(progress);
+                holder.pbDownload.setIndeterminate(progress == 0);
+            } else {
+                holder.pbDownload.setVisibility(View.GONE);
             }
         });
     }
@@ -261,6 +316,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         boolean flickerRunning = false;
         ZikFile zikFile;
         LinearLayout llMain;
+        ProgressBar pbDownload;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -271,6 +327,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             tvEpisodeDBStats = itemView.findViewById(R.id.tvEpisodeDBstats);
             icon_download = itemView.findViewById(R.id.icon_download);
             llMain = itemView.findViewById(R.id.llMain);
+            pbDownload = itemView.findViewById(R.id.pbDownload);
         }
     }
 
@@ -297,7 +354,7 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
             @Override
             public void onAnimationEnd(android.animation.Animator animation) {
                 if (holder.flickerRunning) {
-                    flicker.start();  // loop again
+                    flicker.start(); // loop again
                 }
             }
         });
@@ -316,12 +373,10 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         handler.onOpenLocalEpisode(zikFile);
 
     }
+
     public void setCurrentlyPlayingEpisodeId(Long id) {
         this.currentlyPlayingEpisodeId = id;
         notifyDataSetChanged();
     }
-
-
-
 
 }

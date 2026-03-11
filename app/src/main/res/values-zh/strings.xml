@@ -611,7 +611,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     \n\n<i>当禁用复制选项时，若要直接从智能手机的共享存储播放音频，该权限是必需的。</i>
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">需要 [音乐和音频] 权限以播放智能手机共享存储中的音频。</string>
-    <string name="Episode_description">剧集简介</string>
+    <string name="search_also_in_episode_description">剧集简介</string>
     <string name="max_number_of_results_reached">已达到最大结果数</string>
     <string name="librivox_books_loaded">已加载 %1$s 本书</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s 本书</string>

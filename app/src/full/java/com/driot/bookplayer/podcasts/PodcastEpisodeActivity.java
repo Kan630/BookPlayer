@@ -42,7 +42,6 @@ import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.player.MediaService;
 import com.driot.bookplayer.player.PlayList;
@@ -362,7 +361,7 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
     // NEW SEARCH DIALOG
     private void showSearchDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.Search);
+        builder.setTitle(R.string.Filter_episodes);
 
         LinearLayout layout = new LinearLayout(this);
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -370,13 +369,13 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         layout.setPadding(padding, padding / 2, padding, 0);
 
         final android.widget.EditText input = new android.widget.EditText(this);
-        input.setHint(R.string.Search_2pt);
+        input.setHint(R.string.type_here_);
         input.setText(currentSearchQuery);
         input.setSingleLine(true);
         layout.addView(input);
 
         final android.widget.CheckBox cbDesc = new android.widget.CheckBox(this);
-        cbDesc.setText(R.string.Episode_description);
+        cbDesc.setText(R.string.search_also_in_episode_description);
         cbDesc.setChecked(searchInDescription);
         layout.addView(cbDesc);
 

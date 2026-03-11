@@ -6,9 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 
-import com.driot.bookplayer.helpers.FirebaseAnalyticsHelper;
-import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.Tonio;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -60,22 +59,36 @@ public class PodcastDownloadEpisodeWorker extends Worker {
                 return Result.failure();
             }
 
+            long totalBytes = conn.getContentLength();
+            long downloadedBytes = 0;
+            int lastProgress = -1;
 
             try (InputStream in = new BufferedInputStream(conn.getInputStream());
-                 FileOutputStream out = new FileOutputStream(tempFile)) {
+                    FileOutputStream out = new FileOutputStream(tempFile)) {
 
                 byte[] buffer = new byte[8192];
                 int count;
                 while ((count = in.read(buffer)) != -1) {
                     out.write(buffer, 0, count);
+                    downloadedBytes += count;
+
+                    if (totalBytes > 0) {
+                        int progress = (int) ((downloadedBytes * 100) / totalBytes);
+                        if (progress != lastProgress) {
+                            lastProgress = progress;
+                            setProgressAsync(new androidx.work.Data.Builder().putInt("progress", progress).build());
+                        }
+                    }
                 }
             }
 
             if (tempFile.exists()) {
                 if (tempFile.length() > 0) {
-                    if (finalFile.exists()) finalFile.delete();
+                    if (finalFile.exists())
+                        finalFile.delete();
                     tempFile.renameTo(finalFile);
-                    myLog("Download complete: " + destPath + "\nfile size = " + Tonio.getReadableSize(finalFile.length()));
+                    myLog("Download complete: " + destPath + "\nfile size = "
+                            + Tonio.getReadableSize(finalFile.length()));
                     return Result.success();
                 } else {
                     myToastE("Download failed, length = 0");
@@ -85,30 +98,14 @@ public class PodcastDownloadEpisodeWorker extends Worker {
                 return Result.success();
             }
 
-
         } catch (Exception e) {
             myLogEE(e, "Download failed - retrying");
             return Result.retry();
 
         } finally {
-            if (conn != null) conn.disconnect();
+            if (conn != null)
+                conn.disconnect();
         }
     }
 
-    //--- FULL LOG --------------------------
-    private void myLog(String str) { KanLogger.myLog(this.getClass().getName(), str); }
-    private void myLogInFile(String str) { KanLogger.myLogInFile(this.getClass().getName(), str); }
-    private void myLogD(String str) { KanLogger.myLogD(this.getClass().getName(), str); }
-    private void myLogI(String str) { KanLogger.myLogI(this.getClass().getName(), str); }
-    private void myLogW(String str) { KanLogger.myLogW(this.getClass().getName(), str); }
-    private void myLogE(String str) { KanLogger.myLogE(this.getClass().getName(), str); }
-    private void myLogEE(Throwable t, String str) { KanLogger.myLogEE(t, this.getClass().getName(), str); }
-    private void myToast(String str) { KanLogger.myToast(this.getClass().getName(), str); }
-    private void myToastE(String str) { KanLogger.myToastE(this.getClass().getName(), str); }
-    private void myKeyFirebase(String strKey, String strValue) {
-        FirebaseAnalyticsHelper.setCustomKeyCrashlytics(strKey, strValue);}
-    private void myLogFirebase(String strLog) {
-        FirebaseAnalyticsHelper.logCrashlytics(strLog);}
-
 }
-

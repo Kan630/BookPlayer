@@ -12,7 +12,8 @@ import java.util.List;
 
 public class PodcastDownloadManager {
 
-    public static void enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes, File targetFolder, Runnable onComplete) {
+    public static void enqueueDownloads(Context context, long podcastFeedId, List<PodcastEpisode> episodes,
+            File targetFolder, Runnable onComplete) {
         WorkManager wm = WorkManager.getInstance(context);
         WorkContinuation continuation = null;
 
@@ -27,6 +28,7 @@ public class PodcastDownloadManager {
 
             OneTimeWorkRequest request = new OneTimeWorkRequest.Builder(PodcastDownloadEpisodeWorker.class)
                     .setInputData(inputData)
+                    .addTag("DOWNLOAD_EPISODE_" + episode.id)
                     .build();
 
             if (continuation == null) {
@@ -51,4 +53,3 @@ public class PodcastDownloadManager {
     }
 
 }
-

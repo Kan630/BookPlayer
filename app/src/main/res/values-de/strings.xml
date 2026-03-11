@@ -613,7 +613,7 @@ Soll die App technische Debug-Protokolle erstellen?
 \n\n<i>Sie wird benötigt, wenn Sie Audio direkt aus dem allgemeinen Smartphone-Speicher abspielen möchten (Kopieroption deaktiviert).</i>
 </string>
     <string name="permission_read_write_rationale_short_text_on_load">[Musik und Audio]-Berechtigung wird benötigt, um aus dem allgemeinen Smartphone-Speicher abzuspielen.</string>
-    <string name="Episode_description">Episodenbeschreibung</string>
+    <string name="search_also_in_episode_description">Episodenbeschreibung</string>
     <string name="max_number_of_results_reached">Maximale Anzahl von Ergebnissen erreicht</string>
     <string name="librivox_books_loaded">%1$s Bücher geladen</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s Bücher</string>
