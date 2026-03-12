@@ -1,6 +1,8 @@
 package com.driot.bookplayer;
 
 import static org.junit.Assert.assertEquals;
+
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.FileHelper;
 import org.junit.Test;
 
@@ -27,7 +29,7 @@ public class FileHelperSanitizeTest {
         // Long filenames (should be truncated to 60)
         String longTitle = "This is a very very very very very very very very very very very very very long title";
         String sanitized = FileHelper.sanitizeFilename(longTitle);
-        assertEquals(60, sanitized.length());
-        assertEquals(longTitle.substring(0, 60), sanitized);
+        assertEquals(Var.FILE_NAME_MAX_NB_CHARS, sanitized.length());
+        assertEquals(longTitle.substring(0, Var.FILE_NAME_MAX_NB_CHARS), sanitized);
     }
 }

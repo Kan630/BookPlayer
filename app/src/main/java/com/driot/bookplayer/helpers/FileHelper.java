@@ -270,7 +270,7 @@ public class FileHelper {
         if (out.isEmpty())
             out = "untitled";
         if (out.length() > Var.FILE_NAME_MAX_NB_CHARS) {
-            myLogW("file name too long (" + out.length() + "), cutting to " + Var.FILE_NAME_MAX_NB_CHARS);
+            myLogW("sanitizeFilename: file name too long (" + out.length() + "), cutting to " + Var.FILE_NAME_MAX_NB_CHARS + " - [" + input +  "]");
             out = out.substring(0, Var.FILE_NAME_MAX_NB_CHARS);
         }
         return out;
