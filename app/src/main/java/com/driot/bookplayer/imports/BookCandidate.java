@@ -38,6 +38,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
@@ -553,7 +554,18 @@ public class BookCandidate implements Parcelable {
                 + this.tracksCount);
     }
 
-    private void scan7ZCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
+    private interface ArchiveEntryProxy {
+        String getName();
+        long getSize();
+        boolean isDirectory();
+        InputStream getInputStream() throws java.io.IOException;
+    }
+
+    private interface ArchiveEntryProvider {
+        ArchiveEntryProxy getNextEntry() throws java.io.IOException;
+    }
+
+    private void scanCommonArchive(Context context, DocumentFile archiveFile, OnMetadataListener listener, ArchiveEntryProvider provider) {
         int audioCount = 0;
         int txtCount = 0;
         int bigEbookCount = 0;
@@ -564,284 +576,159 @@ public class BookCandidate implements Parcelable {
         long largestSize = 0;
 
         try {
-            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
-                    .openFileDescriptor(archiveFile.getUri(), "r")) {
-                if (pfd != null) {
-                    try (FileChannel channel = new FileInputStream(
-                            pfd.getFileDescriptor()).getChannel()) {
-                        try (SevenZFile sevenZFile = new SevenZFile(
-                                channel)) {
-                            SevenZArchiveEntry entry;
-                            while ((entry = sevenZFile.getNextEntry()) != null) {
-                                if (Thread.currentThread().isInterrupted())
-                                    return;
-                                String entryName = entry.getName();
-                                if (entry.isDirectory())
-                                    continue;
+            ArchiveEntryProxy entry;
+            while ((entry = provider.getNextEntry()) != null) {
+                if (Thread.currentThread().isInterrupted()) {
+                    myLogD("scanCommonArchive interrupted");
+                    return;
+                }
+                if (entry.isDirectory())
+                    continue;
 
-                                String lowName = entryName.toLowerCase(Locale.ROOT);
-                                String ext = getExt(lowName);
+                String entryName = entry.getName();
+                String lowName = entryName.toLowerCase(Locale.ROOT);
+                String ext = getExt(lowName);
 
-                                // 1. Track counting
-                                if (isAudioFileName(entryName)) {
-                                    audioCount++;
-                                    String fileNameOnly = new File(entryName).getName();
-                                    String displayName = Tonio
-                                            .formatNameForDisplay(fileNameOnly);
-                                    String tName = audioCount + ". " + displayName;
-                                    long entrySize = entry.getSize();
-                                    AudioFileInfo afi = new AudioFileInfo(fileNameOnly, tName, 0,
-                                            entrySize,
-                                            archiveFile.getUri().toString(), null);
-                                    audioFileInfoArrayList.add(afi);
-                                    if (listener != null) {
-                                        listener.onTrackFound(afi);
-                                    }
-                                } else if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(ext)) {
-                                    String fileName = new java.io.File(entryName).getName();
-                                    String displayName = Tonio.formatNameForDisplay(fileName);
-                                    AudioFileInfo afi = new AudioFileInfo(fileName, displayName, 0, entry.getSize(), archiveFile.getUri().toString(), null);
-                                    ebookFileInfos.add(afi);
+                // 1. Track counting
+                if (isAudioFileName(entryName)) {
+                    audioCount++;
+                    long size = entry.getSize();
+                    String fileName = new File(entryName).getName();
+                    String displayName = Tonio.formatNameForDisplay(fileName);
+                    String tName = audioCount + ". " + displayName;
+                    AudioFileInfo afi = new AudioFileInfo(fileName, tName, 0, size,
+                            archiveFile.getUri().toString(), null);
+                    audioFileInfoArrayList.add(afi);
+                    if (listener != null)
+                        listener.onTrackFound(afi);
 
-                                    if (SupportedFilesHelper.isSplittableEbookSpecial(SupportedFilesHelper.getSpecialTypeFromExt(ext))) {
-                                        bigEbookCount++;
-                                        if (firstBigEbookName == null) firstBigEbookName = entryName;
-                                    } else {
-                                        txtCount++;
-                                    }
-                                }
+                } else if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(ext)) {
+                    String fileName = new File(entryName).getName();
+                    String displayName = Tonio.formatNameForDisplay(fileName);
+                    AudioFileInfo afi = new AudioFileInfo(fileName, displayName, 0, entry.getSize(), archiveFile.getUri().toString(), null);
+                    ebookFileInfos.add(afi);
 
-                                // 2. Cover detection
-                                if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(ext)) {
-                                    long size = entry.getSize();
-                                    if (size > largestSize || (size == -1 && largestImage == null)) {
-                                        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                        byte[] buffer = new byte[8192];
-                                        int len;
-                                        while ((len = sevenZFile.read(buffer)) > 0) {
-                                            baos.write(buffer, 0, len);
-                                        }
-                                        byte[] imageBytes = baos.toByteArray();
-                                        if (imageBytes.length > largestSize) {
-                                            largestImage = imageBytes;
-                                            largestSize = imageBytes.length;
-                                        }
-                                    }
-                                }
+                    if (SupportedFilesHelper.isPureEbook(ext)) {
+                        bigEbookCount++;
+                        if (firstBigEbookName == null) firstBigEbookName = entryName;
+                    } else {
+                        txtCount++;
+                    }
+                } else if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(ext)) {
+                    long size = entry.getSize();
+                    if (size > largestSize || (size == -1 && largestImage == null)) {
+                        try (InputStream eis = entry.getInputStream()) {
+                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                            byte[] buffer = new byte[8192];
+                            int len;
+                            while ((len = eis.read(buffer)) > 0) {
+                                baos.write(buffer, 0, len);
                             }
-
-                            handleArchiveContents(context, audioCount, txtCount, bigEbookCount, firstBigEbookName, ebookFileInfos, archiveFile, listener);
-
+                            byte[] imageBytes = baos.toByteArray();
+                            if (imageBytes.length > largestSize) {
+                                largestImage = imageBytes;
+                                largestSize = imageBytes.length;
+                            }
                         }
                     }
                 }
             }
-        } catch (Exception ignored) {
-        }
 
-        if (largestImage != null && this.coverImagePath == null) {
-            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                    largestImage, 0, largestImage.length);
-            if (bitmap != null) {
-                String suffix = "_" + archiveFile.getUri().hashCode();
-                this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
-                if (this.coverImagePath != null && listener != null) {
-                    listener.onCoverFound(this.coverImagePath);
-                }
-            }
-        }
-    }
-
-    private void scanTarCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
-        int audioCount = 0;
-        int txtCount = 0;
-        int bigEbookCount = 0;
-        String firstBigEbookName = null;
-        List<AudioFileInfo> ebookFileInfos = new java.util.ArrayList<>();
-
-        byte[] largestImage = null;
-        long largestSize = 0;
-
-        try {
-            java.io.InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri());
-            if (inputStream != null) {
-                try (java.io.InputStream bis = new java.io.BufferedInputStream(inputStream);
-                        java.io.InputStream cis = maybeWrapCompressor(bis);
-                        TarArchiveInputStream tis = new TarArchiveInputStream(
-                                cis)) {
-                    TarArchiveEntry entry;
-                    while ((entry = tis.getNextTarEntry()) != null) {
-                        if (Thread.currentThread().isInterrupted())
-                            return;
-                        String entryName = entry.getName();
-                        if (entry.isDirectory())
-                            continue;
-
-                        String lowName = entryName.toLowerCase(Locale.ROOT);
-                        String ext = getExt(lowName);
-
-                        // 1. Track counting
-                        if (isAudioFileName(entryName)) {
-                            audioCount++;
-                            String fileNameOnly = new java.io.File(entryName).getName();
-                            String displayName = Tonio.formatNameForDisplay(fileNameOnly);
-                            String tName = audioCount + ". " + displayName;
-                            long entrySize = entry.getSize();
-                            AudioFileInfo afi = new AudioFileInfo(fileNameOnly, tName, 0, entrySize,
-                                    archiveFile.getUri().toString(), null);
-                            audioFileInfoArrayList.add(afi);
-                            if (listener != null) {
-                                listener.onTrackFound(afi);
-                            }
-                        } else if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(ext)) {
-                            String fileName = new java.io.File(entryName).getName();
-                            String displayName = Tonio.formatNameForDisplay(fileName);
-                            AudioFileInfo afi = new AudioFileInfo(fileName, displayName, 0, entry.getSize(), archiveFile.getUri().toString(), null);
-                            ebookFileInfos.add(afi);
-
-                            if (SupportedFilesHelper.isSplittableEbookSpecial(SupportedFilesHelper.getSpecialTypeFromExt(ext))) {
-                                bigEbookCount++;
-                                if (firstBigEbookName == null) firstBigEbookName = entryName;
-                            } else {
-                                txtCount++;
-                            }
-                        }
-
-                        // 2. Cover detection
-                        if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(ext)) {
-                            long size = entry.getSize();
-                            if (size > largestSize || (size == -1 && largestImage == null)) {
-                                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                                byte[] buffer = new byte[8192];
-                                int len;
-                                while ((len = tis.read(buffer)) > 0) {
-                                    baos.write(buffer, 0, len);
-                                }
-                                byte[] imageBytes = baos.toByteArray();
-                                if (imageBytes.length > largestSize) {
-                                    largestImage = imageBytes;
-                                    largestSize = imageBytes.length;
-                                }
-                            }
-                        }
-                    }
-
-                    handleArchiveContents(context, audioCount, txtCount, bigEbookCount, firstBigEbookName, ebookFileInfos, archiveFile, listener);
-                }
-            }
-        } catch (Exception ignored) {
-        }
-
-        if (largestImage != null && this.coverImagePath == null) {
-            android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
-                    largestImage, 0, largestImage.length);
-            if (bitmap != null) {
-                String suffix = "_" + archiveFile.getUri().hashCode();
-                this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
-                if (this.coverImagePath != null && listener != null) {
-                    listener.onCoverFound(this.coverImagePath);
-                }
-            }
-        }
-    }
-
-    private void scanZipCombined(Context context, DocumentFile file, OnMetadataListener listener) {
-        int audioCount = 0;
-        int txtCount = 0;
-        int pureEbookCount = 0;
-        String firstPureEbookName = null;
-        List<AudioFileInfo> ebookFileInfos = new java.util.ArrayList<>();
-
-        byte[] largestImage = null;
-        long largestSize = 0;
-
-        try {
-            try (ParcelFileDescriptor pfd = context.getContentResolver()
-                    .openFileDescriptor(file.getUri(), "r")) {
-                if (pfd != null) {
-                    try (FileChannel channel = new FileInputStream(
-                            pfd.getFileDescriptor()).getChannel()) {
-                        try (ZipFile zipFile = new ZipFile(
-                                channel)) {
-                            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
-                            while (entries.hasMoreElements()) {
-                                if (Thread.currentThread().isInterrupted()) {
-                                    myLogD("scanZipCombined interrupted");
-                                    return;
-                                }
-                                ZipArchiveEntry entry = entries.nextElement();
-                                if (entry.isDirectory())
-                                    continue;
-
-                                String entryName = entry.getName();
-                                String lowName = entryName.toLowerCase(Locale.ROOT);
-                                String ext = getExt(lowName);
-
-                                // 1. Track Count
-                                if (Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
-                                    audioCount++;
-                                    long size = entry.getSize();
-                                    String fileName = new File(entryName).getName();
-                                    String displayName = Tonio.formatNameForDisplay(fileName);
-                                    String tName = audioCount + ". " + displayName;
-                                    AudioFileInfo afi = new AudioFileInfo(fileName, tName, 0, size,
-                                            file.getUri().toString(), null);
-                                    audioFileInfoArrayList.add(afi);
-                                    if (listener != null)
-                                        listener.onTrackFound(afi);
-
-                                } else if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(ext)) {
-                                    String fileName = new File(entryName).getName();
-                                    String displayName = Tonio.formatNameForDisplay(fileName);
-                                    AudioFileInfo afi = new AudioFileInfo(fileName, displayName, 0, entry.getSize(), file.getUri().toString(), null);
-                                    ebookFileInfos.add(afi);
-
-                                    if (SupportedFilesHelper.isPureEbook(ext)) {
-                                        pureEbookCount++;
-                                        if (firstPureEbookName == null) firstPureEbookName = entryName;
-                                    } else {
-                                        txtCount++;
-                                    }
-                                } else if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(ext)) {
-                                    long size = entry.getSize();
-                                    if (size > largestSize || (size == -1 && largestImage == null)) {
-                                        try (InputStream eis = zipFile.getInputStream(entry)) {
-                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                                            byte[] buffer = new byte[8192];
-                                            int len;
-                                            while ((len = eis.read(buffer)) > 0) {
-                                                baos.write(buffer, 0, len);
-                                            }
-                                            byte[] imageBytes = baos.toByteArray();
-                                            if (imageBytes.length > largestSize) {
-                                                largestImage = imageBytes;
-                                                largestSize = imageBytes.length;
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-
-                            handleArchiveContents(context, audioCount, txtCount, pureEbookCount, firstPureEbookName, ebookFileInfos, file, listener);
-                        }
-                    }
-                }
-            }
+            handleArchiveContents(context, audioCount, txtCount, bigEbookCount, firstBigEbookName, ebookFileInfos, archiveFile, listener);
 
             if (largestImage != null && this.coverImagePath == null) {
                 android.graphics.Bitmap bitmap = android.graphics.BitmapFactory.decodeByteArray(
                         largestImage, 0, largestImage.length);
                 if (bitmap != null) {
-                    String suffix = "_" + file.getUri().hashCode();
+                    String suffix = "_" + archiveFile.getUri().hashCode();
                     this.coverImagePath = ImageHelper.saveTempBitmap(context, bitmap, suffix);
                     if (this.coverImagePath != null && listener != null) {
                         listener.onCoverFound(this.coverImagePath);
                     }
                 }
             }
+        } catch (Exception e) {
+            myLogEE(e, "Error scanning archive");
+        }
+    }
 
-        } catch (Exception ignored) {
-            myLogEE(ignored, "Error scanning zip");
+    private void scan7ZCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
+        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(archiveFile.getUri(), "r")) {
+            if (pfd != null) {
+                try (FileChannel channel = new FileInputStream(pfd.getFileDescriptor()).getChannel()) {
+                    try (SevenZFile sevenZFile = new SevenZFile(channel)) {
+                        scanCommonArchive(context, archiveFile, listener, () -> {
+                            SevenZArchiveEntry entry = sevenZFile.getNextEntry();
+                            if (entry == null) return null;
+                            return new ArchiveEntryProxy() {
+                                @Override public String getName() { return entry.getName(); }
+                                @Override public long getSize() { return entry.getSize(); }
+                                @Override public boolean isDirectory() { return entry.isDirectory(); }
+                                @Override public InputStream getInputStream() {
+                                    return new InputStream() {
+                                        @Override public int read() throws IOException { return sevenZFile.read(); }
+                                        @Override public int read(byte[] b, int off, int len) throws IOException { return sevenZFile.read(b, off, len); }
+                                    };
+                                }
+                            };
+                        });
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error scanning 7z");
+        }
+    }
+
+    private void scanTarCombined(Context context, DocumentFile archiveFile, OnMetadataListener listener) {
+        try (InputStream inputStream = context.getContentResolver().openInputStream(archiveFile.getUri())) {
+            if (inputStream != null) {
+                try (InputStream bis = new java.io.BufferedInputStream(inputStream);
+                     InputStream cis = maybeWrapCompressor(bis);
+                     TarArchiveInputStream tis = new TarArchiveInputStream(cis)) {
+                    scanCommonArchive(context, archiveFile, listener, () -> {
+                        TarArchiveEntry entry = tis.getNextTarEntry();
+                        if (entry == null) return null;
+                        return new ArchiveEntryProxy() {
+                            @Override public String getName() { return entry.getName(); }
+                            @Override public long getSize() { return entry.getSize(); }
+                            @Override public boolean isDirectory() { return entry.isDirectory(); }
+                            @Override public InputStream getInputStream() {
+                                return new InputStream() {
+                                    @Override public int read() throws IOException { return tis.read(); }
+                                    @Override public int read(byte[] b, int off, int len) throws IOException { return tis.read(b, off, len); }
+                                };
+                            }
+                        };
+                    });
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error scanning tar");
+        }
+    }
+
+    private void scanZipCombined(Context context, DocumentFile file, OnMetadataListener listener) {
+        try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(file.getUri(), "r")) {
+            if (pfd != null) {
+                try (FileChannel channel = new FileInputStream(pfd.getFileDescriptor()).getChannel()) {
+                    try (ZipFile zipFile = new ZipFile(channel)) {
+                        Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+                        scanCommonArchive(context, file, listener, () -> {
+                            if (!entries.hasMoreElements()) return null;
+                            ZipArchiveEntry entry = entries.nextElement();
+                            return new ArchiveEntryProxy() {
+                                @Override public String getName() { return entry.getName(); }
+                                @Override public long getSize() { return entry.getSize(); }
+                                @Override public boolean isDirectory() { return entry.isDirectory(); }
+                                @Override public InputStream getInputStream() throws IOException { return zipFile.getInputStream(entry); }
+                            };
+                        });
+                    }
+                }
+            }
+        } catch (Exception e) {
+            myLogEE(e, "Error scanning zip");
         }
     }
 
