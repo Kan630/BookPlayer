@@ -191,6 +191,10 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
                 finish();
                 return;
             }
+            if (!bookCandidate.notSupportedReason.isEmpty()) {
+                showError(bookCandidate.notSupportedReason);
+                stopAndDisableEverything();
+            }
 
             audioBookTitle = bookCandidate.audioBookName;
             myLogD(bookCandidate.toString());

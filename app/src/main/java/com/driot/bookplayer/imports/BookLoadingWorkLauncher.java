@@ -104,6 +104,12 @@ public class BookLoadingWorkLauncher {
                 doCopy = true;
                 doSplitEbook = true;
             }
+            if (BookCandidate.SOURCE_TYPE_COMPRESSED_EBOOK.equals(s.sourceType)) {
+                myLogD("compressed ebook");
+                doCopy = true;
+                doUncompress = true;
+                doSplitEbook = true;
+            }
             if (doDownload) {
                 if (doCopy) {
                     doCopy = false;

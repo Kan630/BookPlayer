@@ -63,6 +63,8 @@ import org.apache.commons.compress.archivers.zip.ZipFile;
 public class BookCandidate implements Parcelable {
     private boolean VERBOSE_DEBUG = false;
 
+    public static final String SOURCE_TYPE_COMPRESSED_EBOOK = "SOURCE_TYPE_COMPRESSED_EBOOK";
+
     public Uri uri;
     public String name;
     public String sourceType; // Folder, Archive, M4B, EPUB, Audio File
@@ -94,6 +96,7 @@ public class BookCandidate implements Parcelable {
     private boolean selected; // User selection for mass import (false if already imported)
 
     public boolean isBroken = false;
+    public String notSupportedReason = "";
     public boolean isMimeSupported = true;
     public boolean isHeavyLoaded = false;
     public boolean isCalculating = false; // UI state for heavy load progress
@@ -125,6 +128,7 @@ public class BookCandidate implements Parcelable {
         infoSourceLocation = in.readString();
         infoLine1 = in.readString();
         isBroken = in.readByte() != 0;
+        notSupportedReason = in.readString();
         isMimeSupported = in.readByte() != 0;
         isHeavyLoaded = in.readByte() != 0;
         isEasyLoaded = in.readByte() != 0;
@@ -160,6 +164,7 @@ public class BookCandidate implements Parcelable {
         dest.writeString(infoSourceLocation);
         dest.writeString(infoLine1);
         dest.writeByte((byte) (isBroken ? 1 : 0));
+        dest.writeString(notSupportedReason);
         dest.writeByte((byte) (isMimeSupported ? 1 : 0));
         dest.writeByte((byte) (isHeavyLoaded ? 1 : 0));
         dest.writeByte((byte) (isEasyLoaded ? 1 : 0));
@@ -847,24 +852,13 @@ public class BookCandidate implements Parcelable {
             return;
         }
 
-        if (bigEbookCount == 1) {
-            // Check first ebook to get its chapters
-            myLogD("Archive contains exactly one big ebook: " + firstBigEbookName);
-
-            //Here need to replace the zip bookCandidate by this ebook bookCandidate
-            //meaning, changing the pointer....
-
-            myLogW("-------------------------------------");
-            myLogW("Here need to replace the zip bookCandidate by this ebook bookCandidate...");
-            myLogW("meaning, changing the pointer....");
-            myLogW("-------------------------------------");
-
-
-            //this.specialType = "Ebook Archive";
-            extractAndScanSingleEbook(context, firstBigEbookName, archiveFile, listener);
+        if (bigEbookCount == 1 || txtCount == 1) {
+            myLog("Compressed Ebook...");
+            this.sourceType = SOURCE_TYPE_COMPRESSED_EBOOK;
 
         } else if (bigEbookCount > 1) {
             this.multipleBooksCount = bigEbookCount;
+            this.notSupportedReason = "multiple ebooks inside compressed archive not yet supported";
             //.....toremove...this.tracksCount = bigEbookCount;
             //.....toremove...this.specialType = "Multiple Ebooks";
             myLogW("-------------------------------------");
@@ -887,6 +881,8 @@ public class BookCandidate implements Parcelable {
                 myLogW("-------------------------------------");
                 myLogW("Here a parsing will be needed to turn txt document (like docx or odt) into .txt");
                 myLogW("-------------------------------------");
+                this.notSupportedReason = "multiple text documents inside compressed archive not yet supported";
+                return;
             }
             this.tracksCount = ebookFileInfos.size();
             Collections.sort(ebookFileInfos, (a, b) -> a.getDisplayPath().compareToIgnoreCase(b.getDisplayPath()));
