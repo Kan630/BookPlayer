@@ -207,7 +207,7 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
             if (!detailMode) {
                 // Now that candidate is ready, activate UI
                 if (!initialHashCheckTriggered) {
-                    doChecks_step1_hashNotExist();
+                    doChecks_step1_hashNotExist(bookCandidate.originalHash);
                     initialHashCheckTriggered = true;
                 }
                 // calculateCheckboxState();
@@ -682,88 +682,47 @@ public class ImportBookSingleActivity extends BaseBottomNavActivity {
     }
 
     // FIRST BLOCKING CHECK
-    private void doChecks_step1_hashNotExist() {
-        myLog("Checking if hash already exists in DB for [" + uri + "]");
+    private void doChecks_step1_hashNotExist(String hash) {
+        myLog("Checking if hash [" + hash + "] already exists in DB for [" + uri + "]");
 
         waitTextView.setText(getString(R.string.init_check_already_imported_please_wait));
         waitTextView.setVisibility(View.VISIBLE);
 
-        final String TAG = WORKER_TAG_COMPUTE_HASH;
-
-        // Cancel any ongoing hash computation to avoid overlap
-        WorkManager.getInstance(this).cancelAllWorkByTag(TAG);
-
-        OneTimeWorkRequest hashRequest = new OneTimeWorkRequest.Builder(HashWorker.class)
-                .setInputData(new Data.Builder().putString("uri", uri.toString()).build())
-                .addTag(TAG)
-                .build();
-
-        WorkManager.getInstance(this).enqueue(hashRequest);
-
-        // Observe result
-        Observer<WorkInfo> observer = new Observer<>() {
-            @Override
-            public void onChanged(WorkInfo workInfo) {
-                myLogD("WorkInfo changed: " + workInfo);
-                if (workInfo == null || !workInfo.getState().isFinished())
-                    return;
-
-                // Remove observer after first result
-                WorkManager.getInstance(getApplicationContext())
-                        .getWorkInfoByIdLiveData(hashRequest.getId())
-                        .removeObserver(this);
-
-                if (workInfo.getState() == WorkInfo.State.SUCCEEDED) {
-                    String hash = workInfo.getOutputData().getString(WORKER_TAG_COMPUTE_HASH);
-                    originalHash = hash;
-                    myLogD("Computed hash: [" + hash + "]");
-
-                    if (hash == null || hash.isEmpty() || hash.equals(HASH_NOT_COMPUTED)) {
-                        myLogEE(null, "bad returned Hash for uri " + uri);
-                        showWarning(getString(R.string.could_not_check_already_imported));
-                        doChecks_Step2();
+        if (hash == null || hash.isEmpty() || hash.equals(HASH_NOT_COMPUTED)) {
+            myLogEE(null, "bad returned Hash for uri " + uri);
+            showWarning(getString(R.string.could_not_check_already_imported));
+            doChecks_Step2();
+        } else {
+            new Thread(() -> {
+                String existingBook = ImportValidator.checkHashExists(ImportBookSingleActivity.this, hash);
+                runOnUiThread(() -> {
+                    if (existingBook != null) {
+                        if (uri.toString().startsWith("http")) {
+                            // TODO, ideally, a second hash column should be computed "realHashOfTheContent"
+                            myLogW("same Hash [" + hash + "] for URL " + uri + " for book = "
+                                    + existingBook);
+                            showWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " ["
+                                    + existingBook + "]\n");
+                            boolAlso = true;
+                            doChecks_Step2();
+                        } else {
+                            myLog("-----------------------------------------------------------------------------------");
+                            myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
+                            myLog("-----------------------------------------------------------------------------------");
+                            showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
+                                    + "\n" + existingBook);
+                            stopAndDisableEverything();
+                            return;
+                        }
                     } else {
-                        new Thread(() -> {
-                            String existingBook = ImportValidator.checkHashExists(ImportBookSingleActivity.this, hash);
-                            runOnUiThread(() -> {
-                                if (existingBook != null) {
-                                    if (uri.toString().startsWith("http")) {
-                                        // TODO, ideally, a second hash column should be computed "realHashOfTheContent"
-                                        myLogW("same Hash [" + hash + "] for URL " + uri + " for book = "
-                                                + existingBook);
-                                        showWarning(getString(R.string.warning_url_already_loaded_under_the_name) + " ["
-                                                + existingBook + "]\n");
-                                        boolAlso = true;
-                                        doChecks_Step2();
-                                    } else {
-                                        myLog("-----------------------------------------------------------------------------------");
-                                        myLogW("Duplicate hash detected: already imported as [" + existingBook + "]");
-                                        myLog("-----------------------------------------------------------------------------------");
-                                        showError(getString(R.string.error_media_already_loaded_samePath_under_the_name)
-                                                + "\n" + existingBook);
-                                        stopAndDisableEverything();
-                                        return;
-                                    }
-                                } else {
-                                    myLogD("Hash OK: not found in DB.");
-                                    waitTextView
-                                            .setText(getString(R.string.init_check_complementary_checks_please_wait));
-                                    doChecks_Step2();
-                                }
-                            });
-                        }).start();
+                        myLogD("Hash OK: not found in DB.");
+                        waitTextView
+                                .setText(getString(R.string.init_check_complementary_checks_please_wait));
+                        doChecks_Step2();
                     }
-                } else if (workInfo.getState() == WorkInfo.State.FAILED) {
-                    myLogEE(null, "Hash computation failed for uri: " + uri);
-                    showWarning(getString(R.string.could_not_check_already_imported));
-                    doChecks_Step2();
-                }
-            }
-        };
-
-        WorkManager.getInstance(this)
-                .getWorkInfoByIdLiveData(hashRequest.getId())
-                .observe(this, observer);
+                });
+            }).start();
+        }
     }
 
     private void doChecks_Step2() {
