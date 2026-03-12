@@ -181,6 +181,7 @@ public class Var {
                                         "bmp", "gif" // optional if you allow animated covers
                         ));
 
+
         // --- Audio files ---
         public static final Set<String> SUPPORTED_AUDIO_EXTENSIONS = new HashSet<>(
                         Arrays.asList(

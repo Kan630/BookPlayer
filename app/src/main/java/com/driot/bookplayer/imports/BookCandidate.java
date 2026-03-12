@@ -31,15 +31,20 @@ import com.driot.bookplayer.objects.AudioFileInfo;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.InputStream;
 import java.nio.channels.FileChannel;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
 import android.os.Parcel;
+import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
 
 import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
@@ -47,6 +52,7 @@ import org.apache.commons.compress.archivers.sevenz.SevenZFile;
 import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipFile;
 
 public class BookCandidate implements Parcelable {
     private boolean VERBOSE_DEBUG = false;
@@ -694,18 +700,19 @@ public class BookCandidate implements Parcelable {
 
     private void scanZipCombined(Context context, DocumentFile file, OnMetadataListener listener) {
         int trackCount = 0;
+        int txtCount = 0;
         byte[] largestImage = null;
         long largestSize = 0;
 
         try {
-            try (android.os.ParcelFileDescriptor pfd = context.getContentResolver()
+            try (ParcelFileDescriptor pfd = context.getContentResolver()
                     .openFileDescriptor(file.getUri(), "r")) {
                 if (pfd != null) {
                     try (FileChannel channel = new FileInputStream(
                             pfd.getFileDescriptor()).getChannel()) {
-                        try (org.apache.commons.compress.archivers.zip.ZipFile zipFile = new org.apache.commons.compress.archivers.zip.ZipFile(
+                        try (ZipFile zipFile = new ZipFile(
                                 channel)) {
-                            java.util.Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
+                            Enumeration<ZipArchiveEntry> entries = zipFile.getEntries();
                             while (entries.hasMoreElements()) {
                                 if (Thread.currentThread().isInterrupted()) {
                                     myLogD("scanZipCombined interrupted");
@@ -718,11 +725,13 @@ public class BookCandidate implements Parcelable {
                                 String entryName = entry.getName();
                                 String lowName = entryName.toLowerCase();
 
+                                String ext = getExt(lowName);
+
                                 // 1. Track Count
-                                if (isAudioFileName(entryName)) {
+                                if (Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext)) {
                                     trackCount++;
                                     long size = entry.getSize();
-                                    String fileName = new java.io.File(entryName).getName();
+                                    String fileName = new File(entryName).getName();
                                     String displayName = Tonio.formatNameForDisplay(fileName);
                                     String tName = trackCount + ". " + displayName;
                                     AudioFileInfo afi = new AudioFileInfo(tName, 0, size, file.getUri().toString(),
@@ -730,16 +739,12 @@ public class BookCandidate implements Parcelable {
                                     audioFileInfoArrayList.add(afi);
                                     if (listener != null)
                                         listener.onTrackFound(afi);
-                                }
 
-                                // 2. Cover Detection
-                                if (lowName.endsWith(".jpg") || lowName.endsWith(".jpeg") ||
-                                        lowName.endsWith(".png") || lowName.endsWith(".webp")) {
-
+                                } else if (Var.SUPPORTED_IMAGE_EXTENSIONS.contains(ext)) {
                                     long size = entry.getSize();
                                     if (size > largestSize || (size == -1 && largestImage == null)) {
-                                        try (java.io.InputStream eis = zipFile.getInputStream(entry)) {
-                                            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                                        try (InputStream eis = zipFile.getInputStream(entry)) {
+                                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
                                             byte[] buffer = new byte[8192];
                                             int len;
                                             while ((len = eis.read(buffer)) > 0) {
@@ -752,6 +757,19 @@ public class BookCandidate implements Parcelable {
                                             }
                                         }
                                     }
+                                } else if (Var.SUPPORTED_EBOOK_EXTENSIONS.contains(ext)) {
+                                    txtCount++;
+                                    long size = entry.getSize();
+                                    String fileName = new File(entryName).getName();
+                                    String displayName = Tonio.formatNameForDisplay(fileName);
+                                    String tName = txtCount + ". " + displayName;
+                                }
+
+                            }
+                            if (trackCount == 0) {
+                                //check if its an archive of texts
+                                if (txtCount > 0) {
+                                    myLogW("Archive of texts");
                                 }
                             }
                         }
@@ -1070,6 +1088,7 @@ public class BookCandidate implements Parcelable {
         String ext = getExt(fileName);
         return Var.SUPPORTED_AUDIO_EXTENSIONS.contains(ext);
     }
+
 
     // --- Cover Detection Helpers ---
 
