@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class AudioFileInfo implements Parcelable {
+    private final String fileName;
     private final String displayPath;
     private final long duration;
     private final long size;
@@ -41,10 +42,13 @@ public class AudioFileInfo implements Parcelable {
         PREFACE_SINGLE.add("prologo"); // "prólogo"
     }
 
-    public AudioFileInfo(String displayPath,
+    public AudioFileInfo(
+            String fileName,
+            String displayPath,
             long duration,
             long size, String contentUri,
             @Nullable Map<String, String> meta) {
+        this.fileName = fileName;
         this.displayPath = displayPath;
         this.duration = duration;
         this.size = size;
@@ -52,6 +56,8 @@ public class AudioFileInfo implements Parcelable {
         // defensive copy to avoid external mutation
         this.meta = (meta == null) ? new HashMap<>() : new HashMap<>(meta);
     }
+
+    public String getFileName() { return fileName; }
 
     public String getDisplayPath() {
         return displayPath;
@@ -74,6 +80,7 @@ public class AudioFileInfo implements Parcelable {
     }
 
     protected AudioFileInfo(Parcel in) {
+        fileName = in.readString();
         displayPath = in.readString();
         duration = in.readLong();
         size = in.readLong();
@@ -87,6 +94,7 @@ public class AudioFileInfo implements Parcelable {
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(fileName);
         dest.writeString(displayPath);
         dest.writeLong(duration);
         dest.writeLong(size);
@@ -124,12 +132,13 @@ public class AudioFileInfo implements Parcelable {
         // copy whatever the prober collected (title/artist/album/genre/year, etc.)
         Map<String, String> m = (ai.metadata == null) ? new HashMap<>() : new HashMap<>(ai.metadata);
 
-        return new AudioFileInfo(
+        String fileName = ai.uri.toString();
+
+        return new AudioFileInfo(fileName,
                 shown,
                 ai.durationMs,
                 ai.size,
-                ai.uri.toString(),
-                m);
+                ai.uri.toString(), m);
     }
 
     public static final Comparator<AudioFileInfo> ALPHANUMERIC_COMPARATOR = new Comparator<AudioFileInfo>() {
@@ -941,6 +950,7 @@ public class AudioFileInfo implements Parcelable {
     @Override
     public String toString() {
         return "AudioFileInfo{" +
+                "fileName='" + fileName + '\'' +
                 "displayPath='" + displayPath + '\'' +
                 ", duration=" + duration +
                 ", size=" + size +

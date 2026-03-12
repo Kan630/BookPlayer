@@ -424,6 +424,11 @@ public class SupportedFilesHelper {
                 || SPECIAL_TYPE_DOCX.equals(specialType);
     }
 
+    public static boolean isPureEbook(String specialType) {
+        return SPECIAL_TYPE_EPUB.equalsIgnoreCase(specialType)
+                || SPECIAL_TYPE_FB2.equalsIgnoreCase(specialType);
+    }
+
     public static boolean isM4bSpecial(String specialType) {
         return SPECIAL_TYPE_M4B.equals(specialType);
     }

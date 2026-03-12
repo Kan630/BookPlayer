@@ -160,8 +160,8 @@ public interface CommonZikFileDao {
 
             // We only care about displayPath for the comparator, so
             // duration/contentUri/meta can be dummy
-            AudioFileInfo a1 = new AudioFileInfo(p1, 0L, 0, "", null);
-            AudioFileInfo a2 = new AudioFileInfo(p2, 0L, 0, "", null);
+            AudioFileInfo a1 = new AudioFileInfo("", p1, 0L, 0, "", null);
+            AudioFileInfo a2 = new AudioFileInfo("", p2, 0L, 0, "", null);
 
             return AudioFileInfo.SMART_CHAPTER_COMPARATOR.compare(a1, a2);
         });
