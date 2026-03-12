@@ -858,12 +858,10 @@ public class BookCandidate implements Parcelable {
 
         } else if (bigEbookCount > 1) {
             this.multipleBooksCount = bigEbookCount;
-            this.notSupportedReason = "multiple ebooks inside compressed archive not yet supported";
-            //.....toremove...this.tracksCount = bigEbookCount;
-            //.....toremove...this.specialType = "Multiple Ebooks";
             myLogW("-------------------------------------");
             myLogW("Here we should someway manage to split into multiple bookCandidate...   -  its mass import...");
             myLogW("-------------------------------------");
+            this.notSupportedReason = "multiple ebooks inside compressed archive not yet supported";
 
         } else if (txtCount > 0) {
             // Multiple simple txt documents => "1 item = 1 chapter"
@@ -893,168 +891,9 @@ public class BookCandidate implements Parcelable {
                 audioFileInfoArrayList.add(newAfi);
                 if (listener != null) listener.onTrackFound(newAfi);
             }
-
-
-            //.....toremove...this.specialType = "Text Archive";
-            
-            // Sort them by name to have a consistent order
         } else {
             this.tracksCount = 0;
         }
-    }
-
-    private void extractAndScanSingleEbook(Context context, String entryName, DocumentFile archiveFile, OnMetadataListener listener) {
-        String ext = getExt(entryName.toLowerCase(Locale.ROOT));
-        String special = SupportedFilesHelper.getSpecialTypeFromExt(ext);
-
-        File tempFile = new File(context.getCacheDir(), "scan_temp_" + System.currentTimeMillis() + "." + ext);
-        try {
-            // 1. Extract to temp
-            if (extractFileFromArchive(context, archiveFile, entryName, tempFile)) {
-                Uri tempUri = Uri.fromFile(tempFile);
-
-                // 2. Scan chapters based on type
-                if (SupportedFilesHelper.SPECIAL_TYPE_EPUB.equals(special)) {
-                    EpubLowLevelHelper.ExtractResult res = EpubLowLevelHelper.extractAll(context, tempUri);
-                    populateFromEbookResult(res, listener);
-                } else if (SupportedFilesHelper.SPECIAL_TYPE_FB2.equals(special)) {
-                    Fb2LowLevelHelper.ExtractResult res = Fb2LowLevelHelper.extractAll(context, tempUri);
-                    populateFromEbookResult(res, listener);
-                } else if (SupportedFilesHelper.SPECIAL_TYPE_ODT.equals(special)) {
-                    OdtLowLevelHelper.ExtractResult res = OdtLowLevelHelper.extractAll(context, tempUri);
-                    populateFromEbookResult(res, listener);
-                } else if (SupportedFilesHelper.SPECIAL_TYPE_DOCX.equals(special)) {
-                    DocxLowLevelHelper.ExtractResult res = DocxLowLevelHelper.extractAll(context, tempUri, false);
-                    populateFromEbookResult(res, listener);
-                } else if (SupportedFilesHelper.SPECIAL_TYPE_HTML.equals(special)) {
-                    HtmlLowLevelHelper.ExtractResult res = HtmlLowLevelHelper.extractAll(context, tempUri);
-                    populateFromEbookResult(res, listener);
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error scanning ebook inside archive: " + entryName);
-        } finally {
-            if (tempFile.exists())
-                tempFile.delete();
-        }
-    }
-
-    private void populateFromEbookResult(Object result, OnMetadataListener listener) {
-        if (result == null)
-            return;
-
-        List<File> chapters = null;
-        Map<String, String> titles = null;
-        String bookTitle = null;
-
-        try {
-            if (result instanceof EpubLowLevelHelper.ExtractResult) {
-                EpubLowLevelHelper.ExtractResult r = (EpubLowLevelHelper.ExtractResult) result;
-                chapters = r.chapterFiles;
-                titles = r.trackTitles;
-                bookTitle = r.bookTitle;
-            } else if (result instanceof Fb2LowLevelHelper.ExtractResult) {
-                Fb2LowLevelHelper.ExtractResult r = (Fb2LowLevelHelper.ExtractResult) result;
-                chapters = r.chapterFiles;
-                titles = r.trackTitles;
-                bookTitle = r.bookTitle;
-            } else if (result instanceof OdtLowLevelHelper.ExtractResult) {
-                OdtLowLevelHelper.ExtractResult r = (OdtLowLevelHelper.ExtractResult) result;
-                chapters = r.chapterFiles;
-                titles = r.trackTitles;
-                bookTitle = r.bookTitle;
-            } else if (result instanceof DocxLowLevelHelper.ExtractResult) {
-                DocxLowLevelHelper.ExtractResult r = (DocxLowLevelHelper.ExtractResult) result;
-                chapters = r.chapterFiles;
-                titles = r.trackTitles;
-                bookTitle = r.bookTitle;
-            } else if (result instanceof HtmlLowLevelHelper.ExtractResult) {
-                HtmlLowLevelHelper.ExtractResult r = (HtmlLowLevelHelper.ExtractResult) result;
-                chapters = r.chapterFiles;
-                titles = r.trackTitles;
-                bookTitle = r.bookTitle;
-            }
-        } catch (Exception ignored) {
-        }
-
-        if (chapters != null) {
-            this.tracksCount = chapters.size();
-            this.audioBookName = Tonio.formatNameForDisplay(bookTitle != null ? bookTitle : this.name);
-            this.specialType = "Ebook Archive";
-
-            for (int i = 0; i < chapters.size(); i++) {
-                File f = chapters.get(i);
-                String title = titles != null ? titles.get(f.getName()) : f.getName();
-                String tName = (i + 1) + ". " + title;
-                AudioFileInfo afi = new AudioFileInfo(f.getName(), tName, 0, f.length(), this.uri.toString(), null);
-                audioFileInfoArrayList.add(afi);
-                if (listener != null)
-                    listener.onTrackFound(afi);
-            }
-        }
-    }
-
-    private boolean extractFileFromArchive(Context context, DocumentFile archiveFile, String entryName, File destFile) {
-        String ext = getExt(archiveFile.getName().toLowerCase(Locale.ROOT));
-        try {
-            try (ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(archiveFile.getUri(), "r")) {
-                if (pfd == null)
-                    return false;
-                try (FileChannel channel = new FileInputStream(pfd.getFileDescriptor()).getChannel()) {
-                    if (ext.equals("7z")) {
-                        try (SevenZFile archive = new SevenZFile(channel)) {
-                            SevenZArchiveEntry entry;
-                            while ((entry = archive.getNextEntry()) != null) {
-                                if (entry.getName().equals(entryName)) {
-                                    try (FileOutputStream fos = new FileOutputStream(destFile)) {
-                                        byte[] buffer = new byte[8192];
-                                        int len;
-                                        while ((len = archive.read(buffer)) > 0)
-                                            fos.write(buffer, 0, len);
-                                    }
-                                    return true;
-                                }
-                            }
-                        }
-                    } else if (ext.equals("zip")) {
-                        try (ZipFile archive = new ZipFile(channel)) {
-                            ZipArchiveEntry entry = archive.getEntry(entryName);
-                            if (entry != null) {
-                                try (InputStream is = archive.getInputStream(entry);
-                                        FileOutputStream fos = new FileOutputStream(destFile)) {
-                                    byte[] buffer = new byte[8192];
-                                    int len;
-                                    while ((len = is.read(buffer)) > 0)
-                                        fos.write(buffer, 0, len);
-                                }
-                                return true;
-                            }
-                        }
-                    } else if (SupportedFilesHelper.SPECIAL_TYPE_TAR.equals(SupportedFilesHelper.getSpecialTypeFromExt(ext))) {
-                        try (InputStream is = context.getContentResolver().openInputStream(archiveFile.getUri());
-                                java.io.BufferedInputStream bis = new java.io.BufferedInputStream(is);
-                                java.io.InputStream cis = maybeWrapCompressor(bis);
-                                TarArchiveInputStream tis = new TarArchiveInputStream(cis)) {
-                            TarArchiveEntry entry;
-                            while ((entry = tis.getNextTarEntry()) != null) {
-                                if (entry.getName().equals(entryName)) {
-                                    try (FileOutputStream fos = new FileOutputStream(destFile)) {
-                                        byte[] buffer = new byte[8192];
-                                        int len;
-                                        while ((len = tis.read(buffer)) > 0)
-                                            fos.write(buffer, 0, len);
-                                    }
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "Error extracting " + entryName + " from " + archiveFile.getName());
-        }
-        return false;
     }
 
     private void scanFolderCombined(Context context, DocumentFile rootDir, OnMetadataListener listener) {
