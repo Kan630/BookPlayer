@@ -1,70 +1,81 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:padding="10dp"
-    android:background="?attr/colorSurfaceVariant"
-    android:minHeight="72dp">
-
-    <ImageView
-        android:id="@+id/podcast_image"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:scaleType="centerCrop"
-        android:contentDescription="@string/podcast_image_desc"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentTop="true"
-        android:layout_marginEnd="10dp" />
-
-    <LinearLayout
-        android:id="@+id/text_container"
+    <androidx.cardview.widget.CardView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/podcast_image"
-        android:layout_alignTop="@id/podcast_image"
-        android:orientation="vertical"
-        android:layout_marginEnd="40dp"> <!-- space for icon -->
+        card_view:cardElevation="4dp"
+        card_view:cardCornerRadius="12dp"
+        card_view:cardBackgroundColor="?attr/colorSurfaceVariant"
+        android:layout_margin="4dp"
+        android:foreground="?android:attr/selectableItemBackground">
 
-        <TextView
-            android:id="@+id/podcast_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/OptionMiniText"
-            android:textStyle="bold"
-            android:maxLines="2"
-            android:ellipsize="end"
-            android:text="Podcast Title" />
+        <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:minHeight="72dp">
 
-        <TextView
-            android:id="@+id/podcast_desc"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/OptionMiniText"
-            android:layout_marginTop="3dp"
-            android:maxLines="3"
-            android:ellipsize="end"
-            android:text="Podcast description..." />
-        <TextView
-            android:id="@+id/podcast_folder_stats"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            style="@style/OptionMiniText"
-            android:maxLines="2"
-            android:text="Stats: ..." />
-    </LinearLayout>
+        <ImageView
+            android:id="@+id/podcast_image"
+            android:layout_width="72dp"
+            android:layout_height="72dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="@string/podcast_image_desc"
+            android:src="@drawable/no_image_icon"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginEnd="10dp" />
 
-    <ImageView
-        android:id="@+id/podcast_autodownload"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="4dp"
-        android:layout_marginEnd="4dp"
-        android:visibility="gone"
-        android:src="@drawable/ic_download_action_24"
-        app:tint="@color/orange_500"
-        android:contentDescription="@string/auto_download"
-        />
-</RelativeLayout>
+        <LinearLayout
+            android:id="@+id/text_container"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/podcast_image"
+            android:layout_alignTop="@id/podcast_image"
+            android:orientation="vertical"
+            android:layout_marginEnd="40dp"> <!-- space for icon -->
+
+            <TextView
+                android:id="@+id/podcast_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OptionMiniText"
+                android:textStyle="bold"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:text="Podcast Title" />
+
+            <TextView
+                android:id="@+id/podcast_desc"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OptionMiniText"
+                android:layout_marginTop="3dp"
+                android:maxLines="3"
+                android:ellipsize="end"
+                android:text="Podcast description..." />
+            <TextView
+                android:id="@+id/podcast_folder_stats"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OptionMiniText"
+                android:maxLines="2"
+                android:text="Stats: ..." />
+        </LinearLayout>
+
+        <ImageView
+            android:id="@+id/podcast_autodownload"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="4dp"
+            android:src="@drawable/ic_download_action_24"
+            app:tint="@color/orange_500"
+            android:contentDescription="@string/auto_download"
+            />
+    </RelativeLayout>
+</androidx.cardview.widget.CardView>
