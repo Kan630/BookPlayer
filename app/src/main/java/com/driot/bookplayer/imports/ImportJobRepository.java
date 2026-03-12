@@ -62,8 +62,8 @@ public class ImportJobRepository extends LoggerHelper {
 
     public void fail(String id, String devErrorMsg, String usrErrorMsg) {
         dao.fail(id, devErrorMsg, usrErrorMsg, System.currentTimeMillis());
-        myToast(context.getString(R.string.Import_failed));
         ImportJob j = dao.get(id);
+        maybeToast(j, context.getString(R.string.Import_failed));
         if (j != null)
             FirebaseAnalyticsHelper.tellLoadBookFailed(j);
     }
@@ -82,10 +82,18 @@ public class ImportJobRepository extends LoggerHelper {
                 : context.getString(R.string.Import_Success);
 
         dao.success(id, text, System.currentTimeMillis());
-        myToast(text);
         ImportJob j = dao.get(id);
+        maybeToast(j, text);
         if (j != null)
             FirebaseAnalyticsHelper.tellLoadBookSuccess(j);
+    }
+
+    private void maybeToast(ImportJob j, String text) {
+        if (j != null && j.batchTotal > 1) {
+            // Suppress toast for Each item in a Mass Import
+            return;
+        }
+        myToast(text);
     }
 
     public void silentSuccess(String id, String endOfProgressText) {
