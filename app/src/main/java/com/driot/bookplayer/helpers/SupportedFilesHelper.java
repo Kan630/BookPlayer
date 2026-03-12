@@ -36,6 +36,7 @@ public class SupportedFilesHelper {
     public static final String SPECIAL_TYPE_7Z = "7Z";
     public static final String SPECIAL_TYPE_TAR = "TAR";
     public static final String SPECIAL_TYPE_TXT = "TXT";
+    public static final String SPECIAL_TYPE_HTML = "HTML";
 
     public static boolean isAudio(DocumentFile docFile) {
         String type = getType(docFile);
@@ -224,11 +225,9 @@ public class SupportedFilesHelper {
         return mime == null ? "" : mime;
     }
 
-
     public static String getFileExtension(String fileName) {
         return extractExtension(fileName);
     }
-
 
     // ----------------------- TYPE RESOLUTION -----------------------
     /** Hybrid: check supported MIME sets, then prefix fallback for robustness. */
@@ -341,6 +340,9 @@ public class SupportedFilesHelper {
                 return SPECIAL_TYPE_EPUB;
             case "txt":
                 return SPECIAL_TYPE_TXT;
+            case "html":
+            case "htm":
+                return SPECIAL_TYPE_HTML;
             default:
                 return null;
         }
@@ -369,7 +371,8 @@ public class SupportedFilesHelper {
 
     // ----------------------- SUPPORT CHECKS -----------------------
     private static boolean isBookSupportedFromType(String type) {
-        return FILE_TYPE_AUDIO.equals(type) || FILE_TYPE_VIDEO.equals(type) || FILE_TYPE_EBOOK.equals(type) || FILE_TYPE_BUNDLE.equals(type);
+        return FILE_TYPE_AUDIO.equals(type) || FILE_TYPE_VIDEO.equals(type) || FILE_TYPE_EBOOK.equals(type)
+                || FILE_TYPE_BUNDLE.equals(type);
     }
 
     public static boolean isBookSupported(DocumentFile docFile) {
@@ -396,7 +399,6 @@ public class SupportedFilesHelper {
         }
     }
 
-
     // Group helpers for special types
     public static boolean isBundleSpecial(String specialType) {
         return SPECIAL_TYPE_ZIP.equals(specialType)
@@ -409,6 +411,7 @@ public class SupportedFilesHelper {
                 || SPECIAL_TYPE_FB2.equals(specialType)
                 || SPECIAL_TYPE_ODT.equals(specialType)
                 || SPECIAL_TYPE_DOCX.equals(specialType)
+                || SPECIAL_TYPE_HTML.equals(specialType)
                 || SPECIAL_TYPE_TXT.equals(specialType);
     }
 
@@ -417,6 +420,7 @@ public class SupportedFilesHelper {
         return SPECIAL_TYPE_EPUB.equals(specialType)
                 || SPECIAL_TYPE_FB2.equals(specialType)
                 || SPECIAL_TYPE_ODT.equals(specialType)
+                || SPECIAL_TYPE_HTML.equals(specialType)
                 || SPECIAL_TYPE_DOCX.equals(specialType);
     }
 

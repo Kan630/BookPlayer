@@ -252,7 +252,9 @@ public class Var {
                                         "epub", // Kobo kepub is still .epub
                                         "fb2", // FictionBook 2
                                         "odt", // OpenDocument Text – must be split to .txt before TTS
-                                        "docx" // Word document
+                                        "docx", // Word document
+                                        "html", // HTML document
+                                        "htm" // HTML document
                         ));
         public static final Set<String> SUPPORTED_EBOOK_EXTENSIONS = new HashSet<>();
         static {
