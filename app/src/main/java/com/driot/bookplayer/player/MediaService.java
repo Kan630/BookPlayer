@@ -944,9 +944,35 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
 
         final String action = intent.getAction();
+        final boolean foregroundRequired = intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false);
+
         if (action == null) {
             myLogW("onStartCommand with no intent.action");
+            if (foregroundRequired) {
+                goForegroundPreparing("BookPlayer", null);
+            }
             return START_STICKY;
+        }
+
+        // Consolidated check for foreground requirement
+        if (foregroundRequired) {
+            // Some actions might handle this more specifically (with better text),
+            // but we ensure it happens here as a safety net if not already handled.
+            // We'll call it for actions that don't have their own specific preparation.
+            switch (action) {
+                case Intents.ACTION_PLAY_FROM_TRACK:
+                case Intents.ACTION_PLAY_FROM_FOLDER:
+                case "CMD_PLAY":
+                case Intent.ACTION_MEDIA_BUTTON:
+                case Intents.ACTION_PLAY_STREAM:
+                case Intents.CMD_TTS_SET_VOICE:
+                    // These actions call goForegroundPreparing or showForegroundNotification specifically
+                    break;
+                default:
+                    myLogI("onStartCommand: promoting to foreground for action: " + action);
+                    goForegroundPreparing("BookPlayer", null);
+                    break;
+            }
         }
 
         switch (action) {
