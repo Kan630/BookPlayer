@@ -1281,4 +1281,9 @@
         <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
     </plurals>
+
+    <string name="Splitting_chapters">Splitting chapters</string>
+
 </resources>
+
+

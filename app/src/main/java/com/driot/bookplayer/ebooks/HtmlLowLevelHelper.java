@@ -144,36 +144,65 @@ public final class HtmlLowLevelHelper {
         myLogD("HTML Split Heuristic: h1=" + h1Count + ", h2=" + h2Count + ", h3=" + h3Count + " => bestTag="
                 + bestTag);
 
-        Elements children = body.children();
-        Chapter current = new Chapter();
-        current.title = "";
+        final String splitTag = bestTag;
+        final Chapter[] current = { new Chapter() };
+        current[0].title = "";
 
-        for (Element el : children) {
-            String tag = el.tagName().toLowerCase(Locale.ROOT);
-            String text = el.text().trim();
-            if (text.isEmpty() && el.children().isEmpty())
-                continue;
+        body.filter(new org.jsoup.select.NodeFilter() {
+            @Override
+            public FilterResult head(org.jsoup.nodes.Node node, int depth) {
+                if (node instanceof Element) {
+                    Element el = (Element) node;
+                    String tag = el.tagName().toLowerCase(Locale.ROOT);
 
-            boolean isHeading = tag.matches("h[1-3]");
-            boolean shouldSplit = tag.equals(bestTag) || tag.equals("h1");
+                    boolean isAnyHeading = tag.matches("h[1-3]");
+                    boolean isPrimaryHeading = tag.equals(splitTag);
+                    boolean isH1 = tag.equals("h1");
 
-            if (shouldSplit) {
-                if (current.buf.length() > 0 || !current.title.isEmpty()) {
-                    chapters.add(current);
+                    // Logic for splitting:
+                    // - Primary heuristic tag
+                    // - OR H1 (unless h1 is the primary tag, which is already handled)
+                    boolean shouldSplit = isPrimaryHeading || isH1;
+
+                    if (shouldSplit) {
+                        String text = el.text().trim();
+                        if (!text.isEmpty()) {
+                            // If we have content or a previous title, flush it
+                            if (current[0].buf.length() > 20 || !current[0].title.isEmpty()) {
+                                chapters.add(current[0]);
+                            }
+                            current[0] = new Chapter();
+                            current[0].title = text;
+                            return FilterResult.SKIP_CHILDREN;
+                        }
+                    }
+                } else if (node instanceof org.jsoup.nodes.TextNode) {
+                    String text = ((org.jsoup.nodes.TextNode) node).text();
+                    if (!text.trim().isEmpty()) {
+                        current[0].buf.append(text);
+                    }
                 }
-                current = new Chapter();
-                current.title = text;
-            } else {
-                if (current.title.isEmpty() && isHeading) {
-                    current.title = text;
-                } else {
-                    current.buf.append(el.text()).append("\n\n");
-                }
+                return FilterResult.CONTINUE;
             }
-        }
 
-        if (current.buf.length() > 0 || !current.title.isEmpty()) {
-            chapters.add(current);
+            @Override
+            public FilterResult tail(org.jsoup.nodes.Node node, int depth) {
+                if (node instanceof Element) {
+                    String tag = ((Element) node).tagName().toLowerCase(Locale.ROOT);
+                    if (isBlock(tag)) {
+                        current[0].buf.append("\n");
+                    }
+                }
+                return FilterResult.CONTINUE;
+            }
+
+            private boolean isBlock(String tag) {
+                return tag.matches("p|div|section|article|blockquote|h[1-6]|br|li|tr|ul|ol");
+            }
+        });
+
+        if (current[0].buf.length() > 0 || !current[0].title.isEmpty()) {
+            chapters.add(current[0]);
         }
 
         // Merge very short chapters

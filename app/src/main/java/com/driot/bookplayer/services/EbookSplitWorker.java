@@ -253,7 +253,7 @@ public class EbookSplitWorker extends ImportWorker {
                 }
 
                 int progress = (int) Math.round(((i + 1) * 100.0) / total);
-                String progressText = "Splitting " + ebookType.toUpperCase(Locale.ROOT) + ": "
+                String progressText = context.getString(R.string.Splitting_chapters) + ": "
                         + (i + 1) + "/" + total + "\n\n" + title;
                 emitStepProgress(TASK_NAME, progress, progressText);
                 myLogD(progress + "% - " + progressText.replace("\n", " - "));
