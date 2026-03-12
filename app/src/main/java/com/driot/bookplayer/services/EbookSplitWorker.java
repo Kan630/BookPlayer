@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.ebooks.HtmlLowLevelHelper;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.ebooks.EpubCommonHelper;
@@ -41,6 +42,13 @@ public class EbookSplitWorker extends ImportWorker {
     // Keep existing label for compatibility with UI/strings
     private static final String TASK_NAME = Var.WORKER_TASK_LABEL_SPLIT_EBOOK;
 
+    private static final String EBOOK_TYPE_HTML = "EBOOK_TYPE_HTML";
+    private static final String EBOOK_TYPE_EPUB = "EBOOK_TYPE_EPUB";
+    private static final String EBOOK_TYPE_FB2 = "EBOOK_TYPE_FB2";
+    private static final String EBOOK_TYPE_TXT = "EBOOK_TYPE_TXT";
+    private static final String EBOOK_TYPE_ODT = "EBOOK_TYPE_ODT";
+    private static final String EBOOK_TYPE_DOCX = "EBOOK_TYPE_DOCX";
+
     private final Context context;
 
     public EbookSplitWorker(@NonNull Context context, @NonNull WorkerParameters params) {
@@ -63,11 +71,17 @@ public class EbookSplitWorker extends ImportWorker {
         myLog("ebookPath = " + ebookPath);
         myLog("destinationFolderPath = " + destinationFolderPath);
         myLog("-------------------------------------");
-        final String ebookType = guessTypeFromPath(ebookPath); // keep that line here to get some log if null =>
-                                                               // throw...
+        final String ebookType = guessTypeFromPath(ebookPath);
         myLog("computed ebookType = " + ebookType);
         myLog("source Location = " + sourceLocation);
         myLogD("--------------------------------------------------------------------------");
+
+        if (ebookType.startsWith("unknown")) {
+            emitFailed(TASK_NAME, ebookType,
+                    getApplicationContext().getString(R.string.invalid_resource) + "\n" + ebookType);
+            myLogEE(null, "could not get ebook type... - " + ebookType);
+            return Result.failure();
+        }
 
         // Optionally enter foreground:
         // setForegroundEarly(buildForegroundInfo());
@@ -107,13 +121,13 @@ public class EbookSplitWorker extends ImportWorker {
             List<File> chapters;
             Map<String, String> extractedTitles = new LinkedHashMap<>();
 
-            if ("fb2".equals(ebookType)) {
+            if (EBOOK_TYPE_FB2.equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing FB2…");
                 Fb2LowLevelHelper.ExtractResult result = Fb2LowLevelHelper.extractAll(ctx, uri);
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
                 extractedTitles = result.trackTitles;
-            } else if ("epub".equals(ebookType)) {
+            } else if (EBOOK_TYPE_EPUB.equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing EPUB…");
 
                 // Determine which helper to use based on setting
@@ -143,22 +157,28 @@ public class EbookSplitWorker extends ImportWorker {
                     chapters = result.chapterFiles;
                     extractedTitles = result.trackTitles;
                 }
-            } else if ("odt".equals(ebookType)) {
+            } else if (EBOOK_TYPE_ODT.equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing ODT…");
                 OdtLowLevelHelper.ExtractResult result = OdtLowLevelHelper.extractAll(ctx, uri);
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
                 extractedTitles = result.trackTitles;
-            } else if ("docx".equals(ebookType)) {
+            } else if (EBOOK_TYPE_DOCX.equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Parsing DOCX…");
                 DocxLowLevelHelper.ExtractResult result = DocxLowLevelHelper.extractAll(ctx, uri,
                         Option.getDocxSplitIntoChapters());
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
                 extractedTitles = result.trackTitles;
-            } else if ("txt".equals(ebookType)) {
+            } else if (EBOOK_TYPE_TXT.equals(ebookType)) {
                 emitStepProgress(TASK_NAME, 1, "Splitting Text file…");
                 TextLowLevelHelper.ExtractResult result = TextLowLevelHelper.extractAll(ctx, uri);
+                cover = result.coverBitmap;
+                chapters = result.chapterFiles;
+                extractedTitles = result.trackTitles;
+            } else if (EBOOK_TYPE_HTML.equals(ebookType)) {
+                emitStepProgress(TASK_NAME, 1, "Splitting Html…");
+                HtmlLowLevelHelper.ExtractResult result = HtmlLowLevelHelper.extractAll(ctx, uri);
                 cover = result.coverBitmap;
                 chapters = result.chapterFiles;
                 extractedTitles = result.trackTitles;
@@ -429,19 +449,19 @@ public class EbookSplitWorker extends ImportWorker {
         String ext = dot > 0 ? name.substring(dot + 1) : "";
         switch (ext) {
             case "epub":
-                return "epub";
+                return EBOOK_TYPE_EPUB;
             case "fb2":
-                return "fb2";
+                return EBOOK_TYPE_FB2;
             case "odt":
-                return "odt";
+                return EBOOK_TYPE_ODT;
             case "docx":
-                return "docx";
+                return EBOOK_TYPE_DOCX;
             case "txt":
-                return "txt";
-            // common zipped fb2 variants could be handled later (fb2.zip/fbz) if you add
-            // unzip
+                return EBOOK_TYPE_TXT;
+            case "html", "htm":
+                return EBOOK_TYPE_HTML;
             default:
-                return "epub"; // safe default if you mostly import EPUBs
+                return "unknown extension : [" + ext + "]";
         }
     }
 
