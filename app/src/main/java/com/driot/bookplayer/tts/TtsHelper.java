@@ -152,7 +152,7 @@ public class TtsHelper {
             Chunk c = chunks.get(i);
             String id = com.driot.bookplayer.tts.TtsIds.utt(c.start, c.end, tag);
             int r = tts.speak(c.text, TextToSpeech.QUEUE_ADD, p, id);
-            TtsErrorUtils.logOperationResult("TTS", "speak(chunk)", r);
+            //TtsErrorUtils.logOperationResult("TTS", "speak(chunk)", r);
         }
     }
 
