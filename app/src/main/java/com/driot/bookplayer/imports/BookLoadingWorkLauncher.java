@@ -169,6 +169,7 @@ public class BookLoadingWorkLauncher {
 
             j.batchIndex = s.batchIndex;
             j.batchTotal = s.batchTotal;
+            j.uniqueChainName = s.uniqueChainName;
 
             j.status = Var.IMPORT_STATUS_RUNNING; // _QUEUED;
             j.createdAt = j.updatedAt = System.currentTimeMillis();
@@ -213,7 +214,14 @@ public class BookLoadingWorkLauncher {
 
             WorkManager wm = WorkManager.getInstance(ctx);
 
-            String uniqueName = sequential ? "bookload-queue" : "bookload:" + importId;
+            String uniqueName;
+            if (sequential) {
+                uniqueName = (s.uniqueChainName != null && !s.uniqueChainName.isEmpty())
+                        ? s.uniqueChainName
+                        : "bookload-queue";
+            } else {
+                uniqueName = "bookload:" + importId;
+            }
             myLogD("uniqueName = " + uniqueName);
 
             // Check if there's active work in the queue before deciding policy

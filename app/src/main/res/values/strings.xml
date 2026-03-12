@@ -1283,6 +1283,8 @@
     </plurals>
 
     <string name="Splitting_chapters">Splitting chapters</string>
+    <string name="succeeded">succeeded</string> //for "import: X/Y succeeded"
+    <string name="failed">failed</string> //for "import: X/Y succeeded (Z/Y failed)"
 
 </resources>
 

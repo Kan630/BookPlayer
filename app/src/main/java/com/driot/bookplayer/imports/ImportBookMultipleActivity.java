@@ -403,6 +403,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
         btnConfirmImport.setEnabled(false);
 
         final int totalInBatch = batchTotal;
+        final String batchId = "batch-" + java.util.UUID.randomUUID().toString().substring(0, 8);
         new Thread(() -> {
             int batchIndex = 0;
             for (BookCandidate candidate : candidates) {
@@ -422,6 +423,7 @@ public class ImportBookMultipleActivity extends BaseBottomNavActivity {
                 // Set batch tracking info
                 s.batchIndex = batchIndex;
                 s.batchTotal = totalInBatch;
+                s.uniqueChainName = batchId;
                 // Format the name for display (remove underscores, extension, etc.)
                 String formattedName = com.driot.bookplayer.utils.Tonio.formatNameForDisplay(candidate.name);
 

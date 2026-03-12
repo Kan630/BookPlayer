@@ -224,4 +224,17 @@ public interface ImportJobDao {
 
         @Query("UPDATE ImportJob SET metadataJson = :json, updatedAt = :ts WHERE importId = :id")
         void updateMetadataJson(String id, String json, long ts);
+
+        // Batch status queries
+        @Query("SELECT COUNT(*) FROM ImportJob WHERE uniqueChainName = :batchId AND status = '" + Var.IMPORT_STATUS_SUCCEEDED + "'")
+        int countBatchSucceeded(String batchId);
+
+        @Query("SELECT COUNT(*) FROM ImportJob WHERE uniqueChainName = :batchId AND status = '" + Var.IMPORT_STATUS_FAILED + "'")
+        int countBatchFailed(String batchId);
+
+        @Query("SELECT COUNT(*) FROM ImportJob WHERE uniqueChainName = :batchId AND status IN ('" +
+                        Var.IMPORT_STATUS_SUCCEEDED + "', '" +
+                        Var.IMPORT_STATUS_FAILED + "', '" +
+                        Var.IMPORT_STATUS_CANCELLED + "')")
+        int countBatchFinished(String batchId);
 }

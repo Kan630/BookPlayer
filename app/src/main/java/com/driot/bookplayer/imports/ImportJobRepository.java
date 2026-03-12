@@ -64,6 +64,7 @@ public class ImportJobRepository extends LoggerHelper {
         dao.fail(id, devErrorMsg, usrErrorMsg, System.currentTimeMillis());
         ImportJob j = dao.get(id);
         maybeToast(j, context.getString(R.string.Import_failed));
+        checkBatchCompletion(j);
         if (j != null)
             FirebaseAnalyticsHelper.tellLoadBookFailed(j);
     }
@@ -84,8 +85,35 @@ public class ImportJobRepository extends LoggerHelper {
         dao.success(id, text, System.currentTimeMillis());
         ImportJob j = dao.get(id);
         maybeToast(j, text);
+        checkBatchCompletion(j);
         if (j != null)
             FirebaseAnalyticsHelper.tellLoadBookSuccess(j);
+    }
+
+    private void checkBatchCompletion(ImportJob j) {
+        if (j == null || j.batchTotal <= 1 || j.uniqueChainName == null || j.uniqueChainName.isEmpty()) {
+            return;
+        }
+
+        // Run on DB executor to avoid blocking and ensure we have latest data
+        AppDatabase.databaseWriteExecutor.execute(() -> {
+            int finished = dao.countBatchFinished(j.uniqueChainName);
+            if (finished >= j.batchTotal) {
+                int succeeded = dao.countBatchSucceeded(j.uniqueChainName);
+                int failed = dao.countBatchFailed(j.uniqueChainName);
+                String summary;
+                if (failed == 0) {
+                    summary = context.getString(R.string.Import) + ": " + succeeded + "/" + j.batchTotal + " "
+                            + context.getString(R.string.succeeded);
+                } else {
+                    summary = context.getString(R.string.Import) + ": " + succeeded + "/" + j.batchTotal + " "
+                            + context.getString(R.string.succeeded) + " (" + failed + " "
+                            + context.getString(R.string.failed) + ")";
+                }
+                myLogI("Batch finished: " + summary);
+                myToast(summary);
+            }
+        });
     }
 
     private void maybeToast(ImportJob j, String text) {
