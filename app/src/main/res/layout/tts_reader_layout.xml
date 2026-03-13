@@ -38,7 +38,7 @@
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_marginStart="8dp"
-            android:src="@drawable/ic_content_expand_24"
+            android:src="@drawable/ic_fullscreen_24px"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/full_screen_mode"
              />
