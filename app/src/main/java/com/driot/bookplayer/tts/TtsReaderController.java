@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.text.Layout;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.ViewConfiguration;
 
 import androidx.annotation.NonNull;
@@ -47,6 +48,8 @@ public class TtsReaderController {
     private boolean suppressAutoScroll = false;
     private float lastDownY;
     private final int touchSlop;
+    private final ScaleGestureDetector scaleDetector;
+    private float currentTextSize;
 
     private long lastTtsTrackId = -1;
     private boolean lastTtsPlaying = false;
@@ -66,6 +69,22 @@ public class TtsReaderController {
 
         this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
         this.recyclerView.setItemAnimator(null);
+        this.currentTextSize = (float) Option.getTtsFullscreenTextSize();
+        this.scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            @Override
+            public boolean onScale(@NonNull ScaleGestureDetector detector) {
+                float factor = detector.getScaleFactor();
+                float newSize = currentTextSize * factor;
+                // Clamp to reasonable limits (10 to 60 sp)
+                newSize = Math.max(10f, Math.min(60f, newSize));
+                if (Math.abs(newSize - currentTextSize) > 0.1f) {
+                    currentTextSize = newSize;
+                    adapter.setTextSize(currentTextSize);
+                    Option.setTtsFullscreenTextSize((int) currentTextSize);
+                }
+                return true;
+            }
+        });
         attachTouchLogic();
     }
 
@@ -223,10 +242,16 @@ public class TtsReaderController {
     }
 
     private void attachTouchLogic() {
-        // Simplified tap logic for now
         recyclerView.addOnItemTouchListener(new RecyclerView.SimpleOnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                scaleDetector.onTouchEvent(e);
+                if (e.getPointerCount() > 1) {
+                    // It's a multi-touch gesture (like pinch), suppress autoscroll
+                    suppressAutoScroll = true;
+                    return false; 
+                }
+                
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
                     lastDownY = e.getY();
                 } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
@@ -235,6 +260,11 @@ public class TtsReaderController {
                     }
                 }
                 return false;
+            }
+
+            @Override
+            public void onTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
+                scaleDetector.onTouchEvent(e);
             }
         });
     }
