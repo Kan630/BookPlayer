@@ -140,13 +140,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     protected AppTtsManager ttsManager;
 
     private long engineGen = 0L;
+    private long lastPreparedGen = -1L;
     private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final EngineListener engineCb = new EngineListener() {
         @Override
         public void onPrepared(long gen) {
             if (gen != engineGen)
                 return;
-            main.post(MediaService.this::onEnginePrepared);
+            main.post(() -> onEnginePrepared(gen));
         }
 
         @Override
@@ -1851,8 +1852,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         shutdown(false);
     }
 
-    private void onEnginePrepared() {
-        myLogD("onEnginePrepared()");
+    private void onEnginePrepared(long gen) {
+        if (gen != engineGen || gen == lastPreparedGen) {
+            myLogD("onEnginePrepared() ignored - gen=" + gen + " last=" + lastPreparedGen);
+            return;
+        }
+        lastPreparedGen = gen;
+        myLogD("onEnginePrepared() gen=" + gen);
 
         setUiPhase(Intents.PHASE_ENGINE_PREPARED, null);
 

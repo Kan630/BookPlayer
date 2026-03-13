@@ -72,18 +72,39 @@ public class TtsReaderController {
         this.recyclerView.setItemAnimator(null);
         this.currentTextSize = (float) Option.getTtsFullscreenTextSize();
         this.scaleDetector = new ScaleGestureDetector(context, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            private boolean wasAutoscrollEnabled = false;
+
             @Override
             public boolean onScale(@NonNull ScaleGestureDetector detector) {
                 float factor = detector.getScaleFactor();
                 float newSize = currentTextSize * factor;
-                // Clamp to reasonable limits (10 to 60 sp)
-                newSize = Math.max(10f, Math.min(60f, newSize));
+                // Clamp to reasonable limits (5 to 60 sp)
+                newSize = Math.max(5f, Math.min(60f, newSize));
                 if (Math.abs(newSize - currentTextSize) > 0.1f) {
                     currentTextSize = newSize;
                     adapter.setTextSize(currentTextSize);
                     Option.setTtsFullscreenTextSize((int) currentTextSize);
                 }
                 return true;
+            }
+
+            @Override
+            public boolean onScaleBegin(@NonNull ScaleGestureDetector detector) {
+                wasAutoscrollEnabled = !suppressAutoScroll;
+                suppressAutoScroll = true;
+                return true;
+            }
+
+            @Override
+            public void onScaleEnd(@NonNull ScaleGestureDetector detector) {
+                if (wasAutoscrollEnabled) {
+                    suppressAutoScroll = false;
+                    // Snap back to current line after zoom
+                    if (lastHighlightedChunkIdx != -1) {
+                        isFirstHighlight = true;
+                    }
+                }
+                myLogI("Zoom scale end, autoscroll restored=" + wasAutoscrollEnabled);
             }
         });
         this.doubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
@@ -263,18 +284,22 @@ public class TtsReaderController {
                 scaleDetector.onTouchEvent(e);
                 doubleTapDetector.onTouchEvent(e);
                 
-                if (e.getPointerCount() > 1) {
-                    // It's a multi-touch gesture (like pinch), suppress autoscroll
-                    suppressAutoScroll = true;
-                    return false; 
-                }
-                
                 if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                    myLogI("TOUCH Reader: ACTION_DOWN " + e.getX() + "," + e.getY());
                     lastDownY = e.getY();
                 } else if (e.getAction() == MotionEvent.ACTION_MOVE) {
-                    if (Math.abs(e.getY() - lastDownY) > touchSlop) {
-                        suppressAutoScroll = true;
+                    // Only suppress for single-finger scroll here.
+                    // Multi-finger (pinch) is handled by scaleDetector.
+                    if (e.getPointerCount() == 1 && Math.abs(e.getY() - lastDownY) > touchSlop) {
+                        if (!suppressAutoScroll) {
+                            myLogI("TOUCH Reader: SCROLL detected -> suppression ON");
+                            suppressAutoScroll = true;
+                        }
                     }
+                } else if (e.getAction() == MotionEvent.ACTION_UP) {
+                    myLogI("TOUCH Reader: ACTION_UP");
+                } else if (e.getAction() == MotionEvent.ACTION_CANCEL) {
+                    myLogI("TOUCH Reader: ACTION_CANCEL");
                 }
                 return false;
             }
