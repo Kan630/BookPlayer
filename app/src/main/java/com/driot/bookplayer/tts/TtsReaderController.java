@@ -40,6 +40,10 @@ public class TtsReaderController {
     private final List<String> chunks = new ArrayList<>();
     private final List<Integer> chunkOffsets = new ArrayList<>();
 
+    private int lastHighlightedChunkIdx = -1;
+    private int lastHighlightedLineIdx = -1;
+    private boolean isFirstHighlight = true;
+
     private boolean suppressAutoScroll = false;
     private float lastDownY;
     private final int touchSlop;
@@ -47,7 +51,7 @@ public class TtsReaderController {
     private long lastTtsTrackId = -1;
     private boolean lastTtsPlaying = false;
     private long lastTtsPositionMs = -1;
-    private static final long SEEK_DETECTION_THRESHOLD_MS = 5000;
+    private static final long SEEK_DETECTION_THRESHOLD_MS = 10000;
 
     public TtsReaderController(@NonNull Context context, @NonNull RecyclerView recyclerView) {
         this.context = context;
@@ -68,6 +72,7 @@ public class TtsReaderController {
         vm.getTtsText().observe(owner, text -> {
             if (text != null && !text.equals(fullText)) {
                 updateText(text);
+                isFirstHighlight = true;
             }
         });
 
@@ -83,6 +88,7 @@ public class TtsReaderController {
 
         adapter.setTextSize((float) Option.getTtsFullscreenTextSize());
         adapter.setOnWordClickListener(globalOffset -> {
+            suppressAutoScroll = false;
             vm.setTtsStartOffsetChars(globalOffset);
         });
     }
@@ -134,8 +140,48 @@ public class TtsReaderController {
             adapter.updateHighlight(chunkIdx, relStart, relEnd);
 
             if (!suppressAutoScroll) {
-                scrollToChunk(chunkIdx);
+                applyAutoScroll(chunkIdx, relStart);
             }
+        }
+    }
+
+    private void applyAutoScroll(int chunkIdx, int relStart) {
+        if (isFirstHighlight) {
+            // Immediate jump on first load or track change
+            int offset = recyclerView.getHeight() / 3;
+            layoutManager.scrollToPositionWithOffset(chunkIdx, offset);
+            isFirstHighlight = false;
+            lastHighlightedChunkIdx = chunkIdx;
+            return;
+        }
+
+        RecyclerView.ViewHolder holder = recyclerView.findViewHolderForAdapterPosition(chunkIdx);
+        if (holder != null && holder.itemView instanceof TtsTextView) {
+            TtsTextView tv = (TtsTextView) holder.itemView;
+            Layout layout = tv.getLayout();
+            if (layout != null) {
+                int line = layout.getLineForOffset(relStart);
+                if (line != lastHighlightedLineIdx || chunkIdx != lastHighlightedChunkIdx) {
+                    // Only scroll if we are not already smooth scrolling
+                    if (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
+                        int lineTop = layout.getLineTop(line);
+                        int viewTop = holder.itemView.getTop();
+                        int currentY = viewTop + lineTop;
+                        int targetY = recyclerView.getHeight() / 3;
+
+                        int diff = currentY - targetY;
+                        // Minimum threshold to prevent tiny jittery scrolls
+                        if (Math.abs(diff) > tv.getLineHeight() / 2) {
+                            recyclerView.smoothScrollBy(0, diff);
+                        }
+                    }
+                    lastHighlightedLineIdx = line;
+                    lastHighlightedChunkIdx = chunkIdx;
+                }
+            }
+        } else {
+            // View not bound, fall back to simple scroll
+            recyclerView.smoothScrollToPosition(chunkIdx);
         }
     }
 
@@ -150,13 +196,6 @@ public class TtsReaderController {
         return -1;
     }
 
-    private void scrollToChunk(int index) {
-        int first = layoutManager.findFirstVisibleItemPosition();
-        int last = layoutManager.findLastVisibleItemPosition();
-        if (index < first || index > last) {
-            recyclerView.smoothScrollToPosition(index);
-        }
-    }
 
     private void onPlaybackStateChanged(PlaybackUiState s) {
         if (s == null) return;
@@ -172,6 +211,7 @@ public class TtsReaderController {
         if (s.trackId != lastTtsTrackId) {
             lastTtsTrackId = s.trackId;
             suppressAutoScroll = false;
+            isFirstHighlight = true;
         }
 
         boolean isSpeak = Intents.PHASE_SPEAKING.equals(s.loadPhase);
