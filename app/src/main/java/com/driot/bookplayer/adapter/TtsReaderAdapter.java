@@ -103,7 +103,7 @@ public class TtsReaderAdapter extends RecyclerView.Adapter<TtsReaderAdapter.View
                     }
 
                     @Override
-                    public boolean onSingleTapUp(@NonNull MotionEvent e) {
+                    public boolean onSingleTapConfirmed(@NonNull MotionEvent e) {
                         Layout layout = holder.tv.getLayout();
                         if (layout == null) return false;
 

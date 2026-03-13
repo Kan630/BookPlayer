@@ -49,6 +49,7 @@ public class TtsReaderController {
     private float lastDownY;
     private final int touchSlop;
     private final ScaleGestureDetector scaleDetector;
+    private final GestureDetector doubleTapDetector;
     private float currentTextSize;
 
     private long lastTtsTrackId = -1;
@@ -81,6 +82,20 @@ public class TtsReaderController {
                     currentTextSize = newSize;
                     adapter.setTextSize(currentTextSize);
                     Option.setTtsFullscreenTextSize((int) currentTextSize);
+                }
+                return true;
+            }
+        });
+        this.doubleTapDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(@NonNull MotionEvent e) {
+                suppressAutoScroll = !suppressAutoScroll;
+                myLogI(suppressAutoScroll ? "Auto-scroll OFF" : "Auto-scroll ON");
+                if (!suppressAutoScroll && lastHighlightedChunkIdx != -1) {
+                    isFirstHighlight = true; // Trigger immediate sync
+                    // We don't have relStart here easily, but we can re-trigger from last state if needed
+                    // Actually, just setting isFirstHighlight and wait for next tick is fine,
+                    // or we can manually call applyAutoScroll if we save the last range.
                 }
                 return true;
             }
@@ -246,6 +261,8 @@ public class TtsReaderController {
             @Override
             public boolean onInterceptTouchEvent(@NonNull RecyclerView rv, @NonNull MotionEvent e) {
                 scaleDetector.onTouchEvent(e);
+                doubleTapDetector.onTouchEvent(e);
+                
                 if (e.getPointerCount() > 1) {
                     // It's a multi-touch gesture (like pinch), suppress autoscroll
                     suppressAutoScroll = true;
