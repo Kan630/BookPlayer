@@ -65,6 +65,7 @@ public class TtsReaderController {
         this.recyclerView.setAdapter(this.adapter);
 
         this.touchSlop = ViewConfiguration.get(context).getScaledTouchSlop();
+        this.recyclerView.setItemAnimator(null);
         attachTouchLogic();
     }
 
@@ -162,19 +163,18 @@ public class TtsReaderController {
             if (layout != null) {
                 int line = layout.getLineForOffset(relStart);
                 if (line != lastHighlightedLineIdx || chunkIdx != lastHighlightedChunkIdx) {
-                    // Only scroll if we are not already smooth scrolling
-                    if (recyclerView.getScrollState() == RecyclerView.SCROLL_STATE_IDLE) {
-                        int lineTop = layout.getLineTop(line);
-                        int viewTop = holder.itemView.getTop();
-                        int currentY = viewTop + lineTop;
-                        int targetY = recyclerView.getHeight() / 3;
+                    int lineTop = layout.getLineTop(line);
+                    int viewTop = holder.itemView.getTop();
+                    int currentY = viewTop + lineTop;
+                    int targetY = recyclerView.getHeight() / 3;
+                    int diff = currentY - targetY;
 
-                        int diff = currentY - targetY;
-                        // Minimum threshold to prevent tiny jittery scrolls
-                        if (Math.abs(diff) > tv.getLineHeight() / 2) {
-                            recyclerView.smoothScrollBy(0, diff);
-                        }
+                    // Only scroll if the difference is more than a tiny amount to prevent jitter
+                    if (Math.abs(diff) > 2) {
+                        recyclerView.stopScroll();
+                        recyclerView.smoothScrollBy(0, diff);
                     }
+                    
                     lastHighlightedLineIdx = line;
                     lastHighlightedChunkIdx = chunkIdx;
                 }
