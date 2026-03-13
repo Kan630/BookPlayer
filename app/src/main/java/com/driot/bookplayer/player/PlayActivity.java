@@ -41,8 +41,8 @@ import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.settings.ui.TtsSettingsFragment;
 import com.driot.bookplayer.tts.TtsHelper;
-import com.driot.bookplayer.tts.TtsHighlighter;
 import com.driot.bookplayer.tts.TtsOverlayManager;
+import com.driot.bookplayer.tts.TtsReaderController;
 import com.driot.bookplayer.tts.VoiceItem;
 import com.driot.bookplayer.utils.MetadataUi;
 import com.driot.bookplayer.utils.Tonio;
@@ -52,7 +52,6 @@ import com.driot.bookplayer.views.ClickInterceptFrameLayout;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 import com.driot.bookplayer.activities.TtsReaderActivity;
 import com.driot.bookplayer.adapter.VoiceSpinnerAdapter;
-import com.driot.bookplayer.views.TtsTextView;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.android.material.slider.Slider;
@@ -63,6 +62,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 
@@ -111,9 +111,9 @@ public class PlayActivity extends BaseActivity {
 
     private FrequencyVisualizerView frequencyVisualizerView;
 
-    private TtsHighlighter ttsHighlighter;
+    private TtsReaderController ttsReaderController;
     private TtsOverlayManager ttsOverlayManager;
-    private TtsTextView tvTtsText;
+    private RecyclerView rvTtsText;
     private View ttsContainer;
 
     private long podcastLastClickTime = 0;
@@ -199,7 +199,7 @@ public class PlayActivity extends BaseActivity {
         tvTimeLeft = findViewById(R.id.tv_TimeLeft);
 
         ttsContainer = findViewById(R.id.ttsContainer);
-        tvTtsText = findViewById(R.id.tvTtsText);
+        rvTtsText = findViewById(R.id.rvTtsText);
 
         ClickInterceptFrameLayout coverContainerClickIntercept = findViewById(R.id.coverContainer);
 
@@ -215,10 +215,8 @@ public class PlayActivity extends BaseActivity {
         ivCover.setVisibility(!isTextBook ? View.VISIBLE : View.GONE);
         if (isTextBook) {
             initTtsVoiceSpinner(folder);
-            ttsHighlighter = new TtsHighlighter(this, tvTtsText);
-            ttsHighlighter.setListener(this::applyAutoScroll);
-            ttsHighlighter.attachTouchLogic(vm);
-            ttsHighlighter.subscribe(this, vm);
+            ttsReaderController = new TtsReaderController(this, rvTtsText);
+            ttsReaderController.bind(this, vm);
             ttsOverlayManager = new TtsOverlayManager(this);
             findViewById(R.id.btnToggleTtsView).setOnClickListener(v -> {
                 TtsReaderActivity.start(PlayActivity.this);
@@ -366,18 +364,14 @@ public class PlayActivity extends BaseActivity {
         });
 
         if (isTextBook) {
+            // TtsRange and TtsText are now handled by ttsReaderController.bind()
             vm.getTtsRange().observe(this, p -> {
                 // myLog("observe Tts Range : [" + p.first + "/" + p.second + "]");
                 if (p != null) {
-                    ttsHighlighter.scheduleHighlight(p.first, p.second);
                     ttsOverlayManager.onHighlightReceived();
                 }
             });
 
-            vm.getTtsText().observe(this, txt -> {
-                // myLog("observe Tts Text : [" + txt + "]");
-                ttsHighlighter.onTextReady(txt);
-            });
         }
 
         getOnBackPressedDispatcher().addCallback(this, new OnBackPressedCallback(true) {
@@ -415,8 +409,6 @@ public class PlayActivity extends BaseActivity {
             UiHelper.unbindSeekBar(sbSeek);
             sliderBinding = null;
         }
-        if (ttsHighlighter != null)
-            ttsHighlighter.onDestroy();
         if (ttsOverlayManager != null)
             ttsOverlayManager.onDestroy();
         if (frequencyVisualizerView != null)
@@ -655,22 +647,6 @@ public class PlayActivity extends BaseActivity {
 
     public void showTtsLoading(boolean show) {
         showTtsLoading(show, null);
-    }
-
-    // Callbacks from TtsHighlighter
-    public void applyAutoScroll(TextView tv, int startPos) {
-        tvTtsText.post(() -> {
-            try {
-                Layout layout = tvTtsText.getLayout();
-                if (layout != null) {
-                    int line = layout.getLineForOffset(startPos);
-                    int y = layout.getLineTop(line);
-                    int targetY = Math.max(0, y - tvTtsText.getHeight() / 3);
-                    tvTtsText.scrollTo(0, targetY);
-                }
-            } catch (Throwable ignored) {
-            }
-        });
     }
 
     private void initTtsVoiceSpinner(Folder folder) {
