@@ -3,6 +3,7 @@
     android:id="@+id/tvTtsChunk"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="16dp"
+    android:paddingStart="2dp"
+    android:paddingEnd="0dp"
     style="@style/textColor"
     android:textSize="18sp" />
