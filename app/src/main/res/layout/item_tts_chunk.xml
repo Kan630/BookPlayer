@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.driot.bookplayer.views.TtsTextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tvTtsChunk"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    style="@style/textColor"
+    android:textSize="18sp" />

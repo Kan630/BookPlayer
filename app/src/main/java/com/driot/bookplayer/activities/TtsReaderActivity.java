@@ -13,8 +13,7 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.player.PlaybackViewModel;
-import com.driot.bookplayer.tts.TtsHighlighter;
-import com.driot.bookplayer.views.TtsTextView;
+import com.driot.bookplayer.tts.TtsReaderController;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -48,29 +47,11 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
 
         PlaybackViewModel vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
-        TtsTextView tvTtsFull = findViewById(R.id.tvTtsFullText);
-        tvTtsFull.setTextSize(TypedValue.COMPLEX_UNIT_SP, (float) Option.getTtsFullscreenTextSize());
+        androidx.recyclerview.widget.RecyclerView rv = findViewById(R.id.rvTtsText);
+        TtsReaderController controller = new TtsReaderController(this, rv);
+        controller.bind(this, vm);
 
-        TtsHighlighter ttsHighlighter = new TtsHighlighter(this, tvTtsFull);
-        ttsHighlighter.setListener(this::applyAutoScroll);
-        ttsHighlighter.attachTouchLogic(vm);
-        ttsHighlighter.subscribe(this, vm);
         findViewById(R.id.miniNowPlaying).setVisibility(Option.getTtsFullscreenControls() ? View.VISIBLE : View.GONE);
-    }
-
-    private void applyAutoScroll(TtsTextView tv, int s) {
-        tv.post(() -> {
-            try {
-                Layout layout = tv.getLayout();
-                if (layout != null) {
-                    int line = layout.getLineForOffset(s);
-                    int y = layout.getLineTop(line);
-                    int targetY = Math.max(0, y - tv.getHeight() / 3);
-                    tv.scrollTo(0, targetY);
-                }
-            } catch (Throwable ignored) {
-            }
-        });
     }
 
     // Convenience launcher

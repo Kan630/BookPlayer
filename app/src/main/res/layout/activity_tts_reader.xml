@@ -6,16 +6,12 @@
     style="@style/MainContainer"
     tools:context=".activities.TtsReaderActivity">
 
-    <com.driot.bookplayer.views.TtsTextView
-        android:id="@+id/tvTtsFullText"
-        style="@style/textColor"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rvTtsText"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="16dp"
         android:background="?attr/colorSurface"
-        android:textSize="18sp"
-        android:gravity="top|start"
-        android:scrollbars="vertical"
-        tools:text="Sample TTS text…"/>
+        android:clipToPadding="false"
+        android:padding="16dp" />
 
 </FrameLayout>
