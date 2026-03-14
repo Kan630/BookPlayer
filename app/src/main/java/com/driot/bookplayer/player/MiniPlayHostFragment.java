@@ -39,8 +39,16 @@ public class MiniPlayHostFragment extends LoggingFragment {
         vm = new ViewModelProvider(requireActivity()).get(PlaybackViewModel.class);
         root = v.findViewById(R.id.mini_host_container);
 
+        // Initial state: hide until we have a playMode
+        root.setVisibility(View.GONE);
+
         //Observer
         vm.getState().observe(getViewLifecycleOwner(), newState -> {
+            if (newState == null || newState.playMode == null || newState.playMode.isEmpty()) {
+                setGone();
+                lastPlayType = null;
+                return;
+            }
 
             String newPlayType = newState.playMode;
 
@@ -74,10 +82,15 @@ public class MiniPlayHostFragment extends LoggingFragment {
         // Initial attach (covers first frame before observer fires)
         if (vm.getState().getValue() != null) {
             String firstPlayType = vm.getState().getValue().playMode;
-            attachFirstChild(firstPlayType);
-            lastPlayType = firstPlayType;
+            if (firstPlayType != null && !firstPlayType.isEmpty()) {
+                attachFirstChild(firstPlayType);
+                lastPlayType = firstPlayType;
+            } else {
+                setGone();
+            }
+        } else {
+            setGone();
         }
-
     }
 
     private void attachFirstChild(String playType) {
