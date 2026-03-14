@@ -6,8 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.content.res.ColorStateList;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -137,10 +139,12 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             Glide.with(image.getContext()).load(item.image).into(image);
 
             boolean isFavorite = false;
+            boolean isAutoDownload = false;
             if (favorites != null) {
                 for (Podcast p : favorites) {
                     if (p.feedId == item.id) {
                         isFavorite = true;
+                        isAutoDownload = p.autoDownload;
                         break;
                     }
                 }
@@ -148,8 +152,15 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
 
             if (isFavorite) {
                 autoDownload.setVisibility(View.VISIBLE);
-                autoDownload.setImageResource(R.drawable.ic_favorite);
-                autoDownload.setBackgroundTintList(android.R.color.holo_red_dark);
+                if (isAutoDownload) {
+                    autoDownload.setImageResource(R.drawable.ic_download_action_24);
+                    autoDownload.setImageTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(autoDownload.getContext(), android.R.color.holo_green_dark)));
+                } else {
+                    autoDownload.setImageResource(R.drawable.ic_favorite);
+                    autoDownload.setImageTintList(ColorStateList.valueOf(
+                            ContextCompat.getColor(autoDownload.getContext(), android.R.color.holo_red_dark)));
+                }
             } else {
                 autoDownload.setVisibility(View.GONE);
             }
