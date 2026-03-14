@@ -1,6 +1,5 @@
-package com.driot.bookplayer.adapter;
+package com.driot.bookplayer.podcasts;
 
-import android.content.Context;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,11 +12,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.objects.LanguageItem;
-import com.driot.bookplayer.podcasts.PodcastFeed;
-import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
+
+import com.driot.bookplayer.db.Podcast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,6 +26,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     private static final int VIEW_TYPE_ITEM = 1;
 
     private List<PodcastFeed> items = new ArrayList<>();
+    private List<Podcast> favorites = null;
     private final OnItemClickListener listener;
 
     private String headerQuery = "";
@@ -43,21 +41,6 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
         this.listener = listener;
     }
 
-    public void setHeaderSearch(String query) {
-        this.headerQuery = query;
-        notifyItemChanged(0);
-    }
-
-    public void setHeaderLang(String lang) {
-        this.headerLang = lang;
-        notifyItemChanged(0);
-    }
-
-    public void setHeaderCount(String count) {
-        this.headerCount = count;
-        notifyItemChanged(0);
-    }
-
     public void setHeaderInfo(String query, String lang, String count) {
         this.headerQuery = query;
         this.headerLang = lang;
@@ -67,6 +50,11 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
 
     public void setItems(List<PodcastFeed> items) {
         this.items = items;
+        notifyDataSetChanged();
+    }
+
+    public void setFavorites(List<Podcast> favorites) {
+        this.favorites = favorites;
         notifyDataSetChanged();
     }
 
@@ -100,7 +88,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             h.tvCountryTag.setVisibility(View.GONE);
         } else {
             PodcastFeed item = items.get(position - 1); // subtract 1 because of header
-            ((PodcastViewHolder) holder).bind(item, listener);
+            ((PodcastViewHolder) holder).bind(item, listener, favorites);
         }
     }
 
@@ -129,6 +117,7 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
     static class PodcastViewHolder extends RecyclerView.ViewHolder {
         TextView title, desc, folderStats;
         ImageView image;
+        ImageView autoDownload;
 
         PodcastViewHolder(View v) {
             super(v);
@@ -136,15 +125,35 @@ public class PodcastSearchResultsRVAdapter extends LoggingRVAdapter<RecyclerView
             desc = v.findViewById(R.id.podcast_desc);
             image = v.findViewById(R.id.podcast_image);
             folderStats = v.findViewById(R.id.podcast_folder_stats);
+            autoDownload = v.findViewById(R.id.podcast_autodownload);
         }
 
-        void bind(PodcastFeed item, OnItemClickListener listener) {
+        void bind(PodcastFeed item, OnItemClickListener listener, List<Podcast> favorites) {
             title.setText(item.title);
             folderStats.setVisibility(View.GONE);
             if (item.description != null) {
                 desc.setText(Html.fromHtml(item.description, Html.FROM_HTML_MODE_LEGACY).toString().trim());
             }
             Glide.with(image.getContext()).load(item.image).into(image);
+
+            boolean isFavorite = false;
+            if (favorites != null) {
+                for (Podcast p : favorites) {
+                    if (p.feedId == item.id) {
+                        isFavorite = true;
+                        break;
+                    }
+                }
+            }
+
+            if (isFavorite) {
+                autoDownload.setVisibility(View.VISIBLE);
+                autoDownload.setImageResource(R.drawable.ic_favorite);
+                autoDownload.setBackgroundTintList(android.R.color.holo_red_dark);
+            } else {
+                autoDownload.setVisibility(View.GONE);
+            }
+
             itemView.setOnClickListener(v -> listener.onItemClick(item));
         }
     }

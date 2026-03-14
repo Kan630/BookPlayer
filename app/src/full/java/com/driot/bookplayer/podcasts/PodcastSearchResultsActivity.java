@@ -13,7 +13,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
-import com.driot.bookplayer.adapter.PodcastSearchResultsRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.db.PodcastDao;
@@ -133,6 +132,10 @@ public class PodcastSearchResultsActivity extends BaseBottomNavActivity {
         });
 
         recyclerView.setAdapter(adapter);
+
+        viewModel.getFavoritePodcastsLive().observe(this, favorites -> {
+            adapter.setFavorites(favorites);
+        });
 
         String query = getIntent().getStringExtra("query");
         String lang = getIntent().getStringExtra("lang");
