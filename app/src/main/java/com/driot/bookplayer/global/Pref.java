@@ -78,6 +78,12 @@ public class Pref {
     }
 
     public static SharedPreferences getStats(Context context) {
+        if (stats == null)
+            init(context);
+        return stats;
+    }
+
+    public static SharedPreferences getPrefs(Context context) {
         if (prefs == null)
             init(context);
         return prefs;
@@ -90,7 +96,13 @@ public class Pref {
     }
 
     public static boolean getShowLiveLogs() {
-        return admin.getBoolean("SHOW_LIVE_LOGS", DEFAULT_SHOW_LIVE_LOGS);
+        try {
+            return admin.getBoolean("SHOW_LIVE_LOGS", DEFAULT_SHOW_LIVE_LOGS);
+        } catch (Exception e) {
+            myLogEE(e, "getShowLiveLogs");
+            return false;
+        }
+
     }
 
     public static void setShowLiveLogs(boolean value) {
@@ -121,8 +133,8 @@ public class Pref {
         admin.edit().putBoolean("NEEDS_RECREATE", value).apply();
     }
 
-    public static String get_radio_mirror() {
-        return prefs.getString("RADIO_MIRROR", Var.DEFAULT_RADIO_MIRROR);
+    public static String get_radio_mirror(Context context) {
+        return getPrefs(context).getString("RADIO_MIRROR", Var.DEFAULT_RADIO_MIRROR);
     }
 
     public static void set_radio_mirror(String strValue) {

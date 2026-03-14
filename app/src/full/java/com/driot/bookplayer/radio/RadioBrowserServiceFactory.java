@@ -63,19 +63,19 @@ public class RadioBrowserServiceFactory {
        }
     }
 
-    public static Retrofit createRetrofit(Context ctx, boolean tryDiscoverMirrors, HttpLoggingInterceptor.Level logLevel) {
+    public static Retrofit createRetrofit(Context context, boolean tryDiscoverMirrors, HttpLoggingInterceptor.Level logLevel) {
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(userAgentInterceptor())
                 .addInterceptor(httpLogging(logLevel))
                 .build();
 
-        String base = Pref.get_radio_mirror();
+        String base = Pref.get_radio_mirror(context);
 
         //myLogD("tryDiscoverMirrors = " + tryDiscoverMirrors + " - base in prefs : " + base);
 
         if (tryDiscoverMirrors) {
             Set<String> failedBases = new java.util.HashSet<>();
-            String discovered = discoverBestMirror(client, failedBases);
+            String discovered = discoverBestMirror(context, client, failedBases);
             if (discovered != null) {
                 base = discovered;
                 Pref.set_radio_mirror(base);
@@ -148,12 +148,12 @@ public class RadioBrowserServiceFactory {
     }
 
     /** Discover a good mirror via /json/servers + probing. */
-    private static String discoverBestMirror(OkHttpClient client, Set<String> failedBases) {
+    private static String discoverBestMirror(Context context, OkHttpClient client, Set<String> failedBases) {
         myLogD("discoverBestMirror");
 
         try {
             Retrofit rootRetrofit = new Retrofit.Builder()
-                    .baseUrl(Pref.get_radio_mirror())
+                    .baseUrl(Pref.get_radio_mirror(context))
                     .client(client)
                     .addConverterFactory(GsonConverterFactory.create())
                     .build();
