@@ -54,234 +54,242 @@ import org.junit.runner.RunWith;
 @RunWith(AndroidJUnit4.class)
 public abstract class BasicNavTest implements LogSupport {
 
-    private Context appContext;
-    protected abstract int desiredOrientation();
+        private Context appContext;
 
-    // Launches MainActivity before each test
-    @Rule
-    public ActivityScenarioRule<MainActivity> activityRule =
-            new ActivityScenarioRule<>(MainActivity.class);
+        protected abstract int desiredOrientation();
 
-    @Rule public LoggingWatcher logs = new LoggingWatcher();
+        // Launches MainActivity before each test
+        @Rule
+        public ActivityScenarioRule<MainActivity> activityRule = new ActivityScenarioRule<>(MainActivity.class);
 
-    @Before
-    public void setUp() {
-        myLog("ooooooooooooooooooooooooooooooooooooooooo");
-        myLog("----------------- setUp -----------------");
-        myLog("ooooooooooooooooooooooooooooooooooooooooo");
-        appContext = ApplicationProvider.getApplicationContext();
+        @Rule
+        public LoggingWatcher logs = new LoggingWatcher();
 
-        KanLogger.init(appContext);Option.setTechLog(true);
+        @Before
+        public void setUp() {
+                myLog("ooooooooooooooooooooooooooooooooooooooooo");
+                myLog("----------------- setUp -----------------");
+                myLog("ooooooooooooooooooooooooooooooooooooooooo");
+                appContext = ApplicationProvider.getApplicationContext();
 
-        if (desiredOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
-            myLog("+++++++++++++ Orientation = PORTRAIT -----------------------");
-        } else {
-            myLog("+++++++++++++ Orientation = LANDSCAPE -----------------------");
-        }
-    }
+                KanLogger.init(appContext);
+                Option.setTechLog(true);
 
-    @Test
-    public void BasicNavigationTest_01() {
-        myLog("BasicNavTest : BasicNavigationTest_01");
-        Context context = ApplicationProvider.getApplicationContext();
-
-        TestNavUtils.logCurrentActivity();
-
-            //TODO remove
-        ImportHelper.cancelCurrentImport(appContext);
-
-        // If we landed on GetActivity (empty state), press back to reach MainActivity
-        if (TestNavUtils.getCurrentResumedActivity() instanceof GetActivity) {
-            myLogW("On GetActivity, pressing back to reach MainActivity…");
-            boolean ok = TestNavUtils.pressBackTo(MainActivity.class, /*maxPresses*/3, /*perStepWaitMs*/1000);
-            if (!ok) throw new AssertionError("Could not navigate back to MainActivity");
-            TestNavUtils.logCurrentActivity();
+                if (desiredOrientation() == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
+                        myLog("+++++++++++++ Orientation = PORTRAIT -----------------------");
+                } else {
+                        myLog("+++++++++++++ Orientation = LANDSCAPE -----------------------");
+                }
         }
 
-///  MAIN
-        myLogD("on Main");
-        // TODO change your custom menu top stock menu, so you can use this handy method
-        // TODO => openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());onView(withText(R.string.menu_open)).perform(click());
-// 1) Make sure toolbar is there
-        onView(ViewMatchers.withId(R.id.toolbar)).check(matches(isDisplayed()));
-        myLogD("toolbar reachable");
+        @Test
+        public void BasicNavigationTest_01() {
+                myLog("BasicNavTest : BasicNavigationTest_01");
+                Context context = ApplicationProvider.getApplicationContext();
 
-        //menu_manual
+                TestNavUtils.logCurrentActivity();
 
-        MenuHelpers.tapMenu(R.string.manual);
-        onView(ViewMatchers.withId(R.id.tv_help_text_general)).check(matches(isDisplayed()));
-        TestNavUtils.logCurrentActivity();
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
+                // TODO remove
+                ImportHelper.cancelCurrentImport(appContext);
 
-        //menu_open
-        MenuHelpers.tapMenu(R.string.add_book);
-        TestNavUtils.logCurrentActivity();
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
+                // If we landed on GetActivity (empty state), press back to reach MainActivity
+                if (TestNavUtils.getCurrentResumedActivity() instanceof GetActivity) {
+                        myLogW("On GetActivity, pressing back to reach MainActivity…");
+                        boolean ok = TestNavUtils.pressBackTo(MainActivity.class, /* maxPresses */3,
+                                        /* perStepWaitMs */1000);
+                        if (!ok)
+                                throw new AssertionError("Could not navigate back to MainActivity");
+                        TestNavUtils.logCurrentActivity();
+                }
 
-        //menu quick share
-        MenuHelpers.tapMenu(R.string.nearby_share_receive_book);
-        TestNavUtils.logCurrentActivity();
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
+                /// MAIN
+                myLogD("on Main");
+                // TODO change your custom menu top stock menu, so you can use this handy method
+                // TODO =>
+                // openActionBarOverflowOrOptionsMenu(InstrumentationRegistry.getInstrumentation().getTargetContext());onView(withText(R.string.menu_open)).perform(click());
+                myLogD("toolbar reachable");
+                TestNavUtils.sleep(1000);
 
-        //menu_settings
-        MenuHelpers.tapMenu(R.string.settings);
-        TestNavUtils.logCurrentActivity();
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
+                // menu_manual
+                myLogD("Calling tapMenu(manual)...");
+                MenuHelpers.tapMenu(R.string.manual);
+                myLogD("tapMenu(manual) FINISHED");
+                onView(ViewMatchers.withId(R.id.tv_help_text_general)).check(matches(isDisplayed()));
+                TestNavUtils.logCurrentActivity();
+                onView(withId(android.R.id.content)).perform(swipeUp());
+                onView(withId(android.R.id.content)).perform(swipeDown());
+                TestNavUtils.assertPressBackTo(MainActivity.class);
 
+                // menu_open
+                MenuHelpers.tapMenu(R.string.add_book);
+                TestNavUtils.logCurrentActivity();
+                onView(withId(android.R.id.content)).perform(swipeUp());
+                onView(withId(android.R.id.content)).perform(swipeDown());
+                TestNavUtils.assertPressBackTo(MainActivity.class);
 
-/*
-        //menu_settings
+                // menu quick share
+                MenuHelpers.tapMenu(R.string.nearby_share_receive_book);
+                TestNavUtils.logCurrentActivity();
+                onView(withId(android.R.id.content)).perform(swipeUp());
+                onView(withId(android.R.id.content)).perform(swipeDown());
+                TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        MenuHelpers.tapMenu(R.string.settings);
-        TestNavUtils.logCurrentActivity();
-// Expand Play Behaviour
-// Expand Play Behaviour
-        onView(withId(R.id.section_play_behaviour))  // root of SettingsSectionView
-                .perform(scrollTo());  // ensure visible
+                // menu_settings
+                MenuHelpers.tapMenu(R.string.settings);
+                TestNavUtils.logCurrentActivity();
+                onView(withId(android.R.id.content)).perform(swipeUp());
+                onView(withId(android.R.id.content)).perform(swipeDown());
+                TestNavUtils.assertPressBackTo(MainActivity.class);
 
-// Then click — but use a custom action to force performClick() on the header child
-        TestNavUtils.openSettingSection(R.id.section_play_behaviour);
-        TestNavUtils.sleep(500);
+                /*
+                 * //menu_settings
+                 * 
+                 * MenuHelpers.tapMenu(R.string.settings);
+                 * TestNavUtils.logCurrentActivity();
+                 * // Expand Play Behaviour
+                 * // Expand Play Behaviour
+                 * onView(withId(R.id.section_play_behaviour)) // root of SettingsSectionView
+                 * .perform(scrollTo()); // ensure visible
+                 * 
+                 * // Then click — but use a custom action to force performClick() on the header
+                 * child
+                 * TestNavUtils.openSettingSection(R.id.section_play_behaviour);
+                 * TestNavUtils.sleep(500);
+                 * 
+                 * // Verify something inside the expanded fragment
+                 * onView(withId(R.id.etTimeBeforeSleep))
+                 * .perform(scrollTo())
+                 * .check(matches(isDisplayed()));
+                 * 
+                 * myLog("Settings - section play behaviour OK");
+                 * 
+                 * // Expand Design
+                 * TestNavUtils.openSettingSection(R.id.section_design);
+                 * 
+                 * TestNavUtils.sleep(500);
+                 * 
+                 * myLog("Settings - section design OK");
+                 * 
+                 * myLog("Settings - closing section design");
+                 * TestNavUtils.openSettingSection(R.id.section_play_behaviour);
+                 * 
+                 * TestNavUtils.assertPressBackTo(MainActivity.class);
+                 * myLog("back on Main");
+                 * 
+                 */
 
-        // Verify something inside the expanded fragment
-        onView(withId(R.id.etTimeBeforeSleep))
-                .perform(scrollTo())
-                .check(matches(isDisplayed()));
+                /*
+                 * 
+                 * // Verify Design content
+                 * onView(withId(R.id.sp_font_family)) // example
+                 * .perform(scrollTo())
+                 * .check(matches(isDisplayed()));
+                 * 
+                 */
+                /*
+                 * // Optional: collapse Design again
+                 * onView(withId(R.id.section_design))
+                 * .perform(click());
+                 * 
+                 * // Assert collapsed
+                 * onView(withId(R.id.sp_font_family))
+                 * .check(matches(not(isDisplayed())));
+                 * 
+                 */
 
-        myLog("Settings - section play behaviour OK");
+                // menu_stats
+                MenuHelpers.tapMenu(R.string.Stats);
+                TestNavUtils.logCurrentActivity();
+                TestNavUtils.sleep(2_000); // let time to populate
+                onView(withId(android.R.id.content)).perform(swipeUp());
+                onView(withId(android.R.id.content)).perform(swipeDown());
+                TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        // Expand Design
-        TestNavUtils.openSettingSection(R.id.section_design);
+                // menu_clean
+                MenuHelpers.tapMenu(R.string.Cleaning);
+                TestNavUtils.logCurrentActivity();
+                onView(withId(android.R.id.content)).perform(swipeUp());
+                onView(withId(android.R.id.content)).perform(swipeDown());
+                TestNavUtils.assertPressBackTo(MainActivity.class);
 
-        TestNavUtils.sleep(500);
+                /*
+                 * onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom
+                 * ());
+                 * TestNavUtils.logCurrentActivity();
+                 * TestNavUtils.assertPressBackTo(SettingsActivity.class);
+                 * onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom
+                 * ());
+                 * onView(ViewMatchers.withId(R.id.btn_show_advanced)).perform(click());
+                 * onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom
+                 * ());
+                 * onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop())
+                 * ;
+                 * TestNavUtils.assertPressBackTo(MainActivity.class);
+                 * 
+                 * 
+                 * 
+                 */
 
-        myLog("Settings - section design OK");
+                /*
+                 * //menu_open
+                 * 
+                 * MenuHelpers.tapMenu(R.string.open);
+                 * TestNavUtils.logCurrentActivity();
+                 * myLog("in GET");
+                 * 
+                 * onView(ViewMatchers.withId(R.id.bOpenOther)).perform(click());
+                 * //perform(scrollTo());
+                 * TestNavUtils.logCurrentActivity();
+                 * TestNavUtils.assertWaitForActivity(GetOtherActivity.class, 1_000,
+                 * "not in get others");
+                 * myLog("in GET OTHER");
+                 * 
+                 * for (int i = 0; i < 3; i++) {
+                 * onView(ViewMatchers.withId(R.id.viewSecretEntry)).perform(click());
+                 * }
+                 * myLog("in SECRET DEV");
+                 * 
+                 * onView(ViewMatchers.withId(R.id.bAutoTest_b1)).perform(click());
+                 * TestNavUtils.sleep(1_000);
+                 * TestNavUtils.logCurrentActivity();
+                 * TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000,
+                 * "not in load book");
+                 * myLog("in LOAD BOOK");
+                 * 
+                 * onView(withId(android.R.id.content)).perform(swipeUp());
+                 * TestNavUtils.logCurrentActivity();
+                 * onView(ViewMatchers.withId(R.id.btnConfirm)).perform(click());
+                 * TestNavUtils.logCurrentActivity();
+                 * TestNavUtils.assertWaitForAnyActivity(2_000, AddResourceActivity.class,
+                 * MainActivity.class);
+                 * myLog("in ADD RESOURCE");
+                 * //onView(withId(android.R.id.content)).perform(WaitForView.waitFor(withId(R.
+                 * id.toolbar), 10000));
+                 * TestNavUtils.sleep(10_000);
+                 * TestNavUtils.logCurrentActivity();
+                 * TestNavUtils.maybePressBackTo(MainActivity.class,3, 1_000);
+                 * 
+                 * // play audio
+                 * 
+                 * TestNavUtils.assertWaitForActivity(MainActivity.class, 1_000, "not in main");
+                 * onView(ViewMatchers.withId(R.id.recyclerview_folders)).perform(
+                 * RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                 * TestNavUtils.sleep(5_000);
+                 * TestNavUtils.logCurrentActivity();
+                 * 
+                 * onView(ViewMatchers.withId(R.id.ibPlayPause)).perform(click());
+                 * TestNavUtils.sleep(1_000);
+                 * 
+                 */
 
-        myLog("Settings - closing section design");
-        TestNavUtils.openSettingSection(R.id.section_play_behaviour);
+                // Example: scroll to a view (useful inside ScrollView or RecyclerView)
+                // onView(withId(R.id.bOpenOther))perform(scrollTo());
 
-        TestNavUtils.assertPressBackTo(MainActivity.class);
-      myLog("back on Main");
+                // Example: type text into an EditText
+                // onView(withId(R.id.editText_username)).perform(typeText("TonyMontana"));
 
-*/
-
-        /*
-
-        // Verify Design content
-        onView(withId(R.id.sp_font_family))  // example
-                .perform(scrollTo())
-                .check(matches(isDisplayed()));
-
-         */
-        /*
-        // Optional: collapse Design again
-        onView(withId(R.id.section_design))
-                .perform(click());
-
-        // Assert collapsed
-        onView(withId(R.id.sp_font_family))
-                .check(matches(not(isDisplayed())));
-
-         */
-
-
-
-        //menu_stats
-        MenuHelpers.tapMenu(R.string.Stats);
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.sleep(2_000); //let time to populate
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
-
-        //menu_clean
-        MenuHelpers.tapMenu(R.string.Cleaning);
-        TestNavUtils.logCurrentActivity();
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        onView(withId(android.R.id.content)).perform(swipeDown());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
-
-
-
-
-/*
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertPressBackTo(SettingsActivity.class);
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(ViewMatchers.withId(R.id.btn_show_advanced)).perform(click());
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToBottom());
-        onView(withId(R.id.scrollView)).perform(TestNavUtils.scrollScrollViewToTop());
-        TestNavUtils.assertPressBackTo(MainActivity.class);
-
-
-
-*/
-
-
-        /*
-        //menu_open
-
-        MenuHelpers.tapMenu(R.string.open);
-        TestNavUtils.logCurrentActivity();
-        myLog("in GET");
-
-        onView(ViewMatchers.withId(R.id.bOpenOther)).perform(click());   //perform(scrollTo());
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(GetOtherActivity.class, 1_000, "not in get others");
-        myLog("in GET OTHER");
-
-        for (int i = 0; i < 3; i++) {
-            onView(ViewMatchers.withId(R.id.viewSecretEntry)).perform(click());
+                // Example: click a button with text
+                // onView(withText("Continue")).perform(click());
         }
-        myLog("in SECRET DEV");
-
-        onView(ViewMatchers.withId(R.id.bAutoTest_b1)).perform(click());
-        TestNavUtils.sleep(1_000);
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForActivity(ImportBookSingleActivity.class, 1_000, "not in load book");
-        myLog("in LOAD BOOK");
-
-        onView(withId(android.R.id.content)).perform(swipeUp());
-        TestNavUtils.logCurrentActivity();
-        onView(ViewMatchers.withId(R.id.btnConfirm)).perform(click());
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.assertWaitForAnyActivity(2_000, AddResourceActivity.class, MainActivity.class);
-        myLog("in ADD RESOURCE");
-        //onView(withId(android.R.id.content)).perform(WaitForView.waitFor(withId(R.id.toolbar), 10000));
-        TestNavUtils.sleep(10_000);
-        TestNavUtils.logCurrentActivity();
-        TestNavUtils.maybePressBackTo(MainActivity.class,3, 1_000);
-
-        // play audio
-
-        TestNavUtils.assertWaitForActivity(MainActivity.class, 1_000, "not in main");
-        onView(ViewMatchers.withId(R.id.recyclerview_folders)).perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
-        TestNavUtils.sleep(5_000);
-        TestNavUtils.logCurrentActivity();
-
-        onView(ViewMatchers.withId(R.id.ibPlayPause)).perform(click());
-        TestNavUtils.sleep(1_000);
-
-*/
-
-
-        // Example: scroll to a view (useful inside ScrollView or RecyclerView)
-        //onView(withId(R.id.bOpenOther))perform(scrollTo());
-
-        // Example: type text into an EditText
-        //onView(withId(R.id.editText_username)).perform(typeText("TonyMontana"));
-
-        // Example: click a button with text
-        //onView(withText("Continue")).perform(click());
-    }
 
 }

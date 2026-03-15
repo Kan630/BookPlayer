@@ -16,7 +16,7 @@ public class PingTest {
   @Test
   public void ping() {
     Context ctx = ApplicationProvider.getApplicationContext();
-    String expectedPackage = BuildConfig.APPLICATION_ID;
+    String expectedPackage = BuildConfig.APPLICATION_ID.replace(".test","");
     assertThat(ctx.getPackageName(), is(expectedPackage));
   }
 }
