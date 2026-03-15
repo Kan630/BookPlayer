@@ -231,29 +231,8 @@ public class AdminActivity extends BaseActivity {
                             .setMessage("Delete " + foldersToDelete.size() + " book(s) imported in the last "
                                     + minutesAgo + " minutes?")
                             .setPositiveButton("Delete", (dialog, which) -> {
-                                // Delete each folder using DeleteFolderWorker (same logic as
-                                // ModifyFolderActivity)
-                                WorkManager wm = WorkManager.getInstance(getApplicationContext());
-                                int count = 0;
-                                for (Folder folder : foldersToDelete) {
-                                    Data input = new Data.Builder()
-                                            .putLong(DeleteFolderWorker.KEY_FOLDER_ID, folder.getId())
-                                            .putString(DeleteFolderWorker.KEY_FOLDER_NAME, folder.getName())
-                                            .build();
-
-                                    OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(DeleteFolderWorker.class)
-                                            .addTag("delete_folder_" + folder.getId())
-                                            .setInputData(input)
-                                            .build();
-
-                                    // Use unique work name to prevent duplicates
-                                    wm.enqueueUniqueWork(
-                                            "delete_folder_unique_" + folder.getId(),
-                                            ExistingWorkPolicy.KEEP,
-                                            req);
-                                    count++;
-                                }
-                                Toast.makeText(this, "Deleting " + count + " book(s)...", Toast.LENGTH_SHORT).show();
+                                deleteBooksByTimedelta(this, minutesAgo);
+                                Toast.makeText(this, "Deleting " + foldersToDelete.size() + " book(s)...", Toast.LENGTH_SHORT).show();
                             })
                             .setNegativeButton(android.R.string.cancel, null)
                             .show();
@@ -265,6 +244,33 @@ public class AdminActivity extends BaseActivity {
                 });
             }
         }).start();
+    }
+
+    /** Helper for tests or non-UI usage to clear books. */
+    public static void deleteBooksByTimedelta(android.content.Context context, int minutesAgo) {
+        long cutoffTime = System.currentTimeMillis() - (minutesAgo * 60L * 1000L);
+        AppDatabase db = AppDatabase.getDatabase(context);
+        List<Folder> foldersToDelete = db.folderDao().getFoldersCreatedSince(cutoffTime);
+        if (foldersToDelete.isEmpty()) return;
+
+        WorkManager wm = WorkManager.getInstance(context.getApplicationContext());
+        for (Folder folder : foldersToDelete) {
+            Data input = new Data.Builder()
+                    .putLong(DeleteFolderWorker.KEY_FOLDER_ID, (long) folder.getId())
+                    .putString(DeleteFolderWorker.KEY_FOLDER_NAME, folder.getName())
+                    .build();
+
+            OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(DeleteFolderWorker.class)
+                    .addTag("delete_folder_" + folder.getId())
+                    .setInputData(input)
+                    .build();
+
+            // Use unique work name to prevent duplicates
+            wm.enqueueUniqueWork(
+                    "delete_folder_unique_" + folder.getId(),
+                    ExistingWorkPolicy.KEEP,
+                    req);
+        }
     }
 
     private void addDynamicButtons() {
