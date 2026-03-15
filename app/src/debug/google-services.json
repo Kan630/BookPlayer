@@ -1,0 +1,67 @@
+{
+  "project_info": {
+    "project_number": "20732844117",
+    "project_id": "bookplayer-debug",
+    "storage_bucket": "bookplayer-debug.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20732844117:android:a3801244862dd012735cdc",
+        "android_client_info": {
+          "package_name": "com.driot.bookplayer.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALqlzYyZZcMw1fGOhH-4X3DrGokJ1DIas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20732844117:android:5aa5bad071a9d72f735cdc",
+        "android_client_info": {
+          "package_name": "com.driot.bookplayerfull.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALqlzYyZZcMw1fGOhH-4X3DrGokJ1DIas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:20732844117:android:06894d4dba181cb8735cdc",
+        "android_client_info": {
+          "package_name": "com.driot.bookplayerpure.debug"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALqlzYyZZcMw1fGOhH-4X3DrGokJ1DIas"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
