@@ -17,7 +17,6 @@ import java.util.List;
 
 public class DeleteHelper {
 
-    /** Helper for tests or non-UI usage to clear books. */
     public static void deleteBooksByTimeDelta(Context context, int minutesAgo) {
         long cutoffTime = System.currentTimeMillis() - (minutesAgo * 60L * 1000L);
         AppDatabase db = AppDatabase.getDatabase(context);

@@ -56,7 +56,7 @@ public final class MenuHelpers {
 
     /** Overload: use only the title (for overflow-only items). */
     public static void tapMenu(@StringRes int menuTitleRes) {
-        myLogI("tapMenu(titleRes=" + resName(menuTitleRes) + ") START");
+        myLog("tapMenu(titleRes=" + resName(menuTitleRes) + ") START");
         SystemClock.sleep(1000);
 
         UiDevice device = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
@@ -77,7 +77,7 @@ public final class MenuHelpers {
             UiObject threeDots = device.findObject(new UiSelector().description(ctx.getString(R.string.Menu)));
             if (threeDots.waitForExists(1000)) {
                 threeDots.click();
-                myLogI("Opened overflow via description");
+                myLogD("Opened overflow via description");
                 return;
             }
 
@@ -85,26 +85,26 @@ public final class MenuHelpers {
             threeDots = device.findObject(new UiSelector().resourceId("com.driot.bookplayerfull.debug:id/action_menu_three_dot"));
             if (threeDots.waitForExists(500)) {
                 threeDots.click();
-                myLogI("Opened overflow via id");
+                myLogD("Opened overflow via id");
                 return;
             }
 
             // Try MENU key
             device.pressMenu();
-            myLogI("Pressed MENU key");
+            myLogD("Pressed MENU key");
         } catch (Exception e) {
             myLogE("Failed to open overflow via UiDevice: " + e.getMessage());
         }
     }
 
     private static void clickItemViaUiDevice(UiDevice device, String title, @StringRes int menuTitleRes) {
-        myLogD("Looking for menu item: " + title);
+        myLogD("Looking for menu item: [" + title + "]");
         try {
             // First try direct find (if it's already on screen)
             UiObject item = device.findObject(new UiSelector().text(title));
             if (item.waitForExists(1000)) {
                 item.click();
-                myLogI("Tapped item via UiDevice: " + title);
+                myLogD("Tapped item via UiDevice: [" + title + "]");
                 return;
             }
 
@@ -115,7 +115,7 @@ public final class MenuHelpers {
             if (menuList.exists()) {
                 if (menuList.scrollIntoView(new UiSelector().text(title))) {
                     item.click();
-                    myLogI("Tapped item after scroll via UiDevice: " + title);
+                    myLogD("Tapped item after scroll via UiDevice: [" + title + "]");
                     return;
                 }
             }
@@ -124,12 +124,12 @@ public final class MenuHelpers {
         }
 
         // Fallback to Espresso if UiDevice missed it (likely on A16 if root is tricky)
-        myLogD("Attempting Espresso fallback for: " + title);
+        myLogD("Attempting Espresso fallback for: [" + title + "]");
         try {
             // Try without inRoot(isPlatformPopup()) if A16 is failing to match it
             onView(withText(menuTitleRes))
                     .perform(click());
-            myLogI("Tapped item via Espresso fallback (no root check): " + title);
+            myLogD("Tapped item via Espresso fallback (no root check): [" + title + "]");
         } catch (Exception e1) {
             myLogD("Espresso no-root-check failed, trying with isDisplayed()...");
             try {
@@ -137,7 +137,7 @@ public final class MenuHelpers {
                 onView(withText(menuTitleRes))
                         .check(androidx.test.espresso.assertion.ViewAssertions.matches(isDisplayed()))
                         .perform(click());
-                myLogI("Tapped item via Espresso fallback (isDisplayed): " + title);
+                myLogD("Tapped item via Espresso fallback (isDisplayed): [" + title + "]");
             } catch (Exception e2) {
                 myLogE("CRITICAL: All click methods failed for [" + title + "]");
                 throw e2;
