@@ -102,8 +102,15 @@
       <SelectionState runConfigName="JustOpenAndWait">
         <option name="selectionMode" value="DROPDOWN" />
       </SelectionState>
-      <SelectionState runConfigName="DeepSettingsTest">
-        <option name="selectionMode" value="DIALOG" />
+      <SelectionState runConfigName="BasicNavLandscapeTest">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DropdownSelection timestamp="2026-03-10T07:42:54.621857200Z">
+          <Target type="DEFAULT_BOOT">
+            <handle>
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
+            </handle>
+          </Target>
+        </DropdownSelection>
         <DialogSelection>
           <targets>
             <Target type="DEFAULT_BOOT">
@@ -119,7 +126,7 @@
           </targets>
         </DialogSelection>
       </SelectionState>
-      <SelectionState runConfigName="BasicNavLandscapeTest">
+      <SelectionState runConfigName="BasicNavPortraitTest">
         <option name="selectionMode" value="DROPDOWN" />
         <DropdownSelection timestamp="2026-03-10T07:42:54.621857200Z">
           <Target type="DEFAULT_BOOT">

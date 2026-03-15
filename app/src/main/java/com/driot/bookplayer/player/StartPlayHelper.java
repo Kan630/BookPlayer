@@ -240,6 +240,12 @@ public class StartPlayHelper {
                 return;
             }
         }
+        playSomething(context);
+        // Optional: show buffering right away in AA
+        // pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
+    }
+
+    public static void playSomething(Context context) {
 
         PlayList pl = PlayList.getInstance();
         if (pl == null) {
@@ -260,8 +266,6 @@ public class StartPlayHelper {
                                     .putExtra(Intents.EXTRA_TRACK_ID, zikFile.getId())
                                     .putExtra(Intents.EXTRA_CALLER, "carOnPlay()")
                                     .putExtra(Intents.EXTRA_FOREGROUND, true));
-                    // Optional: show buffering right away in AA
-                    // pushPlaybackState(PlaybackStateCompat.STATE_BUFFERING, 0);
                 }
             });
         } else {
@@ -272,7 +276,6 @@ public class StartPlayHelper {
                 playStream(context, playMode, pl.getUrl(), pl.getTrackId(), pl.getTitle(),
                         pl.getImageUrl(), "carOnPlay()");
             } else {
-                ZikFile zikFile = pl.getZikFile();
                 myLog("Car onPlay, resuming... send CMD play");
                 sendCmdPlay(context);
             }
@@ -651,5 +654,22 @@ public class StartPlayHelper {
             return def;
         }
     }
+
+    public static void stopAudioServiceIfRunning(Context context) {
+        if (MediaService.isRunning) {
+            Intent intentStopService = new Intent(context, MediaService.class).setAction(Intents.EXTRA_CMD_STOP)
+                    .putExtra(Intents.EXTRA_CALLER, context.getClass().getSimpleName());
+            try {
+                // App au premier plan → safe, pas de règle des 5s
+                context.startService(intentStopService);
+            } catch (IllegalStateException e) {
+                // Si jamais l’app est en arrière-plan, au pire on force l’arrêt
+                myLogEE(e, "startService CMD_STOP failed");
+                context.stopService(new Intent(context, MediaService.class));
+            }
+        }
+    }
+
+
 
 }

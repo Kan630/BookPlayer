@@ -38,6 +38,7 @@ import com.driot.bookplayer.imports.ImportBookSingleActivity;
 import com.driot.bookplayer.activities.MainActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.imports.ImportHelper;
+import com.driot.bookplayer.player.StartPlayHelper;
 import com.driot.bookplayer.testutil.LogSupport;
 import com.driot.bookplayer.testutil.LoggingWatcher;
 import com.driot.bookplayer.testutil.MenuHelpers;
@@ -55,6 +56,8 @@ import org.junit.runner.RunWith;
 public abstract class BasicNavTest implements LogSupport {
 
         private Context appContext;
+
+        private static final int SLEEP_DELAY_PLAY_SOMETHING = 3000;
 
         protected abstract int desiredOrientation();
 
@@ -290,6 +293,11 @@ public abstract class BasicNavTest implements LogSupport {
 
                 // Example: click a button with text
                 // onView(withText("Continue")).perform(click());
+
+                myLogI("End of Nav Test, try to play something");
+                StartPlayHelper.playSomething(context);
+                TestNavUtils.sleep(SLEEP_DELAY_PLAY_SOMETHING, "playing");
+                StartPlayHelper.stopAudioServiceIfRunning(context);
         }
 
 }

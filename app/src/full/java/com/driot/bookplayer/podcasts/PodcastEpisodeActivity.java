@@ -785,19 +785,4 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
         });
     }
 
-    private void stopAudioServiceIfRunning() {
-        if (MediaService.isRunning) {
-            Intent intentStopService = new Intent(this, MediaService.class).setAction(Intents.EXTRA_CMD_STOP)
-                    .putExtra(Intents.EXTRA_CALLER, this.getClass().getSimpleName());
-            try {
-                // App au premier plan → safe, pas de règle des 5s
-                startService(intentStopService);
-            } catch (IllegalStateException e) {
-                // Si jamais l’app est en arrière-plan, au pire on force l’arrêt
-                myLogEE(e, "startService CMD_STOP failed");
-                stopService(new Intent(this, MediaService.class));
-            }
-        }
-    }
-
 }
