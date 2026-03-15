@@ -16,11 +16,6 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
-import androidx.work.Data;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.OneTimeWorkRequest;
-import androidx.work.WorkManager;
-
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.DbClean;
@@ -28,12 +23,12 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
+import com.driot.bookplayer.helpers.DeleteHelper;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.podcasts.PodcastHelper;
-import com.driot.bookplayer.services.DeleteFolderWorker;
 import com.driot.bookplayer.utils.MsgBox;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.checkbox.MaterialCheckBox;
@@ -231,7 +226,7 @@ public class AdminActivity extends BaseActivity {
                             .setMessage("Delete " + foldersToDelete.size() + " book(s) imported in the last "
                                     + minutesAgo + " minutes?")
                             .setPositiveButton("Delete", (dialog, which) -> {
-                                deleteBooksByTimedelta(this, minutesAgo);
+                                DeleteHelper.deleteBooksByTimeDelta(this, minutesAgo);
                                 Toast.makeText(this, "Deleting " + foldersToDelete.size() + " book(s)...", Toast.LENGTH_SHORT).show();
                             })
                             .setNegativeButton(android.R.string.cancel, null)
@@ -244,33 +239,6 @@ public class AdminActivity extends BaseActivity {
                 });
             }
         }).start();
-    }
-
-    /** Helper for tests or non-UI usage to clear books. */
-    public static void deleteBooksByTimedelta(android.content.Context context, int minutesAgo) {
-        long cutoffTime = System.currentTimeMillis() - (minutesAgo * 60L * 1000L);
-        AppDatabase db = AppDatabase.getDatabase(context);
-        List<Folder> foldersToDelete = db.folderDao().getFoldersCreatedSince(cutoffTime);
-        if (foldersToDelete.isEmpty()) return;
-
-        WorkManager wm = WorkManager.getInstance(context.getApplicationContext());
-        for (Folder folder : foldersToDelete) {
-            Data input = new Data.Builder()
-                    .putLong(DeleteFolderWorker.KEY_FOLDER_ID, (long) folder.getId())
-                    .putString(DeleteFolderWorker.KEY_FOLDER_NAME, folder.getName())
-                    .build();
-
-            OneTimeWorkRequest req = new OneTimeWorkRequest.Builder(DeleteFolderWorker.class)
-                    .addTag("delete_folder_" + folder.getId())
-                    .setInputData(input)
-                    .build();
-
-            // Use unique work name to prevent duplicates
-            wm.enqueueUniqueWork(
-                    "delete_folder_unique_" + folder.getId(),
-                    ExistingWorkPolicy.KEEP,
-                    req);
-        }
     }
 
     private void addDynamicButtons() {

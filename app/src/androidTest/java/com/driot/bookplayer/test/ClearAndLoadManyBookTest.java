@@ -1,7 +1,8 @@
 package com.driot.bookplayer.test;
 
 import androidx.test.platform.app.InstrumentationRegistry;
-import com.driot.bookplayer.activities.AdminActivity;
+
+import com.driot.bookplayer.helpers.DeleteHelper;
 import com.driot.bookplayer.testutil.TestNavUtils;
 import org.junit.Before;
 
@@ -20,7 +21,7 @@ public class ClearAndLoadManyBookTest extends LoadManyBookTest {
 
         // 1) Clear all books (last 365 days)
         myLog("Clearing books via AdminActivity.deleteBooksByTimedelta...");
-        AdminActivity.deleteBooksByTimedelta(
+        DeleteHelper.deleteBooksByTimeDelta(
                 InstrumentationRegistry.getInstrumentation().getTargetContext(),
                 60 * 24 * 365
         );

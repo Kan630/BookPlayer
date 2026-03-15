@@ -78,19 +78,19 @@ public class StatsViewModel extends LoggingAndroidViewModel {
                 // Use cached values if available, otherwise calculate
                 long cachedInternalTimestamp = StorageInfoCacheHelper.getCachedInternalTimestamp();
                 if (cachedInternalTimestamp > 0) {
-                    myLogI("StatsViewModel: Using cached internal storage info");
+                    myLogD("StatsViewModel: Using cached internal storage info");
                     loadInternalStorageFromCache();
                 } else {
-                    myLogI("StatsViewModel: No cached internal storage, calculating now");
+                    myLogD("StatsViewModel: No cached internal storage, calculating now");
                     calculateInternalStorage();
                 }
 
                 long cachedSDCardTimestamp = StorageInfoCacheHelper.getCachedSDCardTimestamp();
                 if (cachedSDCardTimestamp > 0) {
-                    myLogI("StatsViewModel: Using cached SD card storage info");
+                    myLogD("StatsViewModel: Using cached SD card storage info");
                     loadSDCardStorageFromCache();
                 } else {
-                    myLogI("StatsViewModel: No cached SD card storage, calculating now");
+                    myLogD("StatsViewModel: No cached SD card storage, calculating now");
                     calculateSDCardStorage();
                 }
             } catch (Exception e) {

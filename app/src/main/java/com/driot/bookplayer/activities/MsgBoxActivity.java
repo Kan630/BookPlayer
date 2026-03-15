@@ -158,7 +158,7 @@ public class MsgBoxActivity extends BaseActivity {
         });
         findViewById(R.id.card).setOnClickListener(v -> {
             /* bloquer propagation */});
-        myLog("MsgBox created.   type=" + type);
+        myLogD("MsgBox created.   type=" + type);
     }
 
     private Intent withCheck(Intent src, MaterialCheckBox cb) {
