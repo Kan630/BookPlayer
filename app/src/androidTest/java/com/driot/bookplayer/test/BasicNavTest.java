@@ -114,34 +114,36 @@ public abstract class BasicNavTest implements LogSupport {
                 TestNavUtils.sleep(1000);
 
                 // menu_manual
+                // activity_help.xml
                 myLogD("Calling tapMenu(manual)...");
                 MenuHelpers.tapMenu(R.string.manual);
                 myLogD("tapMenu(manual) FINISHED");
                 onView(ViewMatchers.withId(R.id.tv_help_text_general)).check(matches(isDisplayed()));
                 TestNavUtils.logCurrentActivity();
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(android.R.id.content)).perform(swipeDown());
+                onView(withId(R.id.scroll_view)).perform(swipeUp());
+                onView(withId(R.id.scroll_view)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 // menu_open
+                // R.layout.activity_get
                 MenuHelpers.tapMenu(R.string.add_book);
                 TestNavUtils.logCurrentActivity();
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(android.R.id.content)).perform(swipeDown());
+                onView(withId(R.id.root)).perform(swipeUp()); //root, because mainScroll is not found...
+                onView(withId(R.id.root)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 // menu quick share
                 MenuHelpers.tapMenu(R.string.nearby_share_receive_book);
                 TestNavUtils.logCurrentActivity();
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(android.R.id.content)).perform(swipeDown());
+                onView(withId(R.id.scroll_view)).perform(swipeUp());
+                onView(withId(R.id.scroll_view)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 // menu_settings
                 MenuHelpers.tapMenu(R.string.settings);
                 TestNavUtils.logCurrentActivity();
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(android.R.id.content)).perform(swipeDown());
+                onView(withId(R.id.scrollView)).perform(swipeUp());
+                onView(withId(R.id.scrollView)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 /*
@@ -204,15 +206,15 @@ public abstract class BasicNavTest implements LogSupport {
                 MenuHelpers.tapMenu(R.string.Stats);
                 TestNavUtils.logCurrentActivity();
                 TestNavUtils.sleep(2_000); // let time to populate
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(android.R.id.content)).perform(swipeDown());
+                onView(withId(R.id.scrollViewStats)).perform(swipeUp());
+                onView(withId(R.id.scrollViewStats)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 // menu_clean
                 MenuHelpers.tapMenu(R.string.Cleaning);
                 TestNavUtils.logCurrentActivity();
-                onView(withId(android.R.id.content)).perform(swipeUp());
-                onView(withId(android.R.id.content)).perform(swipeDown());
+                onView(withId(R.id.main_content)).perform(swipeUp());
+                onView(withId(R.id.main_content)).perform(swipeDown());
                 TestNavUtils.assertPressBackTo(MainActivity.class);
 
                 /*
