@@ -4,7 +4,7 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2026-03-10T07:42:54.621857200Z">
+        <DropdownSelection timestamp="2026-03-16T16:23:46.690162Z">
           <Target type="DEFAULT_BOOT">
             <handle>
               <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
@@ -88,12 +88,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=52003931eec16435" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=52003931eec16435" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=RF8Y50GB1XP" />
               </handle>
             </Target>
           </targets>
