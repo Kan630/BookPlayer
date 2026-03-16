@@ -36,6 +36,7 @@ import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.util.List;
+import java.util.Objects;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -168,6 +169,9 @@ public class ZikFileActivity extends BaseBottomNavActivity {
                 if (lastFolder == null || f.getId() != lastFolder.getId()) {
                     fillHeader(); // uses the latest folder
                     lastFolder = f;
+                } else if (!Objects.equals(f.image, lastFolder.image)
+                || !Objects.equals(f.getName(), lastFolder.getName())) {
+                    fillHeader();
                 }
             }
         });
