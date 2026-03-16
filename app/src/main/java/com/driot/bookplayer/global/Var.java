@@ -27,7 +27,7 @@ public class Var {
         public static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 10;
         public static final int GUTENDEX_READ_TIMEOUT_SEC = 90;
 
-        public static final int FILE_NAME_MAX_NB_CHARS = 60;
+        public static final int FILE_NAME_MAX_NB_CHARS = 150;
 
         /**
          * ApiStation names to hide when "remove dubious" is enabled (e.g. added to
