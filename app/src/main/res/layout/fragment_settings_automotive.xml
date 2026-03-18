@@ -28,11 +28,6 @@
                 android:visibility="gone"
                 />
 
-            <TextView
-                style="@style/GetResourceTextTopOfButton"
-                android:textColor="@color/orange_700"
-                android:text="@string/beta_test" />
-
             <LinearLayout
                 android:id="@+id/ll_automotive_on"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal">
@@ -59,6 +54,7 @@
                     android:text="@string/option_automotive_show_radios" />
             </LinearLayout>
             <TextView
+                android:id="@+id/ll_automotive_show_radios_explain"
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_show_radios_explain_text"
                 />

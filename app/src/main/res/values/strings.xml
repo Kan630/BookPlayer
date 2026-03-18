@@ -495,7 +495,7 @@
     <string name="option_start_next_track_at_zero_title_text">When a track finishes, start the next track from the beginning, even if it was partly listened to before.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Stop audio when you close the app.</string>
     <string name="option_network_preference_subtext">An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).\nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming.</string>
-    <string name="option_automotive_let_car_autoplay">Allow Auto-Play.</string>
+    <string name="option_automotive_let_car_autoplay">Auto-Play on Connect</string>
     <string name="option_open_play_activity">Open Play View when playback starts.</string>
     <string name="tts_settings">TTS settings</string>
     <string name="option_tts_language_text">Default voice for new e-books.</string>
@@ -521,7 +521,7 @@
     <string name="option_tts_fullscreen_controls">Show playback controls</string>
     <string name="option_automotive_on">Display in Android Auto</string>
     <string name="option_automotive_show_radios">Display Radios</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Allow Auto-resume.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Continue Playback</string>
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum

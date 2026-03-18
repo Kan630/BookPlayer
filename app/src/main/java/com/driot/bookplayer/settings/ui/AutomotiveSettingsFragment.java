@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -57,6 +58,11 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
 
         llShowRadios = root.findViewById(R.id.ll_automotive_show_radios);
         chkShowRadios = root.findViewById(R.id.chk_automotive_show_radios);
+
+        if (Tonio.isPure(root.getContext())) {
+            llShowRadios.setVisibility(View.GONE);
+            root.findViewById(R.id.ll_automotive_show_radios_explain).setVisibility(View.GONE);
+        }
 
         // Initial states
         chkAutomotiveOn.setChecked(Option.getAutomotiveOn());

@@ -443,7 +443,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
 "An unmetered connection means you’re not on mobile data (for example, Wi-Fi, Ethernet, or some VPNs).
 \nRoaming means being abroad — even hotel Wi-Fi while abroad counts as roaming."
 </string>
-    <string name="option_automotive_let_car_autoplay">Autoriser Android Auto à lancer la lecture automatiquement (généralement lors de la connexion à la voiture).</string>
+    <string name="option_automotive_let_car_autoplay">Lecture auto à la connexion</string>
     <string name="option_open_play_activity">Ouvrir la vue de lecture lorsque la lecture démarre.</string>
     <string name="tts_settings">Paramètres TTS</string>
     <string name="option_tts_language_text">Langue TTS par défaut pour les nouveaux livres électroniques.</string>
@@ -463,7 +463,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_tts_overlay_timeout_title">Délai d\'affichage</string>
     <string name="option_tts_overlay_timeout_text">Temps maximum :</string>
     <string name="option_automotive_on">Se connecter à Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Reprendre automatiquement la lecture lors de la connexion à la voiture.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Reprendre la lecture</string>
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum

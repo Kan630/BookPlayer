@@ -431,7 +431,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_start_next_track_at_zero_title_text">Cuando termina una pista, comenzar la siguiente desde el principio, aunque ya se hubiera escuchado parcialmente.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Detener el audio al cerrar la app.</string>
     <string name="option_network_preference_subtext">"Una conexión no medida significa que no usas datos móviles (por ejemplo, Wi-Fi, Ethernet o algunas VPN).\nItinerancia significa estar en el extranjero - incluso el Wi-Fi de hotel en el extranjero cuenta como itinerancia."</string>
-    <string name="option_automotive_let_car_autoplay">Permitir que Android Auto inicie la reproducción automáticamente (normalmente al conectarse al coche).</string>
+    <string name="option_automotive_let_car_autoplay">Autorreproducir al conectar</string>
     <string name="option_open_play_activity">Abrir la vista de reproducción cuando comience la reproducción.</string>
     <string name="tts_settings">Configuración de TTS</string>
     <string name="option_tts_language_text">Idioma TTS predeterminado para nuevos libros electrónicos.</string>
@@ -448,7 +448,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_theme_mode_force_checkbox">Anular tema del sistema</string>
     <string name="option_theme_mode_force_explain">Cuando está habilitado, la aplicación ignora la configuración claro/oscuro de su dispositivo y usa su elección a continuación. Cuando está deshabilitado, la aplicación sigue el sistema.</string>
     <string name="option_automotive_on">Conectarse a Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Reanudar la reproducción automáticamente al conectarse al coche.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Continuar reproducción</string>
 
     <string name="optionMinEqual">Mín =</string> //short for Minimum
     <string name="optionMaxEqual">Máx =</string> //short for Maximum
