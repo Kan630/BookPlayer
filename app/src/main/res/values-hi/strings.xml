@@ -431,7 +431,7 @@
 "अनमीटर्ड कनेक्शन का अर्थ है कि आप मोबाइल डेटा पर नहीं हैं (उदाहरण, Wi-Fi, Ethernet, या कुछ VPNs)。
 \nरोमिंग का अर्थ है विदेश में होना — विदेश में होटल Wi-Fi भी रोमिंग माना जाता है।"
 </string>
-    <string name="option_automotive_let_car_autoplay">Android Auto को स्वयं प्ले ट्रिगर करने दें (आमतौर पर, कार से कनेक्ट होने पर)।</string>
+    <string name="option_automotive_let_car_autoplay">कनेक्ट होने पर ऑटो-प्ले</string>
     <string name="option_open_play_activity">प्लेबैक शुरू होने पर प्ले व्यू खोलें।</string>
     <string name="tts_settings">TTS सेटिंग्स</string>
     <string name="option_tts_language_text">नई ई-बुक्स के लिए डिफ़ॉल्ट वॉइस।</string>
@@ -448,7 +448,7 @@
     <string name="option_theme_mode_force_checkbox">सिस्टम थीम ओवरराइड करें</string>
     <string name="option_theme_mode_force_explain">सक्षम होने पर, एप आपके डिवाइस की लाइट/डार्क सेटिंग को अनदेखा करता है और नीचे आपकी पसंद का उपयोग करता है। अक्षम होने पर, एप सिस्टम का अनुसरण करता है।</string>
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
-    <string name="option_automotive_auto_resume_on_car_connect">कार से कनेक्ट होने पर प्लेबैक स्वतः पुनः आरंभ करें।</string>
+    <string name="option_automotive_auto_resume_on_car_connect">प्लेबैक फिर शुरू करें</string>
 
     <string name="optionMinEqual">न्यूनतम =</string> //short for Minimum
     <string name="optionMaxEqual">अधिकतम =</string> //short for Maximum

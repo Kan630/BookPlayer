@@ -428,7 +428,7 @@
     <string name="option_start_next_track_at_zero_title_text">عند انتهاء مقطع، ابدأ المقطع التالي من البداية، حتى لو تم الاستماع إليه جزئيًا من قبل.</string>
     <string name="option_stop_audio_if_user_closes_app_text">إيقاف الصوت عند إغلاق التطبيق.</string>
     <string name="option_network_preference_subtext">"يعني الاتصال غير المقاس أنك لا تستخدم بيانات الجوّال (مثل Wi-Fi أو Ethernet أو بعض شبكات VPN).\nالتجوال يعني أنك في الخارج - حتى Wi-Fi في الفندق أثناء السفر يُعد تجوالاً."</string>
-    <string name="option_automotive_let_car_autoplay">السماح لـ Android Auto بتشغيل الصوت تلقائيًا (عادةً عند الاتصال بالسيارة).</string>
+    <string name="option_automotive_let_car_autoplay">تشغيل تلقائي عند الاتصال</string>
     <string name="option_open_play_activity">فتح شاشة التشغيل عند بدء التشغيل.</string>
     <string name="tts_settings">إعدادات تحويل النص إلى كلام</string>
     <string name="option_tts_language_text">اللغة الافتراضية لتحويل النص إلى كلام للكتب الإلكترونية الجديدة.</string>
@@ -445,7 +445,7 @@
     <string name="option_theme_mode_force_checkbox">تجاوز سمة النظام</string>
     <string name="option_theme_mode_force_explain">عند التمكين، يتجاهل التطبيق إعداد الضوء/الظلام للجهاز الخاص بك ويستخدم اختيارك أدناه. عند التعطيل، يتبع التطبيق النظام.</string>
     <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل تلقائيًا عند الاتصال بالسيارة.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل</string>
 
     <string name="optionMinEqual">الحد الأدنى =</string> //short for Minimum
     <string name="optionMaxEqual">الحد الأقصى =</string> //short for Maximum

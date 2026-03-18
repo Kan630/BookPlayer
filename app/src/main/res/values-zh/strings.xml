@@ -433,7 +433,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_start_next_track_at_zero_title_text">当一曲播放完毕后，从开头播放下一曲，即使之前已部分收听。</string>
     <string name="option_stop_audio_if_user_closes_app_text">关闭应用时停止音频。</string>
     <string name="option_network_preference_subtext">"未计费连接表示您未使用移动数据（例如 Wi-Fi、以太网或某些 VPN）。\n漫游表示您在国外 - 即使是在国外酒店的 Wi-Fi 也算作漫游。"</string>
-    <string name="option_automotive_let_car_autoplay">允许 Android Auto 自动开始播放（通常在连接到汽车时）。</string>
+    <string name="option_automotive_let_car_autoplay">连接时自动播放</string>
     <string name="option_open_play_activity">播放开始时打开播放视图。</string>
     <string name="tts_settings">TTS 设置</string>
     <string name="option_tts_language_text">新电子书的默认 TTS 语言。</string>
@@ -450,7 +450,7 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_theme_mode_force_checkbox">覆盖系统主题</string>
     <string name="option_theme_mode_force_explain">启用时，应用程序会忽略设备的亮/暗设置并使用下面的选择。禁用时，应用程序遵循系统。</string>
     <string name="option_automotive_on">连接到 Android Auto。</string>
-    <string name="option_automotive_auto_resume_on_car_connect">连接到汽车时自动恢复播放。</string>
+    <string name="option_automotive_auto_resume_on_car_connect">自动恢复播放</string>
 
     <string name="optionMinEqual">最小 =</string> //short for Minimum
     <string name="optionMaxEqual">最大 =</string> //short for Maximum
