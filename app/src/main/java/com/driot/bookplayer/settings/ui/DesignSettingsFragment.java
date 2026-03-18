@@ -232,6 +232,46 @@ public class DesignSettingsFragment extends LoggingFragment {
                     // signalAndRecreate();
                 }
             });
+
+            // ===== App Orientation Lock =====
+            MaterialCheckBox chkAppOrient = root.findViewById(R.id.chk_orientation_lock_app_global);
+            MaterialButtonToggleGroup groupAppOrient = root.findViewById(R.id.group_orientation_lock_app_global);
+            LinearLayout llAppOrient = root.findViewById(R.id.ll_orientation_lock_app_global);
+
+            if (chkAppOrient != null && groupAppOrient != null) {
+                boolean isLocked = Option.getAppOrientationLock();
+                chkAppOrient.setChecked(isLocked);
+                groupAppOrient.setEnabled(isLocked);
+
+                String mode = Option.getAppOrientationMode();
+                groupAppOrient.check("PORTRAIT".equals(mode)
+                        ? R.id.mb_Orientation_AppGlobal_Portrait
+                        : R.id.mb_Orientation_AppGlobal_Landscape);
+
+                if (llAppOrient != null) {
+                    llAppOrient.setOnClickListener(v -> chkAppOrient.toggle());
+                }
+
+                chkAppOrient.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    Option.setAppOrientationLock(isChecked);
+                    groupAppOrient.setEnabled(isChecked);
+                    // No need to recreate, BaseActivity will catch it on next activity if we want,
+                    // BUT for immediate effect on CURRENT activity, we'd need to call
+                    // setRequestedOrientation.
+                    // However, recreate is safer for applying it app-wide.
+                    signalAndRecreate();
+                });
+
+                groupAppOrient.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                    if (!isChecked) return;
+                    String newMode = (checkedId == R.id.mb_Orientation_AppGlobal_Portrait) ? "PORTRAIT" : "LANDSCAPE";
+                    if (!newMode.equals(Option.getAppOrientationMode())) {
+                        Option.setAppOrientationMode(newMode);
+                        signalAndRecreate();
+                    }
+                });
+            }
+
         }, 500);
 
         // Restore scroll position after recreate (e.g. theme change)

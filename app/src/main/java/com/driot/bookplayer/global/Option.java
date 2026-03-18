@@ -109,6 +109,9 @@ public class Option {
     private static final String DEFAULT_SCREENSAVER_VISUALIZER_TYPE = Var.VISUALIZER_TYPE_WAVE;
     private static final boolean DEFAULT_SCREENSAVER_FORCE_ORIENTATION = false;
     private static final String DEFAULT_SCREENSAVER_ORIENTATION_MODE = "LANDSCAPE";
+
+    private static final boolean DEFAULT_APP_ORIENTATION_LOCK = false;
+    private static final String DEFAULT_APP_ORIENTATION_MODE = "PORTRAIT";
     private static final boolean DEFAULT_TTS_FULLSCREEN_CONTROLS = false;
     private static final boolean DEFAULT_QUICK_SHARE_TRANSFER_PROGRESS = false;
     public static final boolean DEFAULT_USE_PIXABAY = true;
@@ -615,6 +618,22 @@ public class Option {
 
     public static String getScreensaverOrientationMode() {
         return prefs.getString("SCREENSAVER_ORIENTATION_MODE", DEFAULT_SCREENSAVER_ORIENTATION_MODE);
+    }
+
+    public static void setAppOrientationLock(boolean bool) {
+        prefs.edit().putBoolean("APP_ORIENTATION_LOCK", bool).apply();
+    }
+
+    public static boolean getAppOrientationLock() {
+        return prefs.getBoolean("APP_ORIENTATION_LOCK", DEFAULT_APP_ORIENTATION_LOCK);
+    }
+
+    public static void setAppOrientationMode(String str) {
+        prefs.edit().putString("APP_ORIENTATION_MODE", str).apply();
+    }
+
+    public static String getAppOrientationMode() {
+        return prefs.getString("APP_ORIENTATION_MODE", DEFAULT_APP_ORIENTATION_MODE);
     }
 
     /////////////////// COPY FILES ///////////////////

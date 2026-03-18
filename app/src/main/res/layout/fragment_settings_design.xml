@@ -229,13 +229,14 @@
                 android:text="@string/option_orientation_lock_app_global" />
 
             <LinearLayout
+                android:id="@+id/ll_orientation_lock_app_global"
                 style="@style/LinearLayoutOptionsCheckBoxHorizontal"
                 android:layout_marginStart="15dp"
                 android:layout_marginTop="4dp"
                 android:layout_marginBottom="4dp"
                 >
                 <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_screensaver_force_orientation"
+                    android:id="@+id/chk_orientation_lock_app_global"
                     style="@style/OptionCheckBox" />
                 <TextView
                     style="@style/OptionCheckBoxText"
@@ -244,7 +245,7 @@
             </LinearLayout>
 
             <com.google.android.material.button.MaterialButtonToggleGroup
-                android:id="@+id/groupScreensaverOrientation"
+                android:id="@+id/group_orientation_lock_app_global"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="50dp"

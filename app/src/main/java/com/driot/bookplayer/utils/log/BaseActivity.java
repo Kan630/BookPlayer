@@ -89,6 +89,15 @@ public abstract class BaseActivity extends AppCompatActivity {
             myLifecycleLogEE(e, "Error setting theme : " + e.getMessage());
         }
 
+        if (Option.getAppOrientationLock()) {
+            String mode = Option.getAppOrientationMode();
+            if ("PORTRAIT".equals(mode)) {
+                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+            } else {
+                setRequestedOrientation(android.content.pm.ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            }
+        }
+
         super.onCreate(savedInstanceState);
 
         String calledBy = CallerInspector.inferCaller(this, Intents.EXTRA_CALLER);
