@@ -65,6 +65,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private int ttsErrorCountForGen = 0;
     private long lastTtsErrorGen = -1;
+    private boolean lastCallerWasCar = false;
 
     private final java.util.concurrent.atomic.AtomicInteger boundClientCount = new java.util.concurrent.atomic.AtomicInteger();
     private final android.os.Handler serviceHandler = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -551,6 +552,14 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                             return;
                         }
                          */
+
+
+                        // Stop-on-exit check
+                        if (Option.getAutomotiveStopOnExit() && change == AudioManager.AUDIOFOCUS_LOSS && lastCallerWasCar) {
+                            myLogI("Stop-on-exit triggered (car disconnected / permanent focus loss)");
+                            shutdown(false);
+                            return;
+                        }
 
                         // normal behavior: pause if we were playing
                         pausedByFocusLoss = isPlaying();
@@ -1420,6 +1429,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         var info = MediaCallerHelper.getCallerInfo(MediaService.this);
         String callerInfo = MediaCallerHelper.describeCaller(MediaService.this, info);
         myLog("callerInfo: " + callerInfo);
+
+        if (MediaCallerHelper.isAndroidAuto(info)) {
+            lastCallerWasCar = true;
+        } else if (MediaCallerHelper.isOwnApp(this, info)) {
+            lastCallerWasCar = false;
+        }
 
         return StartPlayHelper.onGetRoot(clientPackageName, callerInfo);
     }

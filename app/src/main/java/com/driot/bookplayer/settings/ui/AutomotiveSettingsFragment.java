@@ -30,6 +30,10 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
     private LinearLayout llShowRadios;
     private MaterialCheckBox chkShowRadios;
 
+    private LinearLayout llStopOnExit;
+    private MaterialCheckBox chkStopOnExit;
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -59,6 +63,9 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         llShowRadios = root.findViewById(R.id.ll_automotive_show_radios);
         chkShowRadios = root.findViewById(R.id.chk_automotive_show_radios);
 
+        llStopOnExit = root.findViewById(R.id.ll_automotive_stop_on_exit);
+        chkStopOnExit = root.findViewById(R.id.chk_automotive_stop_on_exit);
+
         if (Tonio.isPure(root.getContext())) {
             llShowRadios.setVisibility(View.GONE);
             root.findViewById(R.id.ll_automotive_show_radios_explain).setVisibility(View.GONE);
@@ -69,12 +76,14 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
         chkLetCarAutoplay.setChecked(Option.getAutomotiveLetCarAutoplay());
         chkAutoResumeOnConnect.setChecked(Option.getAutomotiveAutoResumeOnCarConnect());
         chkShowRadios.setChecked(Option.getAutomotiveShowRadios());
+        chkStopOnExit.setChecked(Option.getAutomotiveStopOnExit());
 
         // Click-to-toggle rows
         llAutomotiveOn.setOnClickListener(v -> chkAutomotiveOn.toggle());
         llLetCarAutoplay.setOnClickListener(v -> chkLetCarAutoplay.toggle());
         llAutoResumeOnConnect.setOnClickListener(v -> chkAutoResumeOnConnect.toggle());
         llShowRadios.setOnClickListener(v -> chkShowRadios.toggle());
+        llStopOnExit.setOnClickListener(v -> chkStopOnExit.toggle());
 
         // Listeners
         chkAutomotiveOn.setOnCheckedChangeListener((button, checked) -> {
@@ -93,6 +102,10 @@ public class AutomotiveSettingsFragment extends LoggingFragment {
 
         chkShowRadios.setOnCheckedChangeListener((button, checked) -> {
             Option.setAutomotiveShowRadios(checked);
+        });
+
+        chkStopOnExit.setOnCheckedChangeListener((button, checked) -> {
+            Option.setAutomotiveStopOnExit(checked);
         });
 
         // Apply enable/disable rules once
