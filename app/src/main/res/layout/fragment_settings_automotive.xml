@@ -58,6 +58,8 @@
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_show_radios_explain_text"
                 />
+            <View style="@style/myStyleViewSimpleHorizontalBar"
+                android:layout_marginTop="20dp"/>
 
             <LinearLayout
                 android:id="@+id/ll_automotive_let_car_autoplay"
@@ -88,6 +90,9 @@
             <TextView
                 style="@style/OptionExplainText"
                 android:text="@string/option_automotive_auto_resume_on_car_connect_explain_text"
+                />
+            <View style="@style/myStyleViewSimpleHorizontalBar"
+                android:layout_marginTop="20dp"
                 />
 
 
