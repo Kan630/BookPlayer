@@ -224,6 +224,62 @@
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
+            <TextView
+                style="@style/OptionTitle"
+                android:text="@string/option_orientation_lock_app_global" />
+
+            <LinearLayout
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="4dp"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_screensaver_force_orientation"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/lock_app_orientation"
+                    />
+            </LinearLayout>
+
+            <com.google.android.material.button.MaterialButtonToggleGroup
+                android:id="@+id/groupScreensaverOrientation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="50dp"
+                android:padding="8dp"
+                app:singleSelection="true"
+                app:selectionRequired="true"
+                android:orientation="horizontal">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/mb_Orientation_AppGlobal_Landscape"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/landscape"
+                    app:cornerRadius="16dp"
+                    app:checkedIcon="@drawable/ic_check_24px"
+                    />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/mb_Orientation_AppGlobal_Portrait"
+                    style="@style/MaterialButtonForToggleGroup"
+                    android:text="@string/portrait"
+                    app:cornerRadius="16dp"
+                    />
+
+            </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_orientation_lock_app_global_explain"
+                android:layout_marginBottom="5dp"
+                />
+
+
+            <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+
             <!-- Theme mode: override system checkbox + Light/Dark toggle -->
             <TextView
                 style="@style/OptionTitle"
@@ -246,17 +302,13 @@
                     android:text="@string/option_theme_mode_force_checkbox" />
             </LinearLayout>
 
-            <TextView
-                style="@style/OptionExplainText"
-                android:layout_marginBottom="8dp"
-                android:text="@string/option_theme_mode_force_explain" />
-
             <com.google.android.material.button.MaterialButtonToggleGroup
                 android:id="@+id/group_night_mode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:paddingBottom="8dp"
+                android:layout_marginStart="50dp"
+                android:padding="8dp"
                 app:singleSelection="true"
                 app:selectionRequired="true">
 
@@ -272,6 +324,12 @@
                     android:text="@string/option_night_mode_dark"
                     app:cornerRadius="16dp" />
             </com.google.android.material.button.MaterialButtonToggleGroup>
+
+            <TextView
+                style="@style/OptionExplainText"
+                android:layout_marginBottom="8dp"
+                android:text="@string/option_theme_mode_force_explain" />
+
         </LinearLayout>
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
