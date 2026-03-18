@@ -12,10 +12,17 @@ import com.driot.bookplayer.utils.log.BaseActivity;
 import com.driot.bookplayer.views.FrequencyVisualizerView;
 
 import static com.driot.bookplayer.utils.PermissionRequest.isRecordAudioPermissionGranted;
+import dagger.hilt.android.AndroidEntryPoint;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.annotation.Nullable;
 
+@AndroidEntryPoint
 public class ScreensaverActivity extends BaseActivity {
 
+    private PlaybackViewModel vm;
+
     private FrequencyVisualizerView visualizer;
+    private int lastSessionId = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,11 +58,27 @@ public class ScreensaverActivity extends BaseActivity {
 
         visualizer = findViewById(R.id.screensaverVisualizer);
 
-        // Get audio session ID from intent
-        int sessionId = getIntent().getIntExtra(Intents.EXTRA_AUDIO_SESSION_ID, -1);
-
         // Always show visualizer container
         visualizer.setVisibility(View.VISIBLE);
+
+        vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
+
+        // Observe playback state to update visualizer session ID
+        vm.getState().observe(this, this::updateVisualizer);
+    }
+
+    private void updateVisualizer(@Nullable PlaybackUiState s) {
+        if (s == null) return;
+
+        int sessionId = -1;
+        if (s.extras != null && s.extras.containsKey(Intents.EXTRA_AUDIO_SESSION_ID)) {
+            sessionId = s.extras.getInt(Intents.EXTRA_AUDIO_SESSION_ID);
+        }
+
+        if (sessionId == lastSessionId) {
+            return;
+        }
+        lastSessionId = sessionId;
 
         if (sessionId > 0 && Option.getVisualizerOn()
                 && isRecordAudioPermissionGranted(this)) {
@@ -67,6 +90,8 @@ public class ScreensaverActivity extends BaseActivity {
                 myLogEE(t, "Failed to link visualizer");
             }
         } else {
+            // If session is wrong or visualizer off, we might want to release it
+            // visualizer.release(); //attachToSession(0) or similar might be enough
             myLogW("Screensaver visualizer not linked: sessionId=" + sessionId
                     + ", visualizerOn=" + Option.getVisualizerOn()
                     + ", hasPermission=" + isRecordAudioPermissionGranted(this));
