@@ -11,6 +11,7 @@ import androidx.annotation.Nullable;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.helpers.LocaleHelper;
 import com.driot.bookplayer.helpers.StorageHelper;
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
@@ -674,5 +675,8 @@ public class Tonio {
     public static boolean isPure(Context context) {
         // pure does not have podcasts, radios, and bottomNavigation Bar
         return context.getPackageName().contains("com.driot.bookplayerpure");
+    }
+    public static boolean isAdmin() {
+        return Pref.getIsAdmin();
     }
 }

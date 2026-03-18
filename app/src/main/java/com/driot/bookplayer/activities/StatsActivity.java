@@ -132,7 +132,15 @@ public class StatsActivity extends BaseActivity {
             System.arraycopy(taps, 1, taps, 0, taps.length - 1);
             taps[taps.length - 1] = System.currentTimeMillis();
             if (taps[0] >= System.currentTimeMillis() - 1000) {
-                startActivity(new Intent(this, AdminActivity.class));
+                boolean wasAdmin = Pref.getIsAdmin();
+                if (!wasAdmin) {
+                    myToast(" you're admin now");
+                    Pref.setIsAdmin(true);
+                    startActivity(new Intent(this, AdminActivity.class));
+                } else {
+                    myToast(" you're not anymore admin ");
+                    Pref.setIsAdmin(false);
+                }
             }
         });
 
@@ -214,12 +222,16 @@ public class StatsActivity extends BaseActivity {
         }
 
         // Observe DB stats
-        TextView tv_body4 = findViewById(R.id.tv4_body);
-        viewModel.getDbStats().observe(this, stats -> {
-            if (stats != null && tv_body4 != null) {
-                tv_body4.setText(stats);
-            }
-        });
+        if (Tonio.isAdmin()) {
+            TextView tv_body4 = findViewById(R.id.tv4_body);
+            viewModel.getDbStats().observe(this, stats -> {
+                if (stats != null && tv_body4 != null) {
+                    tv_body4.setText(stats);
+                }
+            });
+        } else {
+            findViewById(R.id.ll_db_stats).setVisibility(View.GONE);
+        }
 
         // ----------------------------------------
 

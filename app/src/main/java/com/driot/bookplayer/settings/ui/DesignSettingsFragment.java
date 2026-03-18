@@ -28,7 +28,7 @@ import com.bumptech.glide.util.Executors;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Pref;
-import com.google.android.material.button.MaterialButton;
+import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.checkbox.MaterialCheckBox;
 import com.driot.bookplayer.utils.log.LoggingFragment;
@@ -62,6 +62,12 @@ public class DesignSettingsFragment extends LoggingFragment {
             @Nullable Bundle savedInstanceState) {
 
         View root = inflater.inflate(R.layout.fragment_settings_design, container, false);
+
+        if (Tonio.isAdmin()) {
+            root.findViewById(R.id.ll_color_viewer_section).setVisibility(View.VISIBLE);
+        } else {
+            root.findViewById(R.id.ll_color_viewer_section).setVisibility(View.GONE);
+        }
 
         // Hide the title row when embedded inline
         boolean showLocalTitle = true;

@@ -102,8 +102,24 @@ public class Pref {
             myLogEE(e, "getShowLiveLogs");
             return false;
         }
-
     }
+
+    public static boolean getIsAdmin() {
+        try {
+            return admin.getBoolean("IS_ADMIN", false);
+        } catch (Exception e) {
+            myLogEE(e, "getIsAdmin");
+            return false;
+        }
+    }
+    public static void setIsAdmin(boolean value) {
+        try {
+            admin.edit().putBoolean("IS_ADMIN", value).apply();
+        } catch (Exception e) {
+            myLogEE(e, "setIsAdmin");
+        }
+    }
+
 
     public static void setShowLiveLogs(boolean value) {
         admin.edit().putBoolean("SHOW_LIVE_LOGS", value).apply();
