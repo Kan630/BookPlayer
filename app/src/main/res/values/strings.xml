@@ -564,7 +564,7 @@
     <string name="Error_Import_CannotReadFolder">Error reading picked Folder</string>
     <string name="Error_Import_CannotSaveInDB">Error saving audio file in local database</string>
     <string name="Import_nMediaInFolder">medias have been found in this folder</string>
-    <string name="Import_Progress_unzipping_file">"Unzipping file: "</string>
+    <string name="Import_Progress_unzipping_file">"Uncompressing file: "</string>
     <string name="Error_Import_Creating_Folders">"Couldn't create folders"</string>
     <string name="Error_Import_track_duration_extraction">"Error getting Track duration"</string>
     <string name="Error_Import_NotEnoughMemory_line2_1">"available memory : "</string>
