@@ -91,6 +91,22 @@
                 />
 
 
+            <LinearLayout
+                android:id="@+id/ll_automotive_stop_on_exit"
+                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+                >
+                <com.google.android.material.checkbox.MaterialCheckBox
+                    android:id="@+id/chk_automotive_stop_on_exit"
+                    style="@style/OptionCheckBox" />
+                <TextView
+                    style="@style/OptionCheckBoxText"
+                    android:text="@string/option_automotive_stop_on_exit" />
+            </LinearLayout>
+            <TextView
+                style="@style/OptionExplainText"
+                android:text="@string/option_automotive_stop_on_exit_explain_text"
+                />
+
 
         </LinearLayout>
 
