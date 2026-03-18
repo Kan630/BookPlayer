@@ -433,7 +433,7 @@
     <string name="option_start_next_track_at_zero_title_text">Quando uma faixa termina, iniciar a seguinte desde o início, mesmo que já tenha sido parcialmente ouvida.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Parar o áudio quando você fechar o app.</string>
     <string name="option_network_preference_subtext">"Uma conexão não limitada significa que você não está usando dados móveis (por exemplo, Wi-Fi, Ethernet ou algumas VPNs).\nRoaming significa estar no exterior - até o Wi-Fi de hotel no exterior conta como roaming."</string>
-    <string name="option_automotive_let_car_autoplay">Permitir que o Android Auto inicie a reprodução automaticamente (geralmente ao conectar ao carro).</string>
+    <string name="option_automotive_let_car_autoplay">Auto-Play ao conectar</string>
     <string name="option_open_play_activity">Abrir a tela de reprodução quando a reprodução começar.</string>
     <string name="tts_settings">Configurações de TTS</string>
     <string name="option_tts_language_text">Idioma padrão de TTS para novos e-books.</string>
@@ -450,7 +450,7 @@
     <string name="option_theme_mode_force_checkbox">Sobrepor tema do sistema</string>
     <string name="option_theme_mode_force_explain">Quando ativado, o aplicativo ignora a configuração claro/escuro do seu dispositivo e usa sua escolha abaixo. Quando desativado, o aplicativo segue o sistema.</string>
     <string name="option_automotive_on">Conectar ao Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Retomar a reprodução automaticamente ao conectar ao carro.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Retomar reprodução</string>
 
     <string name="optionMinEqual">Mín =</string> //short for Minimum
     <string name="optionMaxEqual">Máx =</string> //short for Maximum

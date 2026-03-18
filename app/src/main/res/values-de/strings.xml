@@ -435,7 +435,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_start_next_track_at_zero_title_text">Wenn ein Titel endet, den nächsten von Anfang an starten, auch wenn er zuvor bereits teilweise abgespielt wurde.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Audio stoppen, wenn du die App schließt.</string>
     <string name="option_network_preference_subtext">"Eine ungemessene Verbindung bedeutet, dass Sie keine mobilen Daten verwenden (z. B. WLAN, Ethernet oder einige VPNs).\nRoaming bedeutet, dass Sie im Ausland sind - selbst WLAN im Hotel im Ausland gilt als Roaming."</string>
-    <string name="option_automotive_let_car_autoplay">Android Auto darf die Wiedergabe automatisch starten (normalerweise beim Verbinden mit dem Auto).</string>
+    <string name="option_automotive_let_car_autoplay">Auto-Play beim Verbinden</string>
     <string name="option_open_play_activity">Wiedergabeansicht öffnen, wenn die Wiedergabe startet.</string>
     <string name="tts_settings">TTS-Einstellungen</string>
     <string name="option_tts_language_text">Standard-TTS-Sprache für neue E-Books.</string>
@@ -452,7 +452,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_theme_mode_force_checkbox">Überschreiben des Systemdesigns</string>
     <string name="option_theme_mode_force_explain">Wenn aktiviert, ignoriert die App die Hell/Dunkel-Einstellung Ihres Geräts und verwendet Ihre unten stehende Auswahl. Wenn deaktiviert, folgt die App dem System.</string>
     <string name="option_automotive_on">Mit Android Auto verbinden.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe automatisch fortsetzen, wenn mit dem Auto verbunden.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe fortsetzen</string>
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum

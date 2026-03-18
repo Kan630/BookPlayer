@@ -432,7 +432,7 @@
     <string name="option_start_next_track_at_zero_title_text">Когда трек заканчивается, начинать следующий с начала, даже если он был частично прослушан ранее.</string>
     <string name="option_stop_audio_if_user_closes_app_text">Останавливать аудио при закрытии приложения.</string>
     <string name="option_network_preference_subtext">"Немеряемое соединение означает, что вы не используете мобильные данные (например, Wi-Fi, Ethernet или некоторые VPN).\nРоуминг означает, что вы за границей - даже Wi-Fi в отеле за границей считается роумингом."</string>
-    <string name="option_automotive_let_car_autoplay">Разрешить Android Auto автоматически начинать воспроизведение (обычно при подключении к автомобилю).</string>
+    <string name="option_automotive_let_car_autoplay">Автостарт при подключении</string>
     <string name="option_open_play_activity">Открывать экран воспроизведения при запуске воспроизведения.</string>
     <string name="tts_settings">Настройки TTS</string>
     <string name="option_tts_language_text">Язык TTS по умолчанию для новых электронных книг.</string>
@@ -449,7 +449,7 @@
     <string name="option_theme_mode_force_checkbox">Переопределить системную тему</string>
     <string name="option_theme_mode_force_explain">При включении приложение игнорирует настройку светлой/темной темы вашего устройства и использует ваш выбор ниже. При отключении приложение следует системе.</string>
     <string name="option_automotive_on">Подключиться к Android Auto.</string>
-    <string name="option_automotive_auto_resume_on_car_connect">Автоматически возобновлять воспроизведение при подключении к автомобилю.</string>
+    <string name="option_automotive_auto_resume_on_car_connect">Продолжить воспроизведение</string>
 
     <string name="optionMinEqual">Мин =</string> //short for Minimum
     <string name="optionMaxEqual">Макс =</string> //short for Maximum
