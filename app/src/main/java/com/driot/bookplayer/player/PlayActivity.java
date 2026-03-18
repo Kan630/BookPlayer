@@ -873,7 +873,8 @@ public class PlayActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         screensaverActive = false; // Reset when returning to activity
-        PlaybackCommands.resetLastUserAction(this);
+        // maybe we do not want to reset last user action on a simple onResume...
+        // PlaybackCommands.resetLastUserAction(this);
         if (vm != null) {
             PlaybackUiState s = vm.getState().getValue();
             if (s != null) {
