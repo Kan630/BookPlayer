@@ -449,8 +449,16 @@
     <string name="option_theme_mode_title">Modo de tema</string>
     <string name="option_theme_mode_force_checkbox">Sobrepor tema do sistema</string>
     <string name="option_theme_mode_force_explain">Quando ativado, o aplicativo ignora a configuração claro/escuro do seu dispositivo e usa sua escolha abaixo. Quando desativado, o aplicativo segue o sistema.</string>
+
+    <string name="option_orientation_lock_app_global">Orientação da tela</string>
+    <string name="lock_app_orientation">Bloquear orientação do app</string>
+    <string name="option_orientation_lock_app_global_explain">Aqui você pode optar por bloquear a orientação da tela para todo o aplicativo, independentemente da configuração atual do dispositivo.</string>
+
     <string name="option_automotive_on">Conectar ao Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Retomar reprodução</string>
+    <string name="option_automotive_stop_on_exit">Parar reprodução ao sair</string>
+    <string name="option_automotive_stop_on_exit_explain_text">Não retoma a reprodução no dispositivo quando o Android Auto é desligado (evita que o áudio reinicie ao sair do carro).</string>
+
 
     <string name="optionMinEqual">Mín =</string> //short for Minimum
     <string name="optionMaxEqual">Máx =</string> //short for Maximum
@@ -500,6 +508,10 @@
     <string name="Error_Import_NotEnoughMemory_line3">"origem a copiar : "</string>
     <string name="Error_NameTooShort">"Este nome é muito curto"</string>
     <string name="Import_Success">Importação concluída com sucesso</string>
+    <string name="Splitting_chapters">Dividindo capítulos</string>
+    <string name="succeeded">sucesso</string>
+    <string name="failed">falha</string>
+
     <string name="Import_Experimental_M4B_warning">Aviso: a <b>extração de capítulos m4b</b> ainda é <b>experimental</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Se você encontrar erros</string>
     <string name="Import_Experimental_M4B_solution_1">Desmarque a opção "dividir m4b".</string>

@@ -427,6 +427,11 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_theme_mode_title">Mode du thème</string>
     <string name="option_theme_mode_force_checkbox">Forcer le thème (ignorer le système)</string>
     <string name="option_theme_mode_force_explain">Si activé, l\'app ignore le réglage clair/sombre du téléphone et utilise votre choix ci-dessous. Si désactivé, l\'app suit le système.</string>
+
+    <string name="option_orientation_lock_app_global">Orientation de l\'écran</string>
+    <string name="lock_app_orientation">Bloquer l\'orientation de l\'app</string>
+    <string name="option_orientation_lock_app_global_explain">Ici, vous pouvez choisir de verrouiller l\'orientation de l\'écran pour toute l\'application, quel que soit le réglage actuel de l\'appareil.</string>
+
     <string name="option_text_appearance_title">Apparence du texte</string>
     <string name="option_podcast_open_specific_view">Ouvrir une vue spécifique</string>
     <string name="option_podcast_open_specific_view_subtitle">Lors du clic sur un livre de type \'podcast\', faut-il ouvrir la vue podcast avec tous les épisodes, ou la vue livre avec seulement ceux téléchargés ?</string>
@@ -464,6 +469,9 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="option_tts_overlay_timeout_text">Temps maximum :</string>
     <string name="option_automotive_on">Se connecter à Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Reprendre la lecture</string>
+    <string name="option_automotive_stop_on_exit">Arrêter la lecture en sortant</string>
+    <string name="option_automotive_stop_on_exit_explain_text">Ne reprend pas la lecture sur l\'appareil quand Android Auto est déconnecté (évite que le son ne redémarre quand vous sortez de la voiture).</string>
+
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum
@@ -513,6 +521,10 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="Error_Import_NotEnoughMemory_line3">source à copier : </string>
     <string name="Error_NameTooShort">Ce nom est trop court</string>
     <string name="Import_Success">Importation réussie</string>
+    <string name="Splitting_chapters">Découpage des chapitres</string>
+    <string name="succeeded">réussi</string>
+    <string name="failed">échoué</string>
+
     <string name="Import_Experimental_M4B_warning">Avertissement : <b>l\'extraction des chapitres m4b</b> est encore <b>expérimentale</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Si vous rencontrez des erreurs</string>
     <string name="Import_Experimental_M4B_solution_1">Décochez l\'option "découper m4b".</string>

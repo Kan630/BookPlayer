@@ -451,8 +451,16 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="option_theme_mode_title">Designmodus</string>
     <string name="option_theme_mode_force_checkbox">Überschreiben des Systemdesigns</string>
     <string name="option_theme_mode_force_explain">Wenn aktiviert, ignoriert die App die Hell/Dunkel-Einstellung Ihres Geräts und verwendet Ihre unten stehende Auswahl. Wenn deaktiviert, folgt die App dem System.</string>
+
+    <string name="option_orientation_lock_app_global">Bildschirmausrichtung</string>
+    <string name="lock_app_orientation">App-Ausrichtung sperren</string>
+    <string name="option_orientation_lock_app_global_explain">Hier können Sie die Bildschirmausrichtung für die gesamte App sperren, unabhängig von der aktuellen Geräteeinstellung.</string>
+
     <string name="option_automotive_on">Mit Android Auto verbinden.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Wiedergabe fortsetzen</string>
+    <string name="option_automotive_stop_on_exit">Wiedergabe beim Verlassen stoppen</string>
+    <string name="option_automotive_stop_on_exit_explain_text">Setzt die Wiedergabe auf dem Gerät nicht fort, wenn Android Auto ausgeschaltet wird (vermeidet Audiostart beim Verlassen des Autos).</string>
+
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum
@@ -502,6 +510,10 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="Error_Import_NotEnoughMemory_line3">"Quelle zu kopieren : "</string>
     <string name="Error_NameTooShort">"Dieser Name ist zu kurz"</string>
     <string name="Import_Success">Import erfolgreich</string>
+    <string name="Splitting_chapters">Kapitel werden aufgeteilt</string>
+    <string name="succeeded">erfolgreich</string>
+    <string name="failed">fehlgeschlagen</string>
+
     <string name="Import_Experimental_M4B_warning">Warnung : <b>M4B-Kapitelextraktion</b> ist noch <b>experimentell</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Wenn Fehler auftreten</string>
     <string name="Import_Experimental_M4B_solution_1">Deaktivieren Sie die "M4B aufteilen"-Option.</string>

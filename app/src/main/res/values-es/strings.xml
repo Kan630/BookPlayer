@@ -447,8 +447,16 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="option_theme_mode_title">Modo de tema</string>
     <string name="option_theme_mode_force_checkbox">Anular tema del sistema</string>
     <string name="option_theme_mode_force_explain">Cuando está habilitado, la aplicación ignora la configuración claro/oscuro de su dispositivo y usa su elección a continuación. Cuando está deshabilitado, la aplicación sigue el sistema.</string>
+
+    <string name="option_orientation_lock_app_global">Orientación de pantalla</string>
+    <string name="lock_app_orientation">Bloquear orientación de la aplicación</string>
+    <string name="option_orientation_lock_app_global_explain">Aquí puede elegir bloquear la orientación de la pantalla para toda la aplicación, independientemente de la configuración actual del dispositivo.</string>
+
     <string name="option_automotive_on">Conectarse a Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Continuar reproducción</string>
+    <string name="option_automotive_stop_on_exit">Detener reproducción al salir</string>
+    <string name="option_automotive_stop_on_exit_explain_text">No reanuda la reproducción en el dispositivo cuando se apaga Android Auto (evita que el audio se reinicie al salir del coche).</string>
+
 
     <string name="optionMinEqual">Mín =</string> //short for Minimum
     <string name="optionMaxEqual">Máx =</string> //short for Maximum
@@ -498,6 +506,10 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
     <string name="Error_Import_NotEnoughMemory_line3">"tamaño del recurso : "</string>
     <string name="Error_NameTooShort">"Este nombre es demasiado corto"</string>
     <string name="Import_Success">Importación completada</string>
+    <string name="Splitting_chapters">Dividiendo capítulos</string>
+    <string name="succeeded">exitoso</string>
+    <string name="failed">fallido</string>
+
     <string name="Import_Experimental_M4B_warning">Advertencia : <b>la extracción de capítulos m4b</b> es todavía <b>experimental</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Si encuentras errores</string>
     <string name="Import_Experimental_M4B_solution_1">Desactiva la opción "dividir m4b".</string>

@@ -450,8 +450,16 @@
     <string name="option_theme_mode_title">Modalità tema</string>
     <string name="option_theme_mode_force_checkbox">Sostituisci tema di sistema</string>
     <string name="option_theme_mode_force_explain">Quando abilitato, l\'app ignora l\'impostazione chiaro/scuro del dispositivo e utilizza la tua scelta qui sotto. Quando disabilitato, l\'app segue il sistema.</string>
+
+    <string name="option_orientation_lock_app_global">Orientamento schermo</string>
+    <string name="lock_app_orientation">Blocca orientamento app</string>
+    <string name="option_orientation_lock_app_global_explain">Qui puoi scegliere di bloccare l\'orientamento dello schermo per l\'intera app, indipendentemente dall\'impostazione corrente del dispositivo.</string>
+
     <string name="option_automotive_on">Connettersi ad Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Continua riproduzione</string>
+    <string name="option_automotive_stop_on_exit">Interrompi riproduzione all\'uscita</string>
+    <string name="option_automotive_stop_on_exit_explain_text">Non riprende la riproduzione sul dispositivo quando Android Auto viene disattivato (evita il riavvio dell\'audio quando si esce dall\'auto).</string>
+
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum
@@ -501,6 +509,10 @@
     <string name="Error_Import_NotEnoughMemory_line3">"sorgente da copiare : "</string>
     <string name="Error_NameTooShort">"Questo nome è troppo corto"</string>
     <string name="Import_Success">Importazione riuscita</string>
+    <string name="Splitting_chapters">Suddivisione capitoli</string>
+    <string name="succeeded">riuscito</string>
+    <string name="failed">fallito</string>
+
     <string name="Import_Experimental_M4B_warning">Attenzione: l\'<b>estrazione dei capitoli m4b</b> è ancora <b>sperimentale</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Se riscontri errori</string>
     <string name="Import_Experimental_M4B_solution_1">Deseleziona l\'opzione "dividi m4b".</string>

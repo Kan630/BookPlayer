@@ -411,7 +411,9 @@
     <br><br>
     BookPlayer will use the device’s <font color="#81C784">built-in voices</font> to read the text aloud.
     <br><br>
-    This is a relatively <font color="#FFCC80">new feature</font> — please be gentle and share your feedback.
+    <font color="#FFCC80">Pinch</font> to zoom in or out.
+    <br>
+    <font color="#FFCC80">Double-tap</font> to toggle auto-scroll.
 ]]></string>
 
 
@@ -482,6 +484,11 @@
     <string name="option_theme_mode_title">Night mode</string>
     <string name="option_theme_mode_force_checkbox">Override system theme</string>
     <string name="option_theme_mode_force_explain">When enabled, the app ignores your device\'s light/dark setting and uses your choice below. When disabled, the app follows the system.</string>
+
+    <string name="option_orientation_lock_app_global">Screen Orientation</string>
+    <string name="lock_app_orientation">Lock app orientation</string>
+    <string name="option_orientation_lock_app_global_explain">Here you can choose to lock the screen orientation for the entire app, regardless of the current device setting.</string>
+
     <string name="option_text_appearance_title">Text appearance</string>
     <string name="option_podcast_open_specific_view">Live view is default</string>
     <string name="option_podcast_open_specific_view_subtitle">If checked, when you tap a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf unchecked, it opens the \'book\' view with downloaded episodes.</string>
@@ -522,6 +529,9 @@
     <string name="option_automotive_on">Display in Android Auto</string>
     <string name="option_automotive_show_radios">Display Radios</string>
     <string name="option_automotive_auto_resume_on_car_connect">Continue Playback</string>
+    <string name="option_automotive_stop_on_exit">Stop Playback on Exit</string>
+    <string name="option_automotive_stop_on_exit_explain_text">Do not resume playback on the device when Android Auto is switched off (avoids audio restart when you exit the car).</string>
+
 
     <string name="optionMinEqual">Min =</string> //short for Minimum
     <string name="optionMaxEqual">Max =</string> //short for Maximum
@@ -571,6 +581,10 @@
     <string name="Error_Import_NotEnoughMemory_line3">"source to copy : "</string>
     <string name="Error_NameTooShort">"This name is too short"</string>
     <string name="Import_Success">Import Successful</string>
+    <string name="Splitting_chapters">Splitting chapters</string>
+    <string name="succeeded">succeeded</string>
+    <string name="failed">failed</string>
+
     <string name="Import_Experimental_M4B_warning">Warning : <b>m4b chapters extraction</b> is basic and may not work with all files.</string>
     <string name="Import_Experimental_M4B_iferror">If you encounter errors</string>
     <string name="Import_Experimental_M4B_solution_1">Uncheck the [split m4b] option.</string>

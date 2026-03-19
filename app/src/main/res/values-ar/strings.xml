@@ -444,8 +444,16 @@
     <string name="option_theme_mode_title">وضع السمة</string>
     <string name="option_theme_mode_force_checkbox">تجاوز سمة النظام</string>
     <string name="option_theme_mode_force_explain">عند التمكين، يتجاهل التطبيق إعداد الضوء/الظلام للجهاز الخاص بك ويستخدم اختيارك أدناه. عند التعطيل، يتبع التطبيق النظام.</string>
+
+    <string name="option_orientation_lock_app_global">اتجاه الشاشة</string>
+    <string name="lock_app_orientation">قفل اتجاه التطبيق</string>
+    <string name="option_orientation_lock_app_global_explain">هنا يمكنك اختيار قفل اتجاه الشاشة للتطبيق بأكمله، بغض النظر عن إعداد الجهاز الحالي.</string>
+
     <string name="option_automotive_on">الاتصال بـ Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">استئناف التشغيل</string>
+    <string name="option_automotive_stop_on_exit">إيقاف التشغيل عند الخروج</string>
+    <string name="option_automotive_stop_on_exit_explain_text">لا تستأنف التشغيل على الجهاز عندما يتم إيقاف تشغيل Android Auto (يتجنب إعادة تشغيل الصوت عند الخروج من السيارة).</string>
+
 
     <string name="optionMinEqual">الحد الأدنى =</string> //short for Minimum
     <string name="optionMaxEqual">الحد الأقصى =</string> //short for Maximum
@@ -495,6 +503,10 @@
     <string name="Error_Import_NotEnoughMemory_line3">"حجم المصدر المطلوب نسخه : "</string>
     <string name="Error_NameTooShort">"هذا الاسم قصير جداً"</string>
     <string name="Import_Success">تم الاستيراد بنجاح</string>
+    <string name="Splitting_chapters">تقسيم الفصول</string>
+    <string name="succeeded">نجح</string>
+    <string name="failed">فشل</string>
+
     <string name="Import_Experimental_M4B_warning">تحذير : <b>استخراج فصول m4b</b> لا يزال <b>تجريبياً</b>.</string>
     <string name="Import_Experimental_M4B_iferror">إذا واجهت أخطاء</string>
     <string name="Import_Experimental_M4B_solution_1">قم بإلغاء تحديد خيار "تقسيم m4b".</string>

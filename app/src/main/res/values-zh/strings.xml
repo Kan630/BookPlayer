@@ -449,8 +449,16 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="option_theme_mode_title">主题模式</string>
     <string name="option_theme_mode_force_checkbox">覆盖系统主题</string>
     <string name="option_theme_mode_force_explain">启用时，应用程序会忽略设备的亮/暗设置并使用下面的选择。禁用时，应用程序遵循系统。</string>
+
+    <string name="option_orientation_lock_app_global">屏幕方向</string>
+    <string name="lock_app_orientation">锁定应用方向</string>
+    <string name="option_orientation_lock_app_global_explain">在这里，您可以选择锁定整个应用的屏幕方向，而不管当前的设备设置如何。</string>
+
     <string name="option_automotive_on">连接到 Android Auto。</string>
     <string name="option_automotive_auto_resume_on_car_connect">自动恢复播放</string>
+    <string name="option_automotive_stop_on_exit">退出时停止播放</string>
+    <string name="option_automotive_stop_on_exit_explain_text">关闭 Android Auto 时不要在设备上恢复播放（避免退出车时音频重新启动）。</string>
+
 
     <string name="optionMinEqual">最小 =</string> //short for Minimum
     <string name="optionMaxEqual">最大 =</string> //short for Maximum
@@ -500,6 +508,10 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="Error_Import_NotEnoughMemory_line3">源文件大小：</string>
     <string name="Error_NameTooShort">名称太短</string>
     <string name="Import_Success">导入成功</string>
+    <string name="Splitting_chapters">拆分章节</string>
+    <string name="succeeded">成功</string>
+    <string name="failed">失败</string>
+
     <string name="Import_Experimental_M4B_warning">警告：<b>m4b 章节提取</b>仍为<b>实验功能</b>。</string>
     <string name="Import_Experimental_M4B_iferror">如果遇到错误</string>
     <string name="Import_Experimental_M4B_solution_1">取消勾选 “拆分 m4b” 选项。</string>

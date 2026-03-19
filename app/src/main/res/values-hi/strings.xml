@@ -447,8 +447,16 @@
     <string name="option_theme_mode_title">थीम मोड</string>
     <string name="option_theme_mode_force_checkbox">सिस्टम थीम ओवरराइड करें</string>
     <string name="option_theme_mode_force_explain">सक्षम होने पर, एप आपके डिवाइस की लाइट/डार्क सेटिंग को अनदेखा करता है और नीचे आपकी पसंद का उपयोग करता है। अक्षम होने पर, एप सिस्टम का अनुसरण करता है।</string>
+
+    <string name="option_orientation_lock_app_global">स्क्रीन ओरिएंटेशन</string>
+    <string name="lock_app_orientation">ऐप ओरिएंटेशन लॉक करें</string>
+    <string name="option_orientation_lock_app_global_explain">यहाँ आप डिवाइस की वर्तमान सेटिंग के बावजूद पूरे ऐप के लिए स्क्रीन ओरिएंटेशन लॉक करना चुन सकते हैं।</string>
+
     <string name="option_automotive_on">Android Auto में दिखाएँ।</string>
     <string name="option_automotive_auto_resume_on_car_connect">प्लेबैक फिर शुरू करें</string>
+    <string name="option_automotive_stop_on_exit">बाहर निकलने पर प्लेबैक रोकें</string>
+    <string name="option_automotive_stop_on_exit_explain_text">जब Android Auto बंद हो जाए तो डिवाइस पर प्लेबैक फिर से शुरू न करें (कार से बाहर निकलते समय ऑडियो के फिर से चालू होने से बचाता है)।</string>
+
 
     <string name="optionMinEqual">न्यूनतम =</string> //short for Minimum
     <string name="optionMaxEqual">अधिकतम =</string> //short for Maximum
@@ -498,6 +506,10 @@
     <string name="Error_Import_NotEnoughMemory_line3">"कॉपी करने का स्रोत : "</string>
     <string name="Error_NameTooShort">"यह नाम बहुत छोटा है"</string>
     <string name="Import_Success">आयात सफल</string>
+    <string name="Splitting_chapters">अध्यायों का विभाजन</string>
+    <string name="succeeded">सफल</string>
+    <string name="failed">विफल</string>
+
     <string name="Import_Experimental_M4B_warning">चेतावनी : <b>m4b अध्याय निष्कर्षण</b> बुनियादी है और सभी फ़ाइलों पर काम न करे।</string>
     <string name="Import_Experimental_M4B_iferror">यदि आपको त्रुटियाँ मिलें</string>
     <string name="Import_Experimental_M4B_solution_1">[split m4b] विकल्प को अनचेक करें।</string>

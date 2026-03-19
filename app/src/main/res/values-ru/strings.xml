@@ -448,8 +448,16 @@
     <string name="option_theme_mode_title">Режим темы</string>
     <string name="option_theme_mode_force_checkbox">Переопределить системную тему</string>
     <string name="option_theme_mode_force_explain">При включении приложение игнорирует настройку светлой/темной темы вашего устройства и использует ваш выбор ниже. При отключении приложение следует системе.</string>
+
+    <string name="option_orientation_lock_app_global">Ориентация экрана</string>
+    <string name="lock_app_orientation">Заблокировать ориентацию приложения</string>
+    <string name="option_orientation_lock_app_global_explain">Здесь вы можете заблокировать ориентацию экрана для всего приложения независимо от текущих настроек устройства.</string>
+
     <string name="option_automotive_on">Подключиться к Android Auto.</string>
     <string name="option_automotive_auto_resume_on_car_connect">Продолжить воспроизведение</string>
+    <string name="option_automotive_stop_on_exit">Остановить воспроизведение при выходе</string>
+    <string name="option_automotive_stop_on_exit_explain_text">Не возобновлять воспроизведение на устройстве при выключении Android Auto (позволяет избежать перезапуска аудио при выезде из машины).</string>
+
 
     <string name="optionMinEqual">Мин =</string> //short for Minimum
     <string name="optionMaxEqual">Макс =</string> //short for Maximum
@@ -499,6 +507,10 @@
     <string name="Error_Import_NotEnoughMemory_line3">размер источника: </string>
     <string name="Error_NameTooShort">"Имя слишком короткое"</string>
     <string name="Import_Success">Импорт завершён успешно</string>
+    <string name="Splitting_chapters">Разделение глав</string>
+    <string name="succeeded">успешно</string>
+    <string name="failed">не удалось</string>
+
     <string name="Import_Experimental_M4B_warning">Внимание: <b>разбиение глав m4b</b> всё ещё <b>экспериментально</b>.</string>
     <string name="Import_Experimental_M4B_iferror">Если возникнут ошибки</string>
     <string name="Import_Experimental_M4B_solution_1">Снимите флажок "разбивать m4b".</string>
