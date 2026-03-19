@@ -59,7 +59,6 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
     private EbookResultRVAdapter adapter;
 
-    private int currentTryNumber = 1;
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
     private String nextPageUrl;
@@ -240,7 +239,6 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
         recyclerView.setVisibility(View.GONE);
         tvEmptyMessage.setVisibility(View.GONE);
 
-        currentTryNumber = 1;
         progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
             @NonNull
             @Override
@@ -251,23 +249,19 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
             @NonNull
             @Override
             public String getTickMessage(long elapsedSec) {
-                String tryLabel = currentTryNumber == 1
-                        ? getString(R.string.gutenberg_try_1st)
-                        : getString(R.string.gutenberg_try_2nd);
-
                 if (gutendexConnected) {
-                    return getString(R.string.gutenberg_wait_elapsed_connected,
+                    return getString(R.string.wait_elapsed_connected,
                             getString(R.string.gutenberg_connected),
-                            (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
+                            (int) elapsedSec, Var.GUTENDEX_READ_TIMEOUT_SEC);
                 } else {
-                    return getString(R.string.gutenberg_wait_elapsed_connecting,
+                    return getString(R.string.wait_elapsed_connecting,
                             getString(R.string.gutenberg_contacting),
-                            (int) elapsedSec, tryLabel, Var.GUTENDEX_CONNECT_TIMEOUT_SEC);
+                            (int) elapsedSec, Var.GUTENDEX_CONNECT_TIMEOUT_SEC);
                 }
             }
         });
 
-        performInitialSearch(0);
+        performInitialSearch();
     }
 
     // Ticker logic removed and replaced by progressHelper
@@ -296,7 +290,7 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 .build();
     }
 
-    private void performInitialSearch(final int retryCount) {
+    private void performInitialSearch() {
         OkHttpClient client = buildGutendexClient();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(Option.getGutenbergBaseUrl())
@@ -398,39 +392,6 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
 
             @Override
             public void onFailure(Call<GutendexResponse> call, Throwable t) {
-                if (retryCount == 0) {
-                    myLogW("Gutendex initial search failed, retrying once: " + t.getMessage());
-                    currentTryNumber = 2;
-                    gutendexConnected = false;
-                    // Restart ticker to reset elapsed time for second try (original behavior)
-                    progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
-                        @NonNull
-                        @Override
-                        public String getInitialMessage() {
-                            return getString(R.string.gutenberg_contacting);
-                        }
-
-                        @NonNull
-                        @Override
-                        public String getTickMessage(long elapsedSec) {
-                            String tryLabel = currentTryNumber == 1
-                                    ? getString(R.string.gutenberg_try_1st)
-                                    : getString(R.string.gutenberg_try_2nd);
-
-                            if (gutendexConnected) {
-                                return getString(R.string.gutenberg_wait_elapsed_connected,
-                                        getString(R.string.gutenberg_connected),
-                                        (int) elapsedSec, tryLabel, Var.GUTENDEX_READ_TIMEOUT_SEC);
-                            } else {
-                                return getString(R.string.gutenberg_wait_elapsed_connecting,
-                                        getString(R.string.gutenberg_contacting),
-                                        (int) elapsedSec, tryLabel, Var.GUTENDEX_CONNECT_TIMEOUT_SEC);
-                            }
-                        }
-                    });
-                    performInitialSearch(1);
-                    return;
-                }
                 progressBar.setVisibility(View.GONE);
                 progressHelper.stop();
                 myToastEE(t, getString(R.string.an_error_occurred));

@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.LibrivoxResultRVAdapter;
 import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
@@ -169,11 +168,11 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                         boolean isConnected = Boolean.TRUE.equals(viewModel.getIsConnected().getValue());
 
                         if (isConnected) {
-                            return getString(R.string.librivox_wait_elapsed_connected,
-                                    getString(R.string.librivox_connected),
+                            return getString(R.string.wait_elapsed_connected,
+                                    getString(R.string.connected_receiving_data),
                                     (int) elapsedSec, Var.ARCHIVE_READ_TIMEOUT_SEC); // Read timeout
                         } else {
-                            return getString(R.string.librivox_wait_elapsed_connecting,
+                            return getString(R.string.wait_elapsed_connecting,
                                     getString(R.string.librivox_contacting),
                                     (int) elapsedSec, Var.ARCHIVE_CONNECT_TIMEOUT_SEC); // Connect timeout
                         }

@@ -1098,10 +1098,13 @@
     <string name="no_results_found">no results found</string>
     <string name="getting_first_results_from">Getting first results from</string>
     <string name="getting_more_from">getting more from</string>
-    <string name="librivox_contacting">Contacting archive.org (LibriVox source).</string>
-    <string name="librivox_wait_elapsed_connecting">%1$s\n%2$d sec elapsed\n(connection timeout: %3$d sec)</string>
-    <string name="librivox_wait_elapsed_connected">%1$s\n%2$d sec elapsed\n(read timeout: %3$d sec)</string>
-    <string name="librivox_connected">Connected! Receiving data.</string>
+    <string name="archive_contacting">Contacting archive.org (LibriVox source).</string>
+    <string name="archive_connected">Connected to archive.org! Receiving data.</string>
+    <string name="librivox_contacting">Contacting librivox.org directly.</string>
+    <string name="librivox_connected">Connected to librivox! Receiving data.</string>
+
+    <string name="wait_elapsed_connecting">%1$s\n%2$d sec elapsed\n(connection timeout: %3$d sec)</string>
+    <string name="wait_elapsed_connected">%1$s\n%2$d sec elapsed\n(read timeout: %3$d sec)</string>
 
 
     <string name="stream_url">stream url</string>
@@ -1163,11 +1166,7 @@
     <string name="no_ebooks_found_search">No ebooks found \nfor search [%1$s] \nwith language [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">No ebooks found \nfor bookshelf [%1$s] \nwith language [%2$s]</string>
     <string name="gutenberg_contacting">Contacting gutenberg.org…</string>
-    <string name="gutenberg_wait_elapsed">%1$d sec elapsed - %2$s - (timeout is %3$d sec)</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d sec elapsed - %3$s\n(connection timeout: %4$d sec)</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d sec elapsed - %3$s\n(read timeout: %4$d sec)</string>
-    <string name="gutenberg_try_1st">1st try</string>
-    <string name="gutenberg_try_2nd">2nd try</string>
+
     <string name="gutenberg_connected">Connected! Receiving data…\n\nGutenberg is a free volunteer project.\nIt can be quite slow…\n\n</string>
     <string name="radio_browser_contacting">Contacting radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d sec elapsed - (timeout is %2$d sec)</string>
