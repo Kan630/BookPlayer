@@ -233,6 +233,15 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         });
 
+        // Observe loading more (pagination)
+        /* --> seems useless, we alread have a spinner progress showing at the botton
+        viewModel.getIsLoadingMore().observe(this, isLoadingMore -> {
+            if (isLoadingMore != null) {
+                progressBarLoadMore.setVisibility(isLoadingMore ? View.VISIBLE : View.GONE);
+            }
+        });
+         */
+
         // Observe errors
         viewModel.getErrorMessage().observe(this, errorMsg -> {
             if (errorMsg == null || errorMsg.isEmpty())
