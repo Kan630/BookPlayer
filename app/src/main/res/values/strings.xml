@@ -1296,17 +1296,6 @@
         <item quantity="other">%d days ago</item>
     </plurals>
 
-    <string name="Splitting_chapters">Splitting chapters</string>
-    <string name="succeeded">succeeded</string> //for "import: X/Y succeeded"
-    <string name="failed">failed</string> //for "import: X/Y succeeded (Z/Y failed)"
-
-    <string name="option_orientation_lock_app_global">Screen Orientation</string>
-    <string name="lock_app_orientation">Lock app orientation</string>
-    <string name="option_orientation_lock_app_global_explain">Here you can choose to lock the screen orientation for the entire app, regardless of the current device setting.</string>
-
-    <string name="option_automotive_stop_on_exit">Stop Playback on Exit</string>
-    <string name="option_automotive_stop_on_exit_explain_text">Do not resume playback on the device when Android Auto is switched off (avoids audio restart when you exit the car).</string>
-
 </resources>
 
 
