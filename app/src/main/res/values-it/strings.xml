@@ -482,6 +482,12 @@
     <string name="librivox_no_audiobook_found_for_search">Nessun audiolibro trovato per i termini di ricerca</string>
     <string name="archive_org_offline">Internet Archive è temporaneamente offline</string>
     <string name="request_timeout">Timeout richiesta</string>
+    <string name="archive_contacting">Contatto archive.org (sorgente LibriVox) in corso.</string>
+    <string name="archive_connected">Connesso ad archive.org! Ricezione dati.</string>
+    <string name="librivox_contacting">Contatto librivox.org direttamente in corso.</string>
+    <string name="librivox_connected">Connesso a librivox! Ricezione dati.</string>
+    <string name="wait_elapsed_connecting">%1$s\n%2$d sec trascorsi\n(timeout connessione: %3$d sec)</string>
+    <string name="wait_elapsed_connected">%1$s\n%2$d sec trascorsi\n(timeout lettura: %3$d sec)</string>
     <string name="librivox_invalid_response">Risposta non valida dal server Librivox</string>
     <string name="loading_details">Caricamento dettagli…</string>
     <string name="loading_detail_failed">Caricamento dettagli non riuscito</string>

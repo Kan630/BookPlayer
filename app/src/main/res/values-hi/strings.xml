@@ -483,6 +483,14 @@
     <string name="librivox_zip_mp3_available">ZIP-MP3 फ़ाइल उपलब्ध</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 फ़ाइल नहीं मिली</string>
     <string name="librivox_zip_mp3_checking">ZIP-MP3 फ़ाइल की जाँच की जा रही है</string>
+    <string name="archive_org_offline">इंटरनेट आर्काइव अस्थायी रूप से ऑफलाइन है</string>
+    <string name="request_timeout">अनुरोध का समय समाप्त हो गया</string>
+    <string name="archive_contacting">archive.org (LibriVox स्रोत) से संपर्क कर रहा है।</string>
+    <string name="archive_connected">archive.org से जुड़ गया! डेटा प्राप्त हो रहा है।</string>
+    <string name="librivox_contacting">सीधे librivox.org से संपर्क कर रहा है।</string>
+    <string name="librivox_connected">librivox से जुड़ गया! डेटा प्राप्त हो रहा है।</string>
+    <string name="wait_elapsed_connecting">%1$s\n%2$d सेकंड बीत गए\n(कनेक्शन टाइमआउट: %3$d सेकंड)</string>
+    <string name="wait_elapsed_connected">%1$s\n%2$d सेकंड बीत गए\n(रीड टाइमआउट: %3$d सेकंड)</string>
 
     <string name="librivox_cover_desc">Librivox कवर</string>
 

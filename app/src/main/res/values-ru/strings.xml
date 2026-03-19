@@ -484,6 +484,14 @@
     <string name="librivox_zip_mp3_available">ZIP-MP3 файл доступен</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 файл не найден</string>
     <string name="librivox_zip_mp3_checking">проверка ZIP-MP3 файла</string>
+    <string name="archive_org_offline">Internet Archive временно недоступен</string>
+    <string name="request_timeout">Время ожидания запроса истекло</string>
+    <string name="archive_contacting">Связь с archive.org (источник LibriVox).</string>
+    <string name="archive_connected">Подключено к archive.org! Получение данных.</string>
+    <string name="librivox_contacting">Прямая связь с librivox.org.</string>
+    <string name="librivox_connected">Подключено к librivox! Получение данных.</string>
+    <string name="wait_elapsed_connecting">%1$s\nПрошло %2$d сек\n(тайм-аут соединения: %3$d сек)</string>
+    <string name="wait_elapsed_connected">%1$s\nПрошло %2$d сек\n(тайм-аут чтения: %3$d сек)</string>
 
     <string name="librivox_cover_desc">Обложка Librivox</string>
 

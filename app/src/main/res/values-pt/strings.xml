@@ -485,6 +485,14 @@
     <string name="librivox_zip_mp3_available">Arquivo ZIP-MP3 disponível</string>
     <string name="librivox_zip_mp3_not_found">Arquivo ZIP-MP3 não encontrado</string>
     <string name="librivox_zip_mp3_checking">verificando arquivo ZIP-MP3</string>
+    <string name="archive_org_offline">Internet Archive está temporariamente offline</string>
+    <string name="request_timeout">O pedido expirou</string>
+    <string name="archive_contacting">A contactar archive.org (fonte LibriVox).</string>
+    <string name="archive_connected">Ligado ao archive.org! A receber dados.</string>
+    <string name="librivox_contacting">A contactar librivox.org diretamente.</string>
+    <string name="librivox_connected">Ligado ao librivox! A receber dados.</string>
+    <string name="wait_elapsed_connecting">%1$s\n%2$d seg decorridos\n(timeout de ligação: %3$d seg)</string>
+    <string name="wait_elapsed_connected">%1$s\n%2$d seg decorridos\n(timeout de leitura: %3$d seg)</string>
 
     <string name="librivox_cover_desc">Capa do Librivox</string>
 

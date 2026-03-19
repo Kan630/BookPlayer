@@ -485,6 +485,14 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
     <string name="librivox_zip_mp3_available">可用 ZIP-MP3 文件</string>
     <string name="librivox_zip_mp3_not_found">未找到 ZIP-MP3 文件</string>
     <string name="librivox_zip_mp3_checking">正在检查 ZIP-MP3 文件</string>
+    <string name="archive_org_offline">Internet Archive 暂时离线</string>
+    <string name="request_timeout">请求超时</string>
+    <string name="archive_contacting">正在联系 archive.org (LibriVox 来源)。</string>
+    <string name="archive_connected">已连接到 archive.org！正在接收数据。</string>
+    <string name="librivox_contacting">正在直接联系 librivox.org。</string>
+    <string name="librivox_connected">已连接到 librivox！正在接收数据。</string>
+    <string name="wait_elapsed_connecting">%1$s\n已用 %2$d 秒\n(连接超时：%3$d 秒)</string>
+    <string name="wait_elapsed_connected">%1$s\n已用 %2$d 秒\n(读取超时：%3$d 秒)</string>
 
     <string name="librivox_cover_desc">Librivox 封面</string>
 

@@ -494,6 +494,12 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="librivox_no_audiobook_found_for_search">Aucun livre audio trouvé avec ces critères</string>
     <string name="archive_org_offline">Internet Archive est temporairement hors ligne.</string>
     <string name="request_timeout">Délai de demande dépassé</string>
+    <string name="archive_contacting">Contact d\'archive.org (source LibriVox) en cours.</string>
+    <string name="archive_connected">Connecté à archive.org ! Réception des données.</string>
+    <string name="librivox_contacting">Contact de librivox.org directement en cours.</string>
+    <string name="librivox_connected">Connecté à librivox ! Réception des données.</string>
+    <string name="wait_elapsed_connecting">%1$s\n%2$d s écoulées\n(délai de connexion : %3$d s)</string>
+    <string name="wait_elapsed_connected">%1$s\n%2$d s écoulées\n(délai de lecture : %3$d s)</string>
     <string name="librivox_invalid_response">Réponse invalide du serveur Librivox</string>
     <string name="loading_details">Chargement des détails…</string>
     <string name="loading_detail_failed">Échec du chargement des détails</string>
