@@ -215,7 +215,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
             if (statusData == null)
                 return;
             String status;
-            if (statusData.isLoading) {
+            if (statusData.isLoading && statusData.count == 0) {
                 status = getString(R.string.Results_2pt) + "...";
             } else {
                 if (statusData.totalCount >= 0) {
