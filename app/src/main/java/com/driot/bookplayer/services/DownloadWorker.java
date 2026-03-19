@@ -177,8 +177,54 @@ public class DownloadWorker extends ImportWorker {
                 return Result.retry();
             }
 
-            final String fileName = Tonio.getFileNameFromUrl(urlStr);
+// === Resolve filename & final download URL ===
+            String fileName;
+            URL resolvedUrl;
+
+            {
+                URL probeUrl = new URL(urlStr);
+                HttpURLConnection probe = (HttpURLConnection) probeUrl.openConnection();
+                probe.setConnectTimeout(CONNECT_TIMEOUT_MS);
+                probe.setReadTimeout(READ_TIMEOUT_MS);
+                probe.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
+                probe.setRequestMethod("HEAD");
+                probe.setInstanceFollowRedirects(false); // <-- KEY: don't follow, capture Location
+                probe.connect();
+
+                int probeCode = probe.getResponseCode();
+                String location = probe.getHeaderField("Location");
+                probe.disconnect();
+
+                myLog("Probe response code: " + probeCode + ", Location: " + location);
+
+                if ((probeCode == HttpURLConnection.HTTP_MOVED_TEMP      // 302
+                        || probeCode == HttpURLConnection.HTTP_MOVED_PERM  // 301
+                        || probeCode == 307 || probeCode == 308)
+                        && location != null && !location.isEmpty()) {
+
+                    // Resolve relative redirects (just in case)
+                    resolvedUrl = new URL(probeUrl, location);
+                    fileName = Tonio.getFileNameFromUrl(resolvedUrl.toString());
+                    myLog("Filename from redirect Location: " + fileName + " (resolved URL: " + resolvedUrl + ")");
+
+                } else {
+                    // No redirect — use the URL as-is (or try Content-Disposition as bonus)
+                    resolvedUrl = probeUrl;
+                    String cd = probe.getHeaderField("Content-Disposition");
+                    String cdName = extractFileNameFromContentDisposition(cd);
+                    if (cdName != null && !cdName.isEmpty()) {
+                        fileName = cdName;
+                        myLog("Filename from Content-Disposition: " + fileName);
+                    } else {
+                        fileName = Tonio.getFileNameFromUrl(urlStr);
+                        myLog("Filename from URL (no redirect, no CD): " + fileName);
+                    }
+                }
+            }
+
             final File outFile = new File(destFolder, fileName);
+            // Use resolvedUrl for the actual download below instead of re-parsing urlStr
+
 
             // Ensure parent folder exists
             File parent = outFile.getParentFile();
@@ -211,7 +257,7 @@ public class DownloadWorker extends ImportWorker {
             FileOutputStream out = null;
 
             try {
-                URL url = new URL(urlStr);
+                URL url = resolvedUrl;
                 conn = (HttpURLConnection) url.openConnection();
                 conn.setConnectTimeout(CONNECT_TIMEOUT_MS);
                 conn.setReadTimeout(READ_TIMEOUT_MS);
@@ -706,6 +752,42 @@ public class DownloadWorker extends ImportWorker {
     private void releaseDownloadLock() {
         // same cleanup when you’re done
         closeLockResources();
+    }
+
+    /**
+     * Extracts filename from Content-Disposition header.
+     * Handles both:
+     *   Content-Disposition: attachment; filename="pg13951-images-3.epub"
+     *   Content-Disposition: attachment; filename*=UTF-8''pg13951-images-3.epub
+     */
+    private static String extractFileNameFromContentDisposition(String contentDisposition) {
+        if (contentDisposition == null || contentDisposition.isEmpty()) return null;
+
+        // Try filename*=UTF-8''<name> (RFC 5987, takes priority)
+        int starIdx = contentDisposition.indexOf("filename*=");
+        if (starIdx >= 0) {
+            String val = contentDisposition.substring(starIdx + 10).trim();
+            // Strip encoding prefix like UTF-8''
+            int quoteIdx = val.indexOf("''");
+            if (quoteIdx >= 0) val = val.substring(quoteIdx + 2);
+            val = val.split(";")[0].trim();
+            try {
+                return java.net.URLDecoder.decode(val, "UTF-8");
+            } catch (Exception ignored) {}
+            return val;
+        }
+
+        // Try filename="<name>" or filename=<name>
+        int idx = contentDisposition.indexOf("filename=");
+        if (idx < 0) return null;
+
+        String val = contentDisposition.substring(idx + 9).trim();
+        if (val.startsWith("\"")) {
+            int end = val.indexOf('"', 1);
+            return end > 0 ? val.substring(1, end) : null;
+        }
+        // unquoted: take until ; or end
+        return val.split(";")[0].trim();
     }
 
 }
