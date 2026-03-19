@@ -1048,9 +1048,6 @@
     <string name="no_ebooks_found_search">لم يتم العثور على كتب إلكترونية \nللبحث [%1$s] \nباللغة [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">لم يتم العثور على كتب إلكترونية \nلرف [%1$s] \nباللغة [%2$s]</string>
     <string name="gutenberg_contacting">جاري الاتصال بـ gutenberg.org…</string>
-    <string name="gutenberg_wait_elapsed">%1$d ثانية - %2$s - (المهلة %3$d ثانية)</string>
-    <string name="gutenberg_try_1st">المحاولة الأولى</string>
-    <string name="gutenberg_try_2nd">المحاولة الثانية</string>
     <string name="api_paging_size">حجم صفحة API</string>
     <string name="radio_thanks">شكراً لـ radio-browser.info على توفير مستودع مجاني لمحطات الراديو العالمية</string>
     <string name="mass_import_scanning_title">مسح الاستيراد الجماعي…</string>
@@ -1275,8 +1272,6 @@
     <string name="import_export_pick_file">1ب. اختيار ملف نسخة احتياطية</string>
     <string name="import_export_share_live">الإرسال إلى جهاز قريب (مباشر)</string>
     <string name="import_export_share_file">مشاركة ملف نسخة احتياطية</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s\nانقضى %2$d ثانية - %3$s\n(مهلة الاتصال: %4$d ثانية)</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s\nانقضى %2$d ثانية - %3$s\n(مهلة القراءة: %4$d ثانية)</string>
     <string name="radio_browser_contacting">جارٍ الاتصال بـ radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">انقضى %1$d ثانية - (المهلة هي %2$d ثانية)</string>
 

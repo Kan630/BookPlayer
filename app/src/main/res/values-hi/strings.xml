@@ -1050,9 +1050,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="no_ebooks_found_search">कोई ईबुक नहीं मिली \nखोज के लिए [%1$s] \nभाषा के साथ [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">ई-बुक नहीं मिली \nशेल्फ [%1$s] \nभाषा [%2$s]</string>
     <string name="gutenberg_contacting">gutenberg.org से कनेक्ट हो रहा है…</string>
-    <string name="gutenberg_wait_elapsed">%1$d सेकंड बीते - %2$s - (टाइमआउट %3$d सेकंड)</string>
-    <string name="gutenberg_try_1st">पहला प्रयास</string>
-    <string name="gutenberg_try_2nd">दूसरा प्रयास</string>
     <string name="api_paging_size">API पेजिंग आकार</string>
     <string name="radio_thanks">radio-browser.info को विश्व रेडियो स्टेशनों का मुफ्त रिपॉजिटरी देने के लिए धन्यवाद</string>
     <string name="mass_import_scanning_title">मास इम्पोर्ट स्कैन…</string>
@@ -1279,8 +1276,6 @@ Android Auto को कार से जुड़ने पर स्वतः �
     <string name="import_export_pick_file">1b. बैकअप फ़ाइल चुनें</string>
     <string name="import_export_share_live">नजदीकी डिवाइस को भेजें (लाइव)</string>
     <string name="import_export_share_file">बैकअप फ़ाइल साझा करें</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d सेकंड बीत गए - %3$s\n(कनेक्शन टाइमआउट: %4$d सेकंड)</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d सेकंड बीत गए - %3$s\n(रीड टाइमआउट: %4$d सेकंड)</string>
     <string name="radio_browser_contacting">radio-browser.info से संपर्क किया जा रहा है…</string>
     <string name="radio_browser_wait_elapsed">%1$d सेकंड बीत गए - (टाइमआउट %2$d सेकंड है)</string>
 

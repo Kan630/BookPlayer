@@ -1055,9 +1055,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="no_ebooks_found_search">Keine E-Books gefunden \nfür Suche [%1$s] \nmit Sprache [%2$s]</string>
     <string name="no_ebooks_found_bookshelf">Keine E-Books gefunden \nfür Bücherregal [%1$s] \nmit Sprache [%2$s]</string>
     <string name="gutenberg_contacting">Verbinde mit gutenberg.org…</string>
-    <string name="gutenberg_wait_elapsed">%1$d s vergangen - %2$s - (Timeout %3$d s)</string>
-    <string name="gutenberg_try_1st">1. Versuch</string>
-    <string name="gutenberg_try_2nd">2. Versuch</string>
     <string name="api_paging_size">API-Paginierungsgröße</string>
     <string name="radio_thanks">Danke an radio-browser.info für das kostenlose Verzeichnis von Weltradios</string>
     <string name="mass_import_scanning_title">Massenimport-Scan…</string>
@@ -1282,8 +1279,6 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="import_export_pick_file">1b. Backup-Datei auswählen</string>
     <string name="import_export_share_live">An Gerät in der Nähe senden (Live)</string>
     <string name="import_export_share_file">Backup-Datei teilen</string>
-    <string name="gutenberg_wait_elapsed_connecting">%1$s\n%2$d Sek. vergangen - %3$s\n(Verbindungs-Timeout: %4$d Sek.)</string>
-    <string name="gutenberg_wait_elapsed_connected">%1$s\n%2$d Sek. vergangen - %3$s\n(Lese-Timeout: %4$d Sek.)</string>
     <string name="radio_browser_contacting">Kontaktiere radio-browser.info…</string>
     <string name="radio_browser_wait_elapsed">%1$d Sek. vergangen - (Timeout ist %2$d Sek.)</string>
 
