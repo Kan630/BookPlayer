@@ -284,7 +284,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
                         if ((items == null || items.isEmpty()) && nbCollected == 0) {
                             errorMessage.postValue("no_results_genre:" + genre);
-                            requestFinish();
                             return;
                         }
 
@@ -320,9 +319,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         myLogEE(t, "Genre search error");
                         errorMessage.postValue("error:" + t.getMessage());
 
-                        if (nbCollected == 0) {
-                            requestFinish();
-                        }
+
                     }
                 });
     }
@@ -341,13 +338,12 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
                 isLoading.postValue(false);
 
-                if (response.body() != null && response.body().response != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().response != null) {
                     List<ArchiveItem> items = response.body().response.docs;
 
                     if (items.isEmpty()) {
                         String msg = "no_results_" + searchType + (query != null ? ":" + query : "");
                         errorMessage.postValue(msg);
-                        requestFinish();
                     } else {
                         Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
                         Iterator<ArchiveItem> iterator = items.iterator();
@@ -370,10 +366,12 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         updateSimpleSearchHeader(items, total);
                         myLog(items.size() + " results found for " + searchType);
                     }
+                } else if (response.code() == 503) {
+                    myLogEE(null, "archive.org is offline (503)");
+                    errorMessage.postValue("error:archive_org_offline");
                 } else {
-                    myLogEE(null, "Invalid response body from archive.org");
+                    myLogEE(null, "Invalid response body from archive.org (code=" + response.code() + ")");
                     errorMessage.postValue("error:invalid_response");
-                    requestFinish();
                 }
             }
 
@@ -382,7 +380,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 isLoading.postValue(false);
                 myLogEE(t, searchType + " search failure");
                 errorMessage.postValue("error:" + t.getMessage());
-                requestFinish();
             }
         };
     }
@@ -397,13 +394,12 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
                 isLoading.postValue(false);
 
-                if (response.body() != null && response.body().response != null) {
+                if (response.isSuccessful() && response.body() != null && response.body().response != null) {
                     List<ArchiveItem> items = response.body().response.docs;
 
                     if (items.isEmpty()) {
                         String msg = "no_results_" + searchType + (query != null ? ":" + query : "");
                         errorMessage.postValue(msg);
-                        requestFinish();
                     } else {
                         Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
                         Iterator<ArchiveItem> iterator = items.iterator();
@@ -435,10 +431,12 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                         myLog(items.size() + " results found for " + searchType + ", hasMore=" + hasMore + ", total="
                                 + total);
                     }
+                } else if (response.code() == 503) {
+                    myLogEE(null, "archive.org is offline (503)");
+                    errorMessage.postValue("error:archive_org_offline");
                 } else {
-                    myLogEE(null, "Invalid response body from archive.org");
+                    myLogEE(null, "Invalid response body from archive.org (code=" + response.code() + ")");
                     errorMessage.postValue("error:invalid_response");
-                    requestFinish();
                 }
             }
 
@@ -447,7 +445,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
                 isLoading.postValue(false);
                 myLogEE(t, searchType + " search failure");
                 errorMessage.postValue("error:" + t.getMessage());
-                requestFinish();
             }
         };
     }

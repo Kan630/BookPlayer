@@ -18,9 +18,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="8dp"
+        android:padding="32dp"
         android:text="@string/librivox_no_audiobook_found_for_search"
-        android:layout_marginTop="300dp"
+        android:textSize="16sp"
+        android:layout_marginTop="100dp"
         android:visibility="gone" />
 
     <androidx.recyclerview.widget.RecyclerView

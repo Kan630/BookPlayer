@@ -6,6 +6,7 @@ import android.view.View;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -40,6 +41,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private ProgressBar progressBarLoadMore;
     private LoadingProgressHelper progressHelper;
     private TextView tvProgressMessage;
+    private TextView tvEmptyMessage;
 
     @Override
     protected int getNavId() {
@@ -65,6 +67,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         recyclerView = findViewById(R.id.recyclerView);
         progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        tvEmptyMessage = findViewById(R.id.tvEmptyMessage);
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         progressHelper = new LoadingProgressHelper();
@@ -151,6 +154,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         // Observe loading state
         viewModel.getIsLoading().observe(this, isLoading -> {
             if (Boolean.TRUE.equals(isLoading)) {
+                tvEmptyMessage.setVisibility(View.GONE);
                 progressBar.setVisibility(View.VISIBLE);
                 progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
                     @NonNull
@@ -180,6 +184,9 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         viewModel.getResults().observe(this, items -> {
             if (items == null)
                 return;
+            if (!items.isEmpty()) {
+                tvEmptyMessage.setVisibility(View.GONE);
+            }
             int currentAdapterSize = adapter.getItemCount() - 1; // -1 for header
             if (currentAdapterSize == 0 || items.size() <= currentAdapterSize) {
                 adapter.setItems(items);
@@ -236,27 +243,37 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 String type = parts[0].replace("no_results_", "");
                 String detail = parts.length > 1 ? parts[1] : "";
 
+                String finalMsg = "";
                 switch (type) {
                     case "genre":
-                        myToast(getString(R.string.librivox_no_audiobook_found_in_genre)
-                                + " [" + detail + "]");
+                        finalMsg = getString(R.string.librivox_no_audiobook_found_in_genre)
+                                + " [" + detail + "]";
                         break;
                     case "search":
-                        myToast(getString(R.string.librivox_no_audiobook_found_for_search)
-                                + " [" + detail + "]");
+                        finalMsg = getString(R.string.librivox_no_audiobook_found_for_search)
+                                + " [" + detail + "]";
                         break;
                     default:
-                        myToast(getString(R.string.no_results_found));
+                        finalMsg = getString(R.string.no_results_found);
                 }
+                tvEmptyMessage.setText(finalMsg);
+                tvEmptyMessage.setVisibility(View.VISIBLE);
+
             } else if (errorMsg.startsWith("error:")) {
                 String msg = errorMsg.substring(6);
+                String finalError = "";
                 if (NetworkHelper.isUnknownHost(new Exception(msg))) {
-                    myToastE(getString(R.string.no_internet_connection));
+                    finalError = getString(R.string.no_internet_connection);
                 } else if ("invalid_response".equals(msg)) {
-                    myToastE(getString(R.string.librivox_invalid_response));
+                    finalError = getString(R.string.librivox_invalid_response);
+                } else if ("archive_org_offline".equals(msg)) {
+                    finalError = getString(R.string.archive_org_offline);
                 } else {
-                    myToastE(getString(R.string.an_error_occurred));
+                    finalError = getString(R.string.an_error_occurred);
                 }
+                tvEmptyMessage.setText(finalError);
+                tvEmptyMessage.setVisibility(View.VISIBLE);
+                tvEmptyMessage.setTextColor( ContextCompat.getColor(this, android.R.color.holo_red_dark));
             }
         });
 
