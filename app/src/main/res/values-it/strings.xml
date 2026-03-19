@@ -481,6 +481,7 @@
 
     <string name="librivox_no_audiobook_found_for_search">Nessun audiolibro trovato per i termini di ricerca</string>
     <string name="archive_org_offline">Internet Archive è temporaneamente offline</string>
+    <string name="request_timeout">Timeout richiesta</string>
     <string name="librivox_invalid_response">Risposta non valida dal server Librivox</string>
     <string name="loading_details">Caricamento dettagli…</string>
     <string name="loading_detail_failed">Caricamento dettagli non riuscito</string>

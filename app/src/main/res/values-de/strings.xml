@@ -482,6 +482,7 @@ Soll die App technische Debug-Protokolle erstellen?
 
     <string name="librivox_no_audiobook_found_for_search">Kein Hörbuch zu den Suchbegriffen gefunden</string>
     <string name="archive_org_offline">Internet Archive ist vorübergehend offline</string>
+    <string name="request_timeout">Zeitüberschreitung der Anforderung</string>
     <string name="librivox_invalid_response">Ungültige Antwort vom Librivox-Server</string>
     <string name="loading_details">Details werden geladen…</string>
     <string name="loading_detail_failed">Details konnten nicht geladen werden</string>

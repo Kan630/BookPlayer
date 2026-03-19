@@ -478,6 +478,7 @@ Usa la opción <font color="#90D8E8">"Mail Developer"</font> desde el menú.
 
     <string name="librivox_no_audiobook_found_for_search">No se encontraron audiolibros para los términos de búsqueda</string>
     <string name="archive_org_offline">Internet Archive está temporalmente fuera de servicio</string>
+    <string name="request_timeout">Tiempo de espera agotado</string>
     <string name="librivox_invalid_response">Respuesta inválida del servidor de Librivox</string>
     <string name="loading_details">Cargando detalles…</string>
     <string name="loading_detail_failed">Error al cargar detalles</string>

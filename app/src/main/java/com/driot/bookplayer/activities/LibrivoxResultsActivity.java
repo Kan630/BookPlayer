@@ -260,20 +260,26 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                 tvEmptyMessage.setVisibility(View.VISIBLE);
 
             } else if (errorMsg.startsWith("error:")) {
+                myLogE("errorMsg : " + errorMsg);
                 String msg = errorMsg.substring(6);
                 String finalError = "";
-                if (NetworkHelper.isUnknownHost(new Exception(msg))) {
-                    finalError = getString(R.string.no_internet_connection);
+                Exception dummyEx = new Exception(msg);
+
+                if (NetworkHelper.isUnknownHost(dummyEx)) {
+                    finalError = getString(R.string.no_internet_connection) + "\n\n" + msg;
+                } else if (NetworkHelper.isTimeout(dummyEx)) {
+                    finalError = getString(R.string.request_timeout) + "\n\n" + msg;
                 } else if ("invalid_response".equals(msg)) {
-                    finalError = getString(R.string.librivox_invalid_response);
+                    finalError = getString(R.string.librivox_invalid_response) + "\n\n" + msg;
                 } else if ("archive_org_offline".equals(msg)) {
-                    finalError = getString(R.string.archive_org_offline);
+                    finalError = getString(R.string.archive_org_offline) + "\n\n" + msg;
                 } else {
-                    finalError = getString(R.string.an_error_occurred);
+                    // Display the real error message if it's not a recognized code
+                    finalError = msg;
                 }
                 tvEmptyMessage.setText(finalError);
+                tvEmptyMessage.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
                 tvEmptyMessage.setVisibility(View.VISIBLE);
-                tvEmptyMessage.setTextColor( ContextCompat.getColor(this, android.R.color.holo_red_dark));
             }
         });
 

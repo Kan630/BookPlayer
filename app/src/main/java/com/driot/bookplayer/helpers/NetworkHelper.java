@@ -182,11 +182,36 @@ public class NetworkHelper {
         return caps != null && caps.hasTransport(NetworkCapabilities.TRANSPORT_WIFI);
     }
 
-    /** Walks cause chain to detect UnknownHostException. */
+    /** Walks cause chain to detect UnknownHostException or related network failure messages. */
     public static boolean isUnknownHost(Throwable e) {
         while (e != null) {
+            String msg = e.getMessage();
             if (e instanceof java.net.UnknownHostException)
                 return true;
+            if (msg != null) {
+                String low = msg.toLowerCase(Locale.US);
+                if (low.contains("unknownhost") || low.contains("unable to resolve host")
+                        || low.contains("no address associated with hostname")) {
+                    return true;
+                }
+            }
+            e = e.getCause();
+        }
+        return false;
+    }
+
+    /** Walks cause chain to detect SocketTimeoutException or related timeout messages. */
+    public static boolean isTimeout(Throwable e) {
+        while (e != null) {
+            String msg = e.getMessage();
+            if (e instanceof java.net.SocketTimeoutException)
+                return true;
+            if (msg != null) {
+                String low = msg.toLowerCase(Locale.US);
+                if (low.contains("timeout") || low.contains("timed out")) {
+                    return true;
+                }
+            }
             e = e.getCause();
         }
         return false;
