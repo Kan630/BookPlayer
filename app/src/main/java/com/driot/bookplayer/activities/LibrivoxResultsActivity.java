@@ -160,20 +160,26 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                     @NonNull
                     @Override
                     public String getInitialMessage() {
-                        LibrivoxResultsViewModel.HeaderStatusData status = viewModel.getHeaderStatus().getValue();
-                        String source = (status != null && status.apiSource != null) ? status.apiSource : "archive.org";
-                        return getString(R.string.getting_first_results_from) + " " + source + "…";
+                        return getString(R.string.librivox_contacting);
                     }
 
                     @NonNull
                     @Override
                     public String getTickMessage(long elapsedSec) {
-                        LibrivoxResultsViewModel.HeaderStatusData status = viewModel.getHeaderStatus().getValue();
-                        String source = (status != null && status.apiSource != null) ? status.apiSource : "archive.org";
-                        return getString(R.string.getting_first_results_from) + " " + source + "…\n"
-                                + elapsedSec + " " + getString(R.string.sec) + " " + getString(R.string.elapsed);
+                        boolean isConnected = Boolean.TRUE.equals(viewModel.getIsConnected().getValue());
+
+                        if (isConnected) {
+                            return getString(R.string.librivox_wait_elapsed_connected,
+                                    getString(R.string.librivox_connected),
+                                    (int) elapsedSec, Var.ARCHIVE_READ_TIMEOUT_SEC); // Read timeout
+                        } else {
+                            return getString(R.string.librivox_wait_elapsed_connecting,
+                                    getString(R.string.librivox_contacting),
+                                    (int) elapsedSec, Var.ARCHIVE_CONNECT_TIMEOUT_SEC); // Connect timeout
+                        }
                     }
                 });
+
             } else {
                 progressBar.setVisibility(View.GONE);
                 progressHelper.stop();
@@ -200,24 +206,9 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
         viewModel.getHeaderStatus().observe(this, statusData -> {
             if (statusData == null)
                 return;
-
             String status;
             if (statusData.isLoading) {
-                if (statusData.count == 0) {
-                    // First fetch
-                    status = getString(R.string.getting_first_results_from) + " " + statusData.apiSource + "…";
-                } else {
-                    // Subsequent pages
-                    if (statusData.totalCount >= 0) {
-                        status = getString(R.string.Results_2pt) + getString(R.string.librivox_books_loaded_of,
-                                formatCount(statusData.count), formatCount(statusData.totalCount))
-                                + " (" + getString(R.string.getting_more_from) + " " + statusData.apiSource + "…)";
-                    } else {
-                        status = getString(R.string.Results_2pt)
-                                + getString(R.string.librivox_books_loaded, formatCount(statusData.count))
-                                + " (" + getString(R.string.getting_more_from) + " " + statusData.apiSource + "…)";
-                    }
-                }
+                status = getString(R.string.Results_2pt) + "...";
             } else {
                 if (statusData.totalCount >= 0) {
                     // Show "Results: XX / YY books" when total is known (locale-formatted)
@@ -231,6 +222,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
             }
 
             adapter.setHeaderCount(status);
+
         });
 
         // Observe errors

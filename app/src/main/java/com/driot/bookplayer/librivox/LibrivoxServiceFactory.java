@@ -11,11 +11,11 @@ import com.driot.bookplayer.BuildConfig;
 
 public class LibrivoxServiceFactory {
 
-    private static OkHttpClient buildClient(HttpLoggingInterceptor.Level lvl) {
+    private static OkHttpClient buildClient(HttpLoggingInterceptor.Level lvl, okhttp3.EventListener eventListener) {
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor(Logger::log);
         logging.setLevel(lvl);
 
-        return new OkHttpClient.Builder()
+        OkHttpClient.Builder builder = new OkHttpClient.Builder()
                 // you can add a user-agent interceptor here if you want, like for Radio
                 .addInterceptor(logging)
                 // ⭐ Timeouts for slow API servers like LibriVox
@@ -24,47 +24,53 @@ public class LibrivoxServiceFactory {
                 .writeTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
 
                 // Optional: avoid global hard timeout, rely on readTimeout instead
-                .callTimeout(0, java.util.concurrent.TimeUnit.SECONDS)
-                .build();
+                .callTimeout(0, java.util.concurrent.TimeUnit.SECONDS);
+
+        if (eventListener != null) {
+            builder.eventListener(eventListener);
+        }
+
+        return builder.build();
     }
 
     /** Direct calls to archive.org (no cache proxy). */
-    public static Retrofit createDirectInternetArchiveRetrofit(HttpLoggingInterceptor.Level logLevel) {
+    public static Retrofit createDirectInternetArchiveRetrofit(HttpLoggingInterceptor.Level logLevel, okhttp3.EventListener eventListener) {
         String base = "https://archive.org/";
         myLogD("Internet Archive (direct) base = " + base);
 
         return new Retrofit.Builder()
                 .baseUrl(base)
-                .client(buildClient(logLevel))
+                .client(buildClient(logLevel, eventListener))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
 
-    public static Retrofit createDirectLibrivoxRetrofit(HttpLoggingInterceptor.Level logLevel) {
+    public static Retrofit createDirectLibrivoxRetrofit(HttpLoggingInterceptor.Level logLevel, okhttp3.EventListener eventListener) {
         String base = BuildConfig.LIBRIVOX_PROXY_BASE_URL;
         //String base = "https://librivox.org/";
         myLogD("Librivox (direct) base = " + base);
 
         return new Retrofit.Builder()
                 .baseUrl(base)
-                .client(buildClient(logLevel))
+                .client(buildClient(logLevel, eventListener))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
-}
+    }
 
 
-/** Cloudflare / proxy front for cached lists (most downloaded, etc.). */
-    public static Retrofit createCloudflareRetrofit(HttpLoggingInterceptor.Level logLevel) {
+    /** Cloudflare / proxy front for cached lists (most downloaded, etc.). */
+    public static Retrofit createCloudflareRetrofit(HttpLoggingInterceptor.Level logLevel, okhttp3.EventListener eventListener) {
         // e.g. https://books.driot.com/ or ${your CF worker}/
         String base = BuildConfig.LIBRIVOX_PROXY_BASE_URL;
         myLogD("Librivox (Cloudflare) base = " + base);
 
         return new Retrofit.Builder()
                 .baseUrl(base)
-                .client(buildClient(logLevel))
+                .client(buildClient(logLevel, eventListener))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
     }
+
 
     private static class Logger {
         static void log(String s) { myLog(s); }

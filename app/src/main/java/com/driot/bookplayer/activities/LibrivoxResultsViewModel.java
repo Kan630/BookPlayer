@@ -37,6 +37,16 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     private final MutableLiveData<HeaderStatusData> headerStatus = new MutableLiveData<>();
     private final MutableLiveData<String> errorMessage = new MutableLiveData<>();
     private final MutableLiveData<Boolean> isLoading = new MutableLiveData<>(false);
+    private final MutableLiveData<Boolean> isConnected = new MutableLiveData<>(false);
+
+    private okhttp3.EventListener eventListener = new okhttp3.EventListener() {
+        @Override
+        public void connectionAcquired(@androidx.annotation.NonNull okhttp3.Call call, @androidx.annotation.NonNull okhttp3.Connection connection) {
+            super.connectionAcquired(call, connection);
+            isConnected.postValue(true);
+            myLogD("Librivox: Connection acquired.");
+        }
+    };
 
     private LiveData<List<ArchiveItem>> favoritesLive;
     private LiveData<List<BookSource>> favoriteBookSourcesLive;
@@ -81,7 +91,8 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         super(application);
         repository = new LibrivoxRepository(
                 application.getApplicationContext(),
-                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
+                Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL,
+                eventListener);
     }
 
     // Getters
@@ -107,6 +118,10 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
     public LiveData<Boolean> getIsLoadingMore() {
         return isLoadingMoreLive;
+    }
+
+    public LiveData<Boolean> getIsConnected() {
+        return isConnected;
     }
 
     public boolean hasMore() {
@@ -152,6 +167,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
     public void searchByQuery(String query, String langCode3) {
         isLoading.setValue(true);
+        isConnected.setValue(false);
         fetchStarted = false;
 
         repository.searchByQueryAndLang(
@@ -163,6 +179,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
     public void searchTrending(String langCode3) {
         isLoading.setValue(true);
+        isConnected.setValue(false);
         fetchStarted = false;
         lastPagedMode = "MODE_TRENDING";
         lastLangCode3 = langCode3;
@@ -180,6 +197,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
     public void searchLastAdded(String langCode3) {
         isLoading.setValue(true);
+        isConnected.setValue(false);
         fetchStarted = false;
         lastPagedMode = "MODE_LAST_ADDED";
         lastLangCode3 = langCode3;
@@ -267,6 +285,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
 
     public void searchByGenre(String genre, String langCode3) {
         isLoading.setValue(true);
+        isConnected.setValue(false);
         fetchStarted = false;
         updateHeaderStatus(null, false, "librivox.org");
 

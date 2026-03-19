@@ -1098,6 +1098,12 @@
     <string name="no_results_found">no results found</string>
     <string name="getting_first_results_from">Getting first results from</string>
     <string name="getting_more_from">getting more from</string>
+    <string name="librivox_contacting">Contacting archive.org (LibriVox source).</string>
+    <string name="librivox_wait_elapsed_connecting">%1$s\n%2$d sec elapsed\n(connection timeout: %3$d sec)</string>
+    <string name="librivox_wait_elapsed_connected">%1$s\n%2$d sec elapsed\n(read timeout: %3$d sec)</string>
+    <string name="librivox_connected">Connected! Receiving data.</string>
+
+
     <string name="stream_url">stream url</string>
     <string name="votes_2pt">Votes: %1$d</string>
     <string name="top_click">top clicked</string>

@@ -29,22 +29,23 @@ public class LibrivoxRepository {
     private final LibrivoxApiService librivoxApi;
     private final Context appContext;
 
-    public LibrivoxRepository(Context context, HttpLoggingInterceptor.Level logLevel) {
+    public LibrivoxRepository(Context context, HttpLoggingInterceptor.Level logLevel, okhttp3.EventListener eventListener) {
         this.appContext = context.getApplicationContext();
 
-        Retrofit directArchive = LibrivoxServiceFactory.createDirectInternetArchiveRetrofit(logLevel);
+        Retrofit directArchive = LibrivoxServiceFactory.createDirectInternetArchiveRetrofit(logLevel, eventListener);
         this.directApi = directArchive.create(LibrivoxApi.class);
 
-        Retrofit directLibrivox = LibrivoxServiceFactory.createDirectLibrivoxRetrofit(logLevel);
+        Retrofit directLibrivox = LibrivoxServiceFactory.createDirectLibrivoxRetrofit(logLevel, eventListener);
         this.librivoxApi = directLibrivox.create(LibrivoxApiService.class);
 
         if (Option.getRadioUseCloudflare()) {
-            Retrofit cf = LibrivoxServiceFactory.createCloudflareRetrofit(logLevel);
+            Retrofit cf = LibrivoxServiceFactory.createCloudflareRetrofit(logLevel, eventListener);
             this.cachedApi = cf.create(LibrivoxApi.class);
         } else {
             this.cachedApi = null;
         }
     }
+
 
     // =====================================================================
     // CALLBACK INTERFACES
