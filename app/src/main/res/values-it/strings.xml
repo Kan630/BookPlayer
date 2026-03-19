@@ -746,8 +746,11 @@
     <br><br>
     BookPlayer userà le <font color="#81C784">voci integrate</font> del dispositivo per leggere il testo ad alta voce.
     <br><br>
-    Questa è una funzione relativamente <font color="#FFCC80">nuova</font> — abbi pazienza e condividi il tuo feedback.
+    <font color="#FFCC80">Pizzica</font> per ingrandire o rimpicciolire.
+    <br>
+    <font color="#FFCC80">Doppio tocco</font> per attivare/disattivare lo scorrimento automatico.
 ]]></string>
+
     <string name="failed_to_create_destination_folder">Impossibile creare la cartella di destinazione</string>
     <string name="server_returned_http">Il server ha restituito HTTP</string>
     <string name="http_code_400">Richiesta errata</string>

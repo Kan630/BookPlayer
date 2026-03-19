@@ -742,8 +742,11 @@
     <br><br>
     BookPlayer डिवाइस की <font color="#81C784">बिल्ट-इन आवाज़ों</font> का उपयोग करके पाठ को जोर से पढ़ेगा।
     <br><br>
-    यह अपेक्षाकृत <font color="#FFCC80">नया फ़ीचर</font> है — कृपया नरमी रखें और अपनी प्रतिक्रिया साझा करें।
+    ज़ूम इन या आउट करने के लिए <font color="#FFCC80">पिंच</font> करें।
+    <br>
+    ऑटो-स्क्रॉल चालू/बंद करने के लिए <font color="#FFCC80">डबल-टैप</font> करें।
 ]]></string>
+
     <string name="failed_to_create_destination_folder">गंतव्य फ़ोल्डर बनाने में विफल</string>
     <string name="server_returned_http">सर्वर ने HTTP लौटाया</string>
     <string name="http_code_400">खराब अनुरोध</string>

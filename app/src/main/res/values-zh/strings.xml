@@ -742,10 +742,13 @@ BookPlayer 支持几乎所有音频格式，可播放视频中的音轨，并能
 <br><br>
 电子书或 <font color="#90D8E8">文本文档</font> 也可以作为 <font color="#BA68C8">有声书</font> 加载。
 <br><br>
-BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗读文本。
+BookPlayer 将使用设备的 <font color="#81C784">内置语音</font> 来朗读文本.
 <br><br>
-这是一个 <font color="#FFCC80">相对较新的功能</font> — 请多多包涵并分享您的反馈。
+<font color="#FFCC80">捏合</font> 以放大或缩小。
+<br>
+<font color="#FFCC80">双击</font> 以切换自动滚动。
 ]]></string>
+
     <string name="failed_to_create_destination_folder">创建目标文件夹失败</string>
     <string name="server_returned_http">服务器返回 HTTP</string>
     <string name="http_code_400">错误的请求</string>

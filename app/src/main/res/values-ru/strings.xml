@@ -744,8 +744,11 @@
 <br><br>
 BookPlayer будет использовать <font color="#81C784">встроенные голоса устройства</font> для чтения текста вслух.
 <br><br>
-Это <font color="#FFCC80">относительно новая функция</font> — пожалуйста, отнеситесь с пониманием и поделитесь отзывами.
+<font color="#FFCC80">Щипок</font> для увеличения или уменьшения масштаба.
+<br>
+<font color="#FFCC80">Двойное нажатие</font> для переключения автопрокрутки.
 ]]></string>
+
     <string name="failed_to_create_destination_folder">Не удалось создать папку назначения</string>
     <string name="server_returned_http">Сервер вернул HTTP</string>
     <string name="http_code_400">Неверный запрос</string>

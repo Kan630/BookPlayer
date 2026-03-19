@@ -740,8 +740,11 @@
 <br><br>
 سيستخدم BookPlayer <font color="#81C784">الأصوات المدمجة في الجهاز</font> لقراءة النص بصوت عالٍ.
 <br><br>
-هذه <font color="#FFCC80">ميزة جديدة نسبيًا</font> — يرجى التحلي بالصبر ومشاركة ملاحظاتك.
+<font color="#FFCC80">القرص</font> للتكبير أو التصغير.
+<br>
+<font color="#FFCC80">النقر المزدوج</font> لتبديل التمرير التلقائي.
 ]]></string>
+
     <string name="failed_to_create_destination_folder">فشل في إنشاء مجلد الوجهة</string>
     <string name="server_returned_http">أعاد الخادم HTTP</string>
     <string name="http_code_400">طلب غير صالح</string>

@@ -761,8 +761,11 @@ Les ebooks ou <font color="#90D8E8">documents texte</font> peuvent aussi être c
 <br><br>
 BookPlayer utilisera les <font color="#81C784">voix intégrées de l\'appareil</font> pour lire le texte à voix haute.
 <br><br>
-C\'est une <font color="#FFCC80">fonctionnalité relativement nouvelle</font> — merci d\'être indulgent et de partager vos retours.
+<font color="#FFCC80">Pincer</font> pour zoomer ou dézoomer.
+<br>
+<font color="#FFCC80">Double-tap</font> pour activer/désactiver le défilement automatique.
 ]]></string>
+
     <string name="failed_to_create_destination_folder">Échec de la création du dossier de destination</string>
     <string name="server_returned_http">Le serveur a renvoyé HTTP</string>
     <string name="http_code_400">Mauvaise requête</string>

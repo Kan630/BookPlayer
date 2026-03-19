@@ -747,8 +747,11 @@ E-Books oder <font color="#90D8E8">Textdokumente</font> können ebenfalls als <f
 <br><br>
 BookPlayer verwendet die <font color="#81C784">integrierten Stimmen</font> des Geräts, um den Text vorzulesen.
 <br><br>
-Dies ist eine relativ <font color="#FFCC80">neue Funktion</font> — bitte haben Sie Nachsicht und teilen Sie Ihr Feedback.
+<font color="#FFCC80">Zusammenziehen</font> zum Vergrößern oder Verkleinern.
+<br>
+<font color="#FFCC80">Doppeltippen</font> zum Ein- und Ausschalten des automatischen Scrollens.
 ]]></string>
+
     <string name="failed_to_create_destination_folder">Zielordner konnte nicht erstellt werden</string>
     <string name="server_returned_http">Server hat HTTP zurückgegeben</string>
     <string name="http_code_400">Ungültige Anfrage</string>

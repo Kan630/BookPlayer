@@ -740,12 +740,15 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="help_tts_text"><![CDATA[
 <font color="#BA68C8"><b>Escuchar texto con voces sintéticas</b></font>
 <br><br>
-Los ebooks o <font color="#90D8E8">documentos de texto</font> también se pueden cargar como <font color="#BA68C8">audiolibros</font>.
+Los ebooks or <font color="#90D8E8">documentos de texto</font> también se pueden cargar como <font color="#BA68C8">audiolibros</font>.
 <br><br>
 BookPlayer usará las <font color="#81C784">voces integradas del dispositivo</font> para leer el texto en voz alta.
 <br><br>
-Esta es una <font color="#FFCC80">función relativamente nueva</font> — por favor sé indulgente y comparte tus comentarios.
+<font color="#FFCC80">Pellizca</font> para acercar o alejar.
+<br>
+<font color="#FFCC80">Toca dos veces</font> para alternar el desplazamiento automático.
 ]]></string>
+
     <string name="failed_to_create_destination_folder">Error al crear la carpeta de destino</string>
     <string name="server_returned_http">El servidor devolvió HTTP</string>
     <string name="http_code_400">Solicitud incorrecta</string>
