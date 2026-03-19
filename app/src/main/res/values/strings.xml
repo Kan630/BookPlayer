@@ -552,14 +552,21 @@
     <string name="Librivox_bGetAudioBook">"Get Audiobook"</string>
 
     <string name="librivox_no_audiobook_found_for_search">No audiobook found for search terms</string>
-    <string name="archive_org_offline">Internet Archive is temporarily offline</string>
-    <string name="request_timeout">Request timed out</string>
     <string name="librivox_invalid_response">Invalid response from LibriVox Server</string>
     <string name="loading_details">Loading details…</string>
     <string name="loading_detail_failed">Failed to load details</string>
     <string name="librivox_zip_mp3_available">ZIP-MP3 file available</string>
     <string name="librivox_zip_mp3_not_found">ZIP-MP3 file not found</string>
     <string name="librivox_zip_mp3_checking">checking for ZIP-MP3 file</string>
+    <string name="archive_org_offline">Internet Archive is temporarily offline</string>
+    <string name="request_timeout">Request timed out</string>
+    <string name="archive_contacting">Contacting archive.org (LibriVox source).</string>
+    <string name="archive_connected">Connected to archive.org! Receiving data.</string>
+    <string name="librivox_contacting">Contacting librivox.org directly.</string>
+    <string name="librivox_connected">Connected to librivox! Receiving data.</string>
+    <string name="wait_elapsed_connecting">%1$s\n%2$d sec elapsed\n(connection timeout: %3$d sec)</string>
+    <string name="wait_elapsed_connected">%1$s\n%2$d sec elapsed\n(read timeout: %3$d sec)</string>
+
 
     <string name="librivox_cover_desc">LibriVox cover</string>
 
@@ -1098,13 +1105,6 @@
     <string name="no_results_found">no results found</string>
     <string name="getting_first_results_from">Getting first results from</string>
     <string name="getting_more_from">getting more from</string>
-    <string name="archive_contacting">Contacting archive.org (LibriVox source).</string>
-    <string name="archive_connected">Connected to archive.org! Receiving data.</string>
-    <string name="librivox_contacting">Contacting librivox.org directly.</string>
-    <string name="librivox_connected">Connected to librivox! Receiving data.</string>
-
-    <string name="wait_elapsed_connecting">%1$s\n%2$d sec elapsed\n(connection timeout: %3$d sec)</string>
-    <string name="wait_elapsed_connected">%1$s\n%2$d sec elapsed\n(read timeout: %3$d sec)</string>
 
 
     <string name="stream_url">stream url</string>
