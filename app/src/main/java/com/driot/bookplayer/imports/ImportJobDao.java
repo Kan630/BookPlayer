@@ -129,6 +129,14 @@ public interface ImportJobDao {
                         String progressText,
                         long ts);
 
+        @Query("UPDATE ImportJob SET " +
+                        "  downloadedFilePath = :downloadedFileFullPath" +
+                        ", dynamicUri = :downloadedFileFullPath" +
+                        ", dynamicSourceFilePath = :downloadedFileFullPath" +
+                        ", updatedAt = :ts " +
+                        "WHERE importId = :id")
+        void updateDownloadedFilePath(String id, String downloadedFileFullPath, long ts);
+
         @Query("UPDATE ImportJob SET status = '" + Var.IMPORT_STATUS_RUNNING + "'" +
                         ", showToUser = 1" +
                         ", currentOperation = :currentOperation" +

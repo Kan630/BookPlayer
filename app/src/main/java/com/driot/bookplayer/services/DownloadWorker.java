@@ -245,6 +245,10 @@ public class DownloadWorker extends ImportWorker {
                 return Result.retry();
             }
 
+            // Persistence: Tell the database immediately what our resolved filename is.
+            // This ensures that even if we pause/resume, the "ImportJob" knows the correct downloadedFilePath.
+            repo.updateDownloadedFilePath(importId, outFile.getAbsolutePath());
+
             // Range resume
             long already = outFile.exists() ? outFile.length() : 0L;
             myLog("already downloaded : " + Tonio.formatSizeMB(already) + " for " + outFile.getName());
