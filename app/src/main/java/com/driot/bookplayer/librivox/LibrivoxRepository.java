@@ -60,7 +60,7 @@ public class LibrivoxRepository {
     // GENERIC TEXT SEARCH
     // =====================================================================
 
-    public void searchByQueryAndLang(String query, String lang, int limit,
+    public void searchByQueryAndLang(String query, String lang, int limit, int page,
                                      Callback<ArchiveApiResponse> cb) {
         List<String> fields = Arrays.asList("identifier", "title", "date",
                 "avg_rating", "num_reviews");
@@ -74,9 +74,10 @@ public class LibrivoxRepository {
 
         myLog("Librivox searchByQueryAndLang: [" + fullQuery + "]");
 
-        directApi.search(fullQuery, fields, limit, 1, "json", API_SORT_DOWNLOADS_DESC)
+        directApi.search(fullQuery, fields, limit, page, "json", API_SORT_DOWNLOADS_DESC)
                 .enqueue(new LoggingCallback<>(cb, "searchByQueryAndLang"));
     }
+
 
     // =====================================================================
     // HOT LISTS
@@ -154,21 +155,10 @@ public class LibrivoxRepository {
     // GENRE SEARCH (LibriVox API with paging)
     // =====================================================================
 
-    public void searchArchiveItemsByGenreAndLangLibrivox(String appLang, boolean filterByLang,
-                                                         String genre, int targetCount,
-                                                         PagedResultCallback<ArchiveItem> callback) {
+    public void searchGenreLibrivox(String appLang, boolean filterByLang,
+                                    String genre, int offset, int pageSize,
+                                    PagedResultCallback<ArchiveItem> callback) {
         String apiLang = mapToLibriVoxLanguage(appLang);
-        final int pageSize = Var.LIBRIVOX_API_PAGE_SIZE;
-        final List<ArchiveItem> collected = new ArrayList<>();
-
-        fetchPageGenre(appLang, apiLang, filterByLang, genre, 0, pageSize,
-                targetCount, collected, callback);
-    }
-
-    private void fetchPageGenre(String appLang, String apiLang, boolean filterByLang,
-                                String genre, int offset, int pageSize, int targetCount,
-                                List<ArchiveItem> collected,
-                                PagedResultCallback<ArchiveItem> callback) {
         myLogD("LibrivoxAPI page (genre): offset=" + offset + " genre=" + genre);
 
         Call<LibrivoxBooksResponse> call = librivoxApi.getAudiobooks(
@@ -177,70 +167,39 @@ public class LibrivoxRepository {
                 pageSize, offset, "json"
         );
 
-        call.enqueue(new Callback<>() {
+        call.enqueue(new Callback<LibrivoxBooksResponse>() {
             @Override
-            public void onResponse(Call<LibrivoxBooksResponse> c,
-                                   Response<LibrivoxBooksResponse> resp) {
+            public void onResponse(Call<LibrivoxBooksResponse> call, Response<LibrivoxBooksResponse> resp) {
                 if (!resp.isSuccessful() || resp.body() == null) {
-                    myLog(collected.size() + " books - API error, sending final");
-                    callback.onPageReceived(new ArrayList<>(collected), true);
+                    callback.onError(new Exception("API error " + resp.code()));
                     return;
                 }
-
                 List<LibrivoxBook> page = resp.body().asList();
-
+                List<ArchiveItem> out = new ArrayList<>();
                 if (page.isEmpty()) {
-                    myLog(collected.size() + " books - no more data, sending final");
-                    callback.onPageReceived(new ArrayList<>(collected), true);
+                    callback.onPageReceived(out, true);
                     return;
                 }
-
-                // Filter by language
-                List<LibrivoxBook> langFiltered;
-                if (filterByLang) {
-                    langFiltered = filterByLanguage(page, appLang, Integer.MAX_VALUE);
-                    myLog(langFiltered.size() + " books with correct language ["
-                            + appLang + "] / " + page.size() + " returned");
-                } else {
-                    langFiltered = page;
-                    myLog(page.size() + " books returned");
-                }
-
-                // Map to ArchiveItem
+                List<LibrivoxBook> langFiltered = filterByLang ? filterByLanguage(page, appLang, Integer.MAX_VALUE) : page;
                 for (LibrivoxBook b : langFiltered) {
-                    if (b == null) continue;
-                    ArchiveItem ai = LibrivoxMapper.toArchiveItem(b);
-                    if (ai.identifier != null && !ai.identifier.isEmpty()) {
-                        collected.add(ai);
+                    if (b != null) {
+                        ArchiveItem ai = LibrivoxMapper.toArchiveItem(b);
+                        if (ai.identifier != null && !ai.identifier.isEmpty()) {
+                            out.add(ai);
+                        }
                     }
                 }
-
-                // Check if done
-                boolean isFinal = collected.size() >= targetCount;
-
-                if (isFinal) {
-                    myLog(collected.size() + " books - target reached, sending final");
-                    callback.onPageReceived(new ArrayList<>(collected), true);
-                    return;
-                }
-
-                // Send partial results
-                myLog(collected.size() + " books - sending partial");
-                callback.onPageReceived(new ArrayList<>(collected), false);
-
-                // Fetch next page
-                fetchPageGenre(appLang, apiLang, filterByLang, genre,
-                        offset + pageSize, pageSize, targetCount,
-                        collected, callback);
+                boolean isFinal = page.size() < pageSize;
+                callback.onPageReceived(out, isFinal);
             }
 
             @Override
-            public void onFailure(Call<LibrivoxBooksResponse> c, Throwable t) {
-                myLogEE(t, "LibrivoxAPI fetch failed at offset " + offset);
+            public void onFailure(Call<LibrivoxBooksResponse> call, Throwable t) {
                 callback.onError(t);
             }
         });
     }
+
 
     // =====================================================================
     // HELPER METHODS

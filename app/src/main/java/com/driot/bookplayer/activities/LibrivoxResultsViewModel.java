@@ -56,10 +56,12 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     private String lastLang = null;
     private boolean fetchStarted = false;
 
-    // Pagination for MODE_TRENDING and MODE_LAST_ADDED (archive.org)
-    private String lastPagedMode = null; // "MODE_TRENDING" or "MODE_LAST_ADDED"
+    // Pagination for all modes
+    private String lastPagedMode = null; // "MODE_TRENDING", "MODE_LAST_ADDED", "MODE_SEARCH", "MODE_GENRE"
     private String lastLangCode3 = null;
+    private String lastGenre = null;
     private int currentPage = 1;
+    private int currentOffset = 0; // for Librivox direct API
     private boolean hasMore = false;
     private boolean isLoadingMore = false;
     private final MutableLiveData<Boolean> isLoadingMoreLive = new MutableLiveData<>(false);
@@ -170,12 +172,18 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         isLoading.setValue(true);
         isConnected.setValue(false);
         fetchStarted = false;
+        lastPagedMode = "MODE_SEARCH";
+        lastQuery = query;
+        lastLangCode3 = langCode3;
+        currentPage = 1;
+        hasMore = false;
 
         repository.searchByQueryAndLang(
                 query,
                 langCode3,
                 Option.getLibrivoxApiNbResults(),
-                createArchiveCallback("search", query));
+                1,
+                createArchiveCallbackFirstPage("search", query));
     }
 
     public void searchTrending(String langCode3) {
@@ -227,9 +235,9 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         isLoadingMore = true;
         isLoadingMoreLive.setValue(true);
         int pageSize = Option.getLibrivoxApiNbResults();
-        int pageToFetch = currentPage;
 
-        Callback<ArchiveApiResponse> cb = new Callback<ArchiveApiResponse>() {
+        // ARCHIVE.ORG Callback
+        Callback<ArchiveApiResponse> archiveCb = new Callback<ArchiveApiResponse>() {
             @Override
             public void onResponse(Call<ArchiveApiResponse> call, Response<ArchiveApiResponse> response) {
                 isLoadingMore = false;
@@ -279,10 +287,59 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
             }
         };
 
-        if ("MODE_TRENDING".equals(lastPagedMode)) {
-            repository.mostDownloadedByLang(lastLangCode3, pageSize, pageToFetch, cb);
-        } else {
-            repository.mostRecentlyAddedByLang(lastLangCode3, pageSize, pageToFetch, cb);
+        // LIBRIVOX DIRECT Callback
+        LibrivoxRepository.PagedResultCallback<ArchiveItem> librivoxCb = new LibrivoxRepository.PagedResultCallback<ArchiveItem>() {
+            @Override
+            public void onPageReceived(List<ArchiveItem> items, boolean isFinalPage) {
+                isLoadingMore = false;
+                isLoadingMoreLive.postValue(false);
+
+                if (items == null || items.isEmpty()) {
+                    hasMore = false;
+                    return;
+                }
+
+                Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
+                Iterator<ArchiveItem> iterator = items.iterator();
+                while (iterator.hasNext()) {
+                    ArchiveItem item = iterator.next();
+                    if (LiveCensorshipManager.isCensored(item.title, censored)) {
+                        iterator.remove();
+                    }
+                }
+
+                List<ArchiveItem> current = results.getValue();
+                if (current == null)
+                    current = new ArrayList<>();
+                List<ArchiveItem> merged = new ArrayList<>(current);
+                merged.addAll(items);
+                currentOffset += pageSize;
+                hasMore = !isFinalPage;
+                enrichWithLocalState(merged);
+                updateHeaderStatus(merged, isFinalPage, "librivox.org");
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                isLoadingMore = false;
+                isLoadingMoreLive.postValue(false);
+                myLogEE(t, "Librivox direct loadNextPage failed");
+            }
+        };
+
+        switch (lastPagedMode) {
+            case "MODE_TRENDING":
+                repository.mostDownloadedByLang(lastLangCode3, pageSize, currentPage, archiveCb);
+                break;
+            case "MODE_LAST_ADDED":
+                repository.mostRecentlyAddedByLang(lastLangCode3, pageSize, currentPage, archiveCb);
+                break;
+            case "MODE_SEARCH":
+                repository.searchByQueryAndLang(lastQuery, lastLangCode3, pageSize, currentPage, archiveCb);
+                break;
+            case "MODE_GENRE":
+                repository.searchGenreLibrivox(lastLangCode3, false, lastGenre, currentOffset + pageSize, pageSize, librivoxCb);
+                break;
         }
     }
 
@@ -291,60 +348,55 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         isLoading.setValue(true);
         isConnected.setValue(false);
         fetchStarted = false;
+        lastPagedMode = "MODE_GENRE";
+        lastGenre = genre;
+        lastLangCode3 = langCode3;
+        currentOffset = 0;
+        hasMore = false;
 
-        repository.searchArchiveItemsByGenreAndLangLibrivox(
+        repository.searchGenreLibrivox(
                 langCode3,
                 false,
                 genre,
+                0,
                 Option.getLibrivoxApiNbResults(),
                 new LibrivoxRepository.PagedResultCallback<ArchiveItem>() {
                     @Override
                     public void onPageReceived(List<ArchiveItem> items, boolean isFinalPage) {
                         isLoading.postValue(false);
 
-                        int nbCollected = items != null ? items.size() : 0;
-
-                        if ((items == null || items.isEmpty()) && nbCollected == 0) {
+                        if (items == null || items.isEmpty()) {
                             errorMessage.postValue("no_results_genre:" + genre);
                             return;
                         }
 
-                        if (items != null) {
-                            Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
-                            Iterator<ArchiveItem> iterator = items.iterator();
-                            while (iterator.hasNext()) {
-                                ArchiveItem item = iterator.next();
-                                if (LiveCensorshipManager.isCensored(item.title, censored)) {
-                                    iterator.remove();
-                                }
+                        Set<String> censored = LiveCensorshipManager.getCensoredLibrivox(getApplication());
+                        Iterator<ArchiveItem> iterator = items.iterator();
+                        while (iterator.hasNext()) {
+                            ArchiveItem item = iterator.next();
+                            if (LiveCensorshipManager.isCensored(item.title, censored)) {
+                                iterator.remove();
                             }
                         }
 
+                        if (items.isEmpty()) {
+                            errorMessage.postValue("no_results_genre:" + genre);
+                            return;
+                        }
+
+                        hasMore = !isFinalPage;
                         enrichWithLocalState(items);
                         updateHeaderStatus(items, isFinalPage, "librivox.org");
-
-                        myLogD("onPageReceived [GENRE] - items=" + nbCollected
-                                + " - isFinalPage=" + isFinalPage);
-
-                        if (isFinalPage) {
-                            myLogI("✅ FINAL PAGE DETECTED - " + nbCollected + " total books");
-                        }
                     }
 
                     @Override
                     public void onError(Throwable t) {
                         isLoading.postValue(false);
-                        int nbCollected = (results.getValue() == null)
-                                ? 0
-                                : results.getValue().size();
-
-                        myLogEE(t, "Genre search error");
                         errorMessage.postValue("error:" + t.getMessage());
-
-
                     }
                 });
     }
+
 
     // ============================================================
     // PRIVATE HELPER METHODS
