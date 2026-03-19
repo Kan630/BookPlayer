@@ -166,6 +166,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     // ============================================================
 
     public void searchByQuery(String query, String langCode3) {
+        updateHeaderStatus(null, false, "archive.org");
         isLoading.setValue(true);
         isConnected.setValue(false);
         fetchStarted = false;
@@ -178,6 +179,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     }
 
     public void searchTrending(String langCode3) {
+        updateHeaderStatus(null, false, "archive.org");
         isLoading.setValue(true);
         isConnected.setValue(false);
         fetchStarted = false;
@@ -196,6 +198,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     }
 
     public void searchLastAdded(String langCode3) {
+        updateHeaderStatus(null, false, "archive.org");
         isLoading.setValue(true);
         isConnected.setValue(false);
         fetchStarted = false;
@@ -284,10 +287,10 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
     }
 
     public void searchByGenre(String genre, String langCode3) {
+        updateHeaderStatus(null, false, "librivox.org");
         isLoading.setValue(true);
         isConnected.setValue(false);
         fetchStarted = false;
-        updateHeaderStatus(null, false, "librivox.org");
 
         repository.searchArchiveItemsByGenreAndLangLibrivox(
                 langCode3,
@@ -473,7 +476,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         boolean isMaxReached = count >= Option.getLibrivoxApiNbResults();
         if (totalCount < 0 && lastPagedMode != null)
             totalCount = pagedTotalCount;
-        headerStatus.postValue(new HeaderStatusData(count, totalCount, true, isMaxReached, false, "archive.org"));
+        headerStatus.setValue(new HeaderStatusData(count, totalCount, true, isMaxReached, false, "archive.org"));
     }
 
     private void updateHeaderStatus(List<ArchiveItem> currentList, boolean isFinal, String webApi) {
@@ -482,7 +485,7 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         boolean isLoading = !fetchStarted || !isFinal;
 
         fetchStarted = true;
-        headerStatus.postValue(new HeaderStatusData(count, -1, isFinal, isMaxReached, isLoading, webApi));
+        headerStatus.setValue(new HeaderStatusData(count, -1, isFinal, isMaxReached, isLoading, webApi));
     }
 
     public void enrichWithLocalState(List<ArchiveItem> apiItems) {

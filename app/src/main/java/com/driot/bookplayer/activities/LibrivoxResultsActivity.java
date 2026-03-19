@@ -159,25 +159,34 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
                     @NonNull
                     @Override
                     public String getInitialMessage() {
-                        return getString(R.string.librivox_contacting);
+                        LibrivoxResultsViewModel.HeaderStatusData status = viewModel.getHeaderStatus().getValue();
+                        if (status != null && "librivox.org".equals(status.apiSource)) {
+                            return getString(R.string.librivox_contacting);
+                        }
+                        return getString(R.string.archive_contacting);
                     }
 
                     @NonNull
                     @Override
                     public String getTickMessage(long elapsedSec) {
                         boolean isConnected = Boolean.TRUE.equals(viewModel.getIsConnected().getValue());
+                        LibrivoxResultsViewModel.HeaderStatusData status = viewModel.getHeaderStatus().getValue();
+                        boolean isLibrivox = status != null && "librivox.org".equals(status.apiSource);
 
                         if (isConnected) {
+                            String connectedMsg = isLibrivox ? getString(R.string.librivox_connected) : getString(R.string.archive_connected);
                             return getString(R.string.wait_elapsed_connected,
-                                    getString(R.string.connected_receiving_data),
+                                    connectedMsg,
                                     (int) elapsedSec, Var.ARCHIVE_READ_TIMEOUT_SEC); // Read timeout
                         } else {
+                            String contactingMsg = isLibrivox ? getString(R.string.librivox_contacting) : getString(R.string.archive_contacting);
                             return getString(R.string.wait_elapsed_connecting,
-                                    getString(R.string.librivox_contacting),
+                                    contactingMsg,
                                     (int) elapsedSec, Var.ARCHIVE_CONNECT_TIMEOUT_SEC); // Connect timeout
                         }
                     }
                 });
+
 
             } else {
                 progressBar.setVisibility(View.GONE);
