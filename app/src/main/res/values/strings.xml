@@ -832,7 +832,7 @@
     <string name="import_export_caution_desc">This action will replace items and settings with the selected data from the backup file. All current data for selected items will be PERMANENTLY DELETED.</string>
     <string name="import_export_caution_footer">Proceed with caution!</string>
     <string name="import_export_caution_positive">RESTORE NOW</string>
-    <string name="import_export_caution_negative">CANCEL</string>
+    <string name="import_export_caution_negative">Cancel</string>
     <string name="import_export_restore_complete">Restoration complete. Please restart the app if settings don\'t apply immediately.</string>
     <string name="import_export_failed_restore">Failed to restore backup: %s</string>
     <string name="import_export_failed_import">Failed during import: %s</string>
