@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.ResultReceiver;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.session.MediaSessionCompat;
@@ -31,7 +32,6 @@ import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.player.heatmaps.PlaySessionHelper;
 import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
-import com.driot.bookplayer.player.heatmaps.PlaySession;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
@@ -49,8 +49,8 @@ import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.global.Pref;
 
-import java.text.DecimalFormat;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.driot.bookplayer.utils.Tonio.formatTime;
@@ -65,15 +65,79 @@ import dagger.hilt.android.AndroidEntryPoint;
 @AndroidEntryPoint
 public class MediaService extends LoggingMediaBrowserServiceCompat {
 
+    public static final int DELAY_CHECK_TIMER_SLEEP = 1000;
+
+    private static final int STOP_GRACE_MS = 3000; // small delay to avoid reconnect storms
+
+    public static final int TRIM_MEMORY_THRESHOLD = 20;
+    public static final int DELAY_CHECK_TIMER_PAUSE = 60 * 1000;
+    public static final int TRIM_AFTER_PAUSE_MS = 7 * 24 * 60 * 60 * 1000; // so basically never... 7 days
+
+    enum ServiceState {
+        RUNNING, SHUTTING_DOWN, STOPPED
+    }
+
+    private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
+    private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
+
+    public static final String TRACKNUMBER = "tracknumber";
+    public static final String FROM = "from";
+    public static final String ERR_MSG = "err_msg";
+    public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
+    public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
+    public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
+    public static final String TRACK_PATH = "track_path";
+
+    private PlayerEngine engine;
+
+    private long engineGen = 0L;
+    private long lastPreparedGen = -1L;
+
+    public boolean directPlay;
+
     private int ttsErrorCountForGen = 0;
     private long lastTtsErrorGen = -1;
     private boolean lastCallerWasCar = false;
-    private long ttsSessionStartTimestamp = 0;
-    private long ttsSessionStartPosition = 0;
+    private long sessionStartTimestamp = 0;
+    private long sessionStartPosition = 0;
 
-    private final java.util.concurrent.atomic.AtomicInteger boundClientCount = new java.util.concurrent.atomic.AtomicInteger();
-    private final android.os.Handler serviceHandler = new android.os.Handler(android.os.Looper.getMainLooper());
-    private static final int STOP_GRACE_MS = 3000; // small delay to avoid reconnect storms
+    private final AtomicReference<ServiceState> state = new AtomicReference<>(ServiceState.RUNNING);
+    private final AtomicInteger boundClientCount = new AtomicInteger();
+    private final Handler serviceHandler = new Handler(Looper.getMainLooper());
+    private final Handler main = new Handler(Looper.getMainLooper());
+    private Handler pauseCheckHandler;
+    private Handler sleepCheckHandler;
+
+    private double speed = 1.0;
+    private boolean ErrorLoadingFile = false;
+    private long lastPausedTrackId = -1; // Track ID that was last paused, to detect track changes
+
+    public static volatile boolean isRunning = false;
+
+    private boolean pausedByFocusLoss = false;
+    private float preDuckVolume = 1f;
+
+    // Play Timer (for Sleep)
+    private int customSleepTime = 0;
+
+    private int lastCustomSleepMinutes = 0;
+
+    // cache for Android Auto Bitmaps
+    public static final android.util.LruCache<String, android.graphics.Bitmap> artCache = new android.util.LruCache<>(
+            8);
+    public static final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(
+            24); // (Least Recently Used) cache with a maximum size of 24
+
+    @Inject
+    protected AppTtsManager ttsManager;
+
+    private PlaybackNotificationManager notif;
+    private MediaSessionController media;
+    private AudioFocusHelper focus;
+    private PlaybackProgressUpdater progress;
+    private PlayTimer playTimer;
+
+
     private final Runnable stopRunnable = () -> {
         if (boundClientCount.get() == 0) {
             myLogI("No bound clients after grace → stopSelf()");
@@ -87,13 +151,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return boundClientCount.get() > 0;
     }
 
-    public static volatile boolean isRunning = false;
-
-    enum ServiceState {
-        RUNNING, SHUTTING_DOWN, STOPPED
-    }
-
-    private final AtomicReference<ServiceState> state = new AtomicReference<>(ServiceState.RUNNING);
 
     private boolean beginShutdown() {
         // Only the first caller wins; others will still be safe to call
@@ -101,52 +158,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return state.compareAndSet(ServiceState.RUNNING, ServiceState.SHUTTING_DOWN);
     }
 
-    private static final String ID_NOTIFICATION_PLAY_AUDIO_CHANNEL = "audio_channel_of_bookplayer";
-    private static final int ID_NOTIFICATION_PLAY_AUDIO_INT = 2;
 
-    private boolean pausedByFocusLoss = false;
-    private float preDuckVolume = 1f;
-
-    // Play Timer (for Sleep)
-    public static final int DELAY_CHECK_TIMER_SLEEP = 1000;
-    private Handler sleepCheckHandler;
-    private int customSleepTime = 0;
-
-    // Pause Timer (to free memory)
-    public static final int TRIM_MEMORY_THRESHOLD = 20;
-    public static final int DELAY_CHECK_TIMER_PAUSE = 60 * 1000;
-    public static final int TRIM_AFTER_PAUSE_MS = 7 * 24 * 60 * 60 * 1000; // so basically never... 7 days
-    private Handler pauseCheckHandler;
-
-    private int lastCustomSleepMinutes = 0;
-
-    // cache for Android Auto Bitmaps
-    public static final android.util.LruCache<String, android.graphics.Bitmap> artCache = new android.util.LruCache<>(
-            8);
-    public static final android.util.LruCache<String, android.graphics.Bitmap> iconCache = new android.util.LruCache<>(
-            24); // (Least Recently Used) cache with a maximum size of 24
-
-    // private final IBinder binder = new BackgroundBinder();
-    public static final String TRACKNUMBER = "tracknumber";
-    public static final String FROM = "from";
-    public static final String ERR_MSG = "err_msg";
-    public static final String NOTIFICATION_ERROR = "NOTIFICATION_ERROR";
-    public static final String NOTIFICATION_PLAYLISTFINISHED = "NOTIFICATION_PLAYLISTFINISHED";
-    public static final String NOTIFICATION_PLAYBACK_MAXTIMEREACH = "NOTIFICATION_PLAYBACK_MAXTIMEREACH";
-    public static final String TRACK_PATH = "track_path";
-
-    private com.driot.bookplayer.player.PlaybackNotificationManager notif;
-    private com.driot.bookplayer.player.MediaSessionController media;
-    private com.driot.bookplayer.player.AudioFocusHelper focus;
-    private com.driot.bookplayer.player.PlayTimer playTimer;
-    private com.driot.bookplayer.player.PlaybackProgressUpdater progress;
-
-    @Inject
-    protected AppTtsManager ttsManager;
-
-    private long engineGen = 0L;
-    private long lastPreparedGen = -1L;
-    private final android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
     private final EngineListener engineCb = new EngineListener() {
         @Override
         public void onPrepared(long gen) {
@@ -189,10 +201,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             // });
         }
     };
-
-    private PlayerEngine engine;
-
-    public boolean directPlay;
 
     private void broadcastUiState(String fromWhere) {
         final boolean ready = isReadyToPlay();
@@ -448,11 +456,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
 
     };
-
-    private double speed = 1.0;
-    private boolean ErrorLoadingFile = false;
-    private long lastPausedTrackId = -1; // Track ID that was last paused, to detect track changes
-    DecimalFormat myDF = new DecimalFormat("#,###.");
 
     /********************************************************************************
      * NATIVE METHODS
@@ -789,8 +792,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         Pref.setPaused("NOT PAUSED, PLAYING", 0);
 
         if (engine instanceof TtsEngine) {
-            ttsSessionStartTimestamp = System.currentTimeMillis();
-            ttsSessionStartPosition = engine.getCurrentPosition();
+            sessionStartTimestamp = System.currentTimeMillis();
+            sessionStartPosition = engine.getCurrentPosition();
         }
 
         updateSessionState(true);
@@ -1765,7 +1768,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     public void setPosition(long position, boolean resetLastUserAction) {
-        myLog("setPosition() : " + myDF.format(position) + " - " + Tonio.formatHhMmSs(position));
+        myLog("setPosition() : " + Tonio.getReadablePosition(position) + " - " + Tonio.formatHhMmSs(position));
         if (engine != null) {
             progress.suspendOnce(300); // avoid races from progressUpdater => UI
             engine.seekTo(position);
@@ -2033,10 +2036,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     public boolean isReadyToPlay() {
         return engine != null && engine.isReady();
-    }
-
-    public void pingUi() {
-        broadcastUiState("pingUi");
     }
 
     public long getSleepLeftMs() {
@@ -2566,17 +2565,17 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private void registerSession() {
         if (!(engine instanceof TtsEngine))
             return;
-        if (ttsSessionStartTimestamp <= 0)
+        if (sessionStartTimestamp <= 0)
             return;
         PlayList pl = PlayList.getInstance();
         if (pl == null || !pl.isZikFile() || pl.getZikFile() == null)
             return;
         long zikFileId = pl.getZikFile().getId();
-        PlaySessionHelper.registerSession(this, zikFileId, ttsSessionStartTimestamp, ttsSessionStartPosition, System.currentTimeMillis(), engine.getCurrentPosition());
+        PlaySessionHelper.registerSession(this, zikFileId, sessionStartTimestamp, sessionStartPosition, System.currentTimeMillis(), engine.getCurrentPosition());
 
         // Reset immediately to avoid double calls
-        ttsSessionStartTimestamp = 0;
-        ttsSessionStartPosition = 0;
+        sessionStartTimestamp = 0;
+        sessionStartPosition = 0;
     }
 
     private void do_1sec_stuff(boolean bFinished) {

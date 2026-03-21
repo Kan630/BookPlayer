@@ -14,6 +14,7 @@ import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.db.Sql;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
+import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.text.DecimalFormat;
@@ -24,7 +25,6 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
 
     private final Context app;
     private final ExecutorService io = Executors.newSingleThreadExecutor();
-    private final DecimalFormat df = new DecimalFormat("#,###.");
 
     private volatile long suspendUntil = 0;
 
@@ -84,7 +84,7 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
                 int r = dao.update(zf);
                 if (r > 0) {
                     myLogD("zik updated " + String.valueOf(timestamp).substring(8) + " (" + zf.getName() + ") pos="
-                            + df.format(zf.getPosition()) + "/" + df.format(zf.getDuration()) + " - "
+                            + Tonio.getReadablePosition(zf.getPosition()) + "/" + Tonio.getReadablePosition(zf.getDuration()) + " - "
                             + zf.getPercentdone() + "%");
                     // PlayTick so heatmap has data (including final position when finished)
                     try {

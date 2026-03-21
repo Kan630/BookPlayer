@@ -19,6 +19,7 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import java.io.File;
 import java.sql.Date;
 import java.text.DateFormat;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -34,6 +35,12 @@ import java.util.regex.Pattern;
  * created by Antoine Driot -- antoine.driot.com -- on 31/10/2020
  */
 public class Tonio {
+
+    private final static DecimalFormat df = new DecimalFormat("#,###.");
+
+    public static String getReadablePosition(double position) {
+        return df.format(position);
+    }
 
     public static String getReadableSize(String size) {
         try {
