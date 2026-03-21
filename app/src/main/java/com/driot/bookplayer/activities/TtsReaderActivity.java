@@ -1,12 +1,11 @@
 package com.driot.bookplayer.activities;
 
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.text.Layout;
 import android.view.View;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
@@ -43,11 +42,12 @@ public class TtsReaderActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
+        RecyclerView rv = findViewById(R.id.rvTtsText);
+
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, rv);
 
         PlaybackViewModel vm = new ViewModelProvider(this).get(PlaybackViewModel.class);
 
-        androidx.recyclerview.widget.RecyclerView rv = findViewById(R.id.rvTtsText);
         TtsReaderController controller = new TtsReaderController(this, rv);
         controller.bind(this, vm);
 
