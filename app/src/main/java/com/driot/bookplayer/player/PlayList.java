@@ -284,8 +284,11 @@ public final class PlayList {
     public @Nullable ZikFile getZikFile() {
         synchronized (lock) {
             if (zikFilesList.isEmpty() || index < 0 || index >= zikFilesList.size()) {
-                myLogEE(null, "getZikFile(): out of bounds index=" + index + " size=" + zikFilesList.size()
-                        + " - caller : " + CallerHelper.getCaller(5));
+                myLogEE(null, "getZikFile(): out of bounds index=" + index
+                        + ", size=" + zikFilesList.size()
+                        + ", playMode=" + playMode
+                        + ", caller=" + CallerHelper.getCaller(5)
+                        + ", playlist=" + this.toString());
                 return null;
             }
             return zikFilesList.get(index);
@@ -460,7 +463,6 @@ public final class PlayList {
     public String toString() {
         return "PlayList{" +
                 "playMode='" + playMode + '\'' +
-                ", app=" + app +
                 ", trackId=" + trackId +
                 ", url='" + url + '\'' +
                 ", lock=" + lock +
@@ -468,6 +470,7 @@ public final class PlayList {
                 ", zikFilesList.count=" + zikFilesList.size() +
                 ", index=" + index +
                 ", folder=" + folder +
+                ", app=" + app +
                 '}';
     }
 
