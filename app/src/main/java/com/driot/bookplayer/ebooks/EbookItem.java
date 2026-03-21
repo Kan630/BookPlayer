@@ -66,4 +66,17 @@ public class EbookItem implements Parcelable {
     public boolean isImported() {
         return isImported;
     }
+
+    public String toStringCrlf() {
+        return "EbookItem{" +
+                "gutendexId=" + gutendexId +
+                "\n title='" + title + '\'' +
+                "\n authors='" + authors + '\'' +
+                "\n language='" + language + '\'' +
+                "\n downloadCount=" + downloadCount +
+                "\n coverUrl='" + coverUrl + '\'' +
+                "\n epubUrl='" + epubUrl + '\'' +
+                "\n isImported=" + isImported +
+                '}';
+    }
 }

@@ -51,16 +51,6 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         notifyItemChanged(0);
     }
 
-    public void setHeaderSearch(String search) {
-        this.headerSearch = search != null ? search : "";
-        notifyItemChanged(0);
-    }
-
-    public void setHeaderLang(String lang) {
-        this.headerLang = lang != null ? lang : "";
-        notifyItemChanged(0);
-    }
-
     public void setHeaderCount(String count) {
         this.headerCount = count != null ? count : "";
         notifyItemChanged(0);
@@ -197,6 +187,7 @@ public class EbookResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         } else {
             int idx = position - 1;
             EbookItem item = items.get(idx);
+            //myLog(item.toStringCrlf());
             ItemVH holder = (ItemVH) vh;
 
             Context viewContext = holder.image.getContext();
