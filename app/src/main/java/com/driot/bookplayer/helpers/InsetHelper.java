@@ -60,38 +60,8 @@ public final class InsetHelper {
             Boolean lightNavBarIcons = null;
             boolean allowShortEdgeCutout = false; // default: avoid cutout overlap via padding
 
-            Builder edgeToEdge(boolean v) {
-                this.edgeToEdge = v;
-                return this;
-            }
-
-            Builder statusBarColor(int v) {
-                this.statusBarColor = v;
-                return this;
-            }
-
-            Builder useThemeStatusBarColor() {
-                this.statusBarColor = -1;
-                return this;
-            }
-
-            Builder navigationBarColor(int v) {
-                this.navigationBarColor = v;
-                return this;
-            }
-
             Builder softInputAdjustResize(boolean v) {
                 this.softInputAdjustResize = v;
-                return this;
-            }
-
-            Builder lightStatusBarIcons(Boolean v) {
-                this.lightStatusBarIcons = v;
-                return this;
-            }
-
-            Builder lightNavBarIcons(Boolean v) {
-                this.lightNavBarIcons = v;
                 return this;
             }
 
@@ -133,16 +103,6 @@ public final class InsetHelper {
             boolean handleIME = false;
             boolean addToPadding = false;
             boolean handleCutout = true; // default ON to protect against camera hole
-
-            Builder top(boolean v) {
-                this.top = v;
-                return this;
-            }
-
-            Builder bottom(boolean v) {
-                this.bottom = v;
-                return this;
-            }
 
             Builder sides(boolean v) {
                 this.left = v;
@@ -241,26 +201,6 @@ public final class InsetHelper {
                 /* consume */ true);
     }
 
-    // 1) Ensure a view starts *below* the status bar / cutout.
-    // Keeps edge-to-edge on, but adds only TOP padding (and left/right if you
-    // wish).
-    public static void applyTopInsetsTo(@NonNull Activity activity, @NonNull View targetView) {
-        if (KanLogger.LOG_INSETS)
-            myLogD("applyTopInsetsTo()");
-        applyInsets(activity, targetView,
-                new WindowConfig.Builder()
-                        .softInputAdjustResize(true)
-                        .allowShortEdgeCutout(false) // safer for headers
-                        .build(),
-                new PaddingConfig.Builder()
-                        .onlyTop()
-                        .handleCutout(true)
-                        .sides(true) // set to false if you don’t want side padding
-                        .addToPadding(true) // preserve existing margins/padding
-                        .build(),
-                /* consume */ false);
-    }
-
     /**
      * Top insets only (no left/right) — uses status bar height only, no cutout
      * padding, to avoid huge empty space.
@@ -282,26 +222,6 @@ public final class InsetHelper {
                 /* consume */ false);
     }
 
-    // 2) Scrollable list behind nav bar, with IME lift.
-    // Only bottom padding + optional side padding. No top padding here.
-    public static void applyBottomInsetsForScrollable(@NonNull Activity activity, @NonNull View scrollableView) {
-        if (KanLogger.LOG_INSETS)
-            myLogD("applyBottomInsetsForScrollable()");
-        applyInsets(activity, scrollableView,
-                new WindowConfig.Builder()
-                        .softInputAdjustResize(true)
-                        .allowShortEdgeCutout(true)
-                        .build(),
-                new PaddingConfig.Builder()
-                        .top(false) // <-- important: no top padding here
-                        .bottom(true)
-                        .sides(true)
-                        .handleIME(true)
-                        .handleCutout(true)
-                        .addToPadding(false) // replace padding; your RV already has clipToPadding="false"
-                        .build(),
-                /* consume */ false);
-    }
 
     // ===== Core =====
 
