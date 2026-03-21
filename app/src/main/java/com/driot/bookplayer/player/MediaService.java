@@ -137,7 +137,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private PlaybackProgressUpdater progress;
     private PlayTimer playTimer;
 
-
     private final Runnable stopRunnable = () -> {
         if (boundClientCount.get() == 0) {
             myLogI("No bound clients after grace → stopSelf()");
@@ -151,13 +150,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         return boundClientCount.get() > 0;
     }
 
-
     private boolean beginShutdown() {
         // Only the first caller wins; others will still be safe to call
         // finalizeShutdown()
         return state.compareAndSet(ServiceState.RUNNING, ServiceState.SHUTTING_DOWN);
     }
-
 
     private final EngineListener engineCb = new EngineListener() {
         @Override
@@ -544,25 +541,28 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     @Override
                     public void onFocusLost(int change) {
                         logFocusChange(change);
-                        /* Useless Shit, removed on 2026-03-07, kept because you never know...
-
-                        - first :  focus lost is before onGetRoot, so we're never in grace
-                        - second :  we cant steal back ausio focus from AA, thats AA standard behaviour for security with cars and audio
-
-                        boolean inGrace = CarSignals.withinCarConnectGrace(2500);
-
-                        if (inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
-                                || change == AudioManager.AUDIOFOCUS_LOSS)) {
-                            myLogW("AA connection focus steal - fighting back (ducking instead of pause)");
-                            // treat transient like duck during grace window (don’t pause)
-                            startDuck();
-                            return;
-                        }
+                        /*
+                         * Useless Shit, removed on 2026-03-07, kept because you never know...
+                         * 
+                         * - first : focus lost is before onGetRoot, so we're never in grace
+                         * - second : we cant steal back ausio focus from AA, thats AA standard
+                         * behaviour for security with cars and audio
+                         * 
+                         * boolean inGrace = CarSignals.withinCarConnectGrace(2500);
+                         * 
+                         * if (inGrace && (change == AudioManager.AUDIOFOCUS_LOSS_TRANSIENT
+                         * || change == AudioManager.AUDIOFOCUS_LOSS)) {
+                         * myLogW("AA connection focus steal - fighting back (ducking instead of pause)"
+                         * );
+                         * // treat transient like duck during grace window (don’t pause)
+                         * startDuck();
+                         * return;
+                         * }
                          */
 
-
                         // Stop-on-exit check
-                        if (Option.getAutomotiveStopOnExit() && change == AudioManager.AUDIOFOCUS_LOSS && lastCallerWasCar) {
+                        if (Option.getAutomotiveStopOnExit() && change == AudioManager.AUDIOFOCUS_LOSS
+                                && lastCallerWasCar) {
                             myLogI("Stop-on-exit triggered (car disconnected / permanent focus loss)");
                             shutdown(false);
                             return;
@@ -791,11 +791,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         engine.start();
         Pref.setPaused("NOT PAUSED, PLAYING", 0);
 
-        if (engine instanceof TtsEngine) {
-            sessionStartTimestamp = System.currentTimeMillis();
-            sessionStartPosition = engine.getCurrentPosition();
-        }
-
         updateSessionState(true);
         if (!(engine instanceof TtsEngine))
             setUiPhase(Intents.PHASE_SPEAKING, null);
@@ -988,7 +983,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 case Intent.ACTION_MEDIA_BUTTON:
                 case Intents.ACTION_PLAY_STREAM:
                 case Intents.CMD_TTS_SET_VOICE:
-                    // These actions call goForegroundPreparing or showForegroundNotification specifically
+                    // These actions call goForegroundPreparing or showForegroundNotification
+                    // specifically
                     break;
                 default:
                     myLogI("onStartCommand: promoting to foreground for action: " + action);
@@ -1151,6 +1147,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 try {
                     PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_VOICE);
                     if (engine instanceof TtsEngine) {
+                        // Register previous segment before changing voice
+                        registerSession();
                         boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
                         myLog("Voice change to " + voiceName + ", success = " + ok);
                         if (ok) {
@@ -1770,6 +1768,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     public void setPosition(long position, boolean resetLastUserAction) {
         myLog("setPosition() : " + Tonio.getReadablePosition(position) + " - " + Tonio.formatHhMmSs(position));
         if (engine != null) {
+            // Register current segment before seeking
+            registerSession();
+
             progress.suspendOnce(300); // avoid races from progressUpdater => UI
             engine.seekTo(position);
             updatePlaybackStateForPosition();
@@ -2564,14 +2565,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
     private void registerSession() {
         if (!(engine instanceof TtsEngine))
-            return;
+            return; //For now, we are in test phase, so just TTS, as it was the one
         if (sessionStartTimestamp <= 0)
             return;
         PlayList pl = PlayList.getInstance();
         if (pl == null || !pl.isZikFile() || pl.getZikFile() == null)
             return;
         long zikFileId = pl.getZikFile().getId();
-        PlaySessionHelper.registerSession(this, zikFileId, sessionStartTimestamp, sessionStartPosition, System.currentTimeMillis(), engine.getCurrentPosition());
+        PlaySessionHelper.registerSession(this, zikFileId, sessionStartTimestamp, sessionStartPosition,
+                System.currentTimeMillis(), engine.getCurrentPosition());
 
         // Reset immediately to avoid double calls
         sessionStartTimestamp = 0;
@@ -2622,6 +2624,13 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             }
 
             try {
+                if (engine instanceof TtsEngine && !bFinished) {
+                    if (sessionStartTimestamp <= 0) {
+                        sessionStartTimestamp = timestamp;
+                        sessionStartPosition = pos;
+                        myLog("TTS Session START (auto from tick): " + sessionStartPosition);
+                    }
+                }
                 progress.update(zf, bFinished, pos, dur, enginePlayMode, timestamp);
             } catch (Exception e) {
                 myLogEE(e, "updateZikFileStateInDB - progress");
