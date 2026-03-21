@@ -15,6 +15,9 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 public interface PlaySessionDao {
 
     @Insert
+    void insert(PlaySession session);
+
+    @Insert
     void insertAll(List<PlaySession> sessions);
 
     @Query("SELECT * FROM PlaySession WHERE zikFileId = :zikFileId")

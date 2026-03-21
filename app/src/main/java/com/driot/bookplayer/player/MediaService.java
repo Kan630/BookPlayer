@@ -29,7 +29,9 @@ import androidx.media.session.MediaButtonReceiver;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.nav.NavHelper;
+import com.driot.bookplayer.player.heatmaps.PlaySessionHelper;
 import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
+import com.driot.bookplayer.player.heatmaps.PlaySession;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
@@ -66,6 +68,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     private int ttsErrorCountForGen = 0;
     private long lastTtsErrorGen = -1;
     private boolean lastCallerWasCar = false;
+    private long ttsSessionStartTimestamp = 0;
+    private long ttsSessionStartPosition = 0;
 
     private final java.util.concurrent.atomic.AtomicInteger boundClientCount = new java.util.concurrent.atomic.AtomicInteger();
     private final android.os.Handler serviceHandler = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -783,6 +787,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         engine.start();
         Pref.setPaused("NOT PAUSED, PLAYING", 0);
+
+        if (engine instanceof TtsEngine) {
+            ttsSessionStartTimestamp = System.currentTimeMillis();
+            ttsSessionStartPosition = engine.getCurrentPosition();
+        }
 
         updateSessionState(true);
         if (!(engine instanceof TtsEngine))
@@ -1678,7 +1687,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (engine != null && engine.isPlaying()) {
             enginePause(why);
             // updateZikFileStateInDB(false);
-            compactPlayTicks();
+            if (engine instanceof TtsEngine) {
+                registerSession();
+            } else {
+                compactPlayTicks();
+            }
             focus.abandon();
             playTimer.stop();
             showForegroundNotification(false);
@@ -1915,7 +1928,11 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 if (Option.getBeepBookEnd())
                     playBeep("3beeps");
                 alertPlaylistFinished();
-                compactPlayTicks();
+                if (engine instanceof TtsEngine) {
+                    registerSession();
+                } else {
+                    compactPlayTicks();
+                }
                 shutdown(false);
             } else {
                 nextTrack();
@@ -1986,6 +2003,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         }
 
         // Non-TTS = real fatal
+        if (engine instanceof TtsEngine) {
+            registerSession();
+        }
         alertError("onEngineError", msg);
         shutdown(false);
     }
@@ -1995,6 +2015,9 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         emitUiTick("onEngineFatal");
         ErrorLoadingFile = true;
         playTimer.stop();
+        if (engine instanceof TtsEngine) {
+            registerSession();
+        }
         alertError("onEngineFatal", msg);
         shutdown(false);
         if ("podcast".equals(getPlayMode())) {
@@ -2538,6 +2561,22 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         } catch (Exception e) {
             myLogEE(e, "compactPlayTicks");
         }
+    }
+
+    private void registerSession() {
+        if (!(engine instanceof TtsEngine))
+            return;
+        if (ttsSessionStartTimestamp <= 0)
+            return;
+        PlayList pl = PlayList.getInstance();
+        if (pl == null || !pl.isZikFile() || pl.getZikFile() == null)
+            return;
+        long zikFileId = pl.getZikFile().getId();
+        PlaySessionHelper.registerSession(this, zikFileId, ttsSessionStartTimestamp, ttsSessionStartPosition, System.currentTimeMillis(), engine.getCurrentPosition());
+
+        // Reset immediately to avoid double calls
+        ttsSessionStartTimestamp = 0;
+        ttsSessionStartPosition = 0;
     }
 
     private void do_1sec_stuff(boolean bFinished) {

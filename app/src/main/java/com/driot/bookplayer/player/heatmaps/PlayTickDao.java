@@ -27,6 +27,14 @@ public interface PlayTickDao {
     """)
     void deleteUpTo(long zikFileId, long maxTimestamp);
 
+    @Query("""
+        DELETE FROM PlayTick
+        WHERE zikFileId = :zikFileId
+          AND timestamp >= :minTimestamp
+          AND timestamp <= :maxTimestamp
+    """)
+    void deleteRange(long zikFileId, long minTimestamp, long maxTimestamp);
+
         @Query("""
             SELECT (position / :bucketSizeMs) AS bucket,
                    COUNT(*) AS ticks
