@@ -127,8 +127,12 @@ public class FoldersRVAdapter extends LoggingRVAdapter<FoldersRVAdapter.FoldersV
         return (position >= 0 && position < list.size()) ? list.get(position) : null;
     }
 
-    public void submitList(List<Folder> folders) {
-        differ.submitList(folders == null ? null : new ArrayList<>(folders));
+    public void submitList(@Nullable List<Folder> folders) {
+        submitList(folders, null);
+    }
+
+    public void submitList(@Nullable List<Folder> folders, @Nullable Runnable commitCallback) {
+        differ.submitList(folders == null ? null : new ArrayList<>(folders), commitCallback);
     }
 
     @Override public int getItemCount() {

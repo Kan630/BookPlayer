@@ -34,6 +34,7 @@ public class MainViewModel extends LoggingAndroidViewModel {
 
     private boolean pendingScrollToTop = false;
     private long pendingFolderIdForScroll = -1;
+    private int lastKnownFolderCount = -1;
 
     public MainViewModel(@NonNull Application app, @NonNull SavedStateHandle handle) {
         super(app);
@@ -52,6 +53,15 @@ public class MainViewModel extends LoggingAndroidViewModel {
             }
 
             List<Folder> sorted = sortFolders(rawList);
+            int currentCount = sorted.size();
+
+            // Auto-scroll to top if a book was just added (count increased)
+            if (lastKnownFolderCount != -1 && currentCount > lastKnownFolderCount) {
+                myLog("Folder count increased (" + lastKnownFolderCount + " -> " + currentCount + ") -> scrolling to top");
+                scrollToTop.setValue(new Event<>(NoContent.INSTANCE));
+            }
+            lastKnownFolderCount = currentCount;
+
             folders.setValue(sorted);
 
             if (pendingScrollToTop && !sorted.isEmpty()) {

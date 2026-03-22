@@ -164,6 +164,7 @@ public class NavHelper {
             // or clearTop if we are deep in stack)
             Intent intent = new Intent(activity, MainActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+            //intent.putExtra("scrollToTop", true);
             activity.startActivity(intent);
             return true;
 

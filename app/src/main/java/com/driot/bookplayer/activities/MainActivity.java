@@ -62,6 +62,7 @@ public class MainActivity extends BaseBottomNavActivity {
     private View emptyView;
     private FoldersRVAdapter adapter;
     private MainViewModel mainVm;
+    private boolean pendingScrollToTop = false;
 
     Toolbar toolbar;
     private static final int REQUEST_CODE_OPTION = 34343;
@@ -173,20 +174,21 @@ public class MainActivity extends BaseBottomNavActivity {
             recyclerView.setVisibility(isEmpty ? View.GONE : View.VISIBLE);
             if (isEmpty)
                 setUpWelcomeMessageView();
-            adapter.submitList(folders);
+            adapter.submitList(folders, () -> {
+                if (pendingScrollToTop) {
+                    pendingScrollToTop = false;
+                    recyclerView.scrollToPosition(0);
+                }
+            });
         });
 
-        // One-shot scroll-to-top request
         mainVm.getScrollToTopEvent().observe(this, evt -> {
-            if (evt == null)
+            if (evt == null || evt.getContentIfNotHandled() == null)
                 return;
-            if (evt.getContentIfNotHandled() == null)
-                return;
-            recyclerView.post(() -> {
-                recyclerView.post(() -> {
-                    recyclerView.smoothScrollToPosition(0);
-                });
-            });
+            
+            pendingScrollToTop = true;
+            // Trigger an immediate scroll if the list is already there
+            recyclerView.scrollToPosition(0);
         });
         boolean wantScroll = getIntent() != null && getIntent().getBooleanExtra("scrollToTop", false);
         if (wantScroll && mainVm != null) {
