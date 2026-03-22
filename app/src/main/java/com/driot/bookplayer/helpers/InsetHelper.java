@@ -34,11 +34,16 @@ public final class InsetHelper {
     // 2.0 = fade extends twice the status bar height down into the content.
     private static final float FADE_HEIGHT_MULTIPLIER = 2.0f;
 
-    // Fraction of the fade region that is a hard fully-transparent cut before the gradient begins.
+    // Fraction of the fade region that is a hard fully-faded cut before the gradient begins.
     // 0.0 = no solid zone, gradient starts immediately at the top.
-    // 0.5 = top 50% of the fade region is solid transparent, gradient fills the bottom 50%.
-    // 1.0 = entire region is solid transparent (no gradient at all — probably not useful).
+    // 0.5 = top half is solid fade, gradient fills the bottom half.
     private static final float FADE_SOLID_RATIO = 0.5f;
+
+    // How transparent the content is at the strongest point of the fade.
+    // 0.0 = fully hidden (content completely invisible at peak).
+    // 0.2 = 80% faded — content is still faintly visible, nothing disappears entirely.
+    // 1.0 = no fade at all (pointless but valid).
+    private static final float FADE_MAX_ALPHA = 0.2f;
 
     // ===== Public API =====
 
@@ -175,10 +180,11 @@ public final class InsetHelper {
                 if (fadingParent != null) {
                     int fadeHeight  = Math.round(sys.top * FADE_HEIGHT_MULTIPLIER);
                     int solidHeight = Math.round(fadeHeight * FADE_SOLID_RATIO);
-                    fadingParent.setFadeParams(fadeHeight, solidHeight);
+                    fadingParent.setFadeParams(fadeHeight, solidHeight, FADE_MAX_ALPHA);
                     if (KanLogger.LOG_INSETS)
                         myLogD("setFadeParams: fadeHeight=" + fadeHeight
                                 + " solidHeight=" + solidHeight
+                                + " maxAlpha=" + FADE_MAX_ALPHA
                                 + " (statusBar=" + sys.top + ")");
                 }
 
