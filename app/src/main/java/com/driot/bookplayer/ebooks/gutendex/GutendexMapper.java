@@ -41,7 +41,7 @@ public class GutendexMapper {
         String cachePattern = "https://www.gutenberg.org/cache/epub/";
         if (url.startsWith(cachePattern)) {
             String newUrl = url.replace(cachePattern, mirrorBase);
-            myLog("using mirror : " + url + " => " + newUrl);
+            //myLog("using mirror : " + url + " => " + newUrl);
             return newUrl;
         }
 
@@ -59,7 +59,7 @@ public class GutendexMapper {
             }
 
             if (newUrl != null) {
-                myLog("using mirror (ebooks redirector) : " + url + " => " + newUrl);
+                //myLog("using mirror (ebooks redirector) : " + url + " => " + newUrl);
                 return newUrl;
             }
         }

@@ -127,6 +127,7 @@
         <TextView
             style="@style/OptionTitle"
             android:textSize="16sp"
+            android:layout_marginStart="40dp"
             android:text="@string/quick_lists"/>
 
         <LinearLayout
@@ -147,6 +148,7 @@
         <TextView
             style="@style/OptionTitle"
             android:textSize="16sp"
+            android:layout_marginStart="40dp"
             android:text="@string/Download"/>
 
         <LinearLayout
@@ -164,8 +166,10 @@
         <LinearLayout
             android:id="@+id/ll_gutenberg_mirror_selection"
             style="@style/LinearLayoutOptionsVertical"
-            android:layout_marginStart="40dp"
-            android:layout_marginTop="10dp">
+            android:layout_marginStart="20dp"
+            android:layout_marginTop="20dp"
+            android:layout_marginBottom="0dp"
+            >
             <TextView
                 style="@style/OptionMiniText"
                 android:text="@string/option_gutenberg_mirror_selection" />
@@ -178,6 +182,9 @@
                 android:layout_marginEnd="30dp"
                 />
         </LinearLayout>
+        <TextView
+            style="@style/OptionExplainText"
+            android:text="@string/option_gutenberg_mirror_explain" />
 
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />

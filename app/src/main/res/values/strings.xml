@@ -1305,6 +1305,7 @@
 
     <string name="option_gutenberg_use_mirror">Use mirror for download</string>
     <string name="option_gutenberg_mirror_selection">Select Mirror</string>
+    <string name="option_gutenberg_mirror_explain">Using mirrors should improve the download experience and help avoid overloading the main gutenberg.org website.</string>
 </resources>
 
 
