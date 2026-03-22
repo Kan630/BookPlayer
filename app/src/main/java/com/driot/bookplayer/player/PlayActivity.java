@@ -150,6 +150,9 @@ public class PlayActivity extends BaseActivity {
             } else if (MediaService.NOTIFICATION_PLAYBACK_MAXTIMEREACH.equals(action)) {
                 myToast(getString(R.string.notification_auto_sleep));
                 finish();
+            } else if (Intents.ACTION_FINISH_PLAYER_ACTIVITIES.equals(action)) {
+                myLog("PlayActivity: finishing due to ACTION_FINISH_PLAYER_ACTIVITIES");
+                finish();
             }
         }
     };
@@ -396,6 +399,7 @@ public class PlayActivity extends BaseActivity {
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_ERROR));
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYLISTFINISHED));
         lb.registerReceiver(uiReceiver, new IntentFilter(MediaService.NOTIFICATION_PLAYBACK_MAXTIMEREACH));
+        lb.registerReceiver(uiReceiver, new IntentFilter(Intents.ACTION_FINISH_PLAYER_ACTIVITIES));
     }
 
     @Override

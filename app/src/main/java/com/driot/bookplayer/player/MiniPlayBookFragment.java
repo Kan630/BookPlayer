@@ -12,8 +12,11 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.activities.TtsReaderActivity;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.utils.log.LoggingFragment;
 import com.google.android.material.slider.Slider;
 
@@ -82,6 +85,11 @@ public class MiniPlayBookFragment extends LoggingFragment {
             myLogI("---- user press CLOSE button ----");
             PlaybackCommands.resetLastUserAction(requireContext());
             vm.stop();
+            if (getActivity() instanceof TtsReaderActivity) {
+                myLog("MiniPlayBookFragment: finish TtsReaderActivity and signal PlayActivity to finish too");
+                LocalBroadcastManager.getInstance(requireContext()).sendBroadcast(new Intent(Intents.ACTION_FINISH_PLAYER_ACTIVITIES));
+                getActivity().finish();
+            }
         });
     }
 

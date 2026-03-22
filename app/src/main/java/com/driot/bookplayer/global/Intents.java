@@ -2,6 +2,8 @@ package com.driot.bookplayer.global;
 
 public class Intents {
 
+    public static final String ACTION_FINISH_PLAYER_ACTIVITIES = "com.driot.bookplayer.FINISH_PLAYER_ACTIVITIES";
+
     public static final String EXTRA_LIBRIVOX_LANGUAGE_ITEM = "EXTRA_LIBRIVOX_LANGUAGE_ITEM";
 
     public static final String EXTRA_ADD_TO_FOLDER = "EXTRA_ADD_TO_FOLDER";
