@@ -1303,6 +1303,8 @@
         <item quantity="other">%d days ago</item>
     </plurals>
 
+    <string name="option_gutenberg_use_mirror">Use mirror for download</string>
+    <string name="option_gutenberg_mirror_selection">Select Mirror</string>
 </resources>
 
 

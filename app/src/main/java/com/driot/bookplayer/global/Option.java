@@ -103,6 +103,22 @@ public class Option {
     public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
     public static final boolean DEFAULT_GUTENBERG_USE_MIRROR = true;
     public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
+
+    public static final String[] GUTENBERG_MIRROR_NAMES = {
+            "Old Dominion University (USA)",
+            "Project Gutenberg (Aleph)",
+            //"UK Mirror Service (GB)",
+            //"U. Waterloo CSC (CA)",
+            //"Xmission ISP (USA)"
+    };
+
+    public static final String[] GUTENBERG_MIRROR_URLS = {
+            "https://mirror.cs.odu.edu/gutenberg-epub/", // OK on 2026-03-22
+            "https://aleph.pglaf.org/cache/epub/", // OK on 2026-03-22
+            //"http://www.mirrorservice.org/sites/ftp.ibiblio.org/pub/docs/books/gutenberg/cache/epub/", // KO! on 2026-03-22
+            //"http://mirror.csclub.uwaterloo.ca/gutenberg/cache/epub/", // KO! on 2026-03-22
+            //"http://mirrors.xmission.com/gutenberg/cache/epub/", // KO! on 2026-03-22
+    };
     private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;

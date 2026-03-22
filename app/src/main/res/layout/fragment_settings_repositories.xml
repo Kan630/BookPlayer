@@ -149,6 +149,36 @@
             android:textSize="16sp"
             android:text="@string/Download"/>
 
+        <LinearLayout
+            android:id="@+id/ll_option_gutenberg_use_mirror"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal">
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_option_gutenberg_use_mirror"
+                style="@style/OptionCheckBox"
+                android:layout_height="match_parent" />
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:text="@string/option_gutenberg_use_mirror" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_gutenberg_mirror_selection"
+            style="@style/LinearLayoutOptionsVertical"
+            android:layout_marginStart="40dp"
+            android:layout_marginTop="10dp">
+            <TextView
+                style="@style/OptionMiniText"
+                android:text="@string/option_gutenberg_mirror_selection" />
+            <Spinner
+                style="@style/Spinner"
+                android:id="@+id/sp_gutenberg_mirror"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="36dp"
+                android:layout_marginEnd="30dp"
+                />
+        </LinearLayout>
+
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 

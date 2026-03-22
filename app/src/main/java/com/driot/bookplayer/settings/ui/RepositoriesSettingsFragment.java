@@ -4,9 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -77,6 +80,45 @@ public class RepositoriesSettingsFragment extends LoggingFragment {
         ll_use_google_images.setOnClickListener(v -> chk_use_google_images.toggle());
         chk_use_google_images
                 .setOnCheckedChangeListener((buttonView, isChecked) -> Option.setUseGoogleImages(isChecked));
+
+        // Gutenberg Mirror Selection
+        CheckBox chk_use_mirror = root.findViewById(R.id.chk_option_gutenberg_use_mirror);
+        LinearLayout ll_use_mirror = root.findViewById(R.id.ll_option_gutenberg_use_mirror);
+        View ll_mirror_selection = root.findViewById(R.id.ll_gutenberg_mirror_selection);
+        Spinner spMirror = root.findViewById(R.id.sp_gutenberg_mirror);
+
+        chk_use_mirror.setChecked(Option.getGutenbergUseMirror());
+        ll_mirror_selection.setVisibility(Option.getGutenbergUseMirror() ? View.VISIBLE : View.GONE);
+
+        ll_use_mirror.setOnClickListener(v -> chk_use_mirror.toggle());
+        chk_use_mirror.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            Option.setGutenbergUseMirror(isChecked);
+            ll_mirror_selection.setVisibility(isChecked ? View.VISIBLE : View.GONE);
+        });
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, Option.GUTENBERG_MIRROR_NAMES);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spMirror.setAdapter(adapter);
+
+        String currentUrl = Option.getGutenbergMirrorUrl();
+        for (int i = 0; i < Option.GUTENBERG_MIRROR_URLS.length; i++) {
+            if (Option.GUTENBERG_MIRROR_URLS[i].equals(currentUrl)) {
+                spMirror.setSelection(i);
+                break;
+            }
+        }
+
+        spMirror.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                Option.setGutenbergMirrorUrl(Option.GUTENBERG_MIRROR_URLS[position]);
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+            }
+        });
 
         return root;
     }
