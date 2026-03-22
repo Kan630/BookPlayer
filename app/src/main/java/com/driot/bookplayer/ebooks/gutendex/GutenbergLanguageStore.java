@@ -1,4 +1,3 @@
-// GutenbergLanguageStore.java
 package com.driot.bookplayer.ebooks.gutendex;
 
 import android.content.Context;
@@ -14,12 +13,20 @@ import com.driot.bookplayer.librivox.LanguageMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class GutenbergLanguageStore {
+    
+    private static final String CACHE_FILENAME = "gutenberg_languages_cache.json";
 
     private final Context context;
 
@@ -29,9 +36,31 @@ public class GutenbergLanguageStore {
 
     public List<GutenbergLanguageItem> loadLanguages(@RawRes int rawRes) {
         try {
-            InputStream is = context.getResources().openRawResource(rawRes);
-            List<RawLang> rawList = new Gson().fromJson(new InputStreamReader(is),
-                    new TypeToken<List<RawLang>>() {}.getType());
+            List<RawLang> rawList = null;
+
+            // 1) Try to load from cache first
+            File cacheFile = new File(context.getFilesDir(), CACHE_FILENAME);
+            if (cacheFile.exists()) {
+                try (FileInputStream fis = new FileInputStream(cacheFile);
+                     InputStreamReader isr = new InputStreamReader(fis, StandardCharsets.UTF_8)) {
+                    rawList = new Gson().fromJson(isr, new TypeToken<List<RawLang>>() {
+                    }.getType());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            // 2) Fallback to raw resource if no cache or error
+            if (rawList == null) {
+                try (InputStream is = context.getResources().openRawResource(rawRes);
+                     InputStreamReader isr = new InputStreamReader(is, StandardCharsets.UTF_8)) {
+                    rawList = new Gson().fromJson(isr, new TypeToken<List<RawLang>>() {
+                    }.getType());
+                }
+            }
+
+            if (rawList == null)
+                return new ArrayList<>();
 
             List<GutenbergLanguageItem> result = new ArrayList<>();
             for (RawLang r : rawList) {
@@ -71,6 +100,50 @@ public class GutenbergLanguageStore {
         } catch (Exception e) {
             e.printStackTrace();
             return new ArrayList<>();
+        }
+    }
+
+    public void updateLanguageCompletedCount(String code, int count) {
+        if (code == null || code.isEmpty())
+            return;
+
+        // Load current (possibly cached) list
+        List<GutenbergLanguageItem> currentItems = loadLanguages(com.driot.bookplayer.R.raw.gutenberg_languages);
+        List<RawLang> rawList = new ArrayList<>();
+        boolean modified = false;
+
+        String displayCount = count >= 0 ? String.valueOf(count) : "+0";
+
+        for (GutenbergLanguageItem item : currentItems) {
+            RawLang r = new RawLang();
+            r.lang_en = item.name;
+            r.lang_native_alphabet = item.nativeName;
+            r.code2 = item.code2;
+            r.code3 = item.code3;
+            r.book_count = item.bookCount;
+
+            // Match by code2 or code3
+            if (code.equalsIgnoreCase(item.code2) || code.equalsIgnoreCase(item.code3)) {
+                if (!displayCount.equals(r.book_count)) {
+                    r.book_count = displayCount;
+                    modified = true;
+                }
+            }
+            rawList.add(r);
+        }
+
+        if (modified) {
+            saveToCache(rawList);
+        }
+    }
+
+    private void saveToCache(List<RawLang> list) {
+        File cacheFile = new File(context.getFilesDir(), CACHE_FILENAME);
+        try (FileOutputStream fos = new FileOutputStream(cacheFile);
+             OutputStreamWriter osw = new OutputStreamWriter(fos, StandardCharsets.UTF_8)) {
+            new Gson().toJson(list, osw);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

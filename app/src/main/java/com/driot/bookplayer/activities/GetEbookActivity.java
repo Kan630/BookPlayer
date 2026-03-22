@@ -66,16 +66,7 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         editTextEbook.setCompletionThreshold(1);
         editTextEbook.setSuggestOnFocus(true);
 
-        // Load Gutenberg languages from JSON file
-        GutenbergLanguageStore store = new GutenbergLanguageStore(this);
-        List<GutenbergLanguageItem> gutenbergLanguages = store.loadLanguages(R.raw.gutenberg_languages);
-        
-        GutenbergLanguageStore.setupLanguageSpinner(
-                this,
-                spinnerEbookLang,
-                Pref.get_Audio_Language_Ebook(this),
-                gutenbergLanguages,
-                langItem -> Pref.set_Audio_Language_Ebook(this, langItem.code2));
+        refreshLanguageSpinner();
 
         bEbookMostDownloaded.setOnClickListener(v -> {
             myLogI("--- User clicks MOST DOWNLOADED ---");
@@ -170,6 +161,26 @@ public class GetEbookActivity extends BaseBottomNavActivity {
         intent.putExtra("query", query);
         intent.putExtra("lang", lang);
         startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        refreshLanguageSpinner();
+    }
+
+    private void refreshLanguageSpinner() {
+        if (spinnerEbookLang == null)
+            return;
+        GutenbergLanguageStore store = new GutenbergLanguageStore(this);
+        List<GutenbergLanguageItem> gutenbergLanguages = store.loadLanguages(R.raw.gutenberg_languages);
+
+        GutenbergLanguageStore.setupLanguageSpinner(
+                this,
+                spinnerEbookLang,
+                Pref.get_Audio_Language_Ebook(this),
+                gutenbergLanguages,
+                langItem -> Pref.set_Audio_Language_Ebook(this, langItem.code2));
     }
 
     private void clickSettings() {

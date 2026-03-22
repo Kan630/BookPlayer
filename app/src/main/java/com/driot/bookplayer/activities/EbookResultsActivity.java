@@ -382,6 +382,13 @@ public class EbookResultsActivity extends BaseBottomNavActivity {
                 }
 
                 myLog("Gutendex: " + mapped.size() + " ebooks with EPUB found (total=" + resp.count + ")");
+                
+                // Update language book count in store
+                if (lang != null && !lang.isEmpty() && resp.count >= 0) {
+                    new GutenbergLanguageStore(getApplicationContext())
+                            .updateLanguageCompletedCount(lang, resp.count);
+                }
+
                 nextPageUrl = resp.next;
                 totalCount = resp.count;
                 adapter.setItems(mapped);
