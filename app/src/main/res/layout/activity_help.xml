@@ -4,6 +4,10 @@
     android:layout_height="match_parent"
     style="@style/MainContainer"
     >
+    <com.driot.bookplayer.views.FadingEdgeFrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
     <ScrollView
         android:id="@+id/scroll_view"
         android:layout_width="match_parent"
@@ -240,4 +244,5 @@
 
     </LinearLayout>
     </ScrollView>
+    </com.driot.bookplayer.views.FadingEdgeFrameLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
