@@ -124,6 +124,11 @@
             style="@style/OptionTitle"
             android:text="@string/Gutenberg_Ebooks"/>
 
+        <TextView
+            style="@style/OptionTitle"
+            android:textSize="16sp"
+            android:text="@string/quick_lists"/>
+
         <LinearLayout
             android:id="@+id/ll_option_gutenberg_use_cloudfare"
             style="@style/LinearLayoutOptionsCheckBoxHorizontal">
@@ -138,6 +143,12 @@
         <TextView
             style="@style/OptionExplainText"
             android:text="@string/option_gutenberg_use_cloudfare_subtitle" />
+
+        <TextView
+            style="@style/OptionTitle"
+            android:textSize="16sp"
+            android:text="@string/Download"/>
+
 
         <View style="@style/myStyleViewSimpleHorizontalBar" />
 
