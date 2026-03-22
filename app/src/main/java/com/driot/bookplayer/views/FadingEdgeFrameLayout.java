@@ -18,13 +18,21 @@ import androidx.annotation.Px;
 /**
  * A FrameLayout that fades its children to transparent at the top.
  *
- * Uses DST_IN Porter-Duff on its own hardware layer — so the gradient
- * punches alpha out of the composited children rather than painting a color.
- * Result: content fades out near the top, revealing whatever is behind
- * this view (your background), regardless of light/dark theme.
+ * The fade is split into two zones:
  *
- * Usage: call {@link #setFadeHeight(int)} with the real status bar height
- * (or a multiple of it) once WindowInsets are available.
+ *   ┌─────────────────────────┐  ← top (y=0)
+ *   │   SOLID zone            │  fully transparent — content completely hidden
+ *   │   (solidHeight px)      │
+ *   ├─────────────────────────┤
+ *   │   GRADIENT zone         │  transparent → opaque — content fades in
+ *   │   (fadeHeight px total) │
+ *   ├─────────────────────────┤  ← y = fadeHeight
+ *   │   normal content        │  fully opaque — no masking
+ *   └─────────────────────────┘
+ *
+ * Tune via InsetHelper constants:
+ *   FADE_HEIGHT_MULTIPLIER — how tall the entire fade region is (× status bar height)
+ *   FADE_SOLID_RATIO       — fraction of that region that is a hard cut (0.0 = no solid zone)
  */
 public class FadingEdgeFrameLayout extends FrameLayout {
 
@@ -32,8 +40,10 @@ public class FadingEdgeFrameLayout extends FrameLayout {
     private LinearGradient shader;
 
     private int fadeHeight = 0;
-    private int lastWidth  = -1;
-    private int lastShaderHeight = -1;
+    private int solidHeight = 0;
+    private int lastWidth = -1;
+    private int lastFadeHeight = -1;
+    private int lastSolidHeight = -1;
 
     public FadingEdgeFrameLayout(@NonNull Context context) {
         this(context, null);
@@ -55,38 +65,58 @@ public class FadingEdgeFrameLayout extends FrameLayout {
     }
 
     /**
-     * Sets how tall the fade region should be in pixels.
-     * Typically: statusBarHeight * multiplier (e.g. ×2 for a soft fade).
-     * Call this from your insets callback once the real height is known.
+     * @param fadeHeight  total height of the fade region in px (solid + gradient)
+     * @param solidHeight height of the fully-transparent solid zone at the top, in px
      */
-    public void setFadeHeight(@Px int fadeHeight) {
-        if (this.fadeHeight == fadeHeight) return;
+    public void setFadeParams(@Px int fadeHeight, @Px int solidHeight) {
+        if (this.fadeHeight == fadeHeight && this.solidHeight == solidHeight) return;
         this.fadeHeight = fadeHeight;
+        this.solidHeight = solidHeight;
         shader = null; // invalidate cached shader
         invalidate();
     }
 
     @Override
     protected void dispatchDraw(@NonNull Canvas canvas) {
-        // Draw children normally first.
         super.dispatchDraw(canvas);
 
         if (fadeHeight <= 0) return;
 
-        // Rebuild shader only when dimensions or fadeHeight change.
-        if (shader == null || getWidth() != lastWidth || fadeHeight != lastShaderHeight) {
+        // Rebuild shader only when dimensions or params change.
+        if (shader == null
+                || getWidth() != lastWidth
+                || fadeHeight != lastFadeHeight
+                || solidHeight != lastSolidHeight) {
+
             lastWidth       = getWidth();
-            lastShaderHeight = fadeHeight;
-            shader = new LinearGradient(
-                    0, 0,           // top
-                    0, fadeHeight,  // bottom of fade zone
-                    Color.TRANSPARENT,  // top   → alpha=0, content invisible
-                    Color.BLACK,        // bottom → alpha=255, content fully visible
-                    Shader.TileMode.CLAMP);
+            lastFadeHeight  = fadeHeight;
+            lastSolidHeight = solidHeight;
+
+            if (solidHeight > 0 && solidHeight < fadeHeight) {
+                // Three-stop gradient:
+                //   y=0            → TRANSPARENT (solid zone starts)
+                //   y=solidHeight  → TRANSPARENT (solid zone ends, gradient begins)
+                //   y=fadeHeight   → BLACK       (gradient ends, content fully visible)
+                float solidFraction = (float) solidHeight / fadeHeight;
+                shader = new LinearGradient(
+                        0, 0,
+                        0, fadeHeight,
+                        new int[]  { Color.TRANSPARENT, Color.TRANSPARENT, Color.BLACK },
+                        new float[]{ 0f, solidFraction, 1f },
+                        Shader.TileMode.CLAMP);
+            } else {
+                // No solid zone — plain two-stop gradient.
+                shader = new LinearGradient(
+                        0, 0,
+                        0, fadeHeight,
+                        Color.TRANSPARENT,
+                        Color.BLACK,
+                        Shader.TileMode.CLAMP);
+            }
+
             maskPaint.setShader(shader);
         }
 
-        // DST_IN: draws the gradient as an alpha mask over the already-drawn children.
         canvas.drawRect(0, 0, getWidth(), fadeHeight, maskPaint);
     }
 }

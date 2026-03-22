@@ -30,9 +30,15 @@ public final class InsetHelper {
 
     private InsetHelper() {}
 
-    // Fade region = statusBarHeight × this multiplier.
-    // 2.0 = soft fade extending twice the status bar height into content.
+    // Total height of the fade region = statusBarHeight × this value.
+    // 2.0 = fade extends twice the status bar height down into the content.
     private static final float FADE_HEIGHT_MULTIPLIER = 2.0f;
+
+    // Fraction of the fade region that is a hard fully-transparent cut before the gradient begins.
+    // 0.0 = no solid zone, gradient starts immediately at the top.
+    // 0.5 = top 50% of the fade region is solid transparent, gradient fills the bottom 50%.
+    // 1.0 = entire region is solid transparent (no gradient at all — probably not useful).
+    private static final float FADE_SOLID_RATIO = 0.5f;
 
     // ===== Public API =====
 
@@ -58,7 +64,7 @@ public final class InsetHelper {
     /**
      * Scrollable full-screen view: draws behind nav bar with proper padding.
      * If {@code scrollableView}'s parent is a {@link FadingEdgeFrameLayout},
-     * its fade height is updated from the real status bar inset automatically.
+     * its fade params are updated from the real status bar inset automatically.
      */
     public static void applyInsetsForScrollableBehindNavBar(@NonNull Activity activity,
                                                             @NonNull View scrollableView) {
@@ -166,12 +172,14 @@ public final class InsetHelper {
                     v.setPadding(left, top, right, bottom);
                 }
 
-                // Feed real status bar height into the fading layout.
                 if (fadingParent != null) {
-                    int fadeHeight = Math.round(sys.top * FADE_HEIGHT_MULTIPLIER);
-                    fadingParent.setFadeHeight(fadeHeight);
+                    int fadeHeight  = Math.round(sys.top * FADE_HEIGHT_MULTIPLIER);
+                    int solidHeight = Math.round(fadeHeight * FADE_SOLID_RATIO);
+                    fadingParent.setFadeParams(fadeHeight, solidHeight);
                     if (KanLogger.LOG_INSETS)
-                        myLogD("setFadeHeight=" + fadeHeight + " (statusBar=" + sys.top + ")");
+                        myLogD("setFadeParams: fadeHeight=" + fadeHeight
+                                + " solidHeight=" + solidHeight
+                                + " (statusBar=" + sys.top + ")");
                 }
 
                 if (KanLogger.LOG_INSETS)
