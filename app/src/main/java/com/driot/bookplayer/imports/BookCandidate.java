@@ -274,14 +274,6 @@ public class BookCandidate implements Parcelable {
         }
     }
 
-    /**
-     * Secondary initialization for heavy operations (zip scanning).
-     * Call this from a background thread after the initial fast load.
-     */
-    public void loadHeavyMetadata(Context context) {
-        loadHeavyMetadata(context, null);
-    }
-
     public void loadEasyMetadata(Context context) {
         if (isEasyLoaded)
             return;
@@ -802,15 +794,36 @@ public class BookCandidate implements Parcelable {
         this.size = state.totalSize;
         this.tracksCount = state.audioCount;
         this.multipleBooksCount = state.ebookCount + state.bundleCount;
-        this.hasOnlyZipFilesInFolder = state.bundleCount >= 1 && state.audioCount == 0;
 
-        // Infer playType
-        boolean hasRealContent = state.audioCount > 0 || state.ebookCount > 0 || state.bundleCount > 0;
-        if (hasRealContent) {
-            this.playType = Var.PLAY_TYPE_AUDIO;
-        } else if (state.plainTextCount > 0) {
-            this.playType = Var.PLAY_TYPE_TEXT;
+        if (state.pureEbookCount > 1) {
+            this.notSupportedReason = state.pureEbookCount + " ebooks found in folder, you could use MassImport instead";
+            return;
         }
+
+        if (state.audioCount == 0
+                && state.bundleCount ==0
+                && state.pureEbookCount == 0
+                && state.ebookCount == 0
+                && state.plainTextCount > 0
+        ) {
+            myLog("folder of plain text files");
+            this.playType = Var.PLAY_TYPE_TEXT;
+        } else {
+            this.playType = Var.PLAY_TYPE_AUDIO;
+        }
+
+        if (state.audioCount == 0
+                && state.bundleCount == 0
+                && state.pureEbookCount == 0
+                && state.ebookCount > 1) {
+            this.notSupportedReason = "Multiple text documents in folder not yet supported, you could pick them one by one with the file picker";
+            myLog("-----------------");
+            myLog(" here we need to have a way to tell noDocxSplit and load each docx as a chapter");
+            myLog("-----------------");
+            return;
+        }
+
+        this.hasOnlyZipFilesInFolder = state.bundleCount >= 1 && state.audioCount == 0;
 
         // If still no cover, we might have found one embedded during the recursive scan
         if (this.coverImagePath == null && state.embeddedCoverPath != null) {
@@ -820,7 +833,7 @@ public class BookCandidate implements Parcelable {
         }
 
         myLogD("scanFolderCombined() DONE in " + (System.currentTimeMillis() - startTime) + "ms. " +
-                "tracks=" + tracksCount + ", size=" + size + ", multipleBooks=" + multipleBooksCount);
+                "tracks=" + tracksCount + ", size=" + Tonio.getReadableSize(size) + ", multipleBooks=" + multipleBooksCount);
     }
 
     private void scanFolderRecursive(Context context, DocumentFile dir, OnMetadataListener listener,
@@ -883,6 +896,9 @@ public class BookCandidate implements Parcelable {
                     }
                 } else if (SupportedFilesHelper.isSplittableEbookSpecial(special)) {
                     state.ebookCount++;
+                    if (SupportedFilesHelper.isPureEbook(special)) {
+                        state.pureEbookCount++;
+                    }
                 } else if (SupportedFilesHelper.isBundleSpecial(special)) {
                     state.bundleCount++;
                 } else if (SupportedFilesHelper.isText(child)) {
@@ -896,6 +912,7 @@ public class BookCandidate implements Parcelable {
         long totalSize = 0;
         int audioCount = 0;
         int ebookCount = 0;
+        int pureEbookCount = 0;
         int bundleCount = 0;
         int plainTextCount = 0;
         String embeddedCoverPath = null;
