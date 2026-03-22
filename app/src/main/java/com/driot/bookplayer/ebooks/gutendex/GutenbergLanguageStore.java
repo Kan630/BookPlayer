@@ -13,6 +13,9 @@ import com.driot.bookplayer.librivox.LanguageMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -112,7 +115,12 @@ public class GutenbergLanguageStore {
         List<RawLang> rawList = new ArrayList<>();
         boolean modified = false;
 
-        String displayCount = count >= 0 ? String.valueOf(count) : "+0";
+        String displayCount;
+        if (count >= 0) {
+            displayCount = NumberFormat.getNumberInstance(Locale.getDefault()).format(count);
+        } else {
+            displayCount = "+0";
+        }
 
         for (GutenbergLanguageItem item : currentItems) {
             RawLang r = new RawLang();
