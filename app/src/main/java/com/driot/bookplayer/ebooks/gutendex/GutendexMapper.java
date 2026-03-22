@@ -17,16 +17,15 @@ public class GutendexMapper {
         for (Map.Entry<String, String> e : book.formats.entrySet()) {
             String key = e.getKey();
             if (key != null && key.startsWith("application/epub+zip")) {
-                return rewriteUrlForMirror(e.getValue());
+                return rewriteUrlForMirror(e.getValue(), book.id);
             }
         }
         return null;
     }
 
     @Nullable
-    public static String rewriteUrlForMirror(String url) {
+    public static String rewriteUrlForMirror(String url, int bookId) {
         boolean useMirror = Option.getGutenbergUseMirror();
-        myLogD("use Mirror for download : " + useMirror);
         if (url == null || !useMirror) {
             return url;
         }
@@ -36,8 +35,8 @@ public class GutendexMapper {
             myLogE("mirrorBase is null");
             return url;
         }
-        
-        // Match the user's requested replacement:
+
+        // Pattern 1: Standard cache pattern
         // https://www.gutenberg.org/cache/epub/ -> https://mirror.cs.odu.edu/gutenberg-epub/
         String cachePattern = "https://www.gutenberg.org/cache/epub/";
         if (url.startsWith(cachePattern)) {
@@ -46,7 +45,29 @@ public class GutendexMapper {
             return newUrl;
         }
 
-        myLogE("cachePatternError : " + url + " --pattern=[" + cachePattern + "]");
+        // Pattern 2: Ebooks redirector pattern (common in Gutendex)
+        // https://www.gutenberg.org/ebooks/ID.epub3.images -> mirror/ID/pgID-images-3.epub
+        String ebooksPattern = "https://www.gutenberg.org/ebooks/";
+        if (url.startsWith(ebooksPattern)) {
+            String newUrl = null;
+            if (url.endsWith(".epub3.images")) {
+                newUrl = mirrorBase + bookId + "/pg" + bookId + "-images-3.epub";
+            } else if (url.endsWith(".epub.images")) {
+                newUrl = mirrorBase + bookId + "/pg" + bookId + "-images.epub";
+            } else if (url.endsWith(".epub.noimages")) {
+                newUrl = mirrorBase + bookId + "/pg" + bookId + ".epub";
+            }
+
+            if (newUrl != null) {
+                myLog("using mirror (ebooks redirector) : " + url + " => " + newUrl);
+                return newUrl;
+            }
+        }
+
+        // If we reach here and it's still a gutenberg.org URL, it's an unhandled pattern
+        if (url.contains("gutenberg.org")) {
+            myLogD("unhandled gutenberg pattern : " + url);
+        }
         return url;
     }
 
