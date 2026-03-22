@@ -9,6 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.LayoutRes;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
@@ -19,39 +22,30 @@ import com.google.android.material.navigation.NavigationBarView;
 
 public abstract class BaseBottomNavActivity extends BaseActivity {
 
-    /** Which bottom item should be checked in this screen */
     protected abstract int getNavId();
 
-    /** Which layout should be inflated into the content area */
     @LayoutRes
     protected abstract int getLayoutResId();
 
-    /** Override to true in activities that should show the ongoing-task overlay */
     protected abstract boolean enableOngoingTaskOverlay();
 
-    /** Override to false in activities that should NOT show the bottom nav bar */
     protected boolean displayBottomNavBar() {
         return true;
     }
 
     private NavigationBarView bottomNav;
-
     private boolean navSelectionFromCode = false;
-
     private final boolean VERBOSE_DEBUG = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // 1) Set the common layout that contains the FrameLayout + BottomNav
         super.setContentView(R.layout.activity_base_bottom_nav);
 
-        // 2) Inflate the child layout into the container
         ViewGroup container = findViewById(R.id.base_content);
         getLayoutInflater().inflate(getLayoutResId(), container, true);
 
-        // 3) Attach ongoing task overlay if requested
         if (enableOngoingTaskOverlay()) {
             View topOverlay = findViewById(R.id.topOverlayContainer);
             if (topOverlay != null) {
@@ -67,13 +61,29 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             }
         }
 
-        // 4) Setup bottom nav once for all activities
         setupBottomNav();
 
-        // 5) Optional: hide the bottom nav completely
         if (!displayBottomNavBar()) {
             if (bottomNav != null)
                 bottomNav.setVisibility(View.GONE);
+
+            // When the bottom nav is hidden, it no longer absorbs the system
+            // navigation bar inset. Apply it directly to miniNowPlaying so it
+            // sits above the system nav bar instead of going behind it.
+            View miniNowPlaying = findViewById(R.id.miniNowPlaying);
+            if (miniNowPlaying != null) {
+                final int initialPaddingBottom = miniNowPlaying.getPaddingBottom();
+                ViewCompat.setOnApplyWindowInsetsListener(miniNowPlaying, (v, insets) -> {
+                    Insets sys = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(
+                            v.getPaddingLeft(),
+                            v.getPaddingTop(),
+                            v.getPaddingRight(),
+                            initialPaddingBottom + sys.bottom);
+                    return insets; // don't consume — InsetHelper still needs them
+                });
+                ViewCompat.requestApplyInsets(miniNowPlaying);
+            }
         }
     }
 
@@ -83,12 +93,12 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
 
         bottomNav.setOnItemSelectedListener(item -> {
             boolean fromCode = navSelectionFromCode;
-            navSelectionFromCode = false; // reset for next time
+            navSelectionFromCode = false;
 
             if (fromCode) {
                 myLogDD("BottomNav selection changed programmatically: item="
                         + item.getItemId() + " - " + item.getTitle());
-                return true; // keep the item checked, but don't treat as user click
+                return true;
             }
 
             myLogI("--- user click bottom Nav bar ---    item = "
@@ -101,7 +111,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
             return true;
         });
 
-        // Set initial selection (programmatic)
         selectBottomNavItemFromCode(getNavId());
     }
 
@@ -117,7 +126,6 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         }
     }
 
-    // IMPORTANT: don't call setContentView() in child activities
     @Override
     public void setContentView(int layoutResID) {
         throw new UnsupportedOperationException(
@@ -137,8 +145,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     }
 
     private void selectBottomNavItemFromCode(int itemId) {
-        if (bottomNav == null)
-            return;
+        if (bottomNav == null) return;
         navSelectionFromCode = true;
         bottomNav.setSelectedItemId(itemId);
     }
@@ -150,6 +157,5 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         ctx.startActivity(intent);
     }
 
-    private void myLogDD(String txt) {if (VERBOSE_DEBUG) myLogD(txt);}
-
+    private void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
 }

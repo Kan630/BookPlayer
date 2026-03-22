@@ -32,7 +32,7 @@ public final class InsetHelper {
 
     // Total height of the fade region = statusBarHeight × this value.
     // 2.0 = fade extends twice the status bar height down into the content.
-    private static final float FADE_HEIGHT_MULTIPLIER = 2.0f;
+    private static final float FADE_HEIGHT_MULTIPLIER = 1.5f;
 
     // Fraction of the fade region that is a hard fully-faded cut before the gradient begins.
     // 0.0 = no solid zone, gradient starts immediately at the top.
@@ -43,7 +43,7 @@ public final class InsetHelper {
     // 0.0 = fully hidden (content completely invisible at peak).
     // 0.2 = 80% faded — content is still faintly visible, nothing disappears entirely.
     // 1.0 = no fade at all (pointless but valid).
-    private static final float FADE_MAX_ALPHA = 0.2f;
+    private static final float FADE_MAX_ALPHA = 0.3f;
 
     // ===== Public API =====
 
