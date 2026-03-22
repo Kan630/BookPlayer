@@ -101,6 +101,8 @@ public class Option {
     public static final boolean DEFAULT_GUTENBERG_USE_CLOUDFARE = true;
     public static final boolean DEFAULT_RADIO_REMOVE_SPAM_STATIONS = true;
     public static final boolean DEFAULT_RADIO_REMOVE_DUBIOUS_STATIONS = true;
+    public static final boolean DEFAULT_GUTENBERG_USE_MIRROR = true;
+    public static final String DEFAULT_GUTENBERG_MIRROR_URL = "https://mirror.cs.odu.edu/gutenberg-epub/";
     private static final boolean DEFAULT_RADIO_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_PODCAST_OPEN_FAVORITES_FIRST = false;
     private static final boolean DEFAULT_SCREENSAVER_ENABLED = false;
@@ -289,6 +291,22 @@ public class Option {
         } else {
             return "https://gutendex.com/";
         }
+    }
+
+    public static boolean getGutenbergUseMirror() {
+        return prefs.getBoolean("GUTENBERG_USE_MIRROR", DEFAULT_GUTENBERG_USE_MIRROR);
+    }
+
+    public static void setGutenbergUseMirror(boolean bool) {
+        prefs.edit().putBoolean("GUTENBERG_USE_MIRROR", bool).apply();
+    }
+
+    public static String getGutenbergMirrorUrl() {
+        return prefs.getString("GUTENBERG_MIRROR_URL", DEFAULT_GUTENBERG_MIRROR_URL);
+    }
+
+    public static void setGutenbergMirrorUrl(String url) {
+        prefs.edit().putString("GUTENBERG_MIRROR_URL", url).apply();
     }
 
     /////////////////// HEAT_MAPS ///////////////////

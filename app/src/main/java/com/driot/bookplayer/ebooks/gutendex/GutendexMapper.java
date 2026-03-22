@@ -2,6 +2,9 @@ package com.driot.bookplayer.ebooks.gutendex;
 
 import androidx.annotation.Nullable;
 
+import com.driot.bookplayer.global.Option;
+import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
+
 import java.util.Map;
 
 public class GutendexMapper {
@@ -14,10 +17,37 @@ public class GutendexMapper {
         for (Map.Entry<String, String> e : book.formats.entrySet()) {
             String key = e.getKey();
             if (key != null && key.startsWith("application/epub+zip")) {
-                return e.getValue();
+                return rewriteUrlForMirror(e.getValue());
             }
         }
         return null;
+    }
+
+    @Nullable
+    public static String rewriteUrlForMirror(String url) {
+        boolean useMirror = Option.getGutenbergUseMirror();
+        myLogD("use Mirror for download : " + useMirror);
+        if (url == null || !useMirror) {
+            return url;
+        }
+
+        String mirrorBase = Option.getGutenbergMirrorUrl();
+        if (mirrorBase == null || mirrorBase.isEmpty()) {
+            myLogE("mirrorBase is null");
+            return url;
+        }
+        
+        // Match the user's requested replacement:
+        // https://www.gutenberg.org/cache/epub/ -> https://mirror.cs.odu.edu/gutenberg-epub/
+        String cachePattern = "https://www.gutenberg.org/cache/epub/";
+        if (url.startsWith(cachePattern)) {
+            String newUrl = url.replace(cachePattern, mirrorBase);
+            myLog("using mirror : " + url + " => " + newUrl);
+            return newUrl;
+        }
+
+        myLogE("cachePatternError : " + url + " --pattern=[" + cachePattern + "]");
+        return url;
     }
 
     @Nullable
