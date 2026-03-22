@@ -6,12 +6,23 @@
     style="@style/MainContainer"
     tools:context=".activities.TtsReaderActivity">
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvTtsText"
+    <!--
+        FadingEdgeFrameLayout wraps the RecyclerView and applies a DST_IN
+        shader mask that fades the content (not a color overlay) near the top.
+        InsetHelper feeds the real status bar height into it via setFadeHeight().
+    -->
+    <com.driot.bookplayer.views.FadingEdgeFrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="?attr/colorSurface"
-        android:clipToPadding="false"
-        android:padding="16dp" />
+        android:layout_height="match_parent">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rvTtsText"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="?attr/colorSurface"
+            android:clipToPadding="false"
+            android:padding="16dp" />
+
+    </com.driot.bookplayer.views.FadingEdgeFrameLayout>
 
 </FrameLayout>
