@@ -169,7 +169,7 @@ public class PlayActivity extends BaseActivity {
 
         if (PlayList.getInstance() == null) {
             finish();
-            myLogEE(null, "PlayList.getInstance() == null");
+            myLogEE(null, "PlayList.getInstance() == null");//TODO get the caller, so I can see in log
             return;
         }
         Folder folder = PlayList.getInstance().getFolder();

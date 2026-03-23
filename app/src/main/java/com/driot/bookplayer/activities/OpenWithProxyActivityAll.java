@@ -41,6 +41,9 @@ public class OpenWithProxyActivityAll extends BaseActivity {
 
         myLogD("OpenWithProxyActivityAll received uri: " + uri);
         boolean persistPermission = UriHelper.checkLongTermReadable(this, uri);
+
+        //TODO looks like persistPermission=false => false positive, as the file is loaded and can be played...
+
         FirebaseAnalyticsHelper.tellAnalyticsProxyLoad(uri.toString(), "all", persistPermission);
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("ImportMode", "proxy-all");
         FirebaseAnalyticsHelper.setCustomKeyCrashlytics("persistPermission", String.valueOf(persistPermission));

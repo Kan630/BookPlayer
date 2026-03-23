@@ -37,10 +37,10 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.driot.bookplayerfull.debug" />
-                  <option name="mobileSdkAppId" value="1:20732844117:android:5aa5bad071a9d72f735cdc" />
-                  <option name="projectId" value="bookplayer-debug" />
-                  <option name="projectNumber" value="20732844117" />
+                  <option name="appId" value="com.driot.bookplayerpure" />
+                  <option name="mobileSdkAppId" value="1:793974976163:android:6327b5f33e6af4eabe1916" />
+                  <option name="projectId" value="bookplayer-bc6cd" />
+                  <option name="projectNumber" value="793974976163" />
                 </ConnectionSetting>
               </option>
               <option name="signal" value="SIGNAL_UNSPECIFIED" />
