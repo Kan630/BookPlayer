@@ -42,6 +42,8 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
     private TextView tvProgressMessage;
     private TextView tvEmptyMessage;
 
+    private String mode;
+
     @Override
     protected int getNavId() {
         return R.id.nav_add;
@@ -107,7 +109,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
 
         // Get search parameters
         Intent intent = getIntent();
-        String mode = intent.getStringExtra("mode");
+        mode = intent.getStringExtra("mode");
         String query = intent.getStringExtra("query");
         String genre = intent.getStringExtra("genre");
         String author = intent.getStringExtra("author");
@@ -203,7 +205,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
             }
             int currentAdapterSize = adapter.getItemCount() - 1; // -1 for header
             if (currentAdapterSize == 0 || items.size() <= currentAdapterSize) {
-                adapter.setItems(items, screen_type);
+                adapter.setItems(items, mode);
             } else {
                 List<ArchiveItem> newItems = items.subList(currentAdapterSize, items.size());
                 adapter.appendItems(newItems);

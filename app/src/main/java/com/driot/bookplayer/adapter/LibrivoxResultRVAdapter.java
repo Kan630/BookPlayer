@@ -36,7 +36,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     private static final int VT_ITEM = 1;
 
     private List<ArchiveItem> items = new ArrayList<>();
-    private String screenType;
+    private String mode;
 
     // Header data
     private String headerSearch = "";
@@ -60,9 +60,9 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     // --- Items API ---
-    public void setItems(List<ArchiveItem> newItems, String screenType) {
+    public void setItems(List<ArchiveItem> newItems, String mode) {
         items = newItems != null ? new ArrayList<>(newItems) : new ArrayList<>();
-        screenType = screenType;
+        this.mode = mode;
         notifyDataSetChanged();
     }
 
@@ -154,16 +154,19 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 holder.creator.setText(item.creator);
             }
 
-            holder.info.setVisibility(View.GONE);
+            myLog("mode : " + mode);
+            if (mode.equalsIgnoreCase("MODE_LAST_ADDED")) {
+                holder.info.setText(extractDate(item.date));
+            } else {
+                holder.info.setVisibility(View.GONE);
+            }
 
             if (item.num_reviews > 0) {
                 String year = "xxxx";
                 if (item.date != null && item.date.contains("copyright")) { // Hack for pure Librivox Result
                     year = item.date;
                 } else {
-                    if (screenType.equalsIgnoreCase("last_added")) {
-                        year = extractDate(item.date);
-                    } else {
+                    if (!mode.equalsIgnoreCase("MODE_LAST_ADDED")) {
                         year = extractYear(item.date);
                     }
 
@@ -173,8 +176,10 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                         vh.itemView.getContext().getString(R.string.reviews) +
                         " - " +
                         vh.itemView.getContext().getString(R.string.average_rating) +
-                        " : " + item.avg_rating +
-                        " - added: " + year;
+                        " : " + item.avg_rating;
+                if (!year.isEmpty()) {
+                    ratingText = ratingText + " - added: " + year;
+                }
                 holder.rating.setText(ratingText);
                 holder.ratingBar.setRating(item.avg_rating);
                 holder.rating.setVisibility(View.VISIBLE);
@@ -257,14 +262,21 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     private String extractYear(String fullDate) {
-        if (fullDate == null || fullDate.length() < 4)
+        if (fullDate == null || fullDate.isEmpty())
             return "";
-        return fullDate.substring(0, 4);
+        if (fullDate.length() >= 4) {
+            return fullDate.substring(0, 4);
+        }
+        return fullDate;
     }
+
     private String extractDate(String fullDate) {
-        if (fullDate == null || fullDate.length() < 4)
+        if (fullDate == null || fullDate.isEmpty())
             return "";
-        return fullDate.substring(0, 8);
+        if (fullDate.length() >= 10) {
+            return fullDate.substring(0, 10); // YYYY-MM-DD
+        }
+        return fullDate;
     }
 
 }
