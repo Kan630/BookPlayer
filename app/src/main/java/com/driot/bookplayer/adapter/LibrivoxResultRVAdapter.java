@@ -36,6 +36,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     private static final int VT_ITEM = 1;
 
     private List<ArchiveItem> items = new ArrayList<>();
+    private String screenType;
 
     // Header data
     private String headerSearch = "";
@@ -160,7 +161,12 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
                 if (item.date != null && item.date.contains("copyright")) { // Hack for pure Librivox Result
                     year = item.date;
                 } else {
-                    year = extractYear(item.date);
+                    if (screenType.equalsIgnoreCase("last_added")) {
+                        year = extractDate(item.date);
+                    } else {
+                        year = extractYear(item.date);
+                    }
+
                 }
 
                 String ratingText = item.num_reviews + " " +
@@ -254,6 +260,11 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         if (fullDate == null || fullDate.length() < 4)
             return "";
         return fullDate.substring(0, 4);
+    }
+    private String extractDate(String fullDate) {
+        if (fullDate == null || fullDate.length() < 4)
+            return "";
+        return fullDate.substring(0, 8);
     }
 
 }
