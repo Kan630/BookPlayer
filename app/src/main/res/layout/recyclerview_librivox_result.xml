@@ -47,6 +47,15 @@
                 android:text="Dracula (version 2)" />
 
             <TextView
+                android:id="@+id/creator"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                style="@style/OptionMiniText"
+                android:textColor="?attr/colorOnSurfaceVariant"
+                android:layout_marginTop="4dp"
+                android:textSize="14sp"
+                android:text="Alexandre Dumas" />
+            <TextView
                 android:id="@+id/librivox_info"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -54,7 +63,7 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 android:layout_marginTop="4dp"
                 android:textSize="14sp"
-                android:text="Audio available since 2020" />
+                android:text="2020" />
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -91,7 +100,7 @@
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="0dp"
                         android:src="@drawable/ic_download_done_24"
                         android:contentDescription="@string/downloaded"
                         app:tint="@color/green_500"

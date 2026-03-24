@@ -9,6 +9,7 @@ public class ArchiveItem {
     public String date;
     public float avg_rating;
     public int num_reviews;
+    public String creator;
 
     public boolean is_favorite;
     public Long idFolder;       // null if not imported

@@ -100,7 +100,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     static class ItemVH extends RecyclerView.ViewHolder {
-        TextView title, info, rating;
+        TextView title, info, rating, creator;
         RatingBar ratingBar;
         ImageView image;
         ImageButton ibFavorite;
@@ -108,6 +108,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         ItemVH(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.librivox_title);
+            creator = itemView.findViewById(R.id.creator);
             info = itemView.findViewById(R.id.librivox_info);
             rating = itemView.findViewById(R.id.librivox_rating);
             ratingBar = itemView.findViewById(R.id.librivox_ratingbar);
@@ -159,28 +160,32 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.title.setText(item.title);
 
-            if (item.date != null && item.date.contains("copyright")) { // Hack for pure Librivox Result
-                holder.info.setText(item.date);
+            if (item.author != null && !item.author.isEmpty()) {
+                holder.creator.setText(item.author);
             } else {
-                holder.info.setText(extractYear(item.date));
+                holder.creator.setText(item.creator);
             }
 
+            holder.info.setVisibility(View.GONE);
+
             if (item.num_reviews > 0) {
+                String year = "xxxx";
+                if (item.date != null && item.date.contains("copyright")) { // Hack for pure Librivox Result
+                    year = item.date;
+                } else {
+                    year = extractYear(item.date);
+                }
+
                 String ratingText = item.num_reviews + " " +
                         vh.itemView.getContext().getString(R.string.reviews) +
                         " - " +
                         vh.itemView.getContext().getString(R.string.average_rating) +
-                        " : " + item.avg_rating;
+                        " : " + item.avg_rating +
+                        " - added: " + year;
                 holder.rating.setText(ratingText);
                 holder.ratingBar.setRating(item.avg_rating);
                 holder.rating.setVisibility(View.VISIBLE);
                 holder.ratingBar.setVisibility(View.VISIBLE);
-            } else if (item.author != null && !item.author.isEmpty()) { // Hack for pure Librivox Result (no rating like
-                                                                        // in Archive results, but author present...)
-                holder.rating.setText(item.author);
-                holder.rating.setTypeface(null, Typeface.BOLD);
-                holder.rating.setVisibility(View.VISIBLE);
-                holder.ratingBar.setVisibility(View.GONE);
             } else {
                 holder.rating.setVisibility(View.GONE);
                 holder.ratingBar.setVisibility(View.GONE);

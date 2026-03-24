@@ -3,7 +3,6 @@ package com.driot.bookplayer.librivox;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.global.Option;
-import com.driot.bookplayer.global.Var;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -23,6 +22,10 @@ public class LibrivoxRepository {
 
     private static final String API_SORT_DOWNLOADS_DESC = "downloads desc";
     private static final String API_SORT_ADDED_DESC = "addeddate desc";
+
+    List<String> archive_get_fields = Arrays.asList("identifier", "title", "date",
+            "avg_rating", "num_reviews", "creator");
+    String librivox_get_fields = "{id,title,language,genres,url_iarchive,totaltimesecs,authors,copyright_year}";
 
     private final LibrivoxApi directApi;
     @Nullable private final LibrivoxApi cachedApi;
@@ -62,8 +65,6 @@ public class LibrivoxRepository {
 
     public void searchByQueryAndLang(String query, String lang, int limit, int page,
                                      Callback<ArchiveApiResponse> cb) {
-        List<String> fields = Arrays.asList("identifier", "title", "date",
-                "avg_rating", "num_reviews");
 
         String fullQuery = "collection:librivoxaudio AND language:(" + lang + ")";
         if (!query.isEmpty()) {
@@ -74,7 +75,7 @@ public class LibrivoxRepository {
 
         myLog("Librivox searchByQueryAndLang: [" + fullQuery + "]");
 
-        directApi.search(fullQuery, fields, limit, page, "json", API_SORT_DOWNLOADS_DESC)
+        directApi.search(fullQuery, archive_get_fields, limit, page, "json", API_SORT_DOWNLOADS_DESC)
                 .enqueue(new LoggingCallback<>(cb, "searchByQueryAndLang"));
     }
 
@@ -133,21 +134,17 @@ public class LibrivoxRepository {
     /** With page (1-based) for pagination. */
     public void mostDownloadedByLang(String lang, int limit, int page,
                                      Callback<ArchiveApiResponse> cb) {
-        List<String> fields = Arrays.asList("identifier", "title", "date",
-                "avg_rating", "num_reviews");
         String q = "collection:librivoxaudio AND language:(" + lang + ")";
         myLog("Librivox mostDownloadedByLang: [" + q + "] page=" + page);
-        searchHotListWithFallback("mostDownloadedByLang", q, fields, limit, page,
+        searchHotListWithFallback("mostDownloadedByLang", q, archive_get_fields, limit, page,
                 API_SORT_DOWNLOADS_DESC, cb);
     }
 
     public void mostRecentlyAddedByLang(String lang, int limit, int page,
                                         Callback<ArchiveApiResponse> cb) {
-        List<String> fields = Arrays.asList("identifier", "title", "date",
-                "avg_rating", "num_reviews");
         String q = "collection:librivoxaudio AND language:(" + lang + ")";
         myLog("Librivox mostRecentlyAddedByLang: [" + q + "] page=" + page);
-        searchHotListWithFallback("mostRecentlyAddedByLang", q, fields, limit, page,
+        searchHotListWithFallback("mostRecentlyAddedByLang", q, archive_get_fields, limit, page,
                 API_SORT_ADDED_DESC, cb);
     }
 
@@ -163,7 +160,7 @@ public class LibrivoxRepository {
 
         Call<LibrivoxBooksResponse> call = librivoxApi.getAudiobooks(
                 null, genre, null, null, null, 1,
-                "{id,title,language,genres,url_iarchive,totaltimesecs,authors,copyright_year}",
+                librivox_get_fields,
                 pageSize, offset, "json"
         );
 
