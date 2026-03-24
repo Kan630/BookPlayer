@@ -155,38 +155,35 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             }
 
             myLog("mode : " + mode);
+            String year = "";
             if (mode.equalsIgnoreCase("MODE_LAST_ADDED")) {
-                holder.info.setText(extractDate(item.date));
+                holder.info.setText(extractDate(item.date)); //date means date added in archive/librivox
+            } else if (mode.equalsIgnoreCase("MODE_GENRE")) {
+                holder.info.setText(item.date); //date means copyright date
             } else {
+                year = extractYear(item.date); //date means date added in archive/librivox
                 holder.info.setVisibility(View.GONE);
             }
 
+            String ratingText = "";
             if (item.num_reviews > 0) {
-                String year = "xxxx";
-                if (item.date != null && item.date.contains("copyright")) { // Hack for pure Librivox Result
-                    year = item.date;
-                } else {
-                    if (!mode.equalsIgnoreCase("MODE_LAST_ADDED")) {
-                        year = extractYear(item.date);
-                    }
-
-                }
-
-                String ratingText = item.num_reviews + " " +
-                        vh.itemView.getContext().getString(R.string.reviews) +
-                        " - " +
-                        vh.itemView.getContext().getString(R.string.average_rating) +
-                        " : " + item.avg_rating;
-                if (!year.isEmpty()) {
-                    ratingText = ratingText + " - added: " + year;
-                }
-                holder.rating.setText(ratingText);
-                holder.ratingBar.setRating(item.avg_rating);
-                holder.rating.setVisibility(View.VISIBLE);
                 holder.ratingBar.setVisibility(View.VISIBLE);
+                holder.ratingBar.setRating(item.avg_rating);
+                ratingText = item.num_reviews + " " + vh.itemView.getContext().getString(R.string.reviews);
+                if (!year.isEmpty()) {
+                    ratingText = ratingText + " " + appContext.getString(R.string.since) + " " + year;
+                }
+            } else {
+                holder.ratingBar.setVisibility(View.GONE);
+                if (!year.isEmpty()) {
+                    ratingText = appContext.getString(R.string.available_since) + " " + year;
+                }
+            }
+            if (!ratingText.isEmpty()) {
+                holder.rating.setText(ratingText);
+                holder.rating.setVisibility(View.VISIBLE);
             } else {
                 holder.rating.setVisibility(View.GONE);
-                holder.ratingBar.setVisibility(View.GONE);
             }
 
             holder.itemView.setOnClickListener(v -> listener.onItemClick(item));
