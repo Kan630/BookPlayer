@@ -203,7 +203,7 @@ public class LibrivoxResultsActivity extends BaseBottomNavActivity {
             }
             int currentAdapterSize = adapter.getItemCount() - 1; // -1 for header
             if (currentAdapterSize == 0 || items.size() <= currentAdapterSize) {
-                adapter.setItems(items);
+                adapter.setItems(items, screen_type);
             } else {
                 List<ArchiveItem> newItems = items.subList(currentAdapterSize, items.size());
                 adapter.appendItems(newItems);

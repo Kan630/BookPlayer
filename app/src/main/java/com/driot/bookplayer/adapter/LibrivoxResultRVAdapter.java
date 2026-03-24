@@ -27,7 +27,6 @@ import java.util.List;
 public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder> {
     public interface OnItemClickListener {
         void onItemClick(ArchiveItem item);
-
         void onFavoriteClick(ArchiveItem item);
     }
 
@@ -54,24 +53,15 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         notifyItemChanged(0);
     }
 
-    public void setHeaderSearch(String search) {
-        this.headerSearch = search != null ? search : "";
-        notifyItemChanged(0);
-    }
-
-    public void setHeaderLang(String lang) {
-        this.headerLang = lang != null ? lang : "";
-        notifyItemChanged(0);
-    }
-
     public void setHeaderCount(String count) {
         this.headerCount = count != null ? count : "";
         notifyItemChanged(0);
     }
 
     // --- Items API ---
-    public void setItems(List<ArchiveItem> newItems) {
+    public void setItems(List<ArchiveItem> newItems, String screenType) {
         items = newItems != null ? new ArrayList<>(newItems) : new ArrayList<>();
+        screenType = screenType;
         notifyDataSetChanged();
     }
 
@@ -152,10 +142,7 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             ArchiveItem item = items.get(idx);
             ItemVH holder = (ItemVH) vh;
 
-            // View context (for resources, colors, etc.)
             Context viewContext = holder.image.getContext();
-            // Application context (for Glide / background work, not tied to Activity
-            // lifecycle)
             Context appContext = viewContext.getApplicationContext();
 
             holder.title.setText(item.title);

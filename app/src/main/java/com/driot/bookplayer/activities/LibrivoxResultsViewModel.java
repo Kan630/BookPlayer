@@ -48,7 +48,6 @@ public class LibrivoxResultsViewModel extends LoggingAndroidViewModel {
         }
     };
 
-    private LiveData<List<ArchiveItem>> favoritesLive;
     private LiveData<List<BookSource>> favoriteBookSourcesLive;
     private LibrivoxRepository repository;
 
