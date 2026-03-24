@@ -37,9 +37,13 @@ import java.util.regex.Pattern;
 public class Tonio {
 
     private final static DecimalFormat df = new DecimalFormat("#,###.");
+    private final static DecimalFormat lf = new DecimalFormat("#,###");
 
     public static String getReadablePosition(double position) {
         return df.format(position);
+    }
+    public static String getReadablePosition(long position) {
+        return lf.format(position);
     }
 
     public static String getReadableSize(String size) {

@@ -30,8 +30,6 @@ import androidx.media.session.MediaButtonReceiver;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.nav.NavHelper;
-import com.driot.bookplayer.player.heatmaps.PlaySessionHelper;
-import com.driot.bookplayer.player.heatmaps.PlayTickCompactor;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.CallerHelper;
@@ -131,10 +129,12 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     @Inject
     protected AppTtsManager ttsManager;
 
+    @Inject
+    PlaybackProgressUpdater progress;
+
     private PlaybackNotificationManager notif;
     private MediaSessionController media;
     private AudioFocusHelper focus;
-    private PlaybackProgressUpdater progress;
     private PlayTimer playTimer;
 
     private final Runnable stopRunnable = () -> {
@@ -600,9 +600,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                     }
                 });
 
-        // Progress updater (DB)
-        progress = new PlaybackProgressUpdater(this);
-
         myLogD("onCreate() - END");
     }
     // ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -860,6 +857,8 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         if (Option.getBeepChapter())
             playBeep("1beep");
+
+        progress.resetSession();
 
         AppDatabase.databaseWriteExecutor.execute(() -> {
 
@@ -1147,8 +1146,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 try {
                     PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_VOICE);
                     if (engine instanceof TtsEngine) {
-                        // Register previous segment before changing voice
-                        registerSession();
                         boolean ok = ((TtsEngine) engine).setVoiceByName(voiceName);
                         myLog("Voice change to " + voiceName + ", success = " + ok);
                         if (ok) {
@@ -1304,6 +1301,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
         stopAsyncWork();
         PlaybackUiBus.get().clear();
+        progress.resetSession();
 
         // Tell controllers we’re stopping (prevents AA/BT from poking)
         try {
@@ -1688,11 +1686,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (engine != null && engine.isPlaying()) {
             enginePause(why);
             // updateZikFileStateInDB(false);
-            if (engine instanceof TtsEngine) {
-                registerSession();
-            } else {
-                compactPlayTicks();
-            }
             focus.abandon();
             playTimer.stop();
             showForegroundNotification(false);
@@ -1762,21 +1755,15 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     public void setPosition(long position) {
-        setPosition(position, true); // Default: reset timer on user seek
-    }
-
-    public void setPosition(long position, boolean resetLastUserAction) {
         myLog("setPosition() : " + Tonio.getReadablePosition(position) + " - " + Tonio.formatHhMmSs(position));
+        progress.resetSession();
         if (engine != null) {
-            // Register current segment before seeking
-            registerSession();
-
             progress.suspendOnce(300); // avoid races from progressUpdater => UI
             engine.seekTo(position);
             updatePlaybackStateForPosition();
             broadcastUiState("setPosition");
-            // Reset sleep timer if this is a user-initiated seek
-            if (resetLastUserAction && playTimer != null && playTimer.isRunning()) {
+            // Reset sleep timer
+            if (playTimer != null && playTimer.isRunning()) {
                 playTimer.resetLastUserAction();
             }
         }
@@ -1932,11 +1919,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 if (Option.getBeepBookEnd())
                     playBeep("3beeps");
                 alertPlaylistFinished();
-                if (engine instanceof TtsEngine) {
-                    registerSession();
-                } else {
-                    compactPlayTicks();
-                }
                 shutdown(false);
             } else {
                 nextTrack();
@@ -2006,10 +1988,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
             return;
         }
 
-        // Non-TTS = real fatal
-        if (engine instanceof TtsEngine) {
-            registerSession();
-        }
         alertError("onEngineError", msg);
         shutdown(false);
     }
@@ -2019,9 +1997,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         emitUiTick("onEngineFatal");
         ErrorLoadingFile = true;
         playTimer.stop();
-        if (engine instanceof TtsEngine) {
-            registerSession();
-        }
         alertError("onEngineFatal", msg);
         shutdown(false);
         if ("podcast".equals(getPlayMode())) {
@@ -2128,6 +2103,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
     }
 
     private void setPositionPlayStart() {
+        progress.resetSession();
         try {
             PlayList pl = PlayList.getInstance();
             if (pl == null) {
@@ -2549,37 +2525,6 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         });
     }
 
-    private void compactPlayTicks() {
-        try {
-            if (isZikFile()) {
-                PlayList pl = PlayList.getInstance();
-                if (pl != null && pl.getZikFile() != null) {
-                    AppDatabase.databaseWriteExecutor.execute(
-                            () -> PlayTickCompactor.compact(AppDatabase.getInstance(this), pl.getZikFile().getId()));
-                }
-            }
-        } catch (Exception e) {
-            myLogEE(e, "compactPlayTicks");
-        }
-    }
-
-    private void registerSession() {
-        if (!(engine instanceof TtsEngine))
-            return; //For now, we are in test phase, so just TTS, as it was the one
-        if (sessionStartTimestamp <= 0)
-            return;
-        PlayList pl = PlayList.getInstance();
-        if (pl == null || !pl.isZikFile() || pl.getZikFile() == null)
-            return;
-        long zikFileId = pl.getZikFile().getId();
-        PlaySessionHelper.registerSession(this, zikFileId, sessionStartTimestamp, sessionStartPosition,
-                System.currentTimeMillis(), engine.getCurrentPosition());
-
-        // Reset immediately to avoid double calls
-        sessionStartTimestamp = 0;
-        sessionStartPosition = 0;
-    }
-
     private void do_1sec_stuff(boolean bFinished) {
         long timestamp = System.currentTimeMillis();
         String enginePlayMode = getPlayMode();
@@ -2591,7 +2536,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         if (pl != null) {
             playlistPlayMode = pl.getPlayMode();
             if (!playlistPlayMode.equalsIgnoreCase(enginePlayMode)) {
-                myLogEE(null, "engine and playlist playMode differs !");
+                myLogEE(null, "do_1sec_stuff-engine and playlist playMode differs !");
             }
         }
         if (isZikFile()) {
@@ -2599,7 +2544,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 zf = pl.getZikFile();
             }
             if (zf == null) {
-                myLogEE(null, "updateZikFileState : ZikFile = null");
+                myLogEE(null, "do_1sec_stuff-updateZikFileState : ZikFile = null");
                 return;
             }
             long pos = 0;
@@ -2608,7 +2553,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 pos = bFinished ? (int) zf.getDuration() : getPosition();
                 dur = bFinished ? (int) zf.getDuration() : getDuration();
             } catch (Exception e) {
-                myLogEE(e, "updateZikFileStateInDB - pos/dur");
+                myLogEE(e, "do_1sec_stuff-updateZikFileStateInDB - pos/dur");
                 return;
             }
 
@@ -2633,19 +2578,19 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 }
                 progress.update(zf, bFinished, pos, dur, enginePlayMode, timestamp);
             } catch (Exception e) {
-                myLogEE(e, "updateZikFileStateInDB - progress");
+                myLogEE(e, "do_1sec_stuff-updateZikFileStateInDB - progress");
             }
         } else {
             if (pl != null) {
                 trackId = pl.getTrackId();
             } else {
-                myLogEE(null, "updateStateInDB_notZikFile : no trackId");
+                myLogEE(null, "do_1sec_stuff-updateStateInDB_notZikFile : no trackId");
                 return;
             }
             try {
                 progress.updateStream(enginePlayMode, trackId);
             } catch (Exception e) {
-                myLogEE(e, "updateStateInDB_notZikFile - progress");
+                myLogEE(e, "do_1sec_stuff-updateStateInDB_notZikFile - progress");
             }
 
         }

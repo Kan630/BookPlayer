@@ -3,6 +3,7 @@ package com.driot.bookplayer.player.heatmaps;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.Query;
+import androidx.room.Update;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +16,10 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 public interface PlaySessionDao {
 
     @Insert
-    void insert(PlaySession session);
+    long insert(PlaySession session);
+
+    @Update
+    void update(PlaySession session);
 
     @Insert
     void insertAll(List<PlaySession> sessions);

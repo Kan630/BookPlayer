@@ -8,7 +8,7 @@ import androidx.annotation.Nullable;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.global.Pref;
 import com.driot.bookplayer.global.Var;
-import com.driot.bookplayer.player.heatmaps.PlayTick;
+import com.driot.bookplayer.player.heatmaps.PlaySession;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.db.CommonZikFileDao;
 import com.driot.bookplayer.db.Sql;
@@ -17,20 +17,32 @@ import com.driot.bookplayer.radio.RadioHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
-import java.text.DecimalFormat;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
+import dagger.hilt.android.qualifiers.ApplicationContext;
+
+@Singleton
 public final class PlaybackProgressUpdater extends LoggerHelper {
 
     private final Context app;
     private final ExecutorService io = Executors.newSingleThreadExecutor();
 
     private volatile long suspendUntil = 0;
+    private PlaySession playSession;
 
-    public PlaybackProgressUpdater(@NonNull Context ctx) {
+    @Inject
+    public PlaybackProgressUpdater(@ApplicationContext Context ctx) {
         super(PlaybackProgressUpdater.class);
         this.app = ctx.getApplicationContext();
+        myLog("creating singleton PlaybackProgressUpdater");
+    }
+
+    public void resetSession() {
+        this.playSession = null;
     }
 
     public void update(@Nullable ZikFile zf, boolean finished, long pos, long dur, String playMode, long timestamp) {
@@ -81,34 +93,50 @@ public final class PlaybackProgressUpdater extends LoggerHelper {
 
                 AppDatabase db = AppDatabase.getDatabase(app);
                 CommonZikFileDao dao = db.zikFileDao();
+
+                // Update ZikFile
                 int r = dao.update(zf);
+
                 if (r > 0) {
                     myLogD("zik updated " + String.valueOf(timestamp).substring(8) + " (" + zf.getName() + ") pos="
                             + Tonio.getReadablePosition(zf.getPosition()) + "/" + Tonio.getReadablePosition(zf.getDuration()) + " - "
                             + zf.getPercentdone() + "%");
-                    // PlayTick so heatmap has data (including final position when finished)
+
+                    // PlaySession
                     try {
                         long tickPos = finished ? (long) zf.getDuration() : pos;
-                        PlayTick tick = new PlayTick(timestamp, zf.getId(), tickPos);
-                        AppDatabase.getDatabase(app).playTickDao().insert(tick);
+                        if (playSession == null) {
+                            PlaySession newSession = new PlaySession(zf.getId(), timestamp - 1000, timestamp,
+                                    tickPos - 1000, tickPos);
+                            long generatedId = AppDatabase.getDatabase(app).playSessionDao().insert(newSession);
+                            newSession.setId(generatedId);
+                            playSession = newSession;
+                            myLog("insert new play session, id=" + generatedId);
+                        } else {
+                            playSession.timestampEnd = timestamp;
+                            playSession.positionEnd = tickPos;
+                            AppDatabase.getDatabase(app).playSessionDao().update(playSession);
+                        }
                     } catch (android.database.sqlite.SQLiteConstraintException e) {
                         try {
                             ZikFile check = AppDatabase.getDatabase(app).zikFileDao().getById(zf.getId());
                             if (check == null) {
-                                myLogW("playTick insert ignored: ZikFile " + zf.getId()
+                                myLogEE(e,"playSession insert ignored: ZikFile " + zf.getId()
                                         + " was deleted (race condition).");
                             } else {
-                                myLogEE(e, "playTick insert failed BUT ZikFile " + zf.getId()
+                                myLogEE(e, "playSession insert failed BUT ZikFile " + zf.getId()
                                         + " EXISTS. This is unexpected.");
                             }
                         } catch (Throwable t2) {
                             myLogEE(e,
-                                    "playTick insert ignored (ConstraintViolation) - also failed to check existence: "
+                                    "playSession insert ignored (ConstraintViolation) - also failed to check existence: "
                                             + t2.getMessage());
                         }
                     } catch (Throwable t) {
-                        myLogEE(t, "playTick insert exception for [" + zf.getDisplayName() + "] - pos=" + pos);
+                        myLogEE(t, "playSession insert exception for [" + zf.getDisplayName() + "] - pos=" + pos);
                     }
+
+                    // recalculate other fields
                     Sql.calculateFolderProgress(app, zf.getIdFolder());
                 } else {
                     myLogEE(null, "update failed for " + zf.getName());

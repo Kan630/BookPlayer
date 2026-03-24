@@ -42,5 +42,9 @@ public class PlaySession {
         this.positionStart = positionStart;
         this.positionEnd = positionEnd;
     }
+
+    public void setId(long generatedId) {
+        this.id = generatedId;
+    }
 }
 
