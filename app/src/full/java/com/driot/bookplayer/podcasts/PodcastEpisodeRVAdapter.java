@@ -1,4 +1,4 @@
-package com.driot.bookplayer.adapter;
+package com.driot.bookplayer.podcasts;
 
 import android.animation.AnimatorSet;
 import android.animation.ObjectAnimator;
@@ -23,14 +23,10 @@ import androidx.lifecycle.LiveData;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.podcasts.PodcastEpisodeViewModel;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.ZikFile;
 import com.driot.bookplayer.helpers.FileHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
-import com.driot.bookplayer.podcasts.DisplayableEpisode;
-import com.driot.bookplayer.podcasts.PodcastFeed;
-import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.TonioCommonStuff;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;

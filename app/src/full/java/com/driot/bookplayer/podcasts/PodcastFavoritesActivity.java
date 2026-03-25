@@ -15,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
-import com.driot.bookplayer.adapter.PodcastFavoritesRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Podcast;
 import com.driot.bookplayer.global.Var;

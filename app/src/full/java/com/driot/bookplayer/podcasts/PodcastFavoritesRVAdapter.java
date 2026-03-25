@@ -1,4 +1,4 @@
-package com.driot.bookplayer.adapter;
+package com.driot.bookplayer.podcasts;
 
 import static com.driot.bookplayer.global.Var.PODCAST_INDEX_ORG_SINCE;
 
@@ -18,8 +18,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.Podcast;
-import com.driot.bookplayer.podcasts.PodcastHelper;
-import com.driot.bookplayer.helpers.StorageHelper;
 import com.driot.bookplayer.utils.Tonio;
 import com.driot.bookplayer.utils.log.KanLogger;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;

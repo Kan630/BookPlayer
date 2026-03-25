@@ -29,7 +29,6 @@ import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.activities.ZikFileActivity;
-import com.driot.bookplayer.adapter.PodcastEpisodeRVAdapter;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Episode;
 import com.driot.bookplayer.db.Folder;
