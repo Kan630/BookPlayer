@@ -18,6 +18,7 @@ import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.db.RadioStationDao;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.FlagHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ShareHelper;
@@ -28,7 +29,10 @@ import java.io.File;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -171,7 +175,7 @@ public class RadioHelper {
 		RadioStation dbStation = dao.findByUuid(apiStation.stationuuid);
 
 		if (dbStation == null) {
-			dbStation = RadioStation.fromStation(apiStation, streamUrl);
+			dbStation = RadioStation.fromApiStation(apiStation, streamUrl);
 			dbStation.id = dao.insert(dbStation);
 		} else {
 			dbStation.url_resolved = streamUrl != null ? streamUrl : apiStation.url_resolved;
@@ -371,6 +375,47 @@ public class RadioHelper {
 				}
 			}
 		});
+	}
+
+	public static String buildShortInfoString(RadioStation s) {
+		String codec = !Objects.equals(s.codec, "") ? (!"unknown".equalsIgnoreCase(s.codec) ? s.codec : "" ) : "";
+		String bitrate = s.bitrate != 0 ? String.valueOf(s.bitrate) : "";
+		String hls = s.hls == 1 ? "HLS" : "";
+		/*
+		return Stream.of(hls, bitrate, codec)
+				.filter(v -> v != null && !v.isEmpty())
+				.collect(Collectors.joining(" - "));
+		 */
+		if (hls.isEmpty()) {
+			return Stream.of(codec, bitrate)
+					.filter(v -> v != null && !v.isEmpty())
+					.collect(Collectors.joining(" - "));
+
+		} else {
+			return hls;
+		}
+	}
+
+	public static int getFlagResource(Context appContext, RadioStation s, boolean languageFirst) {
+		int flag_resource = 0;
+		if (languageFirst) {
+			flag_resource = FlagHelper.getFlagResId(appContext, s.language, "language");
+		}
+
+		if (flag_resource == 0) {
+			flag_resource = FlagHelper.getFlagResId(appContext, s.country, "country");
+		}
+
+		if (flag_resource == 0) {
+			flag_resource = FlagHelper.getFlagResId(appContext, s.countrycode, "country");
+		}
+		if (flag_resource == 0) {
+			flag_resource = FlagHelper.getFlagResId(appContext, s.language, "language");
+		}
+		return flag_resource;
+	}
+	public static int getFlagResource(Context appContext, RadioStation s) {
+		return getFlagResource(appContext, s, false);
 	}
 
 }

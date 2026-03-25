@@ -15,9 +15,11 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.ItemTouchHelperAdapter;
 import com.driot.bookplayer.db.RadioStation;
+import com.driot.bookplayer.helpers.FlagHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
@@ -120,8 +122,27 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.title.setText(nonNull(f.name));
 
-            holder.info.setText((f.country != null ? f.country
-                    : (f.language != null ? f.language : (f.tags != null ? normalizeTags(f.tags) : ""))));
+            int flag_resource = FlagHelper.getFlagResId(this.appContext, f.country, "country");
+            if (flag_resource == 0) {
+                flag_resource = FlagHelper.getFlagResId(this.appContext, f.countrycode, "country");
+            }
+            if (flag_resource == 0) {
+                flag_resource = FlagHelper.getFlagResId(this.appContext, f.language, "language");
+            }
+            if (flag_resource == 0) {
+                holder.ivFlag.setVisibility(View.GONE);
+                Glide.with(holder.ivFlag.getContext()).clear(holder.ivFlag);
+            } else {
+                holder.ivFlag.setVisibility(View.VISIBLE);
+                Glide.with(holder.ivFlag)
+                        .load(flag_resource)
+                        .placeholder(R.drawable.no_flag) // Use a subtle placeholder
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .signature(new ObjectKey(f.stationuuid + "_country_flag"))
+                        .into(holder.ivFlag);
+            }
+
+            holder.info.setText(RadioHelper.buildShortInfoString(f));
 
             holder.ibFavorite.setVisibility(View.GONE);
 
@@ -264,7 +285,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     }
 
     static class ItemVH extends RecyclerView.ViewHolder {
-        ImageView favicon, ivDefaultIcon;
+        ImageView favicon, ivDefaultIcon, ivFlag;
         TextView title, info;
         ImageButton ibFavorite;
 
@@ -273,8 +294,9 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
             favicon = v.findViewById(R.id.radio_favicon);
             ivDefaultIcon = v.findViewById(R.id.ivDefaultIcon);
             title = v.findViewById(R.id.radio_title);
-            info = v.findViewById(R.id.radio_info);
+            info = v.findViewById(R.id.radio_info_txt);
             ibFavorite = v.findViewById(R.id.ibFavorite);
+            ivFlag = v.findViewById(R.id.iv_radio_flag);
         }
     }
 

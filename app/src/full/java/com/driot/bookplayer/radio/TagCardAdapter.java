@@ -1,6 +1,7 @@
 package com.driot.bookplayer.radio;
 
-import android.content.Context;
+import static com.driot.bookplayer.helpers.FlagHelper.getFlagResId;
+
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.helpers.LanguageHelper;
 import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
@@ -193,20 +193,4 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
         }
     }
 
-    private static int getFlagResId(Context context, String code2, String codeType) {
-        if (code2 == null)
-            return 0;
-        if (codeType.equals("language")) {
-            String countryCode = LanguageHelper.getCountryForLanguage(code2);
-            if (countryCode == null)
-                return 0;
-            return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable",
-                    context.getPackageName());
-        } else if (codeType.equals("country")) {
-            return context.getResources().getIdentifier("flag_" + code2.toLowerCase(), "drawable",
-                    context.getPackageName());
-        } else {
-            return 0;
-        }
-    }
 }

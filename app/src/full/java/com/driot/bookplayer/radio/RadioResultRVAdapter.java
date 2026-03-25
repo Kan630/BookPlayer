@@ -14,13 +14,16 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.radio.ApiStation;
+import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -133,7 +136,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     }
 
     static class ItemVH extends RecyclerView.ViewHolder {
-        ImageView favicon, ivDefaultIcon;
+        ImageView favicon, ivDefaultIcon, ivFlag;
         TextView title, info;
         ImageButton ibFavorite;
 
@@ -142,8 +145,9 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             favicon = itemView.findViewById(R.id.radio_favicon);
             ivDefaultIcon = itemView.findViewById(R.id.ivDefaultIcon);
             title = itemView.findViewById(R.id.radio_title);
-            info = itemView.findViewById(R.id.radio_info); // country • language • tags
+            info = itemView.findViewById(R.id.radio_info_txt); // country • language • tags
             ibFavorite = itemView.findViewById(R.id.ibFavorite);
+            ivFlag = itemView.findViewById(R.id.iv_radio_flag);
         }
     }
 
@@ -193,13 +197,29 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
             holder.itemView.setSelected(isClicked && !isPlaying);
 
             Context context = holder.itemView.getContext();
+            Context appContext = holder.itemView.getContext().getApplicationContext();
 
             // Title
             holder.title.setText(nonNull(s.name));
 
-            // Sub-info: country • language • tags
-            holder.info.setText((s.country != null ? s.country
-                    : (s.language != null ? s.language : (s.tags != null ? normalizeTags(s.tags) : ""))));
+            RadioStation rs = RadioStation.fromApiStation(s, null);
+
+            int flag_resource = RadioHelper.getFlagResource(appContext, rs, !Objects.equals(headerCountryTag, ""));
+
+            if (flag_resource == 0) {
+                holder.ivFlag.setVisibility(View.GONE);
+                Glide.with(holder.ivFlag.getContext()).clear(holder.ivFlag);
+            } else {
+                holder.ivFlag.setVisibility(View.VISIBLE);
+                Glide.with(holder.ivFlag)
+                        .load(flag_resource)
+                        .placeholder(R.drawable.no_flag) // Use a subtle placeholder
+                        .transition(DrawableTransitionOptions.withCrossFade())
+                        .signature(new ObjectKey(s.stationuuid + "_country_flag"))
+                        .into(holder.ivFlag);
+            }
+
+            holder.info.setText(RadioHelper.buildShortInfoString(rs));
 
             // Favicon
             holder.favicon.setTag(s.stationuuid);
@@ -237,27 +257,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     // --- Small helpers ---
     private static String nonNull(String s) {
         return s == null ? "" : s;
-    }
-
-    private static String normalizeTags(String tagsCsv) {
-        if (TextUtils.isEmpty(tagsCsv))
-            return "";
-        // Keep it short: take first 2–3 relevant tags
-        String[] parts = tagsCsv.split(",");
-        StringBuilder sb = new StringBuilder();
-        int added = 0;
-        for (String p : parts) {
-            String t = p.trim();
-            if (t.isEmpty())
-                continue;
-            if (added > 0)
-                sb.append(", ");
-            sb.append(t);
-            added++;
-            if (added >= 3)
-                break;
-        }
-        return sb.toString();
     }
 
     private int findPositionByUuid(String uuid) {

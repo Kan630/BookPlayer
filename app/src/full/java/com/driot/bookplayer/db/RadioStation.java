@@ -82,8 +82,8 @@ public class RadioStation {
     @ColumnInfo(defaultValue = "0")
     public long timeListened;
 
-    public static RadioStation fromStation(@NonNull ApiStation s,
-            @Nullable String streamUrl) {
+    public static RadioStation fromApiStation(@NonNull ApiStation s,
+                                              @Nullable String streamUrl) {
         long now = System.currentTimeMillis();
 
         RadioStation r = new RadioStation();

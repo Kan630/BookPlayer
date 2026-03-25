@@ -1,5 +1,7 @@
 package com.driot.bookplayer.helpers;
 
+import android.content.Context;
+
 import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
@@ -12,6 +14,24 @@ public final class FlagHelper {
 
     // If you add a drawable like no_flag.png, change this to R.drawable.no_flag
     private static final @DrawableRes int NO_FLAG = R.drawable.no_flag;
+
+
+    public static int getFlagResId(Context context, String code2, String codeType) {
+        if (code2 == null)
+            return 0;
+        if (codeType.equals("language")) {
+            String countryCode = LanguageHelper.getCountryForLanguage(code2);
+            if (countryCode == null)
+                return 0;
+            return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable",
+                    context.getPackageName());
+        } else if (codeType.equals("country")) {
+            return context.getResources().getIdentifier("flag_" + code2.toLowerCase(), "drawable",
+                    context.getPackageName());
+        } else {
+            return 0;
+        }
+    }
 
     /** Country code → drawable (ISO-3166 alpha-2; case-insensitive). */
     public static @DrawableRes int getFlagResIdForCountry(@Nullable String countryCode) {
