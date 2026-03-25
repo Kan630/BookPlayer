@@ -29,6 +29,7 @@ import androidx.media.session.MediaButtonReceiver;
 
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.ZikFileDao;
 import com.driot.bookplayer.nav.NavHelper;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Var;
@@ -1146,25 +1147,22 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
 
                 myLog("Podcast download completed, playMode=" + playMode + "-" + pl.getTrackId());
                 if (Var.PLAY_MODE_PODCAST.equals(playMode) && pl.getTrackId() == episodeId && engine != null && isPlaying()) {
-                    myLogI("Podcast download completed while playing stream! Switching to local.");
+                    myLogI("Podcast download completed while playing stream! Switching to play local source.");
                     long currentPos = engine.getCurrentPosition();
 
                     AppDatabase.databaseReadExecutor.execute(() -> {
-                        ZikFile zikFile = AppDatabase.getDatabase(MediaService.this).zikFileDao().getById(zikFileId);
+                        ZikFileDao dao = AppDatabase.getDatabase(MediaService.this).zikFileDao();
+                        ZikFile zikFile = dao.getById(zikFileId);
                         if (zikFile != null) {
-                            main.post(() -> {
-                                boolean success = loadAndPlayTrack(zikFile, true, false);
-                                if (success) {
-                                    setPosition((int) currentPos);
-                                    playAudio();
-                                }
-                            });
+                            zikFile.setPosition(currentPos);
+                            dao.update(zikFile);
+                            loadAndPlayTrack(zikFile, true, false);
                         } else {
-                            myLogEE(null, "downloaded zikfile null");
+                            myLogEE(null, "Podcast download completed but downloaded zikfile null");
                         }
                     });
                 } else {
-                    myLogW("Podcast download completed, but currently not playing stream.");
+                    myLogW("Podcast download completed, but currently not playing that stream.");
                 }
                 return START_STICKY;
             }
@@ -2503,7 +2501,7 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
         String playMode = ("text".equals(folder.playType) ? Var.PLAY_MODE_TTS : Var.PLAY_MODE_BOOK);
 
         PlayList.createFromZikFile(getApplicationContext(), playMode, folder, zikFile, list, index);
-        new android.os.Handler(android.os.Looper.getMainLooper()).post(() -> {
+        main.post(() -> {
             directPlay = true;
             loadFile(playMode, src, zikFile);
         });

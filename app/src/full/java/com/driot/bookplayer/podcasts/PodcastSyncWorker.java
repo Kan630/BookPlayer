@@ -169,7 +169,7 @@ public class PodcastSyncWorker extends LoggingWorker {
                         // Notify MediaService that this episode finished downloading so it can seamlessly switch to the local file
                         Intent downloadIntent = new Intent(getApplicationContext(), MediaService.class)
                                 .setAction(Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED)
-                                .putExtra(Intents.EXTRA_EPISODE_ID, episode.idEpisode)
+                                .putExtra(Intents.EXTRA_EPISODE_ID, episode.id)
                                 .putExtra(Intents.EXTRA_ZIKFILE_ID, newZikFileId)
                                 .putExtra(Intents.EXTRA_FOREGROUND, true)
                                 .putExtra(Intents.EXTRA_CALLER, "PodcastSyncWorker");
