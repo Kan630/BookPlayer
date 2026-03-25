@@ -116,7 +116,7 @@ public class RadioHelper {
 			RadioStation rs = dao.findByUuid(stationUuid);
 
 			// Freshness check: 5 minutes
-			if (rs != null && rs.date_maj > System.currentTimeMillis() - 300_000
+			if (rs != null && rs.date_maj > System.currentTimeMillis() - Var.RADIO_REFRESH_FOR_STATION_ACTIVITY_IN_MS
 					&& !"Unknown Station".equals(rs.name)) {
 				myLogD("fetchAndUpsertStation: metadata is fresh for " + rs.name);
 				return;

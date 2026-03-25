@@ -24,6 +24,8 @@ public class Var {
 
         public static final int RADIO_STATION_MAX_DUPLICATES = 3; // change value in strings...
         public static final int RADIO_BROWSER_TIMEOUT_SEC = 10;
+        public static final int RADIO_REFRESH_FOR_STATION_ACTIVITY_IN_MS = 300_000;
+
         public static final int GUTENDEX_CONNECT_TIMEOUT_SEC = 10;
         public static final int GUTENDEX_READ_TIMEOUT_SEC = 90;
         public static final int ARCHIVE_CONNECT_TIMEOUT_SEC = 10;
