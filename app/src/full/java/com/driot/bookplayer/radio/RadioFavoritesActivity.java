@@ -16,7 +16,6 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.adapter.FavoritesTouchHelperCallback;
-import com.driot.bookplayer.adapter.RadioFavoritesRVAdapter;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
