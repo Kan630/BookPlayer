@@ -57,6 +57,10 @@ public class Intents {
 
     public static final String EXTRA_AUDIO_SESSION_ID = "EXTRA_AUDIO_SESSION_ID";
 
+    public static final String ACTION_PODCAST_DOWNLOAD_COMPLETED = "com.driot.bookplayer.ACTION_PODCAST_DOWNLOAD_COMPLETED";
+    public static final String EXTRA_EPISODE_ID = "EXTRA_EPISODE_ID";
+    public static final String EXTRA_ZIKFILE_ID = "EXTRA_ZIKFILE_ID";
+
     public static final String CMD_UPDATE_SLEEP = "CMD_UPDATE_SLEEP";
     public static final String EXTRA_CUSTOM_SLEEP_MINUTES = "EXTRA_CUSTOM_SLEEP_MINUTES";
     public static final String CMD_SET_SPEED = "CMD_SET_SPEED";

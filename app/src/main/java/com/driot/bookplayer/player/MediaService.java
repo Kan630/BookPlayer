@@ -1134,6 +1134,41 @@ public class MediaService extends LoggingMediaBrowserServiceCompat {
                 return START_STICKY;
             }
 
+            case Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED: {
+                long episodeId = intent.getLongExtra(Intents.EXTRA_EPISODE_ID, -1);
+                long zikFileId = intent.getLongExtra(Intents.EXTRA_ZIKFILE_ID, -1);
+                myLog("Podcast download completed, episodeId=" + episodeId + "-zikfileId=" + zikFileId);
+
+                String playMode = getPlayMode();
+                PlayList pl = PlayList.getInstance();
+                if (pl == null)
+                    return START_STICKY;
+
+                myLog("Podcast download completed, playMode=" + playMode + "-" + pl.getTrackId());
+                if (Var.PLAY_MODE_PODCAST.equals(playMode) && pl.getTrackId() == episodeId && engine != null && isPlaying()) {
+                    myLogI("Podcast download completed while playing stream! Switching to local.");
+                    long currentPos = engine.getCurrentPosition();
+
+                    AppDatabase.databaseReadExecutor.execute(() -> {
+                        ZikFile zikFile = AppDatabase.getDatabase(MediaService.this).zikFileDao().getById(zikFileId);
+                        if (zikFile != null) {
+                            main.post(() -> {
+                                boolean success = loadAndPlayTrack(zikFile, true, false);
+                                if (success) {
+                                    setPosition((int) currentPos);
+                                    playAudio();
+                                }
+                            });
+                        } else {
+                            myLogEE(null, "downloaded zikfile null");
+                        }
+                    });
+                } else {
+                    myLogW("Podcast download completed, but currently not playing stream.");
+                }
+                return START_STICKY;
+            }
+
             case Intents.CMD_TTS_SET_VOICE: {
                 if (intent.getBooleanExtra(Intents.EXTRA_FOREGROUND, false)) {
                     goForegroundPreparing("Changing voice...", null);

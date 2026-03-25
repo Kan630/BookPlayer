@@ -8,6 +8,7 @@ import android.os.Handler;
 import android.os.Looper;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.work.WorkerParameters;
 
 import com.driot.bookplayer.db.AppDatabase;
@@ -24,6 +25,9 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.objects.AudioInfo;
 import com.driot.bookplayer.objects.AudioProber;
 import com.driot.bookplayer.utils.Tonio;
+import com.driot.bookplayer.global.Intents;
+import com.driot.bookplayer.player.MediaService;
+import android.content.Intent;
 import com.driot.bookplayer.utils.log.LoggingWorker;
 
 import java.io.File;
@@ -161,6 +165,15 @@ public class PodcastSyncWorker extends LoggingWorker {
                         } else {
                             myLogEE(null, "could not find podcastId");
                         }
+                        
+                        // Notify MediaService that this episode finished downloading so it can seamlessly switch to the local file
+                        Intent downloadIntent = new Intent(getApplicationContext(), MediaService.class)
+                                .setAction(Intents.ACTION_PODCAST_DOWNLOAD_COMPLETED)
+                                .putExtra(Intents.EXTRA_EPISODE_ID, episode.idEpisode)
+                                .putExtra(Intents.EXTRA_ZIKFILE_ID, newZikFileId)
+                                .putExtra(Intents.EXTRA_FOREGROUND, true)
+                                .putExtra(Intents.EXTRA_CALLER, "PodcastSyncWorker");
+                        ContextCompat.startForegroundService(getApplicationContext(), downloadIntent);
                     } else {
                         myLogEE(null, "duration == 0 " + file.getName());
                     }
