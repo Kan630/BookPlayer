@@ -37,8 +37,8 @@
             <InsightsFilterSettings>
               <option name="connection">
                 <ConnectionSetting>
-                  <option name="appId" value="com.driot.bookplayerpure" />
-                  <option name="mobileSdkAppId" value="1:793974976163:android:6327b5f33e6af4eabe1916" />
+                  <option name="appId" value="com.driot.bookplayerfull" />
+                  <option name="mobileSdkAppId" value="1:793974976163:android:000a66f11914743cbe1916" />
                   <option name="projectId" value="bookplayer-bc6cd" />
                   <option name="projectNumber" value="793974976163" />
                 </ConnectionSetting>
