@@ -2,6 +2,8 @@
     <!-- large tablets -->
 
     <integer name="classic_grid_span">3</integer>
-    <integer name="radio_grid_span">9</integer>
+    <integer name="radio_grid_span_station">9</integer>
+    <integer name="radio_grid_span_card_tag">6</integer>
+    <integer name="radio_grid_span_card_country">9</integer>
     <integer name="heatmaps_cursor_size_dp">6</integer>
 </resources>

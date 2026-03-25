@@ -87,7 +87,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         new NetworkStatusRowController(this, networkRowView, this, netVm);
         netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
-        int span = getResources().getInteger(R.integer.radio_grid_span);
+        int span = getResources().getInteger(R.integer.radio_grid_span_station);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override

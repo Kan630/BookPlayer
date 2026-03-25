@@ -3,8 +3,6 @@ package com.driot.bookplayer.radio;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -20,7 +18,6 @@ import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
-import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
 
 import java.lang.annotation.Retention;
@@ -84,9 +81,17 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
 
-        int span = getResources().getInteger(R.integer.radio_grid_span);
-        if (span < 2)
-            span = 2;
+        @FacetMode
+        int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
+
+        int span;
+        if (mode == MODE_TAG) {
+            span = getResources().getInteger(R.integer.radio_grid_span_card_tag);
+        } else {
+            span = getResources().getInteger(R.integer.radio_grid_span_card_country);
+        }
+        if (span < 2) span = 2;
+
         GridLayoutManager glm = new GridLayoutManager(this, span);
         recyclerView.setLayoutManager(glm);
         recyclerView.addItemDecoration(
@@ -101,8 +106,6 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
             myLogI("---- user clicks facet item, name=[" + tagItem.name + "] - country=[" + tagItem.iso_639
                     + "] - lang=[" + tagItem.iso_3166_1 + "]");
             // Route by current facet mode:
-            @FacetMode
-            int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
             Intent i = new Intent(this, RadioResultsActivity.class);
             switch (mode) {
                 case MODE_COUNTRY:
@@ -132,7 +135,6 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         });
         recyclerView.setAdapter(adapter);
 
-        int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
         List<TagItem> cachedItems = RadioCacheHelper.loadCache(this, mode);
         if (!cachedItems.isEmpty()) {
             adapter.setItems(cachedItems);

@@ -90,7 +90,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
 
         // ---- grid span (header full width) ----
-        int span = getResources().getInteger(R.integer.radio_grid_span);
+        int span = getResources().getInteger(R.integer.radio_grid_span_station);
         GridLayoutManager glm = new GridLayoutManager(this, span);
         glm.setSpanSizeLookup(new GridLayoutManager.SpanSizeLookup() {
             @Override
