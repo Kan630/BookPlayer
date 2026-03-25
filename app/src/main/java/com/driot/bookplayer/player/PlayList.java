@@ -32,7 +32,6 @@ import java.util.List;
  * - guards all state with a lock + a "version" to ignore stale async results
  */
 
-//TODO make @Singleton, inject in mediaService
 public final class PlayList {
 
     // ==== Singleton ====
@@ -192,7 +191,6 @@ public final class PlayList {
         }
 
         // === Normal path: we have something in prefs ===
-        instance = pl;
         myLogEE(null, "Playlist created from storage - toString: " + pl);
         FirebaseAnalyticsHelper.tellAnalyticsPlaylistLoadFromStorage(ctx, "pref", pl.toString());
 
@@ -203,9 +201,18 @@ public final class PlayList {
         }
 
         if (Var.PLAY_MODE_BOOK.equals(mode) || Var.PLAY_MODE_TTS.equals(mode)) {
-            pl.restoreFromDbAsync(listener);
+            pl.restoreFromDbAsync(restoredPl -> {
+                if (restoredPl != null) {
+                    instance = pl;              // only visible once data is ready
+                } else {
+                    myLogW("createFromStorage: DB restore failed, instance NOT set");
+                }
+                // always notify caller, whether success or failure
+                new Handler(Looper.getMainLooper()).post(() -> listener.onRestored(restoredPl));
+            });
         } else {
             // radio / podcast stream: URL is enough, no DB work
+            instance = pl;
             new Handler(Looper.getMainLooper()).post(() -> listener.onRestored(pl));
         }
     }
