@@ -31,6 +31,8 @@ import java.util.List;
  * - calls OnMetaLoadedListener on the main thread
  * - guards all state with a lock + a "version" to ignore stale async results
  */
+
+//TODO make @Singleton, inject in mediaService
 public final class PlayList {
 
     // ==== Singleton ====
