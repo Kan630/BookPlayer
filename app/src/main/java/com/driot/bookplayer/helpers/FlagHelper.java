@@ -6,6 +6,7 @@ import androidx.annotation.DrawableRes;
 import androidx.annotation.Nullable;
 
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.librivox.LanguageMapper;
 
 import java.util.Locale;
 
@@ -21,8 +22,9 @@ public final class FlagHelper {
             return 0;
         if (codeType.equals("language")) {
             String countryCode = LanguageHelper.getCountryForLanguage(code2);
-            if (countryCode == null)
-                return 0;
+            if (countryCode == null) {
+                return LanguageMapper.getFlagFromName(code2); //fallback
+            }
             return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable",
                     context.getPackageName());
         } else if (codeType.equals("country")) {
