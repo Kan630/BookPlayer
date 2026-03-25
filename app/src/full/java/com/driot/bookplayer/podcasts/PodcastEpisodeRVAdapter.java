@@ -279,6 +279,9 @@ public class PodcastEpisodeRVAdapter extends LoggingRVAdapter<PodcastEpisodeRVAd
         holder.pbDownload.setVisibility(View.GONE);
         String workTag = "DOWNLOAD_EPISODE_" + episode.idEpisode;
         WorkManager.getInstance(context).getWorkInfosByTagLiveData(workTag).observe(lifecycleOwner, workInfos -> {
+            if (!holder.icon_download.getTag().equals(episodeFileName))
+                return; // ---- avoid showing progress on recycled views --
+
             boolean isRunning = false;
             int progress = 0;
             if (workInfos != null && !workInfos.isEmpty()) {
