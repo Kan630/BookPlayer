@@ -24,10 +24,10 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.nav.NavHelper;
+import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
-import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import com.driot.bookplayer.db.RadioStation;
 import java.util.List;
@@ -122,6 +122,8 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                     myToast(getString(R.string.no_internet_connection));
                     return;
                 }
+
+                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_RADIO);
 
                 final boolean renewOnClick = Option.getRadioRenewUrl();
                 final boolean hasCachedUrl = radioStation.url_resolved != null && !radioStation.url_resolved.isEmpty();

@@ -13,6 +13,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.RadioStation;
+import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
@@ -22,6 +23,7 @@ import com.driot.bookplayer.helpers.NetworkHelper;
 import com.driot.bookplayer.helpers.NetworkStatusRowController;
 import com.driot.bookplayer.helpers.ViewHelper;
 import com.driot.bookplayer.nav.NavHelper;
+import com.driot.bookplayer.player.PlaybackUiBus;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.utils.LiveCensorshipManager;
@@ -126,6 +128,8 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                     myToast(getString(R.string.no_internet_connection));
                     return;
                 }
+
+                PlaybackUiBus.get().setLoadPhase(Intents.PHASE_LOADING_RADIO);
 
                 final boolean renewOnClick = Option.getRadioRenewUrl();
                 final boolean hasCachedUrl = apiStation.url_resolved != null && !apiStation.url_resolved.isEmpty();

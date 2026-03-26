@@ -15,11 +15,10 @@ import com.driot.bookplayer.player.PlaybackCommands;
 import com.driot.bookplayer.player.PlaybackUiState;
 import com.driot.bookplayer.player.PlaybackViewModel;
 import com.driot.bookplayer.player.UiHelper;
-import com.driot.bookplayer.radio.GetRadioActivity;
-import com.driot.bookplayer.global.Intents;
-import com.driot.bookplayer.radio.RadioStationActivity;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.log.LoggingFragment;
+
+import java.util.Objects;
 
 public class MiniPlayRadioFragment extends LoggingFragment {
     private PlaybackViewModel vm;
@@ -54,9 +53,7 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                 return;
             }
 
-            // myLogD(s.toString());
-            // myLogI("vm.getState().observe " + s);
-
+            //COVER
             if (lastState == null || lastState.cover == null || (s.cover != null && !lastState.cover.equals(s.cover))) {
                 myLogD("gliding cover image");
                 Glide.with(ivCover.getContext())
@@ -66,8 +63,15 @@ public class MiniPlayRadioFragment extends LoggingFragment {
                         .into(ivCover);
             }
 
+            //PLAYING
             if (lastState != null && lastState.playing != s.playing)
                 myLogD("playing changed => " + s.playing);
+            lastState = vm.getState().getValue();
+            refreshUi();
+
+            //LOADING
+            if (lastState != null && !Objects.equals(lastState.loadPhase, s.loadPhase))
+                myLogD("phase changed => " + s.loadPhase);
             lastState = vm.getState().getValue();
             refreshUi();
         });

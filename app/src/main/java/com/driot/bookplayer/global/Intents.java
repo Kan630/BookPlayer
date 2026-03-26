@@ -46,6 +46,7 @@ public class Intents {
     public static final String PHASE_LOADING_VOICE = "LOADING_VOICE";
     public static final String PHASE_VOICE_LOADED = "VOICE_LOADED";
     public static final String PHASE_SPEAKING = "SPEAKING";
+    public static final String PHASE_LOADING_RADIO = "LOADING_RADIO";
 
     public static final String ACTION_PLAY_STREAM = "com.driot.bookplayer.action.PLAY_STREAM";
     public static final String EXTRA_STREAM_URL = "EXTRA_STREAM_URL";
