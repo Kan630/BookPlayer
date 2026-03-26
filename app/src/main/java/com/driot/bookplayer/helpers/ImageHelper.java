@@ -43,12 +43,20 @@ import com.driot.bookplayer.utils.Tonio;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -1311,7 +1319,7 @@ public class ImageHelper {
         }
     }
 
-    public static void loadRadioFavicon(RadioStation s, ImageView favicon, ImageView ivDefaultIcon,
+    public static void loadRadioFavicon(RadioStation s, ImageView favicon,
                                         Map<String, String> faviconCache) {
         favicon.setTag(s.stationuuid);
 
@@ -1319,14 +1327,12 @@ public class ImageHelper {
         if (faviconCache.containsKey(s.stationuuid)) {
             String cachedUrl = faviconCache.get(s.stationuuid);
             if (cachedUrl != null) {
-                ivDefaultIcon.setVisibility(View.GONE);
                 Glide.with(favicon)
                         .load(cachedUrl)
                         .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
                         .error(getDefaultFaviconDrawable(favicon.getContext()))
                         .into(favicon);
             } else {
-                ivDefaultIcon.setVisibility(View.VISIBLE);
                 Glide.with(favicon).clear(favicon);
                 favicon.setImageDrawable(getDefaultFaviconDrawable(favicon.getContext()));
             }
@@ -1344,7 +1350,6 @@ public class ImageHelper {
                     if (url != null) {
                         myLog("[" + s.name + "] => no favicon, using og image");
                         faviconCache.put(s.stationuuid, url);
-                        ivDefaultIcon.setVisibility(View.GONE);
                         Glide.with(favicon).load(url)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
                                 .error(getDefaultFaviconDrawable(favicon.getContext()))
@@ -1353,7 +1358,6 @@ public class ImageHelper {
                         myLog("[" + s.name + "] => no favicon, falling back to google favicon");
                         String googleUrl = "https://www.google.com/s2/favicons?sz=256&domain=" + s.homepage;
                         faviconCache.put(s.stationuuid, googleUrl);
-                        ivDefaultIcon.setVisibility(View.GONE);
                         Glide.with(favicon).load(googleUrl)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
                                 .error(getDefaultFaviconDrawable(favicon.getContext()))
@@ -1361,12 +1365,36 @@ public class ImageHelper {
                     }
                 });
             } else {
-                myLog("[" + s.name + "] => no favicon, no homepage, using default icon");
-                faviconCache.put(s.stationuuid, null);
-                ivDefaultIcon.setVisibility(View.VISIBLE);
+                myLog("[" + s.name + "] => no favicon, no homepage, trying DuckDuckGo fallback");
+                fetchFallbackBySearch(s.name, s.country, url -> {
+                    if (!favicon.getTag().equals(s.stationuuid)) return;
+                    if (url != null) {
+                        myLog("[" + s.name + "] => DuckDuckGo fallback found");
+                        faviconCache.put(s.stationuuid, url);
+                        Glide.with(favicon).load(url)
+                                .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                                .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                .into(favicon);
+                    } else {
+                        myLog("[" + s.name + "] => DuckDuckGo failed, trying iTunes fallback");
+                        fetchFallbackImage(s.name, s.country, url2 -> {
+                            if (!favicon.getTag().equals(s.stationuuid)) return;
+                            if (url2 != null) {
+                                myLog("[" + s.name + "] => iTunes fallback found");
+                                faviconCache.put(s.stationuuid, url2);
+                                Glide.with(favicon).load(url2)
+                                        .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                                        .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                        .into(favicon);
+                            } else {
+                                myLog("[" + s.name + "] => no image found at all, using default");
+                                faviconCache.put(s.stationuuid, null);
+                            }
+                        });
+                    }
+                });
             }
         } else {
-            ivDefaultIcon.setVisibility(View.GONE);
             Glide.with(favicon)
                     .load(s.favicon)
                     .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
@@ -1429,5 +1457,103 @@ public class ImageHelper {
                 ? Color.BLACK
                 : Color.WHITE;
         return new ColorDrawable(color);
+    }
+
+    private static void fetchFallbackImage(String stationName, String country, Consumer<String> callback) {
+        new Thread(() -> {
+            try {
+                String query = URLEncoder.encode("radio " + stationName + " " + country, "UTF-8");
+                String apiUrl = "https://itunes.apple.com/search?term=" + query + "&media=music&limit=1";
+                HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
+                conn.setConnectTimeout(5000);
+                conn.setReadTimeout(5000);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                reader.close();
+
+                JSONObject json = new JSONObject(sb.toString());
+                if (json.getInt("resultCount") > 0) {
+                    // artworkUrl100 → replace with higher res
+                    String url = json.getJSONArray("results")
+                            .getJSONObject(0)
+                            .getString("artworkUrl100")
+                            .replace("100x100", "600x600");
+                    new Handler(Looper.getMainLooper()).post(() -> callback.accept(url));
+                } else {
+                    new Handler(Looper.getMainLooper()).post(() -> callback.accept(null));
+                }
+            } catch (Exception e) {
+                new Handler(Looper.getMainLooper()).post(() -> callback.accept(null));
+            }
+        }).start();
+    }
+    private static void fetchFallbackBySearch(String stationName, String country, Consumer<String> callback) {
+        new Thread(() -> {
+            try {
+                // Strip leading "radio" prefix if present — Wikipedia titles don't have it
+                String cleanName = stationName.replaceAll("(?i)^radio\\s+", "").trim();
+
+                // Try 1: exact name only (e.g. "France Inter")
+                String url1 = "https://en.wikipedia.org/w/api.php?action=query&titles="
+                        + URLEncoder.encode(cleanName, "UTF-8")
+                        + "&prop=pageimages&format=json&pithumbsize=300";
+
+                String imageUrl = tryWikipediaQuery(url1);
+
+                // Try 2: name + country if first failed (e.g. "France Musique France")
+                if (imageUrl == null) {
+                    String url2 = "https://en.wikipedia.org/w/api.php?action=query&titles="
+                            + URLEncoder.encode(cleanName + " " + country, "UTF-8")
+                            + "&prop=pageimages&format=json&pithumbsize=300";
+                    imageUrl = tryWikipediaQuery(url2);
+                }
+
+                final String result = imageUrl;
+                new Handler(Looper.getMainLooper()).post(() -> callback.accept(result));
+
+            } catch (Exception e) {
+                myLog("Wikipedia exception: " + e.getMessage());
+                new Handler(Looper.getMainLooper()).post(() -> callback.accept(null));
+            }
+        }).start();
+    }
+
+    private static String tryWikipediaQuery(String apiUrl) {
+        try {
+            myLog("Wikipedia query: " + apiUrl);
+            HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
+            conn.setConnectTimeout(5000);
+            conn.setReadTimeout(5000);
+            conn.setRequestProperty("User-Agent", "RadioApp/1.0");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) sb.append(line);
+            reader.close();
+
+            String raw = sb.toString();
+            myLog("Wikipedia response: " + raw);
+
+            JSONObject pages = new JSONObject(raw)
+                    .getJSONObject("query")
+                    .getJSONObject("pages");
+
+            JSONObject page = pages.getJSONObject(pages.keys().next());
+
+            // missing or invalid = not found
+            if (page.has("missing") || page.has("invalid")) return null;
+
+            JSONObject thumbnail = page.optJSONObject("thumbnail");
+            if (thumbnail != null) {
+                String imageUrl = thumbnail.optString("source", "");
+                myLog("Wikipedia imageUrl: " + imageUrl);
+                return imageUrl.isEmpty() ? null : imageUrl;
+            }
+        } catch (Exception e) {
+            myLog("Wikipedia tryQuery exception: " + e.getMessage());
+        }
+        return null;
     }
 }

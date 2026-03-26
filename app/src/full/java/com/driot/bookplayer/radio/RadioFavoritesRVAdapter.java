@@ -20,10 +20,13 @@ import com.driot.bookplayer.R;
 import com.driot.bookplayer.adapter.ItemTouchHelperAdapter;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.helpers.FlagHelper;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHolder>
@@ -42,6 +45,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     private final OnActionListener listener;
     private final List<RadioStation> items = new ArrayList<>();
+    private final Map<String, String> faviconCache = new HashMap<>();
     private Context appContext;
 
     private boolean historyMode = false;
@@ -146,19 +150,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.ibFavorite.setVisibility(View.GONE);
 
-            holder.favicon.setTag(f.stationuuid);
-            if (f.favicon == null || f.favicon.isEmpty()) {
-                holder.ivDefaultIcon.setVisibility(View.VISIBLE);
-                Glide.with(holder.favicon).clear(holder.favicon);
-                holder.favicon.setImageDrawable(null);
-            } else {
-                holder.ivDefaultIcon.setVisibility(View.GONE);
-                Glide.with(holder.favicon)
-                        .load(f.favicon)
-                        .placeholder(R.drawable.bg_radio) // Use a subtle placeholder
-                        .transition(DrawableTransitionOptions.withCrossFade())
-                        .into(holder.favicon);
-            }
+            ImageHelper.loadRadioFavicon(f, holder.favicon, faviconCache);
 
             holder.itemView.setOnClickListener(v -> {
                 listener.onPlay(f);

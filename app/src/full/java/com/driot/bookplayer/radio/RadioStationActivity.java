@@ -13,6 +13,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.bumptech.glide.Glide;
 import com.driot.bookplayer.R;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Intents;
@@ -22,6 +23,9 @@ import com.driot.bookplayer.helpers.ShareHelper;
 import com.driot.bookplayer.utils.NetworkStatusViewModel;
 import com.driot.bookplayer.utils.Tonio;
 import com.google.android.material.color.MaterialColors;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -38,6 +42,8 @@ public class RadioStationActivity extends BaseBottomNavActivity {
     private ImageButton ibFavorite, ibVote;
 
     private RadioStationViewModel vm;
+
+    private final Map<String, String> faviconCache = new HashMap<>();
 
     @Override
     protected int getNavId() {
@@ -162,17 +168,7 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         String currentFavicon = (String) ivCover.getTag();
 
         if (!favicon.equals(currentFavicon)) {
-            if (!favicon.isEmpty()) {
-                Glide.with(this)
-                        .load(favicon)
-                        .placeholder(R.drawable.ic_radio_24px)
-                        .error(R.drawable.ic_radio_24px)
-                        .into(ivCover);
-                ivCover.setTag(favicon);
-            } else {
-                ivCover.setImageResource(R.drawable.ic_radio_24px);
-                ivCover.setTag(null);
-            }
+            ImageHelper.loadRadioFavicon(radioStation, ivCover, faviconCache);
         }
 
 // Tags
