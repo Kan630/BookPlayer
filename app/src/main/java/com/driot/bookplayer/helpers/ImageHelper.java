@@ -3,6 +3,7 @@ package com.driot.bookplayer.helpers;
 import static com.driot.bookplayer.global.Var.MAX_IMAGE_SIZE_KB;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -10,11 +11,14 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.RectF;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 
 import android.os.Looper;
 import android.os.Handler;
 import android.text.TextUtils;
+import android.util.TypedValue;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -23,6 +27,10 @@ import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BookSource;
@@ -45,6 +53,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class ImageHelper {
@@ -1302,34 +1311,98 @@ public class ImageHelper {
         }
     }
 
-    public static void loadRadioFavicon(RadioStation s, ImageView favicon, ImageView ivDefaultIcon) {
+    public static void loadRadioFavicon(RadioStation s, ImageView favicon, ImageView ivDefaultIcon,
+                                        Map<String, String> faviconCache) {
         favicon.setTag(s.stationuuid);
+
+        // If we already resolved a URL for this station, load it directly
+        if (faviconCache.containsKey(s.stationuuid)) {
+            String cachedUrl = faviconCache.get(s.stationuuid);
+            if (cachedUrl != null) {
+                ivDefaultIcon.setVisibility(View.GONE);
+                Glide.with(favicon)
+                        .load(cachedUrl)
+                        .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                        .error(getDefaultFaviconDrawable(favicon.getContext()))
+                        .into(favicon);
+            } else {
+                ivDefaultIcon.setVisibility(View.VISIBLE);
+                Glide.with(favicon).clear(favicon);
+                favicon.setImageDrawable(getDefaultFaviconDrawable(favicon.getContext()));
+            }
+            return;
+        }
+
+        // Not yet resolved — clear immediately to avoid showing stale image from recycled view
+        Glide.with(favicon).clear(favicon);
+        favicon.setImageDrawable(getDefaultFaviconDrawable(favicon.getContext()));
+
         if (TextUtils.isEmpty(s.favicon)) {
             if (!TextUtils.isEmpty(s.homepage)) {
                 fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
                     if (!favicon.getTag().equals(s.stationuuid)) return;
                     if (url != null) {
                         myLog("[" + s.name + "] => no favicon, using og image");
+                        faviconCache.put(s.stationuuid, url);
                         ivDefaultIcon.setVisibility(View.GONE);
-                        Glide.with(favicon).load(url).error(R.drawable.no_image_icon).into(favicon);
+                        Glide.with(favicon).load(url)
+                                .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                                .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                .into(favicon);
                     } else {
                         myLog("[" + s.name + "] => no favicon, falling back to google favicon");
-                        String googleUrl = "https://www.google.com/s2/favicons?sz=128&domain=" + s.homepage;
+                        String googleUrl = "https://www.google.com/s2/favicons?sz=256&domain=" + s.homepage;
+                        faviconCache.put(s.stationuuid, googleUrl);
                         ivDefaultIcon.setVisibility(View.GONE);
-                        Glide.with(favicon).load(googleUrl).error(R.drawable.no_image_icon).into(favicon);
+                        Glide.with(favicon).load(googleUrl)
+                                .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                                .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                .into(favicon);
                     }
                 });
             } else {
                 myLog("[" + s.name + "] => no favicon, no homepage, using default icon");
+                faviconCache.put(s.stationuuid, null);
                 ivDefaultIcon.setVisibility(View.VISIBLE);
-                Glide.with(favicon).clear(favicon);
             }
         } else {
             ivDefaultIcon.setVisibility(View.GONE);
-            Glide.with(favicon).load(s.favicon).error(R.drawable.no_image_icon).into(favicon);
+            Glide.with(favicon)
+                    .load(s.favicon)
+                    .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                    .error(getDefaultFaviconDrawable(favicon.getContext()))
+                    .listener(new RequestListener<Drawable>() {
+                        @Override
+                        public boolean onLoadFailed(@Nullable GlideException e, Object model,
+                                                    Target<Drawable> target, boolean isFirstResource) {
+                            if (!TextUtils.isEmpty(s.homepage)) {
+                                fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
+                                    if (!favicon.getTag().equals(s.stationuuid)) return;
+                                    String loadUrl = url != null ? url
+                                            : "https://www.google.com/s2/favicons?sz=256&domain=" + s.homepage;
+                                    faviconCache.put(s.stationuuid, loadUrl);
+                                    Glide.with(favicon).load(loadUrl)
+                                            .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
+                                            .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                            .into(favicon);
+                                });
+                            } else {
+                                faviconCache.put(s.stationuuid, null);
+                            }
+                            return true;
+                        }
+
+                        @Override
+                        public boolean onResourceReady(Drawable resource, Object model,
+                                                       Target<Drawable> target, DataSource dataSource,
+                                                       boolean isFirstResource) {
+                            faviconCache.put(s.stationuuid, s.favicon);
+                            return false;
+                        }
+                    })
+                    .into(favicon);
         }
     }
-
     //RADIO favicon fetcher
     private static void fetchOgImage(String homeUrl, int timeout_ms, Consumer<String> callback) {
         new Thread(() -> {
@@ -1346,5 +1419,15 @@ public class ImageHelper {
             }
         }).start();
     }
-
+    public static ColorDrawable getDefaultFaviconDrawable(Context context) {
+        TypedValue typedValue = new TypedValue();
+        context.getTheme().resolveAttribute(android.R.attr.windowBackground, typedValue, true);
+        // Check if dark theme
+        int nightMode = context.getResources().getConfiguration().uiMode
+                & Configuration.UI_MODE_NIGHT_MASK;
+        int color = (nightMode == Configuration.UI_MODE_NIGHT_YES)
+                ? Color.BLACK
+                : Color.WHITE;
+        return new ColorDrawable(color);
+    }
 }

@@ -23,8 +23,10 @@ import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -55,6 +57,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     // Favorite reflection (UUIDs from VM)
     private final Set<String> favoriteUuids = new HashSet<>();
+    private final Map<String, String> faviconCache = new HashMap<>();
 
     private long trackId = 0;
     private String playingRadioStationUuid = null;
@@ -223,7 +226,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             holder.info.setText(RadioHelper.buildShortInfoString(rs));
 
-            ImageHelper.loadRadioFavicon(rs, holder.favicon, holder.ivDefaultIcon);
+            ImageHelper.loadRadioFavicon(rs, holder.favicon, holder.ivDefaultIcon, faviconCache);
 
             // Favorite tint
             boolean isFav = favoriteUuids.contains(s.stationuuid);
