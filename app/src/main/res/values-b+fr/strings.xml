@@ -212,6 +212,8 @@
 
     <string name="book_cover">couverture du livre</string>
     <string name="Available_since">Disponible depuis</string>
+    <string name="available_since">disponible depuis</string>
+    <string name="since">depuis</string>
     <string name="default_for">défaut pour</string>
 
     <string name="sample_rate">Fréquence d\'échantillonnage</string>
@@ -648,6 +650,7 @@ Note : cela n\'est possible que pour les fichiers zip ou si l\'option ci-dessus 
     <string name="permission_read_write_rationale_short_text_on_load">Autorisation [Musique et audio] requise pour lire depuis le stockage général du smartphone.</string>
     <string name="Search_also_in_episode_description">Chercher aussi dans la description</string>
     <string name="Filter_episodes">Filtrer les épisodes</string>
+    <string name="Filter_Tags">Filtrer les tags</string>
     <string name="max_number_of_results_reached">nombre maximum de résultats atteint</string>
     <string name="librivox_books_loaded">%1$s livres chargés</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s livres</string>
@@ -1266,6 +1269,9 @@ avec la langue [%2$s]</string>
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_mirror">Utiliser un miroir pour le téléchargement</string>
+    <string name="option_gutenberg_mirror_selection">Choisir un miroir</string>
+    <string name="option_gutenberg_mirror_explain">L\'utilisation de miroirs devrait améliorer le téléchargement et éviter de surcharger le site principal gutenberg.org.</string>
     <string name="option_gutenberg_use_cloudfare">Utiliser le cache (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">Le cache devrait améliorer considérablement la vitesse pour les premières pages "les plus téléchargées".\nElles sont mises en cache et mises à jour toutes les 9 heures pour les langues majeures.</string>
     <string name="option_ebook_remove_references">Supprimer les marqueurs de référence (notes de bas de page)</string>
