@@ -134,7 +134,7 @@ public class RadioHelper {
 // Station is fresh but has no favicon — just resolve the favicon without a full API fetch
 			if (isFresh && !hasFavicon) {
 				myLogD("fetchAndUpsertStation: fresh but no favicon, resolving for " + rs.name);
-				ImageHelper.resolveAndPersistFavicon(context, rs);
+				RadioFaviconHelper.resolveAndPersistFavicon(context, rs);
 				return;
 			}
 
@@ -257,7 +257,7 @@ public class RadioHelper {
 			dao.update(dbStation);
 		}
 		// Resolve and persist favicon if missing
-		ImageHelper.resolveAndPersistFavicon(context, dbStation);
+		RadioFaviconHelper.resolveAndPersistFavicon(context, dbStation);
 
 		return dbStation;
 	}

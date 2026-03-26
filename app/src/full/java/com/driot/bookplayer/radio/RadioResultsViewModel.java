@@ -266,7 +266,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
                     existing.date_maj = now;
                     dao.update(existing);
                     // resolve favicon if missing
-                    ImageHelper.resolveAndPersistFavicon(appCtx, existing);
+                    RadioFaviconHelper.resolveAndPersistFavicon(appCtx, existing);
                 }
             } else {
                 // brand new favorite
@@ -280,7 +280,7 @@ public class RadioResultsViewModel extends LoggingViewModel {
                 r.date_last_played = null;
                 r.id = dao.insert(r);          // <-- capture id so the object is complete
                 // resolve favicon if missing
-                ImageHelper.resolveAndPersistFavicon(appCtx, r);
+                RadioFaviconHelper.resolveAndPersistFavicon(appCtx, r);
             }
 
             refreshFromDb(appCtx, historyMode);
