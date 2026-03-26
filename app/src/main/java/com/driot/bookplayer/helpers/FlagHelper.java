@@ -28,8 +28,8 @@ public final class FlagHelper {
             return context.getResources().getIdentifier("flag_" + countryCode.toLowerCase(), "drawable",
                     context.getPackageName());
         } else if (codeType.equals("country")) {
-            return context.getResources().getIdentifier("flag_" + code2.toLowerCase(), "drawable",
-                    context.getPackageName());
+            int resId = getFlagResIdForCountry(code2);
+            return (resId == NO_FLAG) ? 0 : resId;
         } else {
             return 0;
         }
@@ -54,6 +54,7 @@ public final class FlagHelper {
             case "at": return R.drawable.flag_at;
             case "au": return R.drawable.flag_au;
             case "aw": return R.drawable.flag_aw;
+            case "ax": return R.drawable.flag_ax;
             case "az": return R.drawable.flag_az;
             case "ba": return R.drawable.flag_ba;
             case "bb": return R.drawable.flag_bb;
@@ -67,6 +68,7 @@ public final class FlagHelper {
             case "bm": return R.drawable.flag_bm;
             case "bn": return R.drawable.flag_bn;
             case "bo": return R.drawable.flag_bo;
+            case "bq": return R.drawable.flag_bq;
             case "br": return R.drawable.flag_br;
             case "bs": return R.drawable.flag_bs;
             case "bt": return R.drawable.flag_bt;
@@ -89,6 +91,7 @@ public final class FlagHelper {
             case "cr": return R.drawable.flag_cr;
             case "cu": return R.drawable.flag_cu;
             case "cv": return R.drawable.flag_cv;
+            case "cw": return R.drawable.flag_cw;
             case "cx": return R.drawable.flag_cx;
             case "cy": return R.drawable.flag_cy;
             case "cz": return R.drawable.flag_cz;
@@ -115,6 +118,7 @@ public final class FlagHelper {
             case "gd": return R.drawable.flag_gd;
             case "ge": return R.drawable.flag_ge;
             case "gf": return R.drawable.flag_gf;
+            case "gg": return R.drawable.flag_gg;
             case "gh": return R.drawable.flag_gh;
             case "gi": return R.drawable.flag_gi;
             case "gl": return R.drawable.flag_gl;
@@ -137,6 +141,7 @@ public final class FlagHelper {
             case "id": return R.drawable.flag_id;
             case "ie": return R.drawable.flag_ie;
             case "il": return R.drawable.flag_il;
+            case "im": return R.drawable.flag_im;
             case "in": return R.drawable.flag_in;
             case "io": return R.drawable.flag_io;
             case "iq": return R.drawable.flag_iq;
@@ -213,6 +218,7 @@ public final class FlagHelper {
             case "pm": return R.drawable.flag_pm;
             case "pn": return R.drawable.flag_pn;
             case "pr": return R.drawable.flag_pr;
+            case "ps": return R.drawable.flag_ps;
             case "pt": return R.drawable.flag_pt;
             case "pw": return R.drawable.flag_pw;
             case "py": return R.drawable.flag_py;
@@ -284,6 +290,8 @@ public final class FlagHelper {
             case "zw": return R.drawable.flag_zw;
 
             case "xa": return R.drawable.flag_sa;
+            case "xk": return R.drawable.flag_xk;
+            case "yt": return R.drawable.flag_yt;
             default: return NO_FLAG;
         }
     }
