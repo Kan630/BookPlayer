@@ -211,6 +211,8 @@
 
     <string name="book_cover">"Buchcover"</string>
     <string name="Available_since">Verfügbar seit</string>
+    <string name="available_since">verfügbar seit</string>
+    <string name="since">seit</string>
     <string name="default_for">Standard für</string>
 
     <string name="sample_rate">Abtastrate</string>
@@ -635,6 +637,7 @@ Soll die App technische Debug-Protokolle erstellen?
     <string name="permission_read_write_rationale_short_text_on_load">[Musik und Audio]-Berechtigung wird benötigt, um aus dem allgemeinen Smartphone-Speicher abzuspielen.</string>
     <string name="Search_also_in_episode_description">Auch in der Beschreibung suchen</string>
     <string name="Filter_episodes">Episoden filtern</string>
+    <string name="Filter_Tags">Tags filtern</string>
     <string name="max_number_of_results_reached">Maximale Anzahl von Ergebnissen erreicht</string>
     <string name="librivox_books_loaded">%1$s Bücher geladen</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s Bücher</string>
@@ -1259,6 +1262,9 @@ Erlaubt Android Auto, automatisch mit der Wiedergabe zu beginnen, wenn es mit de
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_mirror">Spiegel für Download verwenden</string>
+    <string name="option_gutenberg_mirror_selection">Spiegel auswählen</string>
+    <string name="option_gutenberg_mirror_explain">Die Verwendung von Spiegeln verbessert das Download-Erlebnis und hilft, den Hauptserver gutenberg.org nicht zu überlasten.</string>
     <string name="option_gutenberg_use_cloudfare">Caching verwenden (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">Caching sollte die Geschwindigkeit für die am häufigsten heruntergeladenen Seiten drastisch verbessern.\nSie werden alle 9 Stunden für wichtige Sprachen zwischengespeichert und aktualisiert.</string>
     <string name="option_tts_overlay_timeout_explain">Auf neueren Geräten und/oder bei häufig verwendeten Stimmen kann es so schnell gehen, dass Sie die Lade-Meldung gar nicht erst sehen.</string>

@@ -211,6 +211,8 @@
 
     <string name="book_cover">"copertina del libro"</string>
     <string name="Available_since">Disponibile da</string>
+    <string name="available_since">disponibile da</string>
+    <string name="since">da</string>
     <string name="default_for">predefinito per</string>
 
     <string name="sample_rate">Frequenza di campionamento</string>
@@ -634,6 +636,7 @@
     <string name="permission_read_write_rationale_short_text_on_load">Permesso [Musica e audio] necessario per riprodurre dalla memoria generale dello smartphone.</string>
     <string name="Search_also_in_episode_description">Cerca anche nella descrizione</string>
     <string name="Filter_episodes">Filtra episodi</string>
+    <string name="Filter_Tags">Filtra tag</string>
     <string name="max_number_of_results_reached">numero massimo di risultati raggiunto</string>
     <string name="librivox_books_loaded">%1$s libri caricati</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s libri</string>
@@ -1258,6 +1261,9 @@ Consenti ad Android Auto di avviare automaticamente la riproduzione quando si co
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_mirror">Usa mirror per il download</string>
+    <string name="option_gutenberg_mirror_selection">Seleziona mirror</string>
+    <string name="option_gutenberg_mirror_explain">L\'uso dei mirror dovrebbe migliorare l\'esperienza di download e aiutare a evitare di sovraccaricare il sito principale gutenberg.org.</string>
     <string name="option_gutenberg_use_cloudfare">Usa cache (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">La memorizzazione nella cache dovrebbe migliorare drasticamente la velocità per le prime pagine "più scaricate".\nSono memorizzate nella cache e aggiornate ogni 9 ore per le lingue principali.</string>
     <string name="option_tts_overlay_timeout_explain">Sui dispositivi recenti e/o per voci usate spesso, potrebbe essere così veloce che non vedrai nemmeno il messaggio di caricamento.</string>

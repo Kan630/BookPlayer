@@ -211,6 +211,8 @@
 
     <string name="book_cover">"غلاف الكتاب"</string>
     <string name="Available_since">متاح منذ</string>
+    <string name="available_since">متاح منذ</string>
+    <string name="since">منذ</string>
     <string name="default_for">الافتراضي لـ</string>
 
     <string name="sample_rate">معدل العينة</string>
@@ -628,6 +630,7 @@
     <string name="permission_read_write_rationale_short_text_on_load">إذن [الموسيقى والصوت] مطلوب لتشغيل الملفات من الذاكرة العامة للهاتف.</string>
     <string name="Search_also_in_episode_description">البحث أيضاً في الوصف</string>
     <string name="Filter_episodes">تصفية الحلقات</string>
+    <string name="Filter_Tags">تصفية العلامات</string>
     <string name="max_number_of_results_reached">تم الوصول إلى الحد الأقصى للنتائج</string>
     <string name="librivox_books_loaded">تم تحميل %1$s كتب</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s كتب</string>
@@ -1252,6 +1255,9 @@
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_mirror">استخدام مرآة للتنزيل</string>
+    <string name="option_gutenberg_mirror_selection">اختيار مرآة</string>
+    <string name="option_gutenberg_mirror_explain">استخدام المرايا يحسّن تجربة التنزيل ويساعد على تجنّب الضغط الزائد على موقع gutenberg.org الرئيسي.</string>
     <string name="option_gutenberg_use_cloudfare">استخدام التخزين المؤقت (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">يجب أن يؤدي التخزين المؤقت إلى تحسين السرعة بشكل كبير للأجزاء الأولى "الأكثر تنزيلاً". يتم تخزينها وتحديثها كل 9 ساعات للغات الرئيسية.</string>
     <string name="option_tts_overlay_timeout_explain">على الأجهزة الحديثة و/أو للأصوات المستخدمة كثيراً، قد يكون الأمر سريعاً جداً لدرجة أنك لن ترى رسالة التحميل تلك.</string>

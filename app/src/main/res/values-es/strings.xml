@@ -211,6 +211,8 @@
 
     <string name="book_cover">"portada del libro"</string>
     <string name="Available_since">Disponible desde</string>
+    <string name="available_since">disponible desde</string>
+    <string name="since">desde</string>
     <string name="default_for">predeterminado para</string>
 
     <string name="sample_rate">Frecuencia de muestreo</string>
@@ -632,6 +634,7 @@ El valor global de apagado automático está en Opciones (en el menú de la pant
     <string name="permission_read_write_rationale_short_text_on_load">Se necesita el permiso [Música y audio] para reproducir desde el almacenamiento general del smartphone.</string>
     <string name="Search_also_in_episode_description">Buscar también en la descripción</string>
     <string name="Filter_episodes">Filtrar episodios</string>
+    <string name="Filter_Tags">Filtrar etiquetas</string>
     <string name="max_number_of_results_reached">se alcanzó el número máximo de resultados</string>
     <string name="librivox_books_loaded">%1$s libros cargados</string>
     <string name="librivox_books_loaded_of">%1$s / %2$s libros</string>
@@ -1256,6 +1259,9 @@ Permitir que Android Auto inicie la reproducción automáticamente al conectarse
     <string name="librivox">LibriVox</string>
     <string name="Internet_Archive">Internet Archive</string>
     <string name="Gutenberg">Gutenberg</string>
+    <string name="option_gutenberg_use_mirror">Usar espejo para la descarga</string>
+    <string name="option_gutenberg_mirror_selection">Seleccionar espejo</string>
+    <string name="option_gutenberg_mirror_explain">El uso de espejos debería mejorar la experiencia de descarga y ayudar a evitar sobrecargar el sitio principal gutenberg.org.</string>
     <string name="option_gutenberg_use_cloudfare">Usar caché (Cloudflare)</string>
     <string name="option_gutenberg_use_cloudfare_subtitle">El almacenamiento en caché debería mejorar drásticamente la velocidad de las primeras páginas "más descargadas".\nSe almacenan en caché y se actualizan cada 9 horas para los idiomas principales.</string>
     <string name="option_tts_overlay_timeout_explain">En dispositivos recientes y/o para voces de uso frecuente, puede ser tan rápido que ni siquiera verá el mensaje de carga.</string>
