@@ -244,6 +244,9 @@ public class RadioHelper {
 
 			dao.update(dbStation);
 		}
+		// Resolve and persist favicon if missing
+		ImageHelper.resolveAndPersistFavicon(context, dbStation);
+
 		return dbStation;
 	}
 

@@ -164,14 +164,12 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         }
 
         // Cover
-        String favicon = safe(radioStation.favicon);
-        String currentFavicon = (String) ivCover.getTag();
-
-        if (!favicon.equals(currentFavicon)) {
-            ImageHelper.loadRadioFavicon(radioStation, ivCover, faviconCache);
+        if (!radioStation.stationuuid.equals(ivCover.getTag(R.id.tag_station_uuid))) {
+            ivCover.setTag(R.id.tag_station_uuid, radioStation.stationuuid);
+            ImageHelper.loadRadioFavicon(radioStation, ivCover, R.drawable.ic_radio_24px, faviconCache);
         }
 
-// Tags
+        // Tags
         String tags = safe(radioStation.tags);
         if (!tags.isEmpty()) {
             tvTags.setText(tags.replace(",", " • "));

@@ -226,7 +226,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             holder.info.setText(RadioHelper.buildShortInfoString(rs));
 
-            ImageHelper.loadRadioFavicon(rs, holder.favicon, faviconCache);
+            ImageHelper.loadRadioFavicon(rs, holder.favicon, 0, faviconCache);
 
             // Favorite tint
             boolean isFav = favoriteUuids.contains(s.stationuuid);

@@ -19,10 +19,10 @@ import android.os.Looper;
 import android.os.Handler;
 import android.text.TextUtils;
 import android.util.TypedValue;
-import android.view.View;
 import android.widget.ImageView;
 
 import androidx.annotation.Nullable;
+import androidx.appcompat.content.res.AppCompatResources;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
@@ -36,6 +36,7 @@ import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.db.Folder;
 import com.driot.bookplayer.db.RadioStation;
+import com.driot.bookplayer.db.RadioStationDao;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
@@ -1319,7 +1320,7 @@ public class ImageHelper {
         }
     }
 
-    public static void loadRadioFavicon(RadioStation s, ImageView favicon,
+    public static void loadRadioFavicon(RadioStation s, ImageView favicon, int replacementResource,
                                         Map<String, String> faviconCache) {
         favicon.setTag(s.stationuuid);
 
@@ -1330,18 +1331,18 @@ public class ImageHelper {
                 Glide.with(favicon)
                         .load(cachedUrl)
                         .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                        .error(getDefaultFaviconDrawable(favicon.getContext()))
+                        .error(getErrorDrawable(favicon.getContext(), replacementResource))
                         .into(favicon);
             } else {
                 Glide.with(favicon).clear(favicon);
-                favicon.setImageDrawable(getDefaultFaviconDrawable(favicon.getContext()));
+                favicon.setImageDrawable(getErrorDrawable(favicon.getContext(), replacementResource));
             }
             return;
         }
 
         // Not yet resolved — clear immediately to avoid showing stale image from recycled view
         Glide.with(favicon).clear(favicon);
-        favicon.setImageDrawable(getDefaultFaviconDrawable(favicon.getContext()));
+        favicon.setImageDrawable(getErrorDrawable(favicon.getContext(), replacementResource));
 
         if (TextUtils.isEmpty(s.favicon)) {
             if (!TextUtils.isEmpty(s.homepage)) {
@@ -1352,7 +1353,7 @@ public class ImageHelper {
                         faviconCache.put(s.stationuuid, url);
                         Glide.with(favicon).load(url)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                                .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                 .into(favicon);
                     } else {
                         myLog("[" + s.name + "] => no favicon, falling back to google favicon");
@@ -1360,7 +1361,7 @@ public class ImageHelper {
                         faviconCache.put(s.stationuuid, googleUrl);
                         Glide.with(favicon).load(googleUrl)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                                .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                 .into(favicon);
                     }
                 });
@@ -1373,7 +1374,7 @@ public class ImageHelper {
                         faviconCache.put(s.stationuuid, url);
                         Glide.with(favicon).load(url)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                                .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                 .into(favicon);
                     } else {
                         myLog("[" + s.name + "] => DuckDuckGo failed, trying iTunes fallback");
@@ -1384,7 +1385,7 @@ public class ImageHelper {
                                 faviconCache.put(s.stationuuid, url2);
                                 Glide.with(favicon).load(url2)
                                         .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                                        .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                        .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                         .into(favicon);
                             } else {
                                 myLog("[" + s.name + "] => no image found at all, using default");
@@ -1398,7 +1399,7 @@ public class ImageHelper {
             Glide.with(favicon)
                     .load(s.favicon)
                     .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                    .error(getDefaultFaviconDrawable(favicon.getContext()))
+                    .error(getErrorDrawable(favicon.getContext(), replacementResource))
                     .listener(new RequestListener<Drawable>() {
                         @Override
                         public boolean onLoadFailed(@Nullable GlideException e, Object model,
@@ -1411,7 +1412,7 @@ public class ImageHelper {
                                     faviconCache.put(s.stationuuid, loadUrl);
                                     Glide.with(favicon).load(loadUrl)
                                             .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
-                                            .error(getDefaultFaviconDrawable(favicon.getContext()))
+                                            .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                             .into(favicon);
                                 });
                             } else {
@@ -1446,6 +1447,12 @@ public class ImageHelper {
                 );
             }
         }).start();
+    }
+    private static Drawable getErrorDrawable(Context context, int replacementResource) {
+        if (replacementResource != 0) {
+            return AppCompatResources.getDrawable(context, replacementResource);
+        }
+        return getDefaultFaviconDrawable(context);
     }
     public static ColorDrawable getDefaultFaviconDrawable(Context context) {
         TypedValue typedValue = new TypedValue();
@@ -1556,4 +1563,48 @@ public class ImageHelper {
         }
         return null;
     }
+    public static void resolveAndPersistFavicon(Context context, RadioStation s) {
+        // Already has a valid favicon — nothing to do
+        if (!TextUtils.isEmpty(s.favicon) && s.favicon.startsWith("http")) return;
+
+        if (!TextUtils.isEmpty(s.homepage)) {
+            fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
+                if (url != null) {
+                    myLog("[" + s.name + "] => persisting og image: " + url);
+                    persistFaviconUrl(context, s, url);
+                } else {
+                    String googleUrl = "https://www.google.com/s2/favicons?sz=256&domain=" + s.homepage;
+                    myLog("[" + s.name + "] => persisting google favicon: " + googleUrl);
+                    persistFaviconUrl(context, s, googleUrl);
+                }
+            });
+        } else {
+            fetchFallbackBySearch(s.name, s.country, url -> {
+                if (url != null) {
+                    myLog("[" + s.name + "] => persisting Wikipedia url: " + url);
+                    persistFaviconUrl(context, s, url);
+                } else {
+                    fetchFallbackImage(s.name, s.country, url2 -> {
+                        if (url2 != null) {
+                            myLog("[" + s.name + "] => persisting iTunes url: " + url2);
+                            persistFaviconUrl(context, s, url2);
+                        }
+                    });
+                }
+            });
+        }
+    }
+
+    private static void persistFaviconUrl(Context context, RadioStation s, String url) {
+        new Thread(() -> {
+            try {
+                RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
+                s.favicon = url;
+                dao.update(s);
+            } catch (Exception e) {
+                myLogW("persistFaviconUrl failed: " + e.getMessage());
+            }
+        }).start();
+    }
+
 }
