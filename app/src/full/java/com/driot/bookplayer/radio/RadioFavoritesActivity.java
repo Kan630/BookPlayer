@@ -52,8 +52,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
 
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
-    private boolean updatingToggleFromVm = false;
-
     @Override
     protected int getNavId() {
         return R.id.nav_radio;
@@ -74,9 +72,10 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
 
         recyclerView = findViewById(R.id.recyclerView);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+
         progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
         dropZone = findViewById(R.id.dragDeleteZone);
@@ -242,6 +241,18 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 myLogI("--- user change favorite radio station order --- ");
                 viewModel.reorderFavorites(RadioFavoritesActivity.this, newOrder);
             }
+
+            @Override
+            public void onToggleFavorites() {
+                myLogI("--- user clicks favorites ---");
+                viewModel.loadFavorites(RadioFavoritesActivity.this);
+            }
+
+            @Override
+            public void onToggleHistory() {
+                myLogI("--- user clicks history ---");
+                viewModel.loadHistory(RadioFavoritesActivity.this);
+            }
         });
         recyclerView.setAdapter(adapter);
 
@@ -251,26 +262,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 adapter.setPlayingRadioStation(state.trackId);
         });
 
-        // Favorites vs History Toggle
-        MaterialButtonToggleGroup group = findViewById(R.id.groupFavoriteVsHistory);
-        group.addOnButtonCheckedListener((g, checkedId, isChecked) -> {
-            if (!isChecked)
-                return; // ignore un-check events
-
-            // IGNORE changes coming from VM/UI syncing
-            if (updatingToggleFromVm) {
-                myLogD("Toggle change from ViewModel sync, ignoring as user click.");
-                return;
-            }
-
-            if (checkedId == R.id.btnRadioFavorites) {
-                myLogI("--- user clicks favorites ---");
-                viewModel.loadFavorites(RadioFavoritesActivity.this);
-            } else if (checkedId == R.id.btnRadioHistory) {
-                myLogI("--- user clicks history ---");
-                viewModel.loadHistory(RadioFavoritesActivity.this);
-            }
-        });
         viewModel.initMode(this);
 
         // Enable dragging
@@ -293,11 +284,6 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
         viewModel.getShowingHistory().observe(this, isHistory -> {
             boolean history = Boolean.TRUE.equals(isHistory);
             isHistoryMode = history;
-
-            // Select correct toggle button without triggering clicks
-            updatingToggleFromVm = true;
-            group.check(history ? R.id.btnRadioHistory : R.id.btnRadioFavorites);
-            updatingToggleFromVm = false;
 
             // Drag & drop only in favorites
             if (history) {

@@ -22,6 +22,7 @@ import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.helpers.FlagHelper;
 import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
+import com.google.android.material.button.MaterialButtonToggleGroup;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,6 +39,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         void onUnfavorite(RadioStation f);
 
         void onPersistOrder(List<RadioStation> newOrder);
+
+        void onToggleFavorites();
+
+        void onToggleHistory();
     }
 
     private static final int VT_HEADER = 0;
@@ -98,7 +103,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inf = LayoutInflater.from(parent.getContext());
         if (viewType == VT_HEADER) {
-            return new HeaderVH(inf.inflate(R.layout.recyclerview_search_header, parent, false));
+            return new HeaderVH(inf.inflate(R.layout.recyclerview_radio_favorites_header, parent, false));
         } else {
             return new ItemVH(inf.inflate(R.layout.recyclerview_radio_result, parent, false));
         }
@@ -108,14 +113,22 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder vh, int position) {
         if (getItemViewType(position) == VT_HEADER) {
             HeaderVH h = (HeaderVH) vh;
-            h.tvSearch.setVisibility(View.GONE);
-            h.tvLang.setVisibility(View.GONE);
-            h.tvCountryTag.setVisibility(View.GONE);
             String resultsCount = items.size() + " "
                     + (historyMode ? vh.itemView.getContext().getString(R.string.in_history)
                             : vh.itemView.getContext().getString(R.string.favorites));
             h.tvCount.setText(resultsCount);
             h.tvCount.setVisibility(View.VISIBLE);
+            
+            h.group.clearOnButtonCheckedListeners();
+            h.group.check(historyMode ? R.id.btnRadioHistory : R.id.btnRadioFavorites);
+            h.group.addOnButtonCheckedListener((group, checkedId, isChecked) -> {
+                if (!isChecked) return;
+                if (checkedId == R.id.btnRadioFavorites) {
+                    listener.onToggleFavorites();
+                } else if (checkedId == R.id.btnRadioHistory) {
+                    listener.onToggleHistory();
+                }
+            });
         } else {
             int idx = position - 1;
             RadioStation f = items.get(idx);
@@ -165,14 +178,13 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     // ---- VHs ----
     static class HeaderVH extends RecyclerView.ViewHolder {
-        final TextView tvSearch, tvLang, tvCountryTag, tvCount;
+        final TextView tvCount;
+        final MaterialButtonToggleGroup group;
 
         HeaderVH(@NonNull View v) {
             super(v);
-            tvSearch = v.findViewById(R.id.tvSearchTerms);
-            tvLang = v.findViewById(R.id.tvLanguage);
-            tvCountryTag = v.findViewById(R.id.tvCountryTag);
             tvCount = v.findViewById(R.id.tvResultsCount);
+            group = v.findViewById(R.id.groupFavoriteVsHistory);
         }
     }
 

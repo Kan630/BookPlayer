@@ -75,16 +75,16 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        InsetHelper.apply(this);
-
         View networkRowView = findViewById(R.id.includeNetworkStatus);
         NetworkStatusViewModel netVm = new ViewModelProvider(this).get(NetworkStatusViewModel.class);
         new NetworkStatusRowController(this, networkRowView, this, netVm);
         netVm.getStatus().observe(this, status -> hasInternet = status.hasInternet);
 
-        findViewById(R.id.groupFavoriteVsHistory).setVisibility(View.GONE);
+        //findViewById(R.id.groupFavoriteVsHistory).setVisibility(View.GONE);
 
         recyclerView = findViewById(R.id.recyclerView);
+        InsetHelper.applyInsetsForScrollableBehindNavBar(this, recyclerView);
+        
         progressBar = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
         progressBarLoadMore = findViewById(R.id.progressBarLoadMore);
