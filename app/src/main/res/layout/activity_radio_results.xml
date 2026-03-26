@@ -29,13 +29,19 @@
         android:layout_marginTop="300dp"
         android:visibility="gone" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recyclerView"
+    <com.driot.bookplayer.views.FadingEdgeFrameLayout
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="1"
-        android:layout_marginTop="-12dp"
-        android:clipToPadding="false" />
+        android:layout_marginTop="-12dp">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false" />
+
+    </com.driot.bookplayer.views.FadingEdgeFrameLayout>
 
     <ProgressBar
         android:id="@+id/progressBarLoadMore"
