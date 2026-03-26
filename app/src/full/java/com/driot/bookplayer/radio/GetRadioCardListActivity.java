@@ -101,6 +101,11 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         setupAdapter(mode);
         setupViewModel(mode);
         setupSearchBar();
+
+        if (savedInstanceState == null) {
+            viewModel.seedFromCache(RadioCacheHelper.loadCache(this, mode));
+            viewModel.loadFacetItems();
+        }
     }
 
     @Override
@@ -190,9 +195,6 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
             }
         });
 
-        // Seed from disk cache for instant display, then hit the network
-        viewModel.seedFromCache(RadioCacheHelper.loadCache(this, mode));
-        viewModel.loadFacetItems();
     }
 
     private void setupSearchBar() {
