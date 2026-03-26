@@ -62,6 +62,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
     private RecyclerView  recyclerView;
     private ProgressBar   progressBar;
     private TextView      tvProgressMessage;
+    private TextView      tvSearchStat;
     private LinearLayout  layoutSearch;
     private EditText      etSearch;
     private ImageButton   btnClearSearch;
@@ -128,6 +129,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         recyclerView      = findViewById(R.id.recyclerView);
         progressBar       = findViewById(R.id.progressBar);
         tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        tvSearchStat      = findViewById(R.id.tvSearchStat);
         layoutSearch      = findViewById(R.id.layoutSearch);
         etSearch          = findViewById(R.id.etSearch);
         btnClearSearch    = findViewById(R.id.btnClearSearch);
@@ -185,8 +187,11 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
             viewModel.setSearchVisible(true);
         }
 
-        // Filtered list → adapter
-        viewModel.getFilteredItemsLive().observe(this, items -> adapter.setItems(items));
+        // Filtered list → adapter + count
+        viewModel.getFilteredItemsLive().observe(this, items -> {
+            adapter.setItems(items);
+            tvSearchStat.setText(String.valueOf(items.size()));
+        });
 
         // Loading state → progress bar + animated message
         viewModel.getLoadingStateLive().observe(this, state -> {
@@ -274,6 +279,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                 newDir = "station_count".equals(newMode) ? "desc" : "asc";
             }
             viewModel.setSortOrder(newMode, newDir);
+            recyclerView.scrollToPosition(0);
             dialog.dismiss();
         };
 

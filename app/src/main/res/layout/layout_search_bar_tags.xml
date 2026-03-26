@@ -35,7 +35,7 @@
             android:layout_height="wrap_content"
             android:paddingHorizontal="8dp"
             android:alpha="0.7"
-            android:text="0.ep" />
+            android:text="1234" />
 
         <ImageButton
             android:id="@+id/btnClearSearch"
@@ -45,6 +45,13 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/Close"
             app:tint="?attr/colorOnSurface" />
+
+        <View
+            android:layout_width="1dp"
+            android:layout_height="24dp"
+            android:layout_marginHorizontal="4dp"
+            android:background="?attr/dividerVertical"
+            android:alpha="0.4" />
 
         <ImageButton
             android:id="@+id/btnSort"
