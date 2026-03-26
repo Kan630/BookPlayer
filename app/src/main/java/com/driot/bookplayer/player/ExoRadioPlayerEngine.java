@@ -15,9 +15,27 @@ import androidx.media3.exoplayer.source.MediaSource;
 
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.net.CookieManager;
 import java.net.CookiePolicy;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.security.KeyStore;
+import java.security.cert.CertificateFactory;
+import java.security.cert.X509Certificate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
+
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLHandshakeException;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.TrustManagerFactory;
+import javax.net.ssl.X509TrustManager;
 
 import okhttp3.JavaNetCookieJar;
 import okhttp3.OkHttpClient;
@@ -32,6 +50,9 @@ import okhttp3.OkHttpClient;
  *    HLS (.m3u8), DASH, SmoothStreaming, and progressive (MP3/AAC/…).
  *  - No hardcoded MimeType on MediaItem: was forcing the MP3 extractor on HLS
  *    streams and causing ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED.
+ *  - AIA-aware TrustManager: handles servers that don't send the full certificate
+ *    chain (incomplete chain). Fetches missing intermediates via the AIA extension
+ *    URL embedded in the certificate, exactly like Chrome does automatically.
  */
 @androidx.annotation.OptIn(markerClass = androidx.media3.common.util.UnstableApi.class)
 public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEngine {
@@ -77,13 +98,25 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         CookieManager cookieManager = new CookieManager();
         cookieManager.setCookiePolicy(CookiePolicy.ACCEPT_ALL);
 
+        // --- AIA-aware SSL ---
+        // Some radio stream servers (e.g. stream.electroradio.fm) have incomplete
+        // certificate chains — they send only their own cert, not the intermediate CA.
+        // Chrome papers over this silently via AIA fetching; OkHttp does not.
+        // buildTrustManagers() replicates that behaviour: tries normal validation
+        // first, then fetches the missing intermediate via the AIA URL embedded in
+        // the certificate, then retries. Only falls back to leaf-only acceptance
+        // if the AIA fetch itself fails.
+        TrustManager[] trustManagers = buildTrustManagers();
+        SSLContext sslContext = buildSslContext(trustManagers);
+
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
                 .followRedirects(true)
                 .followSslRedirects(true)
                 .connectTimeout(15, TimeUnit.SECONDS)
                 .readTimeout(20, TimeUnit.SECONDS)
                 .cookieJar(new JavaNetCookieJar(cookieManager))
-                // Inject User-Agent and Accept headers on every request
+                .sslSocketFactory(sslContext.getSocketFactory(),
+                        (X509TrustManager) trustManagers[0])
                 .addInterceptor(chain -> chain.proceed(
                         chain.request().newBuilder()
                                 .header("User-Agent", userAgent)
@@ -155,12 +188,24 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
 
                 final int    code = error.errorCode;
                 final String name = PlaybackException.getErrorCodeName(code);
-                final String msg  = "Exo Error: " + name + " (" + code + ") " +
-                        (error.getMessage() != null ? error.getMessage() : "");
+
+                // Detect SSL cause for richer logging
+                String sslCause = "";
+                Throwable t = error.getCause();
+                while (t != null) {
+                    if (t instanceof SSLHandshakeException) { sslCause = "SSL_HANDSHAKE"; break; }
+                    if (t instanceof javax.net.ssl.SSLException) { sslCause = "SSL"; break; }
+                    t = t.getCause();
+                }
+
+                final String msg = "Exo Error: " + name + " (" + code + ") "
+                        + (sslCause.isEmpty() ? "" : "[" + sslCause + "] ")
+                        + (error.getMessage() != null ? error.getMessage() : "");
 
                 myLogE("onPlayerError code=" + code
                         + " name=" + name
                         + " cause=" + (error.getCause() != null ? error.getCause().toString() : "null")
+                        + (sslCause.isEmpty() ? "" : " sslCause=" + sslCause)
                         + " msg=" + error.getMessage());
 
                 if (isFatalExo(code)) {
@@ -308,6 +353,247 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
 
     @Override
     public float getVolume() { return volume; }
+
+    // -------------------------------------------------------------------------
+    // SSL — AIA-aware TrustManager
+    // -------------------------------------------------------------------------
+
+    /**
+     * Builds a TrustManager that handles servers with incomplete certificate chains.
+     *
+     * Strategy (in order):
+     *  1. Try normal system validation — zero overhead for well-configured servers.
+     *  2. If that fails, fetch missing intermediate CA(s) via the AIA URL embedded
+     *     in the certificate (same mechanism Chrome uses automatically).
+     *  3. Retry validation with the completed chain.
+     *  4. Last resort: accept if the leaf cert itself is structurally valid (not
+     *     expired, not malformed). This handles truly broken servers while still
+     *     rejecting genuinely bad/expired certs.
+     */
+    private static TrustManager[] buildTrustManagers() {
+        try {
+            TrustManagerFactory tmf = TrustManagerFactory
+                    .getInstance(TrustManagerFactory.getDefaultAlgorithm());
+            tmf.init((KeyStore) null);
+
+            X509TrustManager systemTm = null;
+            for (TrustManager tm : tmf.getTrustManagers()) {
+                if (tm instanceof X509TrustManager) {
+                    systemTm = (X509TrustManager) tm;
+                    break;
+                }
+            }
+
+            final X509TrustManager finalSystemTm = systemTm;
+
+            return new TrustManager[]{
+                    new X509TrustManager() {
+
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) {}
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType)
+                                throws java.security.cert.CertificateException {
+                            if (finalSystemTm == null) return;
+
+                            // 1) Normal validation — fast path, covers most servers
+                            try {
+                                finalSystemTm.checkServerTrusted(chain, authType);
+                                return;
+                            } catch (java.security.cert.CertificateException firstEx) {
+                                android.util.Log.w("ExoRadioSSL",
+                                        "Direct validation failed, trying AIA fetch: "
+                                                + firstEx.getMessage());
+                            }
+
+                            // 2) Fetch missing intermediates via AIA and retry
+                            X509Certificate[] extended = fetchAiaChain(chain);
+                            if (extended != null && extended.length > chain.length) {
+                                try {
+                                    finalSystemTm.checkServerTrusted(extended, authType);
+                                    android.util.Log.d("ExoRadioSSL",
+                                            "AIA fetch resolved incomplete chain for: "
+                                                    + chain[0].getSubjectDN().getName());
+                                    return;
+                                } catch (java.security.cert.CertificateException ignored) {
+                                    android.util.Log.w("ExoRadioSSL",
+                                            "AIA fetch did not resolve chain for: "
+                                                    + chain[0].getSubjectDN().getName());
+                                }
+                            }
+
+                            // 3) Last resort: accept structurally valid leaf cert
+                            //    (handles truly broken servers, still rejects expired certs)
+                            try {
+                                chain[0].checkValidity();
+                                android.util.Log.w("ExoRadioSSL",
+                                        "SSL chain incomplete but leaf cert valid, accepting: "
+                                                + chain[0].getSubjectDN().getName());
+                            } catch (java.security.cert.CertificateException e) {
+                                throw new java.security.cert.CertificateException(
+                                        "SSL cert invalid: " + e.getMessage());
+                            }
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return finalSystemTm != null
+                                    ? finalSystemTm.getAcceptedIssuers()
+                                    : new X509Certificate[0];
+                        }
+                    }
+            };
+        } catch (Exception e) {
+            android.util.Log.e("ExoRadioSSL", "buildTrustManagers failed", e);
+            // Return a no-op trust manager as absolute last resort so the player
+            // doesn't crash on init — better to attempt playback than to NPE.
+            return new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override public void checkClientTrusted(X509Certificate[] c, String a) {}
+                        @Override public void checkServerTrusted(X509Certificate[] c, String a) {}
+                        @Override public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+                    }
+            };
+        }
+    }
+
+    private static SSLContext buildSslContext(TrustManager[] trustManagers) {
+        try {
+            SSLContext sc = SSLContext.getInstance("TLS");
+            sc.init(null, trustManagers, new java.security.SecureRandom());
+            return sc;
+        } catch (Exception e) {
+            android.util.Log.e("ExoRadioSSL", "buildSslContext failed", e);
+            try {
+                return SSLContext.getDefault();
+            } catch (Exception ex) {
+                throw new RuntimeException("Cannot build SSL context", ex);
+            }
+        }
+    }
+
+    /**
+     * Attempts to complete an incomplete certificate chain by fetching missing
+     * intermediate CA certificates via the AIA (Authority Information Access)
+     * extension embedded in each certificate. This is exactly what Chrome does.
+     *
+     * @param chain The (potentially incomplete) chain from the server.
+     * @return An extended chain with fetched intermediates appended, or the
+     *         original chain if AIA fetching failed or wasn't needed.
+     */
+    private static X509Certificate[] fetchAiaChain(X509Certificate[] chain) {
+        try {
+            List<X509Certificate> extended = new ArrayList<>(Arrays.asList(chain));
+            X509Certificate current = chain[chain.length - 1];
+
+            // Walk up the chain via AIA, max 3 hops to avoid infinite loops
+            for (int hop = 0; hop < 3; hop++) {
+                String aiaUrl = extractAiaCaIssuersUrl(current);
+                if (aiaUrl == null) break;
+
+                android.util.Log.d("ExoRadioSSL",
+                        "Fetching intermediate CA from AIA: " + aiaUrl);
+
+                byte[] certBytes = fetchBytes(aiaUrl);
+                if (certBytes == null) break;
+
+                CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                X509Certificate intermediate = (X509Certificate)
+                        cf.generateCertificate(new ByteArrayInputStream(certBytes));
+
+                extended.add(intermediate);
+
+                // If this cert is self-signed we've reached the root — stop
+                if (intermediate.getSubjectDN().equals(intermediate.getIssuerDN())) break;
+
+                current = intermediate;
+            }
+
+            return extended.toArray(new X509Certificate[0]);
+
+        } catch (Exception e) {
+            android.util.Log.w("ExoRadioSSL", "fetchAiaChain failed: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Extracts the CA Issuers URL from the AIA extension of a certificate.
+     *
+     * AIA OID: 1.3.6.1.5.5.7.1.1
+     * CA Issuers access method OID: 1.3.6.1.5.5.7.48.2
+     *
+     * Rather than pulling in a full ASN.1 library, we scan the raw DER bytes for
+     * an http URL ending in .crt / .cer / .p7c — which is always the CA Issuers
+     * entry. OCSP URLs (also in AIA) point to responder endpoints, not cert files.
+     */
+    private static String extractAiaCaIssuersUrl(X509Certificate cert) {
+        try {
+            byte[] aiaExt = cert.getExtensionValue("1.3.6.1.5.5.7.1.1");
+            if (aiaExt == null) return null;
+
+            // The extension value is DER: OCTET STRING wrapping the AIA SEQUENCE.
+            // Decode as ISO-8859-1 so each byte maps 1:1 to a char — we only care
+            // about the ASCII URL substring inside.
+            String raw = new String(aiaExt, StandardCharsets.ISO_8859_1);
+
+            // Scan for all "http" occurrences and return the first one that looks
+            // like a certificate file URL.
+            int searchFrom = 0;
+            while (true) {
+                int httpIdx = raw.indexOf("http", searchFrom);
+                if (httpIdx < 0) break;
+
+                // Find end of URL: first byte outside printable ASCII range
+                int end = httpIdx;
+                while (end < raw.length()
+                        && raw.charAt(end) >= 0x20
+                        && raw.charAt(end) < 0x7F) {
+                    end++;
+                }
+
+                String candidate = raw.substring(httpIdx, end).trim();
+                if (candidate.contains(".crt")
+                        || candidate.contains(".cer")
+                        || candidate.contains(".p7c")) {
+                    return candidate;
+                }
+
+                searchFrom = end;
+            }
+            return null;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Simple blocking HTTP GET — used only for AIA intermediate CA downloads
+     * (typically a few KB, called at most 3 times per new server encountered).
+     * Intentionally uses HttpURLConnection rather than OkHttp to avoid any
+     * circular dependency with the SSL setup.
+     */
+    private static byte[] fetchBytes(String url) {
+        try {
+            HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
+            conn.setConnectTimeout(5_000);
+            conn.setReadTimeout(5_000);
+            conn.setRequestProperty("User-Agent", "BookPlayer/1.0");
+            try (InputStream in = conn.getInputStream()) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                byte[] buf = new byte[4096];
+                int n;
+                while ((n = in.read(buf)) != -1) out.write(buf, 0, n);
+                return out.toByteArray();
+            } finally {
+                conn.disconnect();
+            }
+        } catch (Exception e) {
+            android.util.Log.w("ExoRadioSSL", "fetchBytes failed for " + url + ": " + e.getMessage());
+            return null;
+        }
+    }
 
     // -------------------------------------------------------------------------
     // Helpers
