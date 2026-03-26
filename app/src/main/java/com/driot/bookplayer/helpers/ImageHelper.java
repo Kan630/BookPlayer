@@ -12,13 +12,22 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.net.Uri;
 
+import android.os.Looper;
+import android.os.Handler;
+import android.text.TextUtils;
+import android.view.View;
+import android.widget.ImageView;
+
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
 import androidx.documentfile.provider.DocumentFile;
 
+import com.bumptech.glide.Glide;
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.BookSource;
 import com.driot.bookplayer.db.Folder;
+import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.podcasts.PodcastHelper;
 import com.driot.bookplayer.radio.RadioHelper;
@@ -36,6 +45,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Consumer;
 
 public class ImageHelper {
 
@@ -1291,4 +1301,50 @@ public class ImageHelper {
             }
         }
     }
+
+    public static void loadRadioFavicon(RadioStation s, ImageView favicon, ImageView ivDefaultIcon) {
+        favicon.setTag(s.stationuuid);
+        if (TextUtils.isEmpty(s.favicon)) {
+            if (!TextUtils.isEmpty(s.homepage)) {
+                fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
+                    if (!favicon.getTag().equals(s.stationuuid)) return;
+                    if (url != null) {
+                        myLog("[" + s.name + "] => no favicon, using og image");
+                        ivDefaultIcon.setVisibility(View.GONE);
+                        Glide.with(favicon).load(url).error(R.drawable.no_image_icon).into(favicon);
+                    } else {
+                        myLog("[" + s.name + "] => no favicon, falling back to google favicon");
+                        String googleUrl = "https://www.google.com/s2/favicons?sz=128&domain=" + s.homepage;
+                        ivDefaultIcon.setVisibility(View.GONE);
+                        Glide.with(favicon).load(googleUrl).error(R.drawable.no_image_icon).into(favicon);
+                    }
+                });
+            } else {
+                myLog("[" + s.name + "] => no favicon, no homepage, using default icon");
+                ivDefaultIcon.setVisibility(View.VISIBLE);
+                Glide.with(favicon).clear(favicon);
+            }
+        } else {
+            ivDefaultIcon.setVisibility(View.GONE);
+            Glide.with(favicon).load(s.favicon).error(R.drawable.no_image_icon).into(favicon);
+        }
+    }
+
+    //RADIO favicon fetcher
+    private static void fetchOgImage(String homeUrl, int timeout_ms, Consumer<String> callback) {
+        new Thread(() -> {
+            try {
+                org.jsoup.nodes.Document doc = org.jsoup.Jsoup.connect(homeUrl).timeout(timeout_ms).get();
+                String img = doc.select("meta[property=og:image]").attr("content");
+                new Handler(Looper.getMainLooper()).post(() ->
+                        callback.accept(img.isEmpty() ? null : img)
+                );
+            } catch (Exception e) {
+                new Handler(Looper.getMainLooper()).post(() ->
+                        callback.accept(null)
+                );
+            }
+        }).start();
+    }
+
 }

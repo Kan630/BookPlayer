@@ -18,6 +18,8 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
 import com.bumptech.glide.signature.ObjectKey;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.db.RadioStation;
+import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingRVAdapter;
 
 import java.util.ArrayList;
@@ -221,17 +223,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
             holder.info.setText(RadioHelper.buildShortInfoString(rs));
 
-            // Favicon
-            holder.favicon.setTag(s.stationuuid);
-            if (TextUtils.isEmpty(s.favicon)) {
-                holder.ivDefaultIcon.setVisibility(View.VISIBLE);
-                Glide.with(holder.favicon).clear(holder.favicon);
-                holder.favicon.setImageDrawable(null);
-            } else {
-                holder.ivDefaultIcon.setVisibility(View.GONE);
-                Glide.with(holder.favicon).load(s.favicon)
-                        .into(holder.favicon);
-            }
+            ImageHelper.loadRadioFavicon(rs, holder.favicon, holder.ivDefaultIcon);
 
             // Favorite tint
             boolean isFav = favoriteUuids.contains(s.stationuuid);
