@@ -148,7 +148,6 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         ItemVH(@NonNull View itemView) {
             super(itemView);
             favicon = itemView.findViewById(R.id.radio_favicon);
-            ivDefaultIcon = itemView.findViewById(R.id.ivDefaultIcon);
             title = itemView.findViewById(R.id.radio_title);
             info = itemView.findViewById(R.id.radio_info_txt); // country • language • tags
             ibFavorite = itemView.findViewById(R.id.ibFavorite);

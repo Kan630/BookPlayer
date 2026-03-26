@@ -28,20 +28,6 @@
             app:layout_constraintDimensionRatio="1:1"
             />
 
-        <!-- Default Radio icon (shown only when no favicon is available) -->
-        <ImageView
-            android:id="@+id/ivDefaultIcon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:layout_margin="8dp"
-            android:contentDescription="@string/icon"
-            android:src="@drawable/ic_radio_24px"
-            app:tint="@android:color/white"
-            app:layout_constraintTop_toTopOf="@id/radio_favicon"
-            app:layout_constraintStart_toStartOf="@id/radio_favicon"
-            android:visibility="gone"
-            />
-
         <!-- Favorite button -->
         <ImageButton
             android:id="@+id/ibFavorite"

@@ -284,7 +284,6 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
         ItemVH(@NonNull View v) {
             super(v);
             favicon = v.findViewById(R.id.radio_favicon);
-            ivDefaultIcon = v.findViewById(R.id.ivDefaultIcon);
             title = v.findViewById(R.id.radio_title);
             info = v.findViewById(R.id.radio_info_txt);
             ibFavorite = v.findViewById(R.id.ibFavorite);
