@@ -173,7 +173,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
                     break;
             }
             startActivity(i);
-        });
+        }, mode != MODE_TAG);
         recyclerView.setAdapter(adapter);
     }
 

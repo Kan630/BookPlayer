@@ -29,9 +29,11 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 
     private final List<TagItem> items = new ArrayList<>();
     private final OnClick cb;
+    private final boolean showFlags;
 
-    public TagCardAdapter(OnClick cb) {
+    public TagCardAdapter(OnClick cb, boolean showFlags) {
         this.cb = cb;
+        this.showFlags = showFlags;
     }
 
     public void setItems(List<TagItem> newData) {
@@ -109,16 +111,20 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
         // COUNT
         h.tvCount.setText(String.valueOf(t.stationcount));
         // FLAG
+        if (!showFlags) {
+            Glide.with(h.ivFlag.getContext()).clear(h.ivFlag);
+            h.ivFlag.setVisibility(View.GONE);
+        }
         int flagResId = 0;
-        if (t.iso_3166_1 != null) {
+        if (showFlags && t.iso_3166_1 != null) {
             flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_3166_1, "country");
-        } else if (t.iso_639 != null) {
+        } else if (showFlags && t.iso_639 != null) {
             flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_639, "language");
         }
-        if (flagResId == 0) {
+        if (showFlags && flagResId == 0) {
             flagResId = LanguageMapper.getFlagFromName(t.name);
         }
-        if (flagResId == 0) {
+        if (showFlags && flagResId == 0) {
             if ("american english".equals(t.name)) {
                 flagResId = getFlagResId(h.ivFlag.getContext(), "us", "country");
             } else if ("brazilian portuguese".equals(t.name)) {
