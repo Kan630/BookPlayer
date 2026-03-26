@@ -233,7 +233,7 @@
             </androidx.appcompat.widget.Toolbar>
         </com.google.android.material.appbar.CollapsingToolbarLayout>
 
-        <include layout="@layout/layout_search_bar" />
+        <include layout="@layout/layout_search_bar_podcast_episodes" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <!-- SCROLLING CONTENT -->

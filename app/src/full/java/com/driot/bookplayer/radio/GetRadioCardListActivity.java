@@ -3,13 +3,19 @@ package com.driot.bookplayer.radio;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -22,125 +28,79 @@ import com.driot.bookplayer.helpers.ViewHelper;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
-import java.util.ArrayList;
-import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 @AndroidEntryPoint
 public class GetRadioCardListActivity extends BaseBottomNavActivity {
 
+    // -------------------------------------------------------------------------
+    // Constants
+    // -------------------------------------------------------------------------
+
     public static final String EXTRA_FACET_MODE = "EXTRA_FACET_MODE";
-    public static final int MODE_TAG = 0;
-    public static final int MODE_COUNTRY = 1;
+    public static final int MODE_TAG      = 0;
+    public static final int MODE_COUNTRY  = 1;
     public static final int MODE_LANGUAGE = 2;
 
     @IntDef({ MODE_TAG, MODE_COUNTRY, MODE_LANGUAGE })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface FacetMode {
-    }
+    public @interface FacetMode {}
 
-    private RecyclerView recyclerView;
-    private ProgressBar progressBar;
-    private TextView tvProgressMessage;
-    private RadioBrowserRepository repo;
+    // -------------------------------------------------------------------------
+    // Fields
+    // -------------------------------------------------------------------------
+
+    private GetRadioCardListViewModel viewModel;
     private TagCardAdapter adapter;
+
+    private RecyclerView  recyclerView;
+    private ProgressBar   progressBar;
+    private TextView      tvProgressMessage;
+    private LinearLayout  layoutSearch;
+    private EditText      etSearch;
+    private ImageButton   btnClearSearch;
+
+    private int  backPressCount    = 0;
+    private long lastBackPressTime = 0;
 
     private final LoadingProgressHelper progressHelper = new LoadingProgressHelper();
 
+    // -------------------------------------------------------------------------
+    // Static launcher
+    // -------------------------------------------------------------------------
+
     public static void start(Context ctx, @FacetMode int mode) {
-        Intent i = new Intent(ctx, GetRadioCardListActivity.class)
-                .putExtra(EXTRA_FACET_MODE, mode);
-        ctx.startActivity(i);
+        ctx.startActivity(
+                new Intent(ctx, GetRadioCardListActivity.class)
+                        .putExtra(EXTRA_FACET_MODE, mode));
     }
 
-    @Override
-    protected int getNavId() {
-        return R.id.nav_radio;
-    }
+    // -------------------------------------------------------------------------
+    // BaseBottomNavActivity overrides
+    // -------------------------------------------------------------------------
 
-    @Override
-    protected int getLayoutResId() {
-        return R.layout.activity_get_radio_by_tag;
-    }
+    @Override protected int getNavId()         { return R.id.nav_radio; }
+    @Override protected int getLayoutResId()   { return R.layout.activity_get_radio_by_tag; }
+    @Override protected boolean enableOngoingTaskOverlay() { return true; }
 
-    @Override
-    protected boolean enableOngoingTaskOverlay() {
-        return true;
-    }
+    // -------------------------------------------------------------------------
+    // Lifecycle
+    // -------------------------------------------------------------------------
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         InsetHelper.apply(this);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        progressBar = findViewById(R.id.progressBar);
-        tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        bindViews();
 
-        @FacetMode
-        int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
+        @FacetMode int mode = getIntent().getIntExtra(EXTRA_FACET_MODE, MODE_TAG);
 
-        int span;
-        if (mode == MODE_TAG) {
-            span = getResources().getInteger(R.integer.radio_grid_span_card_tag);
-        } else {
-            span = getResources().getInteger(R.integer.radio_grid_span_card_country);
-        }
-        if (span < 2) span = 2;
-
-        GridLayoutManager glm = new GridLayoutManager(this, span);
-        recyclerView.setLayoutManager(glm);
-        recyclerView.addItemDecoration(
-                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
-
-        repo = new RadioBrowserRepository(
-                this,
-                /* discoverMirrors */ false,
-                /* log level */ Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL);
-
-        adapter = new TagCardAdapter(tagItem -> {
-            myLogI("---- user clicks facet item, name=[" + tagItem.name + "] - country=[" + tagItem.iso_639
-                    + "] - lang=[" + tagItem.iso_3166_1 + "]");
-            // Route by current facet mode:
-            Intent i = new Intent(this, RadioResultsActivity.class);
-            switch (mode) {
-                case MODE_COUNTRY:
-                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_COUNTRY")
-                            .putExtra("country", tagItem.name) // e.g. "FR"
-                            .putExtra("lang", "")
-                            .putExtra("tag", "")
-                            .putExtra("query", "");
-                    break;
-                case MODE_LANGUAGE:
-                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
-                            .putExtra("lang", tagItem.name) // e.g. "fr"
-                            .putExtra("country", "")
-                            .putExtra("tag", "")
-                            .putExtra("query", "");
-                    break;
-                case MODE_TAG:
-                default:
-                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TAG")
-                            .putExtra("tag", tagItem.name) // e.g. "jazz"
-                            .putExtra("lang", "")
-                            .putExtra("country", "")
-                            .putExtra("query", "");
-                    break;
-            }
-            startActivity(i);
-        });
-        recyclerView.setAdapter(adapter);
-
-        List<TagItem> cachedItems = RadioCacheHelper.loadCache(this, mode);
-        if (!cachedItems.isEmpty()) {
-            adapter.setItems(cachedItems);
-        }
-
-        loadFacetItems(mode);
+        setupRecyclerView(mode);
+        setupAdapter(mode);
+        setupViewModel(mode);
+        setupSearchBar();
     }
 
     @Override
@@ -149,107 +109,142 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         progressHelper.stop();
     }
 
-    private void loadFacetItems(@FacetMode int mode) {
-        if (adapter.getItemCount() == 0) {
-            progressBar.setVisibility(View.VISIBLE);
-            if (tvProgressMessage != null && adapter.getItemCount() == 0) {
+    // -------------------------------------------------------------------------
+    // Setup helpers
+    // -------------------------------------------------------------------------
+
+    private void bindViews() {
+        recyclerView      = findViewById(R.id.recyclerView);
+        progressBar       = findViewById(R.id.progressBar);
+        tvProgressMessage = findViewById(R.id.tvProgressMessage);
+        layoutSearch      = findViewById(R.id.layoutSearch);
+        etSearch          = findViewById(R.id.etSearch);
+        btnClearSearch    = findViewById(R.id.btnClearSearch);
+    }
+
+    private void setupRecyclerView(@FacetMode int mode) {
+        int span = mode == MODE_TAG
+                ? getResources().getInteger(R.integer.radio_grid_span_card_tag)
+                : getResources().getInteger(R.integer.radio_grid_span_card_country);
+        if (span < 2) span = 2;
+
+        recyclerView.setLayoutManager(new GridLayoutManager(this, span));
+        recyclerView.addItemDecoration(
+                new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER)));
+    }
+
+    private void setupAdapter(@FacetMode int mode) {
+        adapter = new TagCardAdapter(tagItem -> {
+            myLogI("---- user clicks facet item, name=[" + tagItem.name
+                    + "] country=[" + tagItem.iso_3166_1
+                    + "] lang=[" + tagItem.iso_639 + "]");
+
+            Intent i = new Intent(this, RadioResultsActivity.class);
+            switch (mode) {
+                case MODE_COUNTRY:
+                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_COUNTRY")
+                            .putExtra("country", tagItem.name)
+                            .putExtra("lang", "").putExtra("tag", "").putExtra("query", "");
+                    break;
+                case MODE_LANGUAGE:
+                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
+                            .putExtra("lang", tagItem.name)
+                            .putExtra("country", "").putExtra("tag", "").putExtra("query", "");
+                    break;
+                case MODE_TAG:
+                default:
+                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TAG")
+                            .putExtra("tag", tagItem.name)
+                            .putExtra("lang", "").putExtra("country", "").putExtra("query", "");
+                    break;
+            }
+            startActivity(i);
+        });
+        recyclerView.setAdapter(adapter);
+    }
+
+    private void setupViewModel(@FacetMode int mode) {
+        viewModel = new ViewModelProvider(this).get(GetRadioCardListViewModel.class);
+        viewModel.init(mode, new RadioBrowserRepository(
+                this, false, Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL));
+
+        // Filtered list → adapter
+        viewModel.getFilteredItemsLive().observe(this, items -> adapter.setItems(items));
+
+        // Loading state → progress bar + animated message
+        viewModel.getLoadingStateLive().observe(this, state -> {
+            boolean loading = state == GetRadioCardListViewModel.LoadingState.LOADING;
+            progressBar.setVisibility(loading ? View.VISIBLE : View.GONE);
+            if (loading) {
                 progressHelper.start(tvProgressMessage, new LoadingProgressHelper.MessageProvider() {
-                    @NonNull
-                    @Override
-                    public String getInitialMessage() {
+                    @NonNull @Override public String getInitialMessage() {
                         return getString(R.string.radio_browser_contacting);
                     }
-
-                    @NonNull
-                    @Override
-                    public String getTickMessage(long elapsedSec) {
+                    @NonNull @Override public String getTickMessage(long elapsedSec) {
                         return getString(R.string.radio_browser_wait_elapsed,
                                 (int) elapsedSec, Var.RADIO_BROWSER_TIMEOUT_SEC);
                     }
                 });
+            } else {
+                progressHelper.stop();
             }
-        }
-        // Reuse your existing repo list endpoints.
-        // We’ll standardize them into TagItem(name, count, imageUrl?) for the adapter.
+        });
 
-        switch (mode) {
-            case MODE_COUNTRY:
-                // If you already have: repo.getTopCountries(int limit, Callback<List<TagItem>>
-                // cb)
-                // otherwise map your Country model to TagItem(name=ISO2 code / display).
-                repo.getTopCountries(Var.RADIO_LIST_MAX_CARD_ITEM, new Callback<>() {
-                    @Override
-                    public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                        progressBar.setVisibility(View.GONE);
-                        progressHelper.stop();
-                        if (rsp.isSuccessful() && rsp.body() != null) {
-                            adapter.setItems(rsp.body());
-                            RadioCacheHelper.saveCache(GetRadioCardListActivity.this, mode, rsp.body());
-                        } else {
-                            adapter.setItems(new ArrayList<>());
-                        }
-                    }
+        // Seed from disk cache for instant display, then hit the network
+        viewModel.seedFromCache(RadioCacheHelper.loadCache(this, mode));
+        viewModel.loadFacetItems();
+    }
 
-                    @Override
-                    public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                        progressBar.setVisibility(View.GONE);
-                        progressHelper.stop();
-                        adapter.setItems(new ArrayList<>());
-                        myLogEE(t, "getTopCountries failed");
-                    }
-                });
-                break;
+    private void setupSearchBar() {
+        // Text changes → ViewModel filter
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {}
+            @Override public void afterTextChanged(Editable s) {
+                viewModel.setSearchQuery(s.toString());
+                btnClearSearch.setVisibility(s.length() > 0 ? View.VISIBLE : View.GONE);
+            }
+        });
 
-            case MODE_LANGUAGE:
-                // If you already have: repo.getTopLanguages(int limit, Callback<List<TagItem>>
-                // cb)
-                repo.getTopLanguages(Var.RADIO_LIST_MAX_CARD_ITEM, new Callback<>() {
-                    @Override
-                    public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                        progressBar.setVisibility(View.GONE);
-                        progressHelper.stop();
-                        if (rsp.isSuccessful() && rsp.body() != null) {
-                            adapter.setItems(rsp.body());
-                            RadioCacheHelper.saveCache(GetRadioCardListActivity.this, mode, rsp.body());
-                        } else {
-                            adapter.setItems(new ArrayList<>());
-                        }
-                    }
+        // Clear button wipes the query
+        btnClearSearch.setOnClickListener(v -> {
+            etSearch.setText("");
+            viewModel.setSearchQuery("");
+        });
 
-                    @Override
-                    public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                        progressBar.setVisibility(View.GONE);
-                        progressHelper.stop();
-                        adapter.setItems(new ArrayList<>());
-                        myLogEE(t, "getTopLanguages failed");
-                    }
-                });
-                break;
+        // Restore search bar visibility across rotation
+        viewModel.getSearchVisibleLive().observe(this, visible ->
+                layoutSearch.setVisibility(visible ? View.VISIBLE : View.GONE));
+    }
 
-            case MODE_TAG:
-            default:
-                repo.getTopTags(Var.RADIO_LIST_MAX_CARD_ITEM, new Callback<>() {
-                    @Override
-                    public void onResponse(Call<List<TagItem>> call, Response<List<TagItem>> rsp) {
-                        progressBar.setVisibility(View.GONE);
-                        progressHelper.stop();
-                        if (rsp.isSuccessful() && rsp.body() != null) {
-                            adapter.setItems(rsp.body());
-                            RadioCacheHelper.saveCache(GetRadioCardListActivity.this, mode, rsp.body());
-                        } else {
-                            adapter.setItems(new ArrayList<>());
-                        }
-                    }
+    // -------------------------------------------------------------------------
+    // Search toggle (called from toolbar button / menu item)
+    // -------------------------------------------------------------------------
 
-                    @Override
-                    public void onFailure(Call<List<TagItem>> call, Throwable t) {
-                        progressBar.setVisibility(View.GONE);
-                        progressHelper.stop();
-                        adapter.setItems(new ArrayList<>());
-                        myLogEE(t, "getTopTags failed");
-                    }
-                });
-                break;
+    private void toggleSearch() {
+        View bottomNav      = findViewById(R.id.bottomNav);
+        View miniNowPlaying = findViewById(R.id.miniNowPlaying);
+
+        if (viewModel.isSearchVisible()) {
+            // --- Close search ---
+            viewModel.setSearchVisible(false);   // also clears the query
+            if (bottomNav      != null) bottomNav.setVisibility(View.VISIBLE);
+            if (miniNowPlaying != null) miniNowPlaying.setVisibility(View.VISIBLE);
+            etSearch.setText("");
+            ViewHelper.hideKeyboard(this, etSearch);
+            backPressCount    = 0;
+            lastBackPressTime = 0;
+        } else {
+            // --- Open search ---
+            viewModel.setSearchVisible(true);
+            if (bottomNav      != null) bottomNav.setVisibility(View.GONE);
+            if (miniNowPlaying != null) miniNowPlaying.setVisibility(View.GONE);
+            // Restore any previously typed query (survives rotation)
+            String current = viewModel.getSearchQueryLive().getValue();
+            etSearch.setText(current);
+            if (current != null) etSearch.setSelection(current.length());
+            etSearch.requestFocus();
+            ViewHelper.showKeyboard(this, etSearch);
         }
     }
 }
