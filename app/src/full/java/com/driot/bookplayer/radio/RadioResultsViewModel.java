@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.db.RadioStationDao;
+import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.util.ArrayList;
@@ -264,6 +265,8 @@ public class RadioResultsViewModel extends LoggingViewModel {
                     existing.isFavorite = true;
                     existing.date_maj = now;
                     dao.update(existing);
+                    // resolve favicon if missing
+                    ImageHelper.resolveAndPersistFavicon(appCtx, existing);
                 }
             } else {
                 // brand new favorite
@@ -271,12 +274,13 @@ public class RadioResultsViewModel extends LoggingViewModel {
                 r.stationuuid = s.stationuuid;
                 copyFromStationToRadioStation(r, s);
                 r.isFavorite = true;
-                r.display_order = 0; // new favorites at top; you can tweak this
+                r.display_order = 0;
                 r.date_added = now;
                 r.date_maj = now;
                 r.date_last_played = null;
-
-                dao.insert(r);
+                r.id = dao.insert(r);          // <-- capture id so the object is complete
+                // resolve favicon if missing
+                ImageHelper.resolveAndPersistFavicon(appCtx, r);
             }
 
             refreshFromDb(appCtx, historyMode);

@@ -38,7 +38,9 @@
             android:src="@drawable/ic_radio_24px"
             app:tint="@android:color/white"
             app:layout_constraintTop_toTopOf="@id/radio_favicon"
-            app:layout_constraintStart_toStartOf="@id/radio_favicon" />
+            app:layout_constraintStart_toStartOf="@id/radio_favicon"
+            android:visibility="gone"
+            />
 
         <!-- Favorite button -->
         <ImageButton

@@ -84,4 +84,7 @@ public interface RadioStationDao {
 
     @Query("UPDATE RadioStation SET timeListened = timeListened + 1 WHERE id = :id")
     void addSecondToTimeListened(long id);
+
+    @Query("UPDATE RadioStation SET favicon = :favicon WHERE stationuuid = :stationuuid")
+    void updateFavicon(String stationuuid, String favicon);
 }

@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.support.v4.media.MediaBrowserCompat;
 import android.support.v4.media.MediaDescriptionCompat;
+import android.text.TextUtils;
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -120,9 +121,20 @@ public class RadioHelper {
 			RadioStation rs = dao.findByUuid(stationUuid);
 
 			// Freshness check: 5 minutes
-			if (rs != null && rs.date_maj > System.currentTimeMillis() - Var.RADIO_REFRESH_FOR_STATION_ACTIVITY_IN_MS
-					&& !"Unknown Station".equals(rs.name)) {
-				myLogD("fetchAndUpsertStation: metadata is fresh for " + rs.name);
+			boolean isFresh = rs != null
+					&& rs.date_maj > System.currentTimeMillis() - Var.RADIO_REFRESH_FOR_STATION_ACTIVITY_IN_MS
+					&& !"Unknown Station".equals(rs.name);
+			boolean hasFavicon = rs != null && !TextUtils.isEmpty(rs.favicon);
+
+			if (isFresh && hasFavicon) {
+				myLogD("fetchAndUpsertStation: metadata is fresh and favicon present for " + rs.name);
+				return;
+			}
+
+// Station is fresh but has no favicon — just resolve the favicon without a full API fetch
+			if (isFresh && !hasFavicon) {
+				myLogD("fetchAndUpsertStation: fresh but no favicon, resolving for " + rs.name);
+				ImageHelper.resolveAndPersistFavicon(context, rs);
 				return;
 			}
 

@@ -1563,10 +1563,18 @@ public class ImageHelper {
         }
         return null;
     }
+
     public static void resolveAndPersistFavicon(Context context, RadioStation s) {
-        // Already has a valid favicon — nothing to do
+        // Already has a valid remote URL → nothing to do
         if (!TextUtils.isEmpty(s.favicon) && s.favicon.startsWith("http")) return;
 
+        // Already has a valid local file → nothing to do
+        if (!TextUtils.isEmpty(s.favicon) && !s.favicon.startsWith("http")) {
+            File f = new File(s.favicon);
+            if (f.exists() && f.length() > 0) return;
+        }
+
+        // No favicon, or local file is missing/broken → resolve
         if (!TextUtils.isEmpty(s.homepage)) {
             fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
                 if (url != null) {
@@ -1596,15 +1604,16 @@ public class ImageHelper {
     }
 
     private static void persistFaviconUrl(Context context, RadioStation s, String url) {
-        new Thread(() -> {
+        AppDatabase.databaseWriteExecutor.execute(() -> {
             try {
-                RadioStationDao dao = AppDatabase.getDatabase(context.getApplicationContext()).radioStationDao();
-                s.favicon = url;
-                dao.update(s);
+                AppDatabase.getDatabase(context.getApplicationContext())
+                        .radioStationDao()
+                        .updateFavicon(s.stationuuid, url);
+                s.favicon = url; // keep in-memory object in sync
             } catch (Exception e) {
                 myLogW("persistFaviconUrl failed: " + e.getMessage());
             }
-        }).start();
+        });
     }
 
 }
