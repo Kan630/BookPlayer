@@ -77,6 +77,9 @@ public class ImageHelper {
     public static final String IMAGE_PREFIX_FOR_SAVED_COPY_OF_ORIGINAL_COVER = "saved_";
     public static final String IMAGE_PREFIX_FOR_TEMP_FILE = "tmp_img";
 
+    public static final boolean VERBOSE_DEBUG = false;
+    private static void myLogDD(String txt) { if (VERBOSE_DEBUG) myLogD(txt); }
+
     // TODO ASYNC...
     public static String downloadAndMaybeCompressImage(Context context, String imageUrl, String imagePath,
             boolean isCached) {
@@ -1349,14 +1352,14 @@ public class ImageHelper {
                 fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
                     if (!favicon.getTag().equals(s.stationuuid)) return;
                     if (url != null) {
-                        myLog("[" + s.name + "] => no favicon, using og image");
+                        myLogDD("[" + s.name + "] => no favicon, using og image");
                         faviconCache.put(s.stationuuid, url);
                         Glide.with(favicon).load(url)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
                                 .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                 .into(favicon);
                     } else {
-                        myLog("[" + s.name + "] => no favicon, falling back to google favicon");
+                        myLogDD("[" + s.name + "] => no favicon, falling back to google favicon");
                         String googleUrl = "https://www.google.com/s2/favicons?sz=256&domain=" + s.homepage;
                         faviconCache.put(s.stationuuid, googleUrl);
                         Glide.with(favicon).load(googleUrl)
@@ -1366,29 +1369,29 @@ public class ImageHelper {
                     }
                 });
             } else {
-                myLog("[" + s.name + "] => no favicon, no homepage, trying DuckDuckGo fallback");
+                myLogDD("[" + s.name + "] => no favicon, no homepage, trying DuckDuckGo fallback");
                 fetchFallbackBySearch(s.name, s.country, url -> {
                     if (!favicon.getTag().equals(s.stationuuid)) return;
                     if (url != null) {
-                        myLog("[" + s.name + "] => DuckDuckGo fallback found");
+                        myLogDD("[" + s.name + "] => DuckDuckGo fallback found");
                         faviconCache.put(s.stationuuid, url);
                         Glide.with(favicon).load(url)
                                 .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
                                 .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                 .into(favicon);
                     } else {
-                        myLog("[" + s.name + "] => DuckDuckGo failed, trying iTunes fallback");
+                        myLogDD("[" + s.name + "] => DuckDuckGo failed, trying iTunes fallback");
                         fetchFallbackImage(s.name, s.country, url2 -> {
                             if (!favicon.getTag().equals(s.stationuuid)) return;
                             if (url2 != null) {
-                                myLog("[" + s.name + "] => iTunes fallback found");
+                                myLogDD("[" + s.name + "] => iTunes fallback found");
                                 faviconCache.put(s.stationuuid, url2);
                                 Glide.with(favicon).load(url2)
                                         .placeholder(getDefaultFaviconDrawable(favicon.getContext()))
                                         .error(getErrorDrawable(favicon.getContext(), replacementResource))
                                         .into(favicon);
                             } else {
-                                myLog("[" + s.name + "] => no image found at all, using default");
+                                myLogDD("[" + s.name + "] => no image found at all, using default");
                                 faviconCache.put(s.stationuuid, null);
                             }
                         });
@@ -1521,7 +1524,7 @@ public class ImageHelper {
                 new Handler(Looper.getMainLooper()).post(() -> callback.accept(result));
 
             } catch (Exception e) {
-                myLog("Wikipedia exception: " + e.getMessage());
+                myLogDD("Wikipedia exception: " + e.getMessage());
                 new Handler(Looper.getMainLooper()).post(() -> callback.accept(null));
             }
         }).start();
@@ -1529,7 +1532,7 @@ public class ImageHelper {
 
     private static String tryWikipediaQuery(String apiUrl) {
         try {
-            myLog("Wikipedia query: " + apiUrl);
+            myLogDD("Wikipedia query: " + apiUrl);
             HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
             conn.setConnectTimeout(5000);
             conn.setReadTimeout(5000);
@@ -1541,7 +1544,7 @@ public class ImageHelper {
             reader.close();
 
             String raw = sb.toString();
-            myLog("Wikipedia response: " + raw);
+            myLogDD("Wikipedia response: " + raw);
 
             JSONObject pages = new JSONObject(raw)
                     .getJSONObject("query")
@@ -1555,11 +1558,11 @@ public class ImageHelper {
             JSONObject thumbnail = page.optJSONObject("thumbnail");
             if (thumbnail != null) {
                 String imageUrl = thumbnail.optString("source", "");
-                myLog("Wikipedia imageUrl: " + imageUrl);
+                myLogDD("Wikipedia imageUrl: " + imageUrl);
                 return imageUrl.isEmpty() ? null : imageUrl;
             }
         } catch (Exception e) {
-            myLog("Wikipedia tryQuery exception: " + e.getMessage());
+            myLogDD("Wikipedia tryQuery exception: " + e.getMessage());
         }
         return null;
     }
@@ -1578,23 +1581,23 @@ public class ImageHelper {
         if (!TextUtils.isEmpty(s.homepage)) {
             fetchOgImage(s.homepage, Var.RADIO_OG_IMAGE_TIMEOUT_MS, url -> {
                 if (url != null) {
-                    myLog("[" + s.name + "] => persisting og image: " + url);
+                    myLogDD("[" + s.name + "] => persisting og image: " + url);
                     persistFaviconUrl(context, s, url);
                 } else {
                     String googleUrl = "https://www.google.com/s2/favicons?sz=256&domain=" + s.homepage;
-                    myLog("[" + s.name + "] => persisting google favicon: " + googleUrl);
+                    myLogDD("[" + s.name + "] => persisting google favicon: " + googleUrl);
                     persistFaviconUrl(context, s, googleUrl);
                 }
             });
         } else {
             fetchFallbackBySearch(s.name, s.country, url -> {
                 if (url != null) {
-                    myLog("[" + s.name + "] => persisting Wikipedia url: " + url);
+                    myLogDD("[" + s.name + "] => persisting Wikipedia url: " + url);
                     persistFaviconUrl(context, s, url);
                 } else {
                     fetchFallbackImage(s.name, s.country, url2 -> {
                         if (url2 != null) {
-                            myLog("[" + s.name + "] => persisting iTunes url: " + url2);
+                            myLogDD("[" + s.name + "] => persisting iTunes url: " + url2);
                             persistFaviconUrl(context, s, url2);
                         }
                     });
