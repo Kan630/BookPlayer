@@ -163,7 +163,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             holder.ibFavorite.setVisibility(View.GONE);
 
-            ImageHelper.loadRadioFavicon(f, holder.favicon, 0, faviconCache);
+            RadioFaviconHelper.loadRadioFavicon(f, holder.favicon, 0, faviconCache);
 
             holder.itemView.setOnClickListener(v -> {
                 listener.onPlay(f);

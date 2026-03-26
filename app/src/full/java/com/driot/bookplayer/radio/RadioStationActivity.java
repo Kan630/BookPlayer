@@ -166,7 +166,7 @@ public class RadioStationActivity extends BaseBottomNavActivity {
         // Cover
         if (!radioStation.stationuuid.equals(ivCover.getTag(R.id.tag_station_uuid))) {
             ivCover.setTag(R.id.tag_station_uuid, radioStation.stationuuid);
-            ImageHelper.loadRadioFavicon(radioStation, ivCover, R.drawable.ic_radio_24px, faviconCache);
+            RadioFaviconHelper.loadRadioFavicon(radioStation, ivCover, R.drawable.ic_radio_24px, faviconCache);
         }
 
         // Tags
