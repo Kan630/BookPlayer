@@ -180,7 +180,7 @@ public class FaviconResolver {
         HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
         conn.setConnectTimeout(timeoutMs);
         conn.setReadTimeout(timeoutMs);
-        conn.setRequestProperty("User-Agent", "RadioApp/1.0");
+        conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
             StringBuilder sb = new StringBuilder();
             String line;

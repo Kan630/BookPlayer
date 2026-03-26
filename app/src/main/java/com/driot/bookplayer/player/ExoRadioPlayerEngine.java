@@ -13,6 +13,7 @@ import androidx.media3.exoplayer.ExoPlayer;
 import androidx.media3.exoplayer.source.DefaultMediaSourceFactory;
 import androidx.media3.exoplayer.source.MediaSource;
 
+import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.utils.log.LoggerHelper;
 
 import java.io.ByteArrayInputStream;
@@ -89,7 +90,6 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
     // -------------------------------------------------------------------------
 
     private void initPlayer() {
-        final String userAgent = "BookPlayer/1.0 (ExoPlayer)";
 
         // --- Cookie-aware OkHttpClient ---
         // Many streaming CDNs (mdstrm.com, etc.) issue session cookies on the
@@ -119,7 +119,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
                         (X509TrustManager) trustManagers[0])
                 .addInterceptor(chain -> chain.proceed(
                         chain.request().newBuilder()
-                                .header("User-Agent", userAgent)
+                                .header("User-Agent", Var.USER_AGENT_BOOKPLAYER)
                                 .header("Accept", "*/*")
                                 .build()
                 ))
@@ -600,7 +600,7 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setConnectTimeout(5_000);
             conn.setReadTimeout(5_000);
-            conn.setRequestProperty("User-Agent", "BookPlayer/1.0");
+            conn.setRequestProperty("User-Agent", Var.USER_AGENT_BOOKPLAYER);
             try (InputStream in = conn.getInputStream()) {
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 byte[] buf = new byte[4096];
