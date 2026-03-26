@@ -228,14 +228,35 @@ public final class ExoRadioPlayerEngine extends LoggerHelper implements PlayerEn
         prepared  = false;
         preparing = false;
 
-        // Do NOT set a MimeType here.
-        // Setting MimeTypes.AUDIO_MPEG forces the MP3/progressive extractor and
-        // breaks HLS streams (.m3u8).  DefaultMediaSourceFactory will sniff the
-        // correct format from the Content-Type header or the URL extension.
-        currentItem = new MediaItem.Builder()
+        MediaItem.Builder builder = new MediaItem.Builder()
                 .setUri(uri)
-                .setMediaId("radio:" + uri)
-                .build();
+                .setMediaId("radio:" + uri);
+
+        // If the real stream URL is buried in a proxy query param, or the URI
+        // itself ends in .m3u8, force HLS so ExoPlayer doesn't try progressive
+        // extractors and fail with ERROR_CODE_PARSING_CONTAINER_UNSUPPORTED.
+        String uriStr = uri.toString().toLowerCase();
+        if (isHlsUrl(uriStr)) {
+            builder.setMimeType(androidx.media3.common.MimeTypes.APPLICATION_M3U8);
+            myLogD("setDataSource: forcing HLS mime type for " + uri);
+        }
+
+        currentItem = builder.build();
+    }
+
+    private static boolean isHlsUrl(String url) {
+        // Direct .m3u8 URL
+        if (url.contains(".m3u8")) return true;
+        // Proxy-wrapped: the real URL is in a query param — check its value too
+        // e.g. worldradio.online/proxy/?q=http://...stream/playlist.m3u8
+        try {
+            Uri parsed = Uri.parse(url);
+            for (String paramName : parsed.getQueryParameterNames()) {
+                String paramValue = parsed.getQueryParameter(paramName);
+                if (paramValue != null && paramValue.contains(".m3u8")) return true;
+            }
+        } catch (Exception ignored) {}
+        return false;
     }
 
     // -------------------------------------------------------------------------
