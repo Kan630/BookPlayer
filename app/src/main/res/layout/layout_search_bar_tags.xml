@@ -45,6 +45,15 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:contentDescription="@string/Close"
             app:tint="?attr/colorOnSurface" />
+
+        <ImageButton
+            android:id="@+id/btnSort"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_sort_24"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="@string/sort_by"
+            app:tint="?attr/colorOnSurface" />
     </LinearLayout>
 
 

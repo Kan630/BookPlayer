@@ -528,10 +528,6 @@ public class PodcastEpisodeActivity extends BaseBottomNavActivity
             btnAutoDownloadOverlay.setColorFilter(color, PorterDuff.Mode.SRC_IN);
     }
 
-    private void showSearchDialog() {
-        // Deprecated, using toggleSearch()
-    }
-
     private void downloadAllEpisodesToFolder(Podcast podcast, long since) {
         PodcastHelper.checkForNewEpisodesToAutoDownloadForPodcast(this, podcast, since);
     }

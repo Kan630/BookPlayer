@@ -19,12 +19,17 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import androidx.appcompat.app.AlertDialog;
+
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.nav.BaseBottomNavActivity;
 import com.driot.bookplayer.global.Var;
 import com.driot.bookplayer.helpers.InsetHelper;
 import com.driot.bookplayer.helpers.LoadingProgressHelper;
 import com.driot.bookplayer.helpers.ViewHelper;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.button.MaterialButtonToggleGroup;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -60,6 +65,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
     private LinearLayout  layoutSearch;
     private EditText      etSearch;
     private ImageButton   btnClearSearch;
+    private ImageButton   btnSort;
 
     private int  backPressCount    = 0;
     private long lastBackPressTime = 0;
@@ -125,6 +131,7 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         layoutSearch      = findViewById(R.id.layoutSearch);
         etSearch          = findViewById(R.id.etSearch);
         btnClearSearch    = findViewById(R.id.btnClearSearch);
+        btnSort           = findViewById(R.id.btnSort);
     }
 
     private void setupRecyclerView(@FacetMode int mode) {
@@ -173,6 +180,11 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         viewModel.init(mode, new RadioBrowserRepository(
                 this, false, Var.HTTP_LOGGING_INTERCEPTOR_LOG_LEVEL));
 
+        // Search bar is only useful (and visible) for tag mode
+        if (mode == MODE_TAG) {
+            viewModel.setSearchVisible(true);
+        }
+
         // Filtered list → adapter
         viewModel.getFilteredItemsLive().observe(this, items -> adapter.setItems(items));
 
@@ -214,9 +226,59 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
             viewModel.setSearchQuery("");
         });
 
+        // Sort button
+        btnSort.setOnClickListener(v -> showSortOrderDialog());
+
         // Restore search bar visibility across rotation
         viewModel.getSearchVisibleLive().observe(this, visible ->
                 layoutSearch.setVisibility(visible ? View.VISIBLE : View.GONE));
+    }
+
+    // -------------------------------------------------------------------------
+    // Sort dialog (tag mode only)
+    // -------------------------------------------------------------------------
+
+    private void showSortOrderDialog() {
+        String currentMode = viewModel.getSortMode();
+        String currentDir  = viewModel.getSortDir();
+
+        View dialogView = getLayoutInflater().inflate(R.layout.dialog_sort_radio_tags, null);
+        MaterialButtonToggleGroup toggleGroup      = dialogView.findViewById(R.id.toggle_group_sort);
+        MaterialButton            btnStationCount  = dialogView.findViewById(R.id.btn_sort_station_count);
+        MaterialButton            btnAlpha         = dialogView.findViewById(R.id.btn_sort_alpha);
+
+        // Show direction arrow on the currently active button (▲ asc, ▼ desc)
+        String suffix      = "desc".equals(currentDir) ? " \u25BC" : " \u25B2";
+        String suffixAlpha = "desc".equals(currentDir) ? " \u25B2" : " \u25BC"; // reversed for alpha
+
+        if ("alpha".equals(currentMode)) {
+            toggleGroup.check(R.id.btn_sort_alpha);
+            btnAlpha.setText(getString(R.string.Alphabetically) + suffixAlpha);
+        } else {
+            toggleGroup.check(R.id.btn_sort_station_count);
+            btnStationCount.setText(getString(R.string.sort_station_count) + suffix);
+        }
+
+        AlertDialog dialog = new MaterialAlertDialogBuilder(this)
+                .setView(dialogView)
+                .setNegativeButton(android.R.string.cancel, null)
+                .create();
+        dialog.show();
+
+        View.OnClickListener sortClick = v -> {
+            String newMode = (v.getId() == R.id.btn_sort_alpha) ? "alpha" : "station_count";
+            String newDir;
+            if (newMode.equals(currentMode)) {
+                newDir = "asc".equals(currentDir) ? "desc" : "asc";
+            } else {
+                newDir = "station_count".equals(newMode) ? "desc" : "asc";
+            }
+            viewModel.setSortOrder(newMode, newDir);
+            dialog.dismiss();
+        };
+
+        btnStationCount.setOnClickListener(sortClick);
+        btnAlpha.setOnClickListener(sortClick);
     }
 
     // -------------------------------------------------------------------------

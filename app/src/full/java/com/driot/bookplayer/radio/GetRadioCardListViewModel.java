@@ -10,6 +10,7 @@ import androidx.lifecycle.MutableLiveData;
 import com.driot.bookplayer.global.Var;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -29,6 +30,10 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
     // --- Search ---
     private final MutableLiveData<String> searchQueryLive = new MutableLiveData<>("");
     private final MutableLiveData<Boolean> searchVisibleLive = new MutableLiveData<>(false);
+
+    // --- Sort ---
+    private String tagSortMode = "station_count";  // "station_count" | "alpha"
+    private String tagSortDir  = "desc";           // "asc" | "desc"
 
     // --- Internals ---
     private RadioBrowserRepository repo;
@@ -52,6 +57,15 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
     public LiveData<LoadingState> getLoadingStateLive()   { return loadingStateLive; }
     public LiveData<String>       getSearchQueryLive()    { return searchQueryLive; }
     public LiveData<Boolean>      getSearchVisibleLive()  { return searchVisibleLive; }
+
+    public String getSortMode() { return tagSortMode; }
+    public String getSortDir()  { return tagSortDir; }
+
+    public void setSortOrder(String mode, String dir) {
+        tagSortMode = mode;
+        tagSortDir  = dir;
+        applyFilter();
+    }
 
     // -------------------------------------------------------------------------
     // Cache seed (call before loadFacetItems to pre-populate from disk)
@@ -143,19 +157,31 @@ public class GetRadioCardListViewModel extends AndroidViewModel {
         }
 
         String query = searchQueryLive.getValue();
+        List<TagItem> result;
         if (query == null || query.trim().isEmpty()) {
-            filteredItemsLive.setValue(new ArrayList<>(all));
-            return;
-        }
-
-        String q = query.trim().toLowerCase();
-        List<TagItem> filtered = new ArrayList<>();
-        for (TagItem item : all) {
-            if (item.name != null && item.name.toLowerCase().contains(q)) {
-                filtered.add(item);
+            result = new ArrayList<>(all);
+        } else {
+            String q = query.trim().toLowerCase();
+            result = new ArrayList<>();
+            for (TagItem item : all) {
+                if (item.name != null && item.name.toLowerCase().contains(q)) {
+                    result.add(item);
+                }
             }
         }
-        filteredItemsLive.setValue(filtered);
+
+        // Sort
+        Comparator<TagItem> comp;
+        if ("alpha".equals(tagSortMode)) {
+            comp = Comparator.comparing(i -> i.name != null ? i.name.toLowerCase() : "");
+            if ("desc".equals(tagSortDir)) comp = comp.reversed();
+        } else {
+            comp = Comparator.comparingInt(i -> i.stationcount);
+            if ("desc".equals(tagSortDir)) comp = ((Comparator<TagItem>) comp).reversed();
+        }
+        result.sort(comp);
+
+        filteredItemsLive.setValue(result);
     }
 
     // -------------------------------------------------------------------------

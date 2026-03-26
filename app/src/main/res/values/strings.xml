@@ -1133,6 +1133,7 @@
     <string name="sort_by">Sort by</string>
     <string name="Last_played">Last played</string>
     <string name="sort_last_added">Last added</string>
+    <string name="sort_station_count">By station count</string>
     <string name="share_title">Share via</string>
     <string name="share_radio_body">Check out this live web radio on BookPlayer</string>
     <string name="share_radio_head">BookPlayer radio share</string>
