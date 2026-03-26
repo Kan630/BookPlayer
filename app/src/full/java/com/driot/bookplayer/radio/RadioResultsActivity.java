@@ -279,6 +279,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
 
         // ---- VM + favorites ----
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
+        adapter.setFaviconCache(viewModel.getFaviconCache());
         viewModel.getHeaderCount().observe(this, count -> {
             if (count != null && !count.isEmpty()) {
                 adapter.setHeaderCount(count);

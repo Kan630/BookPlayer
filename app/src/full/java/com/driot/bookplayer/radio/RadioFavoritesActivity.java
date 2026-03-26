@@ -99,6 +99,7 @@ public class RadioFavoritesActivity extends BaseBottomNavActivity {
                 new ViewHelper.SpacesItemDecoration(ViewHelper.dp(this, Var.GRID_LAYOUT_SPACER_RADIO)));
 
         viewModel = new ViewModelProvider(this).get(RadioResultsViewModel.class);
+        adapter.setFaviconCache(viewModel.getFaviconCache());
 
         adapter = new RadioFavoritesRVAdapter(new RadioFavoritesRVAdapter.OnActionListener() {
             @Override

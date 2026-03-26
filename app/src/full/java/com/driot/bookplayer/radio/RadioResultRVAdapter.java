@@ -43,6 +43,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
     }
 
     private final OnActionListener listener;
+    private Context appContext; //should be send somehow to glide (RadioFaviconHelper) and why RadioFavoritesActivity does not seem to need it ?
 
     private static final int VT_HEADER = 0;
     private static final int VT_ITEM = 1;
@@ -57,7 +58,7 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     // Favorite reflection (UUIDs from VM)
     private final Set<String> favoriteUuids = new HashSet<>();
-    private final Map<String, String> faviconCache = new HashMap<>();
+    private Map<String, String> faviconCache = new HashMap<>();
 
     private long trackId = 0;
     private String playingRadioStationUuid = null;
@@ -65,6 +66,10 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
 
     public RadioResultRVAdapter(@NonNull OnActionListener listener) {
         this.listener = listener;
+    }
+
+    public void setFaviconCache(Map<String, String> cache) {
+        this.faviconCache = cache;
     }
 
     public void setHeaderSearch(String search) {
@@ -323,6 +328,20 @@ public class RadioResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewHold
         int newClickedPos = findPositionByUuid(clickedRadioStationUuid);
         if (newClickedPos != RecyclerView.NO_POSITION) {
             notifyItemChanged(newClickedPos);
+        }
+    }
+
+    @Override
+    public void onAttachedToRecyclerView(@NonNull RecyclerView rv) {
+        super.onAttachedToRecyclerView(rv);
+        this.appContext = rv.getContext().getApplicationContext();
+    }
+    @Override
+    public void onViewRecycled(@NonNull RecyclerView.ViewHolder holder) {
+        super.onViewRecycled(holder);
+        if (holder instanceof ItemVH itemVH) {
+            Glide.with(itemVH.itemView.getContext()).clear(itemVH.favicon);
+            Glide.with(itemVH.itemView.getContext()).clear(itemVH.ivFlag);
         }
     }
 }

@@ -9,13 +9,13 @@ import androidx.lifecycle.MutableLiveData;
 import com.driot.bookplayer.db.AppDatabase;
 import com.driot.bookplayer.db.RadioStation;
 import com.driot.bookplayer.db.RadioStationDao;
-import com.driot.bookplayer.helpers.ImageHelper;
 import com.driot.bookplayer.utils.log.LoggingViewModel;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class RadioResultsViewModel extends LoggingViewModel {
@@ -27,6 +27,11 @@ public class RadioResultsViewModel extends LoggingViewModel {
 
     private final MutableLiveData<Boolean> showingHistory = new MutableLiveData<>(false);
     private boolean historyMode = false;
+
+    private final Map<String, String> faviconCache = new HashMap<>();
+    public Map<String, String> getFaviconCache() {
+        return faviconCache;
+    }
 
     public LiveData<Boolean> getShowingHistory() {
         return showingHistory;

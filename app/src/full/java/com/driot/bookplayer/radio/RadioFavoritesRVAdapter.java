@@ -50,7 +50,7 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
     private final OnActionListener listener;
     private final List<RadioStation> items = new ArrayList<>();
-    private final Map<String, String> faviconCache = new HashMap<>();
+    private Map<String, String> faviconCache = new HashMap<>();
     private Context appContext;
 
     private boolean historyMode = false;
@@ -66,6 +66,10 @@ public class RadioFavoritesRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
     public RadioFavoritesRVAdapter(@NonNull OnActionListener l) {
         this.listener = l;
         setHasStableIds(true);
+    }
+
+    public void setFaviconCache(Map<String, String> cache) {
+        this.faviconCache = cache;
     }
 
     @Override
