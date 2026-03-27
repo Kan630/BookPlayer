@@ -489,6 +489,10 @@
     <string name="lock_app_orientation">Lock app orientation</string>
     <string name="option_orientation_lock_app_global_explain">Here you can choose to lock the screen orientation for the entire app, regardless of the current device setting.</string>
 
+    <string name="option_display_bottom_nav_bar_title">Bottom navigation bar</string>
+    <string name="option_display_bottom_nav_bar_checkbox">Display bottom navigation bar</string>
+    <string name="option_display_bottom_nav_bar_explain">When enabled, the main sections (Library, Radio, Podcasts...) are accessible via the bottom bar. When disabled, some are moved to the top-right menu.</string>
+
     <string name="option_text_appearance_title">Text appearance</string>
     <string name="option_podcast_open_specific_view">Live view is default</string>
     <string name="option_podcast_open_specific_view_subtitle">If checked, when you tap a podcast book, it opens the \'live\' podcast page with all available episodes, where you can stream.\nIf unchecked, it opens the \'book\' view with downloaded episodes.</string>

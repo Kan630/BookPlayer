@@ -272,6 +272,22 @@ public class DesignSettingsFragment extends LoggingFragment {
                 });
             }
 
+            // ===== Display Bottom Nav Bar =====
+            MaterialCheckBox chkDisplayBottomNav = root.findViewById(R.id.chk_display_bottom_nav_bar);
+            LinearLayout llDisplayBottomNav = root.findViewById(R.id.ll_display_bottom_nav_bar);
+            if (chkDisplayBottomNav != null) {
+                chkDisplayBottomNav.setChecked(Option.getDisplayBottomNavBar());
+                if (llDisplayBottomNav != null) {
+                    llDisplayBottomNav.setOnClickListener(v -> chkDisplayBottomNav.toggle());
+                }
+                chkDisplayBottomNav.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    if (isChecked != Option.getDisplayBottomNavBar()) {
+                        Option.setDisplayBottomNavBar(isChecked);
+                        signalAndRecreate();
+                    }
+                });
+            }
+
         }, 500);
 
         // Restore scroll position after recreate (e.g. theme change)

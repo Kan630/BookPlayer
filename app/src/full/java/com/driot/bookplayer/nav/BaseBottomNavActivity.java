@@ -16,6 +16,8 @@ import androidx.core.view.WindowInsetsCompat;
 import com.driot.bookplayer.R;
 import com.driot.bookplayer.activities.AddResourceActivity;
 import com.driot.bookplayer.activities.MainActivity;
+import com.driot.bookplayer.global.Option;
+import com.driot.bookplayer.nav.NavState;
 import com.driot.bookplayer.imports.OngoingTaskHost;
 import com.driot.bookplayer.utils.log.BaseActivity;
 import com.google.android.material.navigation.NavigationBarView;
@@ -30,7 +32,7 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
     protected abstract boolean enableOngoingTaskOverlay();
 
     protected boolean displayBottomNavBar() {
-        return true;
+        return Option.getDisplayBottomNavBar();
     }
 
     private NavigationBarView bottomNav;
@@ -64,8 +66,9 @@ public abstract class BaseBottomNavActivity extends BaseActivity {
         setupBottomNav();
 
         if (!displayBottomNavBar()) {
-            if (bottomNav != null)
+            if (bottomNav != null) {
                 bottomNav.setVisibility(View.GONE);
+            }
 
             // When the bottom nav is hidden, it no longer absorbs the system
             // navigation bar inset. Apply it directly to miniNowPlaying so it

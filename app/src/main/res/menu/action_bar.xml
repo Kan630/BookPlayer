@@ -64,6 +64,18 @@
                 app:showAsAction="ifRoom"
                 />
 
+            <item android:id="@+id/menu_radio"
+                android:title="@string/nav_radio"
+                android:icon="@drawable/ic_radio_24px"
+                app:showAsAction="ifRoom"
+                />
+
+            <item android:id="@+id/menu_podcast"
+                android:title="@string/nav_podcasts"
+                android:icon="@drawable/ic_podcast_24"
+                app:showAsAction="ifRoom"
+                />
+
         </menu>
     </item>
 </menu>

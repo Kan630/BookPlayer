@@ -8,7 +8,6 @@ import android.content.Intent;
 import androidx.core.app.TaskStackBuilder;
 
 import com.driot.bookplayer.R;
-import com.driot.bookplayer.activities.GetActivity;
 import com.driot.bookplayer.activities.GetLibrivoxActivity;
 import com.driot.bookplayer.player.PlayActivity;
 import com.driot.bookplayer.player.PlayList;
@@ -26,6 +25,7 @@ import com.driot.bookplayer.global.Intents;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.radio.RadioStationActivity;
 import com.driot.bookplayer.db.RadioStationDao;
+import com.driot.bookplayer.activities.AddResourceActivity; // Assuming this is the correct import for AddResourceActivity
 
 import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 
@@ -155,56 +155,66 @@ public class NavHelper {
      * Handles clicks on the bottom navigation bar.
      * Starts the requested activity with a full back-stack (Main -> Target).
      */
-    public static boolean handleBottomNavClick(Activity activity, int navId) {
-        myLogDD("NavHelper.handleBottomNavClick id=" + navId);
-        if (navId == R.id.nav_library) {
-            myLogD("NavLibrary clicked");
-            // Just go back to MainActivity (singleTop will handle it if we are already
-            // there,
-            // or clearTop if we are deep in stack)
-            Intent intent = new Intent(activity, MainActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-            //intent.putExtra("scrollToTop", true);
-            activity.startActivity(intent);
-            return true;
+    public static boolean handleBottomNavClick(Activity activity, int itemId) {
+        myLogDD("NavHelper.handleBottomNavClick id=" + itemId);
 
-        } else if (navId == R.id.nav_radio) {
-            myLogD("NavRadio clicked");
-            navigateToRadioSection(activity, true);
-            return true;
+        int currentItemId = NavState.getInstance().getCurrentBottomNavId();
 
-        } else if (navId == R.id.nav_podcast) {
-            myLogD("NavPodcast clicked");
-            navigateToPodcastSection(activity, true);
-            return true;
-
-        } else if (navId == R.id.nav_add) {
-            myLogD("NavAdd clicked");
-
-            com.driot.bookplayer.imports.MassImportRepository repo = com.driot.bookplayer.imports.MassImportRepository
-                    .getInstance();
-            if (repo != null) {
-                Boolean scanning = repo.getIsScanning().getValue();
-                Boolean finished = repo.getIsScanFinished().getValue();
-
-                if (Boolean.TRUE.equals(scanning) || Boolean.TRUE.equals(finished)) {
-                    Intent intent = new Intent(activity, ImportBookMultipleActivity.class);
-                    intent.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                    activity.startActivity(intent);
-                    return true;
+        // 1. Resolve target Intent
+        Intent targetIntent = null;
+        if (itemId == R.id.nav_radio) {
+                targetIntent = NavState.getInstance().getLastRadioIntent();
+                if (targetIntent == null) {
+                        targetIntent = new Intent(activity, GetRadioActivity.class);
                 }
-            }
-
-            activity.startActivity(new Intent(activity, GetActivity.class));
-            return true;
-
-        } else if (navId == R.id.nav_settings) {
-            myLogD("NavSettings clicked");
-            activity.startActivity(new Intent(activity, SettingsActivity.class));
-            return true;
+        } else if (itemId == R.id.nav_podcast) {
+                targetIntent = NavState.getInstance().getLastPodcastIntent();
+                if (targetIntent == null) {
+                        targetIntent = new Intent(activity, GetPodcastActivity.class);
+                }
+        } else if (itemId == R.id.nav_settings) {
+                targetIntent = new Intent(activity, SettingsActivity.class);
+        } else if (itemId == R.id.nav_library) {
+                targetIntent = new Intent(activity, MainActivity.class);
+        } else if (itemId == R.id.nav_add) {
+                targetIntent = new Intent(activity, AddResourceActivity.class);
         }
 
-        return false;
+        if (targetIntent == null) return false; // Changed from return; to return false; to match method signature
+
+        // 2. Handle same-tab click (refresh/back to root)
+        if (itemId == currentItemId) {
+                // User clicked the tab they are already on.
+                // Standard behavior: pop to root of this tab.
+                // If it's already the root (e.g. GetRadioActivity), we might want to refresh.
+                if (activity.getClass().getName().equals(GetRadioActivity.class.getName()) ||
+                    activity.getClass().getName().equals(GetPodcastActivity.class.getName()) ||
+                    activity.getClass().getName().equals(MainActivity.class.getName())) {
+                        // Already at root, just refresh if needed or do nothing.
+                        return true; // Changed from return; to return true;
+                }
+                // Otherwise, start the root activity of this tab to "pop"
+                Intent rootIntent = null;
+                if (itemId == R.id.nav_radio) rootIntent = new Intent(activity, GetRadioActivity.class);
+                else if (itemId == R.id.nav_podcast) rootIntent = new Intent(activity, GetPodcastActivity.class);
+                else if (itemId == R.id.nav_library) rootIntent = new Intent(activity, MainActivity.class);
+
+                if (rootIntent != null) {
+                        rootIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                        activity.startActivity(rootIntent);
+                }
+                return true; // Changed from return; to return true;
+        }
+
+        // 3. Switch to different tab
+        targetIntent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        activity.startActivity(targetIntent);
+        activity.overridePendingTransition(0, 0);
+
+        NavState.getInstance().setCurrentBottomNavId(itemId);
+        NavState.getInstance().setLastIntent(itemId, targetIntent);
+
+        return true;
     }
 
     public static void navigateToRadioSection(Activity activity, boolean removeTransitions) {

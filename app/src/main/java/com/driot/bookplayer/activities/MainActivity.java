@@ -269,6 +269,15 @@ public class MainActivity extends BaseBottomNavActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         myLogD("onCreateOptionsMenu()");
         getMenuInflater().inflate(R.menu.action_bar, menu);
+
+        // Conditionally show Radio/Podcast items in the overflow menu
+        MenuItem radioItem = menu.findItem(R.id.menu_radio);
+        MenuItem podcastItem = menu.findItem(R.id.menu_podcast);
+        boolean showInMenu = !Option.getDisplayBottomNavBar() && !Tonio.isPure(this);
+        
+        if (radioItem != null) radioItem.setVisible(showInMenu);
+        if (podcastItem != null) podcastItem.setVisible(showInMenu);
+
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -310,6 +319,12 @@ public class MainActivity extends BaseBottomNavActivity {
             Intent intent = new Intent(this, NearbyShareActivity.class);
             intent.putExtra("RECEIVE_MODE", true);
             startActivity(intent);
+        } else if (itemId == R.id.menu_radio) {
+            myLogI("--- USER clicks MENU : RADIO ---");
+            NavHelper.handleBottomNavClick(this, R.id.nav_radio);
+        } else if (itemId == R.id.menu_podcast) {
+            myLogI("--- USER clicks MENU : PODCAST ---");
+            NavHelper.handleBottomNavClick(this, R.id.nav_podcast);
         } else {
             myLogEE(null, "MainActivity.onOptionsItemSelected : unknown Item selected in Menu");
         }
