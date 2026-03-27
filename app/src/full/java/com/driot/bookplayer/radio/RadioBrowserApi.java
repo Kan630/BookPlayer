@@ -106,6 +106,15 @@ public interface RadioBrowserApi {
             @Query("hidebroken") boolean hideBroken
     );
 
+    @GET("json/stations/bylanguageexact/{language}")
+    Call<List<ApiStation>> byLanguageExact(
+            @Path("language") String language,
+            @Query("limit") int limit,
+            @Query("offset") Integer offset,
+            @Query("order") String order,
+            @Query("hidebroken") boolean hideBroken
+    );
+
 
     @GET("json/tags")
     Call<List<TagItem>> getTags(
