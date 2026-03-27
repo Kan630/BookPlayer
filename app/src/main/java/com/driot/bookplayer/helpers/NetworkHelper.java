@@ -15,8 +15,10 @@ import static com.driot.bookplayer.utils.log.LoggerStaticHelper.*;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 
+import com.driot.bookplayer.R;
 import com.driot.bookplayer.global.Option;
 import com.driot.bookplayer.global.Var;
+import com.driot.bookplayer.utils.Tonio;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -105,6 +107,16 @@ public class NetworkHelper {
     }
 
     // ---------- Connectivity helpers ----------
+
+
+    public static boolean getCheckInternetForAction(Context context) {
+        if (!isConnected(context)) {
+            myToastE(context.getString(R.string.no_internet_connection));
+            return Tonio.isAdmin();
+        } else {
+            return true;
+        }
+    }
 
     /** Quick connected check using modern APIs; no legacy NetworkInfo reliance. */
     public static boolean isConnected(Context context) {
