@@ -283,7 +283,9 @@ public final class LanguageMapper {
         a.put("spain", "es");
         a.put("#spanish", "es");
 
-        //code 2 letters checked ok
+        //TODO ensure that new simple item is named link "string" => flag_code
+        // flag_code (= 2 letters country iso3166 or specific like breton or occitan) checked ok
+        // genre in FlagHelper : public String getFlagCode(String anyString) return result of mapping
         a.put("español mexico", "mx");
         a.put("español - latinoamerica", "mx");
         a.put("español argentina", "ar");
