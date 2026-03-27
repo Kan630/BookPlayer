@@ -64,7 +64,7 @@ public final class LanguageMapper {
         m.put("hungarian", new Mapping("hun", "hu", R.drawable.flag_hu));
         m.put("ukrainian", new Mapping("ukr", "uk", R.drawable.flag_ua));
         m.put("bosnian", new Mapping("", "ba", R.drawable.flag_ba));
-        m.put("albanian", new Mapping("", "", R.drawable.flag_al));
+        m.put("albanian", new Mapping("sqi", "sq", R.drawable.flag_al));
 
         m.put("slovenian", new Mapping("slv", "sl", R.drawable.flag_si));
         m.put("slovak", new Mapping("slk", "sk", R.drawable.flag_sk));
@@ -184,6 +184,40 @@ public final class LanguageMapper {
         m.put("iroquoian", new Mapping("", "", R.drawable.no_flag));
         m.put("north american indian (undetermined dialect)", new Mapping("", "", R.drawable.no_flag));
 
+        // --- Additional entries resolved from radio-browser flag audit ---
+        // Languages that already had a valid iso_639 from the API but no flag in this MAP
+        m.put("swiss german",    new Mapping("gsw", "gsw", R.drawable.flag_ch));
+        m.put("belarusian",      new Mapping("bel", "be",  R.drawable.flag_by));
+        m.put("low german",      new Mapping("nds", "nds", R.drawable.flag_de));
+        m.put("mongolian",       new Mapping("mon", "mn",  R.drawable.flag_mn));
+        m.put("tibetan",         new Mapping("bod", "bo",  R.drawable.flag_cn));
+        m.put("bambara",         new Mapping("bam", "bm",  R.drawable.flag_ml));
+        m.put("tatar",           new Mapping("tat", "tt",  R.drawable.flag_ru));
+        m.put("bashkir",         new Mapping("bak", "ba",  R.drawable.flag_ru));
+        m.put("hausa",           new Mapping("hau", "ha",  R.drawable.flag_ng));
+        m.put("uzbek",           new Mapping("uzb", "uz",  R.drawable.flag_uz));
+        m.put("occitan",         new Mapping("oci", "oc",  R.drawable.flag_occitan));
+        m.put("hakka",           new Mapping("hak", "",    R.drawable.flag_cn));
+        // Languages with null iso_639 from the API that have a clear flag
+        m.put("odia",            new Mapping("ori", "or",  R.drawable.flag_in));
+        m.put("bhojpuri",        new Mapping("",    "",    R.drawable.flag_in));
+        m.put("uyghur",          new Mapping("uig", "ug",  R.drawable.flag_cn));
+        m.put("montenegrin",     new Mapping("",    "",    R.drawable.flag_me));
+        m.put("moldovian",       new Mapping("",    "",    R.drawable.flag_md));
+        m.put("tunisian",        new Mapping("",    "",    R.drawable.flag_tn));
+        m.put("lusoga",          new Mapping("",    "",    R.drawable.flag_ug));
+        m.put("cebuano",         new Mapping("ceb", "",    R.drawable.flag_ph));
+        m.put("ilocano",         new Mapping("ilo", "",    R.drawable.flag_ph));
+        m.put("isizulu",         new Mapping("zul", "zu",  R.drawable.flag_za));
+        m.put("sepedi",          new Mapping("",    "",    R.drawable.flag_za));
+        m.put("xitsonga",        new Mapping("tso", "ts",  R.drawable.flag_za));
+        m.put("kiswahili",       new Mapping("swa", "sw",  R.drawable.flag_tz));
+        m.put("kyrgyz",          new Mapping("kir", "ky",  R.drawable.flag_kg));
+        m.put("papiamentu",      new Mapping("pap", "",    R.drawable.flag_cw));
+        m.put("flammish",        new Mapping("",    "",    R.drawable.flag_flanders));
+        m.put("sorbian",         new Mapping("hsb", "",    R.drawable.no_flag));
+        m.put("romani",          new Mapping("rom", "",    R.drawable.no_flag));
+
 
 
         /*
@@ -262,9 +296,69 @@ public final class LanguageMapper {
 
         // Romanian (sometimes the country name "romania" is used)
         a.put("romania", "ro");
+        a.put("româna", "ro");
+        a.put("românä", "ro");
+        a.put("moldovian", "mol"); // Moldovan → flag_md via MAP
 
         // Punjabi (no two-letter code in main MAP)
         a.put("punjabi", "pa");
+
+        // German variants / typos
+        a.put("deu", "de");
+        a.put("gernan", "de");
+        a.put("deutch", "de");
+        a.put("norddeutsch", "de");
+        a.put("schweizerdeutsch", "gsw");
+
+        // English variants / typos (additions)
+        a.put("english/", "en");
+        a.put("engilsh uk", "en");
+        a.put("englsih", "en");
+        a.put("английский", "en");
+
+        // French typos
+        a.put("franch", "fr");
+
+        // Spanish variants / typos (additions)
+        a.put("spain", "es");
+        a.put("#spanish", "es");
+        a.put("español peruano", "es");
+        a.put("español ecuador", "es");
+        a.put("español paraguay", "es");
+
+        // Brazilian Portuguese (additions)
+        a.put("português (br)", "pt-BR");
+        a.put("portugues do braasil", "pt-BR");
+        a.put("brasil", "pt-BR");
+        a.put("pt-br", "pt-BR");
+
+        // Russian variants (additions)
+        a.put("rus", "ru");
+        a.put("язык: ру", "ru");
+        a.put("ру", "ru");
+
+        // Turkish variants
+        a.put("türkisch", "tr");
+        a.put("turkçe", "tr");
+        a.put("tr", "tr");
+
+        // Arabic variants
+        a.put("العربية", "ar");
+        a.put("عربي", "ar");
+        a.put("arabic.", "ar");
+
+        // Country names used as language labels
+        a.put("estonia", "et");
+        a.put("nederland", "nl");
+        a.put("china", "zh");
+        a.put("montenegro", "cnr"); // Montenegrin → flag_me via MAP
+
+        // Other language name variants / non-Latin scripts
+        a.put("galego", "gl");    // Galician (in Galician)
+        a.put("kurdi", "ku");     // Kurdish (in Kurdish)
+        a.put("shqip", "sq");     // Albanian (in Albanian)
+        a.put("česky", "cs");     // Czech (in Czech)
+        a.put("slovenski", "sl"); // Slovenian (in Slovenian)
 
         // Normalize all keys: lowercase + collapse internal whitespace
         Map<String, String> normalized = new HashMap<>();

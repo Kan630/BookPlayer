@@ -133,8 +133,10 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
                     .into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
         } else {
-            // KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" +
-            // t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[null/0]");
+            if (showFlags) {
+                myLogW("no flag — name=[" + t.name + "] iso_639=[" + t.iso_639
+                        + "] iso_3166_1=[" + t.iso_3166_1 + "] count=[" + t.stationcount + "]");
+            }
             Glide.with(h.ivFlag.getContext()).clear(h.ivFlag);
             h.ivFlag.setVisibility(View.GONE);
         }
