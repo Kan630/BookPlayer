@@ -147,7 +147,7 @@ public final class LanguageMapper {
         m.put("urdu", new Mapping("urd", "ur", R.drawable.flag_pk));
 
         m.put("sanskrit", new Mapping("san", "sa", R.drawable.flag_in));
-        m.put("punjabi", new Mapping("", "", R.drawable.flag_in));
+        m.put("punjabi", new Mapping("pan", "", R.drawable.flag_in));
         m.put("rajasthani", new Mapping("", "", R.drawable.flag_in));
         m.put("tamil", new Mapping("tam", "ta", R.drawable.flag_in));
         m.put("telugu", new Mapping("tel", "te", R.drawable.flag_in));
@@ -190,7 +190,7 @@ public final class LanguageMapper {
         m.put("belarusian",      new Mapping("bel", "be",  R.drawable.flag_by));
         m.put("low german",      new Mapping("nds", "nds", R.drawable.flag_de));
         m.put("mongolian",       new Mapping("mon", "mn",  R.drawable.flag_mn));
-        m.put("tibetan",         new Mapping("bod", "bo",  R.drawable.flag_cn));
+        m.put("tibetan",         new Mapping("bod", "bo",  R.drawable.flag_tibet));
         m.put("bambara",         new Mapping("bam", "bm",  R.drawable.flag_ml));
         m.put("tatar",           new Mapping("tat", "tt",  R.drawable.flag_ru));
         m.put("bashkir",         new Mapping("bak", "ba",  R.drawable.flag_ru));
@@ -215,8 +215,10 @@ public final class LanguageMapper {
         m.put("kyrgyz",          new Mapping("kir", "ky",  R.drawable.flag_kg));
         m.put("papiamentu",      new Mapping("pap", "",    R.drawable.flag_cw));
         m.put("flammish",        new Mapping("",    "",    R.drawable.flag_flanders));
-        m.put("sorbian",         new Mapping("hsb", "",    R.drawable.no_flag));
-        m.put("romani",          new Mapping("rom", "",    R.drawable.no_flag));
+        m.put("sorbian",         new Mapping("hsb", "",    R.drawable.flag_de));
+        m.put("romani",          new Mapping("rom", "",    R.drawable.flag_romani));
+        // manual additions
+        m.put("français - lëtzebuergesch", new Mapping("", "lu",    R.drawable.flag_lu));
 
 
 
@@ -253,46 +255,50 @@ public final class LanguageMapper {
     static {
         Map<String, String> a = new HashMap<>();
 
-        // Russian (non-English label coming from the API)
         a.put("язык: русский", "ru");
+        a.put("язык: ру", "ru");
         a.put("русский", "ru");
-
-        // Brazilian Portuguese — kept separate from plain Portuguese ("pt").
-        // All the messy spellings are grouped together under "pt-BR".
-        a.put("brazilian portuguese", "pt-BR");
-        a.put("português brasil", "pt-BR");
-        a.put("português (brasil)", "pt-BR");
-        a.put("portugues do brasil", "pt-BR");
-        a.put("portugues brasil", "pt-BR");
+        a.put("rus", "ru");
+        a.put("ру", "ru");
 
         // English variants / typos
         a.put("american english", "en");
         a.put("british english", "en");
         a.put("english uk", "en");
         a.put("engilsh", "en");
+        a.put("english/", "en");
+        a.put("engilsh uk", "en");
+        a.put("englsih", "en");
+        a.put("английский", "en");
 
         // Spanish variants / typos
-        a.put("español mexico", "es");
         a.put("español internacional", "es");
-        a.put("español - latinoamerica", "es");
-        a.put("español argentina", "es");
-        a.put("español chile", "es");
         a.put("español colombia", "es");
         a.put("castellano. español", "es");
         a.put("castellano", "es");
         a.put("espanish", "es");
         a.put("espaňol", "es");
+        a.put("spain", "es");
+        a.put("#spanish", "es");
 
-        // French
-        a.put("francaise", "fr");
-        a.put("français", "fr");
+        //code 2 letters checked ok
+        a.put("español mexico", "mx");
+        a.put("español - latinoamerica", "mx");
+        a.put("español argentina", "ar");
+        a.put("español chile", "cl");
+        a.put("español peruano", "pe");
+        a.put("español ecuador", "ec");
+        a.put("español paraguay", "py");
 
-        // Ukrainian typo
-        a.put("ukranian", "uk");
-
-        // Frankish — kept separate from plain German ("de").
-        // "frk" is the ISO 639-3 code; the flag is flag_franken (already in MAP).
-        a.put("deutsch fränkisch", "frk");
+        a.put("brazilian portuguese", "br");
+        a.put("português brasil", "br");
+        a.put("português (brasil)", "br");
+        a.put("portugues do brasil", "br");
+        a.put("portugues brasil", "br");
+        a.put("português (br)", "br");
+        a.put("portugues do braasil", "br");
+        a.put("brasil", "br");
+        a.put("pt-br", "br");
 
         // Romanian (sometimes the country name "romania" is used)
         a.put("romania", "ro");
@@ -300,42 +306,12 @@ public final class LanguageMapper {
         a.put("românä", "ro");
         a.put("moldovian", "mol"); // Moldovan → flag_md via MAP
 
-        // Punjabi (no two-letter code in main MAP)
-        a.put("punjabi", "pa");
-
         // German variants / typos
         a.put("deu", "de");
         a.put("gernan", "de");
         a.put("deutch", "de");
         a.put("norddeutsch", "de");
         a.put("schweizerdeutsch", "gsw");
-
-        // English variants / typos (additions)
-        a.put("english/", "en");
-        a.put("engilsh uk", "en");
-        a.put("englsih", "en");
-        a.put("английский", "en");
-
-        // French typos
-        a.put("franch", "fr");
-
-        // Spanish variants / typos (additions)
-        a.put("spain", "es");
-        a.put("#spanish", "es");
-        a.put("español peruano", "es");
-        a.put("español ecuador", "es");
-        a.put("español paraguay", "es");
-
-        // Brazilian Portuguese (additions)
-        a.put("português (br)", "pt-BR");
-        a.put("portugues do braasil", "pt-BR");
-        a.put("brasil", "pt-BR");
-        a.put("pt-br", "pt-BR");
-
-        // Russian variants (additions)
-        a.put("rus", "ru");
-        a.put("язык: ру", "ru");
-        a.put("ру", "ru");
 
         // Turkish variants
         a.put("türkisch", "tr");
@@ -346,6 +322,18 @@ public final class LanguageMapper {
         a.put("العربية", "ar");
         a.put("عربي", "ar");
         a.put("arabic.", "ar");
+
+        // French
+        a.put("francaise", "fr");
+        a.put("français", "fr");
+        a.put("franch", "fr");
+
+        // Ukrainian typo
+        a.put("ukranian", "uk");
+
+        // Frankish — kept separate from plain German ("de").
+        // "frk" is the ISO 639-3 code; the flag is flag_franken (already in MAP).
+        a.put("deutsch fränkisch", "frk");
 
         // Country names used as language labels
         a.put("estonia", "et");
