@@ -491,7 +491,7 @@
 
     <string name="option_display_bottom_nav_bar_title">Bottom navigation bar</string>
     <string name="option_display_bottom_nav_bar_checkbox">Display bottom navigation bar</string>
-    <string name="option_display_bottom_nav_bar_explain">When enabled, the main sections (Library, Radio, Podcasts...) are accessible via the bottom bar. When disabled, some are moved to the top-right menu.</string>
+    <string name="option_display_bottom_nav_bar_explain">When enabled, the main sections (Add Book, Radio, Podcasts, Settings) are accessible via the bottom bar. When disabled, the sections are accessible through the top right three-dot menu.</string>
 
     <string name="option_text_appearance_title">Text appearance</string>
     <string name="option_podcast_open_specific_view">Live view is default</string>

@@ -18,13 +18,42 @@
             <View style="@style/myStyleViewSimpleHorizontalBar" />
         </LinearLayout>
 
+
+        <TextView
+            style="@style/OptionTitle"
+            android:text="@string/option_display_bottom_nav_bar_title" />
+
+        <LinearLayout
+            android:id="@+id/ll_display_bottom_nav_bar"
+            style="@style/LinearLayoutOptionsCheckBoxHorizontal"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp">
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/chk_display_bottom_nav_bar"
+                style="@style/OptionCheckBox" />
+
+            <TextView
+                style="@style/OptionCheckBoxText"
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:text="@string/option_display_bottom_nav_bar_checkbox" />
+        </LinearLayout>
+
+        <TextView
+            style="@style/OptionExplainText"
+            android:layout_marginBottom="8dp"
+            android:text="@string/option_display_bottom_nav_bar_explain" />
+
+        <View style="@style/myStyleViewSimpleHorizontalBar" />
+
+
         <!-- Font family -->
         <LinearLayout style="@style/LinearLayoutOptionsVertical"
             android:layout_marginTop="0dp"
             >
             <TextView
                 style="@style/OptionTitle"
-                android:layout_marginTop="0dp"
                 android:text="@string/option_text_appearance_title" />
 
             <LinearLayout
@@ -276,34 +305,6 @@
                 android:text="@string/option_orientation_lock_app_global_explain"
                 android:layout_marginBottom="5dp"
                 />
-
-            <View style="@style/myStyleViewSimpleHorizontalBar" />
-
-            <TextView
-                style="@style/OptionTitle"
-                android:text="@string/option_display_bottom_nav_bar_title" />
-
-            <LinearLayout
-                android:id="@+id/ll_display_bottom_nav_bar"
-                style="@style/LinearLayoutOptionsCheckBoxHorizontal"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp">
-
-                <com.google.android.material.checkbox.MaterialCheckBox
-                    android:id="@+id/chk_display_bottom_nav_bar"
-                    style="@style/OptionCheckBox" />
-
-                <TextView
-                    style="@style/OptionCheckBoxText"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
-                    android:text="@string/option_display_bottom_nav_bar_checkbox" />
-            </LinearLayout>
-
-            <TextView
-                style="@style/OptionExplainText"
-                android:layout_marginBottom="8dp"
-                android:text="@string/option_display_bottom_nav_bar_explain" />
 
             <View style="@style/myStyleViewSimpleHorizontalBar" />
 
