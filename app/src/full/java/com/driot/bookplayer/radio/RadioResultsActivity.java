@@ -345,6 +345,7 @@ public class RadioResultsActivity extends BaseBottomNavActivity {
                 if (!viewModel.isLoading() && viewModel.hasMore() && hasInternet) {
                     if ((visible + firstVisible) >= total - 5) {
                         viewModel.loadNextPage();
+                        myLogI("load next page on scroll");
                     }
                 }
             }

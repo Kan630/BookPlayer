@@ -103,6 +103,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
         setLastSearchMode(mode);
         if (langVariants != null) setLastLangVariants(langVariants);
         resetPagination();
+        isLoading = true;   // block scroll listener from triggering pagination before first response
         isInitialLoading.setValue(true);
         doSearch(false);
     }
@@ -174,7 +175,7 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                 if (rsp.isSuccessful() && body != null && !body.isEmpty()) {
                     int rawSize = body.size();
                     boolean serverHasMorePages = rawSize >= Option.getRadioApiNbResults();
-                    myLog("serverHasMorePages: " + serverHasMorePages + " (rawSize=" + rawSize + ")");
+                    myLogD("serverHasMorePages: " + serverHasMorePages + " (rawSize=" + rawSize + ")");
 
                     FilterResult fr = filterStations(body);
                     String headerExtra = buildFilterHeaderText(fr);
@@ -250,13 +251,13 @@ public class RadioResultsViewModel extends LoggingAndroidViewModel {
                     int dedupCount = appendResultsFromAlias(body); // does NOT touch currentOffset
                     int added = received - dedupCount;
                     boolean hitLimit = received >= Option.getRadioApiNbResults();
-                    myLog("alias lang [" + alias + "] → " + received + " received, "
+                    myLogD("alias lang [" + alias + "] → " + received + " received, "
                             + added + " added, " + dedupCount + " deduped"
                             + (hitLimit ? " ⚠️ HIT LIMIT" : ""));
                     List<ApiStation> all = results.getValue();
                     if (all != null) setHeaderCount(str(R.string.Results_2pt) + all.size());
                 } else {
-                    myLogD("alias lang [" + alias + "] → no results");
+                    myLogW("alias lang [" + alias + "] → no results");
                 }
             }
 

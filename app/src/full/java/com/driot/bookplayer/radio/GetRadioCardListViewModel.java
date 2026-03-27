@@ -219,21 +219,21 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
                 iso = LanguageMapper.resolveIso639(item.name);
                 if (iso != null) {
                     item.iso_639 = iso;  // assign so the flag is shown correctly
-                    myLogD(item.name + ": " + " iso mapped=" + iso);
+                    //myLogD(item.name + ": " + " iso mapped=" + iso);
                 }
             }
             if (iso != null && !iso.isEmpty()) {
                 TagItem existing = byIso.get(iso);
                 if (existing != null) {
                     existing.stationcount += item.stationcount;
-                    myLogI(item.name + ": " + " duplicate of " + existing.name);
+                    //myLogI(item.name + ": " + " duplicate of " + existing.name);
                 } else {
                     byIso.put(iso, item);
-                    myLog(item.name + ": " + " iso=" + iso);
+                    //myLog(item.name + ": " + " iso=" + iso);
                 }
             } else {
                 noIso.add(item);
-                myLog(item.name + ": " + "no iso");
+                //myLog(item.name + ": " + "no iso");
             }
         }
         List<TagItem> result = new ArrayList<>(byIso.values());
