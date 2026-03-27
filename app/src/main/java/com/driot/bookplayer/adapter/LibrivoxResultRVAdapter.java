@@ -150,8 +150,6 @@ public class LibrivoxResultRVAdapter extends LoggingRVAdapter<RecyclerView.ViewH
 
             if (item.author != null && !item.author.isEmpty()) {
                 holder.creator.setText(item.author);
-            } else {
-                holder.creator.setText(item.creator);
             }
 
             myLog("mode : " + mode);
