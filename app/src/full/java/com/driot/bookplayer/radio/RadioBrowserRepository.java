@@ -78,56 +78,28 @@ public class RadioBrowserRepository {
         api.vote(uuid).enqueue(new LoggingCallback<VoteResponse>(cb, "vote"));
     }
 
-    public void topVoted(int limit, Callback<List<ApiStation>> cb) {
-        topVoted(limit, null, cb);
-    }
-
     public void topVoted(int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
         listsApi().topVoted(limit, offset, true).enqueue(new LoggingCallback<>(cb, "topVoted"));
-    }
-
-    public void topClicked(int limit, Callback<List<ApiStation>> cb) {
-        topClicked(limit, null, cb);
     }
 
     public void topClicked(int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
         listsApi().topClicked(limit, offset, true).enqueue(new LoggingCallback<>(cb, "topClicked"));
     }
 
-    public void lastClicked(int limit, Callback<List<ApiStation>> cb) {
-        lastClicked(limit, null, cb);
-    }
-
     public void lastClicked(int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
         listsApi().lastClicked(limit, offset, true).enqueue(new LoggingCallback<>(cb, "lastClicked"));
-    }
-
-    public void lastChanged(int limit, Callback<List<ApiStation>> cb) {
-        lastChanged(limit, null, cb);
     }
 
     public void lastChanged(int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
         listsApi().lastAddedChanged(limit, offset, true).enqueue(new LoggingCallback<>(cb, "lastAddedChanged"));
     }
 
-    public void byTag(String tag, int limit, Callback<List<ApiStation>> cb) {
-        byTag(tag, limit, null, cb);
-    }
-
     public void byTag(String tag, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
         api.byTag(tag, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byTag"));
     }
 
-    public void byCountry(String country, int limit, Callback<List<ApiStation>> cb) {
-        byCountry(country, limit, null, cb);
-    }
-
     public void byCountry(String country, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
         api.byCountry(country, limit, offset, "votes", true).enqueue(new LoggingCallback<>(cb, "byCountry"));
-    }
-
-    public void byLanguage(String language, int limit, Callback<List<ApiStation>> cb) {
-        byLanguage(language, limit, null, cb);
     }
 
     public void byLanguage(String language, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {
@@ -138,10 +110,6 @@ public class RadioBrowserRepository {
     public void byLanguageExact(String language, int limit, Callback<List<ApiStation>> cb) {
         api.byLanguageExact(language, limit, null, "votes", true)
                 .enqueue(new LoggingCallback<>(cb, "byLanguageExact"));
-    }
-
-    public void byName(String name, int limit, Callback<List<ApiStation>> cb) {
-        byName(name, limit, null, cb);
     }
 
     public void byName(String name, int limit, @Nullable Integer offset, Callback<List<ApiStation>> cb) {

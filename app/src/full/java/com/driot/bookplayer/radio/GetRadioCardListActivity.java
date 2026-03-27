@@ -31,13 +31,9 @@ import com.google.android.material.button.MaterialButton;
 import com.google.android.material.button.MaterialButtonToggleGroup;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 
-import com.driot.bookplayer.librivox.LanguageMapper;
-
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -153,49 +149,34 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
     }
 
     private void setupAdapter(@FacetMode int mode) {
-        adapter = new TagCardAdapter(tagItem -> {
+        TagCardAdapter.OnClick tagClick = tagItem -> {
             myLogI("---- user clicks facet item, name=[" + tagItem.name
-                    + "] country=[" + tagItem.iso_3166_1
-                    + "] lang=[" + tagItem.iso_639 + "]");
-
+                    + "] country=[" + tagItem.iso_3166_1 + "]");
             Intent i = new Intent(this, RadioResultsActivity.class);
-            switch (mode) {
-                case MODE_COUNTRY:
-                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_COUNTRY")
-                            .putExtra("country", tagItem.name)
-                            .putExtra("lang", "").putExtra("tag", "").putExtra("query", "");
-                    break;
-                case MODE_LANGUAGE:
-                    // Build the full list of variant names to query:
-                    // canonical first, then all alias names sharing the same grouping code.
-                    ArrayList<String> langVariants = new ArrayList<>();
-                    langVariants.add(tagItem.name); // canonical (already lowercase from API)
-                    String isoCode = tagItem.iso_639;
-                    if (isoCode != null && !isoCode.isEmpty()) {
-                        String canonicalNorm = tagItem.name.trim().toLowerCase(Locale.ROOT);
-                        List<String> aliases = LanguageMapper.getAliasNamesForCode(isoCode);
-                        for (String alias : aliases) {
-                            // alias keys are already normalised (lowercase+trimmed)
-                            if (!alias.equals(canonicalNorm)) {
-                                langVariants.add(alias);
-                            }
-                        }
-                    }
-                    myLogD("lang_variants to query: " + langVariants);
-                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
-                            .putExtra("lang", tagItem.name)
-                            .putStringArrayListExtra("lang_variants", langVariants)
-                            .putExtra("country", "").putExtra("tag", "").putExtra("query", "");
-                    break;
-                case MODE_TAG:
-                default:
-                    i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TAG")
-                            .putExtra("tag", tagItem.name)
-                            .putExtra("lang", "").putExtra("country", "").putExtra("query", "");
-                    break;
+            if (mode == MODE_COUNTRY) {
+                i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_COUNTRY")
+                        .putExtra("country", tagItem.name)
+                        .putExtra("lang", "").putExtra("tag", "").putExtra("query", "");
+            } else {
+                i.putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_TAG")
+                        .putExtra("tag", tagItem.name)
+                        .putExtra("lang", "").putExtra("country", "").putExtra("query", "");
             }
             startActivity(i);
-        }, mode != MODE_TAG);
+        };
+
+        TagCardAdapter.OnLangCardClick langClick = mode == MODE_LANGUAGE ? card -> {
+            myLogI("---- user clicks lang card, label=[" + card.label + "]");
+            ArrayList<String> langVariants = new ArrayList<>(card.apiNames);
+            myLogI("lang_variants to query: " + langVariants);
+            startActivity(new Intent(this, RadioResultsActivity.class)
+                    .putExtra(GetRadioActivity.EXTRA_RADIO_STATION_SEARCH_MODE, "MODE_LANGUAGE")
+                    .putExtra("lang", card.label)
+                    .putStringArrayListExtra("lang_variants", langVariants)
+                    .putExtra("country", "").putExtra("tag", "").putExtra("query", ""));
+        } : null;
+
+        adapter = new TagCardAdapter(tagClick, langClick, mode != MODE_TAG);
         recyclerView.setAdapter(adapter);
     }
 
@@ -210,10 +191,17 @@ public class GetRadioCardListActivity extends BaseBottomNavActivity {
         }
 
         // Filtered list → adapter + count
-        viewModel.getFilteredItemsLive().observe(this, items -> {
-            adapter.setItems(items);
-            tvSearchStat.setText(String.valueOf(items.size()));
-        });
+        if (mode == MODE_LANGUAGE) {
+            viewModel.getFilteredLangCardsLive().observe(this, cards -> {
+                adapter.setLanguageItems(cards);
+                tvSearchStat.setText(String.valueOf(cards.size()));
+            });
+        } else {
+            viewModel.getFilteredItemsLive().observe(this, items -> {
+                adapter.setItems(items);
+                tvSearchStat.setText(String.valueOf(items.size()));
+            });
+        }
 
         // Loading state → progress bar + animated message
         viewModel.getLoadingStateLive().observe(this, state -> {

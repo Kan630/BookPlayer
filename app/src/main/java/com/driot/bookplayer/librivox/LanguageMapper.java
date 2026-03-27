@@ -4,8 +4,10 @@ import androidx.annotation.NonNull;
 
 import com.driot.bookplayer.R;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -41,12 +43,23 @@ public final class LanguageMapper {
     }
 
     public static final class RadioLanguageCardItem {
-        public final String label; // iso 639-3 e.g. "eng"
-        public final List<Mapping> mappings;
+        public final String label;           // display name (most canonical MAP key in group)
+        public final List<String> apiNames;  // MAP keys → one API call per entry
+        public final List<Mapping> mappings; // parallel to apiNames (flag / code access)
+        public int stationcount;             // accumulated from API response
 
-        public RadioLanguageCardItem(@NonNull String label, @NonNull List<Mapping> mappings) {
-            this.label = label;
+        public RadioLanguageCardItem(@NonNull String label,
+                                      @NonNull List<String> apiNames,
+                                      @NonNull List<Mapping> mappings) {
+            this.label    = label;
+            this.apiNames = apiNames;
             this.mappings = mappings;
+        }
+
+        /** Flag drawable for this card (first non-zero flagRes in mappings). */
+        public int flagRes() {
+            for (Mapping m : mappings) if (m.flagRes != 0) return m.flagRes;
+            return 0;
         }
     }
 
@@ -132,10 +145,12 @@ public final class LanguageMapper {
         m.put("cantonese",        new Mapping("yue", "",   R.drawable.flag_cn));
         m.put("mandarin",         new Mapping("cmn", "",   R.drawable.flag_cn));
         m.put("chinese",          new Mapping("zho", "zh", R.drawable.flag_cn));
+
         m.put("hokkien",          new Mapping("",    "",   R.drawable.flag_tw));
         m.put("japanese",         new Mapping("jpn", "ja", R.drawable.flag_jp));
         m.put("korean",           new Mapping("kor", "ko", R.drawable.flag_kr));
         m.put("vietnamese",       new Mapping("vie", "vi", R.drawable.flag_vn));
+        m.put("thai",             new Mapping("vie", "vi", R.drawable.flag_th));
         m.put("malay",            new Mapping("msa", "ms", R.drawable.flag_my));
 
         m.put("maori",      new Mapping("mri", "mi", R.drawable.flag_nz));
@@ -157,18 +172,20 @@ public final class LanguageMapper {
 
         m.put("sanskrit",   new Mapping("san", "sa", R.drawable.flag_in));
         m.put("punjabi",    new Mapping("pan", "",   R.drawable.flag_in));
-        m.put("rajasthani", new Mapping("",    "",   R.drawable.flag_in));
+        m.put("rajasthani", new Mapping("001",    "",   R.drawable.flag_in));
         m.put("tamil",      new Mapping("tam", "ta", R.drawable.flag_in));
         m.put("telugu",     new Mapping("tel", "te", R.drawable.flag_in));
         m.put("marathi",    new Mapping("mar", "mr", R.drawable.flag_in));
         m.put("assamese",   new Mapping("asm", "as", R.drawable.flag_in));
         m.put("oriya",      new Mapping("ori", "or", R.drawable.flag_in));
         m.put("braj",       new Mapping("bra", "",   R.drawable.flag_in));
-        m.put("garo",       new Mapping("",    "",   R.drawable.flag_in));
-        m.put("khasi",      new Mapping("",    "",   R.drawable.flag_in));
+        m.put("garo",       new Mapping("002",    "",   R.drawable.flag_in));
+        m.put("khasi",      new Mapping("003",    "",   R.drawable.flag_in));
+        m.put("malayam",    new Mapping("004",    "",   R.drawable.flag_in));
+        m.put("kannada",    new Mapping("005",    "",   R.drawable.flag_in));
 
-        m.put("bangla",     new Mapping("",    "",   R.drawable.flag_bd));
-        m.put("nepali",     new Mapping("",    "",   R.drawable.flag_np));
+        m.put("bangla",     new Mapping("006",    "",   R.drawable.flag_bd));
+        m.put("nepali",     new Mapping("007",    "",   R.drawable.flag_np));
 
         m.put("sinhala",    new Mapping("sin", "si", R.drawable.flag_lk));
 
@@ -216,6 +233,7 @@ public final class LanguageMapper {
         m.put("sepedi",         new Mapping("",    "",    R.drawable.flag_za));
         m.put("xitsonga",       new Mapping("tso", "ts",  R.drawable.flag_za));
         m.put("kiswahili",      new Mapping("swa", "sw",  R.drawable.flag_tz));
+        m.put("swahili",        new Mapping("swa", "sw",  R.drawable.flag_tz));
         m.put("kyrgyz",         new Mapping("kir", "ky",  R.drawable.flag_kg));
         m.put("papiamentu",     new Mapping("pap", "",    R.drawable.flag_cw));
         m.put("sorbian",        new Mapping("hsb", "",    R.drawable.flag_de));
@@ -258,7 +276,7 @@ public final class LanguageMapper {
         m.put("español peruano",         new Mapping("", "", R.drawable.flag_pe));
         m.put("español ecuador",         new Mapping("", "", R.drawable.flag_ec));
         m.put("español paraguay",        new Mapping("", "", R.drawable.flag_py));
-        m.put("asuncíon",                new Mapping("", "", R.drawable.flag_py));
+        m.put("asunción",                new Mapping("", "", R.drawable.flag_py));
 
         // Brazilian Portuguese aliases (group under "ptbr")
         m.put("brazilian portuguese",  new Mapping("", "", R.drawable.flag_br));
@@ -299,6 +317,7 @@ public final class LanguageMapper {
         m.put("francaise", new Mapping("", "fr", R.drawable.flag_fr));
         m.put("français",  new Mapping("", "fr", R.drawable.flag_fr));
         m.put("franch",    new Mapping("", "fr", R.drawable.flag_fr));
+        m.put("fra",       new Mapping("", "fr", R.drawable.flag_fr));
 
         // Ukrainian typo
         m.put("ukranian", new Mapping("", "uk", R.drawable.flag_ua));
@@ -341,6 +360,41 @@ public final class LanguageMapper {
             normalized.put(normaliseKey(e.getKey()), e.getValue());
         }
         MAP = Collections.unmodifiableMap(normalized);
+    }
+
+    // ── Grouping helpers ──────────────────────────────────────────────────────
+
+    /**
+     * Returns a stable grouping key for a Mapping:
+     *   "2:<twoLetterCode>"  when ISO 639-1 is available
+     *   "3:<threeLetterCode>" when only ISO 639-3 is available
+     *   "f:<flagRes>"        when both codes are empty but a real flag exists
+     *   null                 when the entry cannot be grouped (no codes, no distinctive flag)
+     */
+    private static String groupKey(Mapping m) {
+        if (!m.twoLetterCode.isEmpty())   return "2:" + m.twoLetterCode;
+        if (!m.threeLetterCode.isEmpty()) return "3:" + m.threeLetterCode;
+        if (m.flagRes != 0 && m.flagRes != R.drawable.no_flag && m.flagRes != R.drawable.flag_globe)
+            return "f:" + m.flagRes;
+        return null;
+    }
+
+    /**
+     * From a list of MAP entries that share the same groupKey, picks the one
+     * whose key should be used as the card label.
+     * Priority: both codes filled > three-letter only > two-letter only > neither.
+     */
+    private static String pickCanonicalLabel(List<Map.Entry<String, Mapping>> entries) {
+        String best = null;
+        int bestScore = -1;
+        for (Map.Entry<String, Mapping> e : entries) {
+            Mapping m = e.getValue();
+            int score = 0;
+            if (!m.threeLetterCode.isEmpty()) score += 2;
+            if (!m.twoLetterCode.isEmpty())   score += 1;
+            if (score > bestScore) { bestScore = score; best = e.getKey(); }
+        }
+        return best != null ? best : entries.get(0).getKey();
     }
 
     // ── Public API ────────────────────────────────────────────────────────────
@@ -418,6 +472,50 @@ public final class LanguageMapper {
             if (wanted.equals(e.getValue().threeLetterCode)) return e.getKey();
         }
         return null;
+    }
+
+    /**
+     * Returns the internal grouping key for a language name (for use by the ViewModel).
+     * Returns null if the name is unknown or ungroupable.
+     */
+    public static String getGroupKey(String name) {
+        if (name == null || name.isEmpty()) return null;
+        Mapping m = MAP.get(normaliseKey(name));
+        if (m == null) return null;
+        String key = groupKey(m);
+        return key != null ? key : "solo:" + normaliseKey(name);
+    }
+
+    /**
+     * Builds one {@link RadioLanguageCardItem} per distinct group found in MAP.
+     * All {@code stationcount} values are 0 — callers should add to
+     * {@code card.stationcount} for each API item that maps to the group,
+     * then discard cards that remain at 0.
+     *
+     * <p>The returned map key is the same string produced by {@link #getGroupKey}.
+     * It is a {@link LinkedHashMap} so iteration order is stable across calls.
+     */
+    public static Map<String, RadioLanguageCardItem> buildEmptyGroups() {
+        // 1. Bucket all MAP entries by groupKey
+        Map<String, List<Map.Entry<String, Mapping>>> buckets = new LinkedHashMap<>();
+        for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
+            String key = groupKey(e.getValue());
+            if (key == null) key = "solo:" + e.getKey();
+            buckets.computeIfAbsent(key, k -> new ArrayList<>()).add(e);
+        }
+        // 2. Build one RadioLanguageCardItem per bucket
+        Map<String, RadioLanguageCardItem> result = new LinkedHashMap<>();
+        for (Map.Entry<String, List<Map.Entry<String, Mapping>>> bucket : buckets.entrySet()) {
+            String label = pickCanonicalLabel(bucket.getValue());
+            List<String>  apiNames = new ArrayList<>();
+            List<Mapping> mappings  = new ArrayList<>();
+            for (Map.Entry<String, Mapping> e : bucket.getValue()) {
+                apiNames.add(e.getKey());
+                mappings.add(e.getValue());
+            }
+            result.put(bucket.getKey(), new RadioLanguageCardItem(label, apiNames, mappings));
+        }
+        return result;
     }
 
     /**

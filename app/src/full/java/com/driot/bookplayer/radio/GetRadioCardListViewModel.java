@@ -11,6 +11,7 @@ import com.driot.bookplayer.librivox.LanguageMapper;
 import com.driot.bookplayer.utils.log.LoggingAndroidViewModel;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -28,6 +29,8 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
 
     private final MutableLiveData<List<TagItem>> itemsLive = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<TagItem>> filteredItemsLive = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<LanguageMapper.RadioLanguageCardItem>> langCardsLive         = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<LanguageMapper.RadioLanguageCardItem>> filteredLangCardsLive = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<LoadingState> loadingStateLive = new MutableLiveData<>(LoadingState.IDLE);
 
     // --- Search ---
@@ -56,8 +59,9 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
     // Exposed LiveData
     // -------------------------------------------------------------------------
 
-    public LiveData<List<TagItem>> getFilteredItemsLive() { return filteredItemsLive; }
-    public LiveData<LoadingState> getLoadingStateLive()   { return loadingStateLive; }
+    public LiveData<List<TagItem>> getFilteredItemsLive()                                      { return filteredItemsLive; }
+    public LiveData<List<LanguageMapper.RadioLanguageCardItem>> getFilteredLangCardsLive()  { return filteredLangCardsLive; }
+    public LiveData<LoadingState> getLoadingStateLive()                                    { return loadingStateLive; }
     public LiveData<String>       getSearchQueryLive()    { return searchQueryLive; }
     public LiveData<Boolean>      getSearchVisibleLive()  { return searchVisibleLive; }
 
@@ -75,8 +79,12 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
     // -------------------------------------------------------------------------
 
     public void seedFromCache(List<TagItem> cached) {
-        if (cached != null && !cached.isEmpty()) {
-            itemsLive.setValue(mergeByIso(cached));
+        if (cached == null || cached.isEmpty()) return;
+        if (currentMode == GetRadioCardListActivity.MODE_LANGUAGE) {
+            langCardsLive.setValue(buildLanguageCards(cached));
+            applyFilter();
+        } else {
+            itemsLive.setValue(cached);
             applyFilter();
         }
     }
@@ -98,10 +106,14 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
             public void onResponse(@NonNull Call<List<TagItem>> call, @NonNull Response<List<TagItem>> rsp) {
                 if (cancelled) return;
                 if (rsp.isSuccessful() && rsp.body() != null) {
-                    List<TagItem> merged = mergeByIso(rsp.body());
-                    itemsLive.setValue(merged);
+                    List<TagItem> raw = rsp.body();
+                    RadioCacheHelper.saveCache(getApplication(), currentMode, raw);
+                    if (currentMode == GetRadioCardListActivity.MODE_LANGUAGE) {
+                        langCardsLive.setValue(buildLanguageCards(raw));
+                    } else {
+                        itemsLive.setValue(raw);
+                    }
                     applyFilter();
-                    RadioCacheHelper.saveCache(getApplication(), currentMode, merged);
                 } else {
                     if (itemsLive.getValue() == null || itemsLive.getValue().isEmpty()) {
                         itemsLive.setValue(new ArrayList<>());
@@ -154,11 +166,16 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
     }
 
     private void applyFilter() {
-        List<TagItem> all = itemsLive.getValue();
-        if (all == null) {
-            filteredItemsLive.setValue(new ArrayList<>());
-            return;
+        if (currentMode == GetRadioCardListActivity.MODE_LANGUAGE) {
+            applyLangFilter();
+        } else {
+            applyTagFilter();
         }
+    }
+
+    private void applyTagFilter() {
+        List<TagItem> all = itemsLive.getValue();
+        if (all == null) { filteredItemsLive.setValue(new ArrayList<>()); return; }
 
         String query = searchQueryLive.getValue();
         List<TagItem> result;
@@ -168,13 +185,10 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
             String q = query.trim().toLowerCase();
             result = new ArrayList<>();
             for (TagItem item : all) {
-                if (item.name != null && item.name.toLowerCase().contains(q)) {
-                    result.add(item);
-                }
+                if (item.name != null && item.name.toLowerCase().contains(q)) result.add(item);
             }
         }
 
-        // Sort
         Comparator<TagItem> comp;
         if ("alpha".equals(tagSortMode)) {
             comp = Comparator.comparing(i -> i.name != null ? i.name.toLowerCase() : "");
@@ -184,60 +198,80 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
             if ("desc".equals(tagSortDir)) comp = ((Comparator<TagItem>) comp).reversed();
         }
         result.sort(comp);
-
         filteredItemsLive.setValue(result);
     }
 
+    private void applyLangFilter() {
+        List<LanguageMapper.RadioLanguageCardItem> all = langCardsLive.getValue();
+        if (all == null) { filteredLangCardsLive.setValue(new ArrayList<>()); return; }
+
+        String query = searchQueryLive.getValue();
+        List<LanguageMapper.RadioLanguageCardItem> result;
+        if (query == null || query.trim().isEmpty()) {
+            result = new ArrayList<>(all);
+        } else {
+            String q = query.trim().toLowerCase();
+            result = new ArrayList<>();
+            for (LanguageMapper.RadioLanguageCardItem card : all) {
+                if (card.label != null && card.label.toLowerCase().contains(q)) result.add(card);
+            }
+        }
+
+        Comparator<LanguageMapper.RadioLanguageCardItem> comp;
+        if ("alpha".equals(tagSortMode)) {
+            comp = Comparator.comparing(c -> c.label != null ? c.label.toLowerCase() : "");
+            if ("desc".equals(tagSortDir)) comp = comp.reversed();
+        } else {
+            comp = Comparator.comparingInt(c -> c.stationcount);
+            if ("desc".equals(tagSortDir))
+                comp = ((Comparator<LanguageMapper.RadioLanguageCardItem>) comp).reversed();
+        }
+        result.sort(comp);
+        filteredLangCardsLive.setValue(result);
+    }
+
     // -------------------------------------------------------------------------
-    // Deduplication
+    // Language card building
     // -------------------------------------------------------------------------
 
     /**
-     * For MODE_LANGUAGE: merges entries that share the same iso_639 code.
-     * The API returns items sorted by stationcount desc, so the first entry for
-     * each code has the best/most-popular name — duplicates only add their count.
-     *
-     * Items whose iso_639 is null in the API are resolved via
-     * {@link LanguageMapper#resolveIso639} (reads twoLetterCode from MAP), so that e.g.:
-     *  - "язык: русский"      → "ru"   → merged with "russian"
-     *  - "português brasil"   → "ptbr" → merged with "brazilian portuguese"
-     *  - "português (brasil)" → "ptbr" → merged with "brazilian portuguese"
-     *  - "bahasa indonesia"   → "id"   → merged with "indonesian"
-     *  - "engilsh" (typo)     → "en"   → merged with "english"
-     *
-     * When a code is resolved this way it is also written back to
-     * {@code item.iso_639} so that the adapter can display the correct flag.
+     * Converts a raw list of API language items into grouped {@link LanguageMapper.RadioLanguageCardItem}s.
+     * Grouping is driven by {@link LanguageMapper#buildEmptyGroups()} / {@link LanguageMapper#getGroupKey}:
+     *  - shared twoLetterCode  → same group (e.g. "язык: русский" + "russian" → "ru")
+     *  - shared threeLetterCode → same group (e.g. "schweizerdeutsch" + "swiss german" → "gsw")
+     *  - shared flagRes (both codes empty) → same group (e.g. all Brazilian-Portuguese variants)
+     * Language names not found in MAP appear as solo cards using the raw API name as label.
      */
-    private List<TagItem> mergeByIso(List<TagItem> items) {
-        if (currentMode != GetRadioCardListActivity.MODE_LANGUAGE) return items;
-        Map<String, TagItem> byIso = new LinkedHashMap<>();
-        List<TagItem> noIso = new ArrayList<>();
-        for (TagItem item : items) {
-            String iso = item.iso_639;
-            if (iso == null || iso.isEmpty()) {
-                // Try to resolve from the name (typos, non-English, regional variants)
-                iso = LanguageMapper.resolveIso639(item.name);
-                if (iso != null) {
-                    item.iso_639 = iso;  // assign so the flag is shown correctly
-                    //myLogD(item.name + ": " + " iso mapped=" + iso);
-                }
-            }
-            if (iso != null && !iso.isEmpty()) {
-                TagItem existing = byIso.get(iso);
-                if (existing != null) {
-                    existing.stationcount += item.stationcount;
-                    //myLogI(item.name + ": " + " duplicate of " + existing.name);
-                } else {
-                    byIso.put(iso, item);
-                    //myLog(item.name + ": " + " iso=" + iso);
+    private List<LanguageMapper.RadioLanguageCardItem> buildLanguageCards(List<TagItem> apiItems) {
+        Map<String, LanguageMapper.RadioLanguageCardItem> groups = LanguageMapper.buildEmptyGroups();
+
+        for (TagItem item : apiItems) {
+            if (item.name == null) continue;
+            String key = LanguageMapper.getGroupKey(item.name);
+            if (key != null) {
+                LanguageMapper.RadioLanguageCardItem card = groups.get(key);
+                if (card != null) {
+                    card.stationcount += item.stationcount;
                 }
             } else {
-                noIso.add(item);
-                //myLog(item.name + ": " + "no iso");
+                // Unknown language (not in MAP) — solo card
+                String soloKey = "unknown:" + item.name.toLowerCase();
+                if (!groups.containsKey(soloKey)) {
+                    LanguageMapper.Mapping solo = new LanguageMapper.Mapping("", "", 0);
+                    groups.put(soloKey, new LanguageMapper.RadioLanguageCardItem(
+                            item.name,
+                            Collections.singletonList(item.name),
+                            Collections.singletonList(solo)));
+                }
+                LanguageMapper.RadioLanguageCardItem card = groups.get(soloKey);
+                if (card != null) card.stationcount += item.stationcount;
             }
         }
-        List<TagItem> result = new ArrayList<>(byIso.values());
-        result.addAll(noIso);
+
+        List<LanguageMapper.RadioLanguageCardItem> result = new ArrayList<>();
+        for (LanguageMapper.RadioLanguageCardItem card : groups.values()) {
+            if (card.stationcount > 0) result.add(card);
+        }
         return result;
     }
 

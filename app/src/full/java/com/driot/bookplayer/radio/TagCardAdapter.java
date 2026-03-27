@@ -27,22 +27,37 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
         void onTagClick(TagItem t);
     }
 
+    public interface OnLangCardClick {
+        void onLangCardClick(LanguageMapper.RadioLanguageCardItem card);
+    }
+
     private final List<TagItem> items = new ArrayList<>();
+    private final List<LanguageMapper.RadioLanguageCardItem> langItems = new ArrayList<>();
+    private boolean isLanguageMode = false;
+
     private final OnClick cb;
+    private final OnLangCardClick langCb;
     private final boolean showFlags;
 
-    public TagCardAdapter(OnClick cb, boolean showFlags) {
-        this.cb = cb;
+    public TagCardAdapter(OnClick cb, OnLangCardClick langCb, boolean showFlags) {
+        this.cb       = cb;
+        this.langCb   = langCb;
         this.showFlags = showFlags;
     }
 
     public void setItems(List<TagItem> newData) {
+        isLanguageMode = false;
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(new DiffCallback(this.items, newData));
         this.items.clear();
-        if (newData != null) {
-            this.items.addAll(newData);
-        }
+        if (newData != null) this.items.addAll(newData);
         diffResult.dispatchUpdatesTo(this);
+    }
+
+    public void setLanguageItems(List<LanguageMapper.RadioLanguageCardItem> newData) {
+        isLanguageMode = true;
+        this.langItems.clear();
+        if (newData != null) this.langItems.addAll(newData);
+        notifyDataSetChanged();
     }
 
     private static class DiffCallback extends DiffUtil.Callback {
@@ -101,56 +116,60 @@ public class TagCardAdapter extends LoggingRVAdapter<TagCardAdapter.VH> {
 
     @Override
     public void onBindViewHolder(@NonNull VH h, int pos) {
-        TagItem t = items.get(pos);
-        // NAME
-        String name = "---";
-        if (t.name != null && !t.name.isEmpty()) {
-            name = t.name.substring(0, 1).toUpperCase() + t.name.substring(1);
-        }
-        h.tvName.setText(name);
-        // COUNT
-        h.tvCount.setText(String.valueOf(t.stationcount));
-        // FLAG
-        if (!showFlags) {
-            Glide.with(h.ivFlag.getContext()).clear(h.ivFlag);
-            h.ivFlag.setVisibility(View.GONE);
-        }
-        int flagResId = 0;
-        if (showFlags && t.iso_3166_1 != null) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_3166_1, "country");
-        } else if (showFlags && t.iso_639 != null) {
-            flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_639, "language");
-        }
-        if (showFlags && flagResId == 0) {
-            flagResId = LanguageMapper.getFlagFromName(t.name);
-        }
+        if (isLanguageMode) bindLanguageCard(h, langItems.get(pos));
+        else                bindTagItem(h, items.get(pos));
+    }
 
+    private void bindTagItem(@NonNull VH h, TagItem t) {
+        String name = (t.name != null && !t.name.isEmpty())
+                ? t.name.substring(0, 1).toUpperCase() + t.name.substring(1) : "---";
+        h.tvName.setText(name);
+        h.tvCount.setText(String.valueOf(t.stationcount));
+
+        int flagResId = 0;
+        if (showFlags && t.iso_3166_1 != null)
+            flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_3166_1, "country");
+        else if (showFlags && t.iso_639 != null)
+            flagResId = getFlagResId(h.ivFlag.getContext(), t.iso_639, "language");
+        if (showFlags && flagResId == 0)
+            flagResId = LanguageMapper.getFlagFromName(t.name);
+
+        applyFlag(h, flagResId, t.name + "_" + flagResId);
+        if (showFlags && flagResId == 0)
+            myLogW("no flag — name=[" + t.name + "] iso_639=[" + t.iso_639
+                    + "] iso_3166_1=[" + t.iso_3166_1 + "] count=[" + t.stationcount + "]");
+
+        h.card.setOnClickListener(v -> { if (cb != null) cb.onTagClick(t); });
+    }
+
+    private void bindLanguageCard(@NonNull VH h, LanguageMapper.RadioLanguageCardItem card) {
+        String name = (card.label != null && !card.label.isEmpty())
+                ? card.label.substring(0, 1).toUpperCase() + card.label.substring(1) : "---";
+        h.tvName.setText(name);
+        h.tvCount.setText(String.valueOf(card.stationcount));
+
+        int flagResId = showFlags ? card.flagRes() : 0;
+        applyFlag(h, flagResId, card.label + "_" + flagResId);
+        if (showFlags && flagResId == 0)
+            myLogW("no flag — label=[" + card.label + "]");
+
+        h.card.setOnClickListener(v -> { if (langCb != null) langCb.onLangCardClick(card); });
+    }
+
+    private void applyFlag(@NonNull VH h, int flagResId, String sigKey) {
         if (flagResId != 0) {
-            // KanLogger.myLog("tagitem - name=[" + t.name + "] - iso_3166_1=[" +
-            // t.iso_3166_1 + "] - iso_639=[" + t.iso_639 + "] - flag=[" +
-            // h.ivFlag.getContext().getResources().getResourceEntryName(flagResId) + "]");
-            Glide.with(h.ivFlag.getContext()).load(flagResId).signature(new ObjectKey(t.name + "_" + flagResId))
-                    .into(h.ivFlag);
+            Glide.with(h.ivFlag.getContext()).load(flagResId)
+                    .signature(new ObjectKey(sigKey)).into(h.ivFlag);
             h.ivFlag.setVisibility(View.VISIBLE);
         } else {
-            if (showFlags) {
-                myLogW("no flag — name=[" + t.name + "] iso_639=[" + t.iso_639
-                        + "] iso_3166_1=[" + t.iso_3166_1 + "] count=[" + t.stationcount + "]");
-            }
             Glide.with(h.ivFlag.getContext()).clear(h.ivFlag);
             h.ivFlag.setVisibility(View.GONE);
         }
-        // CLICK
-        h.card.setOnClickListener(v -> {
-            if (cb != null)
-                cb.onTagClick(t);
-        });
-
     }
 
     @Override
     public int getItemCount() {
-        return items.size();
+        return isLanguageMode ? langItems.size() : items.size();
     }
 
     static final class VH extends RecyclerView.ViewHolder {
