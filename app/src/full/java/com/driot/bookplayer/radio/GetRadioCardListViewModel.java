@@ -198,12 +198,12 @@ public class GetRadioCardListViewModel extends LoggingAndroidViewModel {
      * each code has the best/most-popular name — duplicates only add their count.
      *
      * Items whose iso_639 is null in the API are resolved via
-     * {@link LanguageMapper#resolveIso639} (alias map + main MAP), so that e.g.:
-     *  - "язык: русский"      → "ru" → merged with "russian"
-     *  - "português brasil"   → "br" → merged with "portuguese"
-     *  - "português (brasil)" → "br" → merged with "portuguese"
-     *  - "bahasa indonesia"   → "id" → merged with "indonesian"
-     *  - "engilsh" (typo)     → "en" → merged with "english"
+     * {@link LanguageMapper#resolveIso639} (reads twoLetterCode from MAP), so that e.g.:
+     *  - "язык: русский"      → "ru"   → merged with "russian"
+     *  - "português brasil"   → "ptbr" → merged with "brazilian portuguese"
+     *  - "português (brasil)" → "ptbr" → merged with "brazilian portuguese"
+     *  - "bahasa indonesia"   → "id"   → merged with "indonesian"
+     *  - "engilsh" (typo)     → "en"   → merged with "english"
      *
      * When a code is resolved this way it is also written back to
      * {@code item.iso_639} so that the adapter can display the correct flag.

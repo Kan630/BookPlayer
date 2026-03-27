@@ -9,16 +9,18 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Maps a Librivox language name (lang_en) to:
- *  - three-letter code (useful for Librivox API / internal)
- *  - two-letter code (ISO 639-1 when available)
- *  - flag resource id (R.drawable.*) to show in spinners
+ * Maps a language name to:
+ *  - three-letter code (ISO 639-3, useful for Librivox API / internal)
+ *  - two-letter code  (ISO 639-1 when available; also used as grouping key for radio cards)
+ *  - flag resource id (R.drawable.*)
  *
- * Keys are matched case-insensitively on lang_en (trimmed).
+ * Both canonical language names ("english", "russian") and alternate/alias names
+ * (typos, non-English labels, regional variants) live in the same MAP, so there is
+ * only one place to edit.
  *
- * If an entry is unknown, getMapping returns a Mapping with empty codes and R.drawable.flag_globe.
+ * Keys are matched after: trim + lowercase + collapse-whitespace (see normaliseKey).
  *
- * Edit entries if you want to change the chosen flag or the codes.
+ * If a name is unknown, getMapping() returns a fallback with empty codes + flag_globe.
  */
 public final class LanguageMapper {
 
@@ -26,456 +28,401 @@ public final class LanguageMapper {
 
     public static final class Mapping {
         public final String threeLetterCode; // e.g. "eng"
-        public final String twoLetterCode;   // e.g. "en"
+        public final String twoLetterCode;   // e.g. "en"; grouping key for radio cards
         public final int flagRes;            // R.drawable.flag_*
 
         public Mapping(String threeLetterCode, String twoLetterCode, int flagRes) {
             this.threeLetterCode = threeLetterCode == null ? "" : threeLetterCode;
-            this.twoLetterCode = twoLetterCode == null ? "" : twoLetterCode;
-            this.flagRes = flagRes;
+            this.twoLetterCode   = twoLetterCode   == null ? "" : twoLetterCode;
+            this.flagRes         = flagRes;
         }
     }
 
     private static final Mapping FALLBACK = new Mapping("", "", R.drawable.flag_globe);
 
-    private static final Map<String, Mapping> MAP;
-    static {
-        Map<String, Mapping> m = new HashMap<>();
-
-        // High-confidence mappings (common languages)
-        m.put("english", new Mapping("eng", "en", R.drawable.flag_uk));
-        m.put("french", new Mapping("fre", "fr", R.drawable.flag_fr));
-        m.put("spanish", new Mapping("spa", "es", R.drawable.flag_es));
-        m.put("german", new Mapping("deu", "de", R.drawable.flag_de));
-        m.put("italian", new Mapping("ita", "it", R.drawable.flag_it));
-        m.put("portuguese", new Mapping("por", "pt", R.drawable.flag_pt));
-        m.put("brazilian portuguese", new Mapping("", "", R.drawable.flag_br)); // flag only; code resolved via ALIAS
-        m.put("dutch", new Mapping("nld", "nl", R.drawable.flag_nl));
-        m.put("russian", new Mapping("rus", "ru", R.drawable.flag_ru));
-        m.put("arabic", new Mapping("ara", "ar", R.drawable.flag_sa));
-        m.put("hindi", new Mapping("hin", "hi", R.drawable.flag_in));
-        m.put("bengali", new Mapping("ben", "bn", R.drawable.flag_in));
-        m.put("turkish", new Mapping("tur", "tr", R.drawable.flag_tr));
-        m.put("polish", new Mapping("pol", "pl", R.drawable.flag_pl));
-        m.put("czech", new Mapping("ces", "cs", R.drawable.flag_cz));
-        m.put("greek", new Mapping("ell", "el", R.drawable.flag_gr));
-        m.put("hebrew", new Mapping("heb", "he", R.drawable.flag_il));
-        m.put("yiddish", new Mapping("yid", "yi", R.drawable.flag_il));
-        m.put("romanian", new Mapping("ron", "ro", R.drawable.flag_ro));
-        m.put("hungarian", new Mapping("hun", "hu", R.drawable.flag_hu));
-        m.put("ukrainian", new Mapping("ukr", "uk", R.drawable.flag_ua));
-        m.put("bosnian", new Mapping("", "ba", R.drawable.flag_ba));
-        m.put("albanian", new Mapping("sqi", "sq", R.drawable.flag_al));
-
-        m.put("slovenian", new Mapping("slv", "sl", R.drawable.flag_si));
-        m.put("slovak", new Mapping("slk", "sk", R.drawable.flag_sk));
-        m.put("bulgarian", new Mapping("bul", "bg", R.drawable.flag_bg));
-        m.put("croatian", new Mapping("hrv", "hr", R.drawable.flag_hr));
-        m.put("serbian", new Mapping("srp", "sr", R.drawable.flag_rs));
-        m.put("macedonian", new Mapping("mkd", "mk", R.drawable.flag_mk));
-        m.put("estonian", new Mapping("est", "et", R.drawable.flag_ee));
-        m.put("latvian", new Mapping("lav", "lv", R.drawable.flag_lv));
-        m.put("lithuanian", new Mapping("lit", "lt", R.drawable.flag_lt));
-        m.put("luxembourgish", new Mapping("ltz", "lb", R.drawable.flag_lu));
-
-        m.put("swedish", new Mapping("swe", "sv", R.drawable.flag_se));
-        m.put("norwegian", new Mapping("nor", "no", R.drawable.flag_no));
-        m.put("danish", new Mapping("dan", "da", R.drawable.flag_dk));
-        m.put("finnish", new Mapping("fin", "fi", R.drawable.flag_fi));
-        m.put("icelandic", new Mapping("isl", "is", R.drawable.flag_is));
-        m.put("norwegian nynorsk", new Mapping("nno", "nn", R.drawable.flag_no));
-        m.put("nynorsk", new Mapping("nno", "nn", R.drawable.flag_no));
-        m.put("norsk", new Mapping("nno", "nn", R.drawable.flag_no));
-        m.put("old norse", new Mapping("non", "", R.drawable.flag_no));
-        m.put("faroese", new Mapping("", "", R.drawable.flag_fo));
-
-        m.put("walloon", new Mapping("", "ba", R.drawable.flag_be));
-        m.put("catalan", new Mapping("cat", "ca", R.drawable.flag_catalan));
-        m.put("galician", new Mapping("glg", "gl", R.drawable.flag_galician));
-        m.put("basque", new Mapping("eus", "eu", R.drawable.flag_basque));
-        m.put("gaelic, scottish", new Mapping("gla", "gd", R.drawable.flag_scotland));
-        m.put("gaelic", new Mapping("gla", "gd", R.drawable.flag_scotland));
-        m.put("irish", new Mapping("gle", "ga", R.drawable.flag_ie));
-        m.put("welsh", new Mapping("cym", "cy", R.drawable.flag_wales));
-        m.put("breton", new Mapping("bre", "br", R.drawable.flag_breton));
-        m.put("deutsch fränkisch", new Mapping("frk", "", R.drawable.flag_franken));
-        m.put("flemish", new Mapping("", "", R.drawable.flag_flanders));
-
-        m.put("indonesian", new Mapping("ind", "id", R.drawable.flag_id));
-        m.put("javanese", new Mapping("jav", "", R.drawable.flag_id));
-        m.put("sundanese", new Mapping("sun", "", R.drawable.flag_id));
-        m.put("minangkabau", new Mapping("min", "", R.drawable.flag_id));
-        m.put("acehnese", new Mapping("ace", "", R.drawable.flag_id));
-        m.put("buginese", new Mapping("bug", "", R.drawable.flag_id));
-        m.put("balinese", new Mapping("ban", "", R.drawable.flag_id));
-        m.put("bahasa indonesia", new Mapping("idn", "id", R.drawable.flag_id));
-        m.put("old javanese", new Mapping("jav", "", R.drawable.flag_id));
-        m.put("old sundanese", new Mapping("", "", R.drawable.flag_id));
-
-        m.put("tagalog", new Mapping("tgl", "tl", R.drawable.flag_ph));
-        m.put("filipino", new Mapping("", "", R.drawable.flag_ph));
-        m.put("kapampangan", new Mapping("", "", R.drawable.flag_ph));
-        m.put("ileoko", new Mapping("", "", R.drawable.flag_ph));
-
-
-
-        m.put("multilingual", new Mapping("mul", "", R.drawable.flag_globe));
-        m.put("cantonese chinese", new Mapping("yue", "", R.drawable.flag_cn));
-        m.put("cantonese", new Mapping("yue", "", R.drawable.flag_cn));
-        m.put("mandarin", new Mapping("cmn", "", R.drawable.flag_cn));
-        m.put("chinese", new Mapping("zho", "zh", R.drawable.flag_cn));
-        m.put("hokkien", new Mapping("", "", R.drawable.flag_tw));
-        m.put("japanese", new Mapping("jpn", "ja", R.drawable.flag_jp));
-        m.put("korean", new Mapping("kor", "ko", R.drawable.flag_kr));
-        m.put("vietnamese", new Mapping("vie", "vi", R.drawable.flag_vn));
-        m.put("malay", new Mapping("msa", "ms", R.drawable.flag_my));
-
-        m.put("maori", new Mapping("mri", "mi", R.drawable.flag_nz));
-        m.put("gamilaraay", new Mapping("", "", R.drawable.flag_au));
-
-        m.put("nahuatl", new Mapping("", "", R.drawable.flag_mx));
-        m.put("maya", new Mapping("", "", R.drawable.flag_mx));
-
-        m.put("azerbaijani", new Mapping("aze", "az", R.drawable.flag_az));
-        m.put("kazakh", new Mapping("kaz", "kz", R.drawable.flag_kz));
-        m.put("georgian", new Mapping("", "ge", R.drawable.flag_ge));
-        m.put("kurdish", new Mapping("kur", "ku", R.drawable.flag_iq));
-
-        m.put("persian/farsi", new Mapping("fas", "fa", R.drawable.flag_ir));
-        m.put("farsi", new Mapping("fas", "fa", R.drawable.flag_ir));
-        m.put("persian", new Mapping("fas", "fa", R.drawable.flag_ir));
-        m.put("sindhi", new Mapping("snd", "sd", R.drawable.flag_pk));
-        m.put("urdu", new Mapping("urd", "ur", R.drawable.flag_pk));
-
-        m.put("sanskrit", new Mapping("san", "sa", R.drawable.flag_in));
-        m.put("punjabi", new Mapping("pan", "", R.drawable.flag_in));
-        m.put("rajasthani", new Mapping("", "", R.drawable.flag_in));
-        m.put("tamil", new Mapping("tam", "ta", R.drawable.flag_in));
-        m.put("telugu", new Mapping("tel", "te", R.drawable.flag_in));
-        m.put("marathi", new Mapping("mar", "mr", R.drawable.flag_in));
-        m.put("assamese", new Mapping("asm", "as", R.drawable.flag_in));
-        m.put("oriya", new Mapping("ori", "or", R.drawable.flag_in));
-        m.put("braj", new Mapping("bra", "", R.drawable.flag_in));
-        m.put("garo", new Mapping("", "", R.drawable.flag_in));
-        m.put("khasi", new Mapping("", "", R.drawable.flag_in));
-        m.put("bangla", new Mapping("", "", R.drawable.flag_bd));
-        m.put("nepali", new Mapping("", "", R.drawable.flag_np));
-
-        m.put("sinhala", new Mapping("sin", "si", R.drawable.flag_lk));
-
-        m.put("creole", new Mapping("", "", R.drawable.flag_ht));
-        m.put("haitian creole", new Mapping("", "", R.drawable.flag_ht));
-
-        m.put("afrikaans", new Mapping("afr", "af", R.drawable.flag_za));
-        m.put("dholuo/luo", new Mapping("luo", "", R.drawable.flag_ke));
-        m.put("luganda", new Mapping("uga", "ug", R.drawable.flag_ug));
-        m.put("amharic", new Mapping("", "", R.drawable.flag_et));
-
-        m.put("latin", new Mapping("lat", "la", R.drawable.flag_spqr));
-        m.put("esperanto", new Mapping("epo", "", R.drawable.flag_esperanto));
-        m.put("old english", new Mapping("ang", "", R.drawable.flag_uk));
-        m.put("middle english", new Mapping("enm", "", R.drawable.flag_uk));
-        m.put("frisian", new Mapping("fry", "fy", R.drawable.flag_de));
-        m.put("frysk", new Mapping("fry", "fy", R.drawable.flag_de));
-        m.put("mayan languages", new Mapping("", "", R.drawable.flag_mx));
-        m.put("greek, ancient", new Mapping("grc", "", R.drawable.flag_gr));
-        m.put("ancient greek", new Mapping("grc", "", R.drawable.flag_gr));
-        m.put("church slavonic", new Mapping("chu", "", R.drawable.no_flag));
-        m.put("old tupi", new Mapping("", "", R.drawable.no_flag));
-        m.put("iroquoian", new Mapping("", "", R.drawable.no_flag));
-        m.put("north american indian (undetermined dialect)", new Mapping("", "", R.drawable.no_flag));
-
-        // --- Additional entries resolved from radio-browser flag audit ---
-        // Languages that already had a valid iso_639 from the API but no flag in this MAP
-        m.put("swiss german",    new Mapping("gsw", "gsw", R.drawable.flag_ch));
-        m.put("belarusian",      new Mapping("bel", "be",  R.drawable.flag_by));
-        m.put("low german",      new Mapping("nds", "nds", R.drawable.flag_de));
-        m.put("mongolian",       new Mapping("mon", "mn",  R.drawable.flag_mn));
-        m.put("tibetan",         new Mapping("bod", "bo",  R.drawable.flag_tibet));
-        m.put("bambara",         new Mapping("bam", "bm",  R.drawable.flag_ml));
-        m.put("tatar",           new Mapping("tat", "tt",  R.drawable.flag_ru));
-        m.put("bashkir",         new Mapping("bak", "ba",  R.drawable.flag_ru));
-        m.put("hausa",           new Mapping("hau", "ha",  R.drawable.flag_ng));
-        m.put("uzbek",           new Mapping("uzb", "uz",  R.drawable.flag_uz));
-        m.put("occitan",         new Mapping("oci", "oc",  R.drawable.flag_occitan));
-        m.put("hakka",           new Mapping("hak", "",    R.drawable.flag_cn));
-        // Languages with null iso_639 from the API that have a clear flag
-        m.put("odia",            new Mapping("ori", "or",  R.drawable.flag_in));
-        m.put("bhojpuri",        new Mapping("",    "",    R.drawable.flag_in));
-        m.put("uyghur",          new Mapping("uig", "ug",  R.drawable.flag_cn));
-        m.put("montenegrin",     new Mapping("",    "",    R.drawable.flag_me));
-        m.put("moldovian",       new Mapping("",    "",    R.drawable.flag_md));
-        m.put("tunisian",        new Mapping("",    "",    R.drawable.flag_tn));
-        m.put("lusoga",          new Mapping("",    "",    R.drawable.flag_ug));
-        m.put("cebuano",         new Mapping("ceb", "",    R.drawable.flag_ph));
-        m.put("ilocano",         new Mapping("ilo", "",    R.drawable.flag_ph));
-        m.put("isizulu",         new Mapping("zul", "zu",  R.drawable.flag_za));
-        m.put("sepedi",          new Mapping("",    "",    R.drawable.flag_za));
-        m.put("xitsonga",        new Mapping("tso", "ts",  R.drawable.flag_za));
-        m.put("kiswahili",       new Mapping("swa", "sw",  R.drawable.flag_tz));
-        m.put("kyrgyz",          new Mapping("kir", "ky",  R.drawable.flag_kg));
-        m.put("papiamentu",      new Mapping("pap", "",    R.drawable.flag_cw));
-        m.put("flammish",        new Mapping("",    "",    R.drawable.flag_flanders));
-        m.put("sorbian",         new Mapping("hsb", "",    R.drawable.flag_de));
-        m.put("romani",          new Mapping("rom", "",    R.drawable.flag_romani));
-        // manual additions
-        m.put("français - lëtzebuergesch", new Mapping("", "lu",    R.drawable.flag_lu)); //keep distinct from main lux list because looks shitty
-        m.put("willemstad", new Mapping("pap", "",    R.drawable.flag_cw));
-
-
-
-        /*
-        String[] noFlagLangs = new String[]{
-                "gascon/occitan",
-                "friulano"
-                "",","neapolitan-calabrian","palatine german","volapük","",
-                "western frisian","occitan","neapolitan-calabrian","low german","",
-                "iroquoian","mayan languages"
-        };
-        for (String gl : noFlagLangs) {
-            m.put(gl, new Mapping("", "", R.drawable.no_flag));
-        }
-
-         */
-
-        // --- Ensure keys are lower-case and trimmed for robust matching ---
-        Map<String, Mapping> normalized = new HashMap<>();
-        for (Map.Entry<String, Mapping> e : m.entrySet()) {
-            normalized.put(e.getKey().trim().toLowerCase(Locale.ROOT), e.getValue());
-        }
-        MAP = Collections.unmodifiableMap(normalized);
-    }
-
-    // -------------------------------------------------------------------------
-    // Alias map:    to country/flag code : ISO 3166 or specific (like breton)
-    // Used to resolve "язык: русский" → "ru", all "português brasil" variants
-    // Keys are stored lowercased + single-space-normalised (same normalisation
-    // applied at lookup time).
-    // -------------------------------------------------------------------------
-    private static final Map<String, String> ALIAS_TO_FLAG_CODE;
-    static {
-        Map<String, String> a = new HashMap<>();
-
-        a.put("язык: русский", "ru");
-        a.put("язык: ру", "ru");
-        a.put("русский", "ru");
-        a.put("rus", "ru");
-        a.put("ру", "ru");
-
-        // English variants / typos
-        a.put("american english", "en");
-        a.put("british english", "en");
-        a.put("english uk", "en");
-        a.put("engilsh", "en");
-        a.put("english/", "en");
-        a.put("engilsh uk", "en");
-        a.put("englsih", "en");
-        a.put("английский", "en");
-
-        // Spanish variants / typos
-        a.put("español internacional", "es");
-        a.put("español colombia", "es");
-        a.put("castellano. español", "es");
-        a.put("castellano", "es");
-        a.put("castilian", "es");
-        a.put("espanish", "es");
-        a.put("espaňol", "es");
-        a.put("spain", "es");
-        a.put("#spanish", "es");
-
-        a.put("español mexico", "mx");
-        a.put("español - latinoamerica", "mx");
-        a.put("español argentina", "ar");
-        a.put("español chile", "cl");
-        a.put("español peruano", "pe");
-        a.put("español ecuador", "ec");
-        a.put("español paraguay", "py");
-        a.put("asuncíon", "py");
-
-        a.put("brazilian portuguese", "br");
-        a.put("português brasil", "br");
-        a.put("português (brasil)", "br");
-        a.put("portugues do brasil", "br");
-        a.put("portugues brasil", "br");
-        a.put("português (br)", "br");
-        a.put("portugues do braasil", "br");
-        a.put("brasil", "br");
-        a.put("pt-br", "br");
-
-        // Romanian (sometimes the country name "romania" is used)
-        a.put("romania", "ro");
-        a.put("româna", "ro");
-        a.put("românä", "ro");
-
-        // German variants / typos
-        a.put("deu", "de");
-        a.put("gernan", "de");
-        a.put("deutch", "de");
-        a.put("norddeutsch", "de");
-        a.put("schweizerdeutsch", "ch");
-
-        // Turkish variants
-        a.put("türkisch", "tr");
-        a.put("turkçe", "tr");
-        a.put("tr", "tr");
-
-        // Arabic variants
-        a.put("العربية", "sa");
-        a.put("عربي", "sa");
-        a.put("arabic.", "sa");
-
-        // French
-        a.put("francaise", "fr");
-        a.put("français", "fr");
-        a.put("franch", "fr");
-
-        a.put("filipino", "ph");
-
-        a.put("moldovian", "md");
-
-        // Ukrainian typo
-        a.put("ukranian", "ua");
-
-        // Frankish — kept separate from plain German ("de").
-        // "frk" is the ISO 639-3 code; the flag is flag_franken (already in MAP).
-        a.put("deutsch fränkisch", "franken");
-
-        // Country names used as language labels
-        a.put("estonia", "ee");
-        a.put("nederland", "nl");
-        a.put("china", "cn");
-        a.put("montenegro", "me"); //
-
-        a.put("euskera", "basque");
-
-        // Other language name variants / non-Latin scripts
-        a.put("galego", "galician");    // Galician (in Galician)
-        a.put("kurdi", "kurd");     // Kurdish (in Kurdish)
-        a.put("shqip", "al");     // Albanian (in Albanian)
-        a.put("česky", "cz");     // Czech (in Czech)
-        a.put("slovenski", "sl"); // Slovenian (in Slovenian)
-
-        // Normalize all keys: lowercase + collapse internal whitespace
-        Map<String, String> normalized = new HashMap<>();
-        for (Map.Entry<String, String> e : a.entrySet()) {
-            normalized.put(normaliseKey(e.getKey()), e.getValue());
-        }
-        ALIAS_TO_FLAG_CODE = Collections.unmodifiableMap(normalized);
-    }
-
-    /** Lowercase + collapse runs of whitespace to a single space + trim. */
+    /** Lowercase + trim + collapse runs of whitespace to a single space. */
     private static String normaliseKey(String s) {
         return s.trim().toLowerCase(Locale.ROOT).replaceAll("\\s+", " ");
     }
 
+    private static final Map<String, Mapping> MAP;
+    static {
+        Map<String, Mapping> m = new HashMap<>();
+
+        // ── Canonical entries ─────────────────────────────────────────────────
+
+        m.put("english",    new Mapping("eng", "en", R.drawable.flag_uk));
+        m.put("french",     new Mapping("fre", "fr", R.drawable.flag_fr));
+        m.put("spanish",    new Mapping("spa", "es", R.drawable.flag_es));
+        m.put("german",     new Mapping("deu", "de", R.drawable.flag_de));
+        m.put("italian",    new Mapping("ita", "it", R.drawable.flag_it));
+        m.put("portuguese", new Mapping("por", "pt", R.drawable.flag_pt));
+        m.put("dutch",      new Mapping("nld", "nl", R.drawable.flag_nl));
+        m.put("russian",    new Mapping("rus", "ru", R.drawable.flag_ru));
+        m.put("arabic",     new Mapping("ara", "ar", R.drawable.flag_sa));
+        m.put("hindi",      new Mapping("hin", "hi", R.drawable.flag_in));
+        m.put("bengali",    new Mapping("ben", "bn", R.drawable.flag_in));
+        m.put("turkish",    new Mapping("tur", "tr", R.drawable.flag_tr));
+        m.put("polish",     new Mapping("pol", "pl", R.drawable.flag_pl));
+        m.put("czech",      new Mapping("ces", "cs", R.drawable.flag_cz));
+        m.put("greek",      new Mapping("ell", "el", R.drawable.flag_gr));
+        m.put("hebrew",     new Mapping("heb", "he", R.drawable.flag_il));
+        m.put("yiddish",    new Mapping("yid", "yi", R.drawable.flag_il));
+        m.put("romanian",   new Mapping("ron", "ro", R.drawable.flag_ro));
+        m.put("hungarian",  new Mapping("hun", "hu", R.drawable.flag_hu));
+        m.put("ukrainian",  new Mapping("ukr", "uk", R.drawable.flag_ua));
+        m.put("bosnian",    new Mapping("",    "ba", R.drawable.flag_ba));
+        m.put("albanian",   new Mapping("sqi", "sq", R.drawable.flag_al));
+
+        m.put("slovenian",    new Mapping("slv", "sl", R.drawable.flag_si));
+        m.put("slovak",       new Mapping("slk", "sk", R.drawable.flag_sk));
+        m.put("bulgarian",    new Mapping("bul", "bg", R.drawable.flag_bg));
+        m.put("croatian",     new Mapping("hrv", "hr", R.drawable.flag_hr));
+        m.put("serbian",      new Mapping("srp", "sr", R.drawable.flag_rs));
+        m.put("macedonian",   new Mapping("mkd", "mk", R.drawable.flag_mk));
+        m.put("estonian",     new Mapping("est", "et", R.drawable.flag_ee));
+        m.put("latvian",      new Mapping("lav", "lv", R.drawable.flag_lv));
+        m.put("lithuanian",   new Mapping("lit", "lt", R.drawable.flag_lt));
+        m.put("luxembourgish",new Mapping("ltz", "lb", R.drawable.flag_lu));
+
+        m.put("swedish",          new Mapping("swe", "sv",  R.drawable.flag_se));
+        m.put("norwegian",        new Mapping("nor", "no",  R.drawable.flag_no));
+        m.put("danish",           new Mapping("dan", "da",  R.drawable.flag_dk));
+        m.put("finnish",          new Mapping("fin", "fi",  R.drawable.flag_fi));
+        m.put("icelandic",        new Mapping("isl", "is",  R.drawable.flag_is));
+        m.put("norwegian nynorsk",new Mapping("nno", "nn",  R.drawable.flag_no));
+        m.put("nynorsk",          new Mapping("nno", "nn",  R.drawable.flag_no));
+        m.put("norsk",            new Mapping("nno", "nn",  R.drawable.flag_no));
+        m.put("old norse",        new Mapping("non", "",    R.drawable.flag_no));
+        m.put("faroese",          new Mapping("",    "",    R.drawable.flag_fo));
+
+        m.put("walloon",          new Mapping("",    "wa",  R.drawable.flag_be));
+        m.put("catalan",          new Mapping("cat", "ca",  R.drawable.flag_catalan));
+        m.put("galician",         new Mapping("glg", "gl",  R.drawable.flag_galician));
+        m.put("basque",           new Mapping("eus", "eu",  R.drawable.flag_basque));
+        m.put("gaelic, scottish", new Mapping("gla", "gd",  R.drawable.flag_scotland));
+        m.put("gaelic",           new Mapping("gla", "gd",  R.drawable.flag_scotland));
+        m.put("irish",            new Mapping("gle", "ga",  R.drawable.flag_ie));
+        m.put("welsh",            new Mapping("cym", "cy",  R.drawable.flag_wales));
+        m.put("breton",           new Mapping("bre", "br",  R.drawable.flag_breton));
+        // "frk" used in both fields so resolveIso639 returns "frk" as grouping key
+        m.put("deutsch fränkisch",new Mapping("frk", "frk", R.drawable.flag_franken));
+        m.put("flemish",          new Mapping("",    "",    R.drawable.flag_flanders));
+
+        m.put("indonesian",      new Mapping("ind", "id", R.drawable.flag_id));
+        m.put("javanese",        new Mapping("jav", "",   R.drawable.flag_id));
+        m.put("sundanese",       new Mapping("sun", "",   R.drawable.flag_id));
+        m.put("minangkabau",     new Mapping("min", "",   R.drawable.flag_id));
+        m.put("acehnese",        new Mapping("ace", "",   R.drawable.flag_id));
+        m.put("buginese",        new Mapping("bug", "",   R.drawable.flag_id));
+        m.put("balinese",        new Mapping("ban", "",   R.drawable.flag_id));
+        m.put("bahasa indonesia",new Mapping("idn", "id", R.drawable.flag_id));
+        m.put("old javanese",    new Mapping("jav", "",   R.drawable.flag_id));
+        m.put("old sundanese",   new Mapping("",    "",   R.drawable.flag_id));
+
+        // "tl" groups tagalog + filipino (same language)
+        m.put("tagalog",     new Mapping("tgl", "tl", R.drawable.flag_ph));
+        m.put("filipino",    new Mapping("",    "tl", R.drawable.flag_ph));
+        m.put("kapampangan", new Mapping("",    "",   R.drawable.flag_ph));
+        m.put("ileoko",      new Mapping("",    "",   R.drawable.flag_ph));
+
+        m.put("multilingual",     new Mapping("mul", "",   R.drawable.flag_globe));
+        m.put("cantonese chinese",new Mapping("yue", "",   R.drawable.flag_cn));
+        m.put("cantonese",        new Mapping("yue", "",   R.drawable.flag_cn));
+        m.put("mandarin",         new Mapping("cmn", "",   R.drawable.flag_cn));
+        m.put("chinese",          new Mapping("zho", "zh", R.drawable.flag_cn));
+        m.put("hokkien",          new Mapping("",    "",   R.drawable.flag_tw));
+        m.put("japanese",         new Mapping("jpn", "ja", R.drawable.flag_jp));
+        m.put("korean",           new Mapping("kor", "ko", R.drawable.flag_kr));
+        m.put("vietnamese",       new Mapping("vie", "vi", R.drawable.flag_vn));
+        m.put("malay",            new Mapping("msa", "ms", R.drawable.flag_my));
+
+        m.put("maori",      new Mapping("mri", "mi", R.drawable.flag_nz));
+        m.put("gamilaraay", new Mapping("",    "",   R.drawable.flag_au));
+
+        m.put("nahuatl",    new Mapping("", "", R.drawable.flag_mx));
+        m.put("maya",       new Mapping("", "", R.drawable.flag_mx));
+
+        m.put("azerbaijani",new Mapping("aze", "az", R.drawable.flag_az));
+        m.put("kazakh",     new Mapping("kaz", "kk", R.drawable.flag_kz));
+        m.put("georgian",   new Mapping("",    "ge", R.drawable.flag_ge));
+        m.put("kurdish",    new Mapping("kur", "ku", R.drawable.flag_iq));
+
+        m.put("persian/farsi", new Mapping("fas", "fa", R.drawable.flag_ir));
+        m.put("farsi",         new Mapping("fas", "fa", R.drawable.flag_ir));
+        m.put("persian",       new Mapping("fas", "fa", R.drawable.flag_ir));
+        m.put("sindhi",        new Mapping("snd", "sd", R.drawable.flag_pk));
+        m.put("urdu",          new Mapping("urd", "ur", R.drawable.flag_pk));
+
+        m.put("sanskrit",   new Mapping("san", "sa", R.drawable.flag_in));
+        m.put("punjabi",    new Mapping("pan", "",   R.drawable.flag_in));
+        m.put("rajasthani", new Mapping("",    "",   R.drawable.flag_in));
+        m.put("tamil",      new Mapping("tam", "ta", R.drawable.flag_in));
+        m.put("telugu",     new Mapping("tel", "te", R.drawable.flag_in));
+        m.put("marathi",    new Mapping("mar", "mr", R.drawable.flag_in));
+        m.put("assamese",   new Mapping("asm", "as", R.drawable.flag_in));
+        m.put("oriya",      new Mapping("ori", "or", R.drawable.flag_in));
+        m.put("braj",       new Mapping("bra", "",   R.drawable.flag_in));
+        m.put("garo",       new Mapping("",    "",   R.drawable.flag_in));
+        m.put("khasi",      new Mapping("",    "",   R.drawable.flag_in));
+        m.put("bangla",     new Mapping("",    "",   R.drawable.flag_bd));
+        m.put("nepali",     new Mapping("",    "",   R.drawable.flag_np));
+
+        m.put("sinhala",    new Mapping("sin", "si", R.drawable.flag_lk));
+
+        m.put("creole",         new Mapping("", "", R.drawable.flag_ht));
+        m.put("haitian creole", new Mapping("", "", R.drawable.flag_ht));
+
+        m.put("afrikaans",  new Mapping("afr", "af", R.drawable.flag_za));
+        m.put("dholuo/luo", new Mapping("luo", "",   R.drawable.flag_ke));
+        m.put("luganda",    new Mapping("uga", "ug", R.drawable.flag_ug));
+        m.put("amharic",    new Mapping("",    "",   R.drawable.flag_et));
+
+        m.put("latin",          new Mapping("lat", "la", R.drawable.flag_spqr));
+        m.put("esperanto",      new Mapping("epo", "",   R.drawable.flag_esperanto));
+        m.put("old english",    new Mapping("ang", "",   R.drawable.flag_uk));
+        m.put("middle english", new Mapping("enm", "",   R.drawable.flag_uk));
+        m.put("frisian",        new Mapping("fry", "fy", R.drawable.flag_de));
+        m.put("frysk",          new Mapping("fry", "fy", R.drawable.flag_de));
+        m.put("mayan languages",new Mapping("",    "",   R.drawable.flag_mx));
+        m.put("greek, ancient", new Mapping("grc", "",   R.drawable.flag_gr));
+        m.put("ancient greek",  new Mapping("grc", "",   R.drawable.flag_gr));
+        m.put("church slavonic",new Mapping("chu", "",   R.drawable.no_flag));
+        m.put("old tupi",       new Mapping("",    "",   R.drawable.no_flag));
+        m.put("iroquoian",      new Mapping("",    "",   R.drawable.no_flag));
+        m.put("north american indian (undetermined dialect)", new Mapping("", "", R.drawable.no_flag));
+
+        // ── Radio-browser additions (from flag audit) ─────────────────────────
+
+        m.put("swiss german",   new Mapping("gsw", "gsw", R.drawable.flag_ch));
+        m.put("belarusian",     new Mapping("bel", "be",  R.drawable.flag_by));
+        m.put("low german",     new Mapping("nds", "nds", R.drawable.flag_de));
+        m.put("mongolian",      new Mapping("mon", "mn",  R.drawable.flag_mn));
+        m.put("tibetan",        new Mapping("bod", "bo",  R.drawable.flag_tibet));
+        m.put("bambara",        new Mapping("bam", "bm",  R.drawable.flag_ml));
+        m.put("tatar",          new Mapping("tat", "tt",  R.drawable.flag_ru));
+        m.put("bashkir",        new Mapping("bak", "ba",  R.drawable.flag_ru));
+        m.put("hausa",          new Mapping("hau", "ha",  R.drawable.flag_ng));
+        m.put("uzbek",          new Mapping("uzb", "uz",  R.drawable.flag_uz));
+        m.put("occitan",        new Mapping("oci", "oc",  R.drawable.flag_occitan));
+        m.put("hakka",          new Mapping("hak", "",    R.drawable.flag_cn));
+        m.put("odia",           new Mapping("ori", "or",  R.drawable.flag_in));
+        m.put("bhojpuri",       new Mapping("",    "",    R.drawable.flag_in));
+        m.put("uyghur",         new Mapping("uig", "ug",  R.drawable.flag_cn));
+        m.put("montenegrin",    new Mapping("",    "cnr", R.drawable.flag_me));
+        m.put("moldovian",      new Mapping("",    "mol", R.drawable.flag_md));
+        m.put("tunisian",       new Mapping("",    "",    R.drawable.flag_tn));
+        m.put("lusoga",         new Mapping("",    "",    R.drawable.flag_ug));
+        m.put("cebuano",        new Mapping("ceb", "",    R.drawable.flag_ph));
+        m.put("ilocano",        new Mapping("ilo", "",    R.drawable.flag_ph));
+        m.put("isizulu",        new Mapping("zul", "zu",  R.drawable.flag_za));
+        m.put("sepedi",         new Mapping("",    "",    R.drawable.flag_za));
+        m.put("xitsonga",       new Mapping("tso", "ts",  R.drawable.flag_za));
+        m.put("kiswahili",      new Mapping("swa", "sw",  R.drawable.flag_tz));
+        m.put("kyrgyz",         new Mapping("kir", "ky",  R.drawable.flag_kg));
+        m.put("papiamentu",     new Mapping("pap", "",    R.drawable.flag_cw));
+        m.put("flammish",       new Mapping("",    "",    R.drawable.flag_flanders));
+        m.put("sorbian",        new Mapping("hsb", "",    R.drawable.flag_de));
+        m.put("romani",         new Mapping("rom", "",    R.drawable.flag_romani));
+        m.put("français - lëtzebuergesch", new Mapping("", "lu", R.drawable.flag_lu));
+        m.put("willemstad",     new Mapping("pap", "",    R.drawable.flag_cw));
+
+        // Brazilian Portuguese — separate from "portuguese" (pt) and "breton" (br/ISO-639-1)
+        // "ptbr" is the grouping code for all its aliases below
+        m.put("brazilian portuguese", new Mapping("", "ptbr", R.drawable.flag_br));
+
+        // ── Alias entries ─────────────────────────────────────────────────────
+        // twoLetterCode must match the canonical entry so mergeByIso groups them.
+        // flagRes is the direct drawable — no intermediate "flag code" string needed.
+
+        // Russian
+        m.put("язык: русский", new Mapping("", "ru", R.drawable.flag_ru));
+        m.put("язык: ру",      new Mapping("", "ru", R.drawable.flag_ru));
+        m.put("русский",       new Mapping("", "ru", R.drawable.flag_ru));
+        m.put("rus",           new Mapping("", "ru", R.drawable.flag_ru));
+        m.put("ру",            new Mapping("", "ru", R.drawable.flag_ru));
+
+        // English
+        m.put("american english", new Mapping("", "en", R.drawable.flag_us));
+        m.put("british english",  new Mapping("", "en", R.drawable.flag_uk));
+        m.put("english uk",       new Mapping("", "en", R.drawable.flag_uk));
+        m.put("english/",         new Mapping("", "en", R.drawable.flag_uk));
+        m.put("engilsh",          new Mapping("", "en", R.drawable.flag_uk));
+        m.put("engilsh uk",       new Mapping("", "en", R.drawable.flag_uk));
+        m.put("englsih",          new Mapping("", "en", R.drawable.flag_uk));
+        m.put("английский",       new Mapping("", "en", R.drawable.flag_uk));
+
+        // Spanish (generic — groups with "spanish")
+        m.put("español internacional",  new Mapping("", "es", R.drawable.flag_es));
+        m.put("español colombia",       new Mapping("", "es", R.drawable.flag_es));
+        m.put("castellano. español",    new Mapping("", "es", R.drawable.flag_es));
+        m.put("castellano",             new Mapping("", "es", R.drawable.flag_es));
+        m.put("castilian",              new Mapping("", "es", R.drawable.flag_es));
+        m.put("espanish",               new Mapping("", "es", R.drawable.flag_es));
+        m.put("espaňol",                new Mapping("", "es", R.drawable.flag_es));
+        m.put("spain",                  new Mapping("", "es", R.drawable.flag_es));
+        m.put("#spanish",               new Mapping("", "es", R.drawable.flag_es));
+
+        // Spanish regional (each gets its own code to stay separate from each other and from "es")
+        m.put("español mexico",          new Mapping("", "esmx", R.drawable.flag_mx));
+        m.put("español - latinoamerica", new Mapping("", "esmx", R.drawable.flag_mx));
+        m.put("español argentina",       new Mapping("", "esar", R.drawable.flag_ar));
+        m.put("español chile",           new Mapping("", "escl", R.drawable.flag_cl));
+        m.put("español peruano",         new Mapping("", "espe", R.drawable.flag_pe));
+        m.put("español ecuador",         new Mapping("", "esec", R.drawable.flag_ec));
+        m.put("español paraguay",        new Mapping("", "espy", R.drawable.flag_py));
+        m.put("asuncíon",                new Mapping("", "espy", R.drawable.flag_py));
+
+        // Brazilian Portuguese aliases (group under "ptbr")
+        m.put("português brasil",      new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("português (brasil)",    new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("portugues do brasil",   new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("portugues brasil",      new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("português (br)",        new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("portugues do braasil",  new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("brasil",                new Mapping("", "ptbr", R.drawable.flag_br));
+        m.put("pt-br",                 new Mapping("", "ptbr", R.drawable.flag_br));
+
+        // Romanian
+        m.put("romania", new Mapping("", "ro", R.drawable.flag_ro));
+        m.put("româna",  new Mapping("", "ro", R.drawable.flag_ro));
+        m.put("românä",  new Mapping("", "ro", R.drawable.flag_ro));
+
+        // German
+        m.put("deu",         new Mapping("", "de", R.drawable.flag_de));
+        m.put("gernan",      new Mapping("", "de", R.drawable.flag_de));
+        m.put("deutch",      new Mapping("", "de", R.drawable.flag_de));
+        m.put("norddeutsch", new Mapping("", "de", R.drawable.flag_de));
+
+        // Swiss German alias (groups with "swiss german" → "gsw")
+        m.put("schweizerdeutsch", new Mapping("", "gsw", R.drawable.flag_ch));
+
+        // Turkish
+        m.put("türkisch", new Mapping("", "tr", R.drawable.flag_tr));
+        m.put("turkçe",   new Mapping("", "tr", R.drawable.flag_tr));
+        m.put("tr",       new Mapping("", "tr", R.drawable.flag_tr));
+
+        // Arabic
+        m.put("العربية", new Mapping("", "ar", R.drawable.flag_sa));
+        m.put("عربي",    new Mapping("", "ar", R.drawable.flag_sa));
+        m.put("arabic.", new Mapping("", "ar", R.drawable.flag_sa));
+
+        // French
+        m.put("francaise", new Mapping("", "fr", R.drawable.flag_fr));
+        m.put("français",  new Mapping("", "fr", R.drawable.flag_fr));
+        m.put("franch",    new Mapping("", "fr", R.drawable.flag_fr));
+
+        // Ukrainian typo
+        m.put("ukranian", new Mapping("", "uk", R.drawable.flag_ua));
+
+        // Country names used as language labels
+        m.put("estonia",    new Mapping("", "et",  R.drawable.flag_ee));  // → estonian
+        m.put("nederland",  new Mapping("", "nl",  R.drawable.flag_nl));  // → dutch
+        m.put("china",      new Mapping("", "zh",  R.drawable.flag_cn));  // → chinese
+        m.put("montenegro", new Mapping("", "cnr", R.drawable.flag_me));  // → montenegrin
+
+        // Non-Latin / native-script language names
+        m.put("euskera",   new Mapping("eus", "eu", R.drawable.flag_basque));   // Basque
+        m.put("galego",    new Mapping("glg", "gl", R.drawable.flag_galician)); // Galician
+        m.put("kurdi",     new Mapping("kur", "ku", R.drawable.flag_iq));       // Kurdish
+        m.put("shqip",     new Mapping("sqi", "sq", R.drawable.flag_al));       // Albanian
+        m.put("česky",     new Mapping("ces", "cs", R.drawable.flag_cz));       // Czech
+        m.put("slovenski", new Mapping("slv", "sl", R.drawable.flag_si));       // Slovenian
+
+        // ── Normalise all keys ────────────────────────────────────────────────
+        Map<String, Mapping> normalized = new HashMap<>();
+        for (Map.Entry<String, Mapping> e : m.entrySet()) {
+            normalized.put(normaliseKey(e.getKey()), e.getValue());
+        }
+        MAP = Collections.unmodifiableMap(normalized);
+    }
+
+    // ── Public API ────────────────────────────────────────────────────────────
+
     /**
-     * Resolves a language name (from the radio-browser API) to a grouping code,
-     * even when the API didn't supply one.
+     * Returns the Mapping for the given language name (case-insensitive, trimmed,
+     * whitespace-collapsed). Returns the fallback mapping (globe flag, empty codes)
+     * if the name is unknown.
+     */
+    public static Mapping getMapping(String langEn) {
+        if (langEn == null) return FALLBACK;
+        Mapping m = MAP.get(normaliseKey(langEn));
+        return m == null ? FALLBACK : m;
+    }
+
+    /**
+     * Resolves a language name from the radio-browser API to a grouping code
+     * (the twoLetterCode from MAP).
      *
-     * Standard ISO 639-1 codes are used for typos / non-English names of the same
-     * language (e.g. "язык: русский" → "ru", "engilsh" → "en").
+     * Standard ISO 639-1 codes group typos/non-English names with the canonical entry
+     * (e.g. "язык: русский" → "ru" → groups with "russian").
+     * Regional varieties use distinct codes so they are NOT merged with the parent
+     * (e.g. "brazilian portuguese" → "ptbr", not "pt"; "deutsch fränkisch" → "frk").
      *
-     * Distinct regional varieties get their own code so they are NOT merged with
-     * the parent language (e.g. "brazilian portuguese" → "pt-BR", not "pt";
-     * "deutsch fränkisch" → "frk", not "de").
-     *
-     * Lookup order:
-     *  1. ALIAS map  (typos, non-English labels, regional variants)
-     *  2. Main MAP   (LanguageMapper entries that have a twoLetterCode)
-     *
-     * @param name the raw language name (e.g. "язык: русский", "português brasil")
-     * @return grouping code (e.g. "ru", "pt-BR"), or {@code null} if unresolvable
+     * @return grouping code, or {@code null} if unknown
      */
     public static String resolveIso639(String name) {
         if (name == null || name.isEmpty()) return null;
-        String key = normaliseKey(name);
-        // 1. Alias map (handles typos, non-English, regional)
-        String code = ALIAS_TO_FLAG_CODE.get(key);
-        if (code != null) return code;
-        // 2. Main MAP fallback (e.g. "bahasa indonesia" → "id")
-        Mapping m = MAP.get(key);
+        Mapping m = MAP.get(normaliseKey(name));
         if (m != null && !m.twoLetterCode.isEmpty()) return m.twoLetterCode;
         return null;
     }
 
     /**
-     * Return the mapping for the provided langEn (case-insensitive, trimmed).
-     * If unknown, returns a fallback mapping (empty codes + globe flag).
+     * Returns all MAP keys (normalised) whose twoLetterCode equals {@code code}.
+     * Used to build the complete list of API variant queries when a language card
+     * is clicked. The canonical name is included; callers should filter it out.
      *
-     * @param langEn the lang_en value from the JSON (e.g. "Arabic")
-     * @return Mapping (never null)
-     */
-    public static Mapping getMapping(String langEn) {
-        if (langEn == null) return FALLBACK;
-        String key = langEn.trim().toLowerCase(Locale.ROOT);
-        Mapping m = MAP.get(key);
-        return m == null ? FALLBACK : m;
-    }
-
-
-    public static int getFlagFromName(String keyName) {
-        if (keyName == null || keyName.isEmpty()) return 0;
-        String wanted = keyName.trim().toLowerCase(Locale.ROOT);
-
-        for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
-            if (wanted.equals(e.getKey())) {
-                return e.getValue().flagRes;  // english name as stored in MAP keys
-            }
-        }
-        return 0;
-    }
-
-    /**
-     * Returns all alias names (already lowercase + normalised) that map to the
-     * given grouping code.  Useful to build a complete list of API queries when
-     * the user selects a merged language card.
-     *
-     * Example: {@code getAliasNamesForCode("br")} →
+     * Example: {@code getAliasNamesForCode("ptbr")} →
      *   ["brazilian portuguese", "português brasil", "português (brasil)", ...]
-     *
-     * @param code the grouping code as stored in the ALIAS values (e.g. "br", "ru")
-     * @return mutable list of normalised alias names; empty if none found
      */
     public static List<String> getAliasNamesForCode(String code) {
         if (code == null || code.isEmpty()) return new java.util.ArrayList<>();
         List<String> result = new java.util.ArrayList<>();
-        for (Map.Entry<String, String> e : ALIAS_TO_FLAG_CODE.entrySet()) {
-            if (code.equals(e.getValue())) {
-                result.add(e.getKey());
-            }
+        for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
+            if (code.equals(e.getValue().twoLetterCode)) result.add(e.getKey());
         }
         return result;
     }
 
     /**
-     * Returns the English language name from a three-letter code (ISO 639-3),
-     * e.g. "eng" -> "English". Returns null if not found.
+     * Returns the flag drawable for a name key (case-insensitive, trimmed).
+     * Returns 0 if not found.
+     */
+    public static int getFlagFromName(String keyName) {
+        if (keyName == null || keyName.isEmpty()) return 0;
+        Mapping m = MAP.get(normaliseKey(keyName));
+        return m != null ? m.flagRes : 0;
+    }
+
+    /**
+     * Returns the English language name for a three-letter ISO 639-3 code.
+     * Returns null if not found.
      */
     public static String getNameFromThreeLetter(String code3) {
         if (code3 == null || code3.isEmpty()) return null;
         String wanted = code3.trim().toLowerCase(Locale.ROOT);
-
         for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
-            if (wanted.equals(e.getValue().threeLetterCode)) {
-                return e.getKey();  // english name as stored in MAP keys
-            }
+            if (wanted.equals(e.getValue().threeLetterCode)) return e.getKey();
         }
         return null;
     }
 
     /**
-     * Returns the English language name from a three-letter code (ISO 639-3),
-     * e.g. "eng" -> "English". Returns 2 letters code if not found.
+     * Returns the English language name for an ISO 639-1 two-letter code.
+     * Prefers canonical entries (those with a non-empty threeLetterCode).
+     * Returns the code itself if not found.
      */
     public static String getNameFromTwoLetters(String code2) {
         if (code2 == null || code2.isEmpty()) return null;
         String wanted = code2.trim().toLowerCase(Locale.ROOT);
-
+        String anyResult = null;
         for (Map.Entry<String, Mapping> e : MAP.entrySet()) {
             if (wanted.equals(e.getValue().twoLetterCode)) {
-                return e.getKey();  // english name as stored in MAP keys
+                if (!e.getValue().threeLetterCode.isEmpty()) return e.getKey(); // canonical preferred
+                if (anyResult == null) anyResult = e.getKey();
             }
         }
-        return code2;
+        return anyResult != null ? anyResult : code2;
     }
 }
